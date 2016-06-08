@@ -66,6 +66,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -1182,7 +1183,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				boolean listItem = !(i.getType() == SimplePageItem.TEXT || i.getType() == SimplePageItem.MULTIMEDIA
 						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT
 						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL
-					        || i.getType() == SimplePageItem.BREAK);
+						|| i.getType() == SimplePageItem.BREAK || i.getType() == SimplePageItem.TWITTER
+						|| i.getType() == SimplePageItem.ANNOUNCEMENTS || i.getType() == SimplePageItem.FORUM_SUMMARY);
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
@@ -1213,6 +1215,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.QUESTION: itemClassName = "question"; break;
 				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
 				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
+				case SimplePageItem.FORUM_SUMMARY: itemClassName = "forumSummary"; break;
+				case SimplePageItem.ANNOUNCEMENTS: itemClassName = "announcementsType"; break;
+				case SimplePageItem.TWITTER: itemClassName = "twitter"; break;
 				}
 
 				if (listItem){
@@ -2676,6 +2681,34 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "student-group-owned-see-only-own", (i.getAttribute("see-only-own")));
 						}
 					}
+				}else if(i.getType() == SimplePageItem.ANNOUNCEMENTS){
+					UIOutput.make(tableRow, "announcementsSpan");
+					if (canSeeAll) {
+						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						}
+						UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+					}
+					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
+						//get widget height from the item attribute
+						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						UIOutput.make(tableRow, "announcements-id", String.valueOf(i.getId()));
+						UIOutput.make(tableRow, "announcements-widget-height", height);
+						//setting announcements url to get all announcements for the site
+						UIOutput.make(tableRow, "announcements-site-url", myUrl() + "/direct/announcement/site/" + simplePageBean.getCurrentSiteId());
+						//setting this variable to redirect user to the particular announcement
+						UIOutput.make(tableRow, "announcements-view-url", myUrl() + "/portal/directtool/" + simplePageBean.getCurrentTool(simplePageBean.ANNOUNCEMENTS_TOOL_ID) + "?itemReference=/announcement/msg/" + simplePageBean.getCurrentSiteId() + "/main/");
+					}else{
+						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					}
+					if (canEditPage) {
+						UIOutput.make(tableRow, "announcements-td");
+						UILink.make(tableRow, "edit-announcements", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.announcements")));
+					}
 				}else if(i.getType() == SimplePageItem.QUESTION) {
 				 	String itemGroupString = null;
 					String itemGroupTitles = null;
@@ -2846,7 +2879,69 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "questionShowPoll", String.valueOf(i.getAttribute("questionShowPoll")));
 						}
 					}
-				}  else {
+				} else if(i.getType() == SimplePageItem.FORUM_SUMMARY){
+					UIOutput.make(tableRow, "forumSummarySpan");
+					if (canSeeAll) {
+							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+							if (itemGroupTitles != null) {
+									itemGroupTitles = "[" + itemGroupTitles + "]";
+								}
+							UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+						}
+					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
+						//get widget height from the item attribute
+						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						UIOutput.make(tableRow, "forum-summary-id", String.valueOf(i.getId()));
+						UIOutput.make(tableRow, "forum-summary-widget-height", height);
+						//setting forums-messages url to get all recent messages for the site
+						UIOutput.make(tableRow, "forum-summary-site-url", myUrl() + "/direct/forums/messages/" + simplePageBean.getCurrentSiteId());
+						//setting this variable to redirect user to the particular message in the forums tool
+						UIOutput.make(tableRow, "forum-summary-view-url", myUrl() + "/portal/directtool/" + simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID));
+					}else {
+						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					}
+					if (canEditPage) {
+						UIOutput.make(tableRow, "forum-summary-td");
+						UILink.make(tableRow, "edit-forum-summary", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.forum-summary")));
+					}
+				} else if(i.getType() == SimplePageItem.TWITTER) {
+					UIOutput.make(tableRow, "twitterSpan");
+					if (canSeeAll) {
+						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						}
+						UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+					}
+					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
+						//Getting variables from attributes of this  twitter page item
+						String tweetLimit = i.getAttribute("numberOfTweets") != null ? i.getAttribute("numberOfTweets") : "5";
+						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						String username = i.getAttribute("username") != null ? i.getAttribute("username") : "";
+
+						UIOutput.make(tableRow, "username", username);
+						UIOutput.make(tableRow, "tweetLimit", tweetLimit);
+						UIOutput.make(tableRow, "twitter-height", height);
+						UIOutput.make(tableRow, "twitterId", String.valueOf(i.getId()));
+					} else {
+						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					}
+					if (canEditPage) {
+						GeneralViewParameters eParams = new GeneralViewParameters();
+						eParams.setSendingPage(currentPage.getPageId());
+						String viewId = EditPageProducer.VIEW_ID;
+						eParams.setItemId(i.getId());
+						eParams.viewID = viewId;
+						UIOutput.make(tableRow, "twitter-td");
+						UILink.make(tableRow, "edit-twitter", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.twitter")));
+					}
+				}else {
 					// remaining type must be a block of HTML
 					UIOutput.make(tableRow, "itemSpan");
 
@@ -2871,8 +2966,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (canEditPage) {
 						GeneralViewParameters eParams = new GeneralViewParameters();
 						eParams.setSendingPage(currentPage.getPageId());
+						String viewId = EditPageProducer.VIEW_ID;
 						eParams.setItemId(i.getId());
-						eParams.viewID = EditPageProducer.VIEW_ID;
+						//Checking isFolder is not null and true for FolderPickerProducer for folder listing?
+						if(i.getAttribute("isFolder")!= null && i.getAttribute("isFolder").equals("true")){
+							viewId = FolderPickerProducer.VIEW_ID;
+						}
+						eParams.viewID = viewId;
 						UIOutput.make(tableRow, "edittext-td");
 						UIInternalLink.make(tableRow, "edit-link", (String)null, eParams).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.textbox").replace("{}", Integer.toString(textboxcount))));
 						textboxcount++;
@@ -2993,6 +3093,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createQuestionDialog(tofill, currentPage);
 		createDeleteItemDialog(tofill, currentPage);
 		createColumnDialog(tofill, currentPage);
+		createForumSummaryDialog(tofill, currentPage);
+		createAnnouncementsDialog(tofill, currentPage);
+		createTwitterDialog(tofill, currentPage);
 	}
 
     // get encrypted version of session id. This is our equivalent of session.id, except that we
@@ -3438,6 +3541,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
+		createToolBarLink(FolderPickerProducer.VIEW_ID, tofill, "add-folder", "simplepage.folder", currentPage, "simplepage.addfolder.tooltip").setItemId(null);
 		UIComponent subpagelink = UIInternalLink.makeURL(tofill, "subpage-link", "#");
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage-descrip")));
 
@@ -3464,12 +3568,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// A: Not sure
 			log.warn("SecurityException thrown by expandZippedResource method lookup", e);
 		    }
-			
+		    //Adding 'Embed Announcements' component
+		    UIOutput.make(tofill, "announcements-li");
+		    UILink announcementsLink = UIInternalLink.makeURL(tofill, "announcements-link", "#");
 		    UIOutput.make(tofill, "assignment-li");
 		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment-descrip", currentPage, "simplepage.assignment");
 
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
+
+		    //Adding 'Embed forum conversations' component
+		    UIOutput.make(tofill, "forum-summary-li");
+		    UILink forumSummaryLink = UIInternalLink.makeURL(tofill, "forum-summary-link", "#");
 
 		    UIOutput.make(tofill, "forum-li");
 		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum-descrip", currentPage, "simplepage.forum.tooltip");
@@ -3490,6 +3600,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-student-content"), eParams).
 			decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.student-descrip")));
 
+			//Adding 'Embed twitter feed' component
+			UIOutput.make(tofill, "twitter-li");
+			UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
 		    // in case we're on an old system without current BLTI
 		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			Collection<BltiTool> bltiTools = simplePageBean.getBltiTools();
@@ -3552,8 +3665,34 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return togo;
 	}
 
+	//To display dialog to add Announcements widget in Lessons
+	private void createAnnouncementsDialog(UIContainer tofill, SimplePage currentPage){
+		UIOutput.make(tofill, "add-announcements-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.announcementsLinkText")));
+		UIForm form = UIForm.make(tofill, "add-announcements-form");
+		makeCsrf(form, "csrf23");
+		//check if site has announcements tool added?if not then display info and return
+		if(simplePageBean.getCurrentTool(simplePageBean.ANNOUNCEMENTS_TOOL_ID) == null){
+			UIOutput.make(tofill, "announcements-error-div");
+			UIOutput.make(tofill, "announcements-error-span", messageLocator.getMessage("simplepage.no_announcements_tool"));
+			UICommand.make(form, "announcements-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+			UICommand.make(form, "delete-announcements-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
+			return;
+		}
+		UIInput.make(form, "announcementsEditId", "#{simplePageBean.itemId}");
+		UIInput.make(form, "announcements-height", "#{simplePageBean.announcementsHeight}");
+		UIOutput.make(form, "announcements-height-label", messageLocator.getMessage("simplepage.announcements.height_label"));
+		String[] options = {"5","10","15","20","30","50"};
+		String[] labels = {"5","10","15","20","30","50"};
+		UIOutput.make(form, "announcementsNumberDropdownLabel", messageLocator.getMessage("simplepage.announcements-number-dropdown-label"));
+		UISelect.make(form, "announcementsNumberDropdown", options, labels, "#{simplePageBean.announcementsDropdown}","5");
+		UICommand.make(form, "announcements-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addAnnouncements}");
+		UICommand.make(form, "announcements-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+		UICommand.make(form, "delete-announcements-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
+	}
+
 	private void createSubpageDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "subpage-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.subpage")));
+
 		UIForm form = UIForm.make(tofill, "subpage-form");
 		makeCsrf(form, "csrf7");
 
@@ -3679,6 +3818,49 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "delete-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "edit-item-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+	}
+
+	//Create a latest forum conversations dialog where user can enter other settings for the forum summary div
+	private void createForumSummaryDialog(UIContainer tofill, SimplePage currentPage) {
+		UIOutput.make(tofill, "add-forum-summary-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.forumSummaryLinkText")));
+		UIForm form = UIForm.make(tofill, "add-forum-summary-form");
+		makeCsrf(form, "csrf22");
+		//check if site has forum tool added?if not then display info and return
+		if (simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID) == null) {
+			UIOutput.make(tofill, "forum-summary-error-div");
+			UIOutput.make(tofill, "forum-summary-error-span", messageLocator.getMessage("simplepage.no_forum_tools"));
+			UICommand.make(form, "forum-summary-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+			return;
+		}
+		UIInput.make(form, "forumSummaryEditId", "#{simplePageBean.itemId}");
+		UIInput.make(form, "forum-summary-height", "#{simplePageBean.forumSummaryHeight}");
+		UIOutput.make(form, "forum-summary-height-label", messageLocator.getMessage("simplepage.forum-summary.height_label"));
+		String[] options = {"5", "10", "15", "20", "30", "50"};
+		String[] labels = {"5", "10", "15", "20", "30", "50"};
+		UIOutput.make(form, "forumNumberDropdownLabel", messageLocator.getMessage("simplepage.forum-number-dropdown-label"));
+		UISelect.make(form, "forumNumberDropdown", options, labels, "#{simplePageBean.forumSummaryDropDown}", "5");
+		UICommand.make(form, "forum-summary-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addForumSummary}");
+		UICommand.make(form, "forum-summary-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+		UICommand.make(form, "delete-forum-summary-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
+	}
+	//Get the twitter widget hashtag and other settings from the user.
+	private void createTwitterDialog(UIContainer tofill, SimplePage currentPage) {
+		UIOutput.make(tofill, "add-twitter-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.twitter")));
+		UIForm form = UIForm.make(tofill, "add-twitter-form");
+		makeCsrf(form, "csrf13");
+		UIInput.make(form, "twitterEditId", "#{simplePageBean.itemId}");
+		UIInput.make(form, "twitter-username", "#{simplePageBean.twitterUsername}");
+		UIOutput.make(form, "twitter-username-label", messageLocator.getMessage("simplepage.twitter-username"));
+		UIInput.make(form, "widget-height", "#{simplePageBean.twitterWidgetHeight}");
+		UIOutput.make(form, "height-label", messageLocator.getMessage("simplepage.twitter.height_label"));
+		//Adding default values for tweet number dropdown
+		String[] options = {"5","10","25","50","100","1000"};
+		String[] labels = {"5","10","25","50","100","1000"};
+		UIOutput.make(form, "numberDropdownLabel", messageLocator.getMessage("simplepage.number-dropdown-label"));
+		UISelect.make(form, "numberDropdown", options, labels, "#{simplePageBean.twitterDropDown}","5");
+		UICommand.make(form, "twitter-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addTwitterTimeline}");
+		UICommand.make(form, "twitter-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+		UICommand.make(form, "delete-twitter-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 	}
 
 	// for both add multimedia and add resource, as well as updating resources

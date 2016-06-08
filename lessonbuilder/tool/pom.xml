@@ -279,60 +279,23 @@
  in shared/lib, so you want the scope to be "provided".
 -->
 
-        <repositories>
-          <!-- 
-               To enable YAFT, MNEME, and Assignments 2, uncomment the repository, dependencies and plugin below.
-               Look for all comment blocks that start with OPTIONAL. Remove that whole line, and the matching close
-            -->
-          <repository>
-            <id>local-hack</id>
-            <name>Backup API copies</name>
-            <layout>default</layout>
-            <url>https://sakai.rutgers.edu/stats/repos</url>
-            <snapshots>
-              <enabled>true</enabled>
-            </snapshots>
-          </repository>
-        </repositories>
+        <activation>
+            <activeByDefault>true</activeByDefault>
+        </activation>
 
 	<properties>
 	  <src1>opt-src</src1>
 	</properties>
-
         <dependencies>
-          <dependency>
-	    <groupId>org.sakaiproject.scorm</groupId>
-	    <artifactId>sakai-scorm-api</artifactId>
-            <version>3.1.9</version>
-            <scope>provided</scope>
-          </dependency>
-          <dependency>
-	    <groupId>org.sakaiproject.scorm</groupId>
-	    <artifactId>sakai-scorm-tool</artifactId>
-            <version>3.1.9</version>
-	    <scope>compile</scope>
-          </dependency>
-          <dependency>
-            <groupId>org.sakaiproject.yaft</groupId>
-            <artifactId>yaft-api</artifactId>
-            <version>${sakai.yaft.version}</version>
-            <scope>${sakai.yaft.scope}</scope>
-          </dependency>
           <dependency>
             <groupId>org.etudes</groupId>
             <artifactId>etudes-mneme-api</artifactId>
             <version>${sakai.mneme.version}</version>
             <scope>${sakai.mneme.scope}</scope>
           </dependency>
-          <dependency>
-            <groupId>org.sakaiproject.assignment2</groupId>
-            <artifactId>sakai-assignment2-api</artifactId>
-	    <version>${sakai.assignment2.version}</version>
-            <scope>${sakai.assignment2.scope}</scope>
-          </dependency>
         </dependencies>
       </profile>
-
     </profiles>
+
 
 </project>

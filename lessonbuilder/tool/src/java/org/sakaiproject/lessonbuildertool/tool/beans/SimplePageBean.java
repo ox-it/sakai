@@ -27,6 +27,8 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 import java.text.SimpleDateFormat;
 import java.text.Format;
 import java.math.BigDecimal;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -142,6 +144,10 @@ public class SimplePageBean {
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
+	public static String FORUMS_TOOL_ID = "sakai.forums";
+	public static final String ANNOUNCEMENTS_TOOL_ID = "sakai.announcements";
+	public static final String TWITTER_WIDGET_ID = "lessonbuilder.twitter.widget.id";
+	public static final String TWITTER_WIDGET_DEFAULT_HEIGHT = "300";
 
 	private static String PAGE = "simplepage.page";
 	private static String SITE_UPD = "site.upd";
@@ -275,10 +281,20 @@ public class SimplePageBean {
 	public String rubricRow;
 	private HashMap<Integer, String> rubricRows = null;
 	
+	//variables used for forum-summary setting
+	private String forumSummaryHeight;
+	private String forumSummaryDropDown;
 	private Date peerEvalDueDate;
 	private Date peerEvalOpenDate;
 	private boolean peerEvalAllowSelfGrade;
-
+	private String folderPath;
+	//variables used for announcements widget
+	private String announcementsHeight;
+	private String announcementsDropdown;
+	//variables used for twitter setting used in the widget
+	private String twitterDropDown;
+	private String twitterUsername;
+	private String twitterWidgetHeight;
     // almost ISO format. real thing can't be done until Java 7. uses -0400 rather than -04:00
     //        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	SimpleDateFormat isoDateFormat = getIsoDateFormat();
@@ -350,7 +366,14 @@ public class SimplePageBean {
 		}
 		rubricPeerGrades.add(rubricPeerGrade);
 	}
-    
+	public String getFolderPath() {
+		return folderPath;
+	}
+
+	public void setFolderPath(String folderPath) {
+		this.folderPath = folderPath;
+	}
+
 	// Caches
 
     // The following caches are used only during a single display of the page. I believe they
@@ -880,8 +903,33 @@ public class SimplePageBean {
 	    this.isWebsite = isWebsite;
 	}
 
+	public void setForumSummaryHeight(String forumSummaryHeight) {
+		this.forumSummaryHeight = forumSummaryHeight;
+	}
+
+	public void setForumSummaryDropDown(String forumSummaryDropDown) {
+		this.forumSummaryDropDown = forumSummaryDropDown;
+	}
+
 	public void setCaption(boolean isCaption) {
 	    this.isCaption = isCaption;
+	}
+	public void setAnnouncementsHeight(String announcementsHeight) {
+		this.announcementsHeight = announcementsHeight;
+	}
+	public void setAnnouncementsDropdown(String announcementsDropdown) {
+		this.announcementsDropdown = announcementsDropdown;
+	}
+	public void setTwitterDropDown(String twitterDropDown) {
+		this.twitterDropDown = twitterDropDown;
+	}
+
+	public void setTwitterUsername(String twitterUsername) {
+		this.twitterUsername = twitterUsername;
+	}
+
+	public void setTwitterWidgetHeight(String twitterWidgetHeight) {
+		this.twitterWidgetHeight = twitterWidgetHeight;
 	}
 
     // hibernate interposes something between us and saveItem, and that proxy gets an
@@ -3240,14 +3288,20 @@ public class SimplePageBean {
 		         && i.getType() != SimplePageItem.COMMENTS
 		         && i.getType() != SimplePageItem.QUESTION
 			 && i.getType() != SimplePageItem.BREAK
+		         && i.getType() != SimplePageItem.TWITTER
 		         && i.getType() != SimplePageItem.STUDENT_CONTENT) {
-	       Object cached = groupCache.get(i.getSakaiId());
-	       if (cached != null) {
-		   if (cached instanceof String)
-		       return null;
-		   return (List<String>)cached;
-	       }
-	   }
+			Object cached = groupCache.get(i.getSakaiId());
+			if (cached != null) {
+				if (cached instanceof String)
+					return null;
+				return (List<String>) cached;
+			}
+	   	/**
+	 * To add twitter timeline with given parameters in a Lessons page
+	 */
+
+
+}
 
 	   if (entity == null) {
 	       switch (i.getType()) {
@@ -3276,6 +3330,7 @@ public class SimplePageBean {
 	       case SimplePageItem.PAGE:
 	       case SimplePageItem.COMMENTS:
 	       case SimplePageItem.QUESTION:
+	       case SimplePageItem.TWITTER:
 	       case SimplePageItem.STUDENT_CONTENT:
 		   return getLBItemGroups(i); // for all native LB objects
 	       default:
@@ -3338,6 +3393,52 @@ public class SimplePageBean {
 	   return ret;
 
        }
+
+	public String addTwitterTimeline(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		//if username is not provided return
+		if(StringUtils.isBlank(twitterUsername)){
+			return "failure";
+		}
+		//Check if height is supplied if not then set to default
+		if(StringUtils.isBlank(twitterWidgetHeight)){
+			twitterWidgetHeight = TWITTER_WIDGET_DEFAULT_HEIGHT;
+		}
+		//if user has added @ symbol with the username, remove it
+		if( twitterUsername.contains("@")){
+			twitterUsername = StringUtils.remove(twitterUsername, "@");
+		}
+		String href  = "https://twitter.com/" + StringUtils.trim(twitterUsername);
+		String divHeight = "height:" + twitterWidgetHeight + "px;";
+		//Note: widget id used is from weblearn's twitter account
+		String html = "<div align=\"left\" style='"+divHeight+"' class=\"twitter-div\"><a class=\"twitter-timeline\" href= '" +href+ "' data-widget-id='" +ServerConfigurationService.getString(TWITTER_WIDGET_ID)+ "'  data-tweet-limit='" +twitterDropDown +"' data-dnt=\"true\" data-screen-name='" +twitterUsername+"'>Tweets by @'" +twitterUsername+"'</a></div>";
+		String status = "success";
+		if (canEditPage()) {
+			SimplePageItem item;
+			// itemid -1 means we're adding a new item to the page,
+			// specified itemid means we're updating an existing one
+			if (itemId != null && itemId != -1) {
+				item = findItem(itemId);
+			} else {
+				item = appendItem("", "", SimplePageItem.TWITTER);
+			}
+			item.setHtml(html);
+			//setting height , username and number of tweets as attributes for the twitter item.
+			item.setAttribute("height", twitterWidgetHeight);
+			item.setAttribute("username", twitterUsername );
+			item.setAttribute("numberOfTweets", twitterDropDown );
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+
+		} else {
+			status = "cancel";
+		}
+		return status;
+	}
 
     // obviously this function must be called right after getResourceGroups
        private boolean inherited = false;
@@ -3458,11 +3559,13 @@ public class SimplePageBean {
 	   case SimplePageItem.PAGE:
 	   case SimplePageItem.BLTI:
 	   case SimplePageItem.COMMENTS:
+	   case SimplePageItem.TWITTER:
 	   case SimplePageItem.QUESTION:
 	   case SimplePageItem.STUDENT_CONTENT:
 	       return setLBItemGroups(i, groups);
 	   case SimplePageItem.BREAK:
-	       return null;  // better not actually happen
+	       return null;  // b
+		   // etter not actually happen
 	   }
 	   if (lessonEntity != null) {
 	       // need a list to sort it.
@@ -7876,5 +7979,109 @@ public class SimplePageBean {
 	}
 	return result.toString();
     }
+
+	/**
+	 * Method to add Resources folder into Lessons tool
+	 */
+	public String folderPickerSubmit(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		//Check if user has submitted page without selecting folder?
+		String defaultPath = contentHostingService.getSiteCollection(getCurrentSiteId());
+		if(folderPath == null ||  folderPath.equals(defaultPath)){
+			return "failure";
+		}
+		String dataDirectory = defaultPath + folderPath;
+		String html = "<div data-copyright=\"true\" class=\"no-highlight\" data-description=\"true\" data-directory='" +dataDirectory+ "' data-files=\"true\" data-folder-listing=\"true\"></div>";
+		String status = "success";
+		if (canEditPage()) {
+			SimplePageItem item;
+			// itemid -1 means we're adding a new item to the page,
+			// specified itemid means we're updating an existing one
+			if (itemId != null && itemId != -1) {
+				item = findItem(itemId);
+			} else {
+				item = appendItem("", "", SimplePageItem.TEXT);
+			}
+			item.setHtml(html);
+			item.setPrerequisite(this.prerequisite);
+			item.setAttribute("isFolder", "true");
+			setItemGroups(item, selectedGroups);
+			update(item);
+
+		} else {
+			status = "cancel";
+		}
+		return status;
+	}
+	/**
+	 * To add latest announcements in a div in Lessons page
+	 * @return status
+	 */
+	public String addAnnouncements(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		String status = "success";
+		String divHeight = "height:" + announcementsHeight +"px;";
+		//saving numberOfAnnouncements and height , used later in edit screen.
+		String html = "<div align=\"left\" style='"+divHeight+"' class=\"announcements-div\"><input type=\"hidden\" id=\"numberOfAnnouncements\" value='"+announcementsDropdown+"'/></div>";
+		if (canEditPage()) {
+			SimplePageItem item;
+			if (itemId != null && itemId != -1) {
+				//existing item, need to update
+				item = findItem(itemId);
+			}else{
+				//new item ,add it
+				item = appendItem("", "", SimplePageItem.ANNOUNCEMENTS);
+			}
+			item.setHtml(html);
+			//setting height in the item attribute
+			item.setAttribute("height", announcementsHeight);
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+		}else{
+			status = "cancel";
+		}
+		return status;
+	}
+
+
+	/**
+	 * To add latest conversations in a div on Lessons Page
+	 */
+	public String addForumSummary(){
+		if (!itemOk(itemId))
+			return "permission-failed";
+		if (!checkCsrf())
+			return "permission-failed";
+		String status = "success";
+		String divHeight = "height:" + forumSummaryHeight +"px;";
+		//saving numberOfconversations, used later on edit screen.
+		String html = "<div align=\"left\" style='"+divHeight+"' class=\"forum-summary-div\"><input type=\"hidden\" id=\"numberOfConversations\" value='"+forumSummaryDropDown+"'></div>";
+		if (canEditPage()) {
+			SimplePageItem item;
+			// itemid -1 means we're adding a new item to the page,
+			// specified itemid means we're updating an existing one
+			if (itemId != null && itemId != -1) {
+				item = findItem(itemId);
+			} else {
+				item = appendItem("", "", SimplePageItem.FORUM_SUMMARY);
+			}
+			item.setHtml(html);
+			//setting forum height variable value in the attribute
+			item.setAttribute("height", forumSummaryHeight);
+			item.setPrerequisite(this.prerequisite);
+			setItemGroups(item, selectedGroups);
+			update(item);
+		} else {
+			status = "cancel";
+		}
+		return status;
+	}
 
 }

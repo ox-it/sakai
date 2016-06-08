@@ -71,6 +71,21 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
+	//to reload the twitter div in order to change the font of twitter text
+	window.setTimeout(function(){
+		$(".twitter-timeline").contents().find("*").css("font-size","13px");
+	}, 1000);
+
+
+	//Only number allowed for announcements height
+	$("#announcements-height").keypress(function (e) {
+		//if the letter is not digit then display error
+		if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+			//display error message
+			$("#announcementsHeightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+			return false;
+		}
+	});
 	// This is called in comments.js as well, however this may be faster.
 	//if(sakai.editor.editors.ckeditor==undefined) {
 //		$(".evolved-box :not(textarea)").hide();
@@ -84,6 +99,15 @@ $(document).ready(function() {
                 $(this).oembed(null, {maxWidth: width, maxHeight: height});
             });
 
+	//Only number allowed for forum-summary height
+	$("#forum-summary-height").keypress(function (e) {
+		//if the letter is not digit then display error
+		 if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+			//display error message
+			$("#forumSummaryHeightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+			return false;
+		}
+	});
 	// We don't need to run all of this javascript if the user isn't an admin
 	if($("#subpage-dialog").length > 0) {
 		$('#subpage-dialog').dialog({
@@ -93,7 +117,15 @@ $(document).ready(function() {
 			resizable: false,
 			draggable: false
 		});
-
+		//Only number allowed for twitter height
+		$("#widget-height").keypress(function (e) {
+			 //if the letter is not digit then display error
+			 if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+				//display error message
+				$("#heightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+				return false;
+			}
+		});
 		$('#edit-item-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
@@ -142,7 +174,20 @@ $(document).ready(function() {
 			resizable: false,
 			draggable: false
 		});
-
+		$('#add-forum-summary-dialog').dialog({
+			autoOpen: false,
+			width: 700,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
+		$('#add-twitter-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 		$('#youtube-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
@@ -242,9 +287,13 @@ $(document).ready(function() {
 		        '#comments-dialog', '#student-dialog', '#question-dialog', '#delete-confirm'];
 			for (var i = 0; i < modalDialogList.length; i++) {
 				$(modalDialogList[i]).dialog("option", "width", modalDialogWidth());
-			}
+		$('#add-announcements-dialog').dialog({
+			autoOpen: false,
+			width: 700,
+			modal: false,
+			resizable: false,
+			draggable: false
 		});
-
 		/* RU Rubrics ********************************************* */
 		$("#rubric-title").append($("#peer-eval-title-cloneable input"));
 		blankRubricTemplate=$(".peer-eval-create-form").html();
@@ -311,6 +360,44 @@ $(document).ready(function() {
 			$("#page-releasedate").prop('checked', true);
 		    });
 
+		$('.announcements-link').click(function(){
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			var position =  $(this).position();
+			$("#announcements-error-container").hide();
+			$("#announcementsEditId").val("-1");
+			$("#announcements-height").val("");
+			$("#announcementsNumberDropdown-selection").val("5");
+			$("#add-announcements-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$("#add-announcements-dialog").dialog("open");
+			checksize($("#add-announcements-dialog"));
+			return false;
+		});
+
+		$(".edit-announcements").click(function(){
+			closeDropdowns();
+			var row = $(this).closest('li');
+			var itemId = row.find(".announcementsId").text();
+			$('#announcementsEditId').val(itemId);
+			var height = row.find(".announcementsWidgetHeight").text().replace(/'/g,"");
+			$('#announcements-height').val(height);
+			var number = row.find("#numberOfAnnouncements").val();
+			$("#announcementsNumberDropdown-selection").val(number);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#announcements-error-container').hide();
+			//Change the text of the add button to 'Update Item'
+			$("#announcements-add-item").attr("value", msg("simplepage.edit"));
+			//display delete link
+			$("#announcements-delete-span").show();
+			var position = row.position();
+			$("#add-announcements-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$('#add-announcements-dialog').dialog('open');
+			checksize($("#add-announcements-dialog"));
+			return false;
+		});
 		$('#import-cc').click(function(){
 			oldloc = $(".dropdown a");
 			closeDropdowns();
@@ -531,8 +618,34 @@ $(document).ready(function() {
 		//		    return false;
 		//		}
 		//		return true;
+			$("#add-forum-summary-dialog").dialog("option", "width", outerWidth-10);
+			$("#add-announcements-dialog").dialog("option", "width", outerWidth-10);
+			$("#add-twitter-dialog").dialog("option", "width", outerWidth-10);
 		//	});
 
+		$(".edit-forum-summary").click(function(){
+			closeDropdowns();
+			var row = $(this).closest('li');
+			var itemId = row.find(".forumSummaryId").text();
+			$('#forumSummaryEditId').val(itemId);
+			var height = row.find(".forumSummaryWidgetHeight").text().replace(/'/g,"");
+			$('#forum-summary-height').val(height);
+			var number = row.find("#numberOfMessages").val();
+			$("#forumNumberDropdown-selection").val(number);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#forum-summary-error-container').hide();
+			//Change the text of the button to 'Update Item'
+			$("#forum-summary-add-item").attr("value", msg("simplepage.edit"));
+			//display delete link
+			$("#forum-summary-delete-span").show();
+			var position = row.position();
+			$("#add-forum-summary-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$('#add-forum-summary-dialog').dialog('open');
+			checksize($("#add-forum-summary-dialog"));
+			return false;
+		});
 		$(".edit-youtube").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
@@ -1035,6 +1148,20 @@ $(document).ready(function() {
 			}
 		});
 		
+		$('.forum-summary-link').click(function(){
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			var position =  $(this).position();
+			$("#forum-summary-error-container").hide();
+			$("#forumSummaryEditId").val("-1");
+			$("#forum-summary-height").val("");
+			$("#forumNumberDropdown-selection").val("5");
+			$("#add-forum-summary-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$("#add-forum-summary-dialog").dialog("open");
+			checksize($("#add-forum-summary-dialog"));
+			return false;
+		});
 		$('.question-link').click(function(){
 			oldloc = $(this);
 			closeDropdowns();
@@ -1222,7 +1349,33 @@ $(document).ready(function() {
 			$("#grouplist").hide();
 			return false;
 		});
-		
+		//when edit twitter link is clicked twitterDialog is opened
+		$(".edit-twitter").click(function(){
+			closeDropdowns();
+			var row = $(this).parent().parent().parent();
+			var itemId = row.find(".twitter-id").text();
+			$("#twitterEditId").val(itemId);
+			var username = row.find(".username").text().replace(/'/g,"");
+			$("#twitter-username").val(username);
+			//remove single quotes from the string
+			var height = row.find(".twitterHeight").text().replace(/'/g,"");
+			$("#widget-height").val(height);
+			var tweetLimit = row.find(".tweetLimit").text().replace(/'/g,"");
+			$("#numberDropdown-selection").val(tweetLimit);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#twitter-error-container').hide();
+			//Change the text for the button to 'Update Item'
+			$("#twitter-add-item").attr("value", msg("simplepage.edit"));
+			//make delete twitter link visible
+			$("#twitter-delete-span").show();
+			var position = row.position();
+			$("#add-twitter-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$('#add-twitter-dialog').dialog('open');
+			checksize($("#add-twitter-dialog"));
+			return false;
+		});
 		$("#question-editgroups").click(function(){
 			$("#question-editgroups").hide();
 			$("#grouplist").show();
@@ -1860,6 +2013,21 @@ $(document).ready(function() {
 		    });
 
 
+		$('.twitter-link').click(function(){
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			var position =  $(this).position();
+			$('#twitter-error-container').hide();
+			$("#twitterEditId").val("-1");
+			$("#twitter-username").val("");
+			$("#widget-height").val("");
+			$('#numberDropdown-selection').val("5");
+			$("#add-twitter-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$('#add-twitter-dialog').dialog('open');
+			checksize($('#add-twitter-dialog'));
+			return false;
+		});
 		$('body').bind('dialogopen', function(event) {
 			hideMultimedia();
 		});
@@ -1876,10 +2044,12 @@ $(document).ready(function() {
 				$('#movie-dialog').dialog('isOpen') ||
 				$('#import-cc-dialog').dialog('isOpen') ||
 				$('#export-cc-dialog').dialog('isOpen') ||
+				$('#add-forum-summary-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
 				$('#column-dialog').dialog('isOpen') ||
-			        $('#student-dialog').dialog('isOpen') ||
-			        $('#question-dialog').dialog('isOpen'))) {
+				$('#student-dialog').dialog('isOpen') ||
+				$('#add-twitter-dialog').dialog('isOpen') ||
+				$('#question-dialog').dialog('isOpen'))) {
 		    unhideMultimedia();
                     $('.edit-col').removeClass('edit-colHidden');
                     $('li').removeClass('editInProgress');
@@ -2239,7 +2409,9 @@ $(document).ready(function() {
 
 	$("[aria-describedby='moreDiv'] .ui-dialog-titlebar-close")
 	    .click(closeDropdown);
-
+	$('.no-highlight').folderListing({
+		enableHighlight: false,
+	});
 	return false;
 });
 
@@ -2324,6 +2496,21 @@ function closeQuestionDialog() {
 
 function closePeerReviewDialog() {
 	$('#peer-eval-create-dialog').dialog('close');
+}
+function closeForumSummaryDialog(){
+	$('#add-forum-summary-dialog').dialog('close');
+	$('#forum-summary-error-container').hide();
+	oldloc.focus();
+}
+function closeAnnouncementsDialog(){
+	$('#add-announcements-dialog').dialog('close');
+	$('#announcements-error-container').hide();
+	oldloc.focus();
+}
+function closeTwitterDialog(){
+	$('#add-twitter-dialog').dialog('close');
+	$('#twitter-error-container').hide();
+	oldloc.focus();
 }
 
 function checkEditTitleForm() {
@@ -2523,6 +2710,16 @@ function setUpRequirements() {
 	}
 }
 
+//function called when adding twitter feed
+function confirmAddTwitterTimeline(){
+	//Check if username is empty or not?
+	if( $('#twitter-username').val().trim() == ""){
+		$('#twitter-error').text(msg("simplepage.twitter-name-notblank"));
+		$('#twitter-error-container').show();
+		return false;
+	}
+	return true;
+}
 /**
  * Workaround in ShowPage.html to change which submit is triggered
  * when you press the Enter key.

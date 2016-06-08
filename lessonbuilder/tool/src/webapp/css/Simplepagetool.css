@@ -563,6 +563,97 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     float:none;height:100%;overflow:hidden;margin:1em 0
 }
 
+.forum-summary-div{
+ border: 1px solid #ccc;
+ float: left;
+ overflow-y: scroll;
+ text-align: left;
+ background-color: #fff;
+ width: 550px;
+}
+
+.announcements-div{
+ border: 1px solid #ccc;
+ float: left;
+ margin: 30px 10px 30px 0;
+ overflow-y: scroll;
+ text-align: left;
+ background-color: #fff;
+ width: 550px;
+ }
+.announcementsHeaderDiv{
+position: relative;
+width: 100.0%;
+max-height: 240.0px;
+vertical-align: top;
+overflow: hidden;
+background-color: #eee;
+}
+.announcementSummaryHeader{
+font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+border-bottom:1px solid #ccc;
+padding: 10px 0px 10px 15px;
+font-size: 1.2em;
+letter-spacing: normal
+}
+.itemDiv {
+padding: 10px 15px 0 15px
+}
+
+.twitter-div{
+    overflow-y: auto;
+    float: left;margin:
+        0 10.0px 20.0px 0;
+    clear: right;
+}
+.forumSummaryHeaderDiv{
+ position: relative;
+ width: 100.0%;
+ max-height: 240.0px;
+ vertical-align: top;
+ overflow: hidden;
+ background-color: #eee;
+}
+.forumSummaryHeader{
+ font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+ border-bottom:1px solid #ccc;
+ padding: 10px 0px 10px 15px;
+ font-size: 1.2em;
+ letter-spacing: normal
+}
+.forumSummaryLink{
+ text-decoration: none;
+ color: #444
+}
+.forumSummaryDate{
+ font-size:12px;
+ color:#000;
+ font-weight: normal;
+}
+.forumSummaryList{
+ list-style: none;
+ padding: 0 15px;
+ font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+ color: #666
+}
+.edit-twitter-div{
+    float:left;
+}
+
+.forumSummaryItem{
+ margin-bottom: 10px;
+}
+
+.itemTitle {
+    font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+    color: #666;
+}
+
+.itemDate {
+    font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+}
+
 .layoutReorderer-module-content {
     padding: 6px;
     width: 95%;
