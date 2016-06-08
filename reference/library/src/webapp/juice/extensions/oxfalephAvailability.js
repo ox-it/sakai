@@ -86,9 +86,12 @@ oxfalephAvailability.prototype.getoxfaleph = function(oxfalephId){
                     }
                     holding_html_open += ' / <a href="#" onclick="showAll(\''+oxfalephId+'\')">Show all Libraries</a></div>' +
                         '</div></div><!-- end of availabilityHeader div -->' +
-                        '<div class="availabilityTable"><table class="oxfaleph_summary" cellspacing="0" width="100%" id="'+oxfalephId+'"><thead><tr><th>Library' +
+                        '<div class="availabilityTable"><table class="oxfaleph_summary daia_summary" cellspacing="0" width="100%" id="'+oxfalephId+'"><thead><tr><th>Library' +
+                        '<img alt="Show more libraries" src="/library/image/sakai/expand.gif" ' +
+                        'onclick="toggleAvailability(\''+oxfalephId+'\',\'/library/image/sakai/expand.gif?panel=Main\',\'/library/image/sakai/collapse.gif?panel=Main\');">' +
+                        '<span id="toggleAvailability">(click arrow to show more availability)</span>' +
                         '</th><th>Shelfmark</th><th>Description</th><th>Lending Status</th><th>Availability</th><th>Library info</th>' +
-                        '</tr></thead><tbody>';
+                        '</tr></thead><tbody class="' + oxfalephId + ' collapsed" style="display:none;">';
                     holding_html_close += '</tbody></table></div><!-- end availabilityTable div -->';
 
 

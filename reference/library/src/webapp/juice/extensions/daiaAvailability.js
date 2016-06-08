@@ -188,7 +188,7 @@ daiaAvailability.prototype.holdings_summary = function(daia_doc){
 		var holding_html_content = '';
 		var holding_html_close = '';
 		var expandText = 'Show availability in all libraries';
-		var expandHint = '(click arrow to show less availability)';
+		var expandHint = '(click arrow for more availability)';
 		var oa_html = '';
 		var summary_count = 0;
 		if (typeof(This.item_count(daia_doc)) == 'undefined') {
@@ -228,7 +228,7 @@ daiaAvailability.prototype.holdings_summary = function(daia_doc){
 			}
 			if (holding_summary.avail_loans > 0 || holding_summary.avail_pres > 0) {
 				if (This.noLines == summary_count) {
-					holding_html_content += '</tbody><tbody class="' + doc_id + '">';
+					holding_html_content += '</tbody><tbody class="' + doc_id + ' collapsed" style="display:none;">';
 				}			
 				holding_html_content +=	'<tr>' +
 										'<td>' + holding_summary.dept_name + '</td>' +
@@ -259,7 +259,7 @@ daiaAvailability.prototype.holdings_summary = function(daia_doc){
 		if (summary_count > This.noLines) {
 			holding_html_open  = '<table class="daia_summary"><thead><tr><th>Library' +
 								'<img onclick="toggleAvailability(\'' + doc_id + '\',\'' + This.expandIcon + '\',\'' + This.collapseIcon +'\');" ' +
-								'src="' + This.collapseIcon +'"' +
+								'src="' + This.expandIcon +'"' +
 								'alt="'+ expandText +'">' +
 								'<span id="toggleAvailability">' + expandHint + '</span>' +
 								'</th><th>Copies for loan</th><th>Reference only copies</th>' + 
