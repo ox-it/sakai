@@ -2,11 +2,11 @@ jQuery(document).ready(function () {
     // Assumes that the page calling this file is in a directory also containing the juice folder
     // Can be moved to whereever you want, just correct the paths
     juice.setDebug(false);
-	juice.loadJs("/library/juice/metadefs/sakaich_metadef.js");
-	juice.loadJs("/library/juice/extensions/extendedbyJuice.js");
-	juice.loadJs("/library/juice/extensions/daiaAvailability.js");
+    juice.loadJs("/library/juice/metadefs/sakaich_metadef.js");
+    juice.loadJs("/library/juice/extensions/extendedbyJuice.js");
+    juice.loadJs("/library/juice/extensions/daiaAvailability.js");
     juice.loadJs("/library/juice/extensions/oxfalephAvailability.js");
-//    juice.loadJs("/library/juice/extensions/oxfelectronicAvailability.js");
+    juice.loadJs("/library/juice/extensions/oxfelectronicAvailability.js");
     juice.loadCss("/library/juice/panels/juiceDefault.css");
     juice.onAllLoaded(runExtensions);
 });
@@ -22,7 +22,7 @@ function runExtensions(){
 
             // Do this via new availability service...
 
-            var availServer = "/library-availability/library"; // New Aleph availability server address
+            var availServer = "/library-availability/library";
             var availabilityDiv = '<div class="availability"></div>';
             var availabilityHeadDiv = 'div.availabilityHeader';
             var insert_avail = new JuiceInsert(availabilityDiv,availabilityHeadDiv,"replace");
@@ -40,14 +40,22 @@ function runExtensions(){
             new oxfalephAvailability(juice,insert_avail,"availability","aleph_ids",availServer,"print","jsonp");
         }
 
-        if(juice.hasMeta("coins")) {
-            // ****************
+        if(juice.hasMeta("eavail_ids")) {
+            // ****************    
             // Get Electronic Availability
             // ****************
-            var eavailServer = "https://weblearn.ox.ac.uk/library-availability/library"; // DAIA server for electronic availability
-            var eavailabilityDiv = '<div id="e-availability"></div>';
-            var baseURL = "http://oxfordsfx-direct.hosted.exlibrisgroup.com/oxford?";
-            var insert_eavail = new JuiceInsert(eavailabilityDiv,"span.Z3988","after");
+            var base_url = "http://oxfordsfx-direct.hosted.exlibrisgroup.com/oxford?";
+            openurls = new(Array);
+            var coins = juice.getMetaValues("eavail_ids");
+            for (var i = 0; i < coins.length; i++){
+                openurls.push(base_url + coins[i]);
+            };
+            juice.setMeta("openurls",openurls);
+
+            var eavailServer = "/library-availability/eias"; // DAIA server for electronic availability
+            var eavailabilityDiv = '<div class="e-avail"></div>';
+            var insert_eavail = new JuiceInsert(eavailabilityDiv,"div.itemAction.links","prepend");
+            new oxfelectronicAvailability(juice,insert_eavail,"e-avail","openurls",eavailServer);
         }
 
         // ****************

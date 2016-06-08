@@ -3,11 +3,19 @@ function sakaich_metadef() {
     var primo_ids = new(Array);
     var aleph_ids = new(Array);
     var coins = new(Array);
+    var eavail_ids = new(Array);
     var aleph_id_re = /oxfaleph\d*/;
     var pref_libs = new(Array);
     var pref_lib_types = ["collegeLibrary", "deptLibrary", "userLibrary"];
     $jq('span.Z3988').each(function() {
         coin = $jq(this).attr('title');
+        //create list of coins where there is no e-avail link already in page
+        //currently coin span is inside the itemAction box so can assume that only get coins where box exists
+        if($jq(this).parent().find('.e-avail').length==0) {
+            eavail_ids.push(coin);
+        } else {
+            eavail_ids.push("");
+        }
         coins.push(coin);
         bib_item = z3988_parse(coin);
         isbns.push(unescape(bib_item["rft.isbn"]));
@@ -29,7 +37,6 @@ function sakaich_metadef() {
                             aleph_ids.push(bib_ids[i].match(aleph_id_re)[0]);
                             numAleph_ids++;
                         }
-
                     }
                     break;
                 }
@@ -45,8 +52,6 @@ function sakaich_metadef() {
             aleph_ids.push("");
             primo_ids.push("");
         }
-
-
     })
     $jq('input[type="hidden"]').each(function() {
         if(pref_lib_types.indexOf($jq(this).attr('id')) > -1 ) {
@@ -58,6 +63,7 @@ function sakaich_metadef() {
     juice.setMeta("coins",coins);
     juice.setMeta("aleph_ids",aleph_ids);
     juice.setMeta("pref_libs",pref_libs);
+    juice.setMeta("eavail_ids",eavail_ids);
     juice.debugMeta();
 }
 
