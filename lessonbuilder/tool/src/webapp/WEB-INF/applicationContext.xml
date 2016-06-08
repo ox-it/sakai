@@ -187,7 +187,7 @@ simplePageBean.folderPath
 	class="org.sakaiproject.lessonbuildertool.service.GroupPermissionsService"
 	init-method="init">
     <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
-    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/>
+    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.QuizEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
   </bean>
@@ -255,7 +255,7 @@ simplePageBean.folderPath
         destroy-method="destroy">
 
     <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
-    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/>
+    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.QuizEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
@@ -290,7 +290,7 @@ simplePageBean.folderPath
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
-    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/>
+    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.QuizEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
@@ -421,7 +421,7 @@ simplePageBean.folderPath
 	  <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 	  <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
 	  <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
-	  <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/>
+	  <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.QuizEntity"/>
 	  <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
 	  <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
 	  <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
@@ -437,5 +437,13 @@ simplePageBean.folderPath
       <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
       <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     </bean>
+
+	<alias alias="org.sakaiproject.lessonbuildertool.service.QuizEntity"
+		name="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+
+	<!--<alias alias="org.sakaiproject.lessonbuildertool.service.QuizEntity"-->
+		   <!--name="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/>-->
+
+	<!--<import resource="classpath:/opt-applicationContext.xml"/>-->
 
  </beans>
