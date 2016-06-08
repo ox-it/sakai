@@ -1471,6 +1471,21 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span, ul.otherQuickLin
 .icon-sakai-hierarchy-manager {
     background-position: -324px -342px;
 }
+.icon-sakai-hierarchy-replace-site{
+    background-position: -198px -342px;
+}
+.icon-sakai-hierarchy-delete-site{
+    background-position: -288px -342px;
+}
+.icon-sakai-hierarchy-move-site{
+    background-position: -180px -162px;
+}
+.icon-sakai-hierarchy-redirect-site{
+    background-position: -558px -342px;
+}
+.icon-sakai-hierarchy-paste-site{
+    background-position: -72px -360px;
+}
 
 /* PART 10: specific functionality: presence, chat */
 
