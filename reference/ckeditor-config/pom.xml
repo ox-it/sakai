@@ -7,13 +7,13 @@
     <name>Sakai CKEditor Config Entity Provider</name>
     <groupId>org.sakaiproject.ckeditor-config</groupId>
     <artifactId>ckeditor-config-entity-provider</artifactId>
-    <version>10-SNAPSHOT</version>
+    <version>11-SNAPSHOT</version>
     <packaging>war</packaging>
     
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>reference-base</artifactId>
-        <version>10-SNAPSHOT</version>
+        <version>11-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
