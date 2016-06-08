@@ -118,21 +118,6 @@ CKEDITOR.dialog.add('imageGalleryDialog', function(editor) {
               }
           },
           {
-            type: 'text',
-            id: 'rel',
-            label: 'Slideshow ID (optional)',
-            className: 'rel',
-            onLoad: function() {
-              $('#imageGalleryDialog .rel input').attr('placeholder', 'Short identifier for images in this gallery');
-            },
-            setup: function(element) {
-              this.setValue(element.getAttribute('data-rel'));
-            },
-            commit: function(element) {
-              element.setAttribute('data-rel', this.getValue());
-            }
-          },
-          {
             type: 'hbox',
             widths: ['30%', '30%', '40%'],
             children: [

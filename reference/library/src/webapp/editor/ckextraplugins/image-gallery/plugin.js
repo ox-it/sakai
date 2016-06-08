@@ -27,7 +27,7 @@ CKEDITOR.plugins.add('image-gallery', {
     if (editor.contextMenu) {
       editor.addMenuGroup('imageGalleryGroup');
       editor.addMenuItem('imageGalleryItem', {
-        label: 'Change Directory',
+        label: 'Edit Embedded Image Gallery',
         icon: this.path + 'icons/image-gallery.png',
         command: 'image-gallery',
         group: 'imageGalleryGroup'
