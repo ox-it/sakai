@@ -49,7 +49,7 @@ oxfalephAvailability.prototype.start = function(){
         for(var i=0; i < ids.length; i++){
             this.div_id = i;
             // check there is a valid id to use
-            if (ids[i] != "undefined" && ids[i].length >0) {
+            if (ids[i] != "undefined" && ids[i].length >0 && /^oxfaleph\d{9}$/.test(ids[i])) {
                 this.avail_url = this.availServer + "?id=" + encodeURIComponent(ids[i]) + "&format=" + this.format;
                 this.getoxfaleph(ids[i]);
             }
