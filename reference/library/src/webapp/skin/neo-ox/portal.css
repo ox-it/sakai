@@ -68,6 +68,10 @@ body.portalBody {
     background-image: url(/library/skin/neo-ox/images/oxam.png) !important;
 }
 
+.icon-open-academic-environment{
+    background-image: url(/library/skin/neo-ox/images/open-academic-environment.png) !important;
+}
+
 .quicklinks-icon-common{
      background-repeat: initial;
      background-position: center;
@@ -690,7 +694,7 @@ ul#otherSiteList li, ul.otherSitesCategorList li, ul.otherQuickLinksCategorList 
     right: 4px;
     top: 34px;
     vertical-align: middle;
-    width: 14em;
+    width: 18em; /* increased width to accommodate OAE text*/
     z-index: 9999;
     border-radius: 0px 0px 5px 5px;
     -moz-border-radius: 0px 0px 5px 5px;
@@ -700,7 +704,7 @@ ul#otherSiteList li, ul.otherSitesCategorList li, ul.otherQuickLinksCategorList 
     -webkit-box-shadow: 0 0 10px #555;
 }
 ul.otherQuickLinksCategorList li {
-    width: 12em;
+    width: 16em;
     line-height: 1.2em;
 }
 ul.otherQuickLinksCategorList {
