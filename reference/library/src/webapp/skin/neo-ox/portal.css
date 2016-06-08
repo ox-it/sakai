@@ -50,6 +50,27 @@ body.portalBody {
     right:3px;
     vertical-align: middle;
 }
+.icon-oxford-talks{
+    background-image: url(/library/skin/neo-ox/images/oxford-talks.png) !important;
+}
+
+.icon-researcher-training{
+    background-image: url(/library/skin/neo-ox/images/researcher-training-tool.png) !important;
+}
+
+.icon-solo{
+	background-image: url(/library/skin/neo-ox/images/solo-citation.png) !important;
+}
+
+.icon-oxam{
+    background-image: url(/library/skin/neo-ox/images/oxam.png) !important;
+}
+
+.quicklinks-icon-common{
+     background-repeat: initial;
+     background-position: center;
+     background-image: url(/library/skin/neo-ox/images/default.png);
+}
 
 #toolMenuWrap h1 {
     font-size: 1.3em;
