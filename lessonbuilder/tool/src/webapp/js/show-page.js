@@ -93,7 +93,15 @@ $(document).ready(function() {
 			resizable: false,
 			draggable: false
 		});
-
+		//Only number allowed for twitter height
+		$("#widget-height").keypress(function (e) {
+			 //if the letter is not digit then display error
+			 if (e.which !== 13 && e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+				//display error message
+				$("#heightErrmsg").html(msg("simplepage.height-error-message")).show().fadeOut("slow");
+				return false;
+			}
+		});
 		$('#edit-item-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
@@ -142,7 +150,13 @@ $(document).ready(function() {
 			resizable: false,
 			draggable: false
 		});
-
+		$('#add-twitter-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 		$('#youtube-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
@@ -531,6 +545,7 @@ $(document).ready(function() {
 		//		    return false;
 		//		}
 		//		return true;
+			$("#add-twitter-dialog").dialog("option", "width", outerWidth-10);
 		//	});
 
 		$(".edit-youtube").click(function(){
@@ -1222,7 +1237,33 @@ $(document).ready(function() {
 			$("#grouplist").hide();
 			return false;
 		});
-		
+		//when edit twitter link is clicked twitterDialog is opened
+		$(".edit-twitter").click(function(){
+			closeDropdowns();
+			var row = $(this).parent().parent().parent();
+			var itemId = row.find(".twitter-id").text();
+			$("#twitterEditId").val(itemId);
+			var username = row.find(".username").text().replace(/'/g,"");
+			$("#twitter-username").val(username);
+			//remove single quotes from the string
+			var height = row.find(".twitterHeight").text().replace(/'/g,"");
+			$("#widget-height").val(height);
+			var tweetLimit = row.find(".tweetLimit").text().replace(/'/g,"");
+			$("#numberDropdown-selection").val(tweetLimit);
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
+			$('#twitter-error-container').hide();
+			//Change the text for the button to 'Update Item'
+			$("#twitter-add-item").attr("value", msg("simplepage.edit"));
+			//make delete twitter link visible
+			$("#twitter-delete-span").show();
+			var position = row.position();
+			$("#add-twitter-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$('#add-twitter-dialog').dialog('open');
+			checksize($("#add-twitter-dialog"));
+			return false;
+		});
 		$("#question-editgroups").click(function(){
 			$("#question-editgroups").hide();
 			$("#grouplist").show();
@@ -1860,6 +1901,21 @@ $(document).ready(function() {
 		    });
 
 
+		$('.twitter-link').click(function(){
+			closeDropdowns();
+			$('li').removeClass('editInProgress');
+			var position =  $(this).position();
+			$('#twitter-error-container').hide();
+			$("#twitterEditId").val("-1");
+			$("#twitter-username").val("");
+			$("#widget-height").val("");
+			$('#numberDropdown-selection').val("5");
+			$("#add-twitter-dialog").dialog("option", "position", [position.left, position.top]);
+			oldloc = $(this);
+			$('#add-twitter-dialog').dialog('open');
+			checksize($('#add-twitter-dialog'));
+			return false;
+		});
 		$('body').bind('dialogopen', function(event) {
 			hideMultimedia();
 		});
@@ -1878,8 +1934,9 @@ $(document).ready(function() {
 				$('#export-cc-dialog').dialog('isOpen') ||
 				$('#comments-dialog').dialog('isOpen') ||
 				$('#column-dialog').dialog('isOpen') ||
-			        $('#student-dialog').dialog('isOpen') ||
-			        $('#question-dialog').dialog('isOpen'))) {
+				$('#student-dialog').dialog('isOpen') ||
+				$('#add-twitter-dialog').dialog('isOpen') ||
+				$('#question-dialog').dialog('isOpen'))) {
 		    unhideMultimedia();
                     $('.edit-col').removeClass('edit-colHidden');
                     $('li').removeClass('editInProgress');
@@ -2328,6 +2385,12 @@ function closePeerReviewDialog() {
 	$('#peer-eval-create-dialog').dialog('close');
 }
 
+function closeTwitterDialog(){
+	$('#add-twitter-dialog').dialog('close');
+	$('#twitter-error-container').hide();
+	oldloc.focus();
+}
+
 function checkEditTitleForm() {
 	if($('#pageTitle').val() === '') {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));
@@ -2525,6 +2588,16 @@ function setUpRequirements() {
 	}
 }
 
+//function called when adding twitter feed
+function confirmAddTwitterTimeline(){
+	//Check if username is empty or not?
+	if( $('#twitter-username').val().trim() == ""){
+		$('#twitter-error').text(msg("simplepage.twitter-name-notblank"));
+		$('#twitter-error-container').show();
+		return false;
+	}
+	return true;
+}
 /**
  * Workaround in ShowPage.html to change which submit is triggered
  * when you press the Enter key.

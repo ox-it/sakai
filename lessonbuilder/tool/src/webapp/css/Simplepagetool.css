@@ -563,6 +563,16 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     float:none;height:100%;overflow:hidden;margin:1em 0
 }
 
+.twitter-div{
+    overflow-y: auto;
+    float: left;margin:
+        0 10.0px 20.0px 0;
+    clear: right;
+}
+.edit-twitter-div{
+    float:left;
+}
+
 .layoutReorderer-module-content {
     padding: 6px;
     width: 95%;
