@@ -21,8 +21,8 @@ function runExtensions(){
 			// ****************
 			
 			var availServer = "/library-availability/library"; // DAIA server for print availability
-			var availabilityDiv = '<div id="availability"></div>';
-			var insert_avail = new JuiceInsert(availabilityDiv,"span.Z3988","after");
+			var availabilityDiv = '<div id="availability" class="itemAction"></div>';
+			var insert_avail = new JuiceInsert(availabilityDiv,"div.availabilityHeader","after");
 			
 			// call daiaAvailability
 			/*
