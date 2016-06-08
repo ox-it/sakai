@@ -81,11 +81,11 @@ oxfalephAvailability.prototype.getoxfaleph = function(oxfalephId){
                     var holding_html_close = '';
                     holding_html_open = '' +'<div class="availabilityHeader">' +
                         ''+
-                        '<div class="availabilityNav" style="float:left;"><a href="#" onclick="hideAll(\''+oxfalephId+'\')">Hide Availability</a>';
+                        '<div class="availabilityNav" style="float:left;"><a href="#" onclick="return hideAll(\''+oxfalephId+'\')">Hide Availability</a>';
                     if(juice.hasMeta("pref_libs")) {
-                        holding_html_open += ' / <a href="#" onclick="showPreferred(\''+oxfalephId+'\')">Show preferred Libraries</a></div>';
+                        holding_html_open += ' / <a href="#" onclick="return showPreferred(\''+oxfalephId+'\')">Show preferred Libraries</a></div>';
                     }
-                    holding_html_open += ' / <a href="#" onclick="showAll(\''+oxfalephId+'\')">Show Availability</a></div>' +
+                    holding_html_open += ' / <a href="#" onclick="return showAll(\''+oxfalephId+'\')">Show Availability</a></div>' +
                         '</div><!-- end of availabilityHeader div -->' +
                         '<div style="clear:both;"></div>' +
                         '<div class="availabilityTable collapsed" id="'+oxfalephId+ '" style="display: none" >' +
@@ -97,7 +97,7 @@ oxfalephAvailability.prototype.getoxfaleph = function(oxfalephId){
                     $jq.each(data.document[0].item, function(index, oxfaleph_doc) {
                             var library_info = '';
                             if(libWeb[oxfaleph_doc.libcode]) {
-                                library_info = '<a href="'+libWeb[oxfaleph_doc.libcode]+'"><i class="fa fa-info-circle"></i></a>';
+                                library_info = '<a target="_blank" href="'+libWeb[oxfaleph_doc.libcode]+'"><i class="fa fa-info-circle"></i></a>';
                             }
                             holdings_html += '<tr class="'+oxfaleph_doc.libcode+' collapsed'+'"><td>'+oxfaleph_doc.libname+'</td>'+
                                 '<td>'+oxfaleph_doc.itemshelf+'</td>'+
@@ -137,11 +137,13 @@ oxfalephAvailability.prototype.displayoxfaleph = function(oxfaleph_div, id) {
 function hideAll(id) {
     console.log("Hiding");
     $jq('#' + id).addClass('collapsed').fadeOut('fast');
+    return false;
 }
 
 function showAll(id) {
     $jq('#' + id).removeClass('collapsed').fadeIn('fast');
     $jq('#' + id + '> tbody > tr').removeClass('collapsed').fadeIn('fast');
+    return false;
 }
 
 function showPreferred(id) {
@@ -156,6 +158,7 @@ function showPreferred(id) {
     for	(i = 0; i < libs.length; i++) {
         $jq('#' + id + ' > tbody > tr.'+libs[i]).removeClass('collapsed').fadeIn('fast');
     }
+    return false;
 }
 
 function libraryWebsites() {
