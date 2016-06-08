@@ -115,6 +115,17 @@ oxfalephAvailability.prototype.getoxfaleph = function(oxfalephId){
             juice.debugOutln(dump(data) + '<br />');
             oxfaleph_div = holding_html_open + holdings_html + holding_html_close
             This.displayoxfaleph(oxfaleph_div, id);
+
+            // if print view, show all availability and bibl info
+            if(window.location.href.indexOf("printView") > -1) {
+                $('a:contains("Show Availability")').each(function() {
+                    $(this).click();
+                });
+                $('.toggleIcon').each(function() {
+                    $(this).click();
+                });
+            }
+
             if(juice.hasMeta("pref_libs")) {
                 showPreferred(oxfalephId);
             }
