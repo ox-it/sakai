@@ -34,7 +34,7 @@ CKEDITOR.plugins.add('vimeo', {
 
     var css = [
       this.path + 'css/contents.css',
-      'http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css',
+      '//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css',
     ];
 
     // only load css if they aren't already in the array

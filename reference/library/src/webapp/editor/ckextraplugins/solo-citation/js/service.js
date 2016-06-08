@@ -71,7 +71,7 @@ var SOLOSearchService = function(params) {
         }
       },
     });
-
+    results.instruction = 'Now click on a citation to embed a link';
     return results;
   };
 };

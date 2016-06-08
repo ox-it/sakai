@@ -38,7 +38,7 @@ var BindSoloSearchToDialog = function(path) {
   // now initialize iframe which will isolate the search field (so we can submit
   // the form without closing the dialog)
   var pushFormIntoIframe = function() {
-    var iframe = $('<iframe src="about:blank"></iframe>').attr({ id: 'soloSearchIframe', style: 'width: 100%; height: 220px;' });
+    var iframe = $('<iframe src="about:blank"></iframe>').attr({ id: 'soloSearchIframe', style: 'width: 100%; height: 200px;' });
     container.after(iframe);
 
     iframe.load(function() {

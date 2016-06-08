@@ -90,6 +90,7 @@ CKEDITOR.dialog.add('oxpointsDialog', function(editor) {
                 type: 'checkbox',
                 id: 'inc-map',
                 label: 'Map?',
+                default: 'checked',
                 setup: function(element) {
                   this.setValue(element.getAttribute('data-inc-map') == 'true');
                 },
@@ -192,7 +193,7 @@ CKEDITOR.dialog.add('oxpointsDialog', function(editor) {
       // embed assets into the node
       embedAssetsInCKEditorNode({
         node: node,
-        js: [path + 'js/init-oxpoint-map.js', 'http://maps.google.com/maps/api/js?sensor=false&callback=initOxPointMap'],
+        js: [path + 'js/init-oxpoint-map.js', '//maps.google.com/maps/api/js?sensor=false&callback=initOxPointMap'],
         css: [path + 'css/oxpoints.css']
       });
 

@@ -21,7 +21,7 @@ CKEDITOR.plugins.add('oxpoints', {
   init: function(editor) {
     editor.addCommand( 'oxpoints', new CKEDITOR.dialogCommand('oxpointsDialog'));
     editor.ui.addButton( 'oxpoints', {
-      label: 'Insert OxPoint Location',
+      label: 'Insert Oxpoints Map',
       command: 'oxpoints',
       toolbar: 'insert'
     });
@@ -29,7 +29,7 @@ CKEDITOR.plugins.add('oxpoints', {
     if (editor.contextMenu) {
       editor.addMenuGroup( 'oxpointsGroup' );
       editor.addMenuItem( 'oxpointsItem', {
-        label: 'Edit OxPoint',
+        label: 'Edit OxPoints Map',
         icon: this.path + 'icons/oxpoints.png',  // icon from http://simpleicon.com/map-marker-8.html
         command: 'oxpoints',
         group: 'oxpointsGroup'

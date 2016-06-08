@@ -73,7 +73,7 @@ $.fn.itemSearch = function(options) {
     }
 
     if (settings.pagination && results.length) {
-      html = buildPaginatedResults(html);
+      html = buildPaginatedResults(html, results);
     }
 
     return html;
@@ -94,7 +94,7 @@ $.fn.itemSearch = function(options) {
       }
   };
 
-  var buildPaginatedResults = function(resultsHtml) {
+  var buildPaginatedResults = function(resultsHtml, searchResults) {
     var results = $(resultsHtml);
         results = results.filter(function(result) {
           // remove empty text nodes
@@ -109,6 +109,9 @@ $.fn.itemSearch = function(options) {
 
     var currentPage = $.fn.itemSearch.currentPage;
     var iFrameId = settings.resultsContainer[0].id.replace('Results', 'Iframe');
+    if (searchResults.instruction){
+        nav.append($('<p/>').html('<span>' + searchResults.instruction + '</span>'));
+    }
     if (currentPage >= 1 && currentPage  <=4){
       if (currentPage  > 1){
           appendBackButton(nav, currentPage, iFrameId );
