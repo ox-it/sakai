@@ -8,11 +8,16 @@ CKEDITOR.ui.dialog.uiElement.prototype.getValues = function() {
   // get the options from the dialog's input element
   var select = this.getInputElement();
   var selectedOptions = select.$.selectedOptions;
+  if (isIE()){
+      selectedOptions = select.$.options.children;
+  }
   var values = [];
 
   // add values to array
   for (i = 0; i < selectedOptions.length; i++) {
-    values.push(selectedOptions[i].value);
+    if (selectedOptions[i].selected){
+        values.push(selectedOptions[i].value);
+    }
   }
 
   return values;

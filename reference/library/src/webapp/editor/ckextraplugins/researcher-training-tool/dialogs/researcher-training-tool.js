@@ -24,6 +24,7 @@ if (!$.fn.autocomplete) {
 
 CKEDITOR.scriptLoader.load(pathCommon + 'js/embed-assets-in-editor.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/embed-jquery-assets-in-editor.js');
+CKEDITOR.scriptLoader.load(pathCommonWl + 'js/browser.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + '/js/courses-js-widget/oxford-courses-widget.js');
 CKEDITOR.scriptLoader.load(pathCommonWl + 'js/oxpoints-autocomplete.js');
 CKEDITOR.scriptLoader.load(path + 'js/skills.js');
@@ -72,6 +73,10 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
                   input.attr('data-name', input.val());
                 }
               });
+              if (isIE()){
+                  input.val("Search name of a department/college etc...");
+                  input.one( "click", function() {$(this).val("");});
+              }
             },
             setup: function(element) {
               var uri = element.getAttribute('data-providedBy');
@@ -149,7 +154,7 @@ CKEDITOR.dialog.add('researcherTrainingToolDialog', function(editor) {
                 setup: function(element) {
                   var skills = element.getAttribute('data-skill');
                   if (skills)
-                    this.setValues(values.trim().split(' '));
+                    this.setValues(skills.trim().split(' '));
                 },
                 commit: function(element) {
                   var skills = this.getValues();
