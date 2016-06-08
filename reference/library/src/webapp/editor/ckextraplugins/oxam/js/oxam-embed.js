@@ -35,9 +35,9 @@ $.fn.oxamEmbed = function(options) {
         tmpParams = tmpParams.split('&');
     var params = {};
 
-    for (i in tmpParams) {
-      var param = tmpParams[i].split('=');
-      params[param[0]] = param[1];
+    for (var i = 0; i < tmpParams.length; i++) {
+        var param = tmpParams[i].split('=');
+        params[param[0]] = param[1];
     }
 
     return params;
@@ -115,7 +115,12 @@ $.fn.oxamEmbed = function(options) {
     // div rather than redirecting to OXAM
     $html.find('h3').remove();
     var pagination = $html.find('div').last();
-    var results = $html.find('ul');
+    var isPreview = $('#oxamDialog [id*="cke_preview"]').hasClass('cke_dialog_tab_selected');
+    if (isPreview) {
+       pagination.empty();
+    }
+
+      var results = $html.find('ul');
         //results.unwrap();
         results.addClass('results exams')
                .find('li').addClass('result exam')
@@ -147,8 +152,9 @@ $.fn.oxamEmbed = function(options) {
 
     showing.addClass('showing');
     showing.html('<br/><br/><span>' + showing.html() + '</span>');
-    showing.append($('<div/>').append(goToOxam).html());
-
+    if (!isPreview) {
+      showing.append($('<div/>').append(goToOxam).html());
+    }
     return $html;
   };
 
