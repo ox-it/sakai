@@ -133,6 +133,7 @@
                 <module>evaluations</module>
                 <module>oxam</module>
                 <module>oxford-url-shortener</module>
+                <module>proxy</module>
                 <module>sirlouie</module>
                 <module>simple-signup-entityprovider</module>
                 <module>termdates</module>
