@@ -1448,7 +1448,9 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span, ul.otherQuickLin
     background-position: -162px -252px;
 }
 .icon-sakai-sitebrowser {
-    background-position: -468px -522px;
+    background-position: center;
+    background-repeat: initial;
+    background-image: url(/library/skin/neo-ox/images/subsite-find.png)
 }
 .icon-sakai-createuser {
     background-position: -540px -504px;
