@@ -16,6 +16,7 @@
   *           expandEasing   - easing function to use on expand (optional)
   *           collapseEasing - easing function to use on collapse (optional)
   *           multiFolder    - whether or not to limit the browser to one subfolder at a time
+  *           enableHighlight - whether or not to show the yellow highlight
   *           loadMessage    - Message to display while initial tree loads (can be HTML)
 
   * TERMS OF USE
@@ -37,6 +38,7 @@ $.fn.fileTree = function(options) {
     multiFolder: true,
     loadMessage: 'Loading...',
     openToFolder: false,
+    enableHighlight: true,
 
     // configuring the ajax call
     ajaxUrl: function(dir) {
@@ -74,6 +76,7 @@ $.fn.fileTree = function(options) {
       dataType: settings.ajaxDataType,
       type: settings.ajaxType,
       data: settings.ajaxData(dir),
+      cache:false,
       success: function(json) {
         var data = settings.formatResults(json);
 
@@ -104,11 +107,12 @@ $.fn.fileTree = function(options) {
     $anchors.on(settings.folderEvent, function() {
       var $this = $(this);
       var $parent = $this.parent();
-
-      // reset 'active' element and set it to current directory/file
-      $parent.closest('div > .jqueryFileTree').find('.active').removeClass('active');
-      $parent.addClass('active');
-
+      //Check if yellow highlight is needed for selection
+      if(settings.enableHighlight){
+        // reset 'active' element and set it to current directory/file
+        $parent.closest('div > .jqueryFileTree').find('.active').removeClass('active');
+        $parent.addClass('active');
+      }
       if ($parent.hasClass('directory')) {
         if ($parent.hasClass('collapsed')) {
           // expand
