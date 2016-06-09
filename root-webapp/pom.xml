@@ -2,31 +2,56 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>uk.ac.ox.oucs</groupId>
-  <!-- Watch SAK-13112 for a better way -->
-  <artifactId>portal-redirect</artifactId>
-  <version>1.7-SNAPSHOT</version>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master</relativePath>
+  </parent>
+  <artifactId>root-webapp</artifactId>
   <name>Root WebApp</name>
   <packaging>war</packaging>
-  <scm>
-    <developerConnection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</developerConnection>
-    <connection>scm:svn:https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</connection>
-    <url>https://svn.oucs.ox.ac.uk/projects/vle/sakai/root-webapp/trunk</url>
-  </scm>
-  <distributionManagement>
-    <repository>
-      <id>maven-repo.oucs</id>
-      <name>OUCS Maven Repository</name>
-      <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases/</url>
-      <layout>default</layout>
-      <uniqueVersion>false</uniqueVersion>
-    </repository>
-  </distributionManagement>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <inceptionYear>2007</inceptionYear>
   <organization>
     <name>University of Oxford</name>
-    <url>http://www.oucs.ox.ac.uk/</url>
+    <url>http://www.it.ox.ac.uk/</url>
   </organization>
   <build>
     <finalName>ROOT</finalName>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+    </testResources>
+
+    <plugins>
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>org.sakaiproject.maven.plugins</groupId>
+        <artifactId>sakai</artifactId>
+        <configuration>
+          <deployId>ROOT</deployId>
+          <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+        </configuration>
+      </plugin>
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>
