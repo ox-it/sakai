@@ -4,7 +4,7 @@
     <parent>
         <artifactId>auto-import</artifactId>
         <groupId>uk.ac.ox.oucs.vle</groupId>
-        <version>1.2-SNAPSHOT</version>
+        <version>11-SNAPSHOT</version>
     </parent>
 
     <name>auto-import - Implementation</name>
@@ -40,7 +40,6 @@
             <groupId>org.sakaiproject.common</groupId>
             <artifactId>archive-api</artifactId>
             <scope>provided</scope>
-            <version>1.1.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
