@@ -134,6 +134,7 @@
                 <module>oxam</module>
                 <module>oxford-url-shortener</module>
                 <module>proxy</module>
+                <module>root-webapp</module>
                 <module>sirlouie</module>
                 <module>simple-signup-entityprovider</module>
                 <module>termdates</module>
