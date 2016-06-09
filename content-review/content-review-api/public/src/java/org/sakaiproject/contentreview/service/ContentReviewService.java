@@ -44,7 +44,7 @@ import org.sakaiproject.contentreview.model.ContentReviewItem;
 public interface ContentReviewService {
 	
 	/**
-	 *  Add an item to the Queue for Submission to Turnitin
+	 *  Add an item to the Queue for Submission
 	 *  
 	 *  @param userID if nulll current user is used
 	 *  @param SiteId is null current site is used
@@ -53,6 +53,30 @@ public interface ContentReviewService {
 	 *  
 	 */
 	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content) throws QueueException;
+	
+	/**
+	 *  Add an item to the Queue for Submission
+	 *  
+	 *  @param userID if nulll current user is used
+	 *  @param SiteId is null current site is used
+	 *  @param Entity reference to the task this is for
+	 *  @param Reference to the content object that should be submitted
+	 *  @param Reference to the submission object
+	 *  
+	 */
+	public void queueContent(String userId, String siteId, String taskId, String contentId, String submissionId) throws QueueException;
+	
+	/**
+	 *  Add an resubmitted item to the Queue for Submission to Turnitin
+	 *  
+	 *  @param userID if nulll current user is used
+	 *  @param SiteId is null current site is used
+	 *  @param Entity reference to the task this is for
+	 *  @param Reference to the content object that should be submitted
+	 *  @param Reference to the submission object
+	 *  
+	 */
+	public void queueResubContent(String userId, String siteId, String taskId, String contentId, String submissionId) throws QueueException;
 	
 	/**
 	 *  Retrieve a score for a specific item
@@ -231,6 +255,13 @@ public interface ContentReviewService {
 	public Map<String, SortedSet<String>> getAcceptableFileTypesToExtensions();
 
 	/**
+	 * Is the content resource of a size that can be accepted by the service implementation
+	 * @param resource
+	 * @return
+	 */
+	public boolean isAcceptableSize(ContentResource resource);
+	
+	/**
 	 *  Can this site make use of the content review service
 	 * 
 	 * @param site
@@ -240,11 +271,27 @@ public interface ContentReviewService {
 	public boolean isSiteAcceptable(Site site);
 	
 	/**
+	 *  Can this site make use of the direct TII submission mode
+	 * 
+	 * @param site
+	 * @return
+	 * 
+	 */
+	public boolean isDirectAccess(Site s);
+	
+	/**
 	 *  Get a icon URL that for a specific score
 	 * @param score
 	 * @return
 	 */
 	public String getIconUrlforScore(Long score);
+	
+	/**
+	 *  Get a icon colour for a specific score
+	 * @param score
+	 * @return
+	 */
+	public String getIconColorforScore(Long score);
 	
 	/**
 	 *  Does the service support resubmissions?
@@ -331,4 +378,95 @@ public interface ContentReviewService {
 	 */
 	public void createAssignment(String siteId, String taskId, Map extraAsnnOpts)
 	throws SubmissionException, TransientSubmissionException;
+	
+	/**
+	 * Get the URL of a report constructed using the old API for a student
+	 * @param contentId
+	 * @return
+	 * @throws QueueException
+	 * @throws ReportException
+	 * */
+	public String getLegacyReviewReportStudent(String contentId)
+	throws QueueException, ReportException;
+	
+	/**
+	 * Get the URL for a report constructed using the old API for an Instructor
+	 * 
+	 * @param contentId
+	 * @return
+	 * @throws QueueException
+	 * @throws ReportException
+	 */
+	public String getLegacyReviewReportInstructor(String contentId)
+	throws QueueException, ReportException;
+	
+	/**
+	 * Get the URL to access the LTI tool associated with the task
+	 * 
+	 * @param taskId
+	 * @param siteId
+	 * @return
+	 * @throws QueueException
+	 * @throws ReportException
+	 */
+	public String getLTIAccess(String taskId, String siteId);
+	
+	/**
+	 * Delete the LTI tool associated with the task
+	 * 
+	 * @param taskId
+	 * @param siteId
+	 * @return
+	 * @throws QueueException
+	 * @throws ReportException
+	 */
+	public boolean deleteLTITool(String taskId, String siteId);
+	
+	/**
+	 * Get the ContentReviewItem that matches the id
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public ContentReviewItem getItemById(String id);
+	
+	/**
+	 * Get the first ContentReviewItem that matches the param
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public ContentReviewItem getFirstItemByContentId(String contentId);
+	
+	/**
+	 * Get the first ContentReviewItem that matches the param
+	 *
+	 * @param id
+	 * @return
+	 */
+	public ContentReviewItem getFirstItemByExternalId(String externalId);
+
+	/**
+	 * Sets the url as accessed for a submission content
+	 * 
+	 * @param contentId
+	 * @return
+	 */
+	public boolean updateItemAccess(String contentId);
+	
+	/**
+	 * Sets the grade for a submission content
+	 * 
+	 * @param contentId
+	 * @return
+	 */
+	public boolean updateExternalGrade(String contentId, String score);
+	
+	/**
+	 * Gets the grade for a submission content
+	 * 
+	 * @param contentId
+	 * @return
+	 */
+	public String getExternalGradeForContentId(String contentId);
 }
