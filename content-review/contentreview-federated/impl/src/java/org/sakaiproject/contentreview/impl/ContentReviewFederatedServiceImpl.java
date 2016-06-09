@@ -138,6 +138,86 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		
 	}
 
+	@Override
+	public String getLegacyReviewReportStudent(String contentId) throws QueueException, ReportException {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getLegacyReviewReportStudent(contentId);
+		return null;
+	}
+
+	@Override
+	public String getLegacyReviewReportInstructor(String contentId) throws QueueException, ReportException {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getLegacyReviewReportInstructor(contentId);
+		return null;
+	}
+
+	@Override
+	public String getLTIAccess(String taskId, String siteId) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getLTIAccess(taskId, siteId);
+		return null;
+	}
+
+	@Override
+	public boolean deleteLTITool(String taskId, String siteId) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.deleteLTITool(taskId, siteId);
+		return false;
+	}
+
+	@Override
+	public ContentReviewItem getItemById(String id) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getItemById(id);
+		return null;
+	}
+
+	@Override
+	public ContentReviewItem getFirstItemByContentId(String contentId) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getFirstItemByContentId(contentId);
+		return null;
+	}
+
+	@Override
+	public ContentReviewItem getFirstItemByExternalId(String externalId) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getFirstItemByExternalId(externalId);
+		return null;
+	}
+
+	@Override
+	public boolean updateItemAccess(String contentId) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.updateItemAccess(contentId);
+		return false;
+	}
+
+	@Override
+	public boolean updateExternalGrade(String contentId, String score) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.updateExternalGrade(contentId, score);
+		return false;
+	}
+
+	@Override
+	public String getExternalGradeForContentId(String contentId) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getExternalGradeForContentId(contentId);
+		return null;
+	}
+
 	public List<ContentReviewItem> getAllContentReviewItems(String arg0,
 			String arg1) throws QueueException, SubmissionException,
 			ReportException {
@@ -174,6 +254,11 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
 			return provider.getIconUrlforScore(score);
+		return null;
+	}
+
+	@Override
+	public String getIconColorforScore(Long score) {
 		return null;
 	}
 
@@ -288,10 +373,20 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		return null;
 	}
 
+	@Override
+	public boolean isAcceptableSize(ContentResource resource) {
+		return false;
+	}
+
 	public boolean isSiteAcceptable(Site arg0) {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
 			return provider.isSiteAcceptable(arg0);
+		return false;
+	}
+
+	@Override
+	public boolean isDirectAccess(Site s) {
 		return false;
 	}
 
@@ -305,6 +400,16 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
 			provider.queueContent(userId,siteId,assignmentReference,content);
+	}
+
+	@Override
+	public void queueContent(String userId, String siteId, String taskId, String contentId, String submissionId) throws QueueException {
+
+	}
+
+	@Override
+	public void queueResubContent(String userId, String siteId, String taskId, String contentId, String submissionId) throws QueueException {
+
 	}
 
 	public void removeFromQueue(String arg0) {
