@@ -126,6 +126,7 @@
             </activation>
             <modules>
                 <module>admin-reporting</module>
+                <module>auto-import</module>
                 <module>content-sync</module>
                 <module>course-signup</module>
                 <module>current-load</module>
