@@ -141,6 +141,7 @@
                 <module>switch-server</module>
                 <module>termdates</module>
                 <module>tetraelf-hierarchy</module>
+                <module>turnitin/contentreview-impl</module>
             </modules>
         </profile>
         <profile>
