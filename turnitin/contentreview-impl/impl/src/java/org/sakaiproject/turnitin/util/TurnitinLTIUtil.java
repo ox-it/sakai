@@ -162,6 +162,9 @@ public class TurnitinLTIUtil {
 					}
 					return score;
 				}
+			} else if (type == BASIC_ASSIGNMENT) {
+				// If we get a 200 back and don't want more information it's ok.
+				return 1;
 			} else if(statusCode == 302){
 				log.debug("Successful call: " + defUrl);
 				log.debug("LTI props " + ltiProps.toString());
