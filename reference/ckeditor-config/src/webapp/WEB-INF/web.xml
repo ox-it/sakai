@@ -8,7 +8,7 @@
     <description>CKEditor Config Enity Provider</description>
 
     <listener>
-        <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+        <listener-class>org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
     </listener>
 
 </web-app>
