@@ -1,0 +1,283 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <name>Turnitin ContentReview IMPL</name>
+    <groupId>org.sakaiproject.contentreview</groupId>
+    <artifactId>sakai-contentreview-impl-tii</artifactId>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://www.sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2006</inceptionYear>
+    <!-- the logic should be deployed as a jar and included in the pack, not to shared -->
+    <packaging>jar</packaging>
+
+    <parent>
+        <artifactId>content-review-impl-base-tii</artifactId>
+        <groupId>org.sakaiproject.contentreview</groupId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <dependencies>
+
+        <!-- Content Review dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.contentreview</groupId>
+            <artifactId>contentreview-model-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.contentreview</groupId>
+            <artifactId>contentreview-service-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.contentreview</groupId>
+            <artifactId>sakai-contentreview-hbm</artifactId>
+        </dependency>
+
+        <!-- generic DAO -->
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>generic-dao</artifactId>
+            <version>0.9.18</version>
+        </dependency>
+
+        <!-- Spring and Hibernate dependencies. -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+
+        <!-- Required for hibernate 3 HQL queries -->
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.6</version>
+        </dependency>
+
+        <!-- JDOM dependencies -->
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>1.0</version>
+        </dependency>
+        <!-- Quartz dependencies -->
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
+        <!-- Various Sakai dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.common</groupId>
+            <artifactId>sakai-common-edu-person-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.common</groupId>
+            <artifactId>sakai-common-manager-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.common</groupId>
+            <artifactId>sakai-common-type-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-util</artifactId>
+            <version>11-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.basiclti</groupId>
+            <artifactId>basiclti-api</artifactId>
+            <version>11-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.assignment</groupId>
+            <artifactId>sakai-assignment-api</artifactId>
+        </dependency>
+
+        <!-- Apache commons dependencies -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.10.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-scratchpad</artifactId>
+            <version>3.10.1</version>
+        </dependency>
+
+        <!-- PonderUtilCore for StreamUtils -->
+        <dependency>
+            <groupId>uk.org.ponder</groupId>
+            <artifactId>ponderutilcore</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
+        <!-- testing dependencies -->
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>1.8.0.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>jta</groupId>
+            <artifactId>jta</artifactId>
+            <version>h2.1.8</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>2.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>commons-lang</groupId>
+        	<artifactId>commons-lang</artifactId>
+        	<type>jar</type>
+        	<scope>provided</scope>
+        </dependency>
+        <dependency>
+        	<groupId>commons-validator</groupId>
+        	<artifactId>commons-validator</artifactId>
+        	<version>1.3.1</version>
+        	<type>jar</type>
+        	<scope>compile</scope>
+        </dependency>
+	<dependency>
+	  <groupId>oro</groupId>
+	  <artifactId>oro</artifactId>
+	  <version>2.0.8</version>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.entitybroker</groupId>
+		<artifactId>entitybroker-api</artifactId>
+		<scope>provided</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.kernel</groupId>
+		<artifactId>sakai-kernel-util</artifactId>
+	</dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+            <artifactId>gradebook-service-api</artifactId>
+        </dependency>
+
+      <!-- needed by hibernate unit tests -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20140107</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+        	<resource>
+        		<directory>src/java</directory>
+        		<includes>
+        			<include>**/*.properties</include>
+        		</includes>
+        	</resource>
+        </resources>
+        <sourceDirectory>src/java</sourceDirectory>
+        <!-- unit testing -->
+        <testSourceDirectory>src/test</testSourceDirectory>
+        <testResources>
+            <testResource>
+                <directory>${basedir}/../pack/src/webapp/WEB-INF</directory>
+                <includes>
+                    <include>spring-hibernate.xml</include>
+                    <include>logic-support.xml</include>
+                </includes>
+            </testResource>
+            <testResource>
+                <directory>${basedir}/src/test</directory>
+                <includes>
+                    <include>hibernate-test.xml</include>
+                    <include>hibernate.properties</include>
+                </includes>
+            </testResource>
+            <!--includes:  include: **/*Test.java -->
+        </testResources>
+    </build>
+
+</project>

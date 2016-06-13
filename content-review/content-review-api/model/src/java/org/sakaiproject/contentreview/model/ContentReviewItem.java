@@ -302,7 +302,7 @@ public class ContentReviewItem {
 	public void setUrlAccessed(boolean urlAccessed) {
 		this.urlAccessed = urlAccessed;
 	}
-	
+
 	public String getSubmissionId() {
 		return submissionId;
 	}
@@ -310,19 +310,15 @@ public class ContentReviewItem {
 	public void setSubmissionId(String submissionId) {
 		this.submissionId = submissionId;
 	}
-	
 	public boolean isResubmission(){
 		return resubmission;
 	}
-	
 	public void setResubmission(boolean resubmission) {
 		this.resubmission = resubmission;
 	}
-	
 	public String getExternalGrade(){
 		return externalGrade;
 	}
-	
 	public void setExternalGrade(String externalGrade) {
 		this.externalGrade = externalGrade;
 	}
