@@ -57,6 +57,49 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         xhr.send();
     };
 
+    // wrap configuration into one function
+    var loadCKConfig = function(jsonSuccess) {
+        var folder = "";
+
+        var collectionId = "";
+        if (config != null && config.collectionId) {
+            collectionId = config.collectionId;
+        }
+        else if (sakai.editor.collectionId) {
+            collectionId = sakai.editor.collectionId
+        }
+
+        if (collectionId) {
+            folder = "CurrentFolder=" + collectionId
+        }
+
+        var language = sakai.locale && sakai.locale.userLanguage || '';
+        var country = sakai.locale && sakai.locale.userCountry || null;
+
+        // WL-3501 plugins list
+        var showFullWlckplugins = sakai.editor.placementToolId === "sakai.resources";
+        var wlckplugins;
+        if (showFullWlckplugins) {
+            wlckplugins = {
+                general: [
+                    'youtube', 'twitter', 'vimeo', 'creative-commons-images'
+                ],
+                weblearn: [
+                    'folder-listing', 'image-gallery'
+                ],
+                oxford: [
+                    'oxam', 'researcher-training-tool', 'oxpoints', 'oxitems'
+                ]
+            };
+        }
+        else {
+            wlckplugins = {
+                general: [
+                    'youtube', 'twitter', 'vimeo', 'creative-commons-images'
+                ]
+            };
+        }
+
     //http://www.quirksmode.org/js/findpos.html
     function findPos(obj) {
         var curleft = curtop = 0;
@@ -132,7 +175,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             "attemptAllowed" : Number.MAX_VALUE,
             "attemptsRemaining": Number.MAX_VALUE
         },
-        skin: 'moonocolor',
+        skin: 'moono',
         defaultLanguage: 'en',
         allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter-section-3
         language: language + (country ? '-' + country.toLowerCase() : ''),
@@ -224,7 +267,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
                You have to actually setup a server or get an API key
                Hopefully this will get easier to configure soon.
              */
-            CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js'); 
+            CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js');
             /*
                Replace this with your own server if you download it from http://openatd.wordpress.com/
                Or you can proxy to the public one, see the page for more information.
@@ -287,7 +330,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         if(setMainFrameHeightNow) {
             setMainFrameHeightNow(window.name);
         }
-    });
+    });}
 
     // finally, ajax call to blocked plugin list
     getJSON('/direct/ckeditor-config/listBlockedPlugins.json', function(data) {
