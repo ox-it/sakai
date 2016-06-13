@@ -56,14 +56,6 @@
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
-            class="org.sakaiproject.entitybroker.providers.ContentHostingProvider">
-        <property name="contentHostingService" 
-        	ref="org.sakaiproject.content.api.ContentHostingService" />
-        <property name="entityManager"
-			ref="org.sakaiproject.entity.api.EntityManager" />
-    </bean>
-       
-    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
      		class="org.sakaiproject.entitybroker.providers.ContentActionsProvider">
         <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />    
         <property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
