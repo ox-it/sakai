@@ -97,7 +97,8 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		Map props = book.getCitationProperties();
 		assertEquals("Patent searching : tools & techniques", props.get("title"));
 		assertEquals("9780471783794", props.get("isnIdentifier"));
-		assertEquals("[Hunt, David, Nguyen, Long (Long B.), Rodgers, Matthew (Matthew E.)]", props.get("editor").toString());
+		assertEquals("2007", props.get("year"));
+		assertEquals("[Hunt, David, Nguyen, Long, Rodgers, Matthew]", props.get("creator").toString());
 	}
 
 	public void testParseAnotherBook() {
@@ -126,7 +127,7 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 	public void testParseNotAnotherBook() {
 		Citation book = convert(find(mockGetRequest(SampleSoloApiURLs.NOT_ANOTHER_BOOK)));
 		Map props = book.getCitationProperties();
-		assertEquals("Siever, Ellen", props.get("editor").toString());
+		assertEquals("Siever, Ellen", props.get("creator").toString());
 		assertEquals("Linux in a nutshell", props.get("title"));
 		assertEquals("9780596154486", props.get("isnIdentifier"));
 		assertEquals("O'Reilly", props.get("publisher"));
@@ -141,7 +142,7 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObject co = service.parse(req);
 		Citation citation = service.convert(co);
 		assertEquals("Patent searching : tools & techniques", citation.getCitationProperty("title", false));
-		assertEquals("[Hunt, David, Nguyen, Long (Long B.), Rodgers, Matthew (Matthew E.)]", citation.getCitationProperty("editor", false).toString());
+		assertEquals("[Hunt, David, Nguyen, Long, Rodgers, Matthew]", citation.getCitationProperty("creator", false).toString());
 		assertEquals("9780471783794", citation.getCitationProperty("isnIdentifier", false));
 	}
 
@@ -352,7 +353,7 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		assertEquals("2002", citation.getCitationProperty("date", false));
 		assertEquals("2002", citation.getCitationProperty("year", false));
 		assertEquals("London", citation.getCitationProperty("publicationLocation", false));
-		assertEquals("[Woodhouse, Jayne, Pictorial Charts Educational Trust (London, England)]", citation.getCitationProperty("creator", false).toString());
+		assertEquals("Woodhouse, Jayne", citation.getCitationProperty("creator", false).toString());
 		assertEquals("http://solo.bodleian.ox.ac.uk/primo_library/libweb/action/display.do?doc=oxfaleph020302996&vid=OXVU1&fn=display&displayMode=full", citation.getCitationProperty("otherIds", false));
 	}
 }
