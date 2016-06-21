@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.entity.api.Entity;
@@ -207,13 +206,6 @@ public class SiteHandler extends WorksiteHandler
 			Site site;
 			try
 			{
-				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
-				if (advisors != null) {
-					for (SecurityAdvisor advisor:advisors) {
-						SecurityService.pushAdvisor(advisor);
-						//session.removeAttribute("sitevisit.security.advisor");
-					}
-				}
 				// This should understand aliases as well as IDs
 				site = portal.getSiteHelper().getSiteVisit(siteId);
 			}
@@ -317,13 +309,6 @@ public class SiteHandler extends WorksiteHandler
 		Site site = null;
 		try
 		{
-			Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
-			if (advisors != null) {
-				for (SecurityAdvisor advisor:advisors) {
-					SecurityService.pushAdvisor(advisor);
-					//session.removeAttribute("sitevisit.security.advisor");
-				}
-			}
 			// Save the original site ID.
 			ThreadLocalManager.set("portal.original.siteId", siteId);
 			// This should understand aliases as well as IDs

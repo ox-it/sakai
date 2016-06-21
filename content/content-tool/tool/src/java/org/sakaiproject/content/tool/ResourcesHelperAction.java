@@ -1970,14 +1970,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			boolean siteQuotaUnlimited = siteQuota == 0;
 			
 			// If the file size exceeds the max uploaded file size, post error message
+			Long fileSizeKB = fileSize / 1024L;
 			Long fileSizeMB = fileSize / 1024L / 1024L;
 			if( fileSizeMB > uploadMax )
 			{
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
 			}
-			
 			// If the file size exceeds the max quota for the site, post error message
-			else if( !siteQuotaUnlimited && fileSizeMB > siteQuota )
+			else if( !siteQuotaUnlimited && fileSizeKB > siteQuota )
 			{
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-site-upload-quota", new Object[]{siteQuota}));
 			}
@@ -2097,13 +2097,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 						}
 						//if no overwrite then create a new resource in the collection
 						else{
-							resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),5);
+							resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 						}
 					}
 					//if this is a new resource add to the collection.
 					catch(IdUnusedException idUnusedException) {
 						logger.debug("Adding resource "+uploadFileName+" in collection "+collection.getId());
-						resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),5);
+						resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 					}
 				}
 				else
@@ -2132,6 +2132,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 						resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension),5);
 					}
 					
+					logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
+					resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				}
 
 				if (resource != null)

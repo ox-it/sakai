@@ -33,18 +33,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,40 +51,44 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
+import org.sakaiproject.tool.gradebook.CourseGrade;
+import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.facades.Authz;
-import org.sakaiproject.tool.gradebook.CourseGradeRecord;
-import org.sakaiproject.tool.gradebook.CourseGrade;
-import org.sakaiproject.tool.gradebook.Category;
-import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
-import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
@@ -98,7 +100,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
     private Authz authz;
     private GradebookPermissionService gradebookPermissionService;
-    private EventTrackingService eventTrackingService;
+    protected SiteService siteService;
 	
     @Override
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
@@ -252,7 +254,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new IllegalArgumentException("Null paraemter passed to getGradeDefinitionForStudentForItem");	
 		}
 		
-		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
+		//studentId can be a groupId (from Assignments)
+		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid) || isCurrentUserFromGroup(gradebookUid, studentUid);
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
 		GradeDefinition gradeDef = (GradeDefinition)getHibernateTemplate().execute(new HibernateCallback() {
@@ -769,21 +772,34 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void updateAssignment(final String gradebookUid, final Long assignmentId, final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {		
+	public void updateAssignment(final String gradebookUid, final Long assignmentId,
+			final org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition) {
 		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
-			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to change the definition of assignment " + assignmentId);
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid
+					+ " attempted to change the definition of assignment " + assignmentId);
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
-		
+
+		final Gradebook gradebook = this.getGradebook(gradebookUid);
+
 		getHibernateTemplate().execute(new HibernateCallback() {
 			@Override
-			public Object doInHibernate(Session session) throws HibernateException {
+			public Object doInHibernate(final Session session) throws HibernateException {
 				final Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
 				if (assignment == null) {
-					throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
+					throw new AssessmentNotFoundException(
+							"There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
 				}
-				
-				//external assessments are supported, but not these fields
+
+				// check if we need to scale the grades
+				// this will be if we have percentage grading and we change the points possible
+				boolean scaleGrades = false;
+				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE
+						&& assignment.getPointsPossible() != assignmentDefinition.getPoints()) {
+					scaleGrades = true;
+				}
+
+				// external assessments are supported, but not these fields
 				if (!assignmentDefinition.isExternallyMaintained()) {
 					assignment.setName(assignmentDefinition.getName().trim());
 					assignment.setPointsPossible(assignmentDefinition.getPoints());
@@ -792,17 +808,22 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				assignment.setExtraCredit(assignmentDefinition.isExtraCredit());
 				assignment.setCounted(assignmentDefinition.isCounted());
 				assignment.setReleased(assignmentDefinition.isReleased());
-				
-				//if we have a category, get it and set it
-				//otherwise clear it fully
+
+				// if we have a category, get it and set it
+				// otherwise clear it fully
 				if (assignmentDefinition.getCategoryId() != null) {
-					Category cat = (Category) session.load(Category.class, assignmentDefinition.getCategoryId());
+					final Category cat = (Category) session.load(Category.class, assignmentDefinition.getCategoryId());
 					assignment.setCategory(cat);
 				} else {
 					assignment.setCategory(null);
 				}
-				
+
 				updateAssignment(assignment, session);
+
+				if (scaleGrades) {
+					convertGradePointsForUpdatedTotalPoints(gradebook, assignment);
+				}
+
 				return null;
 			}
 		});
@@ -1739,17 +1760,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  }
 			  }
 			  
-			  for (Iterator stIter = studentIds.iterator(); stIter.hasNext();) {
-				  String studentId = (String) stIter.next();
-				  if (studentId != null) {
-					  if (!studentIdEnrRecMap.containsKey(studentId)) {
-						  throw new SecurityException("User " + authn.getUserUid() + 
-						  " attempted to access grade information for student " + studentId + 
-						  " without permission in gb " + gradebook.getUid() + 
-						  " using gradebookService.getGradesForStudentsForItem");
-					  }
+			  //filter the provided studentIds if user doesn't have permissions
+			  studentIds.removeIf(studentId -> {
+				  if (!studentIdEnrRecMap.containsKey(studentId)) {
+					  return true;
 				  }
-			  }
+				  return false;
+			  });
 			  
 			  // retrieve the grading comments for all of the students
 			  List<Comment> commentRecs = getComments(gbItem, studentIds);
@@ -1764,6 +1781,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			  }
 			  
 			  // now, we can populate the grade information
+			  List<String> studentsWithGradeRec = new ArrayList<>();
 			  List<AssignmentGradeRecord> gradeRecs = getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIds);
 			  if (gradeRecs != null) {
 				  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
@@ -1779,6 +1797,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						  GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(agr, gbItem, gradebook, commentText);
 					  	  	
 						  studentGrades.add(gradeDef);
+						  studentsWithGradeRec.add(agr.getStudentId());
+					  }
+				  }
+
+				  // if student has a comment but no grade add an empty grade definition with the comment
+				  if (studentsWithGradeRec.size() < studentIds.size()) {
+					  for (String studentId : studentIdCommentTextMap.keySet()) {
+						  if (!studentsWithGradeRec.contains(studentId)) {
+							  String comment = studentIdCommentTextMap.get(studentId);
+							  AssignmentGradeRecord emptyGradeRecord = new AssignmentGradeRecord(gbItem, studentId, null);
+							  GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(emptyGradeRecord, gbItem, gradebook, comment);
+							  studentGrades.add(gradeDef);
+						  }
 					  }
 				  }
 			  }
@@ -3067,6 +3098,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			return null;
 		}
 		
+		if (categoryId == null) {
+			log.debug("No category supplied, nothing to do.");
+			return null;
+		}
+		
 		//setup
 		int numScored = 0;
 		int numOfAssignments = 0;
@@ -3148,6 +3184,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				
 				//set entered grade
 				cg.setEnteredGrade(gr.getEnteredGrade());
+				
+				//set date recorded
+				cg.setDateRecorded(gr.getDateRecorded());
 				
 				if(!assignments.isEmpty()) {
 					
@@ -3309,11 +3348,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 	}
 
-	
-	
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.eventTrackingService = eventTrackingService;
-	}
     
 	public Authz getAuthz() {
 		return authz;
@@ -3329,6 +3363,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     
 	public void setGradebookPermissionService(GradebookPermissionService gradebookPermissionService) {
 		this.gradebookPermissionService = gradebookPermissionService;
+	}
+	
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public SiteService getSiteService() {
+		return siteService;
 	}
 
 	@Override
@@ -3505,5 +3547,117 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			});
 		}
 
+	}
+
+
+	/**
+	 * Return the grade changes made since a given time
+	 * @param assignmentIds	ids of assignments to check
+	 * @param since	timestamp from which to check for changes
+	 * @return set of changes made
+	 */
+	@Override
+	public List<GradingEvent> getGradingEvents(final List<Long> assignmentIds, final Date since) {
+		List<GradingEvent> rval = new ArrayList<>();
+
+		if (since == null) {
+			log.debug("No `since` timestamp was specified.  Returning null");
+			return null;
+		}
+
+		HibernateCallback hc = new HibernateCallback() {
+			@Override
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("from GradingEvent as ge where ge.dateGraded >= :since" +
+					" and ge.gradableObject.id in (:assignmentIds)");
+				q.setParameter("since", since);
+				q.setParameterList("assignmentIds", assignmentIds);
+				return q.list();
+			}
+		};
+
+		rval = (List)getHibernateTemplate().execute(hc);
+		return rval;
+	}
+	
+	/**
+	 * Update the persistent grade points for an assignment when the total points is changed.
+	 *
+	 * @param gradebook the gradebook
+	 * @param assignment assignment with original total point value
+	 */
+	private void convertGradePointsForUpdatedTotalPoints(final Gradebook gradebook, final Assignment assignment) {
+		if (gradebook == null || assignment == null || assignment.getPointsPossible() == null) {
+			throw new IllegalArgumentException("null values found in convertGradePointsForUpdatedTotalPoints.");
+		}
+
+		final List<String> studentUids = getStudentsForGradebook(gradebook);
+		final List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecordsForGbItem(assignment.getId(), studentUids);
+
+		// scale for total points changed when on percentage grading
+		// TODO could scale for total points changed when on a points grading as well, though needs different logic
+		if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+
+			// Calculate the new points value that we should be persisting based on the new total points
+			if (assignment.getPointsPossible() != null) {
+				gradeRecords.forEach(gr -> gr.setPointsEarned(
+						calculateEquivalentPointValueForPercent(assignment.getPointsPossible(), gr.getPointsEarned())));
+			}
+		}
+
+		// save all
+		batchPersistEntities(gradeRecords);
+	}
+
+	/**
+	 * Get the list of students for the given gradebook
+	 *
+	 * @param gradebook the gradebook for the site
+	 * @return a list of uuids for the students
+	 */
+	private List<String> getStudentsForGradebook(final Gradebook gradebook) {
+		final List<EnrollmentRecord> enrolments = getSectionAwareness().getSiteMembersInRole(gradebook.getUid(), Role.STUDENT);
+
+		final List<String> rval = enrolments.stream()
+				.map(EnrollmentRecord::getUser)
+				.map(User::getUserUid)
+				.collect(Collectors.toList());
+
+		return rval;
+	}
+
+	/**
+	 * Helper to batch persist entities
+	 *
+	 * @param entities a list of entities.
+	 */
+	private void batchPersistEntities(final List<?> entities) {
+
+		final Session session = getSessionFactory().openSession();
+
+		for (int i = 0; i < entities.size(); i++) {
+			session.saveOrUpdate(entities.get(i));
+			if (i % 20 == 0) {
+				session.flush();
+				session.clear();
+			}
+		}
+
+		// Sakai auto commits the session
+		session.close();
+	}
+	
+	private boolean isCurrentUserFromGroup(final String gradebookUid, final String studentId)
+	{
+		boolean isFromGroup=false;
+		try {
+			Site s = siteService.getSite(gradebookUid);
+			Group g = s.getGroup(studentId);
+			isFromGroup = (g != null) && (g.getMember(authn.getUserUid()) != null);
+		} catch (Exception e) {
+			// Id not found
+			log.error("Error in isCurrentUserFromGroup: ", e);
+		} 
+		return isFromGroup;
 	}
 }

@@ -21,21 +21,21 @@
 
 (function ($) {
 
-	/**
-	*	Check if there is no scroll rendered and there are more pages
-	*/
+    /**
+    *   Check if there is no scroll rendered and there are more pages
+    */
     roster.checkScroll = function () {
         // Check if body height is lower than window height (scrollbar missed, maybe you need to get more pages automatically)
         if ($("body").height() <= $(window).height()) {
             setTimeout(function () {
-            	var renderedMembers = $(".roster-member").size();
-            	// Without filter conditions get more pages if there are more members than rendered and rendered > 0
-            	// If you have an active filter maybe you could display less members than total
-            	// So get more pages only if rendered match a page size (10 is pagesize)
-            	if (roster.site.membersTotal > renderedMembers && renderedMembers > 0 && renderedMembers % 10 === 0) {
-                	$("body").data("scroll-roster", true);
-                	$(window).trigger('scroll.roster');
-            	}
+                var renderedMembers = $(".roster-member").size();
+                // Without filter conditions get more pages if there are more members than rendered and rendered > 0
+                // If you have an active filter maybe you could display less members than total
+                // So get more pages only if rendered match a page size (10 is pagesize)
+                if (roster.site.membersTotal > renderedMembers && renderedMembers > 0 && renderedMembers % 10 === 0) {
+                    $("body").data("scroll-roster", true);
+                    $(window).trigger('scroll.roster');
+                }
             }, 100);
         }
     };
@@ -50,7 +50,7 @@
 
     };
 
-    roster.switchState = function (state, arg, searchQuery) {
+    roster.switchState = function (state, arg) {
 
         roster.currentState = state;
 
@@ -154,7 +154,7 @@
                 roster.readyClearButton(state);
 
                 // We don't want parallel membership requests
-	            $('#navbar_overview_link > span > a').off('click');
+                $('#navbar_overview_link > span > a').off('click');
 
                 roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
             });
@@ -294,8 +294,8 @@
 
         var url = "/direct/roster-membership/" + roster.siteId;
         
-        if (options.userId) {
-            url += "/get-user.json?userId=" + options.userId;
+        if (options.userIds) {
+            url += "/get-users.json?userIds=" + options.userIds.join(',');
             if (roster.enrollmentSetToView) {
                 url += "&enrollmentSetId=" + roster.enrollmentSetToView;
             }
@@ -308,7 +308,7 @@
             }
 
             if (roster.roleToView) {
-                url += "&roleId=" + roster.roleToView;
+                url += "&roleId=" + encodeURIComponent(roster.roleToView);
             }
         }
 
@@ -348,12 +348,12 @@
 
                 members.forEach(function (m) {
 
-                    m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + roster.siteId;
+                    m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + encodeURIComponent(roster.siteId);
                     m.profileImageUrl = "/direct/profile/" + m.userId + "/image";
                     if (options.forceOfficialPicture) {
                         m.profileImageUrl += "/official";
                     }
-                    m.profileImageUrl += "?siteId=" + roster.siteId;
+                    m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
                     var groupIds = Object.keys(m.groups);
                     m.hasGroups = groupIds.length > 0;
 
@@ -423,9 +423,12 @@
                     }
                 }
 
-                roster.nextPage += 1;
-
-                $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture));
+                if (options.userIds) {
+                    $(window).off('scroll.roster');
+                } else {
+                    roster.nextPage += 1;
+                    $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture));
+                }
 
                 loadImage.hide();
             },
@@ -448,8 +451,35 @@
     roster.search = function (query) {
 
         if (query !== roster.i18n.roster_search_text && query !== "") {
+            var userIds = [];
             var userId = roster.searchIndex[query];
-            roster.renderMembership({ forceOfficialPicture: false, replace: true, userId: userId });
+            if (!userId) {
+                roster.searchIndexKeys.forEach(function (displayName) {
+
+                    var regex = new RegExp(query, 'i');
+                    if (regex.test(displayName)) {
+                        userIds.push(roster.searchIndex[displayName]);
+                    }
+                });
+
+                if (userIds.length > 5) {
+                    // Limit to 5 users
+                    userIds = userIds.slice(0, 5);
+                }
+            } else {
+                userIds.push(userId);
+            }
+
+            if (userIds.length > 0) {
+                roster.renderMembership({ showOfficialPictures: roster.rosterOfficialPictureMode,
+                                            replace: true,
+                                            userIds: userIds });
+            } else {
+                $('#roster-members').html('<div id="roster-information">' + roster.i18n.no_participants + '</div>');
+                $('#roster-members-total').hide();
+                $('#roster_type_selector').hide();
+                $('#summary').hide();
+            }
         }
     };
 
@@ -521,12 +551,10 @@
     };
 
     roster.getRoleFragments = function (roleCounts) {
-
         return Object.keys(roleCounts).map(function (key) {
-
             var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
-            return frag.replace(/\{1\}/, key);
-        }).join();
+            return frag.replace(/\{1\}/, '<strong>' +key + '</strong>');
+        }).join(", ");
     };
 
     roster.formatDate = function (time) {
@@ -542,15 +570,15 @@
     // Functions and attributes added. All the code from hereon is executed
     // after load.
 
-	if (!roster.siteId) {
-		alert('The site id  MUST be supplied as a bootstrap parameter.');
-		return;
-	}
-	
-	if (!roster.userId) {
-		alert("No current user. Have you logged in?");
-		return;
-	}
+    if (!roster.siteId) {
+        alert('The site id  MUST be supplied as a bootstrap parameter.');
+        return;
+    }
+    
+    if (!roster.userId) {
+        alert("No current user. Have you logged in?");
+        return;
+    }
 
     Handlebars.registerHelper('translate', function (key) {
         return roster.i18n[key];
@@ -569,19 +597,19 @@
     });
 
     Handlebars.registerHelper('unconnected', function () {
-	    return this.connectionStatus === CONNECTION_NONE;
+        return this.connectionStatus === CONNECTION_NONE;
     });
 
     Handlebars.registerHelper('confirmed', function () {
-	    return this.connectionStatus === CONNECTION_CONFIRMED;
+        return this.connectionStatus === CONNECTION_CONFIRMED;
     });
 
     Handlebars.registerHelper('requested', function () {
-	    return this.connectionStatus === CONNECTION_REQUESTED;
+        return this.connectionStatus === CONNECTION_REQUESTED;
     });
 
     Handlebars.registerHelper('incoming', function () {
-	    return this.connectionStatus === CONNECTION_INCOMING;
+        return this.connectionStatus === CONNECTION_INCOMING;
     });
 
     Handlebars.registerHelper('roleAllowed', function (options) {
@@ -594,7 +622,7 @@
 
     roster.init = function () {
 
-	    roster.i18n = $.i18n.map;
+        roster.i18n = $.i18n.map;
 
         roster.i18n.months = roster.i18n.months.split(',');
 

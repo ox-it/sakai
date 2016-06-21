@@ -589,7 +589,8 @@
 		<a href="$printParticipantUrl" title="$!tlang.getString('print')">$!tlang.getString('print')</a><i class="icon-sakai-pdf"></i>
 		<hr />
 		<form name="participantForm" id="participantForm" action="#toolForm("SiteAction")" method="post">
-			<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0" summary ="$tlang.getString("sitegen.siteinfolist.partlist.summary")" id="siteMembers">
+			<div class="table-responsive">
+			<table class ="table table-responsive table-bordered table-striped table-hover" summary ="$tlang.getString("sitegen.siteinfolist.partlist.summary")" id="siteMembers">
 				<tr>
 					<th id="name" scope="col">
 						<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_name")" title ="$tlang.getString("sitegen.siteinfolist.sortname")"> 
@@ -671,8 +672,8 @@
 							</th>
 						#end
 						<th id="remove" class="screenOnly attach" align="center" scope="col">
-							<label for="toggleAllSelected">$tlang.getString('sitegen.siteinfolist.remove')</label>
 							<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected" onclick="javascript:toggleSelectAll(this, 'selectedUser')" title="$tlang.getString('sitegen.siteinfolist.remove')"/>
+							<label for="toggleAllSelected">$tlang.getString('sitegen.siteinfolist.remove')</label>
 						</th>
 					#end
 				</tr>
@@ -767,7 +768,7 @@
 							#end
 							<td class="screenOnly">
 								#if ($participant.isRemoveable())
-									## if in My Workspace site, cannot move the site user from it
+									## if in Home site, cannot move the site user from it
 									#if (!$!isMyWorkspace || ($!isMyWorkspace && !$uniqname.equals($!siteUserId)))
 									<label  for="remove_$uniqname"><span class="skip">$tlang.getString("sitegen.siteinfolist.remove") $participant.getDisplayId()</span></label><input type="checkbox" name="selectedUser" value="$uniqname" id="remove_$uniqname"
 											#foreach($participantSelected in $selectedParticipants)
@@ -782,7 +783,7 @@
 						#end
 					</tr>
 				#end
-			</table>
+			</table></div>
 			<hr />
 			<div class="act" style="padding: 0 0">
 			#if($allowUpdateSiteMembership)

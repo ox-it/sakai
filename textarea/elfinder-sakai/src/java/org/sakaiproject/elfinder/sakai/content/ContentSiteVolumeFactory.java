@@ -107,7 +107,7 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                     ext = filename.substring(index + 1);
                 }
                 ContentResourceEdit cre = contentHostingService.addResource(asId(getParent(fsi)), name, ext, 999);
-                contentHostingService.commitResource(cre);
+                contentHostingService.commitResource(cre, org.sakaiproject.event.api.NotificationService.NOTI_NONE);
                 //update saved ID incase it wasn't the same
                 ((ContentFsItem) fsi).setId(cre.getId());
 
@@ -265,9 +265,8 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
 
         public FsItem getParent(FsItem fsi) {
             String rootId = asId(getRoot());
-            String id1 = asId(fsi);
-            if (!rootId.equals(id1)) {
-                String id = asId(fsi);
+            String id = asId(fsi);
+            if (id.startsWith(rootId) && !rootId.equals(id))  {
                 String parentId = contentHostingService.getContainingCollectionId(id);
                 return fromPath(parentId);
             } else {
@@ -370,7 +369,7 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
             try {
                 ContentResourceEdit resource = contentHostingService.editResource(id);
                 resource.setContent(is);
-                contentHostingService.commitResource(resource);
+                contentHostingService.commitResource(resource, org.sakaiproject.event.api.NotificationService.NOTI_NONE);
             } catch (SakaiException se) {
                 throw new IOException("Failed to open input stream for: " + id, se);
             }
@@ -392,7 +391,7 @@ public class ContentSiteVolumeFactory implements SiteVolumeFactory {
                     ResourcePropertiesEdit props = edit.getPropertiesEdit();
                     props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, dstName);
 
-                    contentHostingService.commitResource(edit);
+                    contentHostingService.commitResource(edit, org.sakaiproject.event.api.NotificationService.NOTI_NONE);
                 }
             } catch (SakaiException se) {
                 throw new IOException("Failed to rename file: " + srcId + " to " + dstName, se);

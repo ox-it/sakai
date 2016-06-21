@@ -1021,7 +1021,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (index < breadcrumbs.size() - 1) {
 						// Not the last item
 						link = UIInternalLink.make(crumb, "crumb-link", e.title, view);
-						UIOutput.make(crumb, "crumb-follow", " > ");
+						UIOutput.make(crumb, "crumb-separator");
 					} else {
 						UIOutput.make(crumb, "crumb-follow", e.title).decorate(new UIStyleDecorator("bold"));
 					}
@@ -3172,6 +3172,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (i.getType() == SimplePageItem.RESOURCE && i.isSameWindow()) {
 					GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 					params.setSendingPage(currentPage.getPageId());
+					if (i.getAttribute("multimediaUrl") != null) // resource where we've stored the URL ourselves
+					    params.setSource(i.getAttribute("multimediaUrl"));
 					if (lessonBuilderAccessService.needsCopyright(i.getSakaiId()))
 					    params.setSource("/access/require?ref=" + URLEncoder.encode("/content" + i.getSakaiId()) + "&url=" + URLEncoder.encode(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()).substring(7)));
 					else
@@ -3182,7 +3184,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 				}
 				else {
-				    URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
+				    if (i.getAttribute("multimediaUrl") != null) // resource where we've stored the URL ourselves
+					URL = i.getAttribute("multimediaUrl");
+				    else
+					URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
 				    UILink link = UILink.make(container, ID, URL);
 				    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
 				    if (notDone)
@@ -3913,6 +3918,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIForm form = UIForm.make(tofill, "add-multimedia-form");
 		makeCsrf(form, "csrf9");
 
+		UIInput.make(form, "mm-name", "#{simplePageBean.name}");
 		UIOutput.make(form, "mm-file-label", messageLocator.getMessage("simplepage.upload_label"));
 
 		UIOutput.make(form, "mm-url-label", messageLocator.getMessage("simplepage.addLink_label"));

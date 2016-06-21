@@ -151,6 +151,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         var elfinderUrl = '/library/editor/elfinder/sakai/elfinder.' + elfinderBuild +
             '.html?connector=elfinder-connector/elfinder-servlet/connector';
 
+        // Add tilde to userId in order to avoid permission error while getting resources from user workspace
+        collectionId = collectionId.replace('/user/','/user/~');
+
         var filebrowser = {
             browseUrl :      elfinderUrl + '&startdir=' + collectionId,
             imageBrowseUrl : elfinderUrl + '&startdir=' + collectionId + '&type=images',
@@ -240,6 +243,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         templates_files: [basePath+"templates/default.js"],
         templates: 'customtemplates'
     };
+
+    if (config != null && config.baseFloatZIndex) {
+	ckconfig.baseFloatZIndex = config.baseFloatZIndex;
+    }
 
     //To add extra plugins outside the plugins directory, add them here! (And in the variable)
     (function() {

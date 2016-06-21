@@ -4034,8 +4034,8 @@ extends VelocityPortletStateAction
 
 		context.put("serverName", ServerConfigurationService.getServerName());
 
-		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
-			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
 		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 			
@@ -4065,8 +4065,8 @@ extends VelocityPortletStateAction
 		context.put("isMyWorkspace", isOnWorkspaceTab());
 		context.put("form-generate", BUTTON + "doOpaqueUrlGenerate");
 		context.put("form-cancel", BUTTON + "doCancel");
-		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
-			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
 		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 	}
@@ -4081,8 +4081,8 @@ extends VelocityPortletStateAction
 		String opaqueUrl = ServerConfigurationService.getAccessUrl()
 			+ CalendarService.calendarOpaqueUrlReference(calendarRef);
 
-		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6)),
-			String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",6))};
+		String icalInfoArr[] = {String.valueOf(ServerConfigurationService.getInt("calendar.export.next.months",12)),
+			String.valueOf(ServerConfigurationService.getInt("calendar.export.previous.months",6))};
 		String icalInfoStr = rb.getFormattedMessage("ical.info",icalInfoArr);
 		context.put("icalInfoStr",icalInfoStr);
 

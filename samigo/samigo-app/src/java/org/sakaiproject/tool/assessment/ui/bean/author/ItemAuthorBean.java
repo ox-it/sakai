@@ -1345,12 +1345,11 @@ public class ItemAuthorBean
 			try {
 				ResourcePropertiesEdit resourceProperties = AssessmentService.getContentHostingService().newResourceProperties();
 				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, ToolManager.getCurrentPlacement().getContext());
-				//resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
+				resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 				
 				ContentCollectionEdit edit = (ContentCollectionEdit)AssessmentService.getContentHostingService().addCollection(collectionId, resourceProperties);
 				
-				edit.setPublicAccess();
-				AssessmentService.getContentHostingService().commitCollection(edit);
+				AssessmentService.getContentHostingService().setPubView(collectionId,true);
 			}catch(Exception ee){
 				log.warn(ee.getMessage());
 			}
@@ -1360,15 +1359,14 @@ public class ItemAuthorBean
 		}
 
 		try {
-			if(/*!"true".equals(AssessmentService.getContentHostingService().getProperties(Entity.SEPARATOR + "private"+ Entity.SEPARATOR).get(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT)) || */!AssessmentService.getContentHostingService().isPubView(collectionId))
+			if(!"true".equals(AssessmentService.getContentHostingService().getProperties(Entity.SEPARATOR + "private"+ Entity.SEPARATOR).get(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT)) || !AssessmentService.getContentHostingService().isPubView(collectionId))
 			{
 			
 				ContentCollectionEdit edit = AssessmentService.getContentHostingService().editCollection(collectionId);
 				ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
-				//resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
-
+				resourceProperties.addProperty(ResourceProperties.PROP_HIDDEN_WITH_ACCESSIBLE_CONTENT, "true");
 				edit.setPublicAccess();
-				
+
 				AssessmentService.getContentHostingService().commitCollection(edit);
 				
 			}
@@ -1547,6 +1545,7 @@ public class ItemAuthorBean
 	  if(allowMinScore == null){
 		  allowMinScore = ServerConfigurationService.getBoolean("samigo.allowMinScore", Boolean.FALSE);
 	  }
+      log.debug("Allow min score: "+ allowMinScore);
 	  return allowMinScore;
   }
 
@@ -1554,24 +1553,4 @@ public class ItemAuthorBean
 	  this.allowMinScore = allowMinScore;
   }
 
-    public boolean isDisableNegativePoints() {
-        Long type = null;
-        try {
-            type = Long.parseLong(currentItem.getItemType());
-        } catch (NumberFormatException nfe) {
-            return true;
-        }
-        boolean value = true;
-        if (currentItem != null && !getAllowMinScore() && // disable if using min score
-                (currentItem.getPartialCreditFlag().equals("false") || !currentItem.isPartialCreditEnabled()) && // disable if using partial credit
-                (type == TypeFacade.MULTIPLE_CHOICE || // enable for single correct
-                        type == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION || // enable for multiple correct single selection
-                        type == TypeFacade.TRUE_FALSE || // enable for multiple correct single selection
-                        (type == TypeFacade.MULTIPLE_CORRECT && // enable for multiple correct multiple selection and
-                                (currentItem.getMcmsPartialCredit().equals("false"))))) { // not using multiple choice multiple correct partial credit
-            value = false;
-        }
-        log.debug("Disable negative points: " + Boolean.toString(value));
-        return value;
-    }
 }

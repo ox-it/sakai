@@ -112,7 +112,7 @@
 			      <a href="#" rsf:id="resetbutton2" class="reload">
 				  <img rsf:id="resetimage2" src="/library/image/transparent.gif"/>
 			      </a>
-			       <h2 ><span rsf:id="crumb:"><a style="background:none"  href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span></h2>
+			       <h2 ><span rsf:id="crumb:"><a style="background:none"  href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow" class="lessons-siteHierarchy-title"></span><span rsf:id="crumb-separator" class="Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span></span></h2>
 			     </div>
 			     <a href="#" rsf:id="resetbutton" class="reload">
 				 <img rsf:id="resetimage" src="/library/image/transparent.gif"/>
@@ -288,7 +288,7 @@
                     <a href="#" role="menuitem" rsf:id="add-content" class="add-before-param"><span rsf:id="msg.simplepage.add-student-content"></span></a>
                   </li>
                   <li rsf:id="addwebsite-li">
-                    <a href="#" role="menuitem" rsf:id="add-website" class="add-website"><span rsf:id="msg.simplepage.website"></span></a>
+                    <a href="#" role="menuitem" rsf:id="add-website" class="add-website add-before-param"><span rsf:id="msg.simplepage.website"></span></a>
                   </li>
                   <li rsf:id="blti-tool:">
                     <a href="#" role="menuitem" rsf:id="add-blti-tool" class="add-before-param"><span rsf:id="msg.simplepage.blti"></span></a>
@@ -1135,6 +1135,13 @@
                     </div>
 
                     <div class="border2 controlsPanel">                 
+		        <div id="mm-name-section">
+                          <p class="shorttext required">
+                            <label rsf:id="msg=simplepage.name_label" for="mm-name"></label>
+                            <input type="text" name="mm-name" rsf:id="mm-name" id="mm-name" size="30" maxlength="99" class="edit-form-input" />
+                          </p>
+			  <hr />
+			</div>
                         <p class="required">
                             <label rsf:id="msg=simplepage.upload_label" for="mm-file">File</label>
                             <input type="file" name="mm-file" id="mm-file" style="width:95%" class="edit-multimedia-input" multiple="multiple" />

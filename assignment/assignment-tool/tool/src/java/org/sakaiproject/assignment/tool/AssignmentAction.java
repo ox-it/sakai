@@ -1559,9 +1559,10 @@ public class AssignmentAction extends PagedResourceActionII
 				
 				if (assignment.isGroup()) {
 				    context.put("submitterId", s.getSubmitterId() );
-				    String _grade_override= s.getGradeForUser(UserDirectoryService.getCurrentUser().getId());
-				    if (_grade_override != null) {
-				            context.put("override", _grade_override);
+				    String grade_override= (StringUtils.trimToNull(assignment.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))!=null) && (assignment.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)?
+			                s.getGradeForUserInGradeBook(UserDirectoryService.getCurrentUser().getId())!=null?s.getGradeForUserInGradeBook(UserDirectoryService.getCurrentUser().getId()):s.getGradeForUser(UserDirectoryService.getCurrentUser().getId()):s.getGradeForUser(UserDirectoryService.getCurrentUser().getId());
+				    if (grade_override != null) {
+				            context.put("override", grade_override);
 				    }
 				}
 
@@ -1884,8 +1885,11 @@ public class AssignmentAction extends PagedResourceActionII
 	        while (_it.hasNext()) {
 	            String _gRef = _it.next();
 	            Group _g = site.getGroup(_gRef);
-	            if (_g != null && _g.getMember(member) != null)// && _g.getProperties().get(GROUP_SECTION_PROPERTY) == null)
+	            if (_g != null && _g.getMember(member) != null){// && _g.getProperties().get(GROUP_SECTION_PROPERTY) == null)
 	                groups.add(_g);
+	            } else if(_g != null && m_securityService.isSuperUser()){// allow admin to submit on behalf of groups
+	                groups.add(_g);
+	            }
 	        }
 	    }
 	    return groups;
@@ -2225,12 +2229,12 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("submission", submission);
 			
             if (assignment.isGroup()) {
-                String _grade_override= submission.getGradeForUser(UserDirectoryService.getCurrentUser().getId());
-                if (_grade_override != null) {
-                        context.put("override", _grade_override);
+                String grade_override= (StringUtils.trimToNull(assignment.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))!=null) && (assignment.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)?
+                		submission.getGradeForUserInGradeBook(UserDirectoryService.getCurrentUser().getId())!=null?submission.getGradeForUserInGradeBook(UserDirectoryService.getCurrentUser().getId()):submission.getGradeForUser(UserDirectoryService.getCurrentUser().getId()):submission.getGradeForUser(UserDirectoryService.getCurrentUser().getId());
+                if (grade_override != null) {
+                        context.put("override", grade_override);
                 }
             }
-
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, submission);
 			
@@ -3134,7 +3138,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			Collections.sort(categoryList);
 			context.put("categoryKeys", categoryList);
-			context.put("categoryTable", categoryTable());
+			context.put("categoryTable", categoryTable);
 		}
 		else
 		{
@@ -4339,11 +4343,12 @@ public class AssignmentAction extends PagedResourceActionII
 				if (_ss != null && _ss.getSubmission() != null) {
 			        	User[] _users = _ss.getSubmission().getSubmitters();
 			        	for (int i=0; _users != null && i < _users.length; i ++) {
-			            		String _agrade = _ss.getSubmission().getGradeForUser(_users[i].getId());
-			            		if (_agrade != null) {
+			            		String agrade = (StringUtils.trimToNull(assignment.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))!=null) && (assignment.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)?
+			            				_ss.getSubmission().getGradeForUserInGradeBook(_users[i].getId())!=null?_ss.getSubmission().getGradeForUserInGradeBook(_users[i].getId()):_ss.getSubmission().getGradeForUser(_users[i].getId()):_ss.getSubmission().getGradeForUser(_users[i].getId());
+			            		if (agrade != null) {
 			                		_ugrades.put(
 			                        	_users[i].getId(),
-			                        	_agrade);
+			                        	agrade);
 			            		}	
 			        	}
 				}
@@ -11086,9 +11091,12 @@ public class AssignmentAction extends PagedResourceActionII
 				if (a.isGroup()) {
 				    User[] _users = s.getSubmitters();
 				    for (int i=0; _users != null && i < _users.length; i++) {
-				        if (s.getGradeForUser(_users[i].getId()) != null) {
-				            state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId(), s.getGradeForUser(_users[i].getId()));
-				        }
+				    	String grade_override= (StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))!=null) && (a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE) ?
+				    			(s.getGradeForUserInGradeBook(_users[i].getId())!=null) && !(s.getGradeForUserInGradeBook(_users[i].getId()).equals(displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE), a.getContent().getFactor()))) && state.getAttribute(GRADE_SUBMISSION_GRADE)!=null ? s.getGradeForUserInGradeBook(_users[i].getId()) : s.getGradeForUser(_users[i].getId()) : s.getGradeForUser(_users[i].getId());
+				    	if (grade_override != null) 
+				    	{
+				    			state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId(), grade_override);
+				    	}
 				    }
 				}
 
@@ -13504,8 +13512,10 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		public String getGradeForUser(String id) {
-		    String grade = getSubmission() == null ? null: getSubmission().getGradeForUser(id);
-		    return grade;
+			AssignmentSubmission s=getSubmission();
+			String grade = s == null ? null:(StringUtils.trimToNull(s.getAssignment().getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT))!=null) && (s.getAssignment().getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)?
+					s.getGradeForUserInGradeBook(id)!=null?s.getGradeForUserInGradeBook(id):s.getGradeForUser(id):s.getGradeForUser(id);
+			return grade;
 		}
 	}
 
@@ -15961,6 +15971,9 @@ public class AssignmentAction extends PagedResourceActionII
 	        SessionState state,
 	        String base_message) {
 	    Collection<String> retVal = new ArrayList<String>();
+	    if(m_securityService.isSuperUser()){//don't check this for admin users
+	        return retVal;
+	    }
 	    if (groups != null && groups.size() > 0) {
 	        ArrayList<String> check_users = new ArrayList<String>();
 	        Iterator<Group> it_groups = groups.iterator();

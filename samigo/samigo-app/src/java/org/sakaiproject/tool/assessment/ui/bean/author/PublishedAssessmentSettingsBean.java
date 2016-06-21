@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TimeZone;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -83,6 +84,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 public class PublishedAssessmentSettingsBean
   implements Serializable {
@@ -190,6 +193,7 @@ public class PublishedAssessmentSettingsBean
   private boolean updateMostCurrentSubmission = false;
   
   private boolean isMarkForReview;
+  private boolean honorPledge;
   private List attachmentList;
   private boolean editPubAnonyGradingRestricted = false;
   private String releaseToGroupsAsString;
@@ -256,7 +260,8 @@ public class PublishedAssessmentSettingsBean
 			this.extendedTimes = "";
 			while ((assessment.getAssessmentMetaDataByLabel(extendedTimeLabel) != null)
 					&& (!assessment.getAssessmentMetaDataByLabel(extendedTimeLabel).equals(""))) {
-				String extendedTimeValue = assessment.getAssessmentMetaDataByLabel(extendedTimeLabel);
+				// server stores in JVM's time zone, convert to user's time zone
+				String extendedTimeValue = ExtendedTimeService.convertZones(assessment.getAssessmentMetaDataByLabel(extendedTimeLabel), TimeZone.getDefault(), TimeService.getLocalTimeZone());
 				// this.extendedTimes.add(extendedTimeValue);
 				// TODO: switch this back to being a list or hashmap
 				this.extendedTimes = this.extendedTimes.concat(extendedTimeValue + "^");
@@ -303,7 +308,8 @@ public class PublishedAssessmentSettingsBean
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
         this.isMarkForReview = accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview());
-        
+        if (accessControl.getHonorPledge() != null)
+          this.honorPledge = accessControl.getHonorPledge();
         // default to unlimited if control value is null
         if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
@@ -883,6 +889,10 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   public void setSecureDeliveryAvailable(boolean secureDeliveryAvailable) {
 	  this.secureDeliveryAvailable = secureDeliveryAvailable;
   }
+
+  public boolean isHonorPledge() { return honorPledge; }
+
+  public void setHonorPledge(boolean honorPledge) { this.honorPledge = honorPledge; }
 
   public void setValue(String key, Object value){
     this.values.put(key, value);
