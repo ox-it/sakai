@@ -41,7 +41,7 @@
 				<executions>
 					<!-- This generates the Java -->
 					<execution>
-						 <phase>process-resources</phase> 
+						 <phase>process-resources</phase>
 						<goals>
 <!--							<goal>hbm2java</goal>-->
 						</goals>
@@ -50,14 +50,14 @@
 					<!-- This generates the SQL -->
 					<execution>
 						<id>export-hsqldb</id>
-						 <phase>process-classes</phase> 
+						 <phase>process-classes</phase>
 						<goals>
 <!--							<goal>hbm2ddl</goal>-->
 						</goals>
 						<configuration>
 							<componentProperties>
 								<propertyfile>hibernate-hsqldb.properties</propertyfile>
-								<outputfilename>hsqldb/${artifactId}.sql</outputfilename>
+								<outputfilename>hsqldb/${project.artifactId}.sql</outputfilename>
 							</componentProperties>
 						</configuration>
 					</execution>
@@ -70,7 +70,7 @@
 						<configuration>
 							<componentProperties>
 								<propertyfile>hibernate-mysql.properties</propertyfile>
-								<outputfilename>mysql/${artifactId}.sql</outputfilename>
+								<outputfilename>mysql/${project.artifactId}.sql</outputfilename>
 							</componentProperties>
 						</configuration>
 					</execution>
@@ -83,7 +83,7 @@
 						<configuration>
 							<componentProperties>
 								<propertyfile>hibernate-oracle.properties</propertyfile>
-								<outputfilename>oracle/${artifactId}.sql</outputfilename>
+								<outputfilename>oracle/${project.artifactId}.sql</outputfilename>
 							</componentProperties>
 						</configuration>
 					</execution>
