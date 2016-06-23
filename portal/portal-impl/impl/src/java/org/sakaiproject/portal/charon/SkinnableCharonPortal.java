@@ -20,8 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.portal.charon;
 
+
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -2041,57 +2045,60 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
 
-		// Load the related links.
+		// Load the related links if they are in the properties file.
 		List<String> linkUrls = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.url")));
 		List<String> linkTitles = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.title")));
 		List<String> linkNames = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.name")));
 		List<String> linkIcons = Arrays.asList(emptyNotNull(ServerConfigurationService.getStrings("related.link.icon")));
-		
-		List<Map> relatedLinks = new ArrayList<Map>(linkUrls.size());
-		for (int i = 0; i < linkUrls.size(); i++)
-		{
-			String url = linkUrls.get(i);
-			String title = linkTitles.get(i);
-			String name = linkNames.get(i);
-			String icon = linkIcons.get(i);
-			if (url != null)
-			{
-				Map<String,String> linkDetails = new HashMap<String,String>();
-				linkDetails.put("url", url);
-				if (name != null)
-				{
-					linkDetails.put("name", name);
-					if (title != null)
-					{
-						linkDetails.put("title", title);
-					}
-					else
-					{
-						linkDetails.put("title", name);
-					}
-				}
-				else
-				{
-					if (title != null)
-					{
-						linkDetails.put("name", title);
-						linkDetails.put("title", title);
-					}
-					else
-					{
-						linkDetails.put("name", url);
-						linkDetails.put("title", url);
-					}
-				}
-				if(icon != null)
-				{
-					linkDetails.put("icon",icon);
-				}
 
-				relatedLinks.add(Collections.unmodifiableMap(linkDetails));
+		if (!linkUrls.isEmpty()) {
+			List<Map> relatedLinks = new ArrayList<Map>(linkUrls.size());
+			for (int i = 0; i < linkUrls.size(); i++) {
+				String url = linkUrls.get(i);
+				String title = linkTitles.get(i);
+				String name = linkNames.get(i);
+				String icon = linkIcons.get(i);
+
+				if (url != null) {
+					Map<String, String> linkDetails = new HashMap<String, String>();
+					linkDetails.put("url", url);
+					if (name != null) {
+						linkDetails.put("name", name);
+						if (title != null) {
+							linkDetails.put("title", title);
+						} else {
+							linkDetails.put("title", name);
+						}
+					} else {
+						if (title != null) {
+							linkDetails.put("name", title);
+							linkDetails.put("title", title);
+						} else {
+							linkDetails.put("name", url);
+							linkDetails.put("title", url);
+						}
+					}
+					if (icon != null) {
+						// if the 'related.link.icon' value has a type and at least one character for the icon name then try to parse it.
+						if (icon.length()>3){
+							String iconType = icon.substring(0,2);
+
+							if (iconType.equalsIgnoreCase("im")) {
+								linkDetails.put("iconType", "image");
+								linkDetails.put("imageURI", icon.substring(3));
+							}
+							else if (iconType.equalsIgnoreCase("cl")){
+								linkDetails.put("iconType", "icon");
+								linkDetails.put("iconClass", icon.substring(3));
+							}
+						}
+					}
+
+					relatedLinks.add(Collections.unmodifiableMap(linkDetails));
+				}
 			}
+			this.relatedLinks = Collections.unmodifiableList(relatedLinks);
 		}
-		this.relatedLinks = Collections.unmodifiableList(relatedLinks);
 
 		basicAuth = new BasicAuth();
 		basicAuth.init();
