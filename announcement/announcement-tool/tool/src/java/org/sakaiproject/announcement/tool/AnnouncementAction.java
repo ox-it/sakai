@@ -282,7 +282,9 @@ public class AnnouncementAction extends PagedResourceActionII
 	}
 
 	/**
-	 * Gets a security advisor that allows messages from other channels to be read when the current user
+	 * Gets a security advisor for reading announcements.
+	 * If <code>announcement.merge.visibility.strict</code> is set to <code>false</code>that allows messages from
+	 * other channels to be read when the current user
 	 * doesn't have permission. This is used to allow messages from merged sites to appear without the
 	 * current user having to be a member.
 	 * @param channelReference The entity reference of the channel in another site.
@@ -290,15 +292,22 @@ public class AnnouncementAction extends PagedResourceActionII
      */
 	SecurityAdvisor getChannelAdvisor(final String channelReference)
 	{
-		return (userId, function, reference) -> {
-			if (userId.equals(userDirectoryService.getCurrentUser().getId()) &&
-					AnnouncementService.SECURE_ANNC_READ.equals(function) &&
-					channelReference.equals(reference)) {
-				return SecurityAdvisor.SecurityAdvice.ALLOWED;
-			} else {
-				return SecurityAdvisor.SecurityAdvice.PASS;
-			}
-		};
+		if (ServerConfigurationService.getBoolean("announcement.merge.visibility.strict", false))
+		{
+			return (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.PASS;
+		}
+		else
+		{
+			return (userId, function, reference) -> {
+				if (userId.equals(userDirectoryService.getCurrentUser().getId()) &&
+						AnnouncementService.SECURE_ANNC_READ.equals(function) &&
+						channelReference.equals(reference)) {
+					return SecurityAdvisor.SecurityAdvice.ALLOWED;
+				} else {
+					return SecurityAdvisor.SecurityAdvice.PASS;
+				}
+			};
+		}
 	}
 
 	/**
