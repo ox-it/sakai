@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-tool/tool/src/views/importeCollegeText.xml $
+ * $Id: importeCollegeText.xml 3635 2012-12-02 21:26:23Z ggolden $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2012 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="import-text-title" />
+	</title>
+
+	<header>
+		<message selector="import-text-header">
+			<model type="icon" icon="/icons/add_qst.png" />
+		</message>
+	</header>
+
+	<container>
+
+		<!-- link to instructions -->
+		<navigation style="LINK" submit="TRIGGER" title="view-instructions">
+			<icon icon="/icons/test.png" style="LEFT" />
+			<destination template="openWindow('{0}',null,'toolbar=no,scrollbars=yes,resizable=yes,menubar=no,status=no,directories=no,location=no,width=600,height=400');">
+				<model ref="instructionsUrl" />
+			</destination>
+			<included>
+				<hasValueDecision model="instructionsUrl" />
+			</included>
+		</navigation>
+
+		<section>
+			<container>
+				<textEdit title="paste-message" rows="20" cols="120">
+					<model type="text" ref="text.value" />
+				</textEdit>
+			</container>
+		</section>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="ok" style="BUTTON" accessKey="ok-access" description="ok-description" submit="TRUE">
+					<icon icon="/icons/OK.png" style="LEFT" />
+					<destination template="IMPORT" />
+				</navigation>
+				<divider />
+				<navigation title="cancel" style="BUTTON" accessKey="cancel-access" description="cancel-description">
+					<icon icon="/icons/cancel.gif" style="LEFT" />
+					<destination template="/pools/{0}">
+						<model ref="poolsSort" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

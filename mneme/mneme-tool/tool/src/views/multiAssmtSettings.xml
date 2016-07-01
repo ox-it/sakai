@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL: https://source.etudes.org/svn/apps/mneme/branches/MN-1145/mneme-tool/tool/src/views/multiAssmtSettings.xml $
+ * $Id: multiAssmtSettings.xml 6108 2013-10-04 18:29:15Z mallikamt $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2013 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface focus="title">
+
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="testSettings-title" />
+	</title>
+
+	<header>
+		<message selector="testSettings-header">
+			<model type="icon" icon="/icons/gear-edit.png" />
+		</message>
+	</header>
+
+	<container>
+		<section>
+			<title highlighted="TRUE">
+				<message selector="settings" />
+			</title>
+			<container>
+
+				<selection title="allowTries">
+					<model ref="assessment.hasTriesLimit" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="type-number" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+							<container>
+								<countEdit>
+									<model ref="assessment.tries" type="count" />
+									<minValue>
+										<model type="constant" value="1" />
+									</minValue>
+								</countEdit>
+							</container>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="type-unlimited" />
+							</displayMessage>
+							<valueMessage>
+								<message template="false" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<included>
+					  <orDecision>
+					    <hasValueDecision model="ao"/>
+					    <hasValueDecision model="ts"/>
+					  </orDecision>
+					</included>
+				</selection>
+
+				<selection title="timed-settings">
+					<model ref="assessment.hasTimeLimit" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="no-time-limit" />
+							</displayMessage>
+							<valueMessage>
+								<message template="false" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="time-limit" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+							<container>
+								<durationEdit>
+									<model ref="assessment.timeLimit" type="duration" />
+								</durationEdit>
+								<toggle target="instructions" title="instructions" style="LINK" />
+							</container>
+						</selectionChoice>
+					</selectionChoices>
+					<included>
+					  <orDecision>
+						 <hasValueDecision model="ao"/>
+						 <hasValueDecision model="tls"/>
+					  </orDecision>
+					</included>
+				</selection>
+
+				<!-- timed instructions overlay -->
+				<overlay id="instructions">
+					<container>
+						<text selector="timed-instructions" />
+						<gap />
+					</container>
+					<included>
+					  <orDecision>
+						<hasValueDecision model="ao"/>
+						<hasValueDecision model="tls"/>
+					  </orDecision>
+					</included>
+				</overlay>
+
+				<section treatment="indented">
+					<title>
+						<message selector="reviewOptions">
+							<model type="icon" icon="/icons/markedforreview.png" />
+						</message>
+					</title>
+					<container>
+						<selection>
+							<title>
+								<message selector="reviewOptionsWhen">
+									<model type="icon" icon="/icons/markedforreview.png" />
+								</message>
+							</title>
+							<model ref="assessment.review.timing" />
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="type-submitted" />
+									</displayMessage>
+									<valueMessage>
+										<message template="submitted" />
+									</valueMessage>
+								</selectionChoice>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="type-graded" />
+									</displayMessage>
+									<valueMessage>
+										<message template="graded" />
+									</valueMessage>
+								</selectionChoice>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="type-date" />
+									</displayMessage>
+									<valueMessage>
+										<message template="date" />
+									</valueMessage>
+									<container>
+										<dateEdit>
+											<model ref="assessment.review.date" type="date" />
+										</dateEdit>
+									</container>
+								</selectionChoice>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="type-never" />
+									</displayMessage>
+									<valueMessage>
+										<message template="never" />
+									</valueMessage>
+									<container separate="TRUE" reversed="TRUE">
+									<selection>
+											<selectionChoices>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="showSummary" />
+													</displayMessage>
+													<valueMessage>
+														<message template="true" />
+													</valueMessage>
+										<container separate="TRUE" reversed="TRUE">			
+										<selection>
+											<title>
+												<message selector="reviewOptionsWhat">
+													<model type="icon" icon="/icons/markedforreview.png" />
+												</message>
+											</title>
+											<model ref="assessment.review.showCorrectAnswer" />
+											<selectionChoices>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="showAnswerKey" />
+													</displayMessage>
+													<valueMessage>
+														<message template="yes" />
+													</valueMessage>
+												</selectionChoice>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="correctAnswerKey" />
+													</displayMessage>
+													<valueMessage>
+														<message template="correct_only" />
+													</valueMessage>
+												</selectionChoice>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="incorrectQuestions" />
+													</displayMessage>
+													<valueMessage>
+														<message template="incorrect_only" />
+													</valueMessage>
+												</selectionChoice>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="noAnswerKey" />
+													</displayMessage>
+													<valueMessage>
+														<message template="no" />
+													</valueMessage>
+												</selectionChoice>
+											</selectionChoices>
+										</selection>
+										</container>
+										</selectionChoice>
+										</selectionChoices>
+											<model ref="assessment.review.showSummary" />
+										</selection>
+								
+										<selection>
+											<selectionChoices>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="showFeedback" />
+													</displayMessage>
+													<valueMessage>
+														<message template="true" />
+													</valueMessage>
+												</selectionChoice>
+											</selectionChoices>
+											<model ref="assessment.review.showFeedback" />
+										</selection>
+										
+												
+									</container>
+								</selectionChoice>
+							</selectionChoices>
+						    
+						</selection>
+					</container>
+					<included>
+					  <orDecision>
+						 <hasValueDecision model="ao"/>
+						 <hasValueDecision model="ro"/>
+					  </orDecision>
+					</included>	
+				</section>
+				
+				<section>
+				  <container>
+					<selection>
+					 <title>
+					  <message selector="awardCert">
+					  </message>
+					 </title>
+					 <selectionChoices>
+						<selectionChoice>
+						<valueMessage>
+							<message template="true" />
+						</valueMessage>
+						<container>
+				        <text>
+						  <message selector="minScore">
+						  <model type="component">
+							<container>
+								<countEdit model="assessment.minScore" cols="3">
+									<minValue>
+										<model type="constant" value="0" />
+									</minValue>
+									<maxValue>
+										<model type="constant" value="100" />
+									</maxValue>
+								</countEdit>								
+							</container>
+						  </model>
+					     </message>
+					  </text>
+					  </container>
+					  </selectionChoice>
+					</selectionChoices>
+					<model ref="assessment.minScoreSet" />
+					<included>
+					  <orDecision>
+						<hasValueDecision model="ao"/>
+						<hasValueDecision model="ac"/>
+					  </orDecision>
+					</included>
+				  </selection>
+			    </container>
+		      </section>
+
+				<section>
+					<container>
+						<selection>
+							<title>
+								<message selector="gradeOptions">
+									<model type="icon" icon="/icons/grade.png" />
+								</message>
+							</title>
+							<model ref="assessment.grading.autoRelease" />
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="type-auto" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="type-manual" />
+									</displayMessage>
+									<valueMessage>
+										<message template="false" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<included>
+							  <orDecision>
+							    <hasValueDecision model="ao"/>
+							    <hasValueDecision model="rs"/>
+							  </orDecision>
+							</included>
+						</selection>
+
+						<selection>
+							<title>
+								<message selector="model-answer-header">
+									<model type="icon" icon="/icons/model_answer.png" />
+								</message>
+							</title>
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="model-answer-title" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="assessment.showModelAnswer" />
+							<included>
+							  <orDecision>
+							    <hasValueDecision model="ao"/>
+							    <hasValueDecision model="ma"/>
+							  </orDecision>
+							</included>
+						</selection>
+
+						<selection id="gb" title="sendgbook">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="sendgbook" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="assessment.grading.gradebookIntegration" />
+							<included>
+							  <andDecision>
+								<decision model="gradebookAvailable" />
+							    <orDecision>
+							      <hasValueDecision model="ao"/>
+							      <hasValueDecision model="sg"/>
+							    </orDecision>
+							  </andDecision>  
+							</included>
+						</selection>
+
+						<selection title="anonymous-header">
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="anonymous" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="assessment.grading.anonymous" />
+							<included>
+								<orDecision>
+							      <hasValueDecision model="ao"/>
+							      <hasValueDecision model="ag"/>
+							  </orDecision>
+							</included>
+						</selection>
+					</container>
+				</section>
+
+				<section treatment="indented">
+					
+					<title>
+						<message selector="results-email-header">
+							<model type="icon" icon="/icons/grade.png" />
+						</message>
+					</title>
+					<container>
+
+						<textEdit title="results-email" cols="40">
+							<model ref="assessment.resultsEmail" type="text" />	
+						</textEdit>
+
+						<instructions>
+							<message selector="results-last-sent">
+								<model type="date" ref="assessment.resultsSent" />
+							</message>
+							<included>
+								<hasValueDecision model="assessment.resultsSent" />
+							</included>
+						</instructions>
+
+					</container>
+					<included>
+					  <orDecision>
+						<hasValueDecision model="ao"/>
+						<hasValueDecision model="ae"/>
+					  </orDecision>
+					</included>
+				</section>
+
+				<textEdit cols="16">
+					<title>
+						<message selector="password">
+							<model type="icon" icon="/icons/password.png" />
+						</message>
+					</title>
+					<model ref="assessment.password.password" type="text" />
+					<included>
+					<orDecision>
+					  <hasValueDecision model="ao"/>
+					  <hasValueDecision model="pw"/>
+					</orDecision>
+					</included>
+				</textEdit>
+
+			</container>
+		</section>
+
+		<section>
+			<title highlighted="TRUE">
+				<message selector="presentation" />
+				<included>
+				  <orDecision>
+					 <hasValueDecision model="ao"/>
+					 <hasValueDecision model="hp"/>
+					 <hasValueDecision model="sc"/>
+					 <hasValueDecision model="navlay"/>
+					 <hasValueDecision model="pn"/>
+					 <hasValueDecision model="fm"/>
+				  </orDecision>
+				</included>
+			</title>
+			<container>
+
+				<selection>
+					<title>
+						<message selector="honor-pledge">
+							<model type="icon" icon="/icons/user_pledge.png" />
+						</message>
+					</title>
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="require-users" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<model ref="assessment.requireHonorPledge" />
+					<included>
+							  <orDecision>
+							    <hasValueDecision model="ao"/>
+							    <hasValueDecision model="hp"/>
+							  </orDecision>
+							</included>
+				</selection>
+
+				<selection>
+					<title>
+						<message selector="hints-header">
+							<model type="icon" icon="/icons/hints.png" />
+						</message>
+					</title>
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="hints-title" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<model ref="assessment.showHints" />
+					<included>
+							  <orDecision>
+							    <hasValueDecision model="ao"/>
+							    <hasValueDecision model="hns"/>
+							  </orDecision>
+							</included>
+				</selection>
+
+				<selection>
+					<title>
+						<message selector="shuffle-header">
+							<model type="icon" icon="/icons/arrow_switch.png" />
+						</message>
+					</title>
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="shuffle-title" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<model ref="assessment.shuffleChoicesOverride" />
+					<included>
+							  <orDecision>
+							    <hasValueDecision model="ao"/>
+							    <hasValueDecision model="sc"/>
+							  </orDecision>
+							</included>
+				</selection>
+
+				<selection title="nav">
+					<model ref="assessment.randomAccess" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="type-flex" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+							<container separate="TRUE">
+								<selection title="layout">
+									<model ref="assessment.questionGrouping" />
+									<selectionChoices>
+										<selectionChoice>
+											<displayMessage>
+												<message selector="type-question" />
+											</displayMessage>
+											<valueMessage>
+												<message template="question" />
+											</valueMessage>
+										</selectionChoice>
+										<selectionChoice>
+											<displayMessage>
+												<message selector="type-part" />
+											</displayMessage>
+											<valueMessage>
+												<message template="part" />
+											</valueMessage>
+										</selectionChoice>
+										<selectionChoice>
+											<displayMessage>
+												<message selector="type-assessment" />
+											</displayMessage>
+											<valueMessage>
+												<message template="assessment" />
+											</valueMessage>
+										</selectionChoice>
+									</selectionChoices>
+								</selection>
+							</container>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="type-strict" />
+							</displayMessage>
+							<valueMessage>
+								<message template="false" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<included>
+					  <orDecision>
+						<hasValueDecision model="ao"/>
+						<hasValueDecision model="navlay"/>
+					   </orDecision>
+					</included>
+				</selection>
+
+				<selection title="partSettings">
+					<model ref="assessment.parts.continuousNumbering" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="type-continuous" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="type-restart" />
+							</displayMessage>
+							<valueMessage>
+								<message template="false" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<included>
+					  <orDecision>
+						<hasValueDecision model="ao"/>
+						<hasValueDecision model="pn"/>
+					  </orDecision>
+					</included>
+				</selection>
+
+				<htmlEdit title="submitMessage">
+					<model type="html" dirty="TRUE" ref="assessment.submitPresentation.text" />
+					<included>
+					  <orDecision>
+						<hasValueDecision model="ao"/>
+						<hasValueDecision model="fm"/>
+					  </orDecision>
+					</included>
+				</htmlEdit>
+
+			</container>
+		</section>
+
+		<!-- navigation otherwise -->
+		<navigationBar>
+			<container>
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE" destination="DONE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+								<message selector="confirm-change">
+									<model type="icon" icon="/icons/grade_student.png" />
+								</message>
+							</confirm>
+				</navigation>
+				<navigation title="cancel" accessKey="cancel-access" description="cancel-description" style="BUTTON">
+					<icon icon="/icons/cancel.gif" style="LEFT" />
+					<destination template="/assmt_settings_choice/{0}/{1}">
+						<model ref="sort" />
+						<model ref="assmtIds" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+
+</interface>

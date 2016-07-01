@@ -1,0 +1,938 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.etudes.mneme.api.MnemeService"
+			class="org.etudes.mneme.impl.MnemeServiceImpl"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.api.AttachmentService"
+			class="org.etudes.mneme.impl.AttachmentServiceImpl"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+ 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+		<property name="bundle"><value>mnemeImpl</value></property>
+		<property name="securityServiceSakai"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+ 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
+ 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+ 		
+ 		<property name="makeThumbs"><value>true</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.api.Pool"
+		class="org.etudes.mneme.impl.PoolImpl"
+		singleton="false">
+
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+ 	</bean>
+
+	<bean id="org.etudes.mneme.api.PoolService"
+		class="org.etudes.mneme.impl.PoolServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+
+		<property name="storage">
+			<map>
+				<!-- <entry key="default"><ref bean="org.etudes.mneme.impl.PoolStorageDefault"/></entry> -->
+				<entry key="sample"><ref bean="org.etudes.mneme.impl.PoolStorageSample"/></entry>
+				<entry key="mysql"><ref bean="org.etudes.mneme.impl.PoolStorageMysql"/></entry>
+				<entry key="oracle"><ref bean="org.etudes.mneme.impl.PoolStorageOracle"/></entry>
+			</map>
+		</property>
+		<property name="storageKey"><value>SQL</value></property> <!-- use sample to choose the sample impl -->
+ 	</bean>
+
+	<bean id="org.etudes.mneme.impl.PoolStorageSample"
+		class="org.etudes.mneme.impl.PoolStorageSample"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newPool" bean="org.etudes.mneme.api.Pool" />
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.PoolStorageMysql"
+		class="org.etudes.mneme.impl.PoolStorageMysql"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newPool" bean="org.etudes.mneme.api.Pool" />
+
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.PoolStorageOracle"
+		class="org.etudes.mneme.impl.PoolStorageOracle"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newPool" bean="org.etudes.mneme.api.Pool" />
+
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.api.Question"
+		class="org.etudes.mneme.impl.QuestionImpl"
+		singleton="false">
+
+ 		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+ 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+ 	</bean>
+
+	<bean id="org.etudes.mneme.api.QuestionService"
+		class="org.etudes.mneme.impl.QuestionServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+		
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="storage">
+			<map>
+				<!-- <entry key="default"><ref bean="org.etudes.mneme.impl.QuestionStorageDefault"/></entry> -->
+				<entry key="sample"><ref bean="org.etudes.mneme.impl.QuestionStorageSample"/></entry>
+				<entry key="mysql"><ref bean="org.etudes.mneme.impl.QuestionStorageMysql"/></entry>
+				<entry key="oracle"><ref bean="org.etudes.mneme.impl.QuestionStorageOracle"/></entry>
+			</map>
+		</property>
+		<property name="storageKey"><value>SQL</value></property> <!-- use sample to choose the sample impl -->
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.QuestionStorageSample"
+		class="org.etudes.mneme.impl.QuestionStorageSample"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newQuestion" bean="org.etudes.mneme.api.Question" />
+
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.QuestionStorageMysql"
+		class="org.etudes.mneme.impl.QuestionStorageMysql"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newQuestion" bean="org.etudes.mneme.api.Question" />
+
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+ 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.QuestionStorageOracle"
+		class="org.etudes.mneme.impl.QuestionStorageOracle"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newQuestion" bean="org.etudes.mneme.api.Question" />
+
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+ 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.api.GradesService"
+		class="org.etudes.mneme.impl.GradesServiceGradebook23Impl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+		
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+
+		<!-- for 2.4 only: <property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property> -->
+		<property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.api.Answer"
+		class="org.etudes.mneme.impl.AnswerImpl"
+		init-method="init"
+		singleton="false">
+
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+ 	</bean>
+ 
+	<bean id="org.etudes.mneme.api.Submission"
+		class="org.etudes.mneme.impl.SubmissionImpl"
+		init-method="init"
+		singleton="false">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+ 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+ 	</bean>
+
+ 	<bean id="org.etudes.mneme.api.SubmissionService"
+		class="org.etudes.mneme.impl.SubmissionServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+		<property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+		<property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="securityServiceSakai"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>	
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+
+		<property name="storage">
+			<map>
+				<!-- <entry key="default"><ref bean="org.etudes.mneme.impl.SubmissionStorageDefault"/></entry> -->
+				<entry key="sample"><ref bean="org.etudes.mneme.impl.SubmissionStorageSample"/></entry>
+				<entry key="mysql"><ref bean="org.etudes.mneme.impl.SubmissionStorageMysql"/></entry>
+				<entry key="oracle"><ref bean="org.etudes.mneme.impl.SubmissionStorageOracle"/></entry>
+			</map>
+		</property>
+		<property name="storageKey"><value>SQL</value></property> <!-- use sample to choose the sample impl -->
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.SubmissionStorageSample"
+		class="org.etudes.mneme.impl.SubmissionStorageSample"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newAnswer" bean="org.etudes.mneme.api.Answer" />
+		<lookup-method name="newSubmission" bean="org.etudes.mneme.api.Submission" />
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.SubmissionStorageMysql"
+		class="org.etudes.mneme.impl.SubmissionStorageMysql"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newAnswer" bean="org.etudes.mneme.api.Answer" />
+		<lookup-method name="newSubmission" bean="org.etudes.mneme.api.Submission" />
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.SubmissionStorageOracle"
+		class="org.etudes.mneme.impl.SubmissionStorageOracle"
+		destroy-method="destroy"
+		singleton="true">
+
+		<lookup-method name="newAnswer" bean="org.etudes.mneme.api.Answer" />
+		<lookup-method name="newSubmission" bean="org.etudes.mneme.api.Submission" />
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.api.AssessmentService"
+		class="org.etudes.mneme.impl.AssessmentServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+		
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="exportService"><ref bean="org.etudes.mneme.api.ExportQtiService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="storage">
+			<map>
+				<!-- <entry key="default"><ref bean="org.etudes.mneme.impl.AssesmentStorageDefault"/></entry> -->
+				<entry key="sample"><ref bean="org.etudes.mneme.impl.AssessmentStorageSample"/></entry>
+				<entry key="mysql"><ref bean="org.etudes.mneme.impl.AssessmentStorageMysql"/></entry>
+				<entry key="oracle"><ref bean="org.etudes.mneme.impl.AssessmentStorageOracle"/></entry>
+			</map>
+		</property>
+		<property name="storageKey"><value>SQL</value></property> <!-- use sample to choose the sample impl -->
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.AssessmentStorageSample"
+		class="org.etudes.mneme.impl.AssessmentStorageSample"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.AssessmentStorageMysql"
+		class="org.etudes.mneme.impl.AssessmentStorageMysql"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+		<property name="bundle"><value>mnemeImpl</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.AssessmentStorageOracle"
+		class="org.etudes.mneme.impl.AssessmentStorageOracle"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
+
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+
+		<property name="autoDdl"><value>${auto.ddl}</value></property>
+		<property name="bundle"><value>mnemeImpl</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.api.SecurityService"
+		class="org.etudes.mneme.impl.SecurityServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+		
+		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.TrueFalsePlugin"
+		class="org.etudes.mneme.impl.TrueFalsePlugin"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+ 		<property name="bundle"><value>mnemeTrueFalse</value></property>
+
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.MultipleChoicePlugin"
+		class="org.etudes.mneme.impl.MultipleChoicePlugin"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+ 		<property name="bundle"><value>mnemeMultipleChoice</value></property>
+
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+	</bean>
+	
+	<bean id="org.etudes.mneme.impl.LikertScalePlugin"
+		class="org.etudes.mneme.impl.LikertScalePlugin"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="bundle"><value>mnemeLikertScale</value></property>
+
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService" /></property>
+		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
+	</bean>	
+	
+    <bean id="org.etudes.mneme.impl.FillBlanksPlugin"
+		class="org.etudes.mneme.impl.FillBlanksPlugin"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="bundle"><value>mnemeFillBlanks</value></property>
+
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService" /></property>
+		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.MatchPlugin"
+		class="org.etudes.mneme.impl.MatchPlugin"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+ 		<property name="bundle"><value>mnemeMatch</value></property>
+
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+ 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.impl.EssayPlugin"
+		class="org.etudes.mneme.impl.EssayPlugin"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+ 		<property name="bundle"><value>mnemeEssay</value></property>
+
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+ 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+ 	</bean>	
+
+	<bean id="org.etudes.mneme.impl.TaskPlugin"
+		class="org.etudes.mneme.impl.TaskPlugin"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+ 		<property name="bundle"><value>mnemeTask</value></property>
+
+		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
+ 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+	</bean>	
+
+	<bean id="org.etudes.mneme.api.ExportQtiService" 
+		class="org.etudes.mneme.impl.ExportQtiServiceImpl"
+		init-method="init" 
+		destroy-method="destroy" 
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService" /></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService" />	</property>
+		<property name="securityServiceSakai"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="contentHostingService">	<ref bean="org.sakaiproject.content.api.ContentHostingService" /></property>
+		
+		<property name="bundle"><value>mnemeImpl</value></property>
+	</bean>
+
+	<bean id="org.etudes.mneme.api.ImportService"
+		class="org.etudes.mneme.impl.ImportServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="transferService"><ref bean="org.etudes.mneme.api.MnemeTransferService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+		<property name="samigoSupport"><value>TRUE</value></property>
+		<property name="assignmentSupport"><value>TRUE</value></property>
+ 	</bean>
+
+	<bean id="org.etudes.mneme.api.ImportQtiService"
+		class="org.etudes.mneme.impl.ImportQtiServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+ 	</bean>
+ 	
+ 	<bean id="org.etudes.mneme.api.ImportQti2Service"
+		class="org.etudes.mneme.impl.ImportQti2ServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+ 	</bean>
+
+	<bean id="org.etudes.mneme.api.ImporteCollegeTextService"
+		class="org.etudes.mneme.impl.ImporteCollegeTextServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+ 	</bean>
+ 	
+	<bean id="org.etudes.mneme.api.ImportTextService"
+		class="org.etudes.mneme.impl.ImportTextServiceImpl"
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+ 	</bean>
+
+	<bean id="org.etudes.mneme.api.MnemeTransferService"
+			class="org.etudes.mneme.impl.MnemeTransferServiceImpl"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
+		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
+		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
+
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+
+		<property name="bundle"><value>mnemeImpl</value></property>
+	</bean>
+
+	<bean id="AccessSubmissionsQuestionAnswers"
+			class="org.etudes.mneme.impl.AccessSubmissionsQuestionAnswersDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>AccessSubmissionsQuestionAnswers</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="AccessSubmissionsQuestionReasons"
+			class="org.etudes.mneme.impl.AccessSubmissionsQuestionReasonsDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>AccessSubmissionsQuestionReasons</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="AccessSubmissionsQuestionScores"
+			class="org.etudes.mneme.impl.AccessSubmissionsQuestionScoresDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>AccessSubmissionsQuestionScores</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatPercent"
+			class="org.etudes.mneme.impl.FormatPercentDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatPercent</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatCount"
+			class="org.etudes.mneme.impl.FormatCountDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatCount</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatUnansweredPercent"
+			class="org.etudes.mneme.impl.FormatUnansweredPercentDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatUnansweredPercent</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatChoice"
+			class="org.etudes.mneme.impl.FormatChoiceDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatChoice</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="AccessFillinPositions"
+			class="org.etudes.mneme.impl.AccessFillinPositionsDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>AccessFillinPositions</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="AccessFillinPositionValues"
+			class="org.etudes.mneme.impl.AccessFillinPositionValuesDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>AccessFillinPositionValues</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatFillinPositionPercents"
+			class="org.etudes.mneme.impl.FormatFillinPositionPercentsDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatFillinPositionPercents</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatFillinPositionCount"
+			class="org.etudes.mneme.impl.FormatFillinPositionCountDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatFillinPositionCount</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatFillinPositionCorrect"
+			class="org.etudes.mneme.impl.FormatFillinPositionCorrectDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatFillinPositionCorrect</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatFillinPositionChoice"
+			class="org.etudes.mneme.impl.FormatFillinPositionChoiceDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatFillinPositionChoice</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="AccessMatchMatches"
+			class="org.etudes.mneme.impl.AccessMatchMatchesDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>AccessMatchMatches</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="AccessMatchChoices"
+			class="org.etudes.mneme.impl.AccessMatchChoicesDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>AccessMatchChoices</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatMatchMatch"
+			class="org.etudes.mneme.impl.FormatMatchMatchDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatMatchMatch</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatMatchChoice"
+			class="org.etudes.mneme.impl.FormatMatchChoiceDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatMatchChoice</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatMatchCorrect"
+			class="org.etudes.mneme.impl.FormatMatchCorrectDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatMatchCorrect</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatMatchPercents"
+			class="org.etudes.mneme.impl.FormatMatchPercentsDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatMatchPercents</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatMatchCount"
+			class="org.etudes.mneme.impl.FormatMatchCountDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatMatchCount</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="FormatMatchUserChoice"
+			class="org.etudes.mneme.impl.FormatMatchUserChoiceDelegate"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+
+ 		<property name="id"><value>FormatMatchUserChoice</value></property>
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+</beans>

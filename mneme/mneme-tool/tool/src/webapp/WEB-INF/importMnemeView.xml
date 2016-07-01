@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2010 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<beans>
+
+	<bean id="org.etudes.mneme.tool.ImportMnemeView"
+			class="org.etudes.mneme.tool.ImportMnemeView"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+ 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+  		<property name="importService"><ref bean="org.etudes.mneme.api.ImportService"/></property>
+  		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
+  		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+ 
+ 		<property name="toolId"><value>sakai.mneme</value></property>
+ 		<property name="path"><value>import_mneme</value></property>
+ 		<property name="bundle"><value>importMneme</value></property>
+		<property name="shared"><value>mneme</value></property>
+		<property name="components"><value>importMneme.xml</value></property>
+ 		<property name="docsPath"><value>/private/mneme/{CONTEXT}/docs/</value></property>
+	</bean>
+
+</beans>

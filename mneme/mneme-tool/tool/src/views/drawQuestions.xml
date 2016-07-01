@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2009 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface title="drawQuestions-title" focus="title">
+
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<header>
+		<message selector="drawQuestions-header">
+			<model type="icon" icon="/icons/add_draw_add.png" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message selector="draw-add-to">
+					<model ref="assessment.title" type="text" missing="no-title" />
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!-- repeat the nav up top w/o access -->
+		<navigationBar>
+			<container>
+				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+		<selection title="parts">
+			<model ref="partId.value" />
+			<selectionModel name="forpart" model="assessment.parts.parts">
+				<valueMessage>
+					<message model="forpart.id" />
+				</valueMessage>
+				<displayMessage>
+					<message model="forpart.tag" />
+				</displayMessage>
+			</selectionModel>
+			<selectionChoices>
+				<selectionChoice>
+					<displayMessage>
+						<message selector="new-part" />
+					</displayMessage>
+					<valueMessage>
+						<message template="0" />
+					</valueMessage>
+				</selectionChoice>
+			</selectionChoices>
+		</selection>
+
+		<section>
+			<container>
+
+				<!-- the list of ALL pools, with those selected for this assessment checked and their "draw" filled in -->
+				<entityList style="FLAT">
+					<emptyTitle>
+						<message selector="no-pools" />
+					</emptyTitle>
+					<entityActions>
+						<!--  inform if live -->
+						<instructions>
+							<message selector="live-warning">
+								<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+							</message>
+							<included>
+								<decision model="assessment.isLocked" />
+							</included>
+						</instructions>
+					</entityActions>
+					<iterator name="draw">
+						<model ref="draws" indexRef="pool.id" />
+					</iterator>
+					<columns>
+						<column em="4">
+							<title>
+								<message selector="pool-draw" />
+							</title>
+							<container>
+								<countEdit cols="4">
+									<model ref="draw.numQuestions" />
+									<summary initialValue="assessment.parts.numDrawQuestions" title="total-questions" />
+									<readOnly>
+										<decision model="assessment.isLocked" />
+									</readOnly>
+									<maxValue>
+										<model ref="draw.poolNumAvailableQuestions" />
+									</maxValue>
+									<included>
+										<orDecision>
+											<compareDecision reversed="TRUE" model="draw.poolNumAvailableQuestions" constant="0" />
+											<andDecision>
+												<hasValueDecision model="draw.numQuestions" />
+												<compareDecision reversed="TRUE" model="draw.numQuestions" constant="0" />
+											</andDecision>
+										</orDecision>
+									</included>
+								</countEdit>
+							</container>
+						</column>
+						<modelColumn>
+							<title>
+								<message selector="pool" />
+							</title>
+							<model ref="draw.pool.title" type="text" missing="no-title" />
+							<sort submit="TRUE">
+								<active>
+									<compareDecision model="sort_column" constant="0" />
+								</active>
+								<direction>
+									<compareDecision model="sort_direction" constant="A" />
+								</direction>
+								<asc icon="/icons/sortascending.gif">
+									<message selector="asc" />
+									<destination template="/draw_questions/{0}/{1}/0A{2}">
+										<model ref="assessment.id" />
+										<model ref="part.id" />
+										<model ref="return" />
+									</destination>
+								</asc>
+								<desc icon="/icons/sortdescending.gif">
+									<message selector="desc" />
+									<destination template="/draw_questions/{0}/{1}/0D{2}">
+										<model ref="assessment.id" />
+										<model ref="part.id" />
+										<model ref="return" />
+									</destination>
+								</desc>
+							</sort>
+						</modelColumn>
+						<modelColumn>
+							<title>
+								<message selector="description" />
+							</title>
+							<model type="text" ref="draw.pool.description" stripHtml="TRUE" max="60" />
+						</modelColumn>
+						<modelColumn em="12">
+							<title>
+								<message selector="questions" />
+							</title>
+							<model ref="draw.poolNumAvailableQuestions" />
+						</modelColumn>
+						<modelColumn em="12">
+							<title>
+								<message selector="points" />
+							</title>
+							<included>
+								<decision model="assessment.hasPoints" />
+							</included>
+							<model ref="draw.pool.points" />
+
+							<sort submit="TRUE">
+								<active>
+									<compareDecision model="sort_column" constant="1" />
+								</active>
+								<direction>
+									<compareDecision model="sort_direction" constant="A" />
+								</direction>
+								<asc icon="/icons/sortascending.gif">
+									<message selector="asc" />
+									<destination template="/draw_questions/{0}/{1}/1A{2}">
+										<model ref="assessment.id" />
+										<model ref="part.id" />
+										<model ref="return" />
+									</destination>
+								</asc>
+								<desc icon="/icons/sortdescending.gif">
+									<message selector="desc" />
+									<destination template="/draw_questions/{0}/{1}/1D{2}">
+										<model ref="assessment.id" />
+										<model ref="part.id" />
+										<model ref="return" />
+									</destination>
+								</desc>
+							</sort>
+						</modelColumn>
+						<modelColumn em="12">
+							<title>
+								<message selector="difficulty" />
+							</title>
+							<included>
+								<decision model="assessment.hasPoints" />
+							</included>
+							<model ref="draw.pool.difficulty" />
+						</modelColumn>
+					</columns>
+				</entityList>
+
+			</container>
+		</section>
+
+		<!-- navigation -->
+		<navigationBar id="nav">
+			<container>
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>
