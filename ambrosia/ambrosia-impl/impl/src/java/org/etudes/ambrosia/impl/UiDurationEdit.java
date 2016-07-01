@@ -238,7 +238,7 @@ public class UiDurationEdit extends UiComponent implements DurationEdit
 
 		// the "failure" panel shown if requirements are not met - put it on the secondary output stream
 		PrintWriter secondary = context.getSecondaryResponseWriter();
-		secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:480px; height:120px\" id=\"failure_"
+		secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; width:480px; height:130px\" id=\"failure_"
 				+ id + "\">");
 		secondary.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
 		secondary.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">" + failureMsg + "</td>");

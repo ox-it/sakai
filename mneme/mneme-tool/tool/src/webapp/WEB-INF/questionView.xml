@@ -33,7 +33,6 @@
 			class="org.etudes.mneme.tool.QuestionView"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true"
 			depends-on="SubmissionScore,SectionScore,FormatQuestionTitle">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
@@ -52,8 +51,7 @@
 	<bean id="SubmissionScore"
 			class="org.etudes.mneme.tool.SubmissionScoreDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -64,8 +62,7 @@
 	<bean id="SectionScore"
 			class="org.etudes.mneme.tool.SectionScoreDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -76,8 +73,7 @@
 	<bean id="FormatQuestionTitle"
 			class="org.etudes.mneme.tool.FormatQuestionTitleDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 

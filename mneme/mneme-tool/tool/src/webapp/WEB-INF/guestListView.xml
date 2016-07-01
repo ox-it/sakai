@@ -33,7 +33,6 @@
 			class="org.etudes.mneme.tool.GuestListView"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true"
 			depends-on="FormatListDecoration,FormatListGrade">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>

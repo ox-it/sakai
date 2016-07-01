@@ -33,7 +33,6 @@
 			class="org.etudes.mneme.tool.AssessmentInvalidView"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true"
 			depends-on="FormatPartSummary">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
@@ -50,8 +49,7 @@
 	<bean id="FormatPartSummary"
 			class="org.etudes.mneme.tool.FormatPartSummaryDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 

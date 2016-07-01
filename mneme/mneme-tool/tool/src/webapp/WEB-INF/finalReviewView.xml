@@ -33,7 +33,6 @@
 			class="org.etudes.mneme.tool.FinalReviewView"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true"
 			depends-on="QuestionsAnswered,SubmissionScore,SectionScore,FormatQuestionDecoration,FormatQuestionNumber,QuestionScore">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>

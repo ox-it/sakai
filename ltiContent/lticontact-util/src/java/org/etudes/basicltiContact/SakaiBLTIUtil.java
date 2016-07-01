@@ -31,7 +31,8 @@ import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
@@ -450,7 +451,8 @@ public class SakaiBLTIUtil {
         String realmId = SiteService.siteReference(siteId);
         String rv = null;
         try {
-            AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+            AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
+            AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
             rv = realm.getProviderGroupId();
         } catch (GroupNotDefinedException e) {
             dPrint("SiteParticipantHelper.getExternalRealmId: site realm not found"+e.getMessage());

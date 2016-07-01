@@ -1086,7 +1086,7 @@ public class UiNavigation extends UiComponent implements Navigation
 			{
 				//  - put it on the secondary output stream
 				PrintWriter secondary = context.getSecondaryResponseWriter();
-				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:480px; height:120px\" id=\"confirm_"
+				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; width:480px; height:130px\" id=\"confirm_"
 						+ id + "\">");
 				secondary.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
 				secondary.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"
@@ -1099,13 +1099,13 @@ public class UiNavigation extends UiComponent implements Navigation
 						+ "','cancel_"
 						+ id
 						+ "()');return false;\" "
-						+ ((this.confirmCancelIcon != null) ? "style=\"padding-left:2em; background: #eee url('"
+						+ ((this.confirmCancelIcon != null) ? "style=\"padding-left:2em; background: #2a94c0 url('"
 								+ context.getUrl(this.confirmCancelIcon) + "') .2em no-repeat;\"" : "") + "/></td>");
 				secondary.print("<td style=\"padding:1em\" align=\"right\"><input type=\"button\" value=\"" + title
 						+ "\" onclick=\"hideConfirm('confirm_" + id + "','act_" + id + "();');return false;\"");
 				if (selectedIcon != null)
 				{
-					secondary.print(" style=\"padding-left:2em; background: #eee url('" + context.getUrl(selectedIcon) + "') .2em no-repeat;\"");
+					secondary.print(" style=\"padding-left:2em; background: #2a94c0 url('" + context.getUrl(selectedIcon) + "') .2em no-repeat;\"");
 				}
 				secondary.println("/></td>");
 				secondary.println("</tr></table></div>");
@@ -1115,7 +1115,7 @@ public class UiNavigation extends UiComponent implements Navigation
 			{
 				// the "failure" panel shown if requirements are not met - put it on the secondary output stream
 				PrintWriter secondary = context.getSecondaryResponseWriter();
-				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; left:0px; top:0px; width:480px; height:120px\" id=\"failure_"
+				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; width:480px; height:130px\" id=\"failure_"
 						+ id + "\">");
 				secondary.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
 				secondary.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"
@@ -1127,7 +1127,7 @@ public class UiNavigation extends UiComponent implements Navigation
 						+ id
 						+ "','');return false;\" "
 						// TODO: do we need confirm cancel? -ggolden
-						+ ((this.requirementsOkIcon != null) ? "style=\"padding-left:2em; background: #eee url('"
+						+ ((this.requirementsOkIcon != null) ? "style=\"padding-left:2em; background: #2a94c0 url('"
 								+ context.getUrl(this.requirementsOkIcon) + "') .2em no-repeat;\"" : "") + "/></td>");
 				secondary.println("</tr></table></div>");
 
@@ -1249,9 +1249,9 @@ public class UiNavigation extends UiComponent implements Navigation
 						+ "title=\""
 						+ description
 						+ "\" "
-						+ (((selectedIcon != null) && (this.iconStyle == IconStyle.left)) ? "style=\"padding-left:2em; background: #eee url('"
+						+ (((selectedIcon != null) && (this.iconStyle == IconStyle.left)) ? "style=\"padding-left:2em; background: #2a94c0 url('"
 								+ context.getUrl(selectedIcon) + "') .2em no-repeat;\"" : "")
-						+ (((selectedIcon != null) && (this.iconStyle == IconStyle.right)) ? "style=\"padding-left:.4em; padding-right:2em; background: #eee url('"
+						+ (((selectedIcon != null) && (this.iconStyle == IconStyle.right)) ? "style=\"padding-left:.4em; padding-right:2em; background: #2a94c0 url('"
 								+ context.getUrl(selectedIcon) + "') right no-repeat;\""
 								: "") + "/>");
 
