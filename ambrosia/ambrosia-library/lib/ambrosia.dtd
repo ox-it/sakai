@@ -1,0 +1,710 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+/**********************************************************************************
+ * $URL: https://source.sakaiproject.org/contrib/etudes/ambrosia/trunk/ambrosia-library/lib/pom.xml $
+ * $Id: pom.xml 54815 2008-11-10 23:34:57Z ggolden@etudes.org $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2014 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<!ELEMENT interface (included | header | subHeader | title | container | modeContainer | footer | attachmentPicker)* >
+<!ATTLIST interface id CDATA #IMPLIED >
+<!ATTLIST interface autoComplete (TRUE|FALSE) #IMPLIED >
+<!ATTLIST interface title CDATA #IMPLIED >
+<!ATTLIST interface header CDATA #IMPLIED >
+<!ATTLIST interface subHeader CDATA #IMPLIED >
+<!ATTLIST interface footer CDATA #IMPLIED >
+<!ATTLIST interface focus CDATA #IMPLIED >
+<!ATTLIST interface popup (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT fragment (included | container)* >
+
+<!ELEMENT title (message | included | highlighted)* >
+<!ATTLIST title highlighted (TRUE|FALSE) #IMPLIED >
+
+<ELEMENT failedRequirementsMessage (message)* >
+
+<!ELEMENT header (message | container | included)* >
+
+<!ELEMENT description (message) >
+
+<!ELEMENT subHeader (message | container | included)* >
+
+<!ELEMENT footer (message | container)* >
+
+<!ELEMENT message (selectors | model | booleanModel | constantModel | contextInfoModel | dateModel | durationModel | countModel | enumModel | floatModel | htmlModel | componentModel | iconModel | imageModel | pagingModel | textModel | urlModel | userInfoModel)* >
+<!ATTLIST message selector CDATA #IMPLIED >
+<!ATTLIST message model CDATA #IMPLIED >
+<!ATTLIST message template CDATA #IMPLIED >
+
+<!ELEMENT selectors (selector)* >
+<!ELEMENT selector (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ATTLIST selector selector CDATA #IMPLIED>
+
+<!ELEMENT model (missingValues | model | title)* >
+<!ATTLIST model ref CDATA #IMPLIED >
+<!ATTLIST model indexRef CDATA #IMPLIED >
+<!ATTLIST model delegate CDATA #IMPLIED >
+<!ATTLIST model tool CDATA #IMPLIED >
+<!ATTLIST model missing CDATA #IMPLIED >
+<!ATTLIST model type (boolean|constant|contextInfo|count|date|duration|enum|float|html|icon|image|paging|text|url|userInfo) #IMPLIED >
+<!ATTLIST model concise (TRUE|FALSE) #IMPLIED >
+<!ATTLIST model selector (DISPLAYNAME|SORTNAME|TITLE|FIRST|NEXT|LAST|PREV) #IMPLIED >
+<!ATTLIST model max CDATA #IMPLIED >
+<!ATTLIST model stripHtml (TRUE|FALSE) #IMPLIED >
+<!ATTLIST model icon CDATA #IMPLIED >
+<!ATTLIST model twoLine (TRUE|FALSE) #IMPLIED >
+<!ATTLIST model format (SHORT|MEDIUM) #IMPLIED >
+<!ATTLIST model value CDATA #IMPLIED >
+<!ATTLIST model true CDATA #IMPLIED >
+<!ATTLIST model false CDATA #IMPLIED >
+<!ATTLIST model messageRoot CDATA #IMPLIED >
+<!ATTLIST model stripP (TRUE|FALSE) #IMPLIED >
+<!ATTLIST model dirty (TRUE|FALSE) #IMPLIED >
+<!ATTLIST model edit (TRUE|FALSE) #IMPLIED >
+<!ATTLIST model stripHtml (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT missingValues (missing)* >
+<!ELEMENT missing EMPTY >
+<!ATTLIST missing value CDATA #IMPLIED >
+
+<!ELEMENT booleanModel (missingValues | model)* >
+<!ATTLIST booleanModel ref CDATA #REQUIRED >
+<!ATTLIST booleanModel delegate CDATA #IMPLIED>
+<!ATTLIST booleanModel tool CDATA #IMPLIED >
+<!ATTLIST booleanModel missing CDATA #IMPLIED >
+<!ATTLIST booleanModel true CDATA #IMPLIED >
+<!ATTLIST booleanModel false CDATA #IMPLIED >
+
+<!ELEMENT constantModel (missingValues | model)* >
+<!ATTLIST constantModel ref CDATA #IMPLIED >
+<!ATTLIST constantModel delegate CDATA #IMPLIED>
+<!ATTLIST constantModel tool CDATA #IMPLIED >
+<!ATTLIST constantModel missing CDATA #IMPLIED >
+<!ATTLIST constantModel value CDATA #IMPLIED >
+
+<!ELEMENT contextInfoModel (missingValues | model)* >
+<!ATTLIST contextInfoModel ref CDATA #REQUIRED >
+<!ATTLIST contextInfoModel delegate CDATA #IMPLIED>
+<!ATTLIST contextInfoModel tool CDATA #IMPLIED >
+<!ATTLIST contextInfoModel missing CDATA #IMPLIED >
+<!ATTLIST contextInfoModel selector (TITLE) #IMPLIED >
+
+<!ELEMENT dateModel (missingValues | model)* >
+<!ATTLIST dateModel ref CDATA #REQUIRED >
+<!ATTLIST dateModel delegate CDATA #IMPLIED>
+<!ATTLIST dateModel tool CDATA #IMPLIED >
+<!ATTLIST dateModel missing CDATA #IMPLIED >
+<!ATTLIST dateModel twoLine (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT durationModel (missingValues | model)* >
+<!ATTLIST durationModel ref CDATA #REQUIRED >
+<!ATTLIST durationModel delegate CDATA #IMPLIED>
+<!ATTLIST durationModel tool CDATA #IMPLIED >
+<!ATTLIST durationModel missing CDATA #IMPLIED >
+
+<!ELEMENT countModel (missingValues | model)* >
+<!ATTLIST countModel ref CDATA #REQUIRED >
+<!ATTLIST countModel delegate CDATA #IMPLIED>
+<!ATTLIST countModel tool CDATA #IMPLIED >
+<!ATTLIST countModel missing CDATA #IMPLIED >
+
+<!ELEMENT floatModel (missingValues | model)* >
+<!ATTLIST floatModel ref CDATA #REQUIRED >
+<!ATTLIST floatModel delegate CDATA #IMPLIED>
+<!ATTLIST floatModel tool CDATA #IMPLIED >
+<!ATTLIST floatModel missing CDATA #IMPLIED >
+<!ATTLIST floatModel stripHtml (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT htmlModel (missingValues | model)* >
+<!ATTLIST htmlModel ref CDATA #REQUIRED >
+<!ATTLIST htmlModel delegate CDATA #IMPLIED>
+<!ATTLIST htmlModel tool CDATA #IMPLIED >
+<!ATTLIST htmlModel missing CDATA #IMPLIED >
+<<!ATTLIST htmlModel stripP (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT iconModel (missingValues | model | title)* >
+<!ATTLIST iconModel ref CDATA #IMPLIED >
+<!ATTLIST iconModel delegate CDATA #IMPLIED>
+<!ATTLIST iconModel tool CDATA #IMPLIED >
+<!ATTLIST iconModel missing CDATA #IMPLIED >
+<!ATTLIST iconModel icon CDATA #IMPLIED >
+
+<!ELEMENT imageModel (missingValues | model | caption)* >
+<!ATTLIST imageModel ref CDATA #IMPLIED >
+<!ATTLIST imageModel delegate CDATA #IMPLIED>
+<!ATTLIST imageModel tool CDATA #IMPLIED >
+<!ATTLIST imageModel missing CDATA #IMPLIED >
+
+<!ELEMENT caption (message) >
+
+<!ELEMENT componentModel (missingValues | container | model)* >
+<!ATTLIST componentModel ref CDATA #IMPLIED >
+<!ATTLIST componentModel delegate CDATA #IMPLIED>
+<!ATTLIST componentModel tool CDATA #IMPLIED >
+<!ATTLIST componentModel missing CDATA #IMPLIED >
+<!ATTLIST componentModel icon CDATA #IMPLIED >
+
+<!ELEMENT textModel (missingValues | model)* >
+<!ATTLIST textModel ref  CDATA #REQUIRED >
+<!ATTLIST textModel delegate CDATA #IMPLIED>
+<!ATTLIST textModel tool CDATA #IMPLIED >
+<!ATTLIST textModel missing CDATA #IMPLIED >
+<!ATTLIST textModel max CDATA #IMPLIED >
+<!ATTLIST textModel stripHtml (TRUE|FALSE) #IMPLIED >
+<!ATTLIST textModel edit (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT urlModel (missingValues | model)* >
+<!ATTLIST urlModel ref CDATA #REQUIRED >
+<!ATTLIST urlModel delegate CDATA #IMPLIED>
+<!ATTLIST urlModel tool CDATA #IMPLIED >
+<!ATTLIST urlModel missing CDATA #IMPLIED >
+
+<!ELEMENT userInfoModel (missingValues | model)* >
+<!ATTLIST userInfoModel ref CDATA #REQUIRED >
+<!ATTLIST userInfoModel delegate CDATA #IMPLIED>
+<!ATTLIST userInfoModel tool CDATA #IMPLIED >
+<!ATTLIST userInfoModel missing CDATA #IMPLIED >
+<!ATTLIST userInfoModel selector (DISPLAYNAME|SORTNAME) #IMPLIED >
+<!ATTLIST userInfoModel disambiguate (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT enumModel (missingValues | model)* >
+<!ATTLIST enumModel ref CDATA #REQUIRED >
+<!ATTLIST enumModel delegate CDATA #IMPLIED>
+<!ATTLIST enumModel tool CDATA #IMPLIED >
+<!ATTLIST enumModel missing CDATA #IMPLIED >
+<!ATTLIST enumModel messageRoot CDATA #IMPLIED >
+
+<!ELEMENT pagingModel (missingValues | model)* >
+<!ATTLIST pagingModel ref CDATA #REQUIRED >
+<!ATTLIST pagingModel delegate CDATA #IMPLIED>
+<!ATTLIST pagingModel tool CDATA #IMPLIED >
+<!ATTLIST pagingModel missing CDATA #IMPLIED >
+<!ATTLIST pagingModel selector (FIRST|NEXT|LAST|PREV) #IMPLIED >
+
+<!ELEMENT container (alert | alias | attachments | attachmentsEdit | container | countEdit | countdownTimer | courier | dateEdit | durationEdit | divider | entityActionBar | entityDisplay | entityList | floatEdit | htmlEdit | fileUpload | fillIn | finePrint | gap | iconKey | instructions | match | menuBar | modelComponent | modeBar | navigation | navigationBar | overlay | pager | password | section | selection | text | textEdit | toggle | hidden)* >
+<!ATTLIST container separate (TRUE|FALSE) #IMPLIED>
+<!ATTLIST container reversed (TRUE|FALSE) #IMPLIED>
+<!ATTLIST container indented (TRUE|FALSE) #IMPLIED>
+
+<!ELEMENT modeContainer (alert | alias | attachments | attachmentsEdit | countEdit | countdownTimer | courier | dateEdit | durationEdit | divider | entityActionBar | entityDisplay | entityList | floatEdit | htmlEdit | fileUpload | fillIn | finePrint | gap | iconKey | instructions | match | menuBar | modelComponent | modeBar | navigation | navigationBar | overlay | pager | password | section | selection | text | textEdit | toggle | hidden)* >
+
+<!ELEMENT included (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT disabled (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT default (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT validate (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT entityIncluded (message | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT entityRowIncluded (message | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT titleIncluded (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT asAlert (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT active (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT direction (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT readOnly (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT singleSelect (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT focus (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT highlighted (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT correctDecision (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT colorize (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT opaque (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ELEMENT requirements (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+
+<!ATTLIST entityIncluded selector CDATA #IMPLIED >
+<!ATTLIST colorize color CDATA #IMPLIED >
+<!ATTLIST opaque opaque CDATA #IMPLIED >
+
+<!ELEMENT decision (model)* >
+<!ATTLIST decision type (hasValue|compare|and|or|pastDate|true) #IMPLIED >
+<!ATTLIST decision reversed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST decision model CDATA #IMPLIED >
+<!ATTLIST decision delegate CDATA #IMPLIED >
+<!ATTLIST decision tool CDATA #IMPLIED >
+
+<!ELEMENT hasValueDecision (model)* >
+<!ATTLIST hasValueDecision reversed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST hasValueDecision model CDATA #IMPLIED >
+<!ATTLIST hasValueDecision delegate CDATA #IMPLIED >
+<!ATTLIST hasValueDecision tool CDATA #IMPLIED >
+
+<!ELEMENT compareDecision (model | constant | compare)* >
+<!ATTLIST compareDecision reversed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST compareDecision model CDATA #IMPLIED >
+<!ATTLIST compareDecision delegate CDATA #IMPLIED >
+<!ATTLIST compareDecision tool CDATA #IMPLIED >
+<!ATTLIST compareDecision constant CDATA #IMPLIED >
+<!ATTLIST compareDecision compare CDATA #IMPLIED >
+
+<!ELEMENT compare (model) >
+
+<!ELEMENT constant EMPTY >
+<!ATTLIST constant value CDATA #IMPLIED >
+
+<!ELEMENT andDecision (model | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ATTLIST andDecision reversed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST andDecision model CDATA #IMPLIED >
+<!ATTLIST andDecision delegate CDATA #IMPLIED >
+<!ATTLIST andDecision tool CDATA #IMPLIED >
+
+<!ELEMENT orDecision (model | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ATTLIST orDecision reversed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST orDecision model CDATA #IMPLIED >
+<!ATTLIST orDecision delegate CDATA #IMPLIED >
+<!ATTLIST orDecision tool CDATA #IMPLIED >
+
+<!ELEMENT pastDateDecision (model)* >
+<!ATTLIST pastDateDecision reversed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST pastDateDecision model CDATA #IMPLIED >
+<!ATTLIST pastDateDecision delegate CDATA #IMPLIED >
+<!ATTLIST pastDateDecision tool CDATA #IMPLIED >
+
+<!ELEMENT trueDecision (model)* >
+<!ATTLIST trueDecision reversed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST trueDecision model CDATA #IMPLIED >
+<!ATTLIST trueDecision delegate CDATA #IMPLIED >
+<!ATTLIST trueDecision tool CDATA #IMPLIED >
+
+<!ELEMENT alert (included | message)* >
+<!ATTLIST alert id CDATA #IMPLIED >
+<!ATTLIST alert selector CDATA #IMPLIED >
+<!ATTLIST alert model CDATA #IMPLIED >
+
+<!ELEMENT warning (included | message)* >
+<!ATTLIST warning id CDATA #IMPLIED >
+<!ATTLIST warning selector CDATA #IMPLIED >
+<!ATTLIST warning model CDATA #IMPLIED >
+<!ATTLIST warning icon CDATA #IMPLIED >
+
+<!ELEMENT alias (included)* >
+<!ATTLIST alias id CDATA #IMPLIED >
+<!ATTLIST alias to CDATA #REQUIRED >
+<!ATTLIST alias toolId CDATA #IMPLIED >
+
+<!ELEMENT attachments (included | title | model | navigations)* >
+<!ATTLIST attachments id CDATA #IMPLIED >
+<!ATTLIST attachments title CDATA #IMPLIED>
+<!ATTLIST attachments model CDATA #IMPLIED>
+<!ATTLIST attachments name CDATA #IMPLIED>
+<!ATTLIST attachments icon CDATA #IMPLIED>
+<!ATTLIST attachments raw (TRUE|FALSE) #IMPLIED>
+<!ATTLIST attachments list (TRUE|FALSE) #IMPLIED>
+<!ATTLIST attachments size (TRUE|FALSE) #IMPLIED>
+<!ATTLIST attachments timestamp (TRUE|FALSE) #IMPLIED>
+
+<!ELEMENT navigations (navigation | container)* >
+
+<!ELEMENT navigation (included | confirm | title | destination | disabled | requirements | failedRequirementsMessage | default | validate | icon | icons | iterator | description)* >
+<!ATTLIST navigation id CDATA #IMPLIED >
+<!ATTLIST navigation title CDATA #IMPLIED >
+<!ATTLIST navigation style (BUTTON|LINK) #IMPLIED >
+<!ATTLIST navigation destination CDATA #IMPLIED >
+<!ATTLIST navigation submit (TRUE|FALSE|TRIGGER) #IMPLIED >
+<!ATTLIST navigation default (TRUE|FALSE) #IMPLIED >
+<!ATTLIST navigation disabled (TRUE|FALSE) #IMPLIED >
+<!ATTLIST navigation portal (TRUE|FALSE) #IMPLIED >
+<!ATTLIST navigation accessKey CDATA #IMPLIED >
+<!ATTLIST navigation description CDATA #IMPLIED >
+<!ATTLIST navigation selectRequirement (SINGLE|SOME|MULTIPLE) #IMPLIED>
+<!ATTLIST navigation selectRequirementId CDATA #IMPLIED>
+<!ATTLIST navigation selectRequirementMessage CDATA #IMPLIED >
+<!ATTLIST navigation failedRequirementsMessage CDATA #IMPLIED >
+<!ATTLIST navigation small (TRUE|FALSE) #IMPLIED >
+<!ATTLIST navigation wrap (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT toggle (included | title | disabled | icon)* >
+<!ATTLIST toggle id CDATA #IMPLIED >
+<!ATTLIST toggle title CDATA #IMPLIED >
+<!ATTLIST toggle style (BUTTON|LINK) #IMPLIED >
+<!ATTLIST toggle target CDATA #IMPLIED >
+<!ATTLIST toggle disabled (TRUE|FALSE) #IMPLIED >
+<!ATTLIST toggle accessKey CDATA #IMPLIED >
+<!ATTLIST toggle description CDATA #IMPLIED >
+
+<!ELEMENT attachmentsEdit (included | title | model | navigations)* >
+<!ATTLIST attachmentsEdit id CDATA #IMPLIED >
+<!ATTLIST attachmentsEdit title CDATA #IMPLIED>
+<!ATTLIST attachmentsEdit model CDATA #IMPLIED>
+<!ATTLIST attachmentsEdit name CDATA #IMPLIED>
+<!ATTLIST attachmentsEdit raw (TRUE|FALSE) #IMPLIED>
+<!ATTLIST attachmentsEdit size (TRUE|FALSE) #IMPLIED>
+<!ATTLIST attachmentsEdit timestamp (TRUE|FALSE) #IMPLIED>
+
+<!ELEMENT confirm (decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision | message | cancel)* >
+<!ATTLIST confirm decision (TRUE|FALSE) #IMPLIED >
+<!ATTLIST confirm cancelSelector CDATA #IMPLIED >
+<!ATTLIST confirm cancelIcon CDATA #IMPLIED >
+<!ATTLIST confirm selector CDATA #IMPLIED >
+<!ATTLIST confirm model CDATA #IMPLIED >
+
+<!ELEMENT cancel EMPTY >
+<!ATTLIST cancel selector CDATA #IMPLIED >
+<!ATTLIST cancel icon CDATA #IMPLIED >
+
+<!ELEMENT destination (model | booleanModel | constantModel | contextInfoModel | dateModel | durationModel | countModel | enumModel | floatModel | htmlModel | componentModel | iconModel | imageModel | pagingModel | textModel | urlModel | userInfoModel)* >
+<!ATTLIST destination template CDATA #IMPLIED >
+<!ATTLIST destination model CDATA #IMPLIED >
+
+<!ELEMENT attachmentPicker (destination)* >
+
+<!ELEMENT icon (message | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ATTLIST icon icon CDATA #IMPLIED >
+<!ATTLIST icon style (LEFT|RIGHT) #IMPLIED >
+<!ATTLIST icon message CDATA #IMPLIED >
+
+<!ELEMENT countdownTimer (included | disabled | duration | destination | hide | remaining | show | timeTillExpire | title)* >
+<!ATTLIST countdownTimer id CDATA #IMPLIED >
+<!ATTLIST countdownTimer submit (TRUE|FALSE) #IMPLIED >
+<!ATTLIST countdownTimer tight (TRUE|FALSE) #IMPLIED >
+<!ATTLIST countdownTimer title CDATA #IMPLIED >
+<!ATTLIST countdownTimer warn CDATA #IMPLIED >
+<!ATTLIST countdownTimer pixels CDATA #IMPLIED >
+<!ATTLIST countdownTimer disabled (TRUE|FALSE) #IMPLIED >
+<!ATTLIST countdownTimer distination CDATA #IMPLIED >
+
+<!ELEMENT duration (message | model | booleanModel | constantModel | contextInfoModel | dateModel | durationModel | countModel | enumModel | floatModel | htmlModel | componentModel | iconModel | imageModel | pagingModel | textModel | urlModel | userInfoModel)* >
+<!ELEMENT hide (message)* >
+<!ELEMENT remaining (message)* >
+<!ELEMENT show (message)* >
+<!ELEMENT timeTillExpire (model | booleanModel | constantModel | contextInfoModel | dateModel | durationModel | countModel | enumModel | floatModel | htmlModel | componentModel | iconModel | imageModel | pagingModel | textModel | urlModel | userInfoModel)* >
+
+<!ELEMENT courier (included | destination)* >
+<!ATTLIST courier id CDATA #IMPLIED >
+<!ATTLIST courier frequency CDATA #IMPLIED >
+<!ATTLIST courier destination CDATA #IMPLIED >
+
+<!ELEMENT divider (included)* >
+<!ATTLIST divider id CDATA #IMPLIED >
+
+<!ELEMENT entityDisplay (included | model | title | rows)* >
+<!ATTLIST entityDisplay id CDATA #IMPLIED >
+<!ATTLIST entityDisplay model CDATA #IMPLIED >
+<!ATTLIST entityDisplay title CDATA #IMPLIED >
+
+<!ELEMENT rows (row)* >
+<!ELEMENT row (included | container | title | model | booleanModel | constantModel | contextInfoModel | dateModel | durationModel | countModel | enumModel | floatModel | htmlModel | componentModel | iconModel | imageModel | pagingModel | textModel | urlModel | userInfoModel)* >
+<!ATTLIST row title CDATA #IMPLIED >
+<!ATTLIST row model CDATA #IMPLIED >
+
+<!ELEMENT entityList (included | emptyTitle | entityActions | entityIncluded | entityRowIncluded | colorize | opaque | iterator | title | titleIncluded | columns | headings | pager | anchor)* >
+<!ATTLIST entityList id CDATA #IMPLIED >
+<!ATTLIST entityList style (FLAT|FORM) #IMPLIED >
+<!ATTLIST entityList title CDATA #IMPLIED >
+<!ATTLIST entityList reorder CDATA #IMPLIED >
+<!ATTLIST entityList orderModel CDATA #IMPLIED >
+<!ATTLIST entityList dndColHide CDATA #IMPLIED >
+
+<!ELEMENT emptyTitle (message) >
+<!ELEMENT empty (message) >
+
+<!ELEMENT iterator (model | empty)* >
+<!ATTLIST iterator model CDATA #IMPLIED >
+<!ATTLIST iterator name CDATA #IMPLIED >
+
+<!ELEMENT columns (column | autoColumn | modelColumn | orderColumn | selectionColumn)* >
+<!ELEMENT column (asAlert | entityIncluded | included | sort | title | container | entityNavigations | footnotes | navigations)* >
+<!ATTLIST column type (auto|model|selection) #IMPLIED >
+<!ATTLIST column centered (TRUE|FALSE) #IMPLIED >
+<!ATTLIST column right (TRUE|FALSE) #IMPLIED >
+<!ATTLIST column bottomed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST column topped (TRUE|FALSE) #IMPLIED >
+<!ATTLIST column wrap (TRUE|FALSE) #IMPLIED >
+<!ATTLIST column title CDATA #IMPLIED >
+<!ATTLIST column pixels CDATA #IMPLIED >
+<!ATTLIST column em CDATA #IMPLIED >
+<!ATTLIST column percent CDATA #IMPLIED >
+
+<!ELEMENT sort (active | direction | asc | desc)* >
+<!ATTLIST sort submit (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT asc (message | destination)* >
+<!ATTLIST asc icon CDATA #IMPLIED >
+
+<!ELEMENT desc (message | destination)* >
+<!ATTLIST desc icon CDATA #IMPLIED >
+
+<!ELEMENT entityNavigations (navigation)* >
+
+<!ELEMENT entityActions (navigation | container)* >
+
+<!ELEMENT actions (navigation | container)* >
+
+<!ELEMENT footnotes (footnote)* >
+<!ELEMENT footnote EMPTY >
+
+<!ELEMENT headings (heading)* >
+<!ATTLIST headings color CDATA #IMPLIED >
+<!ATTLIST headings padding (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT heading (message | navigation | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+
+<!ELEMENT autoColumn (model)* >
+<!ATTLIST autoColumn model CDATA #IMPLIED >
+
+<!ELEMENT modelColumn (model | message | asAlert | entityIncluded | included | sort | title | container | entityNavigations | footnotes | navigations)* >
+<!ATTLIST modelColumn centered (TRUE|FALSE) #IMPLIED >
+<!ATTLIST modelColumn bottomed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST modelColumn topped (TRUE|FALSE) #IMPLIED >
+<!ATTLIST modelColumn right (TRUE|FALSE) #IMPLIED >
+<!ATTLIST modelColumn wrap (TRUE|FALSE) #IMPLIED >
+<!ATTLIST modelColumn title CDATA #IMPLIED >
+<!ATTLIST modelColumn pixels CDATA #IMPLIED >
+<!ATTLIST modelColumn em CDATA #IMPLIED >
+<!ATTLIST modelColumn percent CDATA #IMPLIED >
+<!ATTLIST modelColumn model CDATA #IMPLIED >
+
+<!ELEMENT selectionColumn (value | singleSelect | readOnly | model | onEmptyAlert | label | asAlert | entityIncluded | included | sort | title | container | entityActions | entityNavigations | footnotes | navigations | correct | correctDecision)* >
+<!ATTLIST selectionColumn centered (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selectionColumn bottomed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selectionColumn topped (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selectionColumn right (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selectionColumn wrap (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selectionColumn title CDATA #IMPLIED >
+<!ATTLIST selectionColumn pixels CDATA #IMPLIED >
+<!ATTLIST selectionColumn em CDATA #IMPLIED >
+<!ATTLIST selectionColumn percent CDATA #IMPLIED >
+<!ATTLIST selectionColumn multiple (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selectionColumn single (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selectionColumn model CDATA #IMPLIED >
+<!ATTLIST selectionColumn correct CDATA #IMPLIED >
+<!ATTLIST selectionColumn id CDATA #IMPLIED >
+<!ATTLIST selectionColumn selectAll (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT orderColumn (value | model | asAlert | entityIncluded | included | sort | title | container | entityNavigations | footnotes | navigations)* >
+<!ATTLIST orderColumn model CDATA #IMPLIED >
+
+<!ELEMENT label (message) >
+
+<!ELEMENT onEmptyAlert (message | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+
+<!ELEMENT value (model) >
+
+<!ELEMENT text (included | message | title)* >
+<!ATTLIST text id CDATA #IMPLIED >
+<!ATTLIST text selector CDATA #IMPLIED >
+<!ATTLIST text model CDATA #IMPLIED >
+<!ATTLIST text title CDATA #IMPLIED >
+<!ATTLIST section treatment CDATA #IMPLIED >
+
+<!ELEMENT fileUpload (included | onEmptyAlert | model | readOnly | title | upload)* >
+<!ATTLIST fileUpload id CDATA #IMPLIED >
+<!ATTLIST fileUpload title CDATA #IMPLIED >
+
+<!ELEMENT upload (message) >
+
+<!ELEMENT fillIn (included | correct | correctDecision | correctMarker | focus | onEmptyAlert | model | readOnly | text | title)* >
+<!ATTLIST fillIn id CDATA #IMPLIED >
+<!ATTLIST fillIn cols CDATA #IMPLIED >
+<!ATTLIST fillIn correct CDATA #IMPLIED >
+<!ATTLIST fillIn numeric (TRUE|FALSE) #IMPLIED>
+
+<!ELEMENT correctMarker (model | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ATTLIST correctMarker correctIcon CDATA #IMPLIED >
+<!ATTLIST correctMarker correctSelector CDATA #IMPLIED >
+<!ATTLIST correctMarker incorrectIcon CDATA #IMPLIED >
+<!ATTLIST correctMarker incorrectSelector CDATA #IMPLIED >
+
+<!ELEMENT gap (included)* >
+<!ATTLIST gap id CDATA #IMPLIED >
+
+<!ELEMENT iconKey (included | icons | descriptionModel | iconsModel | keysModel | title)* >
+<!ATTLIST iconKey id CDATA #IMPLIED >
+<!ATTLIST iconKey title CDATA #IMPLIED >
+
+<!ELEMENT descriptionModel (model) >
+<!ELEMENT iconsModel (model) >
+<!ELEMENT keysModel (model) >
+<!ELEMENT icons (icon)* >
+
+<!ELEMENT instructions (included | message | title)* >
+<!ATTLIST instructions id CDATA #IMPLIED >
+<!ATTLIST instructions selector CDATA #IMPLIED >
+<!ATTLIST instructions model CDATA #IMPLIED >
+<!ATTLIST instructions title CDATA #IMPLIED >
+
+<!ELEMENT finePrint (included | message)* >
+<!ATTLIST finePrint id CDATA #IMPLIED >
+<!ATTLIST finePrint selector CDATA #IMPLIED >
+<!ATTLIST finePrint model CDATA #IMPLIED >
+
+<!ELEMENT match (included | correctMarker | choiceId | choiceLabel | choiceText | feedback | onEmptyAlert | parts | partsChoices | partsTitle | model | readOnly | select | title)* >
+<!ATTLIST match id CDATA #IMPLIED >
+
+<!ELEMENT choiceId (model) >
+<!ELEMENT choiceLabel (model) >
+<!ELEMENT choiceText (model) >
+<!ELEMENT parts (model) >
+<!ELEMENT partsChoices (model) >
+<!ELEMENT partsTitle (model) >
+<!ELEMENT select (message) >
+
+<!ELEMENT feedback (model | decision | hasValueDecision | compareDecision | andDecision | orDecision | pastDateDecision | trueDecision)* >
+<!ATTLIST feedback selector CDATA #IMPLIED >
+
+<!ELEMENT menuBar EMPTY >
+
+<!ELEMENT navigationBar (included | container)* >
+<!ATTLIST navigationBar id CDATA #IMPLIED >
+<!ATTLIST navigationBar width CDATA #IMPLIED >
+<!ATTLIST navigationBar noprint (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT modeBar (included | container)* >
+<!ATTLIST modeBar id CDATA #IMPLIED >
+<!ATTLIST modeBar width CDATA #IMPLIED >
+
+<!ELEMENT entityActionBar (included | container)* >
+<!ATTLIST entityActionBar id CDATA #IMPLIED >
+<!ATTLIST entityActionBar width CDATA #IMPLIED >
+
+<!ELEMENT password (included | title | model | onEmptyAlert)* >
+<!ATTLIST password id CDATA #IMPLIED >
+<!ATTLIST password title CDATA #IMPLIED >
+<!ATTLIST password model CDATA #IMPLIED >
+
+<!ELEMENT section (included | title | anchor | entityIncluded | focusOn | iterator | container)* >
+<!ATTLIST section id CDATA #IMPLIED >
+<!ATTLIST section title CDATA #IMPLIED >
+<!ATTLIST section treatment CDATA #IMPLIED >
+<!ATTLIST section collapsed (TRUE|FALSE) #IMPLIED>
+<!ATTLIST section blended (TRUE|FALSE) #IMPLIED>
+<!ATTLIST section maxHeight CDATA #IMPLIED >
+<!ATTLIST section minHeight CDATA #IMPLIED >
+
+<!ELEMENT overlay (included | container)* >
+<!ATTLIST overlay id CDATA #IMPLIED >
+<!ATTLIST overlay width CDATA #IMPLIED >
+<!ATTLIST overlay height CDATA #IMPLIED >
+
+<!ELEMENT anchor (message) >
+
+<!ELEMENT focusOn (model)* >
+<!ATTLIST focusOn model CDATA #IMPLIED >
+
+<!ELEMENT selection (included | title | model | readOnly | selectionChoices | destination | correct | correctDecision | selectionModel | singleSelect)* >
+<!ATTLIST selection id CDATA #IMPLIED >
+<!ATTLIST selection title CDATA #IMPLIED >
+<!ATTLIST selection model CDATA #IMPLIED >
+<!ATTLIST selection correct CDATA #IMPLIED >
+<!ATTLIST selection value CDATA #IMPLIED >
+<!ATTLIST selection orientation (HORIZONTAL|VERTICAL|DROPDOWN) #IMPLIED >
+<!ATTLIST selection readOnly (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selection readOnlyCollapsed (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selection height CDATA #IMPLIED >
+<!ATTLIST selection destination CDATA #IMPLIED >
+<!ATTLIST selection submitValue (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selection selectAll (TRUE|FALSE) #IMPLIED >
+<!ATTLIST selection noprint (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT correct (model) >
+
+<!ELEMENT selectionChoices (selectionChoice)* >
+<!ELEMENT selectionChoice (valueMessage | displayMessage | container)* >
+
+<!ELEMENT selectionModel (model | valueMessage | displayMessage)* >
+<!ATTLIST selectionModel name CDATA #IMPLIED >
+<!ATTLIST selectionModel model CDATA #IMPLIED >
+<!ELEMENT valueMessage (message)* >
+<!ELEMENT displayMessage (message)* >
+
+<!ELEMENT textEdit (included | title | model | options | onEmptyAlert | readOnly | focus | destination)* >
+<!ATTLIST textEdit id CDATA #IMPLIED >
+<!ATTLIST textEdit title CDATA #IMPLIED >
+<!ATTLIST textEdit model CDATA #IMPLIED >
+<!ATTLIST textEdit cols CDATA #IMPLIED >
+<!ATTLIST textEdit rows CDATA #IMPLIED >
+<!ATTLIST textEdit readOnly (TRUE|FALSE) #IMPLIED >
+<!ATTLIST textEdit options CDATA #IMPLIED >
+<!ATTLIST textEdit destination CDATA #IMPLIED >
+
+<!ELEMENT hidden (model)* >
+<!ATTLIST hidden id CDATA #IMPLIED >
+<!ATTLIST hidden model CDATA #IMPLIED >
+
+<!ELEMENT options (model)* >
+
+<!ELEMENT countEdit (included | title | model | onEmptyAlert | readOnly | focus | summary | minValue | maxValue)* >
+<!ATTLIST countEdit id CDATA #IMPLIED >
+<!ATTLIST countEdit title CDATA #IMPLIED >
+<!ATTLIST countEdit model CDATA #IMPLIED >
+<!ATTLIST countEdit cols CDATA #IMPLIED >
+<!ATTLIST countEdit readOnly (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT minValue (model)* >
+<!ELEMENT maxValue (model)* >
+
+<!ELEMENT floatEdit (included | title | model | default | onEmptyAlert | readOnly | focus | summary | minValue | maxValue)* >
+<!ATTLIST floatEdit id CDATA #IMPLIED >
+<!ATTLIST floatEdit title CDATA #IMPLIED >
+<!ATTLIST floatEdit model CDATA #IMPLIED >
+<!ATTLIST floatEdit defaultValue CDATA #IMPLIED >
+<!ATTLIST floatEdit cols CDATA #IMPLIED >
+<!ATTLIST floatEdit readOnly (TRUE|FALSE) #IMPLIED >
+<!ATTLIST floatEdit sumTo CDATA #IMPLIED >
+
+<!ELEMENT defaultValue (model) >
+
+<!ELEMENT summary (initialValue | title)*>
+<!ATTLIST summary initialValue CDATA #IMPLIED >
+<!ATTLIST summary title CDATA #IMPLIED >
+
+<!ELEMENT initialValue (model)* >
+
+<!ELEMENT htmlEdit (included | title | model | onEmptyAlert | readOnly | focus | actions)* >
+<!ATTLIST htmlEdit id CDATA #IMPLIED >
+<!ATTLIST htmlEdit title CDATA #IMPLIED >
+<!ATTLIST htmlEdit model CDATA #IMPLIED >
+<!ATTLIST htmlEdit readOnly (TRUE|FALSE) #IMPLIED >
+<!ATTLIST htmlEdit optional (TRUE|FALSE) #IMPLIED >
+<!ATTLIST htmlEdit size (SMALL|FULL|TALL) #IMPLIED >
+
+<!ELEMENT dateEdit (included | title | model | onEmptyAlert | readOnly | focus | icon | destination)* >
+<!ATTLIST dateEdit id CDATA #IMPLIED >
+<!ATTLIST dateEdit title CDATA #IMPLIED >
+<!ATTLIST dateEdit model CDATA #IMPLIED >
+<!ATTLIST dateEdit icon CDATA #IMPLIED >
+<!ATTLIST dateEdit destination CDATA #IMPLIED >
+
+<!ELEMENT durationEdit (included | title | model | onEmptyAlert | readOnly | focus | icon)* >
+<!ATTLIST durationEdit id CDATA #IMPLIED >
+<!ATTLIST durationEdit title CDATA #IMPLIED >
+<!ATTLIST durationEdit model CDATA #IMPLIED >
+<!ATTLIST durationEdit icon CDATA #IMPLIED >
+
+<!ELEMENT modelComponent (included | model)* >
+<!ATTLIST modelComponent model CDATA #IMPLIED >
+
+<!ELEMENT pager (included | message | destination | paging | first | next | last | prev | sizeOptions)* >
+<!ATTLIST pager first CDATA #IMPLIED >
+<!ATTLIST pager prev CDATA #IMPLIED >
+<!ATTLIST pager next CDATA #IMPLIED >
+<!ATTLIST pager last CDATA #IMPLIED >
+<!ATTLIST pager destination CDATA #IMPLIED >
+<!ATTLIST pager paging CDATA #IMPLIED >
+<!ATTLIST pager submit (TRUE|FALSE) #IMPLIED >
+
+<!ELEMENT first (icon) >
+<!ELEMENT prev (icon) >
+<!ELEMENT next (icon) >
+<!ELEMENT last (icon) >
+
+<!ELEMENT paging (model) >
+
+<!ELEMENT sizeOptions (sizeOption | message | model)* >
+<!ELEMENT sizeOption EMPTY >
+<!ATTLIST sizeOption size CDATA #IMPLIED >
