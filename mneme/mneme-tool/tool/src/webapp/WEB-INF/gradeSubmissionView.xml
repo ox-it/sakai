@@ -33,7 +33,6 @@
 			class="org.etudes.mneme.tool.GradeSubmissionView"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true"
 			depends-on="FormatQuestionTitlePositional">
 
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
@@ -55,8 +54,7 @@
 	<bean id="FormatQuestionTitlePositional"
 			class="org.etudes.mneme.tool.FormatQuestionTitlePositionalDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 

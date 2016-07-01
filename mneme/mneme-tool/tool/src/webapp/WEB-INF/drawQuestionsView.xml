@@ -29,8 +29,7 @@
 	<bean id="org.etudes.mneme.tool.DrawQuestionsView"
 			class="org.etudes.mneme.tool.DrawQuestionsView"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
   		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>

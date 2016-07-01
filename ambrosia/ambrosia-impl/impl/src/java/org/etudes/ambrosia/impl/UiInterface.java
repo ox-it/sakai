@@ -382,13 +382,17 @@ public class UiInterface extends UiContainer implements Interface
 				response.println(headInclude);
 			}
 
+//			response.println("<script rsf:id="scr=portal-matter"></script>");
+			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>");
+			response.println("<script type='text/javascript'>includeLatestJQuery('ambrosia');</script>");
+
 			// our js
 			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/ambrosia.js\"></script>\n");
 
 			// jquery, used for, among possibly other things, drag and drop entity list reordering
-			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/jquery-1.6.2.min.js\"></script>\n");
-			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/jquery-ui-1.8.16.custom.min.js\"></script>\n");
-			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ckeditor/ckeditor/plugins/ckeditor_wiris/core/WIRISplugins.js?viewer=image\" defer=\"defer\"></script>");
+	//		response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/jquery-1.6.2.min.js\"></script>\n");
+	//		response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/jquery-ui-1.8.16.custom.min.js\"></script>\n");
+		//	response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ckeditor/ckeditor/plugins/ckeditor_wiris/core/WIRISplugins.js?viewer=image\" defer=\"defer\"></script>");
 			
 			// autosave
 			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/autosave.js\"></script>\n");
@@ -407,8 +411,8 @@ public class UiInterface extends UiContainer implements Interface
 			}
 			else
 			{
-				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor/ckeditor.js\"></script>\n");
-				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor.launch.js\"></script>\n");
+		//		response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor/ckeditor.js?version=\"></script>\n");
+		//		response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor.launch.js?version=\"></script>\n");
 				
 				String css = findCss(headInclude);
 				if (css == null)

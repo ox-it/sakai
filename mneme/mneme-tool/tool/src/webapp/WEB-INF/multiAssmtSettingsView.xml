@@ -29,8 +29,7 @@
 	<bean id="org.etudes.mneme.tool.MultiAssmtSettingsView"
 			class="org.etudes.mneme.tool.MultiAssmtSettingsView"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
  		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>

@@ -24,7 +24,9 @@ package org.etudes.mneme.tool;
 import java.util.Collection;
 import java.util.Vector;
 
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.cover.SessionManager;
 
 /**
@@ -63,7 +65,8 @@ public class CKSetup
 						String anotherRef = new String(reference);
 						anotherRef = anotherRef.replace("/content/private/mneme", "/site");
 						org.sakaiproject.entity.api.Reference ref1 = org.sakaiproject.entity.cover.EntityManager.newReference(anotherRef);
-						Collection<?> mnemeGrpAllow = org.sakaiproject.authz.cover.AuthzGroupService.getAuthzGroupsIsAllowed(userId,
+						AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
+ 						Collection<?> mnemeGrpAllow = authzGroupService.getAuthzGroupsIsAllowed(userId,
 								org.etudes.mneme.api.MnemeService.MANAGE_PERMISSION, null);
 						if (mnemeGrpAllow.contains("/site/" + ref1.getContainer()))
 						{

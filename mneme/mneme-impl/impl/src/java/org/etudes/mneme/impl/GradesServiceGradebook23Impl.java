@@ -41,7 +41,7 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -64,7 +64,8 @@ public class GradesServiceGradebook23Impl implements GradesService
 
 	/** Dependency: GradebookExternalAssessmentService */
 	// for 2.4 only: protected GradebookExternalAssessmentService m_gradebookService = null;
-	protected GradebookService gradebookService = null;
+	//protected GradebookService gradebookService = null;
+	protected GradebookExternalAssessmentService gradebookService = null;
 
 	/** Dependency: SecurityService */
 	protected SecurityService securityService = null;
@@ -294,13 +295,13 @@ public class GradesServiceGradebook23Impl implements GradesService
 				boolean reported = gradebookService.isExternalAssignmentDefined(assessment.getContext(), assessment.getTitle());
 				if (reported)
 				{
-					Double dScore = null;
+					String dScore = null;
 
 					// get the official (highest) score for this submission, considering this and all other completed and released submissions
 					Float score = this.submissionService.getSubmissionOfficialScore(assessment, submission.getUserId());
 					if (score != null)
 					{
-						dScore = Double.valueOf(toDoubleScore(score));
+						dScore = String.valueOf(toDoubleScore(score));
 					}
 
 					// report it
@@ -380,7 +381,7 @@ public class GradesServiceGradebook23Impl implements GradesService
 				if (reported)
 				{
 					// null retracts the score
-					Double score = null;
+					String score = null;
 
 					// report it
 					gradebookService.updateExternalAssessmentScore(assessment.getContext(), assessment.getTitle(), submission.getUserId(), score);
@@ -422,7 +423,7 @@ public class GradesServiceGradebook23Impl implements GradesService
 	 * @param service
 	 *        The GradebookService.
 	 */
-	public void setGradebookService(/* for 2.4 only: GradebookExternalAssessmentService */GradebookService service)
+	public void setGradebookService(/* for 2.4 only: GradebookExternalAssessmentService */GradebookExternalAssessmentService service)
 	{
 		this.gradebookService = service;
 	}

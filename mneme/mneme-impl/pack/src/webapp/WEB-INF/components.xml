@@ -26,15 +26,14 @@
  **********************************************************************************/
 -->
 
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="org.etudes.mneme.api.MnemeService"
 			class="org.etudes.mneme.impl.MnemeServiceImpl"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
@@ -47,8 +46,7 @@
 	<bean id="org.etudes.mneme.api.AttachmentService"
 			class="org.etudes.mneme.impl.AttachmentServiceImpl"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
@@ -70,7 +68,7 @@
 
 	<bean id="org.etudes.mneme.api.Pool"
 		class="org.etudes.mneme.impl.PoolImpl"
-		singleton="false">
+		scope="prototype">
 
 		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
  	</bean>
@@ -78,8 +76,7 @@
 	<bean id="org.etudes.mneme.api.PoolService"
 		class="org.etudes.mneme.impl.PoolServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -106,16 +103,14 @@
 
 	<bean id="org.etudes.mneme.impl.PoolStorageSample"
 		class="org.etudes.mneme.impl.PoolStorageSample"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<lookup-method name="newPool" bean="org.etudes.mneme.api.Pool" />
 	</bean>
 
 	<bean id="org.etudes.mneme.impl.PoolStorageMysql"
 		class="org.etudes.mneme.impl.PoolStorageMysql"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<lookup-method name="newPool" bean="org.etudes.mneme.api.Pool" />
 
@@ -127,8 +122,7 @@
 
 	<bean id="org.etudes.mneme.impl.PoolStorageOracle"
 		class="org.etudes.mneme.impl.PoolStorageOracle"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<lookup-method name="newPool" bean="org.etudes.mneme.api.Pool" />
 
@@ -140,7 +134,7 @@
 
 	<bean id="org.etudes.mneme.api.Question"
 		class="org.etudes.mneme.impl.QuestionImpl"
-		singleton="false">
+		scope="prototype">
 
  		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
 		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService"/></property>
@@ -150,8 +144,7 @@
 	<bean id="org.etudes.mneme.api.QuestionService"
 		class="org.etudes.mneme.impl.QuestionServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 		
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
@@ -177,8 +170,7 @@
 
 	<bean id="org.etudes.mneme.impl.QuestionStorageSample"
 		class="org.etudes.mneme.impl.QuestionStorageSample"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<lookup-method name="newQuestion" bean="org.etudes.mneme.api.Question" />
 
@@ -189,8 +181,7 @@
 
 	<bean id="org.etudes.mneme.impl.QuestionStorageMysql"
 		class="org.etudes.mneme.impl.QuestionStorageMysql"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<lookup-method name="newQuestion" bean="org.etudes.mneme.api.Question" />
 
@@ -206,8 +197,7 @@
 
 	<bean id="org.etudes.mneme.impl.QuestionStorageOracle"
 		class="org.etudes.mneme.impl.QuestionStorageOracle"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<lookup-method name="newQuestion" bean="org.etudes.mneme.api.Question" />
 
@@ -224,16 +214,15 @@
 	<bean id="org.etudes.mneme.api.GradesService"
 		class="org.etudes.mneme.impl.GradesServiceGradebook23Impl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 		
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="securityService"><ref bean="org.etudes.mneme.api.SecurityService"/></property>
 		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
 		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
 
-		<!-- for 2.4 only: <property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property> -->
-		<property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookService"/></property>
+		<!-- for 2.4 only: --><property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property> 
+		<!-- <property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookService"/></property>-->
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
 		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>		
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
@@ -242,7 +231,7 @@
 	<bean id="org.etudes.mneme.api.Answer"
 		class="org.etudes.mneme.impl.AnswerImpl"
 		init-method="init"
-		singleton="false">
+		scope="prototype">
 
 		<property name="mnemeService"><ref bean="org.etudes.mneme.api.MnemeService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -251,7 +240,7 @@
 	<bean id="org.etudes.mneme.api.Submission"
 		class="org.etudes.mneme.impl.SubmissionImpl"
 		init-method="init"
-		singleton="false">
+		scope="prototype">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -263,8 +252,7 @@
  	<bean id="org.etudes.mneme.api.SubmissionService"
 		class="org.etudes.mneme.impl.SubmissionServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="gradesService"><ref bean="org.etudes.mneme.api.GradesService"/></property>
@@ -296,8 +284,7 @@
 
 	<bean id="org.etudes.mneme.impl.SubmissionStorageSample"
 		class="org.etudes.mneme.impl.SubmissionStorageSample"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<lookup-method name="newAnswer" bean="org.etudes.mneme.api.Answer" />
 		<lookup-method name="newSubmission" bean="org.etudes.mneme.api.Submission" />
@@ -311,8 +298,7 @@
 
 	<bean id="org.etudes.mneme.impl.SubmissionStorageMysql"
 		class="org.etudes.mneme.impl.SubmissionStorageMysql"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<lookup-method name="newAnswer" bean="org.etudes.mneme.api.Answer" />
 		<lookup-method name="newSubmission" bean="org.etudes.mneme.api.Submission" />
@@ -332,8 +318,7 @@
 
 	<bean id="org.etudes.mneme.impl.SubmissionStorageOracle"
 		class="org.etudes.mneme.impl.SubmissionStorageOracle"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<lookup-method name="newAnswer" bean="org.etudes.mneme.api.Answer" />
 		<lookup-method name="newSubmission" bean="org.etudes.mneme.api.Submission" />
@@ -354,8 +339,7 @@
 	<bean id="org.etudes.mneme.api.AssessmentService"
 		class="org.etudes.mneme.impl.AssessmentServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 		
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
 		<property name="exportService"><ref bean="org.etudes.mneme.api.ExportQtiService"/></property>
@@ -385,8 +369,7 @@
 
 	<bean id="org.etudes.mneme.impl.AssessmentStorageSample"
 		class="org.etudes.mneme.impl.AssessmentStorageSample"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="poolService"><ref bean="org.etudes.mneme.api.PoolService"/></property>
@@ -401,8 +384,7 @@
 
 	<bean id="org.etudes.mneme.impl.AssessmentStorageMysql"
 		class="org.etudes.mneme.impl.AssessmentStorageMysql"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -421,8 +403,7 @@
 
 	<bean id="org.etudes.mneme.impl.AssessmentStorageOracle"
 		class="org.etudes.mneme.impl.AssessmentStorageOracle"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -442,8 +423,7 @@
 	<bean id="org.etudes.mneme.api.SecurityService"
 		class="org.etudes.mneme.impl.SecurityServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 		
 		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
@@ -454,8 +434,7 @@
 	<bean id="org.etudes.mneme.impl.TrueFalsePlugin"
 		class="org.etudes.mneme.impl.TrueFalsePlugin"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
  		<property name="bundle"><value>mnemeTrueFalse</value></property>
 
@@ -466,8 +445,7 @@
 	<bean id="org.etudes.mneme.impl.MultipleChoicePlugin"
 		class="org.etudes.mneme.impl.MultipleChoicePlugin"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
  		<property name="bundle"><value>mnemeMultipleChoice</value></property>
 
@@ -490,8 +468,7 @@
 	<bean id="org.etudes.mneme.impl.LikertScalePlugin"
 		class="org.etudes.mneme.impl.LikertScalePlugin"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="bundle"><value>mnemeLikertScale</value></property>
 
@@ -502,8 +479,7 @@
     <bean id="org.etudes.mneme.impl.FillBlanksPlugin"
 		class="org.etudes.mneme.impl.FillBlanksPlugin"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="bundle"><value>mnemeFillBlanks</value></property>
 
@@ -526,8 +502,7 @@
 	<bean id="org.etudes.mneme.impl.MatchPlugin"
 		class="org.etudes.mneme.impl.MatchPlugin"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
  		<property name="bundle"><value>mnemeMatch</value></property>
 
@@ -539,8 +514,7 @@
 	<bean id="org.etudes.mneme.impl.EssayPlugin"
 		class="org.etudes.mneme.impl.EssayPlugin"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
  		<property name="bundle"><value>mnemeEssay</value></property>
 
@@ -552,8 +526,7 @@
 	<bean id="org.etudes.mneme.impl.TaskPlugin"
 		class="org.etudes.mneme.impl.TaskPlugin"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
  		<property name="bundle"><value>mnemeTask</value></property>
 
@@ -565,8 +538,7 @@
 	<bean id="org.etudes.mneme.api.ExportQtiService" 
 		class="org.etudes.mneme.impl.ExportQtiServiceImpl"
 		init-method="init" 
-		destroy-method="destroy" 
-		singleton="true">
+		destroy-method="destroy" >
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService" /></property>
 		<property name="questionService"><ref bean="org.etudes.mneme.api.QuestionService" />	</property>
@@ -579,8 +551,7 @@
 	<bean id="org.etudes.mneme.api.ImportService"
 		class="org.etudes.mneme.impl.ImportServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -606,8 +577,7 @@
 	<bean id="org.etudes.mneme.api.ImportQtiService"
 		class="org.etudes.mneme.impl.ImportQtiServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -629,8 +599,7 @@
  	<bean id="org.etudes.mneme.api.ImportQti2Service"
 		class="org.etudes.mneme.impl.ImportQti2ServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -649,8 +618,7 @@
 	<bean id="org.etudes.mneme.api.ImporteCollegeTextService"
 		class="org.etudes.mneme.impl.ImporteCollegeTextServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -672,8 +640,7 @@
 	<bean id="org.etudes.mneme.api.ImportTextService"
 		class="org.etudes.mneme.impl.ImportTextServiceImpl"
 		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
+		destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -695,8 +662,7 @@
 	<bean id="org.etudes.mneme.api.MnemeTransferService"
 			class="org.etudes.mneme.impl.MnemeTransferServiceImpl"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="attachmentService"><ref bean="org.etudes.mneme.api.AttachmentService"/></property>
@@ -714,8 +680,7 @@
 	<bean id="AccessSubmissionsQuestionAnswers"
 			class="org.etudes.mneme.impl.AccessSubmissionsQuestionAnswersDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -726,8 +691,7 @@
 	<bean id="AccessSubmissionsQuestionReasons"
 			class="org.etudes.mneme.impl.AccessSubmissionsQuestionReasonsDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -738,8 +702,7 @@
 	<bean id="AccessSubmissionsQuestionScores"
 			class="org.etudes.mneme.impl.AccessSubmissionsQuestionScoresDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -750,8 +713,7 @@
 	<bean id="FormatPercent"
 			class="org.etudes.mneme.impl.FormatPercentDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -762,8 +724,7 @@
 	<bean id="FormatCount"
 			class="org.etudes.mneme.impl.FormatCountDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -810,8 +771,7 @@
 	<bean id="FormatUnansweredPercent"
 			class="org.etudes.mneme.impl.FormatUnansweredPercentDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -822,8 +782,7 @@
 	<bean id="FormatChoice"
 			class="org.etudes.mneme.impl.FormatChoiceDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -834,8 +793,7 @@
 	<bean id="AccessFillinPositions"
 			class="org.etudes.mneme.impl.AccessFillinPositionsDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -846,8 +804,7 @@
 	<bean id="AccessFillinPositionValues"
 			class="org.etudes.mneme.impl.AccessFillinPositionValuesDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -858,8 +815,7 @@
 	<bean id="FormatFillinPositionPercents"
 			class="org.etudes.mneme.impl.FormatFillinPositionPercentsDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -870,8 +826,7 @@
 	<bean id="FormatFillinPositionCount"
 			class="org.etudes.mneme.impl.FormatFillinPositionCountDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -882,8 +837,7 @@
 	<bean id="FormatFillinPositionCorrect"
 			class="org.etudes.mneme.impl.FormatFillinPositionCorrectDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -894,8 +848,7 @@
 	<bean id="FormatFillinPositionChoice"
 			class="org.etudes.mneme.impl.FormatFillinPositionChoiceDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -978,8 +931,7 @@
 	<bean id="AccessMatchMatches"
 			class="org.etudes.mneme.impl.AccessMatchMatchesDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -990,8 +942,7 @@
 	<bean id="AccessMatchChoices"
 			class="org.etudes.mneme.impl.AccessMatchChoicesDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -1002,8 +953,7 @@
 	<bean id="FormatMatchMatch"
 			class="org.etudes.mneme.impl.FormatMatchMatchDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -1014,8 +964,7 @@
 	<bean id="FormatMatchChoice"
 			class="org.etudes.mneme.impl.FormatMatchChoiceDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -1026,8 +975,7 @@
 	<bean id="FormatMatchCorrect"
 			class="org.etudes.mneme.impl.FormatMatchCorrectDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -1038,8 +986,7 @@
 	<bean id="FormatMatchPercents"
 			class="org.etudes.mneme.impl.FormatMatchPercentsDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -1050,8 +997,7 @@
 	<bean id="FormatMatchCount"
 			class="org.etudes.mneme.impl.FormatMatchCountDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -1062,8 +1008,7 @@
 	<bean id="FormatMatchUserChoice"
 			class="org.etudes.mneme.impl.FormatMatchUserChoiceDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 

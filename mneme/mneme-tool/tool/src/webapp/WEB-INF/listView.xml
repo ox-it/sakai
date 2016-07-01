@@ -33,7 +33,6 @@
 			class="org.etudes.mneme.tool.ListView"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true"
 			depends-on="FormatListDecoration,FormatListGrade">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
@@ -52,8 +51,7 @@
 	<bean id="FormatListDecoration"
 			class="org.etudes.mneme.tool.FormatListDecorationDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 
@@ -64,8 +62,7 @@
 	<bean id="FormatListGrade"
 			class="org.etudes.mneme.tool.FormatListGradeDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 

@@ -32,8 +32,7 @@
 	<bean id="org.etudes.mneme.tool.CourierView"
 			class="org.etudes.mneme.tool.CourierView"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
  		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>

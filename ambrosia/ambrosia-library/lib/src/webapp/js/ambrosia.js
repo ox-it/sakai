@@ -147,8 +147,8 @@ function showConfirm(name)
 		el.setAttribute("aria-hidden", "false");
 		el.tabIndex = -1
 
-		el.style.left = ((document.body.scrollWidth / 2) - (parseInt(el.style.width) / 2)) + "px";
-		el.style.top = (-1 * (parseInt(el.style.height) + 10)) + "px";
+		//el.style.left = ((document.body.scrollWidth / 2) - (parseInt(el.style.width) / 2)) + "px";
+		//el.style.top = (-1 * (parseInt(el.style.height) + 10)) + "px";
 		if (parent)
 		{
 			confirmX = (parent.window.pageXOffset) ? parent.window.pageXOffset : (parent.document.documentElement.scrollLeft + parent.document.body.scrollLeft);
@@ -164,7 +164,7 @@ function showConfirm(name)
 	}
 	el.style.display = "";
 
-	if (parseInt(el.style.top) < -10)
+	/*if (parseInt(el.style.top) < -10)
 	{
 		el.style.top = (parseInt(el.style.top) + 10) + "px";
 		setTimeout("showConfirm('" + name + "')",10);
@@ -172,7 +172,7 @@ function showConfirm(name)
 	else
 	{
 		el.style.top = "0px";
-	}
+	}*/
 	
 	el.focus();
 }

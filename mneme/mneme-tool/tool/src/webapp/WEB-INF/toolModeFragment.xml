@@ -32,8 +32,7 @@
 	<bean id="ToolModeFragment"
 			class="org.etudes.mneme.tool.ToolModeFragmentDelegate"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 

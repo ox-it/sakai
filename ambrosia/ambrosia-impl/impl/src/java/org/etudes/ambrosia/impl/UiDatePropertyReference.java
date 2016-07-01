@@ -29,11 +29,11 @@ import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
+//import java.util.TimeZone;
 
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.DatePropertyReference;
-import org.etudes.util.DateHelper;
+//import org.etudes.util.DateHelper;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 
@@ -128,8 +128,9 @@ public class UiDatePropertyReference extends UiPropertyReference implements Date
 			Date date = (Date) value;
 
 			// use the end-user's locale and time zone prefs
-			Locale userLocale = DateHelper.getPreferredLocale(null);
-			TimeZone userZone = DateHelper.getPreferredTimeZone(null);
+			/*Locale userLocale = DateHelper.getPreferredLocale(null);
+			TimeZone userZone = DateHelper.getPreferredTimeZone(null);*/
+			// TODO: use the end-user's locale and time zone prefs
 
 			// pick format
 			int fmt = DateFormat.MEDIUM;
@@ -137,19 +138,22 @@ public class UiDatePropertyReference extends UiPropertyReference implements Date
 
 			if (multiLine)
 			{
-				DateFormat dateFormat = DateFormat.getDateInstance(fmt, userLocale);
+				/*DateFormat dateFormat = DateFormat.getDateInstance(fmt, userLocale);
 				dateFormat.setTimeZone(userZone);
 
 				DateFormat timeFormat = DateFormat.getTimeInstance(fmt, userLocale);
-				timeFormat.setTimeZone(userZone);
+				timeFormat.setTimeZone(userZone);*/
+				DateFormat dateFormat = DateFormat.getDateInstance(fmt, Locale.US);
+				DateFormat timeFormat = DateFormat.getTimeInstance(fmt, Locale.US);
 
 				return "<span style=\"white-space: nowrap;\">" + dateFormat.format(date) + "</span><br /><span style=\"white-space: nowrap;\">"
 						+ removeSeconds(timeFormat.format(date)) + "</span>";
 			}
 			else
 			{
-				DateFormat format = DateFormat.getDateTimeInstance(fmt, fmt, userLocale);
-				format.setTimeZone(userZone);
+				/*DateFormat format = DateFormat.getDateTimeInstance(fmt, fmt, userLocale);
+				format.setTimeZone(userZone);*/
+				DateFormat format = DateFormat.getDateTimeInstance(fmt, fmt, Locale.US);
 
 				return removeSeconds(format.format(date));
 			}
@@ -188,12 +192,14 @@ public class UiDatePropertyReference extends UiPropertyReference implements Date
 		int fmt = DateFormat.MEDIUM;
 		if (shortFormat) fmt = DateFormat.SHORT;
 
-		// use the end-user's locale and time zone prefs
+		/*// use the end-user's locale and time zone prefs
 		Locale userLocal = DateHelper.getPreferredLocale(null);
 		TimeZone userZone = DateHelper.getPreferredTimeZone(null);
 
 		DateFormat format = DateFormat.getDateTimeInstance(fmt, fmt, userLocal);
-		format.setTimeZone(userZone);
+		format.setTimeZone(userZone);*/
+		// TODO: use the end-user's locale and time zone prefs
+		DateFormat format = DateFormat.getDateTimeInstance(fmt, fmt, Locale.US);
 
 		try
 		{

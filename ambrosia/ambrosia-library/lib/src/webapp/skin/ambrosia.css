@@ -123,6 +123,7 @@ Header text at the top of a section (Section.header)
 {
 	font-weight: bold;
 	line-height: 2em;
+	overflow: hidden;
 }
 
 /*
@@ -143,6 +144,7 @@ Header text at the top of a section that has been highlighted (Section.header)
 	padding-left: 0.5em;
 	font-weight: bold;
 	line-height: 2em;
+	overflow: hidden;
 }
 
 /*
@@ -223,8 +225,12 @@ Confirm for Navigation
 	border-left:medium double black;
 	border-right:medium double black;
 	border-bottom:medium double black;
+	border-top:medium double black;
 	background:#FFFFCC;
 	position:absolute;
+	margin:auto;
+	z-index:1005;
+	overflow:hidden;
 }
 
 .ambrosiaOverlay
@@ -559,7 +565,7 @@ size for "small" html edit. (will be 2 (border) + 4+4 (padding) wider, 2 (border
 */
 .ambrosiaHtmlEditSize_small
 {
-	width: 540px;
+	max-width: 540px;
 	
 }
 
@@ -568,7 +574,7 @@ size for "full" html edit.
 */
 .ambrosiaHtmlEditSize_full
 {
-	width: 680px;
+	max-width: 680px;
 	
 }
 
@@ -577,7 +583,7 @@ size for "tall" html edit.
 */
 .ambrosiaHtmlEditSize_tall
 {
-	width: 680px;
+	max-width: 680px;
 	
 }
 

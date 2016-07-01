@@ -32,8 +32,7 @@
 	<bean id="org.etudes.mneme.tool.InstallTemplatesView"
 			class="org.etudes.mneme.tool.InstallTemplatesView"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
