@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+
+<!--
+/**********************************************************************************
+ * $URL: https://source.sakaiproject.org/contrib/etudes/ltiContact/trunk/lticontact-webapp/webapp/pom.xml $
+ * $Id: pom.xml 84347 2013-07-21 18:07:49Z ggolden@etudes.org $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2014 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>lticontact-base</artifactId>
+		<groupId>org.etudes</groupId>
+		<version>pom</version>
+		<relativePath>../../pom.xml</relativePath>
+	</parent>
+
+	<name>lticontact-webapp</name>
+	<groupId>org.etudes</groupId>
+	<artifactId>lticontact-webapp</artifactId>
+	<version>${lticontact.version}</version>
+
+	<packaging>war</packaging>
+
+	<dependencies>
+        <dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+			<version>2.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+   
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+	
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-util</artifactId>
+        </dependency>	
+
+        <dependency>
+			<groupId>org.etudes</groupId>
+			<artifactId>etudes-lticontact-util</artifactId>
+			<version>${lticontact.version}</version>
+		</dependency>
+
+		
+	</dependencies>
+	
+	<build>
+        <!-- java source -->
+		<sourceDirectory>src/java</sourceDirectory>
+
+		<resources>
+
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+		</resources>
+	</build>
+
+</project>
