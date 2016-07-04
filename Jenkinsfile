@@ -9,5 +9,5 @@ node {
   sh "git clean -f && git reset --hard origin/11.x"
   stage 'Build'
   def mvnHome = tool 'maven-3.3.9'
-  sh "${mvnHome}/bin/mvn -B verify
+  sh "${mvnHome}/bin/mvn -B verify"
 }
