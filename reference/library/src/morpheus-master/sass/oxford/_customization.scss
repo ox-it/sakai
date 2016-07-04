@@ -1,2 +1,14 @@
+$logo: '/library/skin/morpheus-default/images/ox/logo-white-height-30.png';
+$logo-height: 30px;
+$logo-width: 132px;
+
 $col1of2-width: 66%;
 $col2of2-width: 31%;
+
+// Tweek of the margins necessary for our logo to be centred.
+.#{$namespace}mainHeader .#{$namespace}headerLogo .#{$namespace}headerLogo--institution{
+    margin-top: 0.5em;
+    @media #{$phone}{
+        margin: 0.6em 0 0 0.2em;
+    }
+}
