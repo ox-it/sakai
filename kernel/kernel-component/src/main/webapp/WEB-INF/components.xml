@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>
      <import resource="component-components.xml" />
      <import resource="configstore-components.xml" />
      <import resource="alias-components.xml" />
@@ -20,4 +21,9 @@
      <import resource="memory-components.xml" />
      <import resource="util-components.xml" />
      <import resource="messagebundle-components.xml" />
+     <bean class="org.sakaiproject.util.LocaleLogger"
+            init-method="init"
+            lazy-init="false" >
+     </bean>
+
 </beans>

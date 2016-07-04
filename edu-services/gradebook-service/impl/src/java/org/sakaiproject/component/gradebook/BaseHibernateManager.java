@@ -32,14 +32,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
@@ -47,9 +48,10 @@ import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -66,10 +68,10 @@ import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
-import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
  * Provides methods which are shared between service business logic and application business
@@ -464,7 +466,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
        eventTrackingService.postEvent(message,objectReference);
     }
 
-    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit) 
+
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit) {
+        return createCategory(gradebookId, name, weight, drop_lowest, dropHighest, keepHighest, is_extra_credit, null);
+    }
+
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit, final Integer categoryOrder) 
     throws ConflictingCategoryNameException, StaleObjectModificationException {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
@@ -502,6 +509,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 //ca.setItemValue(itemValue);
     			ca.setRemoved(false);
     			ca.setExtraCredit(is_extra_credit);
+    			ca.setCategoryOrder(categoryOrder);
 
     			Long id = (Long)session.save(ca);
 
@@ -1029,6 +1037,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (Long)getHibernateTemplate().execute(hc);
     }
 
+    @Deprecated
     public List getPermissionsForGB(final Long gradebookId) throws IllegalArgumentException
     {
     	if(gradebookId == null)
@@ -1045,6 +1054,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (List)getHibernateTemplate().execute(hc);
     }
 
+    @Deprecated
     public void updatePermission(Collection perms)
     {
     	for(Iterator iter = perms.iterator(); iter.hasNext(); )
@@ -1055,6 +1065,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	}
     }
 
+    @Deprecated
     public void updatePermission(final Permission perm) throws IllegalArgumentException
     {
     	if(perm == null)
@@ -1075,6 +1086,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	getHibernateTemplate().execute(hc);
     }
     
+    @Deprecated
     public void deletePermission(final Permission perm) throws IllegalArgumentException
     {
     	if(perm == null)
@@ -1112,7 +1124,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (List)getHibernateTemplate().execute(hc);    	
     }
 
-    public List getPermissionsForUserForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException
+    public List<Permission> getPermissionsForUserForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForCategory");
@@ -1137,16 +1149,17 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	}
     }
 
-    public List getPermissionsForUserAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException
+    public List<Permission> getPermissionsForUserAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyCategory");
 
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
-    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null");
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null and perm.function in (:functions)");
     			q.setLong("gradebookId", gradebookId);
     			q.setString("userId", userId);
+    			q.setParameterList("functions", GraderPermission.getStandardPermissions());
 
     			return q.list();
     		}
@@ -1154,16 +1167,17 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (List)getHibernateTemplate().execute(hc);
     }
 
-    public List getPermissionsForUserAnyGroup(final Long gradebookId, final String userId) throws IllegalArgumentException
+    public List<Permission> getPermissionsForUserAnyGroup(final Long gradebookId, final String userId) throws IllegalArgumentException
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroup");
 
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
-    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.groupId is null");
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.groupId is null and perm.function in (:functions)");
     			q.setLong("gradebookId", gradebookId);
     			q.setString("userId", userId);
+    			q.setParameterList("functions", GraderPermission.getStandardPermissions());
 
     			return q.list();
     		}
@@ -1580,6 +1594,18 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 				session.saveOrUpdate(comment);
             	return null;
             }
+		});
+	}
+	
+	public void updateGradeMapping(final Long gradeMappingId, final Map<String, Double> gradeMap){
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				GradeMapping gradeMapping = (GradeMapping)session.load(GradeMapping.class, gradeMappingId);
+				gradeMapping.setGradeMap(gradeMap);
+				session.update(gradeMapping);
+				session.flush();
+				return null;
+			}
 		});
 	}
 }

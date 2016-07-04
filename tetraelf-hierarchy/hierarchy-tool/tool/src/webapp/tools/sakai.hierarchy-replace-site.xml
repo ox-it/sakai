@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.hierarchy-replace-site"
+			title="Replace Site"
+		description="Replace a Site.">
+			
+		<category name="hierarchy" />
+		<configuration name="functions.require" value="portal.hierarchy.modify"/>
+		
+
+	</tool>
+
+</registration>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- We need this file to satisfy Spring, but we don't need anything in it since we use Wicket's dependency injection -->
+<!--     <import resource="classpath:/standalone-beans.xml"/> -->
+<!--     <import resource="classpath:/oxam-beans.xml"/> -->
+    
+    
+<!--     <bean id="location" class="uk.ac.ox.oucs.oxam.logic.ServletLocation"/> -->
+    
+    <import resource="classpath:/import-beans.xml"/>
+    
+    <!-- This should be identical to the one in the implmentation. -->
+    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+        <constructor-arg>
+            <!-- Get the solr server from the config -->
+            <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                <property name="targetObject">
+                    <ref bean="sakaiProxy"/>
+                </property>
+                <property name="targetMethod">
+                    <value>getConfigParam</value>
+                </property>
+                <property name="arguments">
+                    <list>
+                        <value>oxam.solr.url</value>
+                        <value>http://localhost:8080/oxam-solr/</value>
+                    </list>
+                </property>
+            </bean>
+        </constructor-arg>
+		<!-- Time to establish the connection to Solr. -->
+		<property name="connectionTimeout" value="5000"/>
+		<!-- Once connection is established time to wait for results -->
+		<property name="soTimeout" value="5000"/>
+    </bean>
+       
+</beans>

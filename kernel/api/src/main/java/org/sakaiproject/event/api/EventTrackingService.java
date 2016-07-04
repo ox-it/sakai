@@ -137,6 +137,12 @@ public interface EventTrackingService
 	void addLocalObserver(Observer observer);
 
 	/**
+	 * Cleans up old events.
+	 * This is exposed through the API as we want to call from a regular job and the jobscheduller isn't in K1.
+	 */
+	void cleanupEvents();
+
+	/**
 	 * Delete an observer of events.
 	 * 
 	 * @param observer

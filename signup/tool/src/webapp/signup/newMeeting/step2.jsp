@@ -38,7 +38,7 @@
 				
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_step5_page_title}"/>
-				
+				<div class="table-responsive">
 				<h:panelGrid columns="1">
 					
 						<h:panelGrid columns="2"  columnClasses="titleColumn,valueColumn">
@@ -207,7 +207,7 @@
 														<f:convertDateTime pattern=", EEE," timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlot.timeSlot.startTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
-													<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 												<h:outputText value="#{timeSlot.timeSlot.endTime}" styleClass="longtext">
@@ -217,7 +217,7 @@
 														<f:convertDateTime pattern=", EEE," timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 												<h:outputText value="#{timeSlot.timeSlot.endTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
-													<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
+													<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 												</h:outputText>
 											</h:panelGroup>		
 								   		</h:column>
@@ -291,7 +291,7 @@
 									</h:panelGroup>
 									
 									<h:panelGroup id="emailAttendeeOnly">
-										<h:selectOneRadio  value="#{NewSignupMeetingBean.sendEmailToSelectedPeopleOnly}" layout="lineDirection" styleClass="rs" style="margin-left:20px;">
+										<h:selectOneRadio  value="#{NewSignupMeetingBean.sendEmailToSelectedPeopleOnly}" layout="pageDirection" styleClass="rs" >
 											<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}" itemDisabled="true"/>
 											<f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}" itemDisabled="true"/>
 										</h:selectOneRadio>
@@ -368,7 +368,7 @@
 						
 						<h:outputText value="&nbsp;" escape="false"/>
 						
-				</h:panelGrid>
+				</h:panelGrid></div>
 					
 										
 				<h:inputHidden value="step2" binding="#{NewSignupMeetingBean.currentStepHiddenInfo}"/>

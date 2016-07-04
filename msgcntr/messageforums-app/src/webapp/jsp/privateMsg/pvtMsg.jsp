@@ -32,7 +32,7 @@
   	//show entire page, otherwise, don't allow anon user to use this tool:
 %>
 
-		       		<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
+		       		<script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js?version="></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>		
 			
@@ -49,10 +49,11 @@
   			
   		<%@ include file="msgHeader.jsp"%>
 		<%-- gsilver:this table needs a render atrtibute that will make it not display if there are no messages - and a companion text block classed as "instruction" that will render instead--%>	
-	  <h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
+	  <div class="table-responsive">
+	  <h:dataTable styleClass="table table-hover table-striped table-bordered" id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
-					 columnClasses="attach,attach,attach,specialLink,bogus,bogus,bogus">
+					 columnClasses="check,attach,reply,specialLink,created,date,bogus">
 	  	                
 		  <h:column>
 		    <f:facet name="header">
@@ -102,7 +103,6 @@
     	         <f:param name="sortColumn" value="subject"/>
     	       </h:commandLink>
 		    </f:facet>
-			  <f:verbatim><h4></f:verbatim>
 			<h:commandLink action="#{PrivateMessagesTool.processPvtMsgDetail}" title="#{rcvdItems.msg.title}" immediate="true">
 
             <h:outputText value=" #{rcvdItems.msg.title}" rendered="#{rcvdItems.hasRead}"/>
@@ -110,7 +110,6 @@
 			<h:outputText styleClass="skip" value="#{msgs.pvt_openb}#{msgs.pvt_unread}#{msgs.pvt_closeb}" rendered="#{!rcvdItems.hasRead}"/>
             <f:param value="#{rcvdItems.msg.id}" name="current_msg_detail"/>
           </h:commandLink>
-		  			<f:verbatim></h4></f:verbatim>
 		  </h:column>			
 		  <h:column rendered="#{PrivateMessagesTool.selectedTopic.topic.title != 'pvt_sent'}">
 		    <f:facet name="header">
@@ -181,8 +180,9 @@
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</h:dataTable>
-		
-	  <mf:hierPvtMsgDataTable styleClass="listHier lines nolines" id="threaded_pvtmsgs" width="100%" 
+	</div>
+	  <div class="table-responsive">	
+	  <mf:hierPvtMsgDataTable styleClass="table table-hover table-striped table-bordered" id="threaded_pvtmsgs" width="100%" 
 	                          value="#{PrivateMessagesTool.decoratedPvtMsgs}" 
 	  	                        var="rcvdItems" 
 	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
@@ -254,6 +254,7 @@
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
+		</div>
 		
 <%-- Added if user clicks Check All --%>
     <script language="Javascript" type="text/javascript">

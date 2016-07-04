@@ -39,6 +39,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.sakaiproject.api.app.messageforums.*;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
@@ -67,6 +68,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
@@ -97,9 +99,14 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_MOVED_HISTORY_BY_MESSAGEID = "findMovedHistoryByMessageId";
     //private static final String ID = "id";
 
+    // Oracle's 1000 'in' clause limit
+    private static final int MAX_IN_CLAUSE_SIZE = 1000;
+
     private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
 
     private IdManager idManager;                      
+
+    private MessageParsingService messageParsingService;
 
     private MessageForumsTypeManager typeManager;
 
@@ -140,6 +147,14 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
     public IdManager getIdManager() {
         return idManager;
+    }
+
+    public MessageParsingService getMessageParsingService() {
+        return messageParsingService;
+    }
+
+    public void setMessageParsingService(MessageParsingService messageParsingService) {
+        this.messageParsingService = messageParsingService;
     }
 
     public SessionManager getSessionManager() {
@@ -920,15 +935,35 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     +     * @see org.sakaiproject.api.app.messageforums.MessageForumsForumManager#findMessageCountsForMainPage(java.util.List)
     +     */
     public List<Object[]> findMessageCountsForMainPage(final Collection<Long> topicIds) {
-    	// have to manually check to make sure the Collection isn't empty to prevent Hibernate from 
-    	// producing the "unexpected end of subtree" error.  (SAKAI-399/357 [local UDayton] & SAK-16848)
     	if (topicIds.isEmpty()) return new ArrayList<Object[]>();
 
     	HibernateCallback hcb = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    			Query q = session.getNamedQuery(QUERY_MESSAGE_COUNTS_FOR_MAIN_PAGE);
-    			q.setParameterList("topicIds", topicIds);
-    			return q.list();
+    			// would use the normal 'subList' approach to deal with Oracle's 1000 limit, but we're dealing with a Collection
+    			Iterator<Long> itTopicIds = topicIds.iterator();
+    			int numTopics = topicIds.size();
+
+    			List<Object[]> retrievedCounts = new ArrayList<Object[]>(numTopics);
+
+    			List<Long> queryTopics = new ArrayList<Long>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
+    			int querySize = 0;
+    			while (itTopicIds.hasNext())
+    			{
+    				while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE)
+    				{
+    					queryTopics.add(itTopicIds.next());
+    					querySize++;
+    				}
+
+    				Query q = session.getNamedQuery(QUERY_MESSAGE_COUNTS_FOR_MAIN_PAGE);
+    				q.setParameterList("topicIds", queryTopics);
+    				retrievedCounts.addAll(q.list());
+
+    				queryTopics.clear();
+    				querySize = 0;
+    			}
+
+    			return retrievedCounts;
     		}
     	};
 
@@ -940,16 +975,37 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
      * @see org.sakaiproject.api.app.messageforums.MessageForumsMessageManager#findReadMessageCountsForMainPage(java.util.Collection)
      */
     public List<Object[]> findReadMessageCountsForMainPage(final Collection<Long> topicIds) {
-    	// have to manually check to make sure the Collection isn't empty to prevent Hibernate from 
-    	// producing the "unexpected end of subtree" error.  (SAKAI-399/357 [local UDayton] & SAK-16848)
     	if (topicIds.isEmpty()) return new ArrayList<Object[]>();
 
     	HibernateCallback hcb = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    			Query q = session.getNamedQuery(QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE);
-    			q.setParameterList("topicIds", topicIds);
-    			q.setParameter("userId", getCurrentUser());
-    			return q.list();
+    			// would use the normal 'subList' approach to deal with Oracle's 1000 limit, but we're dealing with a Collection
+    			Iterator<Long> itTopicIds = topicIds.iterator();
+    			int numTopics = topicIds.size();
+    			String userId = getCurrentUser();
+
+    			List<Object[]> retrievedCounts = new ArrayList<Object[]>(numTopics);
+
+    			List<Long> queryTopics = new ArrayList<Long>(Math.min(numTopics, MAX_IN_CLAUSE_SIZE));
+    			int querySize = 0;
+    			while (itTopicIds.hasNext())
+    			{
+    				while (itTopicIds.hasNext() && querySize < MAX_IN_CLAUSE_SIZE)
+    				{
+    					queryTopics.add(itTopicIds.next());
+    					querySize++;
+    				}
+
+    				Query q = session.getNamedQuery(QUERY_READ_MESSAGE_COUNTS_FOR_MAIN_PAGE);
+    				q.setParameterList("topicIds", queryTopics);
+    				q.setParameter("userId", userId);
+    				retrievedCounts.addAll(q.list());
+
+    				queryTopics.clear();
+    				querySize = 0;
+    			}
+
+    			return retrievedCounts;
     		}
     	};
 
@@ -1290,16 +1346,24 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return attachment;        
     }
 
+    // These methods get called from the PrivateMessageManager and the DiscussionForumManager
+    // PrivateMessageManager should always be supplying a PrivateMessage which has no topic but recipients.
+    // DiscussionForumManager should always be supplying a Message which has a topic.
+
+    // These methods get called from the PrivateMessageManager and the DiscussionForumManager
+    // PrivateMessageManager should always be supplying a PrivateMessage which has no topic but recipients.
+    // DiscussionForumManager should always be supplying a Message which has a topic.
+
     public void saveMessage(Message message) {
     	saveMessage(message, true);
     }
 
     public void saveMessage(Message message, boolean logEvent) {
-    	saveMessage(message, logEvent, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
+    	saveMessage(message, logEvent, null, null, null, false);
     }
     
     public void saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
-        saveMessage(message, logEvent, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
+      saveMessage(message, logEvent, null, null, null, ignoreLockedTopicForum);
     }
     
     public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
@@ -1352,6 +1416,12 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         getHibernateTemplate().saveOrUpdate(message);
 
         if (logEvent) {
+          // Need to check we have good values for toolId, userId, contextId
+          // When being called from /direct these values may not have been set
+          toolId = checkToolId(message, toolId);
+          contextId = checkSiteId(message, contextId);
+          userId = checkUserId(message, userId);
+            // This should be pushed up into the managers, rather than working out again what type of message we have.
         	if (isNew) {
         		if (isMessageFromForums(message))
         			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_ADD, getEventMessage(message, toolId, userId, contextId), false));
@@ -1368,6 +1438,84 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         LOG.debug("message " + message.getId() + " saved successfully");
         
     }
+
+    /**
+     * Check that we have a good tool ID when saving. Look in the thread, or otherwise look at the type of the
+     * message being saved. We use the thread so we don't change existing code, but really there should be one canonical
+     * place to find the current tool.
+     * @param message The message being saved.
+     * @param toolId The existing tool ID, can be <code>null</code>.
+     * @return The tool ID, will never be <code>null</code>.
+     */
+    private String checkToolId(Message message, String toolId) {
+        if (toolId == null) {
+            Tool tool = ToolManager.getCurrentTool();
+            if (tool != null) {
+                toolId = tool.getId();
+            }
+            if (toolId == null) {
+                toolId = (message instanceof PrivateMessage) ? DiscussionForumService.MESSAGES_TOOL_ID : DiscussionForumService.FORUMS_TOOL_ID;
+            }
+        }
+        return toolId;
+    }
+
+    /**
+     * Check that we have a good site ID when saving. Look in the placement to work out the site ID, this was the
+     * existing way and works when being called through the portal. If the request isn't coming through the portal
+     * (eg quartz job or entity broker) then get the site ID from the message.
+     * @param message The message being saved.
+     * @param siteId The existing Site ID, can be <code>null</code>
+     * @return The site ID, might be <code>null</code> if something is very wrong.
+     */
+    private String checkSiteId(Message message, String siteId) {
+        if (siteId == null) {
+            Placement placement = ToolManager.getCurrentPlacement();
+            if (placement != null) {
+                siteId = placement.getContext();
+            }
+            if (siteId == null) {
+                // Get the site ID from the message to be saved.
+                // The message was originally create in another session so re-attach it to this one so
+                // we don't get lazy loading exceptions.
+                getSession().refresh(message);
+                if (message instanceof PrivateMessage) {
+                    PrivateMessage privateMessage = (PrivateMessage) message;
+                    List<PrivateMessageRecipient> recipients = (List<PrivateMessageRecipient>) privateMessage.getRecipients();
+                    if (!recipients.isEmpty()) {
+                        siteId = recipients.get(0).getContextId();
+                    }
+                } else {
+                    // Find the context of the area otherwise.
+                    Topic topic = message.getTopic();
+                    if (topic != null) {
+                        OpenForum forum = topic.getOpenForum();
+                        if (forum != null) {
+                            Area area = forum.getArea();
+                            if (area != null) {
+                                siteId = area.getContextId();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return siteId;
+    }
+
+    /**
+     * Check that we have a good user ID when saving. Look in the session to work out the user ID.
+     * @param message The message being saved.
+     * @param userId The existing user ID, can be <code>null</code>.
+     * @return A user ID, will be <code>null</code> if there isn't a user logged in.
+     */
+    private String checkUserId(Message message, String userId) {
+        if (userId == null) {
+            userId = sessionManager.getCurrentSessionUserId();
+        }
+        return userId;
+    }
+
 
     public void deleteMessage(Message message) {
         long id = message.getId().longValue();
@@ -2035,5 +2183,5 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 		return (List) getHibernateTemplate().execute(hcb);        
 
 	}
-	   
+
 }

@@ -1,7 +1,9 @@
 @media print  {
-.portletBody .navIntraTool, .portletBody #attendanceList thead, .noPrint, .portletBodyPrint input{
-    display:none !important;
-}    
+	.portletBody .navIntraTool, .portletBody #attendanceList thead, .noPrint, .portletBodyPrint input{
+	    display:none !important;
+	}
+}
+
 h4{
     width :100% !important
 }
@@ -9,9 +11,9 @@ h4{
     font-weight:bold !important;    
     background:#ccc !important
 }
-}    
 table.signupTable {
 	text-align: left;
+	margin-top: 20px;
 }
 
 table.signupTable th {
@@ -37,26 +39,10 @@ table.signupTable td.titleCol{
 	padding-left:1.2em;
 }
 
-table.userDefineTsTable {
-	text-align: left;
-}
+
 
 table.userDefineTsTable th {
 	background-color: #ddd;
-	padding: .3em .3em;
-}
-
-table.userDefineTsTable tr.evenRow {
-	background: #f8f8f8;
-}
-
-table.userDefineTsTable td {
-	padding: .3em .3em;
-}
-
-table.userDefineTsTable td.titleCol{	
-	padding: .3em 1em;
-	padding-left:.5em;
 }
 
 .titleColumn {
@@ -247,8 +233,7 @@ table.organizer td {
 
 .mi {
 	vertical-align: top;
-	margin-left: 30px;
-	background: #e7eef5;
+	margin-left: 30px;	
 	width: 350px;
 }
 
@@ -261,8 +246,6 @@ table.organizer td {
 }
 
 .longtext_red{
-	border: 0px;
-	margin: 0px;
 	color:#b11;
 }
 
@@ -272,9 +255,7 @@ table.organizer td {
 
 .si {
 	vertical-align: top;
-	margin-left: 30px;
-	background: #e7eef5;
-	color: #e7eef5;
+	margin-left: 30px;	
 	width: 350px;
 }
 
@@ -460,12 +441,6 @@ table.instruction td.desc{
 	text-align: left;
 }
 
-.calendarImageIcon {
-	vertical-align: bottom;
-	margin-left: 3px;
-	margin-right: 7px;
-}
-
 .orgShowTitleOnly, .emailTable, .assingAttendeeTable {
 	width:98%;
 }
@@ -531,9 +506,10 @@ table.emailTable td.valueColumn {
 	color: #888;
 	margin-left: 10px;
 }
+table.signupTable td.mobileCol{	
+	text-align:center;
+}
 
-/* control CKEditor window size*/
-.cke_contents {
-		height: 160px !important;
-		width:700px !important;
+.mobile-info-link img {
+	height: 50px;
 }

@@ -1,0 +1,12 @@
+/* citation references (e.g. [1]) */
+[data-solo-citation] {
+  display: inline;
+}
+
+/* citation blocks (the full information about the book/article) */
+.citation {
+  display: block;
+  border: 1px solid #ccc;
+  margin: 5px;
+  padding: 3px;
+}

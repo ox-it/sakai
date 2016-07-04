@@ -1,13 +1,7 @@
 package org.sakaiproject.component.app.messageforums.entity;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +11,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.MessageParsingService;
 import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
@@ -40,23 +35,81 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
 public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvider,
     AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, RequestAware, ActionsExecutable {
 
-  private DiscussionForumManager forumManager;
-  private PrivateMessageManager privateMessageManager;
-  private UIPermissionsManager uiPermissionsManager;
-  private MessageForumsMessageManager messageManager;
-  private static final Log LOG = LogFactory.getLog(ForumMessageEntityProviderImpl.class);
+	private DiscussionForumManager forumManager;
+  	public void setForumManager(DiscussionForumManager forumManager) {
+  		this.forumManager = forumManager;
+  	}
+	/**
+	 *
+	 */
+	private PrivateMessageManager privateMessageManager;
+	public void setPrivateMessageManager(PrivateMessageManager privateMessageManager) {
+		this.privateMessageManager = privateMessageManager;
+	}
+	public PrivateMessageManager getPrivateMessageManager() {
+		return privateMessageManager;
+	}
+
+	/**
+	 *
+	 */
+	private UIPermissionsManager uiPermissionsManager;
+	public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager) {
+		this.uiPermissionsManager = uiPermissionsManager;
+	}
+	public UIPermissionsManager getUiPermissionsManager() {
+		return uiPermissionsManager;
+	}
+
+	/**
+	 *
+	 */
+	private MessageForumsMessageManager messageManager;
+	public void setMessageManager(MessageForumsMessageManager messageManager) {
+		this.messageManager = messageManager;
+	}
+	public MessageForumsMessageManager getMessageManager() {
+		return messageManager;
+	}
+  
+  	/**
+  	 * 
+  	 */
+	/** Dependency: ServerConfigurationService. */
+	protected org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService = null;
+	public void setServerConfigurationService(org.sakaiproject.component.api.ServerConfigurationService service) {
+		serverConfigurationService = service;
+	}
+
+  	/**
+  	 * 
+  	 */
+	private MessageParsingService messageParsingService;
+	public void setMessageParsingService(
+			MessageParsingService messageParsingService) {
+		this.messageParsingService = messageParsingService;
+	}
   
 
+  private static final Log LOG = LogFactory.getLog(ForumMessageEntityProviderImpl.class);
+	private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
 
-private RequestStorage requestStorage;
+	private static final String LAST_REVISE_BY = "cdfm_last_revise_msg";
+	private static final String LAST_REVISE_ON = "cdfm_last_revise_msg_on";
+
+
+	private RequestStorage requestStorage;
   public void setRequestStorage(RequestStorage requestStorage) {
       this.requestStorage = requestStorage;
   }
@@ -161,41 +214,266 @@ private RequestStorage requestStorage;
 	  // here though... if you're feeling jumpy feel free.
   }
 
-  public void setForumManager(DiscussionForumManager forumManager) {
-	  this.forumManager = forumManager;
-  }
+  	/**
+  	 * 
+  	 */
+    public String createEntity(EntityReference ref, Object entity,
+                               Map<String, Object> params) {
 
-  public String createEntity(EntityReference ref, Object entity,
-		  Map<String, Object> params) {
-	  // TODO Auto-generated method stub
-	  return null;
-  }
+      String userId = UserDirectoryService.getCurrentUser().getId();
+      if (userId == null || "".equals(userId)){
+        throw new SecurityException("Could not create entity, permission denied: " + ref);
+      }
 
-  public Object getSampleEntity() {
-	  // TODO Auto-generated method stub
-	  return null;
-  }
+      Long messageId = null;
 
-  public void updateEntity(EntityReference ref, Object entity,
-		  Map<String, Object> params) {
-	  // TODO Auto-generated method stub
+      if (entity.getClass().isAssignableFrom(DecoratedMessage.class)) {
+        // if they instead pass in the DecoratedMessage object
+        DecoratedMessage dMessage = (DecoratedMessage) entity;
+        if (messageId == null && dMessage.getMessageId() != null) {
+          messageId = dMessage.getMessageId();
+        }
 
-  }
+        Message replyToMessage = forumManager.getMessageById(dMessage.getReplyTo());
+        DiscussionTopic topic = forumManager.getTopicById(dMessage.getTopicId());
+
+
+        if (!forumManager.canUserPostMessage(topic.getId(), "createEntity")) {
+          throw new SecurityException("Could not create entity, permission denied: " + ref);
+        }
+        // We only handle discussion messages :-(
+        Message aMsg = messageManager.createDiscussionMessage();
+        DiscussionForum forum = (DiscussionForum)topic.getBaseForum();
+
+        if (aMsg != null) {
+          StringBuilder alertMsg = new StringBuilder();
+          aMsg.setTitle(FormattedText.processFormattedText(dMessage.getTitle(), alertMsg));
+          String body = (forum.getMarkupFree())?
+                  messageParsingService.parse(dMessage.getBody()):
+                  FormattedText.processFormattedText(dMessage.getBody(), alertMsg);
+          aMsg.setBody(body);
+
+          if (userId!=null) {
+            aMsg.setAuthor(getUserNameOrEid());
+            aMsg.setModifiedBy(getUserNameOrEid());
+          } else if (userId==null && this.forumManager.getAnonRole()==true) {
+            aMsg.setAuthor(".anon");
+            aMsg.setModifiedBy(".anon");
+          }
+
+          aMsg.setDraft(Boolean.FALSE);
+          aMsg.setDeleted(Boolean.FALSE);
+
+          // if the topic is moderated, we want to leave approval null.
+          // if the topic is not moderated, all msgs are approved
+          // if the author has moderator perm, the msg is automatically approved\
+
+          if (!(topic.getModerated().booleanValue() &&
+                  uiPermissionsManager.isModeratePostings(topic, forum))) {
+            aMsg.setApproved(Boolean.TRUE);
+          }
+
+          aMsg.setTopic(topic);
+          aMsg.setInReplyTo(replyToMessage);
+
+          forumManager.saveMessage(aMsg);
+          messageId = aMsg.getId();
+        }
+      } else {
+        throw new IllegalArgumentException("Invalid entity for creation, must be Message or DecoratedMessage object");
+      }
+
+      if (null == messageId) {
+        return null;
+      }
+      return messageId.toString();
+    }
+
+	public Object getSampleEntity() {
+		return new DecoratedMessage();
+	}
+
+	public String getUserNameOrEid()
+	{
+		try {
+
+			String currentUserId = UserDirectoryService.getCurrentUser().getId();
+
+			String userString = "";
+			userString = UserDirectoryService.getUser(currentUserId).getDisplayName();
+			String userEidString = "";
+			userEidString = UserDirectoryService.getUser(currentUserId).getDisplayId();
+
+			if((userString != null && userString.length() > 0) &&
+					serverConfigurationService.getBoolean("msg.displayEid", true)) {
+				return userString + " (" + userEidString + ")";
+
+			}  else if ((userString != null && userString.length() > 0) &&
+					!serverConfigurationService.getBoolean("msg.displayEid", true)) {
+				return userString;
+
+			} else {
+				return userEidString;
+			}
+
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+
+		return UserDirectoryService.getCurrentUser().getId();
+	}
+
+	public void updateEntity(EntityReference ref, Object entity,
+	                         Map<String, Object> params) {
+
+		String userId = UserDirectoryService.getCurrentUser().getId();
+		if (userId == null || "".equals(userId)){
+			throw new SecurityException("Could not get entity, permission denied: " + ref);
+		}
+
+		String id = ref.getId();
+		if (id == null || "".equals(id)) {
+			throw new IllegalArgumentException("Cannot update, No id in provided reference: " + ref);
+		}
+
+		Message message = forumManager.getMessageById(new Long(ref.getId()));
+		if (null == message) {
+			throw new IllegalArgumentException("Cannot update, No message in provided reference: " + ref);
+		}
+
+		if (entity.getClass().isAssignableFrom(DecoratedMessage.class)) {
+			// if they instead pass in the DecoratedMessage object
+			DecoratedMessage dMessage = (DecoratedMessage) entity;
+
+			DiscussionTopic topic = forumManager.getTopicById(dMessage.getTopicId());
+			DiscussionForum forum = (DiscussionForum)topic.getBaseForum();
+
+			if(!uiPermissionsManager.isReviseAny(topic, forum) && !(message.getCreatedBy().equals(userId)
+					&& uiPermissionsManager.isReviseOwn(topic, forum))) {
+				throw new SecurityException("Could not create entity, permission denied: " + ref);
+			}
+
+			// This is duplicated from the tool and should be refactored out into the service.
+			String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
+
+			revisedInfo += getUserNameOrEid();
+
+			revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
+			Date now = new Date();
+			revisedInfo += now.toString();
+
+			// Need a different header if it's a markup free forum.
+			if (forum.getMarkupFree())
+			{
+				revisedInfo = revisedInfo + "\n";
+			} else {
+				revisedInfo = "<p class=\"lastRevise textPanelFooter\">"+ revisedInfo + " </p>";
+			}
+
+			revisedInfo = revisedInfo.concat(dMessage.getBody());
+
+			StringBuilder alertMsg = new StringBuilder();
+			message.setTitle(FormattedText.processFormattedText(dMessage.getTitle(), alertMsg));
+			String filteredBody = forum.getMarkupFree()?
+					messageParsingService.parse(revisedInfo):
+					FormattedText.processFormattedText(revisedInfo, alertMsg);
+			message.setBody(filteredBody);
+			message.setDraft(Boolean.FALSE);
+			message.setModified(new Date());
+
+			// Note. This seems to be a silly thing to do, but if the topic is not set
+			// we get a hibernate lazyloading exception because the session is lost.
+			message.setTopic((DiscussionTopic)forumManager
+					.getTopicByIdWithMessages(dMessage.getTopicId()));
+
+			if (message.getInReplyTo() != null) {
+				//grab a fresh copy of the message incase it has changes (staleobjectexception)
+				message.setInReplyTo(forumManager.getMessageById(message.getInReplyTo().getId()));
+			}
+
+			forumManager.saveMessage(message);
+		}
+
+	}
+
+	public static String getResourceBundleString(String key)
+	{
+		final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
+		return rb.getString(key);
+	}
 
   public Object getEntity(EntityReference ref) {
+
+	  String userId = UserDirectoryService.getCurrentUser().getId();
+	  if (userId == null || "".equals(userId)){
+		  throw new SecurityException("Could not get entity, permission denied: " + ref);
+	  }
+	  Message message = forumManager.getMessageById(new Long(ref.getId()));
+	  if (null == message) {
+		  throw new IllegalArgumentException("IdUnusedException in Resource Entity Provider");
+	  }
+	  DiscussionTopic topic = forumManager.getTopicById(message.getTopic().getId());
+	  if (null == topic) {
+		  throw new IllegalArgumentException("IdInvalidException in Resource Entity Provider");
+	  }
+	  DiscussionForum forum = forumManager.getForumById(topic.getBaseForum().getId());
+	  DecoratedMessage dMessage = null;
+
+	  if (!message.getDeleted()){
+
+		  List<String> attachments = new ArrayList<String>();
+		  if(message.getHasAttachments()){
+			  for(Attachment attachment : (List<Attachment>) message.getAttachments()){
+				  attachments.add(attachment.getAttachmentName());
+			  }
+		  }
+
+		  Map msgIdReadStatusMap = forumManager.getReadStatusForMessagesWithId(
+				  Collections.singletonList(message.getId()), userId);
+		  Boolean readStatus = (Boolean)msgIdReadStatusMap.get(message.getId());
+		  if(readStatus == null)
+			  readStatus = Boolean.FALSE;
+
+
+		  dMessage =
+				  new DecoratedMessage(message.getId(), message.getTopic().getId(),
+						  message.getTitle(),
+						  forum.getMarkupFree() ? messageParsingService.format(message.getBody()) : message.getBody(),
+						  "" + message.getModified().getTime(),
+						  attachments, Collections.EMPTY_LIST,
+						  message.getAuthor(), getProfileImageURL(message.getAuthorId()),
+						  message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),
+								  "" + message.getCreated().getTime(), readStatus.booleanValue(), "", "");
+	  }
+
+	  return dMessage;
 	  // TODO Auto-generated method stub
-	  return null;
   }
 
   public void deleteEntity(EntityReference ref, Map<String, Object> params) {
 	  // TODO Auto-generated method stub
 
   }
+
+	private String getProfileImageURL(String authorId) {
+
+		if (null == authorId || authorId.trim().length() == 0 ) {
+			return null;
+		}
+		StringBuffer sb = new StringBuffer();
+		sb.append(serverConfigurationService.getServerUrl());
+		sb.append("/direct/profile/");
+		sb.append(authorId);
+		sb.append("/image/thumb");
+		return sb.toString();
+	}
   
   public List<DecoratedMessage> findReplies(List<Message> messages, Long messageId, Long topicId, Map msgIdReadStatusMap){
 	  List<DecoratedMessage> replies = new ArrayList<DecoratedMessage>();
 
 	  for (Message message : messages) {
+		  DiscussionTopic dTopic = forumManager.getTopicById(message.getTopic().getId());
+		  DiscussionForum dForum = forumManager.getForumById(dTopic.getBaseForum().getId());
 		  if(message.getInReplyTo() != null){
 			  if(messageId.equals(message.getInReplyTo().getId())){
 				  if(!message.getDeleted()){
@@ -210,8 +488,10 @@ private RequestStorage requestStorage;
 						  readStatus = Boolean.FALSE;
 
 					  DecoratedMessage dMessage = new DecoratedMessage(message
-							  .getId(), topicId, message.getTitle(),
-							  message.getBody(), "" + message.getModified().getTime(),
+							  .getId(), topicId, 
+							  message.getTitle(),
+							  dForum.getMarkupFree() ? messageParsingService.format(message.getBody()) : message.getBody(), 
+							  "" + message.getModified().getTime(),
 							  attachments, findReplies(messages, message.getId(),
 									  topicId, msgIdReadStatusMap), message.getAuthor(), message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),
 											  "" + message.getCreated().getTime(), readStatus.booleanValue(), "", "");
@@ -314,8 +594,10 @@ private RequestStorage requestStorage;
 								  readStatus = Boolean.FALSE;
 
 							  DecoratedMessage dMessage = new DecoratedMessage(message
-									  .getId(), new Long(topicId), message.getTitle(),
-									  message.getBody(), "" + message.getModified().getTime(),
+									  .getId(), new Long(topicId),
+									  message.getTitle(),
+									  dForum.getMarkupFree() ? messageParsingService.format(message.getBody()) : message.getBody(), 
+									  "" + message.getModified().getTime(),
 									  attachments, findReplies(messages, message.getId(),
 											  new Long(topicId), msgIdReadStatusMap), message.getAuthor(), message.getInReplyTo() == null ? null : message.getInReplyTo().getId(),
 													  "" + message.getCreated().getTime(), readStatus.booleanValue(), "", "");				  
@@ -548,7 +830,7 @@ private RequestStorage requestStorage;
 	  // TODO Auto-generated method stub
 	  return null;
   }
-  
+
   public class DecoratedMessagesTopic{
 	private String title;
 	private Long id;
@@ -589,7 +871,7 @@ private RequestStorage requestStorage;
 	
 	
   }
-  
+
   public class DecoratedMessage{
 	 private Long messageId;
 	 private Long topicId;
@@ -600,12 +882,17 @@ private RequestStorage requestStorage;
 	 private List<DecoratedMessage> replies;
 	 private String authoredBy;
 	 private int indentIndex = 0;
-	 private Long replyTo;
+	  private String profileImageURL;
+	  private Long replyTo;
 	 private String createdOn;
 	 private boolean read;
 	 private String recipients;
 	 private String label;
-	 
+
+	  public DecoratedMessage(){
+
+	  }
+
 	public DecoratedMessage(Long messageId, Long topicId, String title, String body, String lastModified, List<String> attachments, List<DecoratedMessage> replies, String authoredBy, Long replyTo, String createdOn, boolean read, String recipients, String label){
 		  this.messageId = messageId;
 		  this.topicId = topicId;
@@ -615,6 +902,28 @@ private RequestStorage requestStorage;
 		  this.replies = replies;
 		  this.lastModified = lastModified;
 		  this.authoredBy = authoredBy;
+		  this.replyTo = replyTo;
+		  this.createdOn = createdOn;
+		  this.read = read;
+		  this.recipients = recipients;
+		  this.label = label;
+	  }
+
+	  public DecoratedMessage(Long messageId, Long topicId, String title,
+	                          String body, String lastModified,
+	                          List<String> attachments, List<DecoratedMessage> replies,
+	                          String authoredBy, String profileImageURL, Long replyTo, String createdOn, boolean read,
+	                          String recipients, String label) {
+
+		  this.messageId = messageId;
+		  this.topicId = topicId;
+		  this.title = title;
+		  this.body = body;
+		  this.attachments = attachments;
+		  this.replies = replies;
+		  this.lastModified = lastModified;
+		  this.authoredBy = authoredBy;
+		  this.profileImageURL = profileImageURL;
 		  this.replyTo = replyTo;
 		  this.createdOn = createdOn;
 		  this.read = read;
@@ -717,30 +1026,5 @@ private RequestStorage requestStorage;
 
   }
 
-  public PrivateMessageManager getPrivateMessageManager() {
-	  return privateMessageManager;
-  }
-
-
-  public void setPrivateMessageManager(PrivateMessageManager privateMessageManager) {
-	  this.privateMessageManager = privateMessageManager;
-  }
-
-  public UIPermissionsManager getUiPermissionsManager() {
-	  return uiPermissionsManager;
-  }
-
-
-  public void setUiPermissionsManager(UIPermissionsManager uiPermissionsManager) {
-	  this.uiPermissionsManager = uiPermissionsManager;
-  }
-
-public MessageForumsMessageManager getMessageManager() {
-	return messageManager;
-}
-
-public void setMessageManager(MessageForumsMessageManager messageManager) {
-	this.messageManager = messageManager;
-}
 
 }

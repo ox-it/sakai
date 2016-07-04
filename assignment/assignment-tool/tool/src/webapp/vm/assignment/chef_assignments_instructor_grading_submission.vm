@@ -1,25 +1,13 @@
 <!-- $Id$ -->
 <!-- start: check_assignments_instructor_grading_submission.vm  -->
 #set( $H = '-' )
-<script type="text/javascript">includeLatestJQuery('assignments');</script>
-<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+<!-- jQuery already loaded in assignment_chef_header -->
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
 <script type="text/javascript">
-focus_path = [ '$fField' ];
-function handleEnterKeyPress(ev)
-	{
-		if (!ev) ev = window.event;
-			if (ev && ev.keyCode == 13)
-			{
-				 return false; 
-			 }
-		 }
-</script>
-<script type="text/javascript">
+	focus_path = [ '$fField' ];
 	$(document).ready(function(){
-		setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
-		ASN.setupItemNavigator();
+		ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
 		//click anywhere to close the peer assessment information box
 		$(document).click(function(ev){
 			var $pan = $('#peerReviewInfo')
@@ -27,26 +15,6 @@ function handleEnterKeyPress(ev)
 		});
 		disableBackButton();
 	});
-
-var reportsExpanded = false;
-function handleReportsTriangleDisclosure(btn)
-{
-	var reportsDiv = document.getElementById("reportsDiv");
-	if (reportsExpanded)
-	{
-		btn.src = "#imageLink("sakai/expand.gif")";
-		btn.alt = "$tlang.getString('review.report.expand')";
-		reportsDiv.style.display="none";
-	}
-	else
-	{
-		btn.src = "#imageLink("sakai/collapse.gif")";
-		btn.alt = "$tlang.getString('review.report.collapse')";
-		reportsDiv.removeAttribute("style");
-		resizeFrame();
-	}
-	reportsExpanded = !reportsExpanded;
-}
 </script>
 <div class="portletBody">
 
@@ -54,43 +22,7 @@ function handleReportsTriangleDisclosure(btn)
 #set( $assignmentContent = $assignment.getContent() )
 #set( $gradeType = $assignmentContent.TypeOfGrade )
 
-<ul class="navIntraTool actionToolBar">
-		#set($prevAction=false)
-		#if ($allowAddAssignment)
-			#set($prevAction=true)
-			<li class="firstToolBarItem">
-				<span><a href="#" title = "$!tlang.getString('new')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='new';document.getElementById('view').value='new';document.gradeForm.submit();return false;">$!tlang.getString("new")</a></span>
-			</li>
-		#end
-		<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-			<span><a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.gradeForm.submit();return false;">$!tlang.getString("lisofass1")</a></span>
-		</li>	
-		#if ($withGrade && $!allowGradeSubmission)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.gradeForm.submit();return false;">$!tlang.getString("gen.grarep")</a></span>
-			</li>				
-		#end
-		#if ($allowAddAssignment)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.gradeForm.submit();return false;">$!tlang.getString("gen.stuvie")</a></span>
-			</li>	
-		#end
-		#if (($allowAllGroups) && ($assignmentscheck))
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#" title="$tlang.getString('gen.reorder')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='reorderNavigation';document.gradeForm.submit();return false;">$tlang.getString('gen.reorder')</a></span>
-			</li>	
-		#end
-		#if ($allowUpdateSite)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#" title="$tlang.getString('permis')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='permissions';document.gradeForm.submit();return false;">$tlang.getString('permis')</a></span>
-			</li>
-			#if ($enableViewOption)	
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-					<span><a href="#" title="$tlang.getString('options')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='options';document.gradeForm.submit();return false;">$tlang.getString('options')</a></span>
-				</li>
-			#end	
-		#end
-	</ul>
+	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
 	## confirmation
 	#if ($!gradingDone)
 		<div class="success">
@@ -135,20 +67,19 @@ function handleReportsTriangleDisclosure(btn)
 					<div class="leftColumn">
 						<input type="button" name="prevsubmission1" class="prevsubmission" value="$tlang.getString( "nav.prev" )"
 							#if( !$!goPTButton ) disabled="disabled" #end 
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'prevsubmission' );" />
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevsubmission', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 
 						#if ($gradeType != 1)
 						<input type="button" name="prevungraded1" class="prevUngraded" value="$tlang.getString( "nav.prev.ungraded" )"
 							#if( !$!goPrevUngradedEnabled ) disabled="disabled" #end 
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'prevUngraded' );" />
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevUngraded', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 						#end
 
-						<div class="instruction textPanelFooter">$tlang.getString( "nav.message" )</div>
+						<div class="small text-muted">$tlang.getString( "nav.message" )</div>
 					</div>
 					<div class="centreColumn">
 						<input type="button" name="cancelgradesubmission1" class="cancelgradesubmission" value="$tlang.getString( "nav.list" )"
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'cancelgradesubmission' );" />
-						<div class="messageProgress">$tlang.getString( "gen.proces" )</div>
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgradesubmission', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 						<div id="subsOnlyContainer">
 							<input type="checkbox" id="chkSubsOnly1" name="chkSubsOnly1" #if( $subsOnlySelected ) checked="checked" #end
 								onclick="ASN.toggleSubNavButtons( this );" />
@@ -160,13 +91,13 @@ function handleReportsTriangleDisclosure(btn)
 						#if ($gradeType != 1)
 						<input type="button" name="nextungraded1" class="nextUngraded" value="$tlang.getString( "nav.next.ungraded" )"
 							#if( !$!goNextUngradedEnabled ) disabled="disabled" #end 
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'nextUngraded' );" />
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextUngraded', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 						#end
 
 						<input type="button" name="nextsubmission1" class="nextsubmission" value="$tlang.getString( "nav.next" )"
 							#if( !$!goNTButton ) disabled="disabled" #end 
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'nextsubmission' );" />
-						<div class="instruction textPanelFooter">$tlang.getString( "nav.message" )</div>
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
+						<div class="small text-muted">$tlang.getString( "nav.message" )</div>
 					</div>
 				</fieldset>
 			</div>
@@ -272,7 +203,7 @@ function handleReportsTriangleDisclosure(btn)
 								#set($reviewResults=$submission.ContentReviewResults)
 								#if ($reviewResults.size() >= 3)
 									<div class="discTria">
-										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
+										<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
 										## TODO: reconsider for i18n:
 										$reviewResults.size() $tlang.getString("review.reports")
 									</div>
@@ -283,10 +214,10 @@ function handleReportsTriangleDisclosure(btn)
 										#set ($props = $reviewResult.getContentResource().Properties)
 										<span class="reportIcon">
 										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+											<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-exclamation-triangle errorStyle"></i>
 										#else
 											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+												<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag flagStyle" style="color:$reviewResult.getReviewIconColor() !important"></i>
 											</a>
 										#end
 										</span>
@@ -294,6 +225,11 @@ function handleReportsTriangleDisclosure(btn)
 											$tlang.getString("submission.inline")
 										#else
 											$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+										#end
+										#if($reviewResult.getExternalGrade() && $assignment.getContent().AllowStudentViewExternalGrade)
+											<span style="font-style:italic !important">
+												($tlang.getString("gen.gra.ext") $reviewResult.getExternalGrade() / $maxPointsInt)
+											</span>
 										#end
 									</div>
 								#end
@@ -319,13 +255,13 @@ function handleReportsTriangleDisclosure(btn)
 		## show or hide assignment instruction and attachment
 			#if ($assignment_expand_flag)
 				<p class="discTria">
-					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='hide_instruction';document.gradeForm.submit();return false;">
+					<a href="javascript:void(0)" onclick="ASN.submitForm( 'gradeForm', 'hide_instruction', null, null ); return false;">
 					<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gradingsub.opecliass")" border="0" width="13" height="13" align="top" /></a>
 					$tlang.getString("gen.assinf")
 				</p>	
 			#else
 				<p class="discTria">
-					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='show_instruction';document.gradeForm.submit();return false;">
+					<a href="javascript:void(0)" onclick="ASN.submitForm( 'gradeForm', 'show_instruction', null, null ); return false;">
 					<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.clocli")" border="0" width="13" height="13" align="top" /></a>
 					$tlang.getString("gen.assinf")
 				</p>	
@@ -481,17 +417,17 @@ function handleReportsTriangleDisclosure(btn)
 				#end
 				#if ($submissionType == 4 && !$hasInline && $size == 0)
 					## if this is non-electronic submission
-					<p class="instruction">$tlang.getString("nonelec_instruction2")</p>
+					<p class="text-warning">$tlang.getString("nonelec_instruction2")</p>
 				#else
 					#if(($submission.submitted || !$alertGradeDraft) && $!value_feedback_text.length() >0 )
-						<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
-						<table border="0"><tr><td>
+						<p class="text-info">$tlang.getString("gradingsub.belisthe")</p>
+						<div class="textarea-holder">
 						<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$validator.escapeHtmlFormattedTextarea($!value_feedback_text)</textarea>		
 						#chef_setupformattedtextarea($name_feedback_text)
-						</td></tr></table>
+						</div>
 					#elseif($submissionType!=2 && $submissionType!=4)
 						## This message only shows when the submission type allows submitted text and the submission doesn't contain submitted text
-						<p class="instruction">$tlang.getString("gradingsub.nosubmittedtext")</p>
+						<p class="text-warning">$tlang.getString("gradingsub.nosubmittedtext")</p>
 					#end
 					## for returned submission, show the instructor comment as well
 					#if ($!prevFeedbackText)
@@ -514,7 +450,7 @@ function handleReportsTriangleDisclosure(btn)
 					#end
 					#if ($size == 0 && $attachAllowed)
 						## only display in submission types taht are supposed to have attachments
-						<p class="instruction">
+						<p class="text-warning">
 							#if ($submissionType == 5)
 								$tlang.getString("gen.noattsubmitted.single")
 							#else
@@ -578,7 +514,19 @@ function handleReportsTriangleDisclosure(btn)
 											&nbsp<img id="infoImg" title="$tlang.getString('peerassessment.peerGradeInfo')" src="/library/image/silk/information.png" onclick="$('#peerReviewInfo').show();"/>
 										#end
 										</label>
-										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
+										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);" /> <span class="text-info">($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
+										#if($allowReviewService && $assignment.getContent().AllowReviewService && $submission.isExternalGradeDifferent())
+											#set($reviewResultsExt=$submission.ContentReviewResults)
+											#if ($reviewResultsExt.size() == 1)
+												#foreach ($reviewResultExt in $reviewResultsExt)
+													#if ($reviewResultExt.getExternalGrade())
+														<span style="font-style:italic !important" class="instruction">
+															($tlang.getString("gen.gra.ext") $reviewResultExt.getExternalGrade())
+														</span>
+													#end
+												#end
+											#end
+										#end
 										
 										<!--for grading via an external scoring service, if enabled for the associated gradebook item -->
 										#if($scoringComponentEnabled)
@@ -598,17 +546,20 @@ function handleReportsTriangleDisclosure(btn)
 										</select>
 									</p>	
 								#elseif ($gradeType == 5)
-									<p class="checkbox">
-											<input name="$name_grade" type="checkbox" value="Checked" #if ($!value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
+									<p class="form-group">											
+											<label for="gradeChecked">
+											<input name="$name_grade" type="checkbox" value="Checked" #if ($!value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> 
+											$tlang.getString("gen.gra2") $tlang.getString("gen.checked")
+											</label>
 									</p>	
 								#end
 
                                                                 #if ($assignment.isGroup())
-                                                                    <p class="checkbox" id="tempGradeOverride" >
-                                                                        <input type="checkbox" id="allowGradeOverrideToggle" #if($value_grades && $value_grades.size()>0)checked="checked"#end name ="allowGradeOverrideToggle" onclick="if(checked){document.getElementById('gradeOverridePanel').style.display='block';resizeFrame();}else{document.getElementById('gradeOverridePanel').style.display = 'none';}" />
+                                                                    <div class="form-group" id="tempGradeOverride" >
+                                                                        <input type="checkbox" id="allowGradeOverrideToggle" #if($value_grades && $value_grades.size()>0)checked="checked"#end name ="allowGradeOverrideToggle" onclick="if(checked){document.getElementById('gradeOverridePanel').style.display='block';ASN.resizeFrame();}else{document.getElementById('gradeOverridePanel').style.display = 'none';}" />
                                                                         <label for="allowGradeOverrideToggle">$tlang.getString("allowGradeOverride")</label>
-                                                                    </p>
-                                                                    <div id="gradeOverridePanel" style="margin-left: 50px;width:80%;#if(!$value_grades || $value_grades.size()<1)display:none;#end">
+                                                                    </div>
+                                                                    <div id="gradeOverridePanel" style="#if(!$value_grades || $value_grades.size()<1)display:none;#end">
                                                                     ## replace it with submitter sort names
                                                                     #foreach ($submitter in $submission.submitters)
                                                                         #set($submitterName = $submitter.getDisplayName())
@@ -621,37 +572,49 @@ function handleReportsTriangleDisclosure(btn)
                                                                         #set ($group_value_grade = "")
                                                                         #set ($group_value_grade = $value_grades.get($submitter.getId()))
                                                                         #if ($gradeType == 2)
-                                                                            $!submitterName
+                                                                            <div class="row-override">
+                                                                            <label>$!submitterName</label>
                                                                             <div class="shorttext">
-                                                                                <span class="instruction">$tlang.getString("gen.grade.override")</span> 
+                                                                                <span$tlang.getString("gen.grade.override")</span> 
                                                                                 <select name="$group_name_grade" id="grade">
 											<option  value="" #if($!group_value_grade.equals(""))selected="selected"#end>$tlang.getString("non.submission.grade.select")</option>
 											#foreach ($i in $letterGradeOptions)
 												<option  value="$i" #if ($!group_value_grade.equals($i))selected="selected"#end>$i</option>
 											#end
                                                                                 </select>
-                                                                            </div>    
+                                                                            </div>
+                                                                            </div>  
                                                                         #elseif ($gradeType == 3)
-                                                                            $!submitterName
-                                                                            <div class="shorttext">
-                                                                                <span class="instruction">$tlang.getString("gen.grade.override")</span> <input type="text" name="$group_name_grade" size="5" maxlength="11" value="$!group_value_grade" id="grade" onkeypress="return handleEnterKeyPress(event);" /> <span class="instruction">($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
-                                                                            </div>    
+                                                                            <div class="row-override">
+                                                                                <label>$!submitterName</label>
+                                                                                <div class="shorttext">
+                                                                                    <span>$tlang.getString("gen.grade.override")</span> <input type="text" name="$group_name_grade" size="5" maxlength="11" value="$!group_value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);" /> <span>($tlang.getString("grade.max") $assignmentContent.getMaxGradePointDisplay())</span>
+                                                                                </div>    
+                                                                            </div>
                                                                         #elseif ($gradeType == 4)
-                                                                            $!submitterName
-                                                                            <div class="shorttext">
-                                                                                <span class="instruction">$tlang.getString("gen.grade.override")</span> 
-                                                                                <select name="$group_name_grade" id="grade" >
-                                                                                    <option  value="" #if($!group_value_grade.equals(""))selected="selected"#end>$tlang.getString("ungra")</option>
-                                                                                    #foreach ($i in ["Pass", "Fail"])
-                                                                                        <option  value="$i" #if ($!group_value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
-                                                                                    #end
-                                                                                </select>
-                                                                            </div>    
+                                                                            <div class="row-override">
+                                                                                <label>$!submitterName</label>
+                                                                                <div class="shorttext">
+                                                                                    <span>$tlang.getString("gen.grade.override")</span> 
+                                                                                    <select name="$group_name_grade" id="grade" >
+                                                                                        <option  value="" #if($!group_value_grade.equals(""))selected="selected"#end>$tlang.getString("ungra")</option>
+                                                                                        #foreach ($i in ["Pass", "Fail"])
+                                                                                            <option  value="$i" #if ($!group_value_grade.equalsIgnoreCase($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
+                                                                                        #end
+                                                                                    </select>
+                                                                                </div>   
+                                                                            </div>
                                                                         #elseif ($gradeType == 5)
-                                                                            $!submitterName
-                                                                            <div class="checkbox">
-                                                                                <span class="instruction">$tlang.getString("gen.grade.override")</span> <input name="$group_name_grade" type="checkbox" value="Checked" #if ($!group_value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> <label for="gradeChecked">$tlang.getString("gen.gra2") $tlang.getString("gen.checked")</label>
-                                                                            </div>    
+                                                                            <div class="row-override">
+                                                                                <label>$!submitterName</label>
+                                                                                <div class="assignment-checkbox-inline">
+                                                                                    <span>$tlang.getString("gen.grade.override")</span>                                                                                    
+                                                                                    <label for="gradeChecked">
+                                                                                    <input name="$group_name_grade" type="checkbox" value="Checked" #if ($!group_value_grade.equals("Checked"))checked="checked"#end id="gradeChecked"  /> 
+                                                                                    $tlang.getString("gen.gra2") $tlang.getString("gen.checked")
+                                                                                    </label>
+                                                                                </div>   
+                                                                            </div>
                                                                         #end
                                                                     #end
                                                                     </div>
@@ -678,17 +641,17 @@ function handleReportsTriangleDisclosure(btn)
 						<h4>
 							$tlang.getString("gen.instrcomment")
 						</h4>
-						<p class="instruction">
+						<p class="help-block">
 							#if ($submissionType==2)
 								$tlang.getString("gradingsub.usethebel2")
 							#else
 								$tlang.getString("gradingsub.usethebel1")
 							#end
 						</p>
-						<table border="0"><tr><td>
+						<div class="textarea-holder">
 						<textarea name="$name_feedback_comment" id="$name_feedback_comment" rows="30" wrap="virtual" cols="80">#if($!value_feedback_comment)$validator.escapeHtmlFormattedTextarea($!value_feedback_comment)#end</textarea>
 						#chef_setupformattedtextarea($name_feedback_comment)
-						</td></tr></table>
+						</div>
 						## for returned (not resubmitted ) submission, show the instructor feedback
 						#if ($!prevFeedbackComment)
 							<h4 id="toggleGen" class="toggleAnchor"><img alt="expand" class="expand" src="/library/image/sakai/expand.gif" /><img alt="collapse" class="collapse" src="/library/image/sakai/collapse.gif" />
@@ -712,7 +675,7 @@ function handleReportsTriangleDisclosure(btn)
 							#end
 						#end
 						#if ($size == 0)
-							<p class="instruction">
+							<p class="text-warning">
                                                             #if ($submissionType == 5)
                                                                 $tlang.getString("gen.noatt.single")
                                                             #else
@@ -740,9 +703,9 @@ function handleReportsTriangleDisclosure(btn)
 						#end		
 						<p class="act">
 							#if ($!props)
-								<input type="button" name="attach" value="$tlang.getString('gen.adddroatt')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='attach';document.gradeForm.submit();return false;" accesskey="a"/>
+								<input type="button" name="attach" value="$tlang.getString('gen.adddroatt')" onclick="ASN.submitForm( 'gradeForm', 'attach', null, null ); return false;" accesskey="a"/>
 							#else
-								<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='attach';document.gradeForm.submit();return false;" accesskey="a"/>
+								<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="ASN.submitForm( 'gradeForm', 'attach', null, null ); return false;" accesskey="a"/>
 							#end
 						</p>
 						#if ($!prevFeedbackAttachments)
@@ -791,10 +754,10 @@ function handleReportsTriangleDisclosure(btn)
 						#else 
 							#set($resubmitStyle="display:none")
 						#end
-						<p class="checkbox" id="tempAllowRes" #if ($submissionType == 4) style = "display:none"#end>
-							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $submissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitContainer').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitContainer').style.display = 'none';}" /> 
+						<div class="form-group" id="tempAllowRes" #if ($submissionType == 4) style = "display:none"#end>
+							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $submissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitContainer').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitContainer').style.display = 'none';}" />
 							<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
-	    				</p>
+	    				</div>
 						<div id="allowResubmitContainer" style="$!resubmitStyle">
 						  <span id="allowResubmitNumber">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="allowResubmitNumberSelect">
@@ -838,11 +801,10 @@ function handleReportsTriangleDisclosure(btn)
 			<div class="viewNav highlight" style="width:70%;line-height:1.4em;padding-top:.75em;">
 				<span class="act">
 					## SAK-29314
-					<input type="button" accesskey="d" class="active"  name="save" value="$tlang.getString('gen.savdragra')" onclick="ASN.doGradingFormAction( '$validator.escapeUrl( $submission.Reference )', 'savegrade' );" title="$tlang.getString("gen.savdratit")" />
-					<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.retustud')" onclick="ASN.doGradingFormAction( '$validator.escapeUrl( $submission.Reference )', 'returngrade' );" title="$tlang.getString("gen.retustudtit")" />
-					<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')" onclick="ASN.doGradingFormAction( '$validator.escapeUrl( $submission.Reference )', 'previewgrade' );" />
-					<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="ASN.doGradingFormAction( null, 'cancelgrade' );" />
-					<img id="gradeFormSpinner" class="spinner" src="/library/image/indicator.gif" />
+					<input type="button" accesskey="d" class="active"  name="save" value="$tlang.getString('gen.savdragra')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade', '$validator.escapeUrl( $submission.Reference )', null ); return false;" title="$tlang.getString("gen.savdratit")" />
+					<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.retustud')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'returngrade', '$validator.escapeUrl( $submission.Reference )', null ); return false;" title="$tlang.getString("gen.retustudtit")" />
+					<input type="button" accesskey="v" name="preview" value="$tlang.getString('gen.pre')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'previewgrade', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
+					<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgrade', null, null ); return false;" />
 					#if ($!prevSubmissionId)
 						<input type="hidden" name="prevSubmissionId" id="prevSubmissionId" value = "$!prevSubmissionId" />
 					#end
@@ -879,20 +841,19 @@ function handleReportsTriangleDisclosure(btn)
 					<div class="leftColumn">
 						<input type="button" name="prevsubmission2" class="prevsubmission" value="$tlang.getString( "nav.prev" )"
 							#if( !$!goPTButton ) disabled="disabled" #end 
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'prevsubmission' );" />
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevsubmission', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 
 						#if ($gradeType != 1)
 						<input type="button" name="prevungraded2" class="prevUngraded" value="$tlang.getString( "nav.prev.ungraded" )"
 							#if( !$!goPrevUngradedEnabled ) disabled="disabled" #end 
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'prevUngraded' );" />
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevUngraded', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 						#end
 
-						<div class="instruction textPanelFooter">$tlang.getString( "nav.message" )</div>
+						<div class="small text-muted">$tlang.getString( "nav.message" )</div>
 					</div>
 					<div class="centreColumn">
 						<input type="button" name="cancelgradesubmission2" class="cancelgradesubmission" value="$tlang.getString( "nav.list" )"
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'cancelgradesubmission' );" />
-						<div class="messageProgress">$tlang.getString( "gen.proces" )</div>
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgradesubmission', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 						<div id="subsOnlyContainer">
 							<input type="checkbox" id="chkSubsOnly2" name="chkSubsOnly2" #if( $subsOnlySelected ) checked="checked" #end
 								onclick="ASN.toggleSubNavButtons( this );" />
@@ -904,13 +865,13 @@ function handleReportsTriangleDisclosure(btn)
 						#if ($gradeType != 1)
 						<input type="button" name="nextungraded2" class="nextUngraded" value="$tlang.getString( "nav.next.ungraded" )"
 							#if( !$!goNextUngradedEnabled ) disabled="disabled" #end 
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'nextUngraded' );" />
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextUngraded', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
 						#end
 
 						<input type="button" name="nextsubmission2" class="nextsubmission" value="$tlang.getString( "nav.next" )"
 							#if( !$!goNTButton ) disabled="disabled" #end 
-							onclick="ASN.navPanelAction( '$validator.escapeUrl( $submission.Reference )', 'nextsubmission' );" />
-						<div class="instruction textPanelFooter">$tlang.getString( "nav.message" )</div>
+							onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission', '$validator.escapeUrl( $submission.Reference )', null ); return false;" />
+						<div class="small text-muted">$tlang.getString( "nav.message" )</div>
 					</div>
 				</fieldset>
 			</div>

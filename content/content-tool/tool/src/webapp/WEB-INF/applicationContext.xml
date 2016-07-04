@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>
-    
     <!-- entity providers -->
     <bean
         parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
@@ -22,6 +22,7 @@
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
     </bean>
     
 </beans>

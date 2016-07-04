@@ -56,10 +56,6 @@ function showHideDivBlock(hideDivisionNo, context)
 			}
 			$( frame ).height( clientH );
 		}
-		else
-		{
-			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
-		}
 	}
 
 
@@ -432,6 +428,7 @@ function toggleExtendedDescription(hideShowEl, parent, element) {
     hideShowEl.toggle();
     parent.slideToggle(resize);
     element.toggle();
+    element[0].classList.toggle('opened');
 }
 
 function toggleDates(hideShowEl, parent, element) {
@@ -467,22 +464,28 @@ function printFriendly(url) {
 var sakaiCKEditorName;
 $(document).ready(function () {
     if (typeof(CKEDITOR) != 'undefined') {
-        for (instance in CKEDITOR.instances) {
+        CKEDITOR.on("instanceReady", function(event){
             // there should only be one ckeditor per page
             // save the instance name for other functions to use
-            sakaiCKEditorName = instance;
+            sakaiCKEditorName = event.editor.name;
 
             // bind to the keyup and paste to update the word count
-            CKEDITOR.instances[instance].on("instanceReady", function () {
-                    this.document.on("keyup", ckeditor_word_count);
-                    this.document.on("paste", ckeditor_word_count);
-            });
-        }
+            event.editor.document.on("keyup", ckeditor_word_count);
+            event.editor.document.on("paste", ckeditor_word_count);
+        });
     }
 });
 
+$(document).ready(function () {
+    
+    $('#prefs_pvt_form\\:search_by_date').change( function(){
+      $('#prefs_pvt_form\\:pvt_beg_date, #prefs_pvt_form\\:pvt_end_date').toggleClass('showed');
+    });
+
+});
+
 function FCKeditor_OnComplete(editorInstance) {
-	   
+     
     fckeditor_word_count(editorInstance);
     editorInstance.Events.AttachEvent('OnSelectionChange', fckeditor_word_count);
 }
@@ -544,6 +547,7 @@ function InsertHTML(header) {
 		}
 		else alert( 'You must be in WYSIWYG mode!' );
 	}
+  return false;
 }
 
 var setupLongDesc = function(){

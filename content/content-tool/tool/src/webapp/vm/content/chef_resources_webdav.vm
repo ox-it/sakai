@@ -82,16 +82,14 @@
 		<div id="davdocs_step1">
 			<p><strong>$tlang.getString("dav.graf10") - </strong> $tlang.getString("dav.graf11"):</p>
 
-	<p class="indnt3">
-<input id="webDavUrl" type="text" size="80" value="
+	<p class="form-group">
+<input class="form-control" id="webDavUrl" type="text" value="
 #if("$!inMyWorkspace" == "true")
 ${server_url}${dav_user}$user_id
 #elseif("$!dropboxMode" == "true" && "$!maintainer" == "true")
 ${server_url}${dav_group_user}$site_id
 #elseif("$!dropboxMode" == "true")
 ${server_url}${dav_group_user}$site_id/$user_id
-#elseif("${site_alias}" != "")
-${server_url}${dav_group}${site_alias}
 #else
 ${server_url}${dav_group}$site_id
 #end
@@ -143,7 +141,7 @@ ${server_url}${dav_group}$site_id
 		id="webdav_instructions_inner"
 		height="400px"
 		frameborder="0"
-		onload="javascript:setFrameHeight(this);">
+		onload="setFrameHeight(this);">
 	</iframe>
 	<script type="text/javascript">
 		IEVersion8();

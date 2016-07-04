@@ -1,0 +1,6 @@
+<solr persistent="true" sharedLib="lib">
+    <cores adminPath="/admin/cores">
+        <!-- The core for general Sakai search -->
+        <core name="search" instanceDir="search"/>
+    </cores>
+</solr>

@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<head>
+<wicket:head>
+<style type="text/css">
+	.sidebar {
+		float:left;
+		width: 350px;
+	}
+	.content {
+		margin-left: 350px;
+	}
+	input {
+		margin: 1em 0.2em;
+	}
+	.instruction {
+		padding: 2em;
+	}
+	h3 {
+		margin-bottom: 2em;
+	}
+</style>
+</wicket:head>
+</head>
+<body>
+
+<wicket:extend>
+	<h3>Search Page</h3>
+	<form method="get" wicket:id="searchForm">
+	<div>
+		<input type="text" size="40" wicket:id="query"/>
+		<input wicket:id="search" type="submit" value="Search"/>
+		<input wicket:id="cancel" type="submit" value="Reset"/>
+	</div>
+	</form>
+
+	<div wicket:id="results">
+		We either put the results here or if we're not searching then we show the instructions.
+	</div>
+	<wicket:fragment wicket:id="instructions">
+	<div class="instruction">
+		To find exam papers just search for part of the examination/paper title/code. You can also search for papers in a
+		particular year and term. If you don't find any results try searching for something more generic.
+	</div>
+	</wicket:fragment>
+	
+</wicket:extend>
+
+</body>
+</html>

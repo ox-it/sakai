@@ -1,6 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-importSelection.vm,v 1.0 2007/10/29 08:00:00 tnguyen.iupui.edu Exp $ -->
 <div class="portletBody">
-	##if($menu)#toolbar($menu)#end<br/><br/>
 	<h3>
 		$tlang.getString("sitinfimp.importgrades")
 	</h3>
@@ -20,7 +19,7 @@
 					$tlang.getString("sitinfimp.migrate")
 				</a>
 			</div>
-			<p class="instruction indnt2">
+			<p class="indnt2">
 				$tlang.getString("sitinfimp.migrate.info")
 			</p>
 			<p></p>
@@ -29,7 +28,7 @@
 					$tlang.getString("sitinfimp.import")
 				</a>
 			</div>
-			<p class="instruction indnt2">
+			<p class="indnt2">
 				$tlang.getString("sitinfimp.import.info")
 			</p>
 			<p></p>
@@ -38,7 +37,7 @@
 					$tlang.getString("sitinfimp.import.user")
 				</a>
 			</div>
-			<p class="instruction indnt2">
+			<p class="indnt2">
 				$tlang.getString("sitinfimp.import.user.info")
 			</p>
 		#else
@@ -47,7 +46,7 @@
 				$tlang.getString("import.noOtherSite")
 			</p>
 			<p class="act">
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString("sitinfimp.can")" onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</p>
 		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

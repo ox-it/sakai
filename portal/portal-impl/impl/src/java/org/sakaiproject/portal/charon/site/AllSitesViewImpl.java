@@ -24,6 +24,7 @@ package org.sakaiproject.portal.charon.site;
 import javax.servlet.http.HttpServletRequest;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -38,11 +39,11 @@ import java.util.List;
 public class AllSitesViewImpl extends AbstractSiteViewImpl
 {
 
-	public AllSitesViewImpl(PortalSiteHelperImpl siteHelper, SiteNeighbourhoodService siteNeighbourhoodService,
-			HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
-			ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
+	public AllSitesViewImpl(PortalSiteHelper siteHelper, SiteNeighbourhoodService siteNeighbourhoodService,
+							HttpServletRequest request, Session session, String currentSiteId, SiteService siteService,
+							ServerConfigurationService serverConfigurationService, PreferencesService preferencesService)
 	{
-		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, siteService,
+		super(siteHelper, siteNeighbourhoodService, request, session, currentSiteId, null, siteService,
 				serverConfigurationService, preferencesService);
 	}
 

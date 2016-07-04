@@ -18,21 +18,11 @@
  * limitations under the License.
  *
  **********************************************************************************/
-
 package org.sakaiproject.search.component.adapter.site;
-
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -44,272 +34,98 @@ import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.model.SearchBuilderItem;
-import org.sakaiproject.search.util.HTMLParser;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.*;
+
 /**
  * @author ieb
+ * @author Colin Hebert
  */
-public class SiteContentProducer implements EntityContentProducer
-{
-
-	private static final Log log = LogFactory.getLog(SiteContentProducer.class);
-
+public class SiteContentProducer implements EntityContentProducer {
+	private static final Log logger = LogFactory.getLog(SiteContentProducer.class);
 	private EntityManager entityManager;
-
-	private List<String> addEvents;
-
-	private List<String> removeEvents;
-
+	private Collection<String> addEvents;
+	private Collection<String> removeEvents;
 	private SiteService siteService;
-
 	private ServerConfigurationService serverConfigurationService;
-
 	private SearchService searchService;
-
 	private SearchIndexBuilder searchIndexBuilder;
 
-	/**
-	 * @return the entityManager
-	 */
-	public EntityManager getEntityManager()
-	{
-		return entityManager;
-	}
+	public void init() {
+		addEvents = Arrays.asList(
+				SiteService.SECURE_ADD_COURSE_SITE,
+				SiteService.SECURE_ADD_SITE,
+				SiteService.SECURE_ADD_USER_SITE,
+				SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP,
+				SiteService.SECURE_UPDATE_SITE,
+				SiteService.SECURE_UPDATE_SITE_MEMBERSHIP);
+		removeEvents = Collections.singleton(SiteService.SECURE_REMOVE_SITE);
 
-	/**
-	 * @param entityManager the entityManager to set
-	 */
-	public void setEntityManager(EntityManager entityManager)
-	{
-		this.entityManager = entityManager;
-	}
-
-	/**
-	 * @return the searchIndexBuilder
-	 */
-	public SearchIndexBuilder getSearchIndexBuilder()
-	{
-		return searchIndexBuilder;
-	}
-
-	/**
-	 * @param searchIndexBuilder the searchIndexBuilder to set
-	 */
-	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder)
-	{
-		this.searchIndexBuilder = searchIndexBuilder;
-	}
-
-	/**
-	 * @return the searchService
-	 */
-	public SearchService getSearchService()
-	{
-		return searchService;
-	}
-
-	/**
-	 * @param searchService the searchService to set
-	 */
-	public void setSearchService(SearchService searchService)
-	{
-		this.searchService = searchService;
-	}
-
-	/**
-	 * @return the serverConfigurationService
-	 */
-	public ServerConfigurationService getServerConfigurationService()
-	{
-		return serverConfigurationService;
-	}
-
-	/**
-	 * @param serverConfigurationService the serverConfigurationService to set
-	 */
-	public void setServerConfigurationService(
-			ServerConfigurationService serverConfigurationService)
-	{
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
-	/**
-	 * @return the siteService
-	 */
-	public SiteService getSiteService()
-	{
-		return siteService;
-	}
-
-	/**
-	 * @param siteService the siteService to set
-	 */
-	public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
-
-	public void init()
-	{
-		addEvents = new ArrayList<String>();
-		removeEvents = new ArrayList<String>();
-
-		addEvents.add(SiteService.SECURE_ADD_COURSE_SITE);
-		addEvents.add(SiteService.SECURE_ADD_SITE);
-		addEvents.add(SiteService.SECURE_ADD_USER_SITE);
-		addEvents.add(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP);
-		addEvents.add(SiteService.SECURE_UPDATE_SITE);
-		addEvents.add(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP);
-		removeEvents.add(SiteService.SECURE_REMOVE_SITE);
-
-		if ("true".equals(serverConfigurationService.getString("search.enable", "false")))
-		{
-			for (Iterator i = addEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
+		if (serverConfigurationService.getBoolean("search.enable", false)) {
+			for (String addEvent : addEvents) {
+				searchService.registerFunction(addEvent);
 			}
-			for (Iterator i = removeEvents.iterator(); i.hasNext();)
-			{
-				searchService.registerFunction((String) i.next());
+			for (String removeEvent : removeEvents) {
+				searchService.registerFunction(removeEvent);
 			}
+			//TODO: Replace this with a registration on a factory
 			searchIndexBuilder.registerEntityContentProducer(this);
 		}
-
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#canRead(java.lang.String)
-	 */
-	public boolean canRead(String reference)
-	{
-		Reference ref = getReference(reference);
-		EntityProducer ep = getProducer(ref);
-		if (ep instanceof SiteService)
-		{
-			try
-			{
-				SiteService ss = (SiteService) ep;
-				ss.getSite(ref.getId());
+	@Override
+	public boolean canRead(String reference) {
+		Reference ref = entityManager.newReference(reference);
+		EntityProducer ep = ref.getEntityProducer();
+		if (ep instanceof SiteService) {
+			try {
+				((SiteService) ep).getSite(ref.getId());
 				return true;
-			}
-			catch (Exception ex)
-			{
-				log.debug(ex);
+			} catch (Exception ex) {
+				if (logger.isDebugEnabled())
+					logger.debug("Unexpected exception", ex);
 			}
 		}
 		return false;
 	}
 
-	private Reference getReference(String reference)
-	{
-		try
-		{
-			Reference r = entityManager.newReference(reference);
-			if (log.isDebugEnabled())
-			{
-				log.debug("Site.getReference" + reference + ":" + r);
-			}
-			return r;
-		}
-		catch (Exception ex)
-		{
-			log.debug(ex);
-		}
-		return null;
-	}
-
-	private EntityProducer getProducer(Reference ref)
-	{
-		try
-		{
-			return ref.getEntityProducer();
-		}
-		catch (Exception ex)
-		{
-			log.debug(ex);
-		}
-		return null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getAction(org.sakaiproject.event.api.Event)
-	 */
-	public Integer getAction(Event event)
-	{
+	@Override
+	public Integer getAction(Event event) {
 		String evt = event.getEvent();
 		if (evt == null) return SearchBuilderItem.ACTION_UNKNOWN;
-		for (Iterator i = addEvents.iterator(); i.hasNext();)
-		{
-			String match = (String) i.next();
-			if (evt.equals(match))
-			{
+		for (String match : addEvents) {
+			if (evt.equals(match)) {
 				return SearchBuilderItem.ACTION_ADD;
 			}
 		}
-		for (Iterator i = removeEvents.iterator(); i.hasNext();)
-		{
-			String match = (String) i.next();
-			if (evt.equals(match))
-			{
+		for (String match : removeEvents) {
+			if (evt.equals(match)) {
 				return SearchBuilderItem.ACTION_DELETE;
 			}
 		}
 		return SearchBuilderItem.ACTION_UNKNOWN;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getContainer(java.lang.String)
-	 */
-	public String getContainer(String ref)
-	{
-		// the site document is contined by itself
-		Reference reference = getReference(ref);
-		return reference.getId();
-
+	@Override
+	public String getContainer(String ref) {
+		// the site document is contained by itself
+		return entityManager.newReference(ref).getId();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getContent(java.lang.String)
-	 */
-	public String getContent(String reference)
-	{
-		Reference ref = getReference(reference);
-		EntityProducer ep = getProducer(ref);
+	@Override
+	public String getContent(String reference) {
+		Reference ref = entityManager.newReference(reference);
+		EntityProducer ep = ref.getEntityProducer();
+		if (ep instanceof SiteService) {
+			try {
+				Site site = ((SiteService) ep).getSite(ref.getId());
+				return site.getTitle() + " " + site.getShortDescription() + " " + site.getDescription();
 
-		if (ep instanceof SiteService)
-		{
-			try
-			{
-				SiteService ss = (SiteService) ep;
-				Site s = ss.getSite(ref.getId());
-				StringBuilder sb = new StringBuilder();
-				SearchUtils.appendCleanString(s.getTitle(), sb);
-				sb.append(" ");
-				for (HTMLParser hp = new HTMLParser(s.getShortDescription()); hp.hasNext();)
-				{
-					SearchUtils.appendCleanString(hp.next(), sb);
-					sb.append(" ");
-				}
-				for (HTMLParser hp = new HTMLParser(s.getDescription()); hp.hasNext();)
-				{
-					SearchUtils.appendCleanString(hp.next(), sb);
-					sb.append(" ");
-				}
-				return sb.toString();
-
-			}
-			catch (IdUnusedException e)
-			{
+			} catch (IdUnusedException e) {
 				throw new RuntimeException(" Failed to get message content ", e); //$NON-NLS-1$
 			}
 		}
@@ -318,225 +134,121 @@ public class SiteContentProducer implements EntityContentProducer
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getContentReader(java.lang.String)
-	 */
-	public Reader getContentReader(String reference)
-	{
+	@Override
+	public Reader getContentReader(String reference) {
 		return new StringReader(getContent(reference));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getCustomProperties(java.lang.String)
-	 */
-	public Map getCustomProperties(String ref)
-	{
-
-		Reference reference = getReference(ref);
-		Entity e = reference.getEntity();
-		ResourceProperties rp = e.getProperties();
-		Map<String, String> props = new HashMap<String, String>();
-		for (Iterator i = rp.getPropertyNames(); i.hasNext();)
-		{
-			String key = (String) i.next();
-			List l = rp.getPropertyList(key);
-			StringBuilder sb = new StringBuilder();
-			for (Iterator is = l.iterator(); is.hasNext();)
-			{
-				sb.append(is.next()).append(" ");
-			}
-			props.put(key, sb.toString());
+	@Override
+	public Map<String, Collection<String>> getCustomProperties(String ref) {
+		Map<String, Collection<String>> props = new HashMap<String, Collection<String>>();
+		ResourceProperties rp = entityManager.newReference(ref).getEntity().getProperties();
+		for (Iterator<String> i = rp.getPropertyNames(); i.hasNext(); ) {
+			String key = i.next();
+			props.put(key, rp.getPropertyList(key));
 		}
 		return props;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getCustomRDF(java.lang.String)
-	 */
-	public String getCustomRDF(String ref)
-	{
+	@Override
+	public String getCustomRDF(String ref) {
 		return null;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getId(java.lang.String)
-	 */
-	public String getId(String ref)
-	{
-		Reference reference = getReference(ref);
-		return reference.getId();
+	@Override
+	public String getId(String ref) {
+		return entityManager.newReference(ref).getId();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getSiteContent(java.lang.String)
-	 */
 	public List getSiteContent(String context)
 	{
-		List<String> all = new ArrayList<String>();
-		try
-		{
-			Site s = siteService.getSite(context);
-			
-			all.add(s.getReference());
-			return all;
-		}
-		catch (IdUnusedException idu)
-		{
-			log.debug("Site Not Found for context " + context, idu);
-			return all;
+		try {
+			return Collections.singletonList(siteService.getSite(context).getReference());
+		} catch (IdUnusedException idu) {
+			if (logger.isDebugEnabled())
+				logger.debug("Site Not Found for context " + context, idu);
+			return Collections.<String>emptyList();
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getSiteContentIterator(java.lang.String)
-	 */
+	@Override
 	public Iterator getSiteContentIterator(String context)
 	{
-		List l = getSiteContent(context);
-		return l.iterator();
+		return getSiteContent(context).iterator();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getSiteId(java.lang.String)
-	 */
-	public String getSiteId(String ref)
-	{
-		// this is the site that the document is visible to, 
-		// we need to look at the state of the site, and use special sites.
-		// INFO: this is using not standard scoping that might want to be
-		// reflected elsewhere
-		Reference reference = getReference(ref);
-		Entity entity = reference.getEntity();
-		if (entity instanceof Site)
-		{
-			return entity.getId();
-		}
-		return null;
-		
+	@Override
+	public String getSiteId(String ref) {
+		//An indexed site belongs to itself (so you can search for it if you're supposed to have an access to that site
+		return entityManager.newReference(ref).getId();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getSubType(java.lang.String)
-	 */
-	public String getSubType(String ref)
-	{
-		return "";
+	@Override
+	public String getSubType(String ref) {
+		return entityManager.newReference(ref).getSubType();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getTitle(java.lang.String)
-	 */
-	public String getTitle(String ref)
-	{
-		Reference reference = getReference(ref);
-		Site s = (Site) reference.getEntity();
+	@Override
+	public String getTitle(String ref) {
+		Site s = (Site) entityManager.newReference(ref).getEntity();
 		return SearchUtils.appendCleanString(s.getTitle(),null).toString();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getTool()
-	 */
-	public String getTool()
-	{
+	@Override
+	public String getTool() {
 		return "site";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
-	 */
-	public String getType(String ref)
-	{
-		Reference reference = getReference(ref);
-		return reference.getType();
+	@Override
+	public String getType(String ref) {
+		return entityManager.newReference(ref).getType();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#getUrl(java.lang.String)
-	 */
-	public String getUrl(String ref)
-	{
-		Reference reference = getReference(ref);
-		return reference.getUrl();
+	@Override
+	public String getUrl(String ref) {
+		return entityManager.newReference(ref).getUrl();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#isContentFromReader(java.lang.String)
-	 */
-	public boolean isContentFromReader(String reference)
-	{
+	@Override
+	public boolean isContentFromReader(String reference) {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#isForIndex(java.lang.String)
-	 */
-	public boolean isForIndex(String ref)
-	{
-		Reference reference = getReference(ref);
-		Site s = (Site) reference.getEntity();
+	@Override
+	public boolean isForIndex(String ref) {
+		Site s = (Site) entityManager.newReference(ref).getEntity();
 		//SAK-18545 its possible the site no longer exits
-		if (s != null) {
-			return s.isPublished();
+		return s != null && s.isPublished();
 		}
-		return false;
+
+	@Override
+	public boolean matches(String ref) {
+		EntityProducer ecp = entityManager.newReference(ref).getEntityProducer();
+		return ecp instanceof SiteService;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#matches(java.lang.String)
-	 */
-	public boolean matches(String ref)
-	{
-		Reference reference = getReference(ref);
-		if (reference != null)
-		{
-			EntityProducer ecp = reference.getEntityProducer();
-			if (ecp instanceof SiteService)
-			{
-				return true;
-			}
-		}
-		return false;
+	@Override
+	public boolean matches(Event event) {
+		return addEvents.contains(event.getEvent()) || removeEvents.contains(event.getEvent());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.search.api.EntityContentProducer#matches(org.sakaiproject.event.api.Event)
-	 */
-	public boolean matches(Event event)
-	{
-		return addEvents.contains(event.getEvent())
-				|| removeEvents.contains(event.getEvent());
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
 	}
 
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public void setSearchService(SearchService searchService) {
+		this.searchService = searchService;
+	}
+
+	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
+		this.searchIndexBuilder = searchIndexBuilder;
+	}
 }

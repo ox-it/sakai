@@ -7,3 +7,6 @@
 *.swf  binary -delta
 *.zip  binary -delta
 *.pdf  binary -delta
+# This is so that on Windows the shell scripts don't have thier
+# line endings changed.
+*.sh    eol=lf

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="SakaiSearch-2.8" version="1.5">
+    <types>
+        <fieldType name="date" class="solr.TrieDateField" precisionStep="0" positionIncrementGap="0"/>
+        <fieldType name="string" class="solr.StrField" sortMissingLast="true"/>
+        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+        <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+        </fieldType>
+        <fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.StopFilterFactory"
+                        ignoreCase="true"
+                        words="lang/stopwords_en.txt"
+                        enablePositionIncrements="true"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.EnglishPossessiveFilterFactory"/>
+                <filter class="solr.PorterStemFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.StopFilterFactory"
+                        ignoreCase="true"
+                        words="lang/stopwords_en.txt"
+                        enablePositionIncrements="true"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.EnglishPossessiveFilterFactory"/>
+                <filter class="solr.PorterStemFilterFactory"/>
+            </analyzer>
+        </fieldType>
+        <fieldType name="text_en_splitting" class="solr.TextField" positionIncrementGap="100"
+                   autoGeneratePhraseQueries="true">
+            <analyzer type="index">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.StopFilterFactory"
+                        ignoreCase="true"
+                        words="lang/stopwords_en.txt"
+                        enablePositionIncrements="true"/>
+                <filter class="solr.WordDelimiterFilterFactory"
+                        generateWordParts="1"
+                        generateNumberParts="1"
+                        catenateWords="1"
+                        catenateNumbers="1"
+                        catenateAll="0"
+                        splitOnCaseChange="1"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.PorterStemFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+                <filter class="solr.StopFilterFactory"
+                        ignoreCase="true"
+                        words="lang/stopwords_en.txt"
+                        enablePositionIncrements="true"/>
+                <filter class="solr.WordDelimiterFilterFactory"
+                        generateWordParts="1"
+                        generateNumberParts="1"
+                        catenateWords="0"
+                        catenateNumbers="0"
+                        catenateAll="0"
+                        splitOnCaseChange="1"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+                <filter class="solr.PorterStemFilterFactory"/>
+            </analyzer>
+        </fieldType>
+        <fieldtype name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField"/>
+    </types>
+
+    <fields>
+        <field name="_version_" type="long" indexed="true" stored="true"/>
+        <field name="indexdate" type="date" indexed="true" stored="true" default="NOW"/>
+        <field name="reference" type="string" indexed="true" stored="true" required="true"/>
+        <field name="container" type="string" indexed="true" stored="true"/>
+        <field name="type" type="string" indexed="true" stored="true" required="true"/>
+        <field name="title" type="text_en" indexed="true" stored="true" required="true"/>
+        <field name="tool" type="string" indexed="true" stored="true" required="true"/>
+        <field name="url" type="text_general" indexed="true" stored="true" required="true"/>
+        <field name="siteid" type="string" indexed="true" stored="true"/>
+        <field name="contents" type="text_en_splitting" indexed="true" stored="true"
+               termVectors="true" termPositions="true" termOffsets="true"/>
+        <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+
+        <!-- Properties are generally ignored, to activate the properties enable them one by one -->
+        <dynamicField name="property_*" type="ignored"/>
+    </fields>
+    <uniqueKey>reference</uniqueKey>
+    <defaultSearchField>text</defaultSearchField>
+    <copyField source="contents" dest="text"/>
+    <copyField source="tool" dest="text"/>
+    <copyField source="title" dest="text"/>
+    <!-- We want to index the URL so that we can have people be able to search for the original filename -->
+    <copyField source="url" dest="text"/>
+</schema>

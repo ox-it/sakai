@@ -170,6 +170,15 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    }
 
+	    boolean inline = false;
+	    String portalTemplates = ServerConfigurationService.getString("portal.templates", "morpheus");
+	    if ("morpheus".equals(portalTemplates) && httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
+		inline = true;
+	    }
+
+	    UIComponent portletBody = UIOutput.make(tofill, "portletBody");
+	    portletBody.decorate(new UIFreeAttributeDecorator("class", "showItem" + (inline?" showItemMorpheus":" showItemNoMorpheus")));
+
 	    // this is a "next" page where we couldn't tell if the item is
 	    // available. Need to check here in order to set ACLs. If not available,
 	    // return to calling page
@@ -208,12 +217,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    Placement placement = ToolManager.getCurrentPlacement();
 	    String toolId = placement.getToolId();
-	    boolean inline = false;
-	    String portalTemplates = ServerConfigurationService.getString("portal.templates", "");
-
-	    if ("morpheus".equals(portalTemplates) && httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
-		inline = true;
-	    }
 
 	    if (helpurl != null || reseturl != null) {
 
@@ -293,11 +296,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			view.setItemId(e.pageItemId);
 			view.setPath(Integer.toString(index));
 			UIInternalLink.make(crumb, "crumb-link", e.title, view);
-			UIOutput.make(crumb, "crumb-follow", " > ");
+			UIOutput.make(crumb, "crumb-separator");
 			if (index == breadcrumbs.size() - 1) {
 			    UIBranchContainer finalcrumb = UIBranchContainer.make(tofill, "crumb:");
 
-			    UIOutput.make(finalcrumb, "crumb-follow", item.getName()).decorate(new UIStyleDecorator("bold"));
+			    UIOutput.make(finalcrumb, "crumb-follow", item.getName());
 			}
 			index++;
 		    }
@@ -310,6 +313,24 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			// path defaults to null, which is next
 			UIInternalLink.make(tofill, "return", messageLocator.getMessage("simplepage.return"), view);
 			UIOutput.make(tofill, "returnwarning", messageLocator.getMessage("simplepage.return.warning"));
+
+		    int index = 0;
+		    for (SimplePageBean.PathEntry e : breadcrumbs) {
+			// don't show current page. We already have a title. This was too much
+			UIBranchContainer crumb = UIBranchContainer.make(tofill, "crumb:");
+			GeneralViewParameters rview = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+			rview.setSendingPage(e.pageId);
+			rview.setItemId(e.pageItemId);
+			rview.setPath(Integer.toString(index));
+			UIInternalLink.make(crumb, "crumb-link", e.title, rview);
+			UIOutput.make(crumb, "crumb-separator");
+			if (index == breadcrumbs.size() - 1) {
+			    UIBranchContainer finalcrumb = UIBranchContainer.make(tofill, "crumb:");
+
+			    UIOutput.make(finalcrumb, "crumb-follow", item.getName());
+			}
+			index++;
+		    }
 		    } else {
 			GeneralViewParameters view = new GeneralViewParameters(returnView);
 			view.setSendingPage(sendingPage);;
@@ -326,7 +347,14 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		simplePageBean.addNextLink(tofill, item);
 	    }
 
-	    UIComponent iframe = UILink.make(tofill, "iframe1", params.getSource());
+	    // future: we have the item. Why not get source from there?
+	    // this isn't a security issue, since source is /access/lessonbuilder, and
+	    // that will be checked. THat's not the case when the URL is directly present.
+	    // in that case we have to get it from the item.
+	    String source = params.getSource();
+	    if (item != null && item.getAttribute("multimediaUrl") != null)
+		source = item.getAttribute("multimediaUrl");
+	    UIComponent iframe = UILink.make(tofill, "iframe1", source);
 	    if (item != null && item.getType() == SimplePageItem.BLTI) {
 		String height = item.getHeight();
 		if (height == null || height.equals(""))

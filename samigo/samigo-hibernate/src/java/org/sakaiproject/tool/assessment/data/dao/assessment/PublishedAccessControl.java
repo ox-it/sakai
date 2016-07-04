@@ -54,6 +54,7 @@ public class PublishedAccessControl
   private Integer timedAssessment;
   private Integer retryAllowed;
   private Integer lateHandling;
+  private Integer instructorNotification;
   private Date startDate;
   private Date dueDate;
   private Date scoreDate;
@@ -62,13 +63,14 @@ public class PublishedAccessControl
   private Integer autoSubmit;  // auto submit when due date arrives
   private Integer itemNavigation; // linear (1)or random (0)
   private Integer itemNumbering;  // continuous between parts(1), restart between parts(0)
+  private Integer displayScoreDuringAssessments;
   private String submissionMessage;
   private String finalPageUrl;
   private String releaseTo;
-  private String username;
   private String password;
   private Boolean unlimitedSubmissions;
   private Integer markForReview;
+  private Boolean honorPledge;
 
   /**
    * Creates a new SubmissionModel object.
@@ -82,7 +84,7 @@ public class PublishedAccessControl
   public PublishedAccessControl(Integer submissionsAllowed, Integer submissionsSaved,
                                  Integer assessmentFormat, Integer bookMarkingItem,
                                  Integer timeLimit, Integer timedAssessment,
-                                 Integer retryAllowed, Integer lateHandling,
+                                 Integer retryAllowed, Integer lateHandling, Integer instructorNotification,
                                  Date startDate, Date dueDate,
                                  Date scoreDate, Date feedbackDate, 
                                  String releaseTo)
@@ -95,6 +97,7 @@ public class PublishedAccessControl
     this.timedAssessment = timedAssessment;
     this.retryAllowed = retryAllowed;
     this.lateHandling = lateHandling;
+    this.instructorNotification = instructorNotification;
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.scoreDate = scoreDate;
@@ -105,7 +108,7 @@ public class PublishedAccessControl
   public PublishedAccessControl(Integer submissionsAllowed, Integer submissionsSaved,
                                  Integer assessmentFormat, Integer bookMarkingItem,
                                  Integer timeLimit, Integer timedAssessment,
-                                 Integer retryAllowed, Integer lateHandling,
+                                 Integer retryAllowed, Integer lateHandling, Integer instructorNotification,
                                  Date startDate, Date dueDate,
                                  Date scoreDate, Date feedbackDate)
   {
@@ -117,6 +120,7 @@ public class PublishedAccessControl
     this.timedAssessment = timedAssessment;
     this.retryAllowed = retryAllowed;
     this.lateHandling = lateHandling;
+    this.instructorNotification = instructorNotification;
     this.startDate = startDate;
     this.dueDate = dueDate;
     this.scoreDate = scoreDate;
@@ -128,7 +132,7 @@ public class PublishedAccessControl
         this.getSubmissionsAllowed(), this.getSubmissionsSaved(),
         this.getAssessmentFormat(), this.getBookMarkingItem(),
         this.getTimeLimit(), this.getTimedAssessment(),
-        this.getRetryAllowed(), this.getLateHandling(),
+        this.getRetryAllowed(), this.getLateHandling(), this.getInstructorNotification(),
         this.getStartDate(), this.getDueDate(),
         this.getScoreDate(), this.getFeedbackDate(),
         this.getReleaseTo());
@@ -136,11 +140,12 @@ public class PublishedAccessControl
     ((PublishedAccessControl)cloned).setAutoSubmit(this.autoSubmit);
     ((PublishedAccessControl)cloned).setItemNavigation(this.itemNavigation);
     ((PublishedAccessControl)cloned).setItemNumbering(this.itemNumbering);
+    ((PublishedAccessControl)cloned).setDisplayScoreDuringAssessments(this.displayScoreDuringAssessments);
     ((PublishedAccessControl)cloned).setSubmissionMessage(this.submissionMessage);
-    ((PublishedAccessControl)cloned).setUsername(this.username);
     ((PublishedAccessControl)cloned).setPassword(this.password);
     ((PublishedAccessControl)cloned).setFinalPageUrl(this.finalPageUrl);
     ((PublishedAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
+    ((PublishedAccessControl)cloned).setHonorPledge(this.honorPledge);
     return cloned;
   }
 
@@ -249,6 +254,16 @@ public class PublishedAccessControl
     return lateHandling;
   }
 
+  public void setInstructorNotification(Integer instructorNotification)
+  {
+    this.instructorNotification = instructorNotification;
+  }
+
+  public Integer getInstructorNotification()
+  {
+    return instructorNotification;
+  }
+
   public void setTimedAssessment(Integer timedAssessment)
   {
     this.timedAssessment = timedAssessment;
@@ -323,6 +338,16 @@ public class PublishedAccessControl
   {
     return itemNumbering;
   }
+  
+  public void setDisplayScoreDuringAssessments(Integer displayScore)
+  {
+    this.displayScoreDuringAssessments = displayScore;
+  }
+
+  public Integer getDisplayScoreDuringAssessments()
+  {
+    return displayScoreDuringAssessments;
+  }
 
   public void setSubmissionMessage(String submissionMessage)
   {
@@ -349,13 +374,7 @@ public class PublishedAccessControl
   public void setReleaseTo(String releaseTo) {
     this.releaseTo = releaseTo;
   }
-  public String getUsername() {
-    return this.username;
-  }
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
   public String getPassword() {
     return this.password;
   }
@@ -379,5 +398,11 @@ public class PublishedAccessControl
   public void setMarkForReview(Integer markForReview) {
 	  this.markForReview = markForReview;
   }
-  
+
+  @Override
+  public Boolean getHonorPledge() { return this.honorPledge; }
+
+  @Override
+  public void setHonorPledge(Boolean honorPledge) { this.honorPledge = honorPledge; }
+
 }

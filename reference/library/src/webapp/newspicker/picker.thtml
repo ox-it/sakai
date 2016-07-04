@@ -1,0 +1,60 @@
+<div class="topbit">
+    <a href="javascript:void" class="closeDialog" title="Close"></a>
+</div>
+<div class="sidebar">
+    <h1>Select a podcast feed</h1>
+    <div class="box matches_count"><b>X</b> podcast feeds</div>
+    <div class="box">
+        <h4>Search</h4>
+        <input id="podcast_search_box" />
+        <input type="checkbox" id="podcast_search_cs" value="cs" style="display: none"/><label style="display: none "for="podcast_search_cs">Case sensitive</label>
+        <input type="checkbox" id="podcast_search_desc" value="desc" checked="checked"/><label for="podcast_search_desc">Search descriptions</label>
+        <!-- <button id="podcast_search_button">Search</button> NOT RIGGED -->
+    </div>
+    <div class="box">
+        <h4>Sort By</h4>
+        <div id="podcast_sort_box">
+            <button id="podcast_sort_by-title">Title</button>
+            <button id="podcast_sort_by-date">Last updated</button>
+        </div>
+    </div>
+    
+    
+    <div class="box">
+        <h4>Filter by type</h4>
+        <div id="podcast_type_filter_box">
+            <input type="radio" name="podcast_type_filter" id="podcast_type_filter_all" value="" /><label for="podcast_type_filter_all">All</label>
+            <input type="radio" name="podcast_type_filter" id="podcast_type_filter_audio" value="audio" /><label for="podcast_type_filter_audio">Audio</label>
+            <input type="radio" name="podcast_type_filter" id="podcast_type_filter_video" value="video" /><label for="podcast_type_filter_video">Video</label>
+            <input type="radio" name="podcast_type_filter" id="podcast_type_filter_document" value="document" /><label for="podcast_type_filter_document">Documents</label>
+        </div>
+    </div>
+
+    <div class="box">
+        <h4>Division</h4>
+        <select id="podcast_division_filter">            
+            <option value="" default>All</option>
+            <optgroup label="Subject divisions">
+                <option value="human">Humanities</option>
+                <option value="mathsci">Mathematical, Physical and Life Sciences</option>
+                <option value="medsci">Medical Sciences</option>
+                <option value="socsci">Social Sciences</option>
+            </optgroup>
+            <optgroup label="Other">
+                <option value="centadm">Central Administration</option>
+                <option value="college">Colleges</option>
+                <option value="conted">Continuing Education</option>
+                <option value="councildep">Council</option>
+                <option value="acserv">Museums, Libraries and Services</option>
+                <option value="others">Others</option>
+            </optgroup>
+        </select>
+    </div>
+</div>
+<div class="viewport">
+    <div class="viewport_contents">
+        <div class="container"></div>
+        <div class="no_results"><i>No podcasts match your selection.</i></div>
+        <div id="loading"><span>Loading</span></div>
+    </div>
+</div>

@@ -60,7 +60,7 @@
             <div style="float:left;width:50%;">
               <fieldset>
               <legend><span><spring:message code="siterole.sitetype.title" /></span></legend>
-              <div style="font-style: italic;"><spring:message code="siterole.sitetype.header" /></div>
+              <div class="permsInstruction"><em><spring:message code="siterole.sitetype.header" /></em></div>
               <ul style="margin: 0px;">
                   <c:forEach var="siteType" items="${siteTypes}" varStatus="counter">
                   <li class="checkbox">
@@ -73,7 +73,7 @@
 
               <fieldset>
               <legend><span><spring:message code="siterole.role.title" /></span></legend>
-              <div style="font-style: italic;"><spring:message code="siterole.role.header" /></div>
+              <div class="permsInstruction"><em><spring:message code="siterole.role.header" /></em></div>
               <ul style="margin: 0px;">
                   <c:forEach var="role" items="${roles}" varStatus="counter">
                   <li class="checkbox">
@@ -81,6 +81,19 @@
                       <label for="roleSelect-${role}">${role}</label>
                   </li>
                   </c:forEach>
+                  <c:if test="${not empty additionalRoles}">
+					<c:set var="lastGroupRole" value="-none-"/>
+					<c:forEach var="additionalrole" items="${additionalRoles}" varStatus="counter">
+						<c:if test="${lastGroupRole != additionalrole.groupId}">
+							<li><hr/></li>
+						</c:if>
+						<li class="checkbox">
+							<input id="roleSelect-${additionalrole.id}" type="checkbox" name="site-role" value="${additionalrole.id}" />
+							<label for="roleSelect-${additionalrole.id}">${additionalrole.name}</label>
+						</li>
+						<c:set var="lastGroupRole" value="${additionalrole.groupId}"/>
+					</c:forEach>
+                  </c:if>
               </ul>
               </fieldset>
             </div>
@@ -88,7 +101,7 @@
             <div style="float:right;width:50%;">
               <fieldset>
               <legend><span><spring:message code="siterole.perm.title" /></span></legend>
-              <div style="font-style: italic;"><spring:message code="siterole.perm.header" /></div>
+              <div class="permsInstruction"><em><spring:message code="siterole.perm.header" /></em></div>
               <ul style="margin: 0px;">
                   <c:forEach var="permission" items="${permissions}" varStatus="counter">
                   <li class="checkbox">

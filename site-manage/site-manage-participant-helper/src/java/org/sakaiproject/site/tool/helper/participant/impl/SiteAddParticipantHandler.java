@@ -841,7 +841,14 @@ public class SiteAddParticipantHandler {
 							// look for user based on eid first
 							u = userDirectoryService.getUserByEid(officialAccount);
 						} catch (UserNotDefinedException e) {
-							M_log.debug(this + ".checkAddParticipant: " + messageLocator.getMessage("java.username",officialAccount), e);
+							M_log.debug(this + ".checkAddParticipant: "+  messageLocator.getMessage("java.username", officialAccount), e);
+							try {
+								u = userDirectoryService.getUserByAid(officialAccount);
+							} catch (UserNotDefinedException unde) {
+								if (M_log.isDebugEnabled()) {
+									M_log.debug("Didn't find user with AID: "+ officialAccount);
+								}
+							}
 						}
 					}
 					else
@@ -852,6 +859,13 @@ public class SiteAddParticipantHandler {
 							u = userDirectoryService.getUserByEid(officialAccount);
 						} catch (UserNotDefinedException e) {
 							M_log.debug(this + ".checkAddParticipant: " + messageLocator.getMessage("java.username",officialAccount), e);
+							try {
+								u = userDirectoryService.getUserByAid(officialAccount);
+							} catch (UserNotDefinedException unde) {
+								if (M_log.isDebugEnabled()) {
+									M_log.debug("Didn't find user with AID: "+ officialAccount);
+								}
+							}
 						}
 						
 						//Changed user lookup to satisfy BSP-1010 (jholtzman)
@@ -878,7 +892,7 @@ public class SiteAddParticipantHandler {
 									// multiple matches
 									for (User user : usersWithEmail)
 									{
-										String eid = user.getEid();
+										String eid = user.getDisplayId();
 										eidsForAllMatches.append(eid).append("\n");
 										eidsForAllMatchesAlertBuffer.append(eid).append(", ");
 										
@@ -1108,6 +1122,20 @@ public class SiteAddParticipantHandler {
 		if ("same_role".equals(roleChoice)) {
 			targettedMessageList.addMessage(new TargettedMessage("java.roletype", null, TargettedMessage.SEVERITY_ERROR));
 		}
+		
+		// If external participants aren't allowed, don't allow them
+		if (!isEnabled(ConfigOption.EXTERNAL_PARTICIPANTS)) {
+			for (UserRoleEntry userRole: userRoleEntries) {
+				try {
+					User user = userDirectoryService.getUserByEid(userRole.userEId);
+					if ("guest".equals(user.getType())) {
+						targettedMessageList.addMessage(new TargettedMessage("java.noexternal", new Object[]{userRole.userEId}, TargettedMessage.SEVERITY_ERROR));
+					}
+				} catch (UserNotDefinedException e) {
+					targettedMessageList.addMessage(new TargettedMessage("java.noexternal", new Object[]{userRole.userEId}, TargettedMessage.SEVERITY_ERROR));
+				}
+			}
+		}
 
 		// remove duplicate or existing user from participant list
 		pList = removeDuplicateParticipants(pList);
@@ -1196,7 +1224,38 @@ public class SiteAddParticipantHandler {
 
 		return rv;
 	}
+
+	public enum ConfigOption{
+		/**
+		 * Should external participants be allowed to be added in this site.
+		 */
+		EXTERNAL_PARTICIPANTS
+	};
 	
+	public boolean isEnabled(ConfigOption option) {
+		// This is a hack because sometimes this bean is wrongly re-used between requests.
+		// In a previous request it was reset and then this method is called and the site is null.
+		if (site == null) {
+			init();
+		}
+		if (ConfigOption.EXTERNAL_PARTICIPANTS.equals(option)) {
+			// Check enabled serverwide first
+			boolean externalUsers = serverConfigurationService.getBoolean("nonOfficialAccount", true);
+			if (externalUsers) {
+				// Some site types don't allow external users.
+				externalUsers = !serverConfigurationService.getString("twofactor.site.type", "secure").equals(site.getType());
+			} else {
+					String nonOfficialAccountSite = site.getProperties().getProperty("nonOfficialAccount");
+					if (nonOfficialAccountSite != null) {
+						externalUsers = Boolean.valueOf(nonOfficialAccountSite);
+					}
+				}
+			return externalUsers;
+		}
+		return false;
+	}
+
+
 	private void reset()
 	{
 		site = null;
@@ -1236,30 +1295,5 @@ public class SiteAddParticipantHandler {
 		// replace the original official account entry with eids from all matches.
 		officialAccountParticipant = officialAccountParticipant.replaceAll(officialAccount, eidsForAllMatches);
 	}
-	
-	/**
-	 * get the settings whether non official account users are allowed or not
-	 * site-wide settings can override the system-wide settings
-	 * @return
-	 */
-	public String getAllowNonOfficialAccount()
-	{
-		// get system setting first
-    	String rv = getServerConfigurationString("nonOfficialAccount", "true");
-    	
-    	// get site property, if different, it overrides sakai.properties setting
-    	if (site == null) {
-    	        M_log.error("Could not get site and thus, site properties.");
-    	}
-    	else
-    	{
-    	    String allowThisSiteAddNonOfficialParticipant = site.getProperties().getProperty("nonOfficialAccount");
-    	    M_log.debug("Site non-official allowed? "+allowThisSiteAddNonOfficialParticipant);
-    	    if (allowThisSiteAddNonOfficialParticipant != null && !allowThisSiteAddNonOfficialParticipant.equalsIgnoreCase(rv)) {
-    	        rv = allowThisSiteAddNonOfficialParticipant;
-    	    }
-    	}
-    	
-    	return rv;
-	}
 }
+

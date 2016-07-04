@@ -19,18 +19,7 @@
 
 package org.sakaiproject.roster.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
@@ -49,10 +38,13 @@ import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.roster.api.RosterEnrollment;
 import org.sakaiproject.roster.api.RosterFunctions;
 import org.sakaiproject.roster.api.RosterGroup;
@@ -81,11 +73,12 @@ import lombok.Setter;
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  */
 @Setter
-public class SakaiProxyImpl implements SakaiProxy {
+public class SakaiProxyImpl implements SakaiProxy, Observer {
 
 	private static final Log log = LogFactory.getLog(SakaiProxyImpl.class);
 		
 	private CourseManagementService courseManagementService;
+	private EventTrackingService eventTrackingService;
 	private FunctionManager functionManager;
 	private GroupProvider groupProvider;
 	private PrivacyManager privacyManager;
@@ -139,6 +132,8 @@ public class SakaiProxyImpl implements SakaiProxy {
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS, true);
         }
+
+        eventTrackingService.addObserver(this);
 
         memberComparator = new RosterMemberComparator(getFirstNameLastName());
 	}
@@ -260,6 +255,26 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, siteId);
 		}
 		return false;		
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getViewConnections() {
+
+		Boolean view_connections = serverConfigurationService.getBoolean("roster_view_connections",
+				DEFAULT_VIEW_CONNECTIONS);
+
+		Boolean profile2_connections_enabled = serverConfigurationService.getBoolean("profile2.connections.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED);
+		Boolean profile2_menu_enabled = serverConfigurationService.getBoolean("profile2.menu.enabled",
+				ProfileConstants.SAKAI_PROP_PROFILE2_MENU_ENABLED);
+
+		if(!profile2_menu_enabled || !profile2_connections_enabled) {
+			view_connections = false;
+		}
+
+		return view_connections;
 	}
 	
 	/**
@@ -482,10 +497,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		log.debug("filterHiddenMembers");
 		
+		boolean viewHidden = false;
 		if (isAllowed(currentUserId,
 				RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, authzGroup.getReference())) {
 			log.debug("permission to view all, including hidden");
-			return members;
+			viewHidden = true;
 		}
 
 		List<RosterMember> filtered = new ArrayList<RosterMember>();
@@ -498,10 +514,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 			userIds.add(userId);
 
-            // If this member is not in the authzGroup, remove them.
-            if (authzGroup.getMember(userId) == null) {
-                i.remove();
-            }
 		}
 
 		Set<String> hiddenUserIds
@@ -521,12 +533,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 			String userId = member.getUserId();
 			
 			// skip if privacy restricted and not the current user
-			if (!userId.equals(currentUserId) && hiddenUserIds.contains(userId)) {
+			if (!userId.equals(currentUserId) && (viewHidden || hiddenUserIds.contains(userId)) && authzGroup.getMember(userId) == null) {
 				continue;
 			}
 			
 			// now filter out users based on their role
-			if (filterRoles) {
+			if (filterRoles && !viewHidden) {
 				String memberRoleId = member.getRole();
 				if (ArrayUtils.contains(visibleRoles, memberRoleId)){
 					filtered.add(member);
@@ -1126,5 +1138,36 @@ public class SakaiProxyImpl implements SakaiProxy {
 
     public boolean getShowVisits() {
         return serverConfigurationService.getBoolean("roster.showVisits", false);
+    }
+
+    public void update(Observable o, Object arg) {
+
+        if (arg instanceof Event) {
+            Event event = (Event) arg;
+            if (SiteService.SECURE_UPDATE_SITE_MEMBERSHIP.equals(event.getEvent())) {
+                if (log.isDebugEnabled()) log.debug("Site membership updated. Clearing caches ...");
+                String siteId = event.getContext();
+
+                Cache enrollmentsCache = getCache(ENROLLMENTS_CACHE);
+                enrollmentsCache.remove(siteId);
+
+                Cache searchIndexCache = memoryService.getCache(SEARCH_INDEX_CACHE);
+                searchIndexCache.remove(siteId);
+
+                Cache membershipsCache = getCache(MEMBERSHIPS_CACHE);
+                membershipsCache.remove(siteId);
+                Site site = getSite(siteId);
+                if (site != null) {
+                    Set<Role> roles = site.getRoles();
+                    for (Group group : site.getGroups()) {
+                        String gId = group.getId();
+                        membershipsCache.remove(siteId + "#" + gId);
+                        for (Role role : roles) {
+                            membershipsCache.remove(siteId + "#" + gId + "#" + role.getId());
+                        }
+                    }
+                }
+            }
+        }
     }
 }

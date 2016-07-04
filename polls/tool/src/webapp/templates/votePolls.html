@@ -4,7 +4,6 @@
 <title>Polls</title>
 <link rsf:id="scr=portal-matter" href="https://vula.uct.ac.za/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
 <link href="https://vula.uct.ac.za/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" rsf:id="scr=portal-matter" />
-<link href="../css/poll_base.css" type="text/css" rel="stylesheet" media="all"/>
 <script  rsf:id="scr=portal-matter" type="text/javascript" src="/library/js/headscripts.js"></script>
 <script type="text/javascript">includeLatestJQuery('polls');</script>
 <script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
@@ -79,6 +78,7 @@
   <thead>
     <tr> 
       <th><a rsf:id="poll-question-title" title="Sort by Question" href="#">Question</a></th>
+	  <th rsf:id="poll-mobile-info">Mobile info</th>
       <th><a rsf:id="poll-open-title" title=" Sort by Opening Date" href="#">Opening</a></th>
       <th><a rsf:id="poll-close-title" title="Sort by Closing Date" href="#">Closing</a></th>
       <th rsf:id="poll-result-title">Results</th>
@@ -91,6 +91,7 @@
           <td><a href="voteQuestion.html" target="_self" rsf:id="poll-vote">Votable Poll Question</a>
           <div class="itemAction"><a href="voteAdd.html" target="_self"  rsf:id="poll-revise">Edit</a></div>
        </td>
+      <td class="centre"><a href="#" rsf:id="poll-mobile" class="mobile-info-link"><img src="/library/image/m_ox.png" alt="m.ox info" /></a></td>
       <td rsf:id="poll-open-date">opening date</td>
       <td rsf:id="poll-close-date">closing date</td>
       <td><a rsf:id="poll-results">Results</a></td>
@@ -101,6 +102,7 @@
       <td><span rsf:id="poll-text">Non Votable Question</span>
          <div class="itemAction"><a href="voteAdd.html" target="_self" rsf:id="poll-revise">Edit</a></div>
         </td>
+      <td class="centre"><a href="#" rsf:id="poll-mobile" class="mobile-info-link"><img src="/library/image/m_ox.png" alt="m.ox info" /></a></td>
       <td rsf:id="poll-open-date">opening date</td>
       <td rsf:id="poll-close-date">closing date</td>
       <td><a href="voteResults.html" target="_self" rsf:id="poll-results">Results</a></td>
@@ -116,5 +118,16 @@
 </p>
 </form>
 </div>
+
+<!-- dialog for mobile oxford -->
+<div id="dialog" title="Mobile Oxford" style="display:none;">
+	<h3 rsf:id="msg=poll_mobile_mox_url">m.ox url:</h3>
+	<code id="dialog-mox-url">url here</code>
+	
+	<h3 rsf:id="msg=poll_mobile_qr_code">QR code:</h3>
+	<img id="dialog-qr-code" alt="QR code"/>
+</div>
+
+
 </body>
 </html>

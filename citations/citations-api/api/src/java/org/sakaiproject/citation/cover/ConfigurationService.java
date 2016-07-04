@@ -384,7 +384,6 @@ public class ConfigurationService
     }
     return instance.getExternalSearchUrl();
   }
-
   /**
    * Enable/disable default Citations support
    */

@@ -86,10 +86,15 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public static final int DEFAULT_BATCH_SIZE = 200;
 	
 	/** Property of the user object to store the display ID under */
-	public static final String DISPLAY_ID_PROPERTY = JLDAPDirectoryProvider.class+"-displayId";
+	public static final String DISPLAY_ID_PROPERTY = JLDAPDirectoryProvider.class.getName()+"-displayId";
 
 	/** Property of the user object to store the display Name under */
-	public static final String DISPLAY_NAME_PROPERTY = JLDAPDirectoryProvider.class+"-displayName";
+	public static final String DISPLAY_NAME_PROPERTY = JLDAPDirectoryProvider.class.getName()+"-displayName";
+	
+	/** Property of the user object to store the display ID under */
+	public static final String YEAR_OF_STUDY_PROPERTY = "yearOfStudy";
+	
+	public static final String PRIMARY_ORG_UNIT_DN = "primaryOrgUnit";
 
 	public static final boolean DEFAULT_ALLOW_AUTHENTICATION = true;
 	
@@ -143,6 +148,15 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 */
 	private LDAPSocketFactory secureSocketFactory = 
 		new LDAPJSSESecureSocketFactory();
+
+	/**
+	 * Sockect factory for unsecure connections. Only relevant if
+	 * {@link #secureConnection} is <code>false</code>. Defaults to a new instance
+	 * of {@link LDAPSimpleSocketFactory}
+	 */
+	private LDAPSocketFactory socketFactory =
+		new LDAPSimpleSocketFactory();
+
 
 	/** LDAP referral following behavior. Defaults to {@link #DEFAULT_IS_FOLLOW_REFERRALS} */
 	private boolean followReferrals = DEFAULT_IS_FOLLOW_REFERRALS;
@@ -1252,6 +1266,23 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public void setSecureSocketFactory(LDAPSocketFactory secureSocketFactory) 
 	{
 		this.secureSocketFactory = secureSocketFactory;
+	}
+
+	/**
+	 * {@inheritDoc}
+     */
+	public LDAPSocketFactory getSocketFactory()
+	{
+		return socketFactory;
+	}
+
+
+	/**
+	 * {@inheritDoc}
+     */
+	public void setSocketFactory(LDAPSocketFactory socketFactory)
+	{
+		this.socketFactory = socketFactory;
 	}
 
 	public String getBasePath()

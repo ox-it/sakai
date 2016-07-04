@@ -477,7 +477,21 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 	
+	boolean below = false;
 	itemId = itemId.trim();
+	if (itemId.startsWith("-")) {
+	    below = true;
+	    itemId = itemId.substring(1);
+	}
+
+	long id = 0;
+	if (!itemId.startsWith("p")) {
+	    try {
+		id = Long.parseLong(itemId);
+	    } catch (Exception e) {
+		log.error("Ajax insertBreakBefore passed illegal item id " + itemId);
+	    }
+	}
 
 	// currently this is only needed by the instructor
 	
@@ -485,8 +499,12 @@ public class AjaxServer extends HttpServlet
 	SimplePage page = null;
 	String siteId = null;
 	try {
-	    item = simplePageToolDao.findItem(Long.parseLong(itemId));
-	    page = simplePageToolDao.getPage(item.getPageId());
+	    if (itemId.startsWith("p")) {
+		page = simplePageToolDao.getPage(Long.parseLong(itemId.substring(1)));
+	    } else {
+		item = simplePageToolDao.findItem(id);
+		page = simplePageToolDao.getPage(item.getPageId());
+	    }
 	    siteId = page.getSiteId();
 	} catch (Exception e) {
 	    e.printStackTrace();
@@ -504,29 +522,76 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 	
-	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(page.getPageId());
+
+	// this block of code is because pages really should start with a section break at the top, but don't
+	// always. When that happens, the UI generates a pseudo-item ID or "pxxxx" where xxxx is the page number
+	SimplePageItem firstItem = null;
+	if (items != null && items.size() > 0) {
+	    firstItem = items.get(0);
+	}
+	if (firstItem == null || firstItem.getType() != SimplePageItem.BREAK) {
+	    // old format page. Add an initial break
+	    SimplePageItem breakItem = simplePageToolDao.makeItem(page.getPageId(), 1, SimplePageItem.BREAK, null, null);
+	    breakItem.setFormat("section");
+	    simplePageToolDao.quickUpdate(breakItem);
+	    // increment numbers for items after it
+	    if (items != null) {
+		for (SimplePageItem i: items) {
+		    i.setSequence(i.getSequence() + 1);
+		    simplePageToolDao.quickUpdate(i);
+		}			    
+	    }
+	    // refresh items list
+	    items = simplePageToolDao.findItemsOnPage(page.getPageId());
+	}
+
+	// now we have a new format page, and we can handle it normally
+	if (itemId.startsWith("p")) {
+	    // didn't have initial break when page displayed. We do now, so use it
+	    item = items.get(0);
+	    id = item.getId();
+	}
 
 	// we have an item id. insert before it
 	int nseq = 0;  // sequence number of new item
 	boolean after = false; // we found the item to insert before
-	// have an item number specified, look for the item to insert before
-	long before = item.getId();
-	for (SimplePageItem i: items) {
-	    if (i.getId() == before) {
-		// found item to insert before
-		// use its sequence and bump up it and all after
-		nseq = i.getSequence();
-		after = true;
-	    }
-	    if (after) {
-		i.setSequence(i.getSequence() + 1);
-		simplePageToolDao.quickUpdate(i);
-	    }
-	}			    
+	if (below) {
+	    // have an item number specified, look for the item to insert after
+	    long before = id;
+	    for (SimplePageItem i: items) {
+		if (i.getId() == before) {
+		    // found item to insert after
+		    // use next sequence and bump all after
+		    nseq = i.getSequence() + 1;
+		    after = true;
+		    continue;
+		}
+		if (after) {
+		    i.setSequence(i.getSequence() + 1);
+		    simplePageToolDao.quickUpdate(i);
+		}
+	    }			    
+	} else {
+	    // have an item number specified, look for the item to insert before
+	    long before = item.getId();
+	    for (SimplePageItem i: items) {
+		if (i.getId() == before) {
+		    // found item to insert before
+		    // use its sequence and bump up it and all after
+		    nseq = i.getSequence();
+		    after = true;
+		}
+		if (after) {
+		    i.setSequence(i.getSequence() + 1);
+		    simplePageToolDao.quickUpdate(i);
+		}
+	    }		
+	}	    
 
 	// if after not set, we didn't find the item; either no item specified or it
 	if (!after) {
-	    log.error("Ajax insertBreakBefore passed item not on its page " + before);
+	    log.error("Ajax insertBreakBefore passed item not on its page " + id);
 	    return null;
 	}
 		    
@@ -537,6 +602,107 @@ public class AjaxServer extends HttpServlet
 	return "" + i.getId();
 
     }
+
+    public static String setColumnProperties(String itemId, String width, String split, String color, String csrfToken) {
+
+	if (itemId == null || width == null || split == null) {
+	    log.error("Ajax setColumnProperties passed null argument");
+	    return null;
+	}
+
+	itemId = itemId.trim();
+	// we don't actually use the integers. Just for syntax checking
+	int widthi = 0;
+	int spliti = 0;
+	try {
+	    widthi = Integer.parseInt(width);
+	    spliti = Integer.parseInt(split);
+	} catch (Exception e) {
+	    log.error("Ajax setColumnProperties passwd non-numeric width or split");
+	    return null;
+	}
+
+	if (color != null) {
+	    if (color.equals(""))
+		color = null;
+	    else if (!color.matches("^[a-z]*$")) {
+		log.error("Ajax setColumnProperties passwd unreasonable color");
+		return null;
+	    }
+	}
+
+	// currently this is only needed by the instructor
+	
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    Long itemNum = Long.parseLong(itemId);
+	    item = simplePageToolDao.findItem(itemNum);
+	    if (item.getType() != SimplePageItem.BREAK) {
+		// hopefully this is the first item, in an old page that doesnbt' begin with a page break
+		List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+		if (items.get(0).getId() == itemNum) {
+		    // this is first item on page, add a section break before it
+		    item = simplePageToolDao.makeItem(item.getPageId(), 1, SimplePageItem.BREAK, null, null);
+		    item.setFormat("section");
+		    simplePageToolDao.quickSaveItem(item);
+		    int seq = 2;
+		    // and bump sequence numbers
+		    for (SimplePageItem i: items) {
+			i.setSequence(seq);
+			simplePageToolDao.quickUpdate(i);
+			seq++;
+		    }
+		} else if (items.get(0).getType() == SimplePageItem.BREAK &&
+			   items.get(1).getId() == itemNum) {
+		    // maybe we just inserted a break before our item. 
+		    // If so, use the break;
+		    item = items.get(0);
+		} else {
+		    log.error("Ajax setcolumnproperties passed item not a break: " + itemId);
+		}
+		    
+	    }
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax setcolumnproperties passed invalid data " + e);
+	    return null;
+	}
+	if (siteId == null) {
+	    log.error("Ajax setcolumnproperties passed null site id");
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	    log.error("Ajax setcolumnproperties passed itemid " + itemId + " but user doesn't have permission");
+	    return null;
+	}
+	
+	if (width.trim().equals("1"))
+	    item.removeAttribute("colwidth");
+	else
+	    item.setAttribute("colwidth", width);
+
+	if (split.trim().equals("1"))
+	    item.removeAttribute("colsplit");
+	else
+	    item.setAttribute("colsplit", split);
+	
+
+	if (color == null)
+	    item.removeAttribute("colcolor");
+	else
+	    item.setAttribute("colcolor", color);
+
+	simplePageToolDao.quickUpdate(item);
+	return "ok";
+
+    }
+
 
     public static String deleteItem(String itemId, String csrfToken) {
 	if (itemId == null) {
@@ -646,6 +812,13 @@ public class AjaxServer extends HttpServlet
 	  String cols = req.getParameter("cols");
 	  String csrfToken = req.getParameter("csrf");
 	  out.println(insertBreakBefore(itemId, type, cols, csrfToken));
+      } else if (op.equals("setcolumnproperties")) {
+	  String itemId = req.getParameter("itemid");
+	  String width = req.getParameter("width");
+	  String split = req.getParameter("split");
+	  String color = req.getParameter("color");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(setColumnProperties(itemId, width, split, color, csrfToken));
       } else if (op.equals("deleteitem")) {
 	  String itemId = req.getParameter("itemid");
 	  String csrfToken = req.getParameter("csrf");

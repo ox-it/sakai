@@ -59,13 +59,13 @@ public class FormHandler {
 	public void setSecurityService(SecurityService ss) {
 		securityService = ss;
 	}
+	
 
 	private ValidationLogic validationLogic;	
 	public void setValidationLogic(ValidationLogic validationLogic) {
 		this.validationLogic = validationLogic;
 	}
-
-
+	
 	private static Log m_log  = LogFactory.getLog(FormHandler.class);
 
 	public String processAction() {
@@ -146,8 +146,6 @@ public class FormHandler {
 			securityService.pushAdvisor(sa);
 
 			UserEdit userE = userDirectoryService.editUser(userBean.getUser().getId().trim());
-			String pass = getRandPass();
-			userE.setPassword(pass);
 			userDirectoryService.commitEdit(userE);
 
 			//securityService.popAdvisor(sa);
@@ -162,10 +160,9 @@ public class FormHandler {
 
 			buff.append(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName, serverConfigurationService.getPortalUrl()})+ "\n\n");
 			buff.append(messageLocator.getMessage("mailBody2",new Object[]{userE.getEid()})+ "\n");
-			buff.append(messageLocator.getMessage("mailBody3",new Object[]{pass})+ "\n\n");
 
-			if (serverConfigurationService.getString("support.email", null) != null )
-				buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("support.email")}) + "\n\n");
+			if (serverConfigurationService.getString("mail.support", null) != null )
+				buff.append(messageLocator.getMessage("mailBody4",new Object[]{serverConfigurationService.getString("mail.support")}) + "\n\n");
 
 			m_log.debug(messageLocator.getMessage("mailBody1",new Object[]{productionSiteName}));
 			buff.append(messageLocator.getMessage("mailBodySalut")+"\n");
@@ -196,12 +193,4 @@ public class FormHandler {
 		return "Success";
 	}
 
-	//borrowed from siteaction
-	private String getRandPass() {
-		// set password to a random positive number
-		Random generator = new Random(System.currentTimeMillis());
-		Integer num = Integer.valueOf(generator.nextInt(Integer.MAX_VALUE));
-		if (num.intValue() < 0) num = Integer.valueOf(num.intValue() *-1);
-		return num.toString();
-	}
 }

@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+    <head>
+        <script src="js/jquery.lib.js"></script>
+        <script src="js/jquery-ui.lib.js"></script>
+        <script src="js/jquery.defer.lib.js"></script>
+        <script src="js/jqmodal.lib.js"></script>
+        <script src="js/podcaster.js"></script>
+        <script>
+            $(window).ready(function() {
+                podcastPicker = PodcastPickerInit({
+                    rssFile: 'podcasts.xml',
+                    triggerElements: $('button'),   // CSS to select all elements that open the picker
+                    genericThumbnails: true, // use generic thumbnails instead of those specified in the file
+                    // selection callback, podcast contains the podcast data, $(this) refers to the input that originally opened the picker
+                    onSelect: function(podcast) {
+                        // this points to the element that originally triggered the podcast picker
+                        $(this).text('Podcast selected!');
+                        alert(podcast.el.find('link').text());
+                    },
+                    onShow: function(dialog) {
+                        // this is called when the window opens, dialog points to the HTML element that represents the picker GUI
+                        // useful for IFrame resizing
+                        var height = dialog.height();
+                    },
+                    
+                    onHide: function(dialog) {
+                        // called when the window closes
+                        // useful for IFrame resizing
+                        
+                    },
+                    
+                    onReady: function(picker) {
+                        $('button').click(function() {
+                            picker.trigger(this);
+                        });
+                    }
+                });
+            });
+        </script>
+        
+        <link href="css/jqModal.css" rel="stylesheet" type="text/css" />
+        <link href="css/picker.css" rel="stylesheet" type="text/css" />
+        <link href="css/jquery-ui-1.8.7.custom.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <button>Show interface</button>
+    </body>
+</html>

@@ -81,7 +81,8 @@
 		  </h:column>
 		</h:dataTable>
 		
-	  <mf:hierPvtMsgDataTable  styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="threaded_pvtmsgs" width="100%" 
+	  <div class="table-responsive">
+	  <mf:hierPvtMsgDataTable  styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0"  id="threaded_pvtmsgs" width="100%" 
 	  	value="#{PrivateMessagesTool.searchPvtMsgs}" 
 	  	var="rcvdItems" 
 	  	rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
@@ -142,6 +143,7 @@
 		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
+		</div>
 		
 <%-- Added if user clicks Check All --%>
     <script language="Javascript" type="text/javascript">

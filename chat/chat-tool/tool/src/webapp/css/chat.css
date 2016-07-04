@@ -25,7 +25,6 @@ LABEL.chat-date-label {
     list-style: none;
 }
 #chatList li, .chatList li{
-    text-indent: -3em;
     line-height: 1.2em;
 }
 .chat-block label {
@@ -70,6 +69,18 @@ h3 {
    float:left;
    clear:none;
 }
+
+.exclude{
+    font-weight: bold !important;
+}
+.jsfFormTable input[type='text']{
+    margin: 0 10px 0 10px;
+}
+
+.chat-select-date img{
+    vertical-align: middle !important;
+}
+
 .presence {
    height: calc(20em);
 }
@@ -95,5 +106,11 @@ h3.chatListHeadWrapper{
   }
   #chatLeft {
      width:auto;
+  }
+  .jsfFormTable .shorttext input[type='text']{
+      margin: 0 0px 0 0px;
+  }
+  input[type='checkbox'] + label{
+    display: inline;
   }
 }

@@ -95,7 +95,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       
       if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
     	  // #1. check password
-    	  if (!delivery.getSettings().getUsername().equals(""))
+    	  if (!delivery.getSettings().getPassword().equals(""))
     	  {
     		  if ("passwordAccessError".equals(delivery.validatePassword())) {
     			  return;
@@ -254,6 +254,9 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
 
       HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
 
+      if(itemGradingHash != null) {
+          delivery.setTableOfContents(getContents(publishedAssessment, itemGradingHash,delivery, publishedAnswerHash));
+      }
       // get current page contents
       delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
   }
@@ -298,7 +301,6 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
   public void saveLastVisitedPosition(DeliveryBean delivery, int partNumber, int questionNumber) {
 	  GradingService gradingService = new GradingService();
 	  AssessmentGradingData assessmentGradingData = delivery.getAssessmentGrading();
-	  assessmentGradingData.setStatus(2);
 	  assessmentGradingData.setLastVisitedPart(partNumber);
 	  assessmentGradingData.setLastVisitedQuestion(questionNumber);
 	  gradingService.saveOrUpdateAssessmentGradingOnly(assessmentGradingData);

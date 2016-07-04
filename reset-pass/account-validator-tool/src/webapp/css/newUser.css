@@ -35,6 +35,18 @@ p, h1, form, button {
 	width:50em;
 }
 
+.stylized .logo h3{
+	margin: 2.2em 0em 0em 2.2em;
+}
+.stylized .logo {
+	height: 90px;
+	background: url(../images/x-login-logo.png) no-repeat;
+	float: left;
+	width: 100%;
+	background-position-x: 160px;
+	background-position-y: 11px;
+}
+
 /* ----------- stylized ----------- */
 .stylized {
 	word-wrap: break-word;

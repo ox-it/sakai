@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CKEditor Oxam Search Plugin Example</title>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://rawgit.com/ox-it/wl-ck-plugins/oxam/lib/ckeditor/ckeditor.js"></script>
+    <script src="https://rawgit.com/ox-it/wl-ck-plugins/oxam/oxam/js/oxam-embed.js"></script>
+    <link rel="stylesheet" href="https://rawgit.com/ox-it/wl-ck-plugins/oxam/lib/ckeditor/samples/sample.css">
+    <link rel="stylesheet" href="https://rawgit.com/ox-it/wl-ck-plugins/oxam/oxam/css/results.css">
+    <script>
+      var editor, html = '';
+      var scripts = document.getElementsByTagName("script");
+
+      // getting absolute url of current file
+      var src = scripts[scripts.length-1].baseURI.split('/');
+          src.pop(); // remove example.html
+          src.pop(); // remove oxam
+          src = src.join('/');
+
+      function createEditor() {
+        if (editor) {
+          return;
+        }
+
+        var config = {};
+        editor = CKEDITOR.appendTo( 'editor', config, html );
+        editor.config.allowedContent = true;
+
+        CKEDITOR.plugins.addExternal('oxam', 'https://rawgit.com/ox-it/wl-ck-plugins/oxam/oxam/', 'plugin.js');
+        editor.config.extraPlugins += 'oxam,';
+      }
+
+      function removeEditor() {
+        if (!editor) {
+          return;
+        }
+
+        document.getElementById('editorcontents').innerHTML = html = editor.getData();
+        document.getElementById('contents').style.display = '';
+
+        editor.destroy();
+        editor = null;
+
+        $('[data-oxam-embed]').oxamEmbed();
+      }
+    </script>
+  </head>
+  <body>
+    <h1 class="samples">CKEditor Oxam Search Plugin Example</h1>
+    <p>
+      <input onclick="createEditor();" type="button" value="Create Editor">
+      <input onclick="removeEditor();" type="button" value="Remove Editor">
+    </p>
+    <div id="oxam" />
+    <div id="editor">
+    </div>
+    <div id="contents" style="display: none">
+      <p>Edited Contents:</p>
+      <div id="editorcontents"></div>
+    </div>
+    <div id="footer">
+      <hr>
+      <p> CKEditor - The text editor for the Internet - <a class="samples" href="http://ckeditor.com/">http://ckeditor.com</a></p>
+      <p id="copy">All rights reserved. File adapted from ajax.html example from CKEditor site.</p>
+    </div>
+  </body>
+</html>

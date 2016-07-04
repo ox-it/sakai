@@ -11,6 +11,7 @@ import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.help.TutorialEntityProvider;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
@@ -18,13 +19,20 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.util.ResourceLoader;
 
+import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoRegisterEntityProvider, RESTful{
 
+	public static final String SITE_NAME = "ui.service";
+	public static final String SAKAI = "Sakai";
 	protected final Log log = LogFactory.getLog(getClass());
 	private ResourceLoader msgs = new ResourceLoader("TutorialMessages");
+	private org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService;
 	private static PropertiesConfiguration tutorialProps;
-	
+
 	private void initConfig() {
 		
 		URL url = getClass().getClassLoader().getResource("Tutorial.config"); 
@@ -72,26 +80,30 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 		}
 		String previousUrl = tutorialProps.getString(ref.getId() + ".previousUrl");
 		String nextUrl = tutorialProps.getString(ref.getId() + ".nextUrl");
+                String sakaiInstanceName = ServerConfigurationService.getString("ui.service", "Sakai");
+                
 		Map valuesMap = new HashMap<String, String>();
 		valuesMap.put("selection", tutorialProps.getString(ref.getId() + ".selection"));
-		valuesMap.put("title", msgs.get(ref.getId() + ".title"));
+		valuesMap.put("title", msgs.getFormattedMessage(ref.getId() + ".title", sakaiInstanceName));
 		valuesMap.put("dialog", tutorialProps.getString(ref.getId() + ".dialog"));
 		valuesMap.put("positionTooltip", tutorialProps.getString(ref.getId() + ".positionTooltip"));
 		valuesMap.put("positionTarget", tutorialProps.getString(ref.getId() + ".positionTarget"));
 		valuesMap.put("fadeout", tutorialProps.getString(ref.getId() + ".fadeout"));
 		valuesMap.put("previousUrl", previousUrl);
 		valuesMap.put("nextUrl", nextUrl);
-		
+                	
 		//build the body html:
-		String body = msgs.getString(ref.getId() + ".body");
+		//String body = msgs.getString(ref.getId() + ".body");
+                
+                String body = msgs.getFormattedMessage(ref.getId() + ".body", sakaiInstanceName);
 		
 		//build footer html:
-		String footerHtml = "<br/><br/><div style='min-width: 120px; background: #ddd;'>";
+		String footerHtml = "<div class='tut-footer'>";
 		if(previousUrl != null && !"".equals(previousUrl)){
-			footerHtml += "<div style='float:left'><a href='#' class='qtipLinkButton' onclick='previousClicked=true;showTutorialPage(\"" + previousUrl + "\");'><img src='/library/image/silk/arrow_left-grey.png'>&nbsp;" + msgs.getString("previous") + "</a></div>";
+			footerHtml += "<div class='tut-previous'><a href='#' class='qtipLinkButton' onclick='previousClicked=true;showTutorialPage(\"" + previousUrl + "\");'><i class='fa fa-arrow-left'></i>&nbsp;" + msgs.getString("previous") + "</a></div>";
 		}
 		if(nextUrl != null && !"".equals(nextUrl)){
-			footerHtml += "<div style='float:right'><a href='#' class='qtipLinkButton' onclick='showTutorialPage(\"" + nextUrl + "\");'>" + msgs.getString("next") + "&nbsp;<img src='/library/image/silk/arrow_right-grey.png'></a></div>";
+			footerHtml += "<div class='tut-next'><a href='#' class='qtipLinkButton' onclick='showTutorialPage(\"" + nextUrl + "\");'>" + msgs.getString("next") + "&nbsp;<i class='fa fa-arrow-right'></i></a></div>";
 		}
 		footerHtml += "</div>";
 		body += footerHtml;
@@ -120,4 +132,12 @@ public class TutorialEntityProviderImpl implements TutorialEntityProvider, AutoR
 		return new String[] { Formats.HTML, Formats.XML, Formats.JSON };
 	}
 
+
+	public void setServerConfigurationService(org.sakaiproject.component.api.ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public org.sakaiproject.component.api.ServerConfigurationService getServerConfigurationService() {
+		return serverConfigurationService;
+	}
 }

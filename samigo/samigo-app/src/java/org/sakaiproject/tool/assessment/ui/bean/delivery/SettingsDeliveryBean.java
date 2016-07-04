@@ -39,7 +39,6 @@ public class SettingsDeliveryBean implements Serializable
 	/** Use serialVersionUID for interoperability. */
 	private final static long serialVersionUID = -1090852048737428722L;
 
-  private String username;
   private String password;
   private Set ipAddresses;
   private boolean unlimitedAttempts;
@@ -55,6 +54,7 @@ public class SettingsDeliveryBean implements Serializable
   private String bgcolor;
   private String background;
   private String itemNumbering;
+  private String displayScoreDuringAssessments;
 
   /**
    * Maximum number of attemtps allowed.
@@ -158,32 +158,12 @@ public class SettingsDeliveryBean implements Serializable
   }
 
   /**
-   * if required, assessment user name
-   * @return user name
-   */
-  public String getUsername()
-  {
-    if (username == null)
-      return "";
-    return username;
-  }
-
-  /**
    * if required, assessment password
    * @param string assessment password
    */
   public void setPassword(String string)
   {
     password = string;
-  }
-
-  /**
-   * if required, assessment user name
-   * @param string assessment user name
-   */
-  public void setUsername(String string)
-  {
-    username = string;
   }
 
   /**
@@ -348,6 +328,15 @@ public class SettingsDeliveryBean implements Serializable
     itemNumbering = numbering;
   }
 
+  public String getDisplayScoreDuringAssessments()
+  {
+	  return displayScoreDuringAssessments;
+  }
+  
+  public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
+	  this.displayScoreDuringAssessments = displayScoreDuringAssessments;
+  }
+  
   public void setAssessmentAccessControl(PublishedAssessmentIfc pubAssessment){
 
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
@@ -371,9 +360,14 @@ public class SettingsDeliveryBean implements Serializable
     setFormatByAssessment(control.BY_ASSESSMENT.equals(format));
     setFormatByPart(control.BY_PART.equals(format));
     setFormatByQuestion(control.BY_QUESTION.equals(format));
-    setUsername(control.getUsername());
     setPassword(control.getPassword());
     setItemNumbering(control.getItemNumbering().toString());
+    if (control != null && control.getDisplayScoreDuringAssessments() != null) {
+      setDisplayScoreDuringAssessments(control.getDisplayScoreDuringAssessments().toString());
+    }
+    else {
+      setDisplayScoreDuringAssessments("0");
+    }
 
     setIpAddresses(pubAssessment.getSecuredIPAddressSet());
 

@@ -5,6 +5,18 @@
 @import "_chat_variables";
 
 .Mrphs-{
+	&sakai-chat{
+		#chatLeft{
+			textarea{
+				width: 100%;
+			}
+		}
+		.chatListMonitor{
+			border: 1px solid #000;
+			font-size: 0.9em;
+			padding: 0.5em;
+		}
+	}
 	&footerApp{
 		&__presence, &__portalChat{
 		    background-color: $footerApp__chat__header__background;
@@ -17,21 +29,26 @@
 		    position: fixed;
 		    bottom: 0px;
 		    right: 20px;
+		    z-index: 2;
 		}
 		&__portalChat{
-		    width: 205px;
+		    width: 226px;
 		}
 		&--toggle{
-		    display: inline-block;
+		    display: block;
 		    padding: 2px 0px 0px 0px;
-		    color: $footerApp__chat__header__color;
+		    color: $footerApp__chat__background !important;
 		    text-decoration: none;
 		    height: 16px;
 		    font-weight: bold;
+		    &:hover, &:link, &:active {
+		    	color: $footerApp__chat__background;
+		    	text-decoration: none;
+		    }
 		}
 		&--count.present{
-		    min-width: 15px;
-		    height: 15px;
+		    min-width: 20px;
+		    height: 20px;
 		    display: inline-block;
 		    border-radius: 10px;
 		    text-align: center;
@@ -39,8 +56,14 @@
 		    vertical-align: text-bottom;
 		    border: 1px solid #FFF;
 		    margin-left: 5px;
-		    padding: 2px;
+		    padding: 0;
 		    font-size: 0.8em;
+		    #footerAppPresence & {
+		    	margin-right: 0;
+		    	position: relative;
+		    	top: -1.4em;
+		    	margin-left: 25px;
+		    }
 		  }
 		  &--count.empty{
 		  	display: none;
@@ -74,6 +97,11 @@
 		    width: 175px;
 		    bottom: 30px;
 		    right: 20px;
+		    z-index: 21;
+		    display: block !important;
+			&.is-hidden{
+				display: none !important;
+			}
 
 		    &--wrapper {
 		        width: 100%;
@@ -113,16 +141,16 @@
 		    width: 225px;
 		    background-color: $footerApp__chat__background;
 		    position: fixed;
-		    bottom: 35px;
+		    bottom: 30px;
 		   
 		    /* Needs to be to the right of the expanded presence block. See presenceArea. */
-		    right: 20px;
+		    right: 21px;
 		    z-index: 2001;
 		    margin: 0px;
 		    padding: 0px;
 		    display: none;
 
-		    @include box-shadow( 0 -2px 2px rgba( $text-color, 0.5 ) );
+		    box-shadow: 0 -2px 2px rgba( $text-color, 0.5 );
 			
 			h5{
 				margin-bottom: 5px !important;
@@ -159,7 +187,7 @@
     			 h2{
     			 	background: none;
     			 	color: $footerApp__chat__color;
-    			 	padding: 2px 0px;
+    			 	padding: 6px 0px 6px 0;
     			 	font-size: 1em;
     			 	margin: 0px 3px;
     			 }

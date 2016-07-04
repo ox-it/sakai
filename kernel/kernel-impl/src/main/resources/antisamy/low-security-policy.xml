@@ -1050,6 +1050,20 @@
                 <regexp name="onsiteURL"/>
             </regexp-list>
         </attribute>
+
+        <!-- custom attribute to support ShareStream LTI -->
+        <attribute name="sharestream-lti-url" description="used by the IMG tag inside of CKEditor to support ShareStream LTI media embedding">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+        </attribute>
+
+        <!-- custom attribute to support Kaltura LTI -->
+        <attribute name="kaltura-lti-url" description="used by the IMG tag inside of CKEditor to support Kaltura LTI media embedding">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+         </attribute>
     </common-attributes>
 
 
@@ -1551,6 +1565,42 @@
             </attribute>
         </tag>
 
+        <tag name="track" action="validate">
+            <attribute name="label" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
+            </attribute>
+            <attribute name="srclang" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
+            </attribute>
+            <attribute name="kind" onInvalid="removeTag">
+                <literal-list>
+                    <literal value="captions"/>
+                    <literal value="chapters"/>
+                    <literal value="descriptions"/>
+                    <literal value="metadata"/>
+                    <literal value="subtitles"/>
+                </literal-list>
+            </attribute>
+            <attribute name="src" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="onsiteURL"/>
+                    <regexp name="offsiteURL"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="default">
+                <literal-list>
+                    <literal value="default"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+        </tag>
+
         <!-- Image & image related tags -->
         <tag name="img" action="validate">
             <attribute name="src" onInvalid="removeTag">
@@ -1585,6 +1635,10 @@
                 <regexp name="anything" />
               </regexp-list>
             </attribute>
+
+            <!-- KNL-1426 sharestream and kaltura -->
+            <attribute name="sharestream-lti-url"/>
+            <attribute name="kaltura-lti-url"/>
         </tag>
 
         <!-- no way to do this safely without hooking up the same code to @import to embed the remote stylesheet (malicious user could change offsite resource to be malicious after validation -->
@@ -2646,6 +2700,15 @@
             <attribute name="accentunder"/>
             <attribute name="align"/>
         </tag>
+
+        <!-- HTML5 figure and figcaption http://html5doctor.com/the-figure-figcaption-elements/ -->
+        <tag name="figure" action="validate"/>
+        <tag name="figcaption" action="validate"/>
+        
+        <tag name="form" action="remove"/>
+        <tag name="input" action="remove"/>
+        <tag name="select" action="remove"/>
+        <tag name="textarea" action="remove"/>
     </tag-rules>
 
 

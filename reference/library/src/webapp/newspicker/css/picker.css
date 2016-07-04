@@ -1,0 +1,222 @@
+/*
+    Podcast Picker GUI
+*/
+.PickerGUI {
+    padding: 0;
+    margin-left: -375px;
+    width: 750px;
+    border: 1px solid #3f4344;
+    font-family: Tahoma;
+    font-size: 10pt;
+}
+
+.PickerGUI h1 {
+    background: #dadada;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cccccc', endColorstr='#afafaf');
+    background: -webkit-gradient(linear, left top, left bottom, from(#cccccc), to(#afafaf));
+    background: -moz-linear-gradient(top,  #ccc,  #afafaf);
+    color: #444;
+    text-align: center;
+    border-bottom: 1px solid #888;
+    border-top: 1px solid #eee;
+    padding: 0.3em 2em;
+    margin: 0;
+    font-size: 1em;
+}
+
+.PickerGUI .topbit {
+    margin: 0;
+    height: 0;
+    padding: 0;
+}
+
+.PickerGUI .closeDialog {
+    background: url('./images/closebox.png') no-repeat;
+    width: 32px;
+    height: 32px;
+    position: absolute;
+    display: block;
+    top: -12px;
+    left: -15px;
+    z-index: 5000;
+}
+
+.PickerGUI .sidebar {
+    width: 22%;
+    margin: 0;
+    padding: 0;
+    float: left;
+    height: 500px;
+    background: #d2d9e3;
+    position: relative;
+    zoom: 1;
+
+}
+
+/* IE6 hack */
+* html .PickerGUI .viewport {
+    width: 77%;
+}
+
+* html .PickerGUI .closeDialog {
+    top: -18px;
+    left: -40px;
+}
+
+.PickerGUI .sidebar .box {
+    margin: 0.8em 12px 1.5em;
+}
+
+.PickerGUI .sidebar h4 {
+    text-transform: uppercase;
+
+    margin-top: 0em;
+    margin-bottom: 0.2em;
+    color: #454E57;
+    text-shadow: 0 1px 0 #eee;
+}
+
+.PickerGUI .viewport {
+    width: 78%;
+    margin: 0;
+    padding: 0;
+    float: right;
+    height: 500px;
+    overflow: auto;
+    position: relative;
+}
+
+.PickerGUI .container {
+    margin: 0;    
+    padding: 0;
+}
+
+/* Text highlight */ 
+.PickerGUI .highlightable em {
+    background: #e6d51a;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ebdd1f', endColorstr='#e1cd15');
+    background: -webkit-gradient(linear, left top, left bottom, from(#ebdd1f), to(#e1cd15));
+    background: -moz-linear-gradient(top,  #ebdd1f,  #e1cd15);
+    border-bottom: 1px solid #c1a700;
+    padding: 0 2px;
+    margin: -2px;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    font-style: normal;
+}
+
+.PickerGUI .sidebar .ui-button, .PickerGUI .sidebar button {
+    display: block;
+    background: none;
+    border: none;
+    width: 100%;
+}
+
+.PickerGUI .sidebar .ui-button .ui-button-text {
+    text-align: left;
+}
+
+/* Selected state */
+#podcast_type_filter_box .ui-state-active, #podcast_sort_box .selected {
+    font-weight: bold;
+    text-shadow: 0 1px 0 white;
+}
+
+.PickerGUI select, #podcast_search_box {
+    width: 100%;
+}
+
+.PickerGUI .podcast .thumbnail {
+    float: left;
+    /* width: 100px; */
+    margin: 0 1em 1em 0;
+}
+
+/* generic thumbnails */
+.PickerGUI .podcast .thumbnail.GenericType { width: 32px; height: 32px; }
+.PickerGUI .podcast .thumbnail.GenericType.audio { background-image: url('./images/audio.png'); }
+.PickerGUI .podcast .thumbnail.GenericType.video { background-image: url('./images/video.png'); }
+.PickerGUI .podcast .thumbnail.GenericType.document { background-image: url('./images/document.png'); }
+
+/* Podcast list styling */
+.PickerGUI .podcast {
+    display: block;
+    padding: 1em 1em 1em 1.5em;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+    cursor: pointer;
+    text: black;
+    text-decoration: none;
+}
+
+.PickerGUI .podcast:visited {
+    text: black;
+}
+
+.PickerGUI .podcast:hover {
+    background: #e9f2b8;
+    border-color: #d5dea5;
+}
+
+.PickerGUI .podcast .title {
+    margin: 0 0 0.1em;
+    font-size: 1.35em;
+}
+
+.PickerGUI .podcast .metadata {
+    font-size: 85%;
+    margin-bottom: 1.2em;
+    color: #666;
+    text-transform: capitalize;
+}
+
+/* Search results */
+.PickerGUI .matches_count {
+    background: #979fb4;
+    color: white;
+    text-shadow: 0 1px 0 #60687c;
+    font-weight: normal;
+    border-radius: 20px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    text-align: center;
+    padding: 0.15em 0.5em;
+    bottom: 0;
+}
+
+
+#loading {
+    background: #eee;
+    color: #999;
+    font-weight: bold;
+    font-size: 1.2em;
+    border: 1px solid #999;
+    margin: 1em;
+    text-align: center;
+    padding: 15px;
+}
+#loading span {
+    padding-left: 32px;
+    background: url(images/ajax-loader.gif) left no-repeat;
+}
+
+.CLEAR {
+    clear: both;
+}
+
+.PickerGUI .viewport .viewport_contents {
+    border-left: 1px solid #989da8;
+    border-top: 1px solid transparent;
+    position: relative;
+    top: -1px;
+    min-height: 499px;
+    margin: 0;
+    padding: 0;
+}
+
+.PickerGUI .no_results {
+    font-size: 1.1em;
+    text-align: center;
+    padding: 3em;
+}

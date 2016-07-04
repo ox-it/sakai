@@ -1,0 +1,73 @@
+#chef_start()
+	<script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready( function() {
+		$('#title').keyup( function(e) {
+			var title = e.target.value;
+			title = title.toLowerCase();
+			title = title.replace(/[^a-z,0-9,\- ]/g,"");
+			title = title.replace(/ /g,"-");
+			title = title.replace(/\-+/g, "-");
+			if (title.length > 12) {
+				title = title.substring(0,12)
+			}
+			if (title.match(/\-$/)) {
+				title = title.substring(0,title.length-1);
+			}
+			$('#name').val(title);
+		});
+	});
+	</script>
+#chef_portletContainer()
+#chef_portletContent()
+#if ($mode == "new")
+	#set ($prefix = "newsite")
+#else
+	#set ($prefix = "reusesite")
+#end
+<h3>#springMessage("${prefix}.title")</h3>
+
+<p>
+#springMessage("${prefix}.intro")
+</p>
+
+<form method="post">
+
+<input type="hidden" name="_action" value="act_newsite"/>
+
+<table cellpadding="4px">
+ <tr>
+  <th>
+   <label for="title">#springMessage("site.title")</label>
+  </th>
+  <td>
+  #if ($mode == "new")
+     #springFormInput("command.title" "maxlength='${titleMaxLength}'")
+  #else
+    #springFormInput("command.title" "maxlength='${titleMaxLength}' readonly='true'")
+  #end
+   #springShowErrors("" "")
+  </td>
+ </tr>
+ <tr>
+  <th>
+   <label>#springMessage("site.url")</label>
+  </th>
+  <td>
+   ${siteUrl}#springFormInput("command.name" "")
+   #springShowErrors("" "")
+  </td>
+ </tr>
+</table>
+</p>
+<p class="act">
+ <input type="submit" class="active" value="#springMessage("${prefix}.submit")"/>
+</p>
+<p>
+ <input type="submit" class="active" name="redirectHome" value="#springMessage("button.cancel")"/>
+</p>
+</form>
+
+#chef_portletContentEnd()
+#chef_portletContainerEnd()
+#chef_end()

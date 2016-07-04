@@ -91,13 +91,46 @@ div.tabOn {
 li.autoSaveOffClass { display: none }
 #rwiki_container { height: 100%; width: 100% }
 #guillotineFixer { clear: both }
+
+/* Stop deleting stuff and not testing it :( */
+#toolbarButtonSave {
+	background: url(/library/image/silk/page_save.png) center center no-repeat
+}
+#toolbarButtonBold {
+	background: url(/library/image/silk/text_bold.png) center center no-repeat
+}
+#toolbarButtonItalic {
+	background: url(/library/image/silk/text_italic.png) center center no-repeat
+}
+#toolbarButtonSuper {
+	background: url(/library/image/silk/text_superscript.png) center center no-repeat
+}
+#toolbarButtonSub {
+	background: url(/library/image/silk/text_subscript.png) center center no-repeat
+}
+#toolbarButtonHeading { }
+#toolbarButtonTable {
+	background: url(/library/image/silk/table.png) center center no-repeat
+}
+#toolbarButtonLink {
+	background: url(/library/image/silk/page_link.png) center center no-repeat
+}
+#toolbarButtonImage {
+	background: url(/library/image/silk/picture.png) center center no-repeat
+}
+#toolbarButtonRecover {
+	background: url(/library/image/silk/arrow_undo.png) center center no-repeat;
+	height: 1.7em;
+	vertical-align: middle
+}
+
+
 #toolbarButtonRecover {
 	height: 1.7em;
 	vertical-align: middle
 }
 .editToolBarContainer,.previewToolBarContainer,.autosaveToolBarContainer  {
 	background-color: #efefde;
-	height: 1.7em;
 	padding: 3px;
 	border: 1px solid #ccc
 }
@@ -686,12 +719,24 @@ h6 {
 	padding: 2px;
 	margin: 14px 0px 4px 0px
 }
-.heading-1, .heading-h1 { font-size: 150% }
-.heading-h2 { font-size: 140% }
-.heading-1-1, .heading-h3 { font-size: 130% }
-.heading-h4 { font-size: 120% }
-.heading-1-1-1, .heading-h5 { font-size: 110% }
-.heading-h6 { font-size: 105% }
+.heading-1, .heading-h1 { 
+	font-size: 150%;
+	width: auto; }
+.heading-h2 { 
+	font-size: 140%;
+	width: auto; }
+.heading-1-1, .heading-h3 { 
+	font-size: 130%;
+	width: auto; }
+.heading-h4 { 
+	font-size: 120%;
+	width: auto; }
+.heading-1-1-1, .heading-h5 { 
+	font-size: 110%;
+	width: auto; }
+.heading-h6 { 
+	font-size: 105%;
+	width: auto; }
 .quote {
 	font-style: italic;
 	color: inherit;
@@ -753,22 +798,26 @@ h6 {
 	border: 1px solid #5B5B5B
 }
 /* special formatting of a wiki table */
-.wiki-table { empty-cells: show; width: 100%; max-width: 100% }
+.listHier { width:auto !important; }
+.wiki-table { 
+	empty-cells: show;
+	max-width: 100%;
+	margin-left: 2em;
+	border: thin;
+	border-style: solid;
+}
 .wiki-table td {
-	border-top: 1px solid #5b5b5b;
 	padding: 4px 4px 4px 4px
 }
 .wiki-table th {
-	border-top: 1px solid #5b5b5b;
 	text-align: left;
 	padding: 4px 4px 4px 4px;
 	color: inherit;
 	font-weight: bold;
 	/* background-color: #DDEEFF; */
-	background: #eee;
 	color: inherit
 }
-.wiki-table .table-odd { }
+.wiki-table .table-odd { background: #eeeeee; }
 .wiki-table .table-even { }
 /************************************************/
 /* list formatting                              */
@@ -782,9 +831,15 @@ h6 {
 	list-style-type: none
 }
 /* wiki lists */
-ul {padding:.5em;list-style-position:inside;}
+.rwikiRenderedContent ul,.rwiki_renderedContent ul{
+	padding: 0 0 0 2em;
+}
 ul.minus { list-style-type: square }
 ul.star { list-style-type: circle }
+ol {
+	padding: 0 0 0 2em !important;
+}
+ol.decimal { list-style-type: decimal}
 ol.roman { list-style-type: lower-roman }
 ol.ROMAN { list-style-type: upper-roman }
 ol.alpha { list-style-type: lower-alpha }

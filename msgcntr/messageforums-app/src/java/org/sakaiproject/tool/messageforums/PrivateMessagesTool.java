@@ -1438,7 +1438,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    selectedTopicTitle = getExternalParameterByKey(EXTERNAL_WHICH_TOPIC);
 
 	    //set prev/next topic details
-	    PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNullWithAllTopics(getUserId());
+	    PrivateForum pf = forumManager.getPrivateForumByOwnerAreaNull(getUserId());
 	    
 	    if (pf == null)
 	    {
@@ -5004,9 +5004,9 @@ private   int   getNum(char letter,   String   a)
 			if(decoMessage.getIsSelected())
 			{
 				msgSelected = true;
-				if (readStatus) {
+				if (readStatus && !decoMessage.isHasRead()) {
 					prtMsgManager.markMessageAsReadForUser(decoMessage.getMsg());
-				} else {
+				} else if(!readStatus && decoMessage.isHasRead()) {
 					prtMsgManager.markMessageAsUnreadForUser(decoMessage.getMsg());
 				}
 

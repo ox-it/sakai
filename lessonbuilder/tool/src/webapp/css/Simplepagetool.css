@@ -20,7 +20,44 @@
    background-image: url("simplepage-theme/images/ui-icons_222222_256x240.png") !important;
 }
 
+.ui-dialog label {
+   padding-left: 0.5em;
+   font-weight: normal;
+}
+
 /* end override */
+
+/* override weird setting in tool.css */
+
+/* was -20 left, position absolute */
+.lessonsDialog .checkbox  input[type="checkbox"],
+.lessonsDialog .radio  input[type="radio"] {
+   position:static;
+   margin-left:0px;
+}
+
+/* was 20 px left margin for label */
+.lessonsDialog .radio label,
+.lessonsDialog .checkbox label {
+  padding-left: 4px;
+}
+
+/* end override */
+
+/* wrap unbreakable words */
+#content {
+  word-wrap:break-word;
+  overflow-wrap:break-word;
+}
+/* without this, these divs expand beyond the width of the column if there's an unbreakable word */
+.right-col, .contentCol {
+  max-width:100%;
+}
+
+.gradingPane {
+  padding-top: 20px;
+  padding-left: 10px;
+}
 
 .title-tools h2{
 	padding-top: 0px;
@@ -76,15 +113,8 @@
 .nextprev {
 	font-size: 95% !important
 }
-#error {
-	left: 10px;
-	margin: 20px;
-}
 .neoPortletTitleWrap {
 	padding-bottom: 4px;
-}
-.portletTitle .title, .portletTitle .action {
-	padding-bottom: 0px !important;
 }
 .breadcrumbs a[title="Reset"] {
 
@@ -205,7 +235,19 @@ a.ui-button:link, a.ui-button:visited {
 .ui-buttonset .ui-button {
     margin-right: 3px !important;
 }
-
+body .below-link-help, #error.below-link-help {
+   margin-top:55px;
+}
+body .error-spacingabove {
+   margin-top: 30px;
+}
+body .error-nospacebelow {
+   margin-bottom: 0px;
+}
+/* if two errors in a row, we don't need the spacing between them */
+body .error-spacingabove + .error-spacingabove{
+   margin-top: 15px;
+}
 /* ff2, buttons don't work */
 a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merge-link:visited, a.column-merge-link:link, a.column-merge-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
 	text-decoration: none !important;
@@ -218,7 +260,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	padding: 0.25em 0.8em !important
 }
 .itemclass {
-	margin-top: 1.0em;
+	margin-top: 2.0em;
 	margin-bottom: 1.0em;
 }
 .rowdescription {
@@ -244,62 +286,212 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	margin-bottom: 0.5em;
 }
 
+.newItem {
+   border-left: 5px solid black !important;
+   margin-left: -5px;
+}
+.listHierFlex {
+  display:inline-block;
+}
+.hierFlexList {
+   display:flex;
+}
+.hierFlex1 {
+   display:flex;
+   width:calc(100% - 12em);
+   margin-right:2px;
+}
+.hierFlex2 {
+   display:flex;
+   width:14em;
+}
+.listHier .forumTopic {
+   margin-left: 1em;
+}
 .mainList {
+    list-style:none;
 }
 
+/* padding-top 35 for one col, 25 for multiple, 20 in narrow screen */
 .column {
     margin: 7px 15px;
     padding: 15px 7px;
+    padding-top: 25px;
     list-style:none;
-    background-color: #f6f6f6;
     background-color: white;
-    border-left: solid #c8c8c8 1px;
-    border-right: solid #c8c8c8 1px;
     -webkit-border-radius: 7px;
     -moz-border-radius: 7px;
     border-radius: 7px;
-    border: 1px solid #ccc;
+    border: 1px solid #222;
     display:inline-block;
     vertical-align: top;
 }
 
 /* only up to 4 cols has been tuned */
 .cols9 {
-    width: calc(11.1% - 36px) !important;
+    width: calc(100$ / 9  - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols9"][class~="double"] {
+    width: calc(200% / 9 - 17px) !important;
 }
 .cols8 {
-    width: calc(12.5% - 36px) !important;
+    width: calc(100% / 8 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols8"][class~="double"] {
+    width: calc(200% / 8 - 17px) !important;
 }
 .cols7 {
-    width: calc(14.2% - 36px) !important;
+    width: calc(100% / 7 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols7"][class~="double"] {
+    width: calc(200% / 7 - 17px) !important;
 }
 .cols6 {
-    width: calc(16.6% - 36px) !important;
+    width: calc(100% / 6 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols6"][class~="double"] {
+    width: calc(200% / 6 - 17px) !important;
 }
 .cols5 {
-    width: calc(20% - 36px) !important;
+    width: calc(100% / 5 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols5"][class~="double"] {
+    width: calc(200% / 5 - 17px) !important;
 }
 .cols4 {
-    width: calc(25% - 36px) !important;
+    width: calc(100% / 4 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols4"][class~="double"] {
+    width: calc(200% / 4 - 17px) !important;
 }
 .cols3 {
-    width: calc(33% - 34px) !important;
+    width: calc(100% / 3 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols3"][class~="double"] {
+    width: calc(200% / 3 - 17px) !important;
 }
 .cols2 {
-    width: calc(50% - 39px) !important;
+    width: calc(100% / 2 - 17px) !important;
     margin-right: 2px !important;
 }
+[class~="cols2"][class~="double"] {
+    width: calc(200% / 2 - 17px) !important;
+}
 .cols1 {
-    width: calc(100% - 46px) !important;
+    padding-top:35px;
+    width: calc(100% - 17px) !important;
+}
+/* this is to prevent the last column from going to a new
+   line if the calculation is a bit off. */
+.lastcol {
+    margin-right:-10px !important;
 }
 
+/* with multiple columns don't want as wide spacing */
+.cols2 .right-col {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.cols3 .right-col,.cols4 .right-col,.cols5 .right-col,.cols6 .right-col,.cols7 .right-col,.cols8 .right-col,.cols9 .right-col {
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+.split ul {
+    -webkit-column-count: 2;
+    -moz-column-count: 2;
+    column-count: 2;
+}
+.split .edit-col {
+    right:0px;
+}
+
+
+.coltrans {
+   border-color: transparent;
+}
+/* 
+   Any changes shoud be checked to make sure they have enough
+   contrast for accessiblity. These colors have been checked
+   against the WebAIM Color Contrast Checker. I've tried to
+   make them subjectively the same darkness.
+*/
+/* default */
+.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .checklistDiv {
+  background-color: #b3ecff;
+}
+.column a[href]{
+  color: #004860;
+}
+.colgray {
+   background-color: #f0f0f0;
+   border-color: #222;
+}
+.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .checklistDiv {
+  background-color: #b8b8b8;
+}
+.colgray a[href]{
+  color:black;
+}
+.colred {
+   background-color: #fff0f0;
+   border-color: #600;
+   color: #4660000;
+}
+.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .checklistDiv {
+  background-color: #ffb3b3;
+}
+.colred a[href], .colred h3.author {
+  color: black;
+}
+.colblue {
+   background-color: #f4f4ff;
+   background-color: #e6f9ff;
+   border-color: #004;
+   color: #004;
+}
+.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .checklistDiv {
+  background-color: #b3d9ff;
+  background-color: #99e7ff;
+}
+.colblue a[href] {
+  color: black;
+}
+.colgreen {
+   background-color: #f6fff6;
+   border-color: #030;
+   color: #030;
+}
+.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .checklistDiv {
+  background-color: #9fc;
+}
+.colgreen a[href] {
+  color: black;
+}
+.colyellow {
+   background-color: #ffffe8;
+   border-color: #840;
+   color: #4b2600;
+}
+.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .checklistDiv {
+  background-color:  #ffd480
+}
+.colyellow a[href],.colyellow h3.author {
+  color: black;
+}
+
+
+
+.columnopen, .addbottom {
+  text-decoration: none;
+}
 .mainList li {
     position: relative;
 }
@@ -368,17 +560,10 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
 	font-size: 60%;
 }
-
-.sectionedit {
-   top: -37px;
-   position:absolute;
-   font-size: 60%;
-   padding: 7px;
+.edit-col {
+  font-size: 20px;
+  line-height: 24px;
 }
-.sectionedit a span {
-   color: rgb(102,102,102);
-}
-
 .buttonItem {
 	padding-left: 20px
 }
@@ -393,6 +578,97 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     float:none;height:100%;overflow:hidden;margin:1em 0
 }
 
+.forum-summary-div{
+ border: 1px solid #ccc;
+ float: left;
+ overflow-y: scroll;
+ text-align: left;
+ background-color: #fff;
+ width: 550px;
+}
+
+.announcements-div{
+ border: 1px solid #ccc;
+ float: left;
+ margin: 30px 10px 30px 0;
+ overflow-y: scroll;
+ text-align: left;
+ background-color: #fff;
+ width: 550px;
+ }
+.announcementsHeaderDiv{
+position: relative;
+width: 100.0%;
+max-height: 240.0px;
+vertical-align: top;
+overflow: hidden;
+background-color: #eee;
+}
+.announcementSummaryHeader{
+font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+border-bottom:1px solid #ccc;
+padding: 10px 0px 10px 15px;
+font-size: 1.2em;
+letter-spacing: normal
+}
+.itemDiv {
+padding: 10px 15px 0 15px
+}
+
+.twitter-div{
+    overflow-y: auto;
+    float: left;margin:
+        0 10.0px 20.0px 0;
+    clear: right;
+}
+.forumSummaryHeaderDiv{
+ position: relative;
+ width: 100.0%;
+ max-height: 240.0px;
+ vertical-align: top;
+ overflow: hidden;
+ background-color: #eee;
+}
+.forumSummaryHeader{
+ font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+ border-bottom:1px solid #ccc;
+ padding: 10px 0px 10px 15px;
+ font-size: 1.2em;
+ letter-spacing: normal
+}
+.forumSummaryLink{
+ text-decoration: none;
+ color: #444
+}
+.forumSummaryDate{
+ font-size:12px;
+ color:#000;
+ font-weight: normal;
+}
+.forumSummaryList{
+ list-style: none;
+ padding: 0 15px;
+ font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+ color: #666
+}
+.edit-twitter-div{
+    float:left;
+}
+
+.forumSummaryItem{
+ margin-bottom: 10px;
+}
+
+.itemTitle {
+    font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+    color: #666;
+}
+
+.itemDate {
+    font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
+    font-size: 12px;
+}
+
 .layoutReorderer-module-content {
     padding: 6px;
     width: 95%;
@@ -403,7 +679,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     border: 1px solid #ccc;
     margin:5px 0;
     position:relative;
-    padding:5px;
+    padding: 0px 0px 0px 0px;
 }
 .flc-reorderer-module:focus {
     outline:1px dashed #000
@@ -414,13 +690,14 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .reordSeqContainer {
     position: absolute;
     width:50px;
-    top:5;
-    left:0;
-    padding:5px;
+    top:2px;
+    left:5px;
+    padding:0px;
     
 }
+
 .reordItemContainer {
-     padding: 5px 20px 5px 30px;
+     padding: 0px 20px 0px 30px;
 }
 .reordItemContainerDesc {
     margin-top:5px;
@@ -443,7 +720,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .reordDeleteContainer {
     position: absolute;
     width:17px;
-    top:5px;
+    top:1px;
     right:5px;
 
 }
@@ -525,6 +802,13 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	background-color: #edd !important;
 	color:black !important;
 }
+.showItemMorpheus .returnheader a:link, .showItemMorpheus .returnheader a:visited,
+.showItemMorpheus .returnheader a:hover,.showItemMorpheus .returnheader a:active {
+	background-color: inherit !important;
+	border: none;
+	text-decoration:underline !important;
+}
+
 /* Comments */
 h3.author {
 	margin-right: 10px;
@@ -664,6 +948,15 @@ a.peer-eval-stats {
 .duecol {
 	padding-left: 2em !important
 }
+
+/* negative bottom margin because we set a top margin for the section below for the case where there's no toolbar */
+#toolbar {
+  padding:2px;
+  margin:0px;
+  margin-bottom:-10px;
+  display:inline-block !important;
+}
+
 /* Dropdown Menu */
 ul#toolbar li {
 	display: inline;
@@ -704,6 +997,12 @@ ul#toolbar li em {
     padding-left: 7px !important;
     display:block;
 }
+.addContentMessage {
+    margin-top:10px;
+    margin-bottom:20px;
+    padding: 10px !important;
+    display:block;
+}
 .dropDownDiv li:first-child {
     border-top:none !important;
 }
@@ -714,7 +1013,23 @@ ul#toolbar li em {
 .dropDownDiv li div {
     font-size: .85em !important
 }
+.Mrphs-siteHierarchy span.nextprev {
+   float:right
+}
+.lessons-siteHierarchy-title {
+   font-weight: bold;
+   margin-left: 0.5em;
+}
+.itemAction {
+  padding-top: 0px;
+  margin-top: 0px;
+  position:relative;
+  top:-4px;
+}
 span.nextprev {
+}
+.crumb-link {
+  margin-right: 0.5em;
 }
 a.nextprev {
 	margin-left: 5px;
@@ -736,7 +1051,7 @@ img {
 .unsubmitted {
 	background-color: #FFC9D7
 }
-.gradingPaneLink span, .showPollGraph span {
+.showPollGraph span {
 	font-size: 70%;
 	font-weight: normal;
 }
@@ -770,7 +1085,7 @@ img {
 	padding: 1px 5px;
 	display: inline-block;
 	font-size: 90%;
-	background-color: #acf;
+	border: solid 1px;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
@@ -828,11 +1143,20 @@ img {
  font-size:85%;
 }
 input[type="submit"].question-submit,.addStudentContent {
+   margin: inherit;
    margin-top:15px;
-   border-color:#aaa;
+   border:1px solid #999;
+   color: black !important;
+   font-family: inherit;
+   cursor: pointer;
    padding:6px 20px !important;
-   background:none;
+   background:#f0f0f0;
    font-weight: normal;
+   font-size: inherit;
+   letter-spacing: inherit;   
+   line-height: inherit;
+   border-radius: 3px;
+   position: static;
 }
 
 .questionDiv .contentCol {
@@ -921,14 +1245,16 @@ div[role="dialog"] {
     width: 100%;
     height: 100%;
 }
-.portletTitle .action {
-    padding: 2px -1px 6px 2px;
-    float: right;
-    vertical-align: middle;
+.action {
+  display:inline-block;
+  float:right !important;
 }
-.Mrphs-toolTitleNav .action {
-    display: inline-block;
+.action {
+  margin-top:5px;
 }			      
+.Mrphs-siteHierarchy {
+    height: auto !important;
+}
 .portletTitle .action a#jsr-edit {
     padding: 2px;
     background: url(../images/page_edit.gif) center right no-repeat;
@@ -967,20 +1293,6 @@ div[role="dialog"] {
 }
 .portletTitle .action a.tool-directurl:hover{
     background: url(/library/image/silk/link_go.png) center right no-repeat;
-}
-.portletTitle .action a.Mrphs-toolTitleNav__link--directurl{
-    background: none;
-    display:inline
-}
-.portletTitle .action a.Mrphs-toolTitleNav__link--directurl:hover{
-    background: none
-}
-a.Mrphs-toolTitleNav__link--help-popup {
-    display:inline
-}
-a.Mrphs-toolTitleNav__link--reset {
-    display:inline;
-    border:none !important
 }
 .direct-url-wrap {
     font-size: 85%;
@@ -1024,11 +1336,12 @@ a.Mrphs-toolTitleNav__link--reset {
     background: url(../images/reload_h.gif) center left no-repeat
 }
 
-/*
- alternate treatment for list - can go in tool.css
-*/
 .right-col {
  display: inline-block;
+}
+/* types that need to span the full column */
+.multimediaType .right-col, .textType .right-col {
+ width:100%;
 }
 .right-col2 {
  left:5px;
@@ -1036,24 +1349,8 @@ a.Mrphs-toolTitleNav__link--reset {
 .right-col3 {
  left:10px;
 }
-
-.Mrphs-toolTitleNav__title {
-  width: auto !important;
-}
-.Mrphs-container--toolTitleNav {
-  text-align:right;
-}
-.Mrphs-toolTitleNav__title {
-  float:left;
-  text-align:left;
-}
-.returnwarning, .returnheader, .Mrphs-toolTitleNav__addLeft .usebutton span {
+.returnwarning, .returnheader, .xMrphs-toolTitleNav__addLeft .usebutton span {
   font-size: .75em;
-}
-.Mrphs-toolTitleNav__addRight {
-  display:inline-block
-}
-#content, #outer, nav.Mrphs-toolTitleNav {
 }
 #content{
   padding-top: 1px;
@@ -1061,6 +1358,7 @@ a.Mrphs-toolTitleNav__link--reset {
 }
 div.navIntraTool {
   border-top:none;
+  margin-bottom:
 }
 
 /* temporary, to avoid changing old stuff for the moment */
@@ -1093,21 +1391,43 @@ padding:1px;
 color: #666;
 }
 
-.sectionedit {
+/* position relative with no args does nothing, but editsection's position absolute needs it as a refernce */
+.column {
+   position:relative;
+}
+.editsection {
    position:absolute;
-   top: -37px;
+   top:-12px;
+}
+.sectionedit {
+   display:inline-block;
    background-color:#eee;
    z-index: 900;
    -webkit-border-radius: 3px;
    -moz-border-radius: 3px;
    border-radius: 3px;
    border: solid #bbb 1px;
-   padding:3px 5px 0px 5px ;
-   font-size: 60%;
-   line-height: 200%;
+   padding: 0px 5px 0px 5px ;
+   font-size: 20px;
+   line-height: 24px;
 }
 .sectionedit a span {
    color: #666;
+}
+.addbottom {
+   position:absolute;
+   top: auto;
+   bottom:0px;
+   right:0px;
+}
+.addbottom a {
+   text-decoration: none;
+}
+
+/* if ckeditor overflows column, keep it on top, but under chat window */
+.evolved-box {
+  position:relative;
+  z-index:100002;
 }
 
 .right-col a {
@@ -1143,7 +1463,7 @@ li.resourceType .right-col {
  border:none;
 }
 .itemclass {
- margin-top:2.0em !important;
+ margin-top:3.0em !important;
 }
 .add-comment-button span {
 font-size: 90%;
@@ -1155,30 +1475,116 @@ font-size: 90%;
  padding: 5px 10px;
 }
 
+/* in full width mode, if we don't do this, and the
+   first region is split, the right column doesn't fit
+   must be overridden for narrow format */
+.Mrphs-container--toolTitleNav {
+  margin-bottom:-30px !important;
+}
+
+/* for ShowItem */
+.itemHeader {
+}
+.itemHeader-resource {
+  margin-bottom:20px; 
+  border-bottom:none;
+}
+.itemTitle .title-instruction {
+  margin-bottom:0px;
+}
+.itemTitle {
+  line-height:10px;
+  margin-bottom:5px;
+}
+/* without this it sticks up 1px into the top bar */
+.portletBody {
+  margin-top:2px;
+}
 /* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
-.contentButton {
-  display:none !important;
+.Mrphs-container--toolTitleNav {
+  margin-bottom: 0px !important;
+}
+.genTitle {
+  display:none;
+}
+/* student mode only */
+.genTitle ~ .action {
+  margin-top:-5px;
+}
+.itemclass {
+  margin-top: 0.5em !important;
+}
+.itemTitle {
+  width: calc(100% - 100px);
+  padding-top:0px;
+  margin-top:10px;
+}
+.removeNarrow {
+ display:none !important;
 }
 .column {
   margin-left: 2px;
   margin-right: 2px;
-}
-div.section ul.cols2 {
-    width: calc(50% - 20px) !important;
+  padding-top: 20px;
 }
 .right-col {
   padding-left: 7px;
   padding-right: 7px;
 }
+.split ul {
+    -webkit-column-count: 1;
+    -moz-column-count: 1;
+    column-count: 1;
+}
 /* with narrow screen, don't use multiple columns */
-.cols1, .cols2, .cols3, .cols4, .cols5, .cols6, .cols7, .cols8, .cols9 {
+.cols1, .cols2, .cols3, .cols4, .cols5, .cols6, .cols7, .cols8, .cols9, 
+[class~="cols9"][class~="double"],
+[class~="cols8"][class~="double"],
+[class~="cols7"][class~="double"],
+[class~="cols6"][class~="double"],
+[class~="cols5"][class~="double"],
+[class~="cols4"][class~="double"],
+[class~="cols3"][class~="double"],
+[class~="cols2"][class~="double"],
+[class~="cols1"][class~="double"]
+ {
     width: calc(100% - 20px) !important;
 }
+/* override special spacing for multiple columsn in default page width */
+.cols2 .right-col,.cols3 .right-col,.cols4 .right-col,.cols5 .right-col,.cols6 .right-col,.cols7 .right-col,.cols8 .right-col,.cols9 .right-col {
+  padding-left: 7px;
+  padding-right: 7px;
 }
-
+}
+/* 480 is boundary of most phones */
+@media only screen and (max-width: 480px) {
+.col1{
+   width: 100%;
+}
+.col2 {
+   width: calc(100% - 15px);
+}
+.hierFlex1 {
+   width:auto;
+}
+.hierFlex2 {
+   display:none;
+}
+}
 .lessonsToolButton {
   border-radius:15px !important;
+}
+.addcontent-icontext {
+  line-height:25px; 
+  vertical-align:-3px;
+  font-size:200%
+}
+.bottomButtons {
+  width:100%
+}
+.bottomRight {
+  float:right
 }
 .contentButton span {
   padding: 0px !important;
@@ -1189,6 +1595,8 @@ div.section ul.cols2 {
 .navIntraTool li.contentButton a {
   padding-top:2px !important;
   padding-bottom:2px !important;
+}
+.navIntraTool li.contentButton a .fa-button-text {
   font-family:FontAwesome;
 }
 .fa-item-text {
@@ -1198,15 +1606,189 @@ div.section ul.cols2 {
   font-family:FontAwesome;
 }
 .fa-edit-icon{
-  font-size:200%;
+  font-size:16px;
   font-weight: normal;
   color: #aaa;
   font-family:FontAwesome;
 }
 .fa-group-icon {
-  font-size:200%;
+  font-size:16px;
   font-family:FontAwesome;
 }
 .mainList li:hover.canEdit {
     background-color: #eee;
+}
+.peer-eval-row .newPeerCell {
+   background-color: rgb(173,216,230) !important;
+}
+.peer-eval-row .selectedPeerCell {
+/* nothing - used to save information */
+}
+
+.Mrphs-siteHierarchy span:last-child {
+  margin-left: 6px;
+}
+.contentButton span a {
+  height: 24px;
+}
+.contentButton {
+  height: 26px;
+  line-height: 21px;
+  margin-top: 3px !important;
+  z-index:900;
+}
+.Mrphs-siteHierarchy .action .lessonsToolButton {
+  background-color: transparent;
+  padding-top: 1px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.startupHelp {
+  margin-top: 45px;
+}
+/* this section is to make things work when lessons is in an iframe */
+.contentButton span a {
+  display:inline-block !important;
+  border:1px solid #e0e0e0;
+}
+body > .portletBody {
+  margin-top:-15px;
+  padding-top:0px;
+  padding-bottom:0px;
+}
+.oldPortal + .navIntroTool {
+}
+.oldPortal .title {
+
+}
+.oldPortal + .navIntraTool {
+  padding-top:0px;
+}
+.title-tools {
+  line-height:30px;
+}
+.oldPortal + .navIntraTool {
+  border: none;
+}
+.oldPortal + .navIntraTool #toolbar{
+ margin-top:5px;
+ margin-bottom:0px;
+}
+/* old portal, but only for students. instructors need more spacing */
+.oldPortal ~ .itemclass {
+  margin-top: 0.0em !important;
+}
+/* put back default value if an instructor */
+.navIntraTool ~ div.itemclass {
+  margin-top: 3.0em !important;
+}
+.title-tools {
+  float:none;
+  position:static;
+  margin-bottom:0px !important;
+}
+.oldPortal .title {
+  display: inline-block;
+  float:none !important;
+  text-align: left;
+}
+.oldPortal .action {
+     margin-top:0px;
+ }
+@media only screen and (min-width: 855px) {
+/* student mode only */
+body > .portletBody > .action {
+  margin-right:150px;
+}
+.oldPortal .action {
+     margin-top:20px;
+   }
+}
+.oldPortal + .navIntraTool {
+   margin-top: -10px;
+}
+/* end lessons in iframe */
+/* narrow screen */
+
+/* print */
+@media print {
+
+.oldPortal .portletTitle {
+  padding-top: 30px !important
+}
+
+.cols9 {
+    width: calc(100$ / 9  - 32px) !important;
+}
+[class~="cols9"][class~="double"] {
+    width: calc(200% / 9 - 32px) !important;
+}
+.cols8 {
+    width: calc(100% / 8 - 32px) !important;
+}
+[class~="cols8"][class~="double"] {
+    width: calc(200% / 8 - 32px) !important;
+}
+.cols7 {
+    width: calc(100% / 7 - 32px) !important;
+}
+[class~="cols7"][class~="double"] {
+    width: calc(200% / 7 - 32px) !important;
+}
+.cols6 {
+    width: calc(100% / 6 - 32px) !important;
+}
+[class~="cols6"][class~="double"] {
+    width: calc(200% / 6 - 32px) !important;
+}
+.cols5 {
+    width: calc(100% / 5 - 32px) !important;
+}
+[class~="cols5"][class~="double"] {
+    width: calc(200% / 5 - 32px) !important;
+}
+.cols4 {
+    width: calc(100% / 4 - 32px) !important;
+}
+[class~="cols4"][class~="double"] {
+    width: calc(200% / 4 - 32px) !important;
+}
+.cols3 {
+    width: calc(100% / 3 - 32px) !important;
+}
+[class~="cols3"][class~="double"] {
+    width: calc(200% / 3 - 32px) !important;
+}
+.cols2 {
+    width: calc(100% / 2 - 32px) !important;
+}
+[class~="cols2"][class~="double"] {
+    width: calc(200% / 2 - 32px) !important;
+}
+.cols1 {
+    width: calc(100% - 32px) !important;
+}
+}
+/* end media print */
+
+/* high z-index for items in morpheus. We use large z-index to make sure we go on top
+   of any video players or other embedded content. That requires larger values for some
+   elements of Morpheus. */
+
+/* directURL popup */
+nav.Mrphs-container--toolTitleNav {
+        z-index: 100001 !important;
+}
+/* menu off user icon, site menu in narrow, site menu in  wide mode */
+.Mrphs-mainHeader, .Mrphs-skipNav__menu, #selectSiteModal {
+        z-index: 100002 !important;
+	position:relative;
+}
+/* chat open button */
+#Mrphs-footerApp__chat {
+        z-index: 100003 !important;
+}
+/* actual portal chat */
+.Mrphs-portalChat {
+        z-index: 100004 !important;
 }

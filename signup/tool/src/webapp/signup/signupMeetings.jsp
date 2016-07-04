@@ -10,6 +10,9 @@
 		<style type="text/css">
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
+		<link href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" type="text/css" rel="stylesheet" media="all"/>
+		<script language="javascript" type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+		<script language="javascript" type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js"></script>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
 		
@@ -81,7 +84,8 @@
 		         		i++;
 		         	}
 		         	//reSize the iFrame
-		         	//signup_resetIFrameHeight(iFrameId);//no refresh			
+		         	//signup_resetIFrameHeight(iFrameId);//no refresh
+			         resizeFrame('grow');
 		         }
 
 		         function resetRecurRows(recurRowId){
@@ -199,35 +203,31 @@
 				</h:panelGrid>
 				
 				
-				<h:panelGrid columns="3">
+				<div class="form-group row">
 					<!-- view range dropdown -->
-					<h:panelGroup>
-						<h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" />
+					<h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" styleClass="form-control-label col-lg-1 col-md-1"/>
+					<div class="col-lg-3 col-md-3">
 						<h:selectOneMenu id="viewByRange" value="#{SignupMeetingsBean.viewDateRang}" valueChangeListener="#{SignupMeetingsBean.processSelectedRange}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{SignupMeetingsBean.viewDropDownList}"/>
 						</h:selectOneMenu>
-					</h:panelGroup>
-					
+					</div>
 					<!-- filter by category dropdown -->
-					<h:panelGroup>
-						<h:panelGroup styleClass="padLeft"> 
-							<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" />
-							<h:selectOneMenu id="viewByCategory" value="#{SignupMeetingsBean.categoryFilter}" valueChangeListener="#{SignupMeetingsBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
-								<f:selectItems value="#{SignupMeetingsBean.allCategoriesForFilter}"/>
-							</h:selectOneMenu>
-						</h:panelGroup>
-					</h:panelGroup>
-					
+					<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" styleClass="form-control-label col-lg-2 col-md-2"/>
+					<div class="col-lg-2 col-md-2">
+						<h:selectOneMenu id="viewByCategory" value="#{SignupMeetingsBean.categoryFilter}" valueChangeListener="#{SignupMeetingsBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
+							<f:selectItems value="#{SignupMeetingsBean.allCategoriesForFilter}"/>
+						</h:selectOneMenu>
+					</div>
 					<!--  expand all recurring meetings -->
-					<h:panelGroup>
-						<h:panelGroup styleClass="padLeft" rendered="#{SignupMeetingsBean.enableExpandOption && SignupMeetingsBean.meetingsAvailable}">
-							<h:selectBooleanCheckbox value="#{SignupMeetingsBean.showAllRecurMeetings}" valueChangeListener="#{SignupMeetingsBean.processExpandAllRcurEvents}" onclick="submit();"/>
-							<h:outputText value="#{msgs.expand_all_recur_events}" escape="false"/>
+					<h:panelGroup layout="block" styleClass="col-lg-4 col-md-4" rendered="#{SignupMeetingsBean.enableExpandOption && SignupMeetingsBean.meetingsAvailable}">
+						<h:panelGroup >
+								<h:selectBooleanCheckbox value="#{SignupMeetingsBean.showAllRecurMeetings}" valueChangeListener="#{SignupMeetingsBean.processExpandAllRcurEvents}" onclick="submit();"/>
+								<h:outputText value="#{msgs.expand_all_recur_events}" escape="false"/>
 						</h:panelGroup>
 						<h:outputText value="&nbsp;" escape="false" rendered="#{!SignupMeetingsBean.enableExpandOption}"/>
 					</h:panelGroup>
-				</h:panelGrid>
-				
+				</div>
+
 				<h:panelGrid columns="1" styleClass="noMeetingsWarn" rendered="#{!SignupMeetingsBean.meetingsAvailable}" >
 					<h:panelGroup>
 						<h:outputText value="#{SignupMeetingsBean.meetingUnavailableMessages}" escape="false" rendered="#{SignupMeetingsBean.userLoggedInStatus}"/>
@@ -235,7 +235,7 @@
 					</h:panelGroup>
 				</h:panelGrid>	
 				<h:panelGroup rendered="#{SignupMeetingsBean.meetingsAvailable}">
-								 	
+					<div class="table-responsive">
 				 	<t:dataTable 
 				 		id="meetinglist"
 				 		value="#{SignupMeetingsBean.signupMeetings}"
@@ -246,8 +246,8 @@
 				 		rowId="#{wrapper.recurId}"
 				 		rowStyle="#{wrapper.hideStyle}"
 				 		rowClasses="oddRow,evenRow"
-				 		columnClasses="removeCol, titleCol, creatorCol, locationCol, dateCol, timeCol, statusCol"
-				 		styleClass="signupTable">
+					    columnClasses="titleCol, mobileCol, creatorCol, locationCol, dateCol, timeCol, statusCol, removeCol"
+				 		styleClass="table table-bordered table-hover table-striped">
 	
 						<t:column defaultSorted="true" sortable="true">
 							<f:facet name="header" >
@@ -255,7 +255,7 @@
 									<h:outputText value="#{msgs.tab_event_name}" escape="false"/>
 								</t:commandSortHeader>
 							</f:facet>
-							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" style="margin-left:-13px; cursor:pointer;">
+							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}" styleClass="toggleMeetings">
 								<h:outputText value="<span id='imageOpen_RM_#{wrapper.recurId}' style='display:none'>"  escape="false"/>
 		   	    					<h:graphicImage value="/images/minusSmall.gif"  alt="open" styleClass="openCloseImageIcon" title="#{msgs.event_tool_tips_collapse_recur_meeting}" style="border:none" onclick="showDetails('imageOpen_RM_#{wrapper.recurId}','imageClose_RM_#{wrapper.recurId}');showAllRelatedRecurMeetings('#{wrapper.recurId}','#{SignupMeetingsBean.iframeId}');" />
 		   	    				<h:outputText value="</span>" escape="false" />
@@ -270,8 +270,27 @@
 								<h:outputText value="#{wrapper.meeting.title}" />
 							</h:commandLink>							
 						</t:column>
-						
-						<t:column sortable="true">
+
+					    <t:column sortable="false">
+							<f:facet name="header">
+								<h:outputText value="#{msgs.signup_mobile_title}" escape="false"/>
+							</f:facet>
+							<f:verbatim>
+								<a href="#" class="mobile-info-link">
+									<img src="/library/image/m_ox.png" alt="m.ox info"/>
+								</a>
+							</f:verbatim>
+							<!-- hidden div to store meetingId -->
+							<f:verbatim>
+								<span class="meetingId" style="display:none;">
+								</f:verbatim>
+									<h:outputText value="#{wrapper.meetingId}" escape="false"/>
+								<f:verbatim>
+								</div>
+							</f:verbatim>
+						</t:column>
+
+					<t:column sortable="true">
 							<f:facet name="header">
 								<t:commandSortHeader columnName="#{SignupMeetingsBean.signupSorter.createColumn}" immediate="true" arrow="true">
 									<h:outputText value="#{msgs.tab_event_owner}" escape="false"/>
@@ -310,7 +329,7 @@
 									<f:convertDateTime  pattern="EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{wrapper.meeting.startTime}">
-									<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
+									<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 							</h:panelGroup>
 						</t:column>
@@ -378,7 +397,7 @@
 							<h:selectBooleanCheckbox value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}" onclick="determineDeleteMessage(this, #{wrapper.recurEventsSize >1});"/>							
 						</t:column>				
 						
-					</t:dataTable>
+					</t:dataTable></div>
 					
 					<h:panelGrid columns="1">
 						<h:outputText value="&nbsp;" escape="false"/>
@@ -389,8 +408,23 @@
 					</h:panelGrid>
 				</h:panelGroup>
 			 </h:form>
+			<!-- hidden div to store siteid -->
+			<f:verbatim>
+				<div id="siteId" style="display:none;">
+				</f:verbatim>
+				<h:outputText value="#{SignupMeetingsBean.currentLocationId}" escape="false"/>
+			<f:verbatim>
+				</div>
+				</f:verbatim>
   		</sakai:view_content>	
 	</sakai:view_container>
-	
+
+	<!-- dialog for mobile oxford -->
+	<div id="dialog" title="Mobile Oxford" style="display:none;">
+		<h3>m.ox URL:</h3>
+		<code id="dialog-mox-url"></code>
+		<h3>QR code:</h3>
+		<img id="dialog-qr-code" alt="QR code"/>
+	</div>
 
 </f:view> 

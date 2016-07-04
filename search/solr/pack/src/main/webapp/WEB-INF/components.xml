@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    <alias alias="org.sakaiproject.search.api.SearchService" name="${search.service.impl}"/>
+    <alias alias="org.sakaiproject.search.api.SearchIndexBuilder" name="${search.indexbuilder.impl}"/>
+    <alias alias="org.sakaiproject.search.indexing.TaskHandler"
+           name="org.sakaiproject.search.solr.indexing.SolrSplitterProcesses"/>
+    <alias alias="org.sakaiproject.search.queueing.IndexQueueing"
+           name="org.sakaiproject.search.queueing.IndexQueueingImpl"/>
+
+    <import resource="solr.xml"/>
+    <import resource="queueing.xml"/>
+    <import resource="producer/contentProducer.xml"/>
+</beans>

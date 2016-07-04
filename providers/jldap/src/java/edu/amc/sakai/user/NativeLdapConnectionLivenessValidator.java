@@ -26,19 +26,28 @@ import org.apache.commons.logging.LogFactory;
 
 import com.novell.ldap.LDAPConnection;
 
-public class NativeLdapConnectionLivenessValidator 
+/**
+ * This doesn't appear to notice when a connection is stalling and continues to
+ * say that's it's ok. However what it does catch is a connection that has been
+ * closed by the server.
+ */
+public class NativeLdapConnectionLivenessValidator
 implements LdapConnectionLivenessValidator {
 
 	/** Class-specific logger */
 	private static Log log = LogFactory.getLog(NativeLdapConnectionLivenessValidator.class);
 	
 	public boolean isConnectionAlive(LDAPConnection connectionToTest) {
-		if ( log.isDebugEnabled() ) {
-			log.debug("isConnectionAlive(): attempting native liveness test");
+		if ( log.isTraceEnabled() ) {
+			log.trace("isConnectionAlive(): attempting native liveness test");
 		}
 		boolean isAlive = connectionToTest.isConnectionAlive();
-		if ( log.isDebugEnabled() ) {
-			log.debug("isConnectionAlive(): native liveness test result [" + isAlive + "]");
+
+		if ( log.isTraceEnabled() ) {
+			log.trace("isConnectionAlive(): native liveness test result [" + isAlive + "]");
+		}
+		if (!isAlive && log.isDebugEnabled()) {
+			log.debug("Connection to "+ connectionToTest.getHost()+ " is down.");
 		}
 		return isAlive;
 	}

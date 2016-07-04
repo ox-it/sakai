@@ -20,16 +20,15 @@ response.setContentType("text/html; charset=UTF-8");
 				pageSize="#{eventLog.pageSize}"
 				accesskeys="true"
 				immediate="true" />
-			
-			<t:dataTable cellpadding="0" cellspacing="0"
-	                        id="userauditTable"
+			<div class="table-responsive">
+			<t:dataTable    id="userauditTable"
 	                        value="#{eventLog.eventLog}"
 	                        var="audit"
 	                        sortColumn="#{eventLog.sortColumn}"
 	                        sortAscending="#{eventLog.sortAscending}"
 	                        first="#{eventLog.firstItem}"
 	                        rows="#{eventLog.rowsNumber}"
-	                        styleClass="listHier userauditTable">
+	                        styleClass="table table-responsive table-hover table-striped">
 	               <h:column>
 					<f:facet name="header">
 						<t:commandSortHeader columnName="userDisplayName" immediate="true" arrow="true">
@@ -44,7 +43,7 @@ response.setContentType("text/html; charset=UTF-8");
 	                           <h:outputText value="#{msgs.event_log_user_id}" />
 	                       </t:commandSortHeader>
 	                   </f:facet>
-	                   <h:outputText value="#{audit.user.eid}" />
+	                   <h:outputText value="#{audit.user.displayId}" />
 	               </h:column>
 	               <h:column>
 	                   <f:facet name="header">
@@ -79,6 +78,7 @@ response.setContentType("text/html; charset=UTF-8");
 	                   <h:outputText value="#{audit.sourceText}" />
 	               </h:column>
 	           </t:dataTable>
+	           </div>
 	       </h:form>
 	</sakai:view>
 </f:view>

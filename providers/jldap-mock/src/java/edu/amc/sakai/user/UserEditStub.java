@@ -60,6 +60,10 @@ class UserEditStub implements UserEdit {
     // BaseResorcePropertiesEdit does not override toString or equals()
 	private ResourcePropertiesEdit properties = new ResourcePropertiesEditStub();
 
+	public UserEditStub(String eid) {
+		this.eid = eid;
+	}
+	
 	public UserEditStub() {
 	}
 

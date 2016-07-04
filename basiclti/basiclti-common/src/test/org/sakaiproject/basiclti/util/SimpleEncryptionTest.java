@@ -4,22 +4,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.Random;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.basiclti.util.SimpleEncryption;
 
 
 public class SimpleEncryptionTest {
 
 	private String CIPHER = "AES/CBC/PKCS5Padding";
 	// Result of SimpleEncryption.encrypt("key", "plain text"));
-	private String goodEncrypt = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f:"+CIPHER;
-	private String goodEncrypt3 = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f";
-	private String badEncryptLength1 = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af:"+CIPHER;
-	private String badEncryptLength2 = "dd94442e437fac:d8e4bee67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f:"+CIPHER;
-	private String badEncryptNotHex = "0bzz94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f:"+CIPHER;
+	private String goodEncrypt128 = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f:"+CIPHER;
+	private String goodEncrypt256 = "35f744dd15559e9e:afbf6031d0033d5e3c71a00e95f3ec8a:8ebd6a18a8c4e1e3374a5718216cefa6:"+CIPHER;
+
+	private String badMissingEnd128 = "0bdd94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af:"+CIPHER;
+	private String badMissingEnd256 = "35f744dd15559e9e:afbf6031d0033d5e3c71a00e95f3ec8a:8ebd6a18a8c4e1e3374a5718216cef:"+CIPHER;
+
+	private String badMissingStart128 = "dd94442e437fac:d8e4bee67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f:"+CIPHER;
+	private String badMissingStart256 = "f744dd15559e9e:afbf60d0033d5e3c71a00e95f3ec8a:8ebd6a18a8c4e1e3374a5718216cefa6:"+CIPHER;
+
+	private String badNotHex128 = "0bzz94442e437fac:d8e4be4ae67a7bdf8f0717cebf425832:133df2f919b2e686a0c4ed5451b5af6f:"+CIPHER;
+	private String badNotHex256 = "35zz44dd15559e9e:afbf6031d0033d5e3c71a00e95f3ec8a:8ebd6a18a8c4e1e3374a5718216cefa6:"+CIPHER;
+
 
 	@Before
 	public void setUp() throws Exception {
@@ -44,17 +48,17 @@ public class SimpleEncryptionTest {
 	
 	@Test(expected=Exception.class)
 	public void testBadDecryptLength1() {
-		SimpleEncryption.decrypt("key", badEncryptLength1);
+		SimpleEncryption.decrypt("key", (SimpleEncryption.getKeyLength() == 128?badMissingEnd128:badMissingEnd256));
 	}
 
 	@Test(expected=Exception.class)
 	public void testBadDecryptLength2() {
-		SimpleEncryption.decrypt("key", badEncryptLength2);
+		SimpleEncryption.decrypt("key", (SimpleEncryption.getKeyLength() == 128?badMissingStart128:badMissingStart256));
 	}
 
 	@Test(expected=Exception.class)
 	public void testBadDecryptNotHex() {
-		SimpleEncryption.decrypt("key", badEncryptNotHex);
+		SimpleEncryption.decrypt("key", (SimpleEncryption.getKeyLength() == 128?badNotHex128:badNotHex256));
 	}
 	
 	@Test(expected=Exception.class)
@@ -64,11 +68,15 @@ public class SimpleEncryptionTest {
 
 	@Test
 	public void test() {
+		System.out.println(SimpleEncryption.encrypt("key", "plain text"));
+		System.out.println(SimpleEncryption.getKeyLength());
 		assertNotNull(SimpleEncryption.encrypt("key", "Hello").length());
 		assertFalse("Hello".equals(SimpleEncryption.encrypt("key", "Hello")));
 		assertEquals("Hello", SimpleEncryption.decrypt("key", SimpleEncryption.encrypt("key", "Hello")));
-		assertEquals("plain text", SimpleEncryption.decrypt("key", goodEncrypt));
-		assertFalse("wrong text".equals(SimpleEncryption.decrypt("key", goodEncrypt)));
+		assertEquals("plain text", SimpleEncryption.decrypt("key",
+				(SimpleEncryption.getKeyLength() == 128?goodEncrypt128: goodEncrypt256)));
+		assertFalse("wrong text".equals(SimpleEncryption.decrypt("key",
+				(SimpleEncryption.getKeyLength() == 128?goodEncrypt128: goodEncrypt256))));
 	}
 	
 	@Test

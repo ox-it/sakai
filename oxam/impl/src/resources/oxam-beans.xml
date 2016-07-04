@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+    <!-- The autowiring in this file is for the test setup. -->
+
+    <bean id="examPaperService"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean "
+        autowire-candidate="true">
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="target">
+            <bean class="uk.ac.ox.oucs.oxam.logic.ExamPaperServiceImpl"
+                init-method="init">
+                <property name="examDao" ref="examDao"/>
+                <property name="examPaperDao" ref="examPaperDao"/>
+                <property name="examPaperFileDao" ref="examPaperFileDao"/>
+                <property name="indexingService" ref="indexingService"/>
+                <property name="paperDao" ref="paperDao"/>  
+                <property name="indexing" value="false" />
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- DAO Stuff -->
+    <bean id="statementStore" class="uk.ac.ox.oucs.oxam.dao.StatementStore"
+        init-method="init">
+        <!-- Just use the value from the Sakai Proxy.  -->
+        <!-- <property name="vendor" value="mysql" />  -->
+    </bean>
+
+
+    <bean id="examPaperDao" class="uk.ac.ox.oucs.oxam.dao.ExamPaperDaoImpl"
+        init-method="init">
+        <property name="termService" ref="termService" />
+        <property name="categoryService" ref="categoryService" />
+        <property name="academicYearService" ref="academicYearService" />
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore" />
+    </bean>
+
+    <bean id="examPaperFileDao" class="uk.ac.ox.oucs.oxam.dao.ExamPaperFileDaoImpl"
+        init-method="init" autowire-candidate="true">
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore" />
+    </bean>
+
+    <bean id="examDao" class="uk.ac.ox.oucs.oxam.dao.ExamDaoImpl"
+        init-method="init" autowire-candidate="true">
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore" />
+    </bean>
+
+    <bean id="paperDao" class="uk.ac.ox.oucs.oxam.dao.PaperDaoImpl"
+        init-method="init" autowire-candidate="true">
+        <property name="dataSource" ref="dataSource" />
+        <property name="statementStore" ref="statementStore" />
+    </bean>
+
+    <bean id="indexingService" class="uk.ac.ox.oucs.oxam.logic.IndexingServiceImpl"
+        init-method="init" destroy-method="destroy">
+        <property name="server" ref="solrServer" />
+    </bean>
+
+    <bean id="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+        <constructor-arg>
+            <!-- Get the solr server from the config -->
+            <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                <property name="targetObject">
+                    <ref bean="sakaiProxy"/>
+                </property>
+                <property name="targetMethod">
+                    <value>getConfigParam</value>
+                </property>
+                <property name="arguments">
+                    <list>
+                        <value>oxam.solr.url</value>
+                        <!-- The default value probably won't be any use but it allows startup -->
+                        <value>http://localhost:8080/oxam-solr/</value>
+                    </list>
+                </property>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="termService" class="uk.ac.ox.oucs.oxam.logic.TermServiceImpl"
+        init-method="init" autowire-candidate="true">
+        <property name="valueSource" ref="termValueSource" />
+        <!-- Used to tell the indexing service what the max number for a
+            term order is. -->
+        <property name="indexingServiceImpl" ref="indexingService" />
+    </bean>
+
+    <bean id="categoryService" class="uk.ac.ox.oucs.oxam.logic.CategoryServiceImpl"
+        init-method="init" autowire-candidate="true">
+        <property name="valueSource" ref="categoryValueSource" />
+    </bean>
+
+    <bean id="academicYearService" class="uk.ac.ox.oucs.oxam.logic.AcademicYearServiceImpl" />
+
+
+</beans>

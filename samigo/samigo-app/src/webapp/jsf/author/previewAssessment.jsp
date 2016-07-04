@@ -48,7 +48,7 @@
 <div class="portletBody">
 <!-- content... -->
 <!-- some back end stuff stubbed -->
-<h:form id="assesssmentForm">
+<h:form id="assessmentForm">
 
 <h:messages styleClass="messageSamigo" layout="table"/>
 
@@ -148,6 +148,9 @@
 
           <h:panelGroup rendered="#{question.itemData.typeId == 15"><!-- // CALCULATED_QUESTION -->
             <%@ include file="/jsf/author/preview_item/CalculatedQuestion.jsp" %>
+          </h:panelGroup>
+		  <h:panelGroup rendered="#{question.itemData.typeId == 16"><!-- // IMAGEMAP_QUESTION -->
+            <%@ include file="/jsf/author/preview_item/ImageMapQuestion.jsp" %>
           </h:panelGroup>
 
         </h:panelGrid>

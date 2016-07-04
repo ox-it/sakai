@@ -390,7 +390,16 @@ public interface SakaiFacade {
 	 * @return	a User or null if no match
 	 */
 	public User getUserByEmail(String email);
-	
+
+	/**
+	 * Get a user by displayId. Only use this if you are certain that there is only one user that matches,
+	 * as it will only return the first user if there are multiples.
+	 *
+	 * @param displayId  string display id (e.g. Oxford username)
+	 * @return           a User or <code>null</code> if no match
+	 */
+	public User getUserByDisplayId(String displayId);
+
 	/**
 	 * Find a user by their eid.
 	 * @param eid

@@ -40,6 +40,7 @@ import java.util.TreeSet;
 import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -67,6 +68,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -917,6 +920,18 @@ public class ExtractionHelper
     {
       control.setItemNumbering(control.RESTART_NUMBERING_BY_PART);
     }
+    
+    //display scores
+    if ("HIDE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "DISPLAY_SCORES")))
+    {
+    	control.setDisplayScoreDuringAssessments(control.HIDE_ITEM_SCORE_DURING_ASSESSMENT);
+    }
+    else if ("SHOW".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "DISPLAY_SCORES")))
+    {
+    	control.setDisplayScoreDuringAssessments(control.DISPLAY_ITEM_SCORE_DURING_ASSESSMENT);
+    }
 
     //question layout
     if ("I".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
@@ -1013,14 +1028,12 @@ public class ExtractionHelper
     // Username, password, finalPageUrl
 //    String considerUserId = assessment.getAssessmentMetaDataByLabel(
 //        "CONSIDER_USERID"); //
-    String userId = assessment.getAssessmentMetaDataByLabel("USERID");
     String password = assessment.getAssessmentMetaDataByLabel("PASSWORD");
     String finalPageUrl = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessment.getAssessmentMetaDataByLabel("FINISH_URL"));
 
     if (//"TRUE".equalsIgnoreCase(considerUserId) &&
-        notNullOrEmpty(userId) && notNullOrEmpty(password))
+        notNullOrEmpty(password))
     {
-      control.setUsername(userId);
       control.setPassword(password);
       assessment.getData().addAssessmentMetaData("hasUsernamePassword", "true");
     }
@@ -1500,6 +1513,23 @@ public class ExtractionHelper
   {
     section.setTitle(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, (String) sectionMap.get("title")));
     section.setDescription(makeFCKAttachment((String) sectionMap.get("description")));
+    
+    // Add Section MetaData
+    section.addSectionMetaData(SectionMetaDataIfc.KEYWORDS, (String) sectionMap.get("keyword"));
+    section.addSectionMetaData(SectionMetaDataIfc.OBJECTIVES, (String) sectionMap.get("objective"));
+    section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, (String) sectionMap.get("rubric"));
+
+    // SAM-2781: if you are importing from before Sakai 11, this will be null
+    String qorderString = (String) sectionMap.get("questions-ordering");
+    if (StringUtils.isNotBlank(qorderString) && StringUtils.isNumeric(qorderString))
+    {
+      section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, qorderString);
+    }
+    else
+    {
+      section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
+    }
+
   }
 
   /**
@@ -2186,10 +2216,10 @@ public class ExtractionHelper
     
     StringBuilder itemTextStringbuf = new StringBuilder();
      
-    
+    // SAM-2703
     for (int i = 0; i < itemTextList.size(); i++)
     {
-      String text = XmlUtil.processFormattedText(log, (String) itemTextList.get(i));
+      String text = (String) itemTextList.get(i);
       // we are assuming non-empty text/answer/non-empty text/answer etc.
       if (text == null)
       {
@@ -2202,7 +2232,7 @@ public class ExtractionHelper
         itemTextStringbuf.append(FIB_BLANK_INDICATOR);
       }
     }
-    String itemTextString = itemTextStringbuf.toString();
+    String itemTextString = XmlUtil.processFormattedText(log,itemTextStringbuf.toString());
     
     itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
     log.debug("itemTextString="+itemTextString);

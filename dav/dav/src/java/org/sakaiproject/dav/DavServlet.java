@@ -1070,6 +1070,14 @@ public class DavServlet extends HttpServlet
 			String pw = ((DavPrincipal) prin).getPassword();
 			Evidence e = new IdPwEvidence(eid, pw);
 
+			// Microsoft might be sending bad usernames. Added some logging so we can debug.
+			// http://support.microsoft.com/?kbid=315621
+			if (eid.startsWith(req.getServerName()) || eid.startsWith("http://") || eid.indexOf('\\') !=  -1)
+			{
+				String ua = req.getHeader("User-Agent");
+				M_log.warn("Unexpected EID '"+ eid+ "' from user agent of '"+ ua+ "'");
+			}
+
 			// in older versions of this code, we didn't authenticate
 			// if there was a session for this user. Unfortunately the
 			// these are special non-sakai sessions, which do not
@@ -2790,6 +2798,10 @@ public class DavServlet extends HttpServlet
 				contentType = edit.getContentType();
 			}
 
+			if (contentHostingService.isAvailabilityEnabled()) {
+				boolean hidden = ServerConfigurationService.getBoolean("content.dav.upload.hidden", false);
+				edit.setAvailability(hidden, null, null);
+			}
 			edit.setContentType(contentType);
 			edit.setContent(inputStream);
 

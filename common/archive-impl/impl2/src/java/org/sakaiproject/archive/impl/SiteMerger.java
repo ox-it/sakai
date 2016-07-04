@@ -20,6 +20,7 @@ package org.sakaiproject.archive.impl;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -44,7 +46,13 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserIdInvalidException;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -258,8 +266,8 @@ public class SiteMerger {
 			{	;
 				// Apparently, users have only been merged in they are from WorkTools...
 				// Is this every going to be wanted in Sakai?
-				//	String msg = mergeUsers(element, userIdTrans);
-				//	results.append(msg);
+				String msg = mergeUsers(element, userIdTrans);
+				results.append(msg);
 			}
 
 			else
@@ -499,6 +507,7 @@ public class SiteMerger {
 			source = parentEl.getAttribute("system");
 		}
 
+		// Valid roles in this site.
 		List roles = new Vector();
 		//List maintainUsers = new Vector();
 		//List accessUsers = new Vector();
@@ -533,7 +542,8 @@ public class SiteMerger {
 				//SWG Getting rid of WT part above, this was previously the else branch labeled "for both CT classic and Sakai CTools"
 				// check is this roleId is a qualified one
 				if (!checkSystemRole(source, roleId, filterSakaiRoles, filteredSakaiRoles)) continue;
-					
+				if (!checkValidRole(roles, roleId)) continue;
+
 				NodeList children2 = element2.getChildNodes();
 				final int length2 = children2.getLength();
 				for(int i2 = 0; i2 < length2; i2++)
@@ -545,9 +555,11 @@ public class SiteMerger {
 
 					String userId = element3.getAttribute("userId");	
 					// this user has a qualified role, his/her resource will be imported
-					usersListAllowImport.add(userId);
+					//UsersListAllowImport.add(userId);
+					realm.addMember(userId, roleId, true, false);
 				}
 			} // for
+			m_authzGroupService.save(realm);
 		}
 		catch(Exception err)
 		{
@@ -558,17 +570,75 @@ public class SiteMerger {
 	} // mergeSiteRoles
 	
 	/**
-	* Merge the user list into the the system.
-	* Translate the id to the siteId.
-	* @param element The XML DOM tree of messages to merge.
-	*/
-	//SWG This seems to have been abandoned for anything for WorkTools.
-	//    If we need the ability to import users again, see ArchiveServiceImpl.java
-	//    for the implementation of this method.
-	//protected String mergeUsers(Element element, HashMap useIdTrans) 
-	//throws IdInvalidException, IdUsedException, PermissionException
-	
-	
+	 * This attempts to create any users that don't exist. If the user already exists
+	 * it puts the correct user Id in the useIdTrans map. If the user is provided then
+	 * it it doesn't create the user.
+	 * @param element
+	 * @param useIdTrans
+	 * @return
+	 */
+	protected String mergeUsers(Element element, HashMap useIdTrans)
+	{
+		String msg = "";
+		int count = 0;
+
+		NodeList children = element.getChildNodes();
+		final int length = children.getLength();
+		for(int i = 0; i < length; i++)
+		{
+			Node child = children.item(i);
+			if (child.getNodeType() != Node.ELEMENT_NODE) continue;
+			Element element2 = (Element)child;
+			if (!element2.getTagName().equals("user")) continue;
+
+			// There used to be some user ID mullering which would strip trailing @umich.edu
+			// from user IDs, this has knockon implication for other imports which have
+			// user IDs embedded in them.
+			// Worktools use email address as Id
+			String id = element2.getAttribute("id");
+			try
+			{
+				m_userDirectoryService.getUser(id);
+				// if this user id exists, do nothing.
+			}
+			catch(UserNotDefinedException e)
+			{
+				try
+				{
+					UserEdit userEdit = m_userDirectoryService.mergeUser(element2);
+					m_userDirectoryService.commitEdit(userEdit);
+					count++;
+					// because it is an UM id, report it in the merge log.
+					msg = msg.concat("The user id (" + id + ") doesn't exist, and was just created. \n");
+				}
+				catch(UserIdInvalidException error)
+				{
+					msg = msg.concat("This user with id -" + id + ", can't be merged because of the invalid email address.\n");
+				}
+				catch(UserAlreadyDefinedException error)
+				{
+					try {
+						String existing = m_userDirectoryService.getUserId(element2.getAttribute("eid"));
+						if (!id.equals(existing)) {
+							userIdTrans.put(id, existing);
+						}
+
+					} catch (UserNotDefinedException e1) {
+						// Shoundn't ever happen
+					}
+				}
+				catch(UserPermissionException error)
+				{
+				}
+			}
+
+		}
+
+
+		msg = msg + "merging user" + "(" + count +") users\n";
+		return msg;
+
+	} // mergeUsers
 	/**
 	 * Old archives have the old CHEF 1.2 service names...
 	 */
@@ -638,6 +708,20 @@ public class SiteMerger {
 				return true;
 			}
 		}	
+		return false;
+	}
+
+	/**
+	 * Checks if the role is valid for this site.
+	 * @param roles The roles in the site.
+	 * @param roleId The role ID.
+	 */
+	protected boolean checkValidRole(Collection<Role> roles, String roleId) {
+		for(Role role: roles) {
+			if (role.getId().equals(roleId)) {
+				return true;
+			}
+		}
 		return false;
 	}
 }

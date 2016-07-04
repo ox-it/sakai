@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+  
+    <!-- This is the proxy for when we're running in Sakai. -->
+
+    <bean id="sakaiProxy" class="uk.ac.ox.oucs.oxam.logic.SakaiProxyImpl"
+    init-method="init">
+        <property name="securityService"
+            ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager"
+            ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService"
+            ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="eventTrackingService"
+            ref="org.sakaiproject.event.api.EventTrackingService" />
+        <property name="serverConfigurationService"
+            ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    </bean>
+    
+    <!-- Todo should really just use this one raw. -->
+    <alias name="javax.sql.DataSource" alias="dataSource"/>
+    
+    <!--Don't want to use the hibernate transaction manager in Sakai so create our own. -->
+    <bean id="transactionManager"
+        class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    
+    <bean id="paperFileService" class="uk.ac.ox.oucs.oxam.logic.SakaiPaperFileServiceImpl" init-method="init">
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="fileSystemLocation" ref="location"/>
+        <property name="mimeTypes">
+            <!-- The default map has pdfs going to application/x-pdf, which doesn't work well -->
+            <bean class="uk.ac.ox.oucs.oxam.utils.CustomFileTypeMap">
+                <constructor-arg>
+                    <list>
+                        <value>application/pdf pdf PDF</value>
+                    </list>
+                </constructor-arg>
+            </bean>
+        </property>
+    </bean>
+    
+    <bean id="location" class="uk.ac.ox.oucs.oxam.logic.SakaiLocation"
+        init-method="init">
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
+
+    <!-- Get the term data from the sakai or fallback to the classpath -->
+    <bean id="termValueSource" class="uk.ac.ox.oucs.oxam.logic.ChainedValueSource">
+        <constructor-arg index="0">
+            <bean class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource"
+                init-method="init">
+                <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+                <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+                <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+                <property name="file" value="/terms.csv" />
+                <property name="reloadable" ref="termService" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg index="1">
+            <bean class="uk.ac.ox.oucs.oxam.logic.ClasspathValueSource">
+                <property name="resource" value="/terms.csv" />
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <!-- Get the categories data from the sakai site, or fallback to the classpath. -->
+    <bean id="categoryValueSource" class="uk.ac.ox.oucs.oxam.logic.ChainedValueSource">
+        <constructor-arg index="0">
+            <bean class="uk.ac.ox.oucs.oxam.logic.SakaiValueSource"
+                init-method="init">
+                <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+                <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+                <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+                <property name="file" value="/categories.csv" />
+                <property name="reloadable" ref="categoryService" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg index="1">
+            <bean class="uk.ac.ox.oucs.oxam.logic.ClasspathValueSource">
+                <property name="resource" value="/categories.csv" />
+            </bean>
+        </constructor-arg>
+    </bean>
+    
+</beans>

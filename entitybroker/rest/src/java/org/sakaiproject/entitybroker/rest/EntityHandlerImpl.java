@@ -992,18 +992,16 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         res.setDateHeader(ActionReturn.Header.DATE.toString(), currentTime);
         res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 600000);
 
+        // By default everything returned from entitybroker should be considered private.
         if (noCache) {
             res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "must-revalidate");
             res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private");
             res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "no-store");
             res.setDateHeader(ActionReturn.Header.EXPIRES.toString(), currentTime + 1000);
             res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=0");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=0");
         } else {
-            // response.addHeader("Cache-Control", "must-revalidate");
-            res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "public");
+            res.setHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "private");
             res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "max-age=600");
-            res.addHeader(ActionReturn.Header.CACHE_CONTROL.toString(), "s-maxage=600");
         }
 
         // set the EB specific headers

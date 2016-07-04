@@ -10,9 +10,9 @@
   <name>Sakai Library Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>reference-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
-    <module>library</module>
+	  <module>ckeditor-config</module>
+	  <module>library</module>
   </modules>
 </project>

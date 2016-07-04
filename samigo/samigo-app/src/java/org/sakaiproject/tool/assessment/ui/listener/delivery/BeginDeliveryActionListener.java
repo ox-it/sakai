@@ -71,6 +71,9 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SettingsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
+import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
 import org.sakaiproject.util.ResourceLoader;
 /**
@@ -156,8 +159,7 @@ public class BeginDeliveryActionListener implements ActionListener
 	// set the outcome to isRetractedForEdit2 error page.
     if (DeliveryBean.REVIEW_ASSESSMENT == action && AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
     	delivery.setAssessmentTitle(pub.getTitle());
-    	delivery.setHonorPledge(pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
-    			pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
+        delivery.setHonorPledge(control.getHonorPledge());
     	delivery.setOutcome("isRetractedForEdit2");
     	return;
     }
@@ -315,8 +317,6 @@ public class BeginDeliveryActionListener implements ActionListener
     // #0 - global information
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
     delivery.setAssessmentTitle(pubAssessment.getTitle());
-    delivery.setHonorPledge(pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
-    						pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
     String instructorMessage = pubAssessment.getDescription();
     delivery.setInstructorMessage(instructorMessage);
 
@@ -333,15 +333,25 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setQuestionIndex(0);
     delivery.setBeginTime(null);
     delivery.setFeedbackOnDate(false);
-    delivery.setDueDate(control.getDueDate());
-    delivery.setRetractDate(control.getRetractDate());
-    
+		ExtendedTimeService extTimeService = new ExtendedTimeService(delivery.getPublishedAssessment());
+		PublishedAssessmentFacade paFacade = delivery.getPublishedAssessment();
+
+		if (extTimeService.hasExtendedTime()) {
+			delivery.setDueDate(extTimeService.getDueDate());
+			delivery.setRetractDate(extTimeService.getRetractDate());
+			if (extTimeService.getTimeLimit() > 0)
+				paFacade.setTimeLimit(extTimeService.getTimeLimit());
+		} else {
+			delivery.setDueDate(control.getDueDate());
+			delivery.setRetractDate(control.getRetractDate());
+		}
     if (control.getMarkForReview() != null && (Integer.valueOf(1)).equals(control.getMarkForReview())) {
     	delivery.setDisplayMardForReview(true);
     }
     else {
     	delivery.setDisplayMardForReview(false);
     }
+    if (control.getHonorPledge() != null) delivery.setHonorPledge(control.getHonorPledge());
 
     // #1 - set submission remains
     populateSubmissionsRemaining(service, pubAssessment, delivery);
@@ -358,19 +368,18 @@ public class BeginDeliveryActionListener implements ActionListener
     if (unSubmittedAssessmentGradingList.size() != 0){
     	delivery.setFirstTimeTaking(false);
     	AssessmentGradingData unSubmittedAssessmentGrading = (AssessmentGradingData) unSubmittedAssessmentGradingList.get(0);
-    	setTimedAssessment(delivery, pubAssessment, unSubmittedAssessmentGrading);
+    	setTimedAssessment(delivery, pubAssessment, extTimeService, unSubmittedAssessmentGrading);
     }  
     else {
     	delivery.setFirstTimeTaking(true);
-    	setTimedAssessment(delivery, pubAssessment, null);
+    	setTimedAssessment(delivery, pubAssessment, extTimeService, null);
     }
 
     // #3 - if this is a timed assessment, set the time limit in hr, min & sec.
     delivery.setDeadline();
-    
   }
 
-  private void setTimedAssessment(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment, AssessmentGradingData unSubmittedAssessmentGrading){
+  private void setTimedAssessment(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment, ExtendedTimeService extTimeService, AssessmentGradingData unSubmittedAssessmentGrading){
 
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
     // check if we need to time the assessment, i.e.hasTimeassessment="true"
@@ -382,9 +391,13 @@ public class BeginDeliveryActionListener implements ActionListener
 
     	if (unSubmittedAssessmentGrading == null || unSubmittedAssessmentGrading.getAttemptDate() == null) {
     		try {
+    			if (extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0)
+    				control.setTimeLimit(extTimeService.getTimeLimit());
     			if (control.getTimeLimit() != null) {
-    				delivery.setTimeLimit(control.getTimeLimit().toString());
-    				int seconds = control.getTimeLimit().intValue();
+    				Integer timeLimit = control.getTimeLimit();
+    				if(timeLimit < 1) delivery.setHasTimeLimit(false); //TODO: figure out why I have to do this
+    					delivery.setTimeLimit(delivery.updateTimeLimit(timeLimit.toString()));
+    				int seconds = timeLimit;
     				int hour = 0;
     				int minute = 0;
     				if (seconds>=3600) {
@@ -396,7 +409,7 @@ public class BeginDeliveryActionListener implements ActionListener
     				}
     				delivery.setTimeLimit_hour(hour);
     				delivery.setTimeLimit_minute(minute);
-
+    				delivery.setTimeExpired(false);
     				StringBuilder sb = new StringBuilder();
     				ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
     				if (hour == 0) {
@@ -439,10 +452,25 @@ public class BeginDeliveryActionListener implements ActionListener
     		}
     	}
     	else {
-    		String timeLimitInSetting = control.getTimeLimit() == null ? "0" : control.getTimeLimit().toString();
+    		if (extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0) {
+    			control.setTimeLimit(extTimeService.getTimeLimit());
+    		}
     		Date attemptDate = unSubmittedAssessmentGrading.getAttemptDate();
+    		long timeLimitInSetting = control.getTimeLimit();
+    		Long now = new Date().getTime();
+    		Long start = attemptDate.getTime();
+    		if((now - start) > (timeLimitInSetting*1000)) {
+    			// check if the queue is ahead and already submitted it
+    			TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+    			TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
+    					get(unSubmittedAssessmentGrading.getAssessmentGradingId());
+    			// if it was submitted (race condition) while checking, unblock it - sam will synch soon
+    			if(timedAG != null && !timedAG.getSubmittedForGrade()) {
+    				delivery.setTimeExpired(true);
+    			}
+    		}
     		delivery.setBeginTime(attemptDate);
-    		String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(timeLimitInSetting);
+    		String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(control.getTimeLimit() == null ? "0" : String.valueOf(control.getTimeLimit()));
     		delivery.setTimeLimit(timeBeforeDueRetract);
     		long adjustedTimedAssesmentDueDateLong  = attemptDate.getTime() + Long.parseLong(timeBeforeDueRetract) * 1000;
     		delivery.setAdjustedTimedAssesmentDueDate(new Date(adjustedTimedAssesmentDueDateLong));

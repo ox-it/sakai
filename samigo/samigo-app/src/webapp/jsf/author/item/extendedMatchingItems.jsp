@@ -107,13 +107,23 @@
 							onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces?item=point#point','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
 						<h:outputText  value=" (#{authorMessages.emi_whats_this})"/>
 					</h:outputLink>
-					<h:inputText id="answerptr" disabled="true"  
+					<h:inputText id="answerptr" label="#{authorMessages.pt}" disabled="true"
 						value="#{itemauthor.currentItem.itemScore}" required="true"
 						size="6" >
 						<f:validateDoubleRange minimum="0" />
 					</h:inputText>
 					<h:message for="answerptr" styleClass="validate" />
 				</h3>
+			</div>
+			<div class="longtext">
+				<h:outputLabel value="#{authorMessages.answer_point_value_display}" />    </div>
+			<div class="tier3">
+				<h:selectOneRadio value="#{itemauthor.currentItem.itemScoreDisplayFlag}" >
+				<f:selectItem itemValue="true"
+				  itemLabel="#{authorMessages.yes}" />
+				<f:selectItem itemValue="false"
+				  itemLabel="#{authorMessages.no}" />
+				</h:selectOneRadio>
 			</div>
 
 			<!-- 2 QUESTION THEME TEXT -->
@@ -485,8 +495,7 @@
 								<f:verbatim>
 									<br />
 								</f:verbatim>
-								<h:inputText id="itemScore" value="#{answer.score}" onchange="toPoint(this.id);"
-									style="" size="4" maxlength="4" >
+								<h:inputText id="itemScore" value="#{answer.score}" styleClass="ConvertPoint" size="4" maxlength="4" >
 									<f:validateDoubleRange minimum="0.00"/>
 								</h:inputText>
 								<h:inputHidden id="itemScoreUserSet" value="#{answer.scoreUserSet}" />
@@ -526,7 +535,7 @@
 
 			<!-- 6 PART -->
 			<h:panelGrid columns="3" columnClasses="shorttext"
-				rendered="#{itemauthor.target == 'assessment'}">
+				rendered="#{itemauthor.target == 'assessment' && !author.isEditPoolFlow}">
 				<f:verbatim>&nbsp;</f:verbatim>
 				<h:outputLabel value="#{authorMessages.assign_to_p} " />
 				<h:selectOneMenu id="assignToPart"

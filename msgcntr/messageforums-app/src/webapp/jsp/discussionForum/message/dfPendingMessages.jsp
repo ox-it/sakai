@@ -25,7 +25,7 @@
 			</h3>
 			<script type="text/javascript">
 				$(document).ready(function() {
-				$('.listHier tr th a').fadeTo("fast",0.50)	
+				$('.table table-hover table-striped table-bordered tr th a').fadeTo("fast",0.50)	
 			    //deactivate remove link if nothing checked
 			    $(':checkbox').click(function(){
 			        var makeActive = false
@@ -37,10 +37,10 @@
 			            }
 			        });
 			        if (makeActive) {
-						$('.listHier tr th a').fadeTo("fast",1)
+						$('.table table-hover table-striped table-bordered tr th a').fadeTo("fast",1)
 			        }
 			        else {
-						$('.listHier tr th a').fadeTo("fast",0.50)			        }
+						$('.table table-hover table-striped table-bordered tr th a').fadeTo("fast",0.50)			        }
 
 			    });
 
@@ -58,9 +58,9 @@
 	  </div>
 	  
 	  <h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
-	  
+	  <div class="table-responsive">
 		<h:dataTable id="pendingMsgs" value="#{ForumTool.pendingMessages}" width="100%" var="message" 
-				columnClasses="bogus,nopadd" styleClass="listHier specialLink" rendered="#{ForumTool.numPendingMessages >0 }" cellpadding="0" cellspacing="0">
+				columnClasses="bogus,nopadd" styleClass="table table-hover table-striped table-bordered specialLink" rendered="#{ForumTool.numPendingMessages >0 }" cellpadding="0" cellspacing="0">
 			<h:column>
 				<f:facet name="header">
 					<h:selectBooleanCheckbox title="#{msgs.cdfm_checkall}" id="mainCheckbox" onclick="javascript:selectDeselectCheckboxes(this.id, document.forms[0]);"/>
@@ -99,7 +99,8 @@
 		      <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				</h:commandLink>
 					<h:outputText value=" #{msgs.cdfm_dash} " styleClass="textPanelFooter"/>
-					<h:outputText value="#{message.message.author}" styleClass="textPanelFooter"/>
+					<h:outputText value="#{message.anonAwareAuthor}" styleClass="textPanelFooter #{message.useAnonymousId ? 'anonymousAuthor' : ''}"/>
+					<h:outputText value=" #{msgs.cdfm_me}" styleClass="textPanelFooter" rendered="#{message.currentUserAndAnonymous}" />
 					<h:outputText value=" #{msgs.cdfm_openb}" styleClass="textPanelFooter"/>
 					<h:outputText value="#{message.message.created}" styleClass="textPanelFooter">
 			  	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
@@ -121,6 +122,7 @@
 					<f:verbatim></div></f:verbatim>
 			</h:column>
 		</h:dataTable>
+	</div>
 	</h:form>
 </sakai:view>
 </f:view>

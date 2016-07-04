@@ -10,10 +10,10 @@
   <name>Sakai TextArea Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>textarea-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>FCKeditor/connector</module>
     <module>calendar</module>
+    <module>elfinder-sakai</module>
   </modules>
 </project>

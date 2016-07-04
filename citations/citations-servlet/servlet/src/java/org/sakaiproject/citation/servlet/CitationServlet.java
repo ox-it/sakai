@@ -38,11 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.cheftool.VmServlet;
-import org.sakaiproject.citation.api.Citation;
-import org.sakaiproject.citation.api.CitationCollection;
-import org.sakaiproject.citation.api.CitationService;
-import org.sakaiproject.citation.api.Schema;
-import org.sakaiproject.citation.api.ConfigurationService;
+import org.sakaiproject.citation.api.*;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -73,9 +69,6 @@ import org.sakaiproject.util.Web;
 //public class CitationServlet extends VelocityPortletPaneledAction
 public class CitationServlet extends VmServlet
 {
-	/**
-	 * 
-	 */
 	public static final String SERVLET_TEMPLATE = "/vm/servlet.vm";
 	public static final String COMPACT_TEMPLATE = "/vm/compact.vm";
 //	private String collectionTitle = null;
@@ -85,9 +78,6 @@ public class CitationServlet extends VmServlet
 
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("citations");
-
-	/** set to true when init'ed. */
-//	protected boolean m_ready = false;
 
 	protected BasicAuth basicAuth = null;
 
@@ -103,36 +93,6 @@ public class CitationServlet extends VmServlet
 		ERROR;
 	}
 
-
-//	/** init thread - so we don't wait in the actual init() call */
-//	public class CitationServletInit extends Thread
-//	{
-//		protected CitationService m_citationService;
-		
-//		public void setCitationService(CitationService service)
-//		{
-//			this.m_citationService = service;
-//		}
-		
-//		/**
-//		 * construct and start the init activity
-//		 */
-//		public CitationServletInit()
-//		{
-//			m_ready = false;
-//			start();
-//		}
-
-//		/**
-//		 * run the init
-//		 */
-//		public void run()
-//		{
-//			m_ready = true;
-//		}
-//	}
-
-
 	/**
 	 * initialize the AccessServlet servlet
 	 * 
@@ -144,7 +104,6 @@ public class CitationServlet extends VmServlet
 	public void init( ServletConfig config ) throws ServletException
 	{
 		super.init(config);
-//		startInit();
 		basicAuth = new BasicAuth();
 		basicAuth.init();
 
@@ -152,16 +111,11 @@ public class CitationServlet extends VmServlet
 		contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		citationService = (CitationService) ComponentManager.get("org.sakaiproject.citation.api.CitationService");
 		configurationService = (ConfigurationService) ComponentManager.get("org.sakaiproject.citation.api.ConfigurationService");
+
+		// get services from ComponentManager
+		contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		citationService = (CitationService) ComponentManager.get("org.sakaiproject.citation.api.CitationService");
 	}
-
-//	/**
-//	 * Start the initialization process
-//	 */
-//	public void startInit()
-//	{
-//		new CitationServletInit();
-//	}
-
 
 	/**
 	 * respond to an HTTP GET request
@@ -206,9 +160,12 @@ public class CitationServlet extends VmServlet
        
 				boolean fromGoogle = false;
 				Citation citation = findOpenURLVersion01(paramParser);
-				if (citation == null) {
+				if (citation == null && req.getParameterMap().size()>1) {// the open url has many parameters
          
 					citation = findOpenUrlCitation(req);
+				}
+				if (citation == null) {
+					citation = findSoloApiCitation(req);
 				}
 				// set the success flag
 				setVmReference("success", citation != null, req);
@@ -252,7 +209,16 @@ public class CitationServlet extends VmServlet
 		return citation;
 	}
 
-		
+	/**
+	 * Looks for an Solo API citation in the request.
+	 * @param req
+	 * @return
+	 */
+	protected Citation findSoloApiCitation(HttpServletRequest req) {
+		return citationService.addSoloApiCitation(req);
+	}
+
+
 	/**
 	 * 
 	 * @param req
@@ -398,12 +364,21 @@ public class CitationServlet extends VmServlet
 
 	public void addCitation(ContentResource resource, Citation citation) throws IdUnusedException, ServerOverloadException {
 		String citationCollectionId = new String(resource.getContent());
-		CitationCollection collection = citationService.getCollection(citationCollectionId);
+		CitationCollection collection = citationService.getUnnestedCitationCollection(citationCollectionId);
 
 		collection.add(citation);
 		citationService.save(collection);
 	}
  
+	public void addCitiation(ContentResource resource, Citation citation) throws IdUnusedException, ServerOverloadException {
+
+		String collectionId = new String(resource.getContent());
+		CitationCollection collection = citationService.getCollection(collectionId);
+
+		collection.add(citation);
+		citationService.save(collection);
+	}
+
 	public String getCollectionTitle(ContentResource resource) {
 		String collectionTitle = null;
 		if (resource != null) {
@@ -485,7 +460,7 @@ public class CitationServlet extends VmServlet
 
 		Citation citation = citationService.addCitation(genre);
 
-		String info = "New citation:\n\t genre:\t\t"
+		String info = "New citation from Google Scholar:\n\t genre:\t\t"
 			+ genre;
 
 		// Generally, only books have a title that's the actual title of the
@@ -542,6 +517,7 @@ public class CitationServlet extends VmServlet
 		info += "\n";
 
 		// M_log.info(info);
+		M_log.debug(info);
 
 		return citation;
 

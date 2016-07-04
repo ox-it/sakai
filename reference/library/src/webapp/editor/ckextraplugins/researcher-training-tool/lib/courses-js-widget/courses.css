@@ -1,0 +1,149 @@
+/*
+
+Copyright (c) 2013 University of Oxford
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+* Neither the name of the University of Oxford nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*/
+
+.courses-widget-container {
+  padding:1em 5%;
+  margin:2.5%;
+  width:85%;
+  overflow: auto;
+  font-family: Arial,sans-serif;
+  background:#FFFFFF;
+  border:1px solid #eee;
+  box-shadow: 2px 2px 2px rgba(0,0,0,0.2);
+}
+
+h2.courses-widget-title {
+}
+
+div.courses-widget-wait {
+  text-align: center;
+
+}
+
+table.course-results-table { 
+  border-style: none;
+  border-collapse: collapse;
+}
+
+table.course-results-table thead tr {
+  font-weight: normal;
+  background-color: #002147;
+  color:white;
+  border-right: 1px solid #002147;
+  border-left: 1px solid #002147;
+}
+
+table.course-results-table tbody tr {
+  border-right: 1px solid #bbb;
+  border-left: 1px solid #bbb;
+}
+
+table.course-results-table tbody tr td, table.course-results-table thead tr th {
+  border-style: none;
+  font-weight: normal;
+  text-align: left;
+}
+
+
+.small {
+  font-size: .8em;
+}
+
+table.course-results-table a {
+  text-decoration: none;
+  color: #284899;
+}
+table.course-results-table a:hover {
+  text-decoration: underline;
+
+}
+
+a.courses-widget-no-date-toggle-link {
+  display:block;
+  margin-bottom:0.5em;
+}
+
+/** dataTables overrides **/
+
+.dataTables_length,
+.dataTables_filter,
+.dataTables_info,
+.dataTables_paginate {
+  margin-bottom:0.5em;
+}
+
+div.dataTables_length {
+  display: none;
+}
+
+div.dataTables_filter input {
+  margin-right: 0;
+}
+
+table.dataTable tr.odd { background-color: #EAEAEA; }
+table.dataTable tr.even { background-color: #FAFAFA; }
+
+table.dataTable tr.odd td.sorting_1 { background-color: #FAFAFA; }
+table.dataTable tr.odd td.sorting_2 { background-color: #FAFAFA; }
+table.dataTable tr.odd td.sorting_3 { background-color: #FAFAFA; }
+table.dataTable tr.even td.sorting_1 { background-color: #FFFFFF; }
+table.dataTable tr.even td.sorting_2 { background-color: #FFFFFF; }
+table.dataTable tr.even td.sorting_3 { background-color: #FFFFFF; }
+
+
+.small .dataTables_filter,
+.small .dataTables_paginate
+{
+  float:left;
+}
+
+table.dataTable thead th {
+    padding: 6px;
+}
+table.dataTable td {
+    padding: 6px;
+}
+
+div.dataTables_info {
+  margin-top: 0.5em;
+}
+
+div.dataTables_wrapper {
+  border-bottom: 1px solid #bbb;
+}
+
+.paging_two_button {
+  height: 22px;
+  line-height: 22px;
+  margin-top: 0.5em;
+}
+.paging_two_button a:active {
+  outline: medium none;
+}
+.paging_two_button a {
+  border: 1px solid #AAAAAA;
+  color: #333333 !important;
+  cursor: pointer;
+  margin: 0 0 0 3px;
+  padding: 2px 5px;
+  background-color: #DDDDDD;
+  background-image: none
+}
+.paging_two_button a:hover {
+  text-decoration: none;
+  background-color: #CCCCCC;
+  background-image: none
+}

@@ -10,15 +10,17 @@
     display: inline-block;
     float: none;
     text-align: right;
-    width: 12em;
+    width: 14em;
+    margin: 0 1em 0 0;
+    vertical-align: middle;
 }
 
 #useredit .shorttext label
 {
     display: inline-block;
     float: none;
-    text-align: right;
-    width: 12em;
+    text-align: left;
+    min-width: 17em;
 }
 
 #user-create_edit .reqStar, #useredit .reqStar
@@ -36,9 +38,9 @@
 {
     display: block;
     position: absolute;
-    left: 32em;
+    left: 30.3em;
     width: 50%;
-    margin-top: -5em;
+    margin-top: -11.9em;
     padding: 1em;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -53,23 +55,31 @@
     position: absolute;
     width: 0;
     height: 0;
-    top: 3px;
-    left: -15px;
-    border-top: 15px solid transparent;
-    border-right: 15px solid #ccc;
-    border-bottom: 15px solid transparent;
+    top: 108px;
+    left: -10px;
+    border-top: 10px solid transparent;
+    border-right: 10px solid #ccc;
+    border-bottom: 10px solid transparent;
 }
 
-#user-create_edit #matchMsg, #user-create_edit #strongMsg, #user-create_edit #noMatchMsg, #user-create_edit #weakMsg,
+#user-create_edit #matchMsg, #user-create_edit #strongMsg, #user-create_edit #weakMsg,
 #useredit #matchMsg, #useredit #strongMsg, #useredit #noMatchMsg, #useredit #weakMsg, #user-create_edit #emailWarningMsg,
 #useredit #emailWarningMsg, #useredit #curPassReqMsg, #user-create_edit #failMsg, #user-create_edit #moderateMsg,
 #useredit #failMsg, #useredit #moderateMsg
 {
     display: block;
-    margin: 0.5em 0 0 13.5em;
+    margin: 0.2em 0 0.5em 15.2em;
     padding-left: 1.5em;
     vertical-align: top;
-    line-height: 1.4em;
+    line-height: 1.3em;
+}
+
+#user-create_edit #noMatchMsg{
+    display: block;
+    margin: -0.2em 0 0.5em 15.2em;
+    padding-left: 1.5em;
+    vertical-align: top;
+    line-height: 1em;
 }
 
 #user-create_edit #noMatchMsg, #user-create_edit #failMsg, #useredit #noMatchMsg, #useredit #failMsg,
@@ -89,9 +99,9 @@
 #user-create_edit #strengthBar, #useredit #strengthBar
 {
     background-color: #ccc;
-    width: 188px;
+    width: 186px;
     height: 5px;
-    margin: 5px 0px 0px 13.5em;
+    margin: 5px 0px 0px 15.2em;
     text-align: left;
 }
 
@@ -116,14 +126,20 @@
     color: rgb(85, 85, 85);
     display: inline-block;
     float: none;
-    text-align: right;
+    text-align: left;
     margin-right: 1em;
-    width: 9em;
+    min-width: 9em;
+}
+
+@media only screen and (max-width : 800px){
+    #userViewForm label, #useredit .shorttext label{
+        display: block;
+    }
 }
 
 #userViewForm .act, #user-create_edit .act, #useredit .act
 {
-    text-align: right;
+    text-align: left; /* SAK-31159 - Consistency with the rest of the tools */
 }
 
 #user-create_edit fieldset, #useredit fieldset, #userViewForm fieldset
@@ -133,14 +149,18 @@
     position: relative;
 }
 
-#userViewForm fieldset
-{
-    width: 25em;
+#user-create_edit fieldset > div.shorttext{
+    margin: 0 0 0.8em 0;
 }
+
+form .shorttext{
+    margin: 0 0 0.5em 0;
+} 
 
 #user-create_edit fieldset
 {
     display:inline-block;
+    width: 100%;
 }
 
 .createBlurb
@@ -154,45 +174,10 @@
     margin: 10px 0;
 }
 
-#useredit fieldset
-{
-    width: 36em;
-}
-
 #userViewForm fieldset legend, #user-create_edit fieldset legend, #useredit fieldset legend
 {
     padding: 0 0.5em;
     color: rgb(85, 85, 85);
-}
-
-input[type="submit"].active
-{
-    background: #009DCE !important;
-    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%) !important;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5)) !important;
-    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    background: linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
-    color: #fff !important;
-    text-shadow: none !important;
-    border: 1px solid #007EA5 !important;
-}
-
-input[type="submit"].active[disabled],input[type="submit"].active[disabled="disabled"],input[type="submit"].active[disabled="true"],
-input[type="submit"].active[disabled]:hover,input[type="submit"].active[disabled="disabled"]:hover,input[type="submit"].active[disabled="true"]:hover
-{
-    background: #eeeeee !important;
-    background: -moz-linear-gradient(top, #eeeeee 0%, #eeeeee 100%) !important;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#eeeeee)) !important;
-    background: -webkit-linear-gradient(top, #eeeeee 0%,#eeeeee 100%) !important;
-    background: -o-linear-gradient(top, #eeeeee 0%,#eeeeee 100%) !important;
-    background: -ms-linear-gradient(top, #eeeeee 0%,#eeeeee 100%) !important;
-    background: linear-gradient(top, #eeeeee 0%,#eeeeee 100%) !important;
-    color: #bbb !important;
-    border: 1px solid #E0E3E5 !important;
-    text-shadow: 0 2px 3px #FFFFFF !important;
-    cursor: default;
 }
 
 .spinner {
@@ -201,6 +186,3 @@ input[type="submit"].active[disabled]:hover,input[type="submit"].active[disabled
     visibility: hidden;
 }
 
-#eventSubmit_doSave {
-    float: right;
-}

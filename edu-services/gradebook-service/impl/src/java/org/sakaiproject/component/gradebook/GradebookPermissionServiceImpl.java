@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.sakaiproject.section.api.SectionAwareness;
@@ -17,6 +18,7 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
@@ -28,13 +30,11 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 {
 	private SectionAwareness sectionAwareness;
 	
-	public List<Long> getCategoriesForUser(Long gradebookId, String userId, List<Long> categoryIdList, int cateType) throws IllegalArgumentException
+	public List<Long> getCategoriesForUser(Long gradebookId, String userId, List<Long> categoryIdList) throws IllegalArgumentException
 	{
 		if(gradebookId == null || userId == null)
 			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getCategoriesForUser");
-		if(cateType != GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && cateType != GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
-			throw new IllegalArgumentException("CategoryType must be CATEGORY_TYPE_ONLY_CATEGORY or CATEGORY_TYPE_WEIGHTED_CATEGORY in GradebookPermissionServiceImpl.getCategoriesForUser");
-
+		
 		List anyCategoryPermission = getPermissionsForUserAnyCategory(gradebookId, userId);
 		if(anyCategoryPermission != null && anyCategoryPermission.size() > 0 )
 		{
@@ -42,13 +42,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		}
 		else
 		{
-//			List ids = new ArrayList();
-//			for(Iterator iter = categoryList.iterator(); iter.hasNext(); )
-//			{
-//				Category cate = (Category) iter.next();
-//				if(cate != null)
-//					ids.add(cate.getId());
-//			}
 
 			List<Long> returnCatIds = new ArrayList<Long>();
 			List<Permission> permList = getPermissionsForUserForCategory(gradebookId, userId, categoryIdList);
@@ -62,35 +55,13 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			}
 			
 			return returnCatIds;
-			
-
-//			List filteredCates = new ArrayList();
-//			for(Iterator cateIter = categoryList.iterator(); cateIter.hasNext();)
-//			{
-//				Category cate = (Category) cateIter.next();
-//				if(cate != null)
-//				{
-//					for(Iterator iter = permList.iterator(); iter.hasNext();)
-//					{
-//						Permission perm = (Permission) iter.next();
-//						if(perm != null && perm.getCategoryId().equals(cate.getId()))
-//						{
-//							filteredCates.add(cate);
-//							break;
-//						}
-//					}
-//				}
-//			}
-//			return filteredCates;
 		}
 	}
 	
-	public List<Long> getCategoriesForUserForStudentView(Long gradebookId, String userId, String studentId, List<Long> categoriesIds, int cateType, List<String> sectionIds) throws IllegalArgumentException
+	public List<Long> getCategoriesForUserForStudentView(Long gradebookId, String userId, String studentId, List<Long> categoriesIds, List<String> sectionIds) throws IllegalArgumentException
 	{
 		if(gradebookId == null || userId == null || studentId == null)
 			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getCategoriesForUser");
-		if(cateType != GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && cateType != GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
-			throw new IllegalArgumentException("CategoryType must be CATEGORY_TYPE_ONLY_CATEGORY or CATEGORY_TYPE_WEIGHTED_CATEGORY in GradebookPermissionServiceImpl.getCategoriesForUser");
 		
 		List<Long> returnCategoryList = new ArrayList<Long>();
 		//Map categoryMap = new HashMap();  // to keep the elements unique
@@ -102,14 +73,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		{
 			return returnCategoryList;
 		}
-		
-//		Map categoryIdCategoryMap = new HashMap();
-//		for (Iterator catIter = categories.iterator(); catIter.hasNext();) {
-//			Category cat = (Category) catIter.next();
-//			if (cat != null) {
-//				categoryIdCategoryMap.put(cat.getId(), cat);
-//			}
-//		}
 		
 		List<String> studentSections = new ArrayList<String>();
 		
@@ -132,9 +95,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 				}else{
 					returnCategoryList.add(catId);
 				}
-		//		Category cat = (Category)categoryIdCategoryMap.get(catId);
-		//		if (cat != null)
-//					categoryMap.put(cat, null);
 			}
 		}
 		
@@ -1265,9 +1225,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		return sectionIdStudentIdsMap;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<PermissionDefinition> getPermissionsForUser(final String gradebookUid, final String userId) {
 		Long gradebookId = getGradebook(gradebookUid).getId();
 			 
@@ -1280,24 +1238,72 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			 
 		return rval;
 	}
+	
+	@Override
+	public void updatePermissionsForUser(final String gradebookUid, final String userId, List<PermissionDefinition> permissionDefinitions) {
+		Long gradebookId = getGradebook(gradebookUid).getId();
+		
+		//get the current list of permissions
+		final List<Permission> currentPermissions = getPermissionsForUser(gradebookId, userId);
+		
+		//convert PermissionDefinition to Permission
+		final List<Permission> newPermissions = new ArrayList<>();
+		for(PermissionDefinition def: permissionDefinitions) {
+			
+			if(!StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.GRADE.toString()) && !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW.toString()) && !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())) {
+				throw new IllegalArgumentException("Invalid function for permission definition: " + def.getFunction());
+			}
+			
+			Permission permission = new Permission();
+			permission.setCategoryId(def.getCategoryId());
+			permission.setGradebookId(gradebookId);
+			permission.setGroupId(def.getGroupReference());
+			permission.setFunction(def.getFunction());
+			permission.setUserId(userId);
+			
+			newPermissions.add(permission);
+		}
+		
+		//Note: rather than iterate both lists and figure out the differences and add/update/delete as applicable,
+		//it is far simpler to just remove the existing permissions and add new ones in one transaction
+		HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			
+    			//remove existing
+    			for(Permission currentPermission: currentPermissions) {
+    				session.delete(currentPermission);
+    			}
+    			
+    			//add new
+    			for(Permission newPermission: newPermissions) {
+    				session.save(newPermission);
+    			}
+
+    			return null;
+    		}
+    	};
+
+    	getHibernateTemplate().execute(hc);
+	}
+
+	
 	 
 	 /**
 	  * Maps a Permission to a PermissionDefinition
+	  * Note that the persistent groupId is actually the group reference
 	  * @param permission
-	  * @return
+	  * @return a {@link PermissionDefinition}
 	  */
 	 private PermissionDefinition toPermissionDefinition(Permission permission) {
 		 PermissionDefinition rval = new PermissionDefinition();
-		    if (permission != null) {
-		    	rval.setId(permission.getId());
-		    	rval.setUserId(permission.getUserId());
-		    	rval.setCategoryId(permission.getCategoryId());
-		    	rval.setFunction(permission.getFunction());
-		    	rval.setGroupId(permission.getGroupId());
-		    }
-
-		    return rval;
-		}
-
+		 if (permission != null) {
+			 rval.setId(permission.getId());
+			 rval.setUserId(permission.getUserId());
+			 rval.setCategoryId(permission.getCategoryId());
+			 rval.setFunction(permission.getFunction());
+			 rval.setGroupReference(permission.getGroupId()); 
+		 }
+		 return rval;
+	 }
 
 }

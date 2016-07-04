@@ -633,8 +633,19 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		
 		return null;
 	}
-	
-	
+
+	/**
+	 * Gets the userId for a user, given a displayId or an Eid or an email.
+	 * We check for users with the values in this order.
+	 *
+	 * @param value  the string to lookup
+	 * @return       the userId or <code>null</code> if User cannot be found
+	 */
+	public String getUserIdForDisplayIdOrEidOrEmail(String value) {
+		User user = sakaiFacade.getUserByDisplayId(value);
+		return (user == null) ? getUserIdForEidOrEmail(value) : user.getId();
+	}
+
 	/**
 	 * Get the eids assocaited with an email address, ie there may be two or more users with the same email address. 
 	 * We need to be able to handle this in the UI.
@@ -652,7 +663,25 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		
 		return eids;
 	}
-	
+
+	/**
+	 * Get the display ids associated with an email address since there may be many users with an email address. 
+	 * We prefer to use this in the UI over the enterprise ID because it is more meaningful.
+	 *
+	 * @param email  The email address.
+	 * @return       A list of display id strings.
+	 */
+	public List<String> getDisplayIdsForEmail(String email) {
+		List<User> users = sakaiFacade.getUsersByEmail(email);
+		List<String> displayIds = new ArrayList<String>();
+
+		for (User user : users) {
+			displayIds.add(user.getDisplayId());
+		}
+
+		return displayIds;
+	}
+
 	// Generate a group title based on the input given
 	public String generateGroupTitle(String meetingTitle, SignupTimeslot timeslot) {
 		

@@ -154,36 +154,36 @@ setupValidation = function(){
         if ($("#randomOption").prop('checked') === true) {
             if ($("#groupSplit").prop('checked') === true) {
                 if ($('#groupTitle-group').val() === '') {
-                    $('#groupTitle-group').parent('p').addClass('validationFail');
+                    $('#groupTitle-group').parent('div').parent('div').addClass('validationFail');
                     validForm = false;
                 }
                 else {
-                    $('#groupTitle-group').parent('p').removeClass('validationFail');
+                    $('#groupTitle-group').parent('div').parent('div').removeClass('validationFail');
                 }
                 if ($('#numToSplit-group').val() === '' || isNaN($('#numToSplit-group').val())) {
-                    $('#numToSplit-group').parent('p').addClass('validationFail');
+                    $('#numToSplit-group').parent('div').parent('div').addClass('validationFail');
                     validForm = false;
                 }
                 else {
-                    $('#numToSplit-group').parent('p').removeClass('validationFail');
+                    $('#numToSplit-group').parent('div').parent('div').removeClass('validationFail');
                 }
                 
             }
             if ($("#userSplit").prop('checked') === true) {
                 if ($('#groupTitle-user').val() === '') {
-                    $('#groupTitle-user').parent('p').addClass('validationFail');
+                    $('#groupTitle-user').parent('div').parent('div').addClass('validationFail');
                     validForm = false;
                 }
                 else {
-                    $('#groupTitle-user').parent('p').removeClass('validationFail');
+                    $('#groupTitle-user').parent('div').parent('div').removeClass('validationFail');
                 }
                 
                 if ($('#numToSplit-user').val() === '' || isNaN($('#numToSplit-user').val())) {
-                    $('#numToSplit-user').parent('p').addClass('validationFail');
+                    $('#numToSplit-user').parent('div').parent('div').addClass('validationFail');
                     validForm = false;
                 }
                 else {
-                    $('#numToSplit-user').parent('p').removeClass('validationFail');
+                    $('#numToSplit-user').parent('div').parent('div').removeClass('validationFail');
                 }
                 
                 
@@ -192,34 +192,34 @@ setupValidation = function(){
          if ($("#rosterRandomOption").prop("checked") === true) {
             if ($("#rosterGroupSplit").prop("checked") === true) {
                 if ($("#roster-groupTitle-group").val() === "") {
-                    $("#roster-groupTitle-group").parent("p").addClass("validationFail");
+                    $("#roster-groupTitle-group").parent("div").parent("div").addClass("validationFail");
                     validForm = false;
                 }
                 else {
-                    $("#roster-groupTitle-group").parent("p").removeClass("validationFail");
+                    $("#roster-groupTitle-group").parent("div").parent("div").removeClass("validationFail");
                 }
                 if ($("#roster-numToSplit-group").val() === "" || isNaN($("#roster-numToSplit-group").val())) {
-                    $("#roster-numToSplit-group").parent("p").addClass("validationFail");
+                    $("#roster-numToSplit-group").parent("div").parent("div").addClass("validationFail");
                     validForm = false;
                 }
                 else {
-                    $("#roster-numToSplit-group").parent("p").removeClass("validationFail");
+                    $("#roster-numToSplit-group").parent("div").parent("div").removeClass("validationFail");
                 }
             }
             if ($("#rosterUserSplit").prop("checked") === true) {
                 if ($("#roster-groupTitle-user").val() === "") {
-                    $("#roster-groupTitle-user").parent("p").addClass("validationFail");
+                    $("#roster-groupTitle-user").parent("div").parent("div").addClass("validationFail");
                     validForm = false;
                 }
                 else {
-                    $("#roster-groupTitle-user").parent("p").removeClass("validationFail");
+                    $("#roster-groupTitle-user").parent("div").parent("div").removeClass("validationFail");
                 }
                 if ($("#roster-numToSplit-user").val() === "" || isNaN($("#roster-numToSplit-user").val())) {
-                    $("#roster-numToSplit-user").parent("p").addClass("validationFail");
+                    $("#roster-numToSplit-user").parent("div").parent("div").addClass("validationFail");
                     validForm = false;
                 }
                 else {
-                    $("#roster-numToSplit-user").parent("p").removeClass("validationFail");
+                    $("#roster-numToSplit-user").parent("div").parent("div").removeClass("validationFail");
                 }
             }
         }
@@ -227,7 +227,7 @@ setupValidation = function(){
             return false;
         }
         else{
-            disableButtonsActivateSpinner( "save", "cancel", "autoGroupsSpinner" );
+            SPNR.disableControlsAndSpin( this, null );
             return true;
         }
     });
@@ -254,52 +254,16 @@ function resizeFrame(updown){
     }
 }
 
-function disableButtonsActivateSpinner( primaryActionID, secondaryActionID, spinnerID ) 
-{
-    // Clone & disable the buttons (disable the clone, hide the original)
-    var btnPrimary = document.getElementById( primaryActionID );
-    var btnSecondary = document.getElementById( secondaryActionID );
-    var btnDelete = document.getElementById( "delete" );
-    var btnGenerate = document.getElementById( "generate-row::generate" );
-    var list = [btnPrimary, btnSecondary];
-    
-    if( btnDelete !== null )
-    {
-        list.push(btnDelete);
-    }
-    if( btnGenerate !== null )
-    {
-        list.push(btnGenerate);
-    }
-    
-    for( i = 0; i < list.length; i++ )
-    {
-        
-        var original = list[i];
-        var clone = document.createElement( "input" );
-        var parent = original.parentNode;
-        clone.setAttribute( "type", "button" );
-        clone.setAttribute( "id", original.getAttribute( "id" ) + "Disabled" );
-        clone.setAttribute( "name", original.getAttribute( "name" ) + "Disabled" );
-        clone.setAttribute( "className", original.getAttribute( "className" ) );
-        clone.setAttribute( "disabled", "true" );
-        clone.value = original.value;
-        original.style.display = "none";
-        parent.insertBefore( clone, original );
-    }
-    
-    // Show the spinner
-    document.getElementById( spinnerID ).style.visibility = "visible";
-}
-
 function toggleCheckboxes( clickedElement )
 {
     var checkboxes = document.getElementsByName( "delete-group-selection" );
     for( i = 0; i < checkboxes.length; i++ )
     {
         checkboxes[i].checked = clickedElement.checked;
-        adjustCount( checkboxes[i], "removeCount", "delete-groups" );
+        adjustCount( checkboxes[i], "removeCount" );
     }
+
+    checkEnableRemove();
 }
 
 function syncSelectAll()
@@ -316,24 +280,26 @@ function syncSelectAll()
     }
 
     document.getElementById( "selectAll" ).checked = allSelected;
+    checkEnableRemove();
 }
 
-function adjustCount(caller, countName, buttonName)
+function checkEnableRemove()
 {
-    var counter = document.getElementById(countName);
-    var button = document.getElementById(buttonName);
-    if(caller && caller.checked && caller.checked === true)
+    var button = document.getElementById( "delete-groups" );
+    if( button )
     {
-        counter.value = parseInt(counter.value) + 1;
-    }
-    else
-    {
-        counter.value = parseInt(counter.value) - 1;
-    }
+        var anySelected = false;
+        var checkboxes = document.getElementsByName( "delete-group-selection" );
+        for( i = 0; i < checkboxes.length; i++ )
+        {
+            if( checkboxes[i].checked )
+            {
+                anySelected = true;
+                break;
+            }
+        }
 
-    if(button)
-    {
-        if(counter.value > 0)
+        if( anySelected )
         {
             button.disabled = false;
             button.className='enabled active';
@@ -346,19 +312,65 @@ function adjustCount(caller, countName, buttonName)
     }
 }
 
-function toggleGenPanel( clickedElement )
+function togglePanel( clickedElement, isUserPanel )
 {
     var div = clickedElement.parentNode;
     if( div.className === "edit collapsed" )
     {
         div.className = "edit expanded";
-        $( div ).siblings().show();
-        resizeFrame( "grow" );
+        if( isUserPanel )
+        {
+            $( "#userRowsContainer" ).show();
+            $( "#userRowsContainer" ).children().show();
+        }
+        else
+        {
+            $( div ).siblings().show();
+        }
     }
     else
     {
         div.className = "edit collapsed";
-        $( div ).siblings().hide();
-        resizeFrame( "shrink" );
+        if( isUserPanel )
+        {
+            $( "#userRowsContainer" ).hide();
+            $( "#userRowsContainer" ).children().hide();
+        }
+        else
+        {
+            $( div ).siblings().hide();
+        }
+    }
+}
+
+function adjustDivHeights()
+{
+    var userRowsHeader = document.getElementById( "usersNotInSet-title-row::" );
+    var userPanelExpanded = userRowsHeader.classList.contains( "expanded" );
+    var groupFieldsHeight = document.getElementById( "groupFields" ).offsetHeight;
+    var userRowsHeaderHeight = userRowsHeader.offsetHeight;
+    var actualHeight = groupFieldsHeight - userRowsHeaderHeight;
+    var userRowsContainer = document.getElementById( "userRowsContainer" );
+    var style = "height: " + actualHeight + "px" + (userPanelExpanded ? "; overflow-y: scroll;" : ";" );
+    userRowsContainer.setAttribute( "style", style );
+    userRowsContainer.style.height = actualHeight + "px";
+    if( userPanelExpanded )
+    {
+        userRowsContainer.style.overflowY = "scroll";
+    }
+
+     resizeFrame( "grow" );
+}
+
+function adjustCount(caller, countName)
+{
+    var counter = document.getElementById(countName);
+    if(caller && caller.checked && caller.checked === true)
+    {
+        counter.value = parseInt(counter.value) + 1;
+    }
+    else
+    {
+        counter.value = parseInt(counter.value) - 1;
     }
 }

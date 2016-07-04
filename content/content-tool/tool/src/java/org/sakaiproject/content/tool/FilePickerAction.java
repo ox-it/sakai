@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -209,6 +210,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String STATE_SESSION_INITIALIZED = PREFIX + "session_initialized";
 	protected static final String STATE_SHOW_ALL_SITES = PREFIX + "show_all_sites";
 	protected static final String STATE_SHOW_OTHER_SITES = PREFIX + "show_other_sites";
+	public static final String SAK_PROP_SHOW_ALL_SITES = PREFIX + "show_all_collections";
 
 	/** The sort by */
 	private static final String STATE_SORT_BY = PREFIX + "sort_by";
@@ -218,6 +220,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	/** The sort ascending or decending */
 	private static final String STATE_SORT_ASC = PREFIX + "sort_asc";
+	/** Existing action pipe ResourceToolActionPipe stored in the toolSession*/
+	private static final String SAVED_ACTION_PIPE = PREFIX + "saved_action_pipe";
 
 	private static final String TEMPLATE_ATTACH = "content/sakai_filepicker_attach";
 	private static final String TEMPLATE_SELECT = "content/sakai_filepicker_select";
@@ -269,6 +273,12 @@ public class FilePickerAction extends PagedResourceHelperAction
 			else if(pipe.isActionCompleted())
 			{
 				finishAction(state, toolSession, pipe);
+				//To check if the session has any saved ResourceToolAction.ACTION_PIPE
+				ResourceToolActionPipe savedActionPipe = (ResourceToolActionPipe) toolSession.getAttribute(SAVED_ACTION_PIPE);
+				if(savedActionPipe != null){
+					//Set back the previously saved pipe into the toolSession
+					toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, savedActionPipe);
+				}
 			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
 		}
@@ -557,6 +567,12 @@ public class FilePickerAction extends PagedResourceHelperAction
 			context.put("list_has_changed", Boolean.TRUE.toString());
 		}
 
+		Boolean showURL = (Boolean) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL);
+		showURL = showURL == null ? Boolean.TRUE : showURL;
+		context.put("show_url", showURL);
+		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL, showURL);
+
+		
 		String homeCollectionId = (String) toolSession.getAttribute(STATE_HOME_COLLECTION_ID);
 		if(homeCollectionId == null)
 		{
@@ -715,8 +731,18 @@ public class FilePickerAction extends PagedResourceHelperAction
 				{
 					items = filterList(items, filter);
 				}
+				//Check if the ListItem in 'items' matches with the attach_item in the new_items list , if yes then it should not have option to be selected.
+				for(Object new_item : new_items){
+					for(ListItem listItem : items){
+						if(listItem.getId().equals(((AttachItem)new_item).getId())){
+							listItem.setCanSelect(false);
+							break;
+						}
+
+					}
+				}
 				this_site.addAll(items);
-				
+
 			}
 			
 			context.put ("this_site", this_site);
@@ -932,6 +958,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		{
 			state.removeAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS);
 			state.removeAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER);
+			state.removeAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL);
 			state.removeAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID);
 			state.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 		}
@@ -1037,8 +1064,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 		state.setAttribute(STATE_MODE, MODE_HELPER);
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT);
 		
-		// TODO: Should check sakai.properties
-		toolSession.setAttribute(STATE_SHOW_ALL_SITES, Boolean.TRUE.toString());
+		boolean show_all_sites = ServerConfigurationService.getBoolean(SAK_PROP_SHOW_ALL_SITES, 
+				ServerConfigurationService.getBoolean(ResourcesAction.SAK_PROP_SHOW_ALL_SITES_IN_HELPER, Boolean.TRUE));
+		toolSession.setAttribute(STATE_SHOW_ALL_SITES, Boolean.toString(show_all_sites));
 
 		// state attribute ResourcesAction.STATE_ATTACH_TOOL_NAME should be set with a string to indicate name of tool
 		String toolName = ToolManager.getCurrentPlacement().getTitle();
@@ -1132,7 +1160,14 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		//toolSession.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 
-		String itemId = params.getString("itemId");
+		String itemId = null;
+		try {
+		    itemId = URLDecoder.decode(params.getString("itemId"), "UTF-8");
+		} catch (java.io.UnsupportedEncodingException e) {
+		    // should be impossible. use original, with warning
+		    logger.warn("UTF-8 unsupported???");
+		    itemId = params.getString("itemId");
+		}
 
 		Object attach_links = toolSession.getAttribute(STATE_ATTACH_LINKS);
 
@@ -2274,6 +2309,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 			pipe.setContentEntity(entity);
 			pipe.setHelperId(iAction.getHelperId());
 			
+			//If toolSession has any ResourceToolAction.ACTION_PIPE , store it in session before it gets overwritten
+			ResourceToolActionPipe savedActionPipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+			if(savedActionPipe != null){
+				toolSession.setAttribute(SAVED_ACTION_PIPE, savedActionPipe);
+			}
 			toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, pipe);
 
 			ResourceProperties props = entity.getProperties();

@@ -39,6 +39,7 @@ public interface ItemMetaDataIfc
   public static final String NUMATTEMPTS= "NUMATTEMPTS";
   public static final String CASE_SENSITIVE_FOR_FIB= "CASE_SENSITIVE";
   public static final String MUTUALLY_EXCLUSIVE_FOR_FIB= "MUTUALLY_EXCLUSIVE";
+  public static final String IGNORE_SPACES_FOR_FIB= "IGNORE_SPACES";
   //public static final String CASE_SENSITIVE_FOR_FIN= "CASE_SENSITIVE_FOR_FIN";
   //public static final String MUTUALLY_EXCLUSIVE_FOR_FIN= "MUTUALLY_EXCLUSIVE_FOR_FIN";
   //sam-939
@@ -48,7 +49,8 @@ public interface ItemMetaDataIfc
   public static final String MX_SURVEY_QUESTION_COMMENTFIELD = "MX_SURVEY_QUESTION_COMMENTFIELD";
   public static final String MX_SURVEY_RELATIVE_WIDTH = "MX_SURVEY_RELATIVE_WIDTH";
 
-  
+  public static final String REQUIRE_ALL_OK = "REQUIRE_ALL_OK";  //this is for Image map questions.
+  public static final String IMAGE_MAP_SRC = "IMAGE_MAP_SRC";  //this is for Image map questions.
   
   // used in QTI import/export
   // possible entries YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, EXCELLENT, 5, 10 

@@ -534,7 +534,12 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 				UserMessage heartbeat = heartbeatMap.get(user.getId());
 				// Flag this user as offline if they can't access portal chat
 				boolean offline = !portalChatPermittedHelper.checkChatPermitted(user.getId());
-				presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(), offline, heartbeatMap.get(user.getId()).content));
+				// If the DB and the jGroups have got out of sync there might not be any entry in the heartbeat map.
+				if (heartbeat == null) {
+					logger.info("Failed to find " + user.getId() + " in heartbeat map.");
+				} else {
+					presentUsers.add(new PortalChatUser(user.getId(), user.getDisplayName(), offline, heartbeat.content));
+				}
 			}
         }
 		

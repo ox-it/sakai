@@ -1,3 +1,4 @@
+
 /**********************************************************************************
  * $URL$
  * $Id$
@@ -22,6 +23,7 @@
 package org.sakaiproject.tool.assessment.facade;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,28 +61,36 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.GradingAttachmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -90,8 +100,6 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIf
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob;
-import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
@@ -101,9 +109,15 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
+import org.sakaiproject.exception.ServerOverloadException;
 
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI{
-  private Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
+  private static final Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
 
   /**
    * Default empty Constructor
@@ -120,6 +134,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  this.contentHostingService = contentHostingService;
   }
 
+  private SecurityService securityService;
+
+  public void setSecurityService(SecurityService securityService) {
+    this.securityService = securityService;
+  }
+
   private UserDirectoryService userDirectoryService;
 
 
@@ -133,10 +153,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	this.persistenceHelper = persistenceHelper;
   }
 
-/**
-   * Class Methods
+
+  /**
+   * 
+   * @param publishedId
+   * @param which
+   * @return 
    */
-  
   public List getTotalScores(final String publishedId, String which) {
 	  return getTotalScores(publishedId, which, true);
   }
@@ -160,7 +183,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-      		Query q = null;
+      		Query q;
       		if (getSubmittedOnly) {
       			q = session.createQuery(
       					"from AssessmentGradingData a where a.publishedAssessmentId=? " +
@@ -178,12 +201,29 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       			q.setLong(0, Long.parseLong(publishedId));
       			q.setBoolean(1, true);
       			q.setBoolean(2, false);
-      			q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
+      			q.setInteger(3, AssessmentGradingData.NO_SUBMISSION);
       		}
       		return q.list();
       	};
       };
       List list = getHibernateTemplate().executeFind(hcb);
+      Map<Long, List<AssessmentGradingAttachment>> attachmentMap;
+      //if (loadItemGradingAttachment) {
+    	  attachmentMap = getAssessmentGradingAttachmentMap(Long.valueOf(publishedId));
+      //}
+      Iterator iter = list.iterator();
+      while (iter.hasNext())
+      {
+    	  AssessmentGradingData data = (AssessmentGradingData) iter.next();
+    	  //if (loadItemGradingAttachment) {
+    		  if (attachmentMap.get(data.getAssessmentGradingId()) != null) {
+    			  data.setAssessmentGradingAttachmentList(attachmentMap.get(data.getAssessmentGradingId()));
+    		  }
+    		  else {
+    			  data.setAssessmentGradingAttachmentList(new ArrayList<AssessmentGradingAttachment>());
+    		  }
+    	  //}
+      }
 
 //      List list = getHibernateTemplate().find(
 //    		  "from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by agentId ASC, finalScore DESC, submittedDate DESC", 
@@ -193,7 +233,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       if (which.equals(EvaluationModelIfc.LAST_SCORE.toString())) {
     	  final HibernateCallback hcb2 = new HibernateCallback(){
     		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-    	    	Query q = null;
+    	    	Query q;
 	      		if (getSubmittedOnly) {
 	    			q = session.createQuery(
 	    					"from AssessmentGradingData a where a.publishedAssessmentId=? " +
@@ -210,7 +250,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	      			q.setLong(0, Long.parseLong(publishedId));
 	      			q.setBoolean(1, true);
 	      			q.setBoolean(2, false);
-	      			q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
+	      			q.setInteger(3, AssessmentGradingData.NO_SUBMISSION);
 	      		}
 	    		return q.list();
     	    };
@@ -226,10 +266,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return list;
       }
       else {
+        if(list.isEmpty()) {
+             return new ArrayList();
+        }
         // only take highest or latest
         Iterator items = list.iterator();
         ArrayList newlist = new ArrayList();
-        String agentid = null;
+        String agentid;
         AssessmentGradingData data = (AssessmentGradingData) items.next();
         // daisyf add the following line on 12/15/04
         data.setPublishedAssessmentId(Long.valueOf(publishedId));
@@ -248,7 +291,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         return newlist;
       }
     } catch (RuntimeException e) {
-      e.printStackTrace();
+      log.warn( e );
       return new ArrayList();
     }
   }
@@ -282,8 +325,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
       		Query q = session.createQuery(
       				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.status <> ? order by a.agentId asc, a.submittedDate desc");
-      		q.setLong(0, publishedId.longValue());
-    		q.setInteger(1, AssessmentGradingData.NO_SUBMISSION.intValue());
+      		q.setLong(0, publishedId);
+    		q.setInteger(1, AssessmentGradingData.NO_SUBMISSION);
       		return q.list();
       	};
       };
@@ -335,7 +378,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
           }
 
           /** create or disjunctive expression for (in clauses) */
-          List tempList = new ArrayList();
+          List tempList;
         for (int i = 0; i < gradingIdList.size(); i += 50){
           if (i + 50 > gradingIdList.size()){
               tempList = gradingIdList.subList(i, gradingIdList.size());
@@ -368,9 +411,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       };
       List temp = (List) getHibernateTemplate().execute(hcb);
 
-      HashMap<Long,ArrayList<ItemGradingAttachment>> attachmentMap = new HashMap<Long,ArrayList<ItemGradingAttachment>> ();
+      HashMap<Long,ArrayList<ItemGradingAttachment>> attachmentMap = new HashMap<> ();
       if (loadItemGradingAttachment) {
-    	  attachmentMap = getItemGradingAttachmentMap(Long.valueOf(itemId));
+    	  attachmentMap = getItemGradingAttachmentMap(itemId);
       }
       Iterator iter2 = temp.iterator();
       while (iter2.hasNext())
@@ -393,7 +436,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       return map;
     } catch (Exception e) {
-      e.printStackTrace();
+      log.warn( e );
       return new HashMap();
     }
   }
@@ -401,7 +444,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   /**
    * This returns a hashmap of all the latest item entries, keyed by
    * item id for easy retrieval.
-   * return (Long publishedItemId, ArrayList itemGradingData)
+   * @param publishedId
+   * @param agentId
+   * @return 
    */
   public HashMap getLastItemGradingData(final Long publishedId, final String agentId)
   {
@@ -420,10 +465,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		Query q = session.createQuery("from AssessmentGradingData a where a.publishedAssessmentId=? " +
       				"and a.agentId=? and a.forGrade=? and a.status<>? " +
       				"order by a.submittedDate DESC");
-      		q.setLong(0, publishedId.longValue());
+      		q.setLong(0, publishedId);
       		q.setString(1, agentId);
       		q.setBoolean(2, false);
-    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
+    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION);
       		return q.list();
       	};
       };
@@ -436,12 +481,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       AssessmentGradingData gdata = (AssessmentGradingData) scores.toArray()[0];
       // initialize itemGradingSet
       gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
-      if (gdata.getForGrade().booleanValue())
+      if (gdata.getForGrade())
         return new HashMap();
-      Iterator iter = gdata.getItemGradingSet().iterator();
-      while (iter.hasNext())
+      for( ItemGradingData data : gdata.getItemGradingSet() )
       {
-        ItemGradingData data = (ItemGradingData) iter.next();
         ArrayList thisone = (ArrayList) map.get(data.getPublishedItemId());
         if (thisone == null)
           thisone = new ArrayList();
@@ -450,7 +493,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       return map;
     } catch (Exception e) {
-      e.printStackTrace();
+      log.warn( e );
       return new HashMap();
     }
   }
@@ -460,6 +503,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   /**
    * This returns a hashmap of all the submitted items, keyed by
    * item id for easy retrieval.
+   * @param assessmentGradingId
+   * @return 
    */
   public HashMap getStudentGradingData(String assessmentGradingId)
   {
@@ -473,10 +518,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       AssessmentGradingData gdata = load(new Long(assessmentGradingId), loadGradingAttachment);
       log.debug("****#6, gdata="+gdata);
       //log.debug("****#7, item size="+gdata.getItemGradingSet().size());
-      Iterator iter = gdata.getItemGradingSet().iterator();
-      while (iter.hasNext())
+      for( ItemGradingData data : gdata.getItemGradingSet() )
       {
-        ItemGradingData data = (ItemGradingData) iter.next();
         ArrayList thisone = (ArrayList)
           map.get(data.getPublishedItemId());
         if (thisone == null)
@@ -486,7 +529,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       return map;
     } catch (Exception e) {
-      e.printStackTrace();
+      log.warn( e );
       return new HashMap();
     }
   }
@@ -510,16 +553,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		log.debug("scoringoption = " + scoringoption);
       		if (EvaluationModelIfc.LAST_SCORE.equals(scoringoption)){
       			// last submission
-      			Query q = null;
+      			Query q;
       			if (assessmentGradingId == null) {
       				q = session.createQuery("from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate DESC");
-      				q.setLong(0, publishedId.longValue());
+      				q.setLong(0, publishedId);
       				q.setString(1, agentId);
       				q.setBoolean(2, true);
       			}
       			else {
       				q = session.createQuery("from AssessmentGradingData a where a.assessmentGradingId=? ");
-      				q.setLong(0, assessmentGradingId.longValue());
+      				q.setLong(0, assessmentGradingId);
       			}
       			return q.list();
       		}
@@ -528,13 +571,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       			Query q1 = null;
       			if (assessmentGradingId == null) {
       				q1 = session.createQuery("from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.finalScore DESC, a.submittedDate DESC");
-      				q1.setLong(0, publishedId.longValue());
+      				q1.setLong(0, publishedId);
       				q1.setString(1, agentId);
       				q1.setBoolean(2, true);
       			}
       			else {
       				q1 = session.createQuery("from AssessmentGradingData a where a.assessmentGradingId=? ");
-      				q1.setLong(0, assessmentGradingId.longValue());
+      				q1.setLong(0, assessmentGradingId);
       			}
       			return q1.list();          			
       		}
@@ -549,10 +592,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       AssessmentGradingData gdata = (AssessmentGradingData) scores.toArray()[0];
       HashMap attachmentMap = getItemGradingAttachmentMapByAssessmentGradingId(gdata.getAssessmentGradingId());
       gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
-      Iterator iter = gdata.getItemGradingSet().iterator();
-      while (iter.hasNext())
+      for( ItemGradingData data : gdata.getItemGradingSet() )
       {
-        ItemGradingData data = (ItemGradingData) iter.next();
         if (attachmentMap.get(data.getItemGradingId()) != null) {
     		data.setItemGradingAttachmentList((ArrayList<ItemGradingAttachment>) attachmentMap.get(data.getItemGradingId()));
     	}
@@ -569,13 +610,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       return map;
     } catch (Exception e) {
-      e.printStackTrace();
+      log.warn( e );
       return new HashMap();
     }
   }
 
   public Long add(AssessmentGradingData a) {
-    int retryCount = persistenceHelper.getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().save(a);
@@ -590,12 +631,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public int getSubmissionSizeOfPublishedAssessment(Long publishedAssessmentId){
-	Object [] values = {Boolean.valueOf(true), publishedAssessmentId};
+	Object [] values = {true, publishedAssessmentId};
 	List size = getHibernateTemplate().find(
         "select count(a) from AssessmentGradingData a where a.forGrade=? and a.publishedAssessmentId=?", values);
     Iterator iter = size.iterator();
     if (iter.hasNext()){
-      int i = ((Integer)iter.next()).intValue();
+      int i = ((Integer)iter.next());
       return i;
     }
     else{
@@ -604,29 +645,190 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
   
   public Long saveMedia(byte[] media, String mimeType){
-    log.debug("****"+AgentFacade.getAgentString()+"saving media...size="+media.length+" "+(new Date()));
     MediaData mediaData = new MediaData(media, mimeType);
-    int retryCount = persistenceHelper.getRetryCount().intValue();
-    while (retryCount > 0){ 
-      try {
-        getHibernateTemplate().save(mediaData);
-        retryCount = 0;
-      }
-      catch (Exception e) {
-        log.warn("problem saving media with mimeType: "+e.getMessage());
-        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
-      }
-    }
-    log.debug("****"+AgentFacade.getAgentString()+"saved media."+(new Date()));
-    return mediaData.getMediaId();
+    mediaData.setFileSize((long)media.length);
+    return saveMedia(mediaData);
   }
+
+	protected void pushAdvisor() {
+		securityService.pushAdvisor(new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function, String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+	protected void popAdvisor() {
+		securityService.popAdvisor();
+	}
+
+	protected boolean checkMediaCollection(String id) {
+		pushAdvisor();
+		try {
+			contentHostingService.checkCollection(id);
+		} catch (IdUnusedException | TypeException | PermissionException e) {
+			return false;
+		} finally {
+			popAdvisor();
+		}
+		return true;
+	}
+
+	protected boolean ensureMediaCollection(String id) {
+		pushAdvisor();
+		try {
+			ContentCollection coll = contentHostingService.getCollection(id);
+		} catch (IdUnusedException ie) {
+			log.debug("Creating collection: " + id);
+			String name = id;
+			if (name.endsWith("/")) {
+				name = id.substring(0, id.length() - 1);
+			}
+			name = name.substring(name.lastIndexOf('/') + 1);
+
+			try {
+				ContentCollectionEdit edit = contentHostingService.addCollection(id);
+				ResourcePropertiesEdit props = edit.getPropertiesEdit();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				contentHostingService.commitCollection(edit);
+			} catch (IdUsedException | IdInvalidException | PermissionException | InconsistentException collex) {
+				log.warn("[Samigo Media Attachments] Exception while creating collection (" + id + "): " + collex.toString());
+				return false;
+			}
+		} catch (TypeException | PermissionException e) {
+			log.warn("[Samigo Media Attachments] General exception while ensuring collection: " + e.toString());
+		} finally {
+			popAdvisor();
+		}
+		return true;
+	}
+
+	protected boolean ensureMediaPath(String path) {
+		if (!path.startsWith("/")) {
+			throw new IllegalArgumentException("[Samigo Media Attachments] Relative media paths are not acceptable. (" + path + ")");
+		}
+
+		int lastSlash = path.lastIndexOf("/");
+
+		// Fast track already existing collections
+		if (lastSlash != 0 && checkMediaCollection(path.substring(0, lastSlash+1))) {
+			return true;
+		}
+
+		// Ensure everything exists from the root
+		int slash = 1;
+		while (slash != lastSlash) {
+			slash = path.indexOf("/", slash+1);
+			if (!ensureMediaCollection(path.substring(0, slash+1))) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Create or update a ContentResource for the media payload of this MediaData.
+	 * @param mediaData the complete MediaData item to save if the media byte array is not null
+	 * @return the ID in Content Hosting of the stored item; null on failure
+	 */
+	protected String saveMediaToContent(MediaData mediaData) {
+		String mediaPath = getMediaPath(mediaData);
+		if (mediaData.getMedia() != null && ensureMediaPath(mediaPath)) {
+			log.debug("=====> Saving media: " + mediaPath);
+			pushAdvisor();
+			boolean newResource = true;
+
+			try {
+				contentHostingService.checkResource(mediaPath);
+				newResource = false;
+			} catch (PermissionException | IdUnusedException | TypeException e) {
+				// Just a check, no handling
+			}
+
+			try {
+				ContentResource chsMedia;
+				if (newResource) {
+					ContentResourceEdit edit = contentHostingService.addResource(mediaPath);
+					edit.setContentType(mediaData.getMimeType());
+					edit.setContent(mediaData.getMedia());
+					ResourcePropertiesEdit props = edit.getPropertiesEdit();
+					props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, mediaData.getFilename());
+					contentHostingService.commitResource(edit);
+					chsMedia = contentHostingService.getResource(mediaPath);
+				} else {
+					chsMedia = contentHostingService.updateResource(mediaPath, mediaData.getMimeType(), mediaData.getMedia());
+				}
+				// Free the byte array since it has been stored in content. Hold the new ContentResource
+				mediaData.setDbMedia(null);
+				mediaData.setContentResource(chsMedia);
+				return mediaPath;
+			} catch (PermissionException | IdUsedException | IdInvalidException | InconsistentException | ServerOverloadException | OverQuotaException | VirusFoundException | IdUnusedException | TypeException | InUseException e) {
+				log.warn("Exception while saving media to content: " + e.toString());
+			} finally {
+				popAdvisor();
+			}
+		}
+		return null;
+	}
+
+	protected ContentResource getMediaContentResource(MediaData mediaData) {
+		if (mediaData.getContentResource() != null) {
+			return mediaData.getContentResource();
+		}
+
+		String id = getMediaPath(mediaData);
+		log.debug("=====> Reading media: " + id);
+		if (id != null) {
+			pushAdvisor();
+			try {
+				ContentResource res = contentHostingService.getResource(id);
+				return res;
+			} catch (IdUnusedException ie) {
+				log.info("Nonexistent resource when trying to load media (id: " + mediaData.getMediaId() + "): " + id);
+			} catch (PermissionException | TypeException e) {
+				log.debug("Exception while reading media from content ("+ mediaData.getMediaId() + "):" + e.toString());
+			} finally {
+				popAdvisor();
+			}
+		}
+		return null;
+	}
+
+	protected String getMediaPath(MediaData mediaData) {
+		String mediaBase = "/private/samigo/";
+		String mediaPath = null;
+
+		ItemGradingData itemGrading = mediaData.getItemGradingData();
+
+		if (itemGrading != null) {
+			PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+			PublishedAssessmentIfc assessment = getPublishedAssessmentByAssessmentGradingId(
+					itemGrading.getAssessmentGradingId());
+			String assessmentId = assessment.getPublishedAssessmentId().toString();
+			String siteId = publishedAssessmentService.getPublishedAssessmentSiteId(assessmentId);
+			String userId = itemGrading.getAgentId();
+			String questionId = itemGrading.getPublishedItemId().toString();
+
+			if (questionId != null && assessmentId != null) {
+				mediaPath = mediaBase + siteId + "/" + assessmentId + "/" + userId + "/" + questionId + "_"
+						+ mediaData.getFilename();
+			}
+		}
+
+		return mediaPath;
+	}
 
   public Long saveMedia(MediaData mediaData){
     log.debug("****"+mediaData.getFilename()+" saving media...size="+mediaData.getFileSize()+" "+(new Date()));
-    int retryCount = persistenceHelper.getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount();
+
+    getMediaPath(mediaData);
+
     while (retryCount > 0){ 
       try {
-        getHibernateTemplate().save(mediaData);
+        saveMediaToContent(mediaData);
+        getHibernateTemplate().saveOrUpdate(mediaData);
         retryCount = 0;
       }
       catch (Exception e) {
@@ -654,7 +856,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       log.debug("****Connection="+conn);
       String query0="select LOCATION from SAM_MEDIA_T where MEDIAID=?";
       statement0 = conn.prepareStatement(query0);
-      statement0.setLong(1, mediaId.longValue());
+      statement0.setLong(1, mediaId);
       rs =statement0.executeQuery();
       if (rs.next()){
         mediaLocation = rs.getString("LOCATION");
@@ -663,13 +865,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
       String query="delete from SAM_MEDIA_T where MEDIAID=?";
       statement = conn.prepareStatement(query);
-      statement.setLong(1, mediaId.longValue());
+      statement.setLong(1, mediaId);
       statement.executeUpdate();
       if (!conn.getAutoCommit()) {
     	  conn.commit();
       }
     }
-    catch(Exception e){
+    catch(HibernateException | SQLException e){
       log.warn(e.getMessage());
     }
     finally{
@@ -677,28 +879,28 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     		try {
     			session.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	}
     	if (rs !=null){
     		try {
     			rs.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	}
     	if (statement !=null){
     		try {
     			statement.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	}
        	if (statement0 !=null){
     		try {
     			statement0.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	}
 
@@ -706,7 +908,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     		try {
     			conn.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	} 
     }
@@ -727,6 +929,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public MediaData getMedia(Long mediaId){
 
     MediaData mediaData = (MediaData) getHibernateTemplate().load(MediaData.class, mediaId);
+
+    // Only try to read from Content Hosting if this isn't a link and
+    // there is no media content in the database
+    if (mediaData.getLocation() == null && mediaData.getDbMedia() == null) {
+        mediaData.setContentResource(getMediaContentResource(mediaData));
+    }
     return mediaData;
   }
 
@@ -737,14 +945,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery("from MediaData m where m.itemGradingData.itemGradingId=?");
-    		q.setLong(0, itemGradingId.longValue());
+    		q.setLong(0, itemGradingId);
     		return q.list();
     	};
     };
     List list = getHibernateTemplate().executeFind(hcb);
 
     for (int i=0;i<list.size();i++){
-      a.add((MediaData)list.get(i));
+        MediaData mediaData = (MediaData)list.get(i);
+        mediaData.setContentResource(getMediaContentResource(mediaData));
+        a.add(mediaData);
     }
     log.debug("*** no. of media ="+a.size());
     return a;
@@ -757,14 +967,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery("select new MediaData(m.mediaId, m.filename, m.fileSize, m.duration, m.createdDate) "+
 	    		         " from MediaData m where m.itemGradingData.itemGradingId=?");
-	    		q.setLong(0, itemGradingId.longValue());
+	    		q.setLong(0, itemGradingId);
 	    		return q.list();
 	    	};
 	    };
 	    List list = getHibernateTemplate().executeFind(hcb);
 
 	    for (int i=0;i<list.size();i++){
-	      a.add((MediaData)list.get(i));
+	      MediaData mediaData = (MediaData)list.get(i);
+	      mediaData.setContentResource(getMediaContentResource(mediaData));
+	      a.add(mediaData);
 	    }
 	    log.debug("*** no. of media ="+a.size());
 	    return a;
@@ -779,7 +991,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  Query q = session.createQuery("select i from MediaData m, ItemGradingData i " +
 			  		"where m.itemGradingData.itemGradingId = i.itemGradingId " +
 			  		"and i.assessmentGradingId = ? ");
-			  q.setLong(0, assessmentGradingId.longValue());
+			  q.setLong(0, assessmentGradingId);
 			  return q.list();
 		  };
 	  };
@@ -801,7 +1013,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     List list = getHibernateTemplate().find(
         "from MediaData m where m.itemGradingData=?", item );
     for (int i=0;i<list.size();i++){
-      a.add((MediaData)list.get(i));
+        MediaData mediaData = (MediaData)list.get(i);
+        mediaData.setContentResource(getMediaContentResource(mediaData));
+        a.add(mediaData);
     }
     log.debug("*** no. of media ="+a.size());
     return a;
@@ -829,7 +1043,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     			}
 
     			/** create or disjunctive expression for (in clauses) */
-    			List tempList = new ArrayList();
+    			List tempList;
     			for (int i = 0; i < itemGradingIdList.size(); i += 50){
     				if (i + 50 > itemGradingIdList.size()){
     					tempList = itemGradingIdList.subList(i, itemGradingIdList.size());
@@ -846,20 +1060,71 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     			//return criteria.setMaxResults(10000).list();
     		}
     	};
-    	return (List) getHibernateTemplate().execute(hcb);
+
+       ArrayList a = new ArrayList();
+       List hbmList = (List) getHibernateTemplate().execute(hcb);
+       for (int i=0;i<hbmList.size();i++){
+               MediaData mediaData = (MediaData)hbmList.get(i);
+               mediaData.setContentResource(getMediaContentResource(mediaData));
+               a.add(mediaData);
+       }
+       return a;
+
     	} catch (Exception e) {
-    		e.printStackTrace();
+    		log.warn( e );
     		return new ArrayList();
     	}
   }
   
+	public List<Long> getMediaConversionBatch() {
+		final HibernateCallback<List<Long>> hcb = new HibernateCallback<List<Long>>() {
+			public List<Long> doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NULL");
+				q.setMaxResults(10);
+				return q.list();
+			}
+		};
+		return getHibernateTemplate().execute(hcb);
+	}
+
+	public boolean markMediaForConversion(final List<Long> mediaIds) {
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Integer doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("UPDATE MediaData SET location = 'CONVERTING' WHERE id in (:ids)");
+				q.setParameterList("ids", mediaIds);
+				return q.executeUpdate();
+			}
+		};
+		return getHibernateTemplate().execute(hcb).equals(mediaIds.size());
+	}
+
+	public List<Long> getMediaWithDataAndLocation() {
+		final HibernateCallback<List<Long>> hcb = new HibernateCallback<List<Long>>() {
+			public List<Long> doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("SELECT id FROM MediaData WHERE dbMedia IS NOT NULL AND location IS NOT NULL");
+				return q.list();
+			}
+		};
+		return getHibernateTemplate().execute(hcb);
+	}
+
+	public List<Long> getMediaInConversion() {
+		final HibernateCallback<List<Long>> hcb = new HibernateCallback<List<Long>>() {
+			public List<Long> doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery("SELECT id FROM MediaData WHERE location = 'CONVERTING'");
+				return q.list();
+			}
+		};
+		return getHibernateTemplate().execute(hcb);
+	}
+
   public ItemGradingData getLastItemGradingDataByAgent(
       final Long publishedItemId, final String agentId)
   {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery("from ItemGradingData i where i.publishedItemId=? and i.agentId=?");
-	    		q.setLong(0, publishedItemId.longValue());
+	    		q.setLong(0, publishedItemId);
 	    		q.setString(1, agentId);
 	    		return q.list();
 	    	};
@@ -870,7 +1135,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 //        "from ItemGradingData i where i.publishedItemId=? and i.agentId=?",
 //        new Object[] { publishedItemId, agentId },
 //        new org.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
-    if (itemGradings.size() == 0)
+    if (itemGradings.isEmpty())
       return null;
     return (ItemGradingData) itemGradings.get(0);
   }
@@ -884,7 +1149,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       };
     };
     List itemGradings = getHibernateTemplate().executeFind(hcb);
-    if (itemGradings.size() == 0)
+    if (itemGradings.isEmpty())
       return null;
     return (ItemGradingData) itemGradings.get(0);
   }
@@ -899,8 +1164,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(
     				"from ItemGradingData i where i.assessmentGradingId = ? and i.publishedItemId=?");
-    		q.setLong(0, assessmentGradingId.longValue());
-    		q.setLong(1, publishedItemId.longValue());
+    		q.setLong(0, assessmentGradingId);
+    		q.setLong(1, publishedItemId);
     		return q.list();
     	};
     };
@@ -910,7 +1175,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 //        "from ItemGradingData i where i.assessmentGradingId = ? and i.publishedItemId=?",
 //        new Object[] { assessmentGradingId, publishedItemId },
 //        new org.hibernate.type.Type[] { Hibernate.LONG, Hibernate.LONG });
-    if (itemGradings.size() == 0)
+    if (itemGradings.isEmpty())
       return null;
     return (ItemGradingData) itemGradings.get(0);
   }
@@ -964,10 +1229,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(
     				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? and a.status<>? order by a.submittedDate desc");
-    		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setLong(0, publishedAssessmentId);
     		q.setString(1, agentIdString);
     		q.setBoolean(2, false);
-    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
+    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION);
     		return q.list();
     	};
     };
@@ -977,7 +1242,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 //        "from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc",
 //         new Object[] { publishedAssessmentId, agentIdString, Boolean.FALSE },
 //         new org.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING, Hibernate.BOOLEAN });
-    if (assessmentGradings.size() != 0){
+    if (!assessmentGradings.isEmpty()){
       ag = (AssessmentGradingData) assessmentGradings.get(0);
       ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
     }  
@@ -991,7 +1256,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(
 	    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc");
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setString(1, agentIdString);
 	    		q.setBoolean(2, true);
 	    		return q.list();
@@ -1014,6 +1279,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		}
 	    	}   
 	    }
+	    
+	    // get AssessmentGradingAttachments
+	    Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
+	    List<AssessmentGradingAttachment> attachments = map.get(ag.getAssessmentGradingId());
+	    if (attachments != null) {
+	    	ag.setAssessmentGradingAttachmentList(attachments);
+	    }
+	    else {
+	    	ag.setAssessmentGradingAttachmentList(new ArrayList<AssessmentGradingAttachment>());
+	    }
+	    
 	    return ag;
   }
   
@@ -1024,7 +1300,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(
     				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? order by a.submittedDate desc");
-    		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setLong(0, publishedAssessmentId);
     		q.setString(1, agentIdString);
     		return q.list();
     	};
@@ -1035,7 +1311,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 //        "from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? order by a.submittedDate desc",
 //         new Object[] { publishedAssessmentId, agentIdString },
 //         new org.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
-    if (assessmentGradings.size() != 0){
+    if (!assessmentGradings.isEmpty()){
       ag = (AssessmentGradingData) assessmentGradings.get(0);
       ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
     }  
@@ -1044,7 +1320,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 
   public void saveItemGrading(ItemGradingData item) {
-    int retryCount = persistenceHelper.getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().saveOrUpdate((ItemGradingData)item);
@@ -1058,7 +1334,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment) {
-    int retryCount = persistenceHelper.getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount();
     while (retryCount > 0){ 
       try {
         /* for testing the catch block - daisyf 
@@ -1088,7 +1364,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       log.debug("****Connection="+conn);
       String query="select MEDIA from SAM_MEDIA_T where MEDIAID=?";
       statement = conn.prepareStatement(query);
-      statement.setLong(1, mediaId.longValue());
+      statement.setLong(1, mediaId);
       rs = statement.executeQuery();
       if (rs.next()){
         java.lang.Object o = rs.getObject("MEDIA");
@@ -1106,7 +1382,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         }
       }
     }
-    catch(Exception e){
+    catch(HibernateException | SQLException | IOException e){
       log.warn(e.getMessage());
     }
     
@@ -1115,35 +1391,35 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     		try {
     			session.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	}
     	if (rs !=null){
     		try {
     			rs.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	}
     	if (statement !=null){
     		try {
     			statement.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	}
        	if (in !=null){
     		try {
     			in.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	} 
     	if (conn !=null){
     		try {
     			conn.close();
     		} catch (Exception e1) {
-    			e1.printStackTrace();
+    			log.warn( e1 );
     		}
     	} 
     }
@@ -1156,7 +1432,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery("select g.assessmentGradingId from "+
 	    		         " ItemGradingData g where g.publishedItemId=?");
-	    		q.setLong(0, publishedItemId.longValue());
+	    		q.setLong(0, publishedItemId);
 	    		return q.list();
 	    	};
 	    };
@@ -1180,7 +1456,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
-    		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setLong(0, publishedAssessmentId);
     		q.setString(1, agentId);
     		return q.list();
     	};
@@ -1190,7 +1466,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 //    List assessmentGradings = getHibernateTemplate().find(query,
 //        new Object[] { publishedAssessmentId, agentId },
 //        new org.hibernate.type.Type[] { Hibernate.LONG, Hibernate.STRING });
-    if (assessmentGradings.size() != 0){
+    if (!assessmentGradings.isEmpty()){
       ag = (AssessmentGradingData) assessmentGradings.get(0);
       ag.setItemGradingSet(getItemGradingSet(ag.getAssessmentGradingId()));
     }  
@@ -1208,7 +1484,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(query);
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setString(1, agentId);
 	    		q.setBoolean(2, true);
 	    		return q.list();
@@ -1232,6 +1508,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	}   
 	    }
 	    
+	    // get AssessmentGradingAttachments
+	    Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
+	    List<AssessmentGradingAttachment> attachments = map.get(ag.getAssessmentGradingId());
+	    if (attachments != null) {
+	    	ag.setAssessmentGradingAttachmentList(attachments);
+	    }
+	    else {
+	    	ag.setAssessmentGradingAttachmentList(new ArrayList<AssessmentGradingAttachment>());
+	    }
+	    
 	    return ag;
 	  }
 
@@ -1241,7 +1527,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
-    		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setLong(0, publishedAssessmentId);
     		return q.list();
     	};
     };
@@ -1264,12 +1550,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public List getLastSubmittedAssessmentGradingList(final Long publishedAssessmentId){
-	    final String query = "from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId asc, a.submittedDate desc";
+	    final String query = "select a from AssessmentGradingData a left join fetch a.assessmentGradingAttachmentSet where a.publishedAssessmentId=? and a.forGrade=? order by a.agentId asc, a.submittedDate desc";
 
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(query);
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setBoolean(1, true);
 	    		return q.list();
 	    	};
@@ -1294,10 +1580,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(query);
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setBoolean(1, true);
 	    		q.setBoolean(2, false);
-	    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
+	    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION);
 	    		return q.list();
 	    	};
 	    };
@@ -1321,7 +1607,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
-    		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setLong(0, publishedAssessmentId);
     		return q.list();
     	};
     };
@@ -1350,10 +1636,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(query);
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setBoolean(1, true);
 	    		q.setBoolean(2, false);
-	    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
+	    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION);
 	    		return q.list();
 	    	};
 	    };
@@ -1387,7 +1673,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
-    		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setLong(0, publishedAssessmentId);
     		return q.list();
     	};
     };
@@ -1446,7 +1732,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
-    		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setLong(0, publishedAssessmentId);
     		return q.list();
     	};
     };
@@ -1494,7 +1780,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
-    		q.setLong(0, assessmentGradingId.longValue());
+    		q.setLong(0, assessmentGradingId);
     		return q.list();
     	};
     };
@@ -1512,12 +1798,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(query);
-	    		q.setLong(0, assessmentGradingId.longValue());
+	    		q.setLong(0, assessmentGradingId);
 	    		return q.list();
 	    	};
 	    };
 	    List itemGradingList = getHibernateTemplate().executeFind(hcb);
-	    HashMap<Long, ItemGradingData> m = new HashMap<Long, ItemGradingData>();
+	    HashMap<Long, ItemGradingData> m = new HashMap<>();
 	    for (int i=0; i<itemGradingList.size();i++){
 	      m.put(((ItemGradingData)itemGradingList.get(i)).getItemGradingId(), (ItemGradingData) itemGradingList.get(i));
 	    }
@@ -1540,7 +1826,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
-    		q.setLong(0, publishedAssessmentId.longValue());
+    		q.setLong(0, publishedAssessmentId);
     		return q.list();
     	};
     };
@@ -1559,7 +1845,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public void deleteAll(Collection c){
-    int retryCount = persistenceHelper.getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().deleteAll(c);
@@ -1573,13 +1859,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
 
-  public void saveOrUpdateAll(Collection c) {
-    int retryCount = persistenceHelper.getRetryCount().intValue();
+  public void saveOrUpdateAll(Collection<ItemGradingData> c) {
+    int retryCount = persistenceHelper.getRetryCount();
     
     c.removeAll(Collections.singleton(null));
     while (retryCount > 0){ 
       try {
-        getHibernateTemplate().saveOrUpdateAll(c);
+          for (ItemGradingData itemGradingData : c) {
+              getHibernateTemplate().saveOrUpdate(itemGradingData);
+          }
         retryCount = 0;
       }
       catch (Exception e) {
@@ -1597,7 +1885,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
     		Query q = session.createQuery(query);
-    		q.setLong(0, assessmentGradingId.longValue());
+    		q.setLong(0, assessmentGradingId);
     		return q.list();
     	};
     };
@@ -1620,7 +1908,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(query);
-	    		q.setLong(0, publishedItemId.longValue());
+	    		q.setLong(0, publishedItemId);
 	    		return q.list();
 	    	};
 	    };
@@ -1646,14 +1934,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  " group by i.publishedItemId, s.sequence, pi.sequence " + 
 						  " order by s.sequence desc , pi.sequence desc");
 				  q.setString(0, agentId);
-				  q.setLong(1, assessmentGradingId.longValue());
+				  q.setLong(1, assessmentGradingId);
 				  return q.list();
 			  };
 		  };
 		  List list = getHibernateTemplate().executeFind(hcb);
-		  if ( list.size() == 0) {
-			  position.add(Integer.valueOf(0));
-			  position.add(Integer.valueOf(0));
+		  if ( list.isEmpty()) {
+			  position.add(0);
+			  position.add(0);
 		  }
 		  else {
 			  Integer sequence = (Integer) list.get(0);
@@ -1673,14 +1961,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  log.debug("sequence = " + sequence);
 			  log.debug("count = " + count);
 			  position.add(sequence);
-			  position.add(Integer.valueOf(count));
+			  position.add(count);
 		  }
 		  return position;
 	  } 
 	  catch (Exception e) {
-		  e.printStackTrace();
-		  position.add(Integer.valueOf(0));
-		  position.add(Integer.valueOf(0));
+		  log.warn( e );
+		  position.add(0);
+		  position.add(0);
 		  return position;
 	  }
   }
@@ -1690,12 +1978,24 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery("select i.publishedItemId from "+
 	    		         " ItemGradingData i where i.assessmentGradingId=?");
-	    		q.setLong(0, assessmentGradingId.longValue());
+	    		q.setLong(0, assessmentGradingId);
 	    		return q.list();
 	    	};
 	    };
 	    return getHibernateTemplate().executeFind(hcb);
   }
+  
+  public List getItemGradingIds(final Long assessmentGradingId){
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery("select i.itemGradingId from "+
+	    		         " ItemGradingData i where i.assessmentGradingId=?");
+	    		q.setLong(0, assessmentGradingId);
+	    		return q.list();
+	    	};
+	    };
+	    return getHibernateTemplate().executeFind(hcb);
+}
   
   public HashSet getItemSet(final Long publishedAssessmentId, final Long sectionId) {
 	  HashSet itemSet = new HashSet();
@@ -1709,15 +2009,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				"and i.assessmentGradingId = a.assessmentGradingId " +
 	    				"and p.itemId = i.publishedItemId ");
 
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setBoolean(1, true);
-	    		q.setLong(2, sectionId.longValue());
+	    		q.setLong(2, sectionId);
 	    		return q.list();
 	    	};
 	    };
 	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
 
-	    final Collection<Long> itemIds = new ArrayList<Long>();
+	    final Collection<Long> itemIds = new ArrayList<>();
 	    Iterator iter = assessmentGradings.iterator();
 	    while(iter.hasNext()) {
     		itemIds.add((Long) iter.next());
@@ -1730,7 +2030,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    			    		
 	    		final Criteria criteria = session.createCriteria( PublishedItemData.class );
 	    		if( itemIds.size() > 1000 ) {
-	    			final Set<Long> ids = new HashSet<Long>();
+	    			final Set<Long> ids = new HashSet<>();
 	    			Disjunction disjunction = Restrictions.disjunction();
 	    			
 	    			for( Long id : itemIds ) {
@@ -1773,7 +2073,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				"from PublishedItemData p, ItemGradingData i " +
 	    				"where i.itemGradingId=? " +
 	    				"and p.itemId = i.publishedItemId ");
-	    		q.setLong(0, itemGradingId.longValue());
+	    		q.setLong(0, itemGradingId);
 	    		return q.list();
 	    	};
 	    };
@@ -1792,7 +2092,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(
 	    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc");
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setString(1, agentIdString);
 	    		q.setBoolean(2, true);
 	    		return q.list();
@@ -1839,7 +2139,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    
 	    List countList = getHibernateTemplate().executeFind(hcb);
 		Iterator iter = countList.iterator();
-		Long lastPublishedAssessmentId = Long.valueOf(-1l);
+		Long lastPublishedAssessmentId = -1l;
 		HashMap numberSubmissionPerStudentHash = new HashMap();
 		while (iter.hasNext()) {
 			Object o[] = (Object[]) iter.next(); 
@@ -1881,7 +2181,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    
 	    List countList = getHibernateTemplate().executeFind(hcb);
 		Iterator iter = countList.iterator();
-		Long lastPublishedAssessmentId = Long.valueOf(-1l);
+		Long lastPublishedAssessmentId = -1l;
 		HashMap numberInProgressPerStudentHash = new HashMap();
 		while (iter.hasNext()) {
 			Object o[] = (Object[]) iter.next(); 
@@ -1909,7 +2209,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				" where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? " +
 	    				" and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
 	    				" and a.submittedDate > s.createdDate");
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setString(1, agentIdString);
 	    		q.setBoolean(2, true);
 	    		return q.list();
@@ -1918,7 +2218,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    List countList = getHibernateTemplate().executeFind(hcb);
 	    Iterator iter = countList.iterator();
 	    if (iter.hasNext()){
-	      int i = ((Integer)iter.next()).intValue();
+	      int i = ((Integer)iter.next());
 	      return i;
 	    }
 	    else{
@@ -1932,11 +2232,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(
 	    				"select a.publishedAssessmentId, a.agentId, count(*) " +
-	    				" from AssessmentGradingData a, StudentGradingSummaryData s, AuthorizationData au " +
+	    				" from AssessmentGradingData a, StudentGradingSummaryData s, AuthorizationData au, PublishedAssessmentData p " +
 	    				" where a.forGrade=? and au.functionId = ? and au.agentIdString = ? and a.publishedAssessmentId = au.qualifierId" +
 	    				" and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
 	    				" and a.submittedDate > s.createdDate" +
-	    				" group by a.publishedAssessmentId, a.agentId");
+	    				" and a.publishedAssessmentId = p.publishedAssessmentId" +
+	    				" and p.status != 2" +
+	    				" group by a.publishedAssessmentId, a.agentId" +
+	    				" order by a.publishedAssessmentId");
 	    		q.setBoolean(0, true);
 	    		q.setString(1, "OWN_PUBLISHED_ASSESSMENT");
 	    		q.setString(2, siteId);
@@ -1945,7 +2248,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    };
 	    List countList = getHibernateTemplate().executeFind(hcb);
 		Iterator iter = countList.iterator();
-		Long lastPublishedAssessmentId = Long.valueOf(-1l);
+		Long lastPublishedAssessmentId = -1l;
 		HashMap actualNumberRetakePerStudentHash = new HashMap();
 		while (iter.hasNext()) {
 			Object o[] = (Object[]) iter.next(); 
@@ -1996,7 +2299,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				"select s " +
 	    				"from StudentGradingSummaryData s " +
 	    				"where s.publishedAssessmentId=? and s.agentId=?");
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setString(1, agentIdString);
 	    		return q.list();
 	    	};
@@ -2013,19 +2316,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				"select s.numberRetake " +
 	    				"from StudentGradingSummaryData s " +
 	    				"where s.publishedAssessmentId=? and s.agentId=?");
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setString(1, agentIdString);
 	    		return q.list();
 	    	};
 	    };
 	    List numberRetakeList = getHibernateTemplate().executeFind(hcb);
 
-	    if (numberRetakeList.size() == 0) {
+	    if (numberRetakeList.isEmpty()) {
 	    	return 0;
 	    }
 	    else {
 	    	Integer numberRetake = (Integer) numberRetakeList.get(0);
-	    	return numberRetake.intValue();
+	    	return numberRetake;
 	    }
   }
   
@@ -2066,11 +2369,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    };
 	    List countList = getHibernateTemplate().executeFind(hcb);
 	    Iterator iter = countList.iterator();
-		Long lastPublishedAssessmentId = Long.valueOf(-1l);
+		Long lastPublishedAssessmentId = -1l;
 		HashMap numberRetakePerStudentHash = null;
 		while (iter.hasNext()) {
 			StudentGradingSummaryData s = (StudentGradingSummaryData) iter.next();
-			Long publishedAssessmentid = (Long) s.getPublishedAssessmentId();
+			Long publishedAssessmentid = s.getPublishedAssessmentId();
 			
 			if (lastPublishedAssessmentId.equals(publishedAssessmentid)) {
 				numberRetakePerStudentHash.put(s.getAgentId(), s.getNumberRetake());
@@ -2087,7 +2390,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
   
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData) {
-	    int retryCount = persistenceHelper.getRetryCount().intValue();
+	    int retryCount = persistenceHelper.getRetryCount();
 	    while (retryCount > 0){ 
 	      try {
 	        getHibernateTemplate().saveOrUpdate((StudentGradingSummaryData) studentGradingSummaryData);
@@ -2105,7 +2408,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(
 	    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? and a.submittedDate>?");
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		q.setString(1, agentIdString);
 	    		q.setBoolean(2, true);
 	    		q.setDate(3, dueDate);
@@ -2127,7 +2430,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		q.setLong(0, Long.parseLong(publishedId));
       		q.setBoolean(1, true);
       		q.setBoolean(2, false);
-    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
+    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION);
       		return q.list();
       	};
       };
@@ -2142,7 +2445,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  PublishedAssessmentService pubService = new PublishedAssessmentService();
 	  
 	  HashSet publishedAssessmentSections = pubService.getSectionSetForAssessment(Long.valueOf(publishedAssessmentId));
-	  Double zeroDouble = new Double(0.0);
+	  Double zeroDouble = 0.0;
 	  HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pubService.getPublishedAssessment(publishedAssessmentId));
 	  HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pubService.getPublishedAssessment(publishedAssessmentId));
 	  HashMap publishedItemHash = pubService.preparePublishedItemHash(pubService.getPublishedAssessment(publishedAssessmentId));
@@ -2152,14 +2455,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       publishItemSet.addAll(publishedItemHash.values());
           
 	  int numSubmission = 1;
-	  String numSubmissionText = noSubmissionMessage;
+	  String numSubmissionText;
 	  String lastAgentId = "";
 	  String agentEid = "";
 	  String firstName = "";
 	  String lastName = "";
 	  Set useridSet = new HashSet(useridMap.keySet());
-	  ArrayList responseList = null;
-	  boolean canBeExported = false;
+	  ArrayList responseList;
+	  boolean canBeExported;
 	  boolean fistItemGradingData = true;
 	  List list = getAllOrderedSubmissions(publishedAssessmentId);
 	  Iterator assessmentGradingIter = list.iterator();	  
@@ -2233,7 +2536,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  if (showPartAndTotalScoreSpreadsheetColumns) {
 				  Double finalScore = assessmentGradingData.getFinalScore();
 				  if (finalScore != null) {
-                      responseList.add((Double)finalScore.doubleValue()); // gopal - cast for spreadsheet numerics
+                      responseList.add(finalScore); // gopal - cast for spreadsheet numerics
 				  } else {
 					  log.debug("finalScore is NULL");
 					  responseList.add(0d); 
@@ -2299,14 +2602,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
                   //Add the missing sequences!
                                   //To manage emi answers, could help with others too
-                                  Map<Long, String> emiAnswerText = new TreeMap<Long, String>();
+                                  Map<Long, String> emiAnswerText = new TreeMap<>();
 				  for (Object ooo: l) {
 					  grade = (ItemGradingData)ooo;
 					  if (grade == null || EmptyItemGrading.class.isInstance(grade)) {
 						  continue;
 					  }
-					  if (grade!=null && grade.getAutoScore()!=null) {
-						  itemScore += grade.getAutoScore().doubleValue();
+					  if (grade.getAutoScore()!=null) {
+						  itemScore += grade.getAutoScore();
 					  }
 
 					  // now print answer data
@@ -2318,7 +2621,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 					  if (typeId.equals(TypeIfc.FILL_IN_BLANK) || typeId.equals(TypeIfc.FILL_IN_NUMERIC) || typeId.equals(TypeIfc.CALCULATED_QUESTION)) {
 						  log.debug("FILL_IN_BLANK, FILL_IN_NUMERIC");
 						  isFinFib = true;
-						  String thistext = "";
+						  String thistext;
 
 						  Long answerid = grade.getPublishedAnswerId();
 						  Long sequence = null;
@@ -2344,7 +2647,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 					  }
 					  else if (typeId.equals(TypeIfc.MATCHING)) {
 						  log.debug("MATCHING");
-						  String thistext = "";
+						  String thistext;
 
 						  // for some question types we have another text field
 						  Long answerid = grade.getPublishedAnswerId();
@@ -2377,9 +2680,57 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 						  count++;
 					  }
+					  else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
+						  log.debug("MATCHING");
+						  
+						  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+						  Long sequence = itemTextIfc.getSequence();
+						  String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
+						  
+						  String thistext = sequence + ": " + temptext;
+
+						  if (count == 0)
+							  maintext = thistext;
+						  else
+							  maintext = maintext + "|" + thistext;
+
+						  count++;
+					  }
+					  else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
+						  log.debug("MATCHING");
+						  
+						  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+						  Long sequence = itemTextIfc.getSequence();
+						  String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
+						  
+						  String thistext = sequence + ": " + temptext;
+
+						  if (count == 0)
+							  maintext = thistext;
+						  else
+							  maintext = maintext + "|" + thistext;
+
+						  count++;
+					  }
+					  else if (typeId.equals(TypeIfc.IMAGEMAP_QUESTION)) {
+						  log.debug("MATCHING");
+						  
+						  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+						  Long sequence = itemTextIfc.getSequence();
+						  String temptext = (grade.getIsCorrect()) ? "OK" : "No OK";
+						  
+						  String thistext = sequence + ": " + temptext;
+
+						  if (count == 0)
+							  maintext = thistext;
+						  else
+							  maintext = maintext + "|" + thistext;
+
+						  count++;
+					  }
 					  else if (typeId.equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) { 
 						  log.debug("EXTENDED_MATCHING_ITEMS");
-						  String thistext = "";
+						  String thistext;
 
 						  // for some question types we have another text field
 						  Long answerid = grade.getPublishedAnswerId();
@@ -2425,8 +2776,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  // for this kind of question a responsesMap is generated
 						  matrixChoices = true;
 						  Long answerid = grade.getPublishedAnswerId();
-						  String temptext = "No Answer";
-						  Long sequence = null;
+						  String temptext;
+						  Long sequence;
 						  if (answerid != null) {
 							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
 							  temptext = answer.getText();
@@ -2521,7 +2872,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                                         maintext = maintext.substring(1);
                                     }
                                   }
-                  Integer sectionSequenceNumber = null;
+                  Integer sectionSequenceNumber;
                   if(grade == null || EmptyItemGrading.class.isInstance(grade)){
                   	sectionSequenceNumber = EmptyItemGrading.class.cast(grade).getSectionSequence();
                     questionNumber = EmptyItemGrading.class.cast(grade).getItemSequence();
@@ -2531,7 +2882,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                   	sectionSequenceNumber = updateSectionScore(sectionItems, sectionScores, grade.getPublishedItemId(), itemScore);
                   }
                   
-				  if (isFinFib && maintext.indexOf("No Answer") >= 0 && count == 1) {
+				  if (isFinFib && maintext.contains( "No Answer" ) && count == 1) {
 					  maintext = "No Answer";
 				  }
 				  else if ("".equals(maintext)) {
@@ -2622,7 +2973,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  if (sectionScores.size() > 1) {
 					  Iterator keys = sectionScores.keySet().iterator();
 					  while (keys.hasNext()) {
-						  Double partScore = (Double) ((Double) sectionScores.get(keys.next())).doubleValue() ;
+						  Double partScore = (Double) (sectionScores.get(keys.next()));
 						  responseList.add(sectionScoreColumnStart++, partScore);
 					  }
 				  }
@@ -2636,7 +2987,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  }
 	  } // while
 
-	  if (!anonymous && useridSet.size() != 0) {
+	  if (!anonymous && !useridSet.isEmpty()) {
 		  Iterator iter = useridSet.iterator();
 		  while (iter.hasNext()) {
 			  String id = (String) iter.next();
@@ -2676,9 +3027,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  HashMap itemsForSection = (HashMap) entry.getValue();
 
 		  if (itemsForSection.get(publishedItemId)!=null) {
-			  Double score = Double.valueOf( ((Double)sectionScores.get(sectionSequence)).doubleValue() + itemScore);
+			  Double score = ((Double)sectionScores.get(sectionSequence)) + itemScore;
 			  sectionScores.put(sectionSequence, score);
-                          return ((Integer)sectionSequence).intValue();
+                          return ((Integer)sectionSequence);
 		  }
 	  }
           return 0;
@@ -2712,8 +3063,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			Long aanswerid = agrade.getPublishedAnswerId();
 			Long banswerid = bgrade.getPublishedAnswerId();
 
-			AnswerIfc aanswer=null;
-			AnswerIfc banswer=null;
+			AnswerIfc aanswer;
+			AnswerIfc banswer;
 			
 			if (aanswerid != null && banswerid != null) {
 				aanswer = (AnswerIfc) publishedAnswerHash
@@ -2811,7 +3162,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	 */
 	private static class ResponsesComparator implements Comparator {
 		boolean anonymous;
-		private Log log = LogFactory.getLog(ResponsesComparator.class);
+		private static final Log log = LogFactory.getLog(ResponsesComparator.class);
 		
 		public ResponsesComparator(boolean anony) {
 			anonymous = anony;
@@ -2892,15 +3243,15 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? " +
 		    				"and a.forGrade=? and a.status=? " +
 		    				"order by a.submittedDate desc");
-		    		q.setLong(0, data.getPublishedAssessmentId().longValue());
+		    		q.setLong(0, data.getPublishedAssessmentId());
 		    		q.setString(1, data.getAgentId());
 		    		q.setBoolean(2, false);
-		    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
+		    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION);
 		    		return q.list();
 		    	};
 		    };
 		    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
-		    if (assessmentGradings.size() != 0) { 
+		    if (!assessmentGradings.isEmpty()) { 
 		    	deleteAll(assessmentGradings);
 		    }
 	  }
@@ -2910,17 +3261,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(
 	    				"from AssessmentGradingData a where a.publishedAssessmentId=? ");
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		return q.list();
 	    	};
 	    };
 	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
-	    if (assessmentGradings.size() == 0) {
-	    	return false;
-	    }
-	    else {
-	    	return true;
-	    }
+	    return !assessmentGradings.isEmpty();
   }
   
   public ArrayList getHasGradingDataAndHasSubmission(final Long publishedAssessmentId) {
@@ -2928,14 +3274,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(
 	    				"from AssessmentGradingData a where a.publishedAssessmentId=? order by a.agentId asc, a.submittedDate desc");
-	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setLong(0, publishedAssessmentId);
 	    		return q.list();
 	    	};
 	    };
 	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
 	    // first element represents hasGradingData
 	    // second element represents hasSubmission
-	    ArrayList<Boolean> al = new ArrayList<Boolean>(); 
+	    ArrayList<Boolean> al = new ArrayList<>(); 
 	    if (assessmentGradings.size() ==0) {
 	    	al.add(Boolean.FALSE); // no gradingData
 	    	al.add(Boolean.FALSE); // no submission
@@ -2948,7 +3294,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			while (iter.hasNext()) {
 				AssessmentGradingData adata = (AssessmentGradingData) iter.next();
 				if (!currentAgent.equals(adata.getAgentId())){
-					if (adata.getForGrade().booleanValue()) {
+					if (adata.getForGrade()) {
 						al.add(Boolean.TRUE); // has submission
 						hasSubmission = true;
 						break;
@@ -2976,35 +3322,35 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	}
 
 	private String getFilenameWOExtesion(Long itemGradingId, String agentId, String filename) {
-		StringBuffer bindVar = new StringBuffer(filename);
+		StringBuilder bindVar = new StringBuilder(filename);
 		bindVar.append("%");
 		
-   	    Object [] values = {itemGradingId.longValue(), agentId, bindVar.toString()};
+   	    Object [] values = {itemGradingId, agentId, bindVar.toString()};
 	    List list = getHibernateTemplate().find(
 	    		"select filename from MediaData m where m.itemGradingData.itemGradingId=? and m.createdBy=? and m.filename like ?", values);
-   	    if (list.size() == 0) {
+   	    if (list.isEmpty()) {
 	    	return filename;
 	    }
    	    
    	    HashSet hs = new HashSet();
    	    Iterator iter = list.iterator();
-   	    String name = "";
+   	    String name;
    	    // Only add the filename which
    	    // 1. with no extension because the newly updated one has no extention
    	    // 2. name is same to filename or name like filename(...
    	    // For example, if the filename is ab. We only want ab, ab(1), ab(2)... and don't want abc to be in
    	    while(iter.hasNext()) {
    	    	name = ((String) iter.next()).trim();
-   	    	if (name.indexOf(".") < 0 && (name.equals(filename) || name.startsWith(filename + "("))) {
+   	    	if (!name.contains( "." ) && (name.equals(filename) || name.startsWith(filename + "("))) {
    	    		hs.add(name);
    	    	}
    	    }
    	    
-   	    if (hs.size() == 0) {
+   	    if (hs.isEmpty()) {
    	    	return filename;
    	    }
    	    
-   	    StringBuffer testName = new StringBuffer(filename);
+   	    StringBuilder testName = new StringBuilder(filename);
 	    int i = 1;
 	    while(true) {
 	    	if (!hs.contains(testName.toString())) {
@@ -3012,7 +3358,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	}
 	    	else {
 	    		i++;
-	    		testName = new StringBuffer(filename);
+	    		testName = new StringBuilder(filename);
 	    	    testName.append("(");
 	    		testName.append(i);
 	    		testName.append(")");
@@ -3022,21 +3368,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	
 	private String getFilenameWExtesion(Long itemGradingId, String agentId, String filename, int dotIndex) {
 		String filenameWithoutExtension = filename.substring(0, dotIndex);
-		StringBuffer bindVar = new StringBuffer(filenameWithoutExtension);
+		StringBuilder bindVar = new StringBuilder(filenameWithoutExtension);
 		bindVar.append("%");
 		bindVar.append(filename.substring(dotIndex));
    	       	    
-		Object [] values = {itemGradingId.longValue(), agentId, bindVar.toString()};
+		Object [] values = {itemGradingId, agentId, bindVar.toString()};
 	    List list = getHibernateTemplate().find(
 	    		"select filename from MediaData m where m.itemGradingData.itemGradingId=? and m.createdBy=? and m.filename like ?", values);
-   	    if (list.size() == 0) {
+   	    if (list.isEmpty()) {
 	    	return filename;
 	    }
    	    
    	    HashSet hs = new HashSet();
    	    Iterator iter = list.iterator();
-   	    String name = "";
-   	    int nameLenght = 0;
+   	    String name;
+   	    int nameLenght;
    	    String extension = filename.substring(dotIndex);
    	    int extensionLength = extension.length();
    	    while(iter.hasNext()) {
@@ -3047,7 +3393,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
    	    	}
    	    }
    	    
-   	    if (hs.size() == 0) {
+   	    if (hs.isEmpty()) {
    	    	return filename;
    	    }
    	    
@@ -3081,7 +3427,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" and az.qualifierId=a.publishedAssessmentId and a.forGrade=? and (a.status=? or a.status=?) " +
 						" order by a.status", values);
 		
-		if (list.size() == 0) {
+		if (list.isEmpty()) {
 			return updatedAssessmentList;
 		}
 
@@ -3112,7 +3458,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	
 	public void autoSubmitAssessments() {
 		java.util.Date currentTime = new java.util.Date();
-		Object [] values = {currentTime};
+		Object [] values = {currentTime, currentTime};
 
 		List list = getHibernateTemplate()
 				.find("select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
@@ -3122,7 +3468,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
 						" and c.retractDate <= ?" +
 						" and a.status not in (5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
-						" and a.submittedDate is not null and a.attemptDate <= c.retractDate " +
+						" and a.attemptDate is not null " +
+						" and (a.attemptDate <= c.retractDate or (c.dueDate <= ? and c.lateHandling = 2)) " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId", values);
 		
 	    Iterator iter = list.iterator();
@@ -3151,27 +3498,37 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 			updateGrades = true;
 		}
-		boolean updateCurrentGrade = false;
+		boolean updateCurrentGrade;
 	    while (iter.hasNext()) {
 	    	updateCurrentGrade = false;
+            Map<String, Object> notiValues = new HashMap<>();
 	    	try{
 	    		adata = (AssessmentGradingData) iter.next();
 	    		adata.setHasAutoSubmissionRun(Boolean.TRUE);
 	    		
-	    		if (Boolean.FALSE.equals(adata.getForGrade())){
+				Date endDate = new Date();
+				if (Boolean.FALSE.equals(adata.getForGrade())){
 
-    				adata.setForGrade(Boolean.TRUE);
-    				if (adata.getTotalAutoScore() == null) {
-    					adata.setTotalAutoScore(0d);
-    				}
-    				if (adata.getFinalScore() == null) {
-    					adata.setFinalScore(0d);
-    				}
-    				// SAM-1088
-    				if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
-    						adata.getSubmittedDate().after(assessment.getDueDate())) {
-    					adata.setIsLate(true);
-    				}
+						adata.setForGrade(Boolean.TRUE);
+						if (adata.getTotalAutoScore() == null) {
+								adata.setTotalAutoScore(0d);
+						}
+						if (adata.getFinalScore() == null) {
+								adata.setFinalScore(0d);
+						}
+						if (adata.getAttemptDate() != null && assessment != null && assessment.getDueDate() != null &&
+										adata.getAttemptDate().after(assessment.getDueDate())) {
+								adata.setIsLate(true);
+						}
+						// SAM-1088
+						else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
+										adata.getSubmittedDate().after(assessment.getDueDate())) {
+								adata.setIsLate(true);
+						}
+						// SAM-2729 user probably opened assessment and then never submitted a question
+						if (adata.getSubmittedDate() == null && adata.getAttemptDate() != null) {
+								adata.setSubmittedDate(endDate);
+						}
 
     				updateCurrentGrade = true;
     				adata.setIsAutoSubmitted(Boolean.TRUE);
@@ -3202,12 +3559,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     					EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
     					//will do the i18n issue later.
     					eventLogData.setErrorMsg("No Errors (Auto submit)");
-    					Date endDate = new Date();
     					eventLogData.setEndDate(endDate);
-    					if(endDate != null && eventLogData.getStartDate() != null) {
+    					if(eventLogData.getStartDate() != null) {
     						double minute= 1000*60;
     						int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
-    						eventLogData.setEclipseTime(Integer.valueOf(eclipseTime)); 
+    						eventLogData.setEclipseTime(eclipseTime); 
     					} else {
     						eventLogData.setEclipseTime(null); 
     						eventLogData.setErrorMsg("Error during auto submit");
@@ -3220,7 +3576,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     						AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 
     								", assessmentGradingId=" + adata.getAssessmentGradingId()), true));
     				
+    				notiValues.put("publishedAssessmentID", adata.getPublishedAssessmentId());
+    				notiValues.put("assessmentGradingID", adata.getAssessmentGradingId());
+    				notiValues.put("userID", adata.getAgentId());
+    				notiValues.put("submissionDate", adata.getSubmittedDate());
+
+    				PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment( adata.getPublishedAssessmentId().toString() );
+    				String confirmationNumber = adata.getAssessmentGradingId() + "-" + publishedAssessment.getPublishedAssessmentId() + "-"
+    					+ adata.getAgentId() + "-" + adata.getSubmittedDate().toString();
+    				notiValues.put( "confirmationNumber", confirmationNumber );
+
+    				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AUTO_SUBMITTED, notiValues.toString(), AgentFacade.getCurrentSiteId(), false, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
     			}
+
 	    		lastPublishedAssessmentId = adata.getPublishedAssessmentId();
     			lastAgentId = adata.getAgentId();
 
@@ -3230,11 +3598,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     			if(updateGrades && updateCurrentGrade && toGradebookPublishedAssessmentSiteIdMap.containsKey(adata.getPublishedAssessmentId())) {
     				String currentSiteId = (String) toGradebookPublishedAssessmentSiteIdMap.get(adata.getPublishedAssessmentId());
     				if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)){
-    					int retryCount = persistenceHelper.getRetryCount().intValue();
+    					int retryCount = persistenceHelper.getRetryCount();
     					while (retryCount > 0){
     						try {
-    							Map<String, Double> studentScore = new HashMap<String, Double>();
-    							studentScore.put(adata.getAgentId(),Double.valueOf(adata.getFinalScore()));
+    							Map<String, Double> studentScore = new HashMap<>();
+    							studentScore.put(adata.getAgentId(),adata.getFinalScore());
     							gbsHelper.updateExternalAssessmentScores(adata.getPublishedAssessmentId(), studentScore, g);
     							retryCount = 0;
     						}
@@ -3249,6 +3617,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     					}
     				}
     			}
+
     			adata = null;
 	    	}catch (Exception e) {
 	    		if(adata != null){
@@ -3262,7 +3631,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	}
 
 	private String makeHeader(String section, int sectionNumber, String question, String headerType, int questionNumber, String pool, String poolName) {
-		StringBuffer sb = new StringBuffer(section);
+		StringBuilder sb = new StringBuilder(section);
                 sb.append(" ");
                 sb.append(sectionNumber);
                 sb.append(", ");
@@ -3281,7 +3650,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	}
 	
 	private String makeHeaderMatrix(String section, int sectionNumber, String question, String headerType, int questionNumber, int questionRow, String pool, String poolName) {
-		StringBuffer sb = new StringBuffer(section);
+		StringBuilder sb = new StringBuilder(section);
 		sb.append(" ");
 		sb.append(sectionNumber);
 		sb.append(", ");
@@ -3300,17 +3669,30 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		sb.append(headerType);
 		return sb.toString();
 		}
-       	
+    
 	public ItemGradingAttachment createItemGradingtAttachment(ItemGradingData itemGrading, String resourceId, String filename, String protocol) {
-		ItemGradingAttachment attach = null;
+		GradingAttachmentData attach = createGradingtAttachment(resourceId, filename, protocol);
+		ItemGradingAttachment itemAttach = new ItemGradingAttachment(attach, itemGrading);
+		itemAttach.setItemGrading(itemGrading);
+		return itemAttach;
+	}
+	
+	public AssessmentGradingAttachment createAssessmentGradingtAttachment(AssessmentGradingData assessmentGrading, String resourceId, String filename, String protocol) {
+		GradingAttachmentData attach = createGradingtAttachment(resourceId, filename, protocol);
+		AssessmentGradingAttachment assessAttach = new AssessmentGradingAttachment(attach, assessmentGrading);
+		assessAttach.setAssessmentGrading(assessmentGrading);
+		return assessAttach;
+	}
+	
+	private GradingAttachmentData createGradingtAttachment(String resourceId, String filename, String protocol) {
+		GradingAttachmentData attach = null;
 		Boolean isLink = Boolean.FALSE;
 		try {
 			ContentResource cr = contentHostingService.getResource(resourceId);
 			if (cr != null) {
 				AssessmentFacadeQueries assessmentFacadeQueries = new AssessmentFacadeQueries();
 				ResourceProperties p = cr.getProperties();
-				attach = new ItemGradingAttachment();
-				attach.setItemGrading(itemGrading);
+				attach = new GradingAttachmentData();
 				attach.setResourceId(resourceId);
 				attach.setFilename(filename);
 				attach.setMimeType(cr.getContentType());
@@ -3335,12 +3717,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				attach.setLastModifiedDate(new Date());
 				attach.setLocation(assessmentFacadeQueries.getRelativePath(cr.getUrl(), protocol));
 			}
-		} catch (PermissionException pe) {
-			pe.printStackTrace();
-		} catch (IdUnusedException ie) {
-			ie.printStackTrace();
-		} catch (TypeException te) {
-			te.printStackTrace();
+		} catch (PermissionException | IdUnusedException | TypeException pe) {
+			log.warn( pe );
 		}
 		return attach;
 	}
@@ -3350,8 +3728,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				.load(ItemGradingAttachment.class, attachmentId);
 		ItemGradingData itemGrading = itemGradingAttachment.getItemGrading();
 		// String resourceId = assessmentAttachment.getResourceId();
-		int retryCount = persistenceHelper.getRetryCount()
-				.intValue();
+		int retryCount = persistenceHelper.getRetryCount();
 		while (retryCount > 0) {
 			try {
 				if (itemGrading != null) {
@@ -3368,9 +3745,34 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			}
 		}
 	  }
+	  
+	  public void removeAssessmentGradingAttachment(Long attachmentId) {
+		  AssessmentGradingAttachment assessmentGradingAttachment = (AssessmentGradingAttachment) getHibernateTemplate()
+				.load(AssessmentGradingAttachment.class, attachmentId);
+		AssessmentGradingData assessmentGrading = assessmentGradingAttachment.getAssessmentGrading();
+		// String resourceId = assessmentAttachment.getResourceId();
+		int retryCount = persistenceHelper.getRetryCount();
+		while (retryCount > 0) {
+			try {
+				if (assessmentGrading != null) {
+					Set set = assessmentGrading.getAssessmentGradingAttachmentSet();
+					set.remove(assessmentGradingAttachment);
+					getHibernateTemplate().delete(assessmentGradingAttachment);
+					retryCount = 0;
+				}
+			} catch (Exception e) {
+				log.warn("problem delete assessmentAttachment: "
+						+ e.getMessage());
+				retryCount = persistenceHelper.retryDeadlock(e,
+						retryCount);
+			}
+		}
+	  }
 
-	  public void saveOrUpdateAttachments(List list) {
-		  getHibernateTemplate().saveOrUpdateAll(list);
+	  public void saveOrUpdateAttachments(List<AttachmentIfc> list) {
+		  for (AttachmentIfc attachment : list) {
+		      getHibernateTemplate().saveOrUpdate(attachment);
+		  }
 	  }
 
 	  public HashMap getInProgressCounts(String siteId) {
@@ -3416,7 +3818,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  ArrayList answeredPublishedItemIdList = new ArrayList();
 		  List publishedItemIds = getPublishedItemIds(assessmentGradingData.getAssessmentGradingId());
 		  Iterator iter = publishedItemIds.iterator();
-		  Long answeredPublishedItemId = Long.valueOf(0l);
+		  Long answeredPublishedItemId;
 		  while (iter.hasNext()) {
 			  answeredPublishedItemId = (Long) iter.next();
 			  log.debug("answeredPublishedItemId = " + answeredPublishedItemId);
@@ -3425,7 +3827,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		  Long publishedAssessmentId = assessmentGradingData.getPublishedAssessmentId();
-		  HashSet sectionSet = null;
+		  HashSet sectionSet;
 		  if (sectionSetMap == null || !sectionSetMap.containsKey(publishedAssessmentId)) {
 			  sectionSet = publishedAssessmentService.getSectionSetForAssessment(publishedAssessmentId);
 			  if (sectionSetMap != null) {
@@ -3440,10 +3842,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  return;
 		  }
 
-		  PublishedSectionData publishedSectionData = null;
-		  ArrayList itemArrayList = null;
-		  Long publishedItemId = Long.valueOf(0l);
-		  PublishedItemData publishedItemData = null;
+		  PublishedSectionData publishedSectionData;
+		  ArrayList itemArrayList;
+		  Long publishedItemId;
+		  PublishedItemData publishedItemData;
 		  iter = sectionSet.iterator();
 		  while (iter.hasNext()) {
 			  publishedSectionData = (PublishedSectionData) iter.next();
@@ -3460,12 +3862,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 				  Collections.shuffle(itemArrayList,  new Random(seed));
 
-				  Integer numberToBeDrawn = Integer.valueOf(0);
+				  Integer numberToBeDrawn = 0;
 				  if (publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN) !=null ) {
 					  numberToBeDrawn= Integer.valueOf(publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.NUM_QUESTIONS_DRAWN));
 				  }
 
-				  int samplesize = numberToBeDrawn.intValue();
+				  int samplesize = numberToBeDrawn;
 				  for (int i=0; i < samplesize; i++){
 					  publishedItemData = (PublishedItemData) itemArrayList.get(i);
 					  publishedItemId = publishedItemData.getItemId();
@@ -3510,10 +3912,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  /***
 	   * 
 	   *@author Mustansar Mehmood
+	   * @param publishedAssessmentId
+	   * @param agentId
+	   * @return 
 	   */
 	  public Double getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId)
 	  {
-		  Double averageScore= new Double(0.0);
+		  Double averageScore= 0.0;
 		  AssessmentGradingData ag = null;
 		  final String query ="from AssessmentGradingData a "+
 		  " where a.publishedAssessmentId=? and a.agentId=? and "+
@@ -3522,7 +3927,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  final HibernateCallback hcb = new HibernateCallback(){
 			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				  Query q = session.createQuery(query);
-				  q.setLong(0, publishedAssessmentId.longValue());
+				  q.setLong(0, publishedAssessmentId);
 				  q.setString(1, agentId);
 				  q.setBoolean(2, true);
 				  return q.list();
@@ -3530,8 +3935,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  };
 		  List assessmentGradings = getHibernateTemplate().executeFind(hcb);
 
-		  if (assessmentGradings.size() != 0){
-			  AssessmentGradingData agd=null;
+		  if (!assessmentGradings.isEmpty()){
+			  AssessmentGradingData agd;
 			  Double cumulativeScore=new Double(0);
 			  Iterator i = assessmentGradings.iterator();
 
@@ -3557,7 +3962,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  final HibernateCallback hcb = new HibernateCallback(){
 			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				  Query q = session.createQuery(query);
-				  q.setLong(0, publishedAssessmentId.longValue());
+				  q.setLong(0, publishedAssessmentId);
 				  q.setBoolean(1, true);
 				  return q.list();
 			  };
@@ -3578,6 +3983,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 	  /**
 	   * @author Mustansar Mehmood mustansar@rice.edu
+	   * @param publishedAssessmentId
+	   * @return 
 	   * */
 	  public HashMap getAverageAssessmentGradingByPublishedItem(final Long publishedAssessmentId){
 		  HashMap h = new HashMap();
@@ -3593,7 +4000,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  final HibernateCallback hcb = new HibernateCallback(){
 			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				  Query q = session.createQuery(query);
-				  q.setLong(0, publishedAssessmentId.longValue());
+				  q.setLong(0, publishedAssessmentId);
 				  return q.list();
 			  };
 		  };
@@ -3659,6 +4066,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  return processItemGradingAttachment(itemGradingAttachmentList);
 	  }
 	  
+	  public Map<Long, List<AssessmentGradingAttachment>> getAssessmentGradingAttachmentMap(final Long pubAssessmentId) {
+		  final String query = "select a from AssessmentGradingAttachment a " +
+			  		"where a.assessmentGrading.publishedAssessmentId = :pubAssessmentId ";
+
+		  final HibernateCallback hcb = new HibernateCallback(){
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.createQuery(query);
+				  q.setLong("pubAssessmentId", pubAssessmentId);
+				  return q.list();
+			  };
+		  };
+		  List assessmentGradingAttachmentList = getHibernateTemplate().executeFind(hcb);
+		  return processAssessmentGradingAttachment(assessmentGradingAttachmentList);
+	  }
+	  
 	  public HashMap<Long,ArrayList<ItemGradingAttachment>> getItemGradingAttachmentMapByAssessmentGradingId(final Long assessmentGradingId) {
 		  final String query = "select a from ItemGradingAttachment a, ItemGradingData i " +
 		  		"where a.itemGrading.itemGradingId = i.itemGradingId " +
@@ -3693,6 +4115,25 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  }
 	    
 		  return itemGradingAttachmentMap;
+	  }
+	  
+	  private Map<Long, List<AssessmentGradingAttachment>> processAssessmentGradingAttachment(
+			  List<AssessmentGradingAttachment> assessmentGradingAttachmentList) {
+		  
+		  Map<Long, List<AssessmentGradingAttachment>> assessmentGradingAttachmentMap = new HashMap<>();
+		  for (int i=0; i<assessmentGradingAttachmentList.size(); i++){
+			  AssessmentGradingAttachment attachment = assessmentGradingAttachmentList.get(i);
+			  Long assessGradingId = attachment.getAssessmentGrading().getAssessmentGradingId();
+			  List<AssessmentGradingAttachment> attachmentList = new ArrayList<>();
+			  if (assessmentGradingAttachmentMap.containsKey(assessGradingId)) {
+				  attachmentList = assessmentGradingAttachmentMap.get(assessGradingId);  
+			  }
+			  
+			  attachmentList.add(attachment);
+			  assessmentGradingAttachmentMap.put(assessGradingId, attachmentList);
+		  }
+	    
+		  return assessmentGradingAttachmentMap;
 	  }
 	  
     /**
@@ -3733,7 +4174,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				  Query q = session.createQuery(
 						  "from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.attemptDate desc");
-				  q.setLong(0, publishedAssessmentId.longValue());
+				  q.setLong(0, publishedAssessmentId);
 				  q.setString(1, agentIdString);
 				  q.setBoolean(2, false);
 				  return q.list();

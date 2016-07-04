@@ -27,12 +27,15 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.util.Web;
 
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
@@ -179,14 +182,25 @@ public class ToolUtils
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page, 
 		String portalPrefix, boolean reset, String effectiveSiteId, String pageAlias)
 	{
+		//If portal's CONFIG_AUTO_RESET is not set, check for Site's CONFIG_AUTO_RESET value
+		boolean resetSiteProperty = false;
+		if(!reset){
+			ResourceProperties siteProperties = site.getProperties();
+			try {
+				resetSiteProperty = siteProperties.getBooleanProperty(Portal.CONFIG_AUTO_RESET);
+			} catch (EntityPropertyNotDefinedException e) {
+				//do nothing let resetSiteProperty be set to false
+			} catch (EntityPropertyTypeException e) {
+				//do nothing let resetSiteProperty be set to false
+			}
+		}
 		if ( req == null ) req = getRequestFromThreadLocal();
 		if ( effectiveSiteId == null ) effectiveSiteId = site.getId();
 		if ( pageAlias == null ) pageAlias = page.getId();
 
 		// The normal URL
-		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-				+ Web.escapeUrl(effectiveSiteId) + "/page/");
-		pageUrl = pageUrl + Web.escapeUrl(pageAlias);
+
+		String pageUrl = Web.returnUrl(req, join("/", portalPrefix, Web.escapeUrl(effectiveSiteId), "page", Web.escapeUrl(pageAlias)));
 
 		List<ToolConfiguration> pTools = page.getTools();
 		Iterator<ToolConfiguration> toolz = pTools.iterator();
@@ -203,7 +217,7 @@ public class ToolUtils
 		if (!trinity) return pageUrl;
 
 		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + effectiveSiteId);
-		if (reset) {
+		if (reset || resetSiteProperty) {
 			pageUrl = pageUrl + "/tool-reset/";
 		} else {
 			pageUrl = pageUrl + "/tool/";
@@ -245,10 +259,9 @@ public class ToolUtils
 	 *		The placement / tool ID
 	 * @return The page if found otherwise null.
 	 */
-	public static SitePage getPageForTool(Site site, String toolId)
+	public static SitePage getPageForTool(List<SitePage> pages, String toolId)
 	{
-		if ( site == null || toolId == null ) return null;
-		List pages = site.getOrderedPages();
+		if ( pages == null || toolId == null ) return null;
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
 			SitePage p = (SitePage) i.next();
@@ -281,7 +294,7 @@ public class ToolUtils
 	public static String getPageUrlForTool(HttpServletRequest req, Site site, ToolConfiguration pageTool)
 	{
 		if ( req == null ) req = getRequestFromThreadLocal();
-		SitePage thePage = getPageForTool(site, pageTool.getId());
+		SitePage thePage = pageTool.getContainingPage();
 		if ( thePage == null ) return null;
 		return getPageUrl(req, site, thePage);
 	}
@@ -302,6 +315,35 @@ public class ToolUtils
 		if (toolProps == null) return false;
 		String portletContext = toolProps.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
 		return (portletContext != null);
+	}
+
+	/**
+	 * This builds a URL ready to be encoded but prevents double slashes from getting encoded into
+	 * final URL. We have a problem with building URLs because we have empty site IDs and site IDs
+	 * with slashes in them (in the hierarchy world).
+	 * @param join The string to join the parts with.
+	 * @param parts The parts of the URL to be joined together.
+	 * @return The build string.
+	 */
+	public static String join (String join, String... parts) {
+		StringBuilder build = new StringBuilder();
+		for (String part: parts) {
+			if (part.length() == 0) {
+				continue;
+			}
+			boolean trailing = build.length() > join.length() &&
+					build.substring(build.length()-join.length()).equals(join);
+			boolean starting = part.startsWith(join);
+			if (!(trailing)) {
+				build.append(join);
+			}
+			if (starting) {
+				build.append(part.substring(join.length()));
+			} else {
+				build.append(part);
+			}
+		}
+		return build.toString();
 	}
 
 	/**

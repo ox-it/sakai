@@ -21,6 +21,8 @@
 
 package edu.amc.sakai.user;
 
+import java.util.List;
+
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPAttributeSet;
 import com.novell.ldap.LDAPEntry;
@@ -97,10 +99,25 @@ public class SimpleLdapAttributeMapperTest extends TestCase {
 		assertEquals("email@example.com", userData.getEmail());
 		
 	}
+	
+	public void testMultipleValues() {
+		Map<String, String> mappings = new HashMap<String, String>();
+		mappings.put("ou", "ou");
+		attributeMapper.setAttributeMappings(mappings);
+		attributeMapper.init();
+		
+		LDAPAttributeSet attributes = new LDAPAttributeSet();
+		attributes.add(new LDAPAttribute("ou", new String[]{"Unit 1", "Unit 2"}));
+		LDAPEntry ldapEntry = new LDAPEntry("somestring", attributes);
+		LdapUserData userData = new LdapUserData();
+		
+		attributeMapper.mapLdapEntryOntoUserData(ldapEntry, userData);
+		assertTrue(userData.getProperties().get("ou") instanceof List);
+		
+	}
 
 	public void testValueMapping() {
-		attributeMapper.setValueMappings(Collections.singletonMap(LOGIN_ATTR_MAPPING_KEY,
-				new MessageFormat("{0}@EXAMPLE.COM")));
+		attributeMapper.setValueMappings(Collections.singletonMap(LOGIN_ATTR_MAPPING_KEY, "{0}@EXAMPLE.COM"));
 		attributeMapper.init();
 		LDAPAttributeSet attributes = new LDAPAttributeSet();
 		// Example Kerberos principal (and we want to remove the domain
@@ -116,8 +133,8 @@ public class SimpleLdapAttributeMapperTest extends TestCase {
 	public void testValueMappingChecking() {
 		// This checks that we filter out bad value mappings.
 		// Have to use a proper map as we need to remove an item from it.
-		Map<String, MessageFormat> valueMappings = new HashMap<String, MessageFormat>();
-		valueMappings.put(LOGIN_ATTR_MAPPING_KEY, new MessageFormat("{0}to{1}many{2}"));
+		Map<String, String> valueMappings = new HashMap<>();
+		valueMappings.put(LOGIN_ATTR_MAPPING_KEY, "{0}to{1}many{2}");
 		attributeMapper.setValueMappings(valueMappings);
 		attributeMapper.init();
 		assertEquals("We should have removed the bad format.", 0, attributeMapper.getValueMappings().size());

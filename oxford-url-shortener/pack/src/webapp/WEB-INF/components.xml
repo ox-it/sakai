@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	
+	<!-- shortened url service config -->
+	<bean id="org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService"
+    	class="org.sakaiproject.oxford.shortenedurl.impl.OxfordShortenedUrlServiceImpl"
+    	init-method="init">
+	</bean>
+	
+	<!-- chart generator config -->
+	<bean id="org.sakaiproject.oxford.shortenedurl.api.ChartGenerator"
+    	class="org.sakaiproject.oxford.shortenedurl.impl.ChartGeneratorImpl"
+    	init-method="init">
+	</bean>
+	
+	<!--  entity provider config -->
+	<bean id="org.sakaiproject.oxford.shortenedurl.entityprovider.OxfordShortenedUrlEntityProvider" 
+		class="org.sakaiproject.oxford.shortenedurl.entityprovider.OxfordShortenedUrlEntityProviderImpl">
+		<property name="urlShortener" ref="org.sakaiproject.oxford.shortenedurl.api.OxfordShortenedUrlService" />
+		<property name="chartGenerator" ref="org.sakaiproject.oxford.shortenedurl.api.ChartGenerator" />
+	</bean>
+	
+</beans>

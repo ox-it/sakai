@@ -11,7 +11,6 @@
 	<groupId>org.sakaiproject.profile2</groupId>
 	<artifactId>profile2</artifactId>
 	<packaging>pom</packaging>
-	<version>11-SNAPSHOT</version>
 	<!-- ProjectVersion -->
 	<organization>
 		<name>The Sakai Foundation</name>
@@ -87,11 +86,6 @@
 				<groupId>org.wicketstuff</groupId>
 				<artifactId>wicketstuff-objectautocomplete</artifactId>
 				<version>6.18.0</version>
-			</dependency>
-			<dependency>
-				<groupId>org.sakaiproject</groupId>
-				<artifactId>generic-dao</artifactId>
-				<version>${generic-dao.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.imgscalr</groupId>

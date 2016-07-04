@@ -67,8 +67,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   private static final String OWNER = "Owner Permission Level";
   private static final String AUTHOR = "Author Permission Level";
   private static final String NONEDITING_AUTHOR = "Nonediting Author Permission Level";
-  private static final String CONTRIBUTOR = "Contributor Permission Level";
-  
+  private static final String CONTRIBUTOR = "Participant Permission Level";
   private static final String REVIEWER = "Reviewer Permission Level";  
   private static final String NONE = "None Permission Level";  
   private static final String CUSTOM = "Custom Permission Level";
@@ -205,7 +204,7 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
     else
     {
       return (typeManager.createType(AUTHORITY, DOMAIN, CONTRIBUTOR,
-          "Contributor Permission Level", "Contributor Permission Level").getUuid());
+          "Participant Permission Level", "Participant Permission Level").getUuid());
     }
   }
   

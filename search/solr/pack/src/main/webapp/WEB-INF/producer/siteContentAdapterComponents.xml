@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    <bean id="org.sakaiproject.search.solr.producer.SiteContentProducer"
+          class="org.sakaiproject.search.producer.SiteContentProducer" init-method="init">
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
+</beans>

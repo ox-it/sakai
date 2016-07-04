@@ -38,6 +38,7 @@
 		<tool id = "sakai.sections" />
 		<tool id = "sakai.site.roster" />
 		<tool id = "sakai.siteinfo" required = "true" />
+		<tool id = "sakai.feedback" required = "true" />
 
 	</category>
 
@@ -68,6 +69,7 @@
 		<tool id = "sakai.sections" />
 		<tool id = "sakai.site.roster" />
 		<tool id = "sakai.siteinfo" required = "true" />
+		<tool id = "sakai.feedback" required = "true" />
 
 	</category>
 

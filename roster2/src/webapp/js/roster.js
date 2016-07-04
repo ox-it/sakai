@@ -21,65 +21,21 @@
 
 (function ($) {
 
-    // jquery.i18n
-	$.i18n.properties({
-	    name:'ui', 
-	    path:'/sakai-roster2-tool/i18n/',
-	    mode: 'both',
-	    language: roster.language
-	});
-    
-	roster.i18n = $.i18n.map;
-
-    roster.i18n.months = roster.i18n.months.split(',');
-	
-    roster.ADMIN = 'admin';
-
-    roster.STATE_OVERVIEW = 'overview';
-    roster.STATE_ENROLLMENT_STATUS = 'status';
-    roster.STATE_VIEW_PROFILE = 'profile';
-    roster.STATE_PERMISSIONS = 'permissions';
-
-    roster.DEFAULT_GROUP_ID = 'all';
-    roster.DEFAULT_ENROLLMENT_STATUS = 'All';
-    roster.DEFAULT_STATE = roster.STATE_OVERVIEW;
-
-    /* Stuff that we always expect to be setup */
-    roster.language = null;
-    roster.currentUserPermissions = null;
-    roster.site = null;
-
-    // so we can return to the previous state after viewing permissions
-    roster.rosterLastStateNotPermissions = null;
-
-    // These are default behaviours, and are global so the tool remembers
-    // the user's choices.
-    roster.hideNames = false;
-    roster.viewSingleColumn = false;
-    roster.groupToView = null;
-    roster.groupToViewText = roster.i18n.roster_sections_all;
-    roster.enrollmentSetToView = null;
-    roster.enrollmentSetToViewText = null;
-    roster.enrollmentStatusToViewText = roster.i18n.roster_enrollment_status_all;
-    roster.rosterOfficialPictureMode = false;
-    roster.nextPage = 0;
-    roster.currentState = null;
-
-	/**
-	*	Check if there is no scroll rendered and there are more pages
-	*/
+    /**
+    *   Check if there is no scroll rendered and there are more pages
+    */
     roster.checkScroll = function () {
         // Check if body height is lower than window height (scrollbar missed, maybe you need to get more pages automatically)
         if ($("body").height() <= $(window).height()) {
             setTimeout(function () {
-            	var renderedMembers = $(".roster-member").size();
-            	// Without filter conditions get more pages if there are more members than rendered and rendered > 0
-            	// If you have an active filter maybe you could display less members than total
-            	// So get more pages only if rendered match a page size (10 is pagesize)
-            	if (roster.site.membersTotal > renderedMembers && renderedMembers > 0 && renderedMembers % 10 === 0) {
-                	$("body").data("scroll-roster", true);
-                	$(window).trigger('scroll.roster');
-            	}
+                var renderedMembers = $(".roster-member").size();
+                // Without filter conditions get more pages if there are more members than rendered and rendered > 0
+                // If you have an active filter maybe you could display less members than total
+                // So get more pages only if rendered match a page size (10 is pagesize)
+                if (roster.site.membersTotal > renderedMembers && renderedMembers > 0 && renderedMembers % 10 === 0) {
+                    $("body").data("scroll-roster", true);
+                    $(window).trigger('scroll.roster');
+                }
             }, 100);
         }
     };
@@ -94,7 +50,7 @@
 
     };
 
-    roster.switchState = function (state, arg, searchQuery) {
+    roster.switchState = function (state, arg) {
 
         roster.currentState = state;
 
@@ -198,7 +154,7 @@
                 roster.readyClearButton(state);
 
                 // We don't want parallel membership requests
-	            $('#navbar_overview_link > span > a').off('click');
+                $('#navbar_overview_link > span > a').off('click');
 
                 roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
             });
@@ -338,8 +294,8 @@
 
         var url = "/direct/roster-membership/" + roster.siteId;
         
-        if (options.userId) {
-            url += "/get-user.json?userId=" + options.userId;
+        if (options.userIds) {
+            url += "/get-users.json?userIds=" + options.userIds.join(',');
             if (roster.enrollmentSetToView) {
                 url += "&enrollmentSetId=" + roster.enrollmentSetToView;
             }
@@ -352,7 +308,7 @@
             }
 
             if (roster.roleToView) {
-                url += "&roleId=" + roster.roleToView;
+                url += "&roleId=" + encodeURIComponent(roster.roleToView);
             }
         }
 
@@ -392,12 +348,12 @@
 
                 members.forEach(function (m) {
 
-                    m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + roster.siteId;
+                    m.formattedProfileUrl = "/direct/profile/" + m.userId + "/formatted?siteId=" + encodeURIComponent(roster.siteId);
                     m.profileImageUrl = "/direct/profile/" + m.userId + "/image";
                     if (options.forceOfficialPicture) {
                         m.profileImageUrl += "/official";
                     }
-                    m.profileImageUrl += "?siteId=" + roster.siteId;
+                    m.profileImageUrl += "?siteId=" + encodeURIComponent(roster.siteId);
                     var groupIds = Object.keys(m.groups);
                     m.hasGroups = groupIds.length > 0;
 
@@ -467,9 +423,12 @@
                     }
                 }
 
-                roster.nextPage += 1;
-
-                $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture));
+                if (options.userIds) {
+                    $(window).off('scroll.roster');
+                } else {
+                    roster.nextPage += 1;
+                    $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture));
+                }
 
                 loadImage.hide();
             },
@@ -484,6 +443,7 @@
         
         $('#roster_form_clear_button').click(function (e) {
 
+            roster.roleToView = null;
             roster.switchState(state);
         });
     };
@@ -491,8 +451,35 @@
     roster.search = function (query) {
 
         if (query !== roster.i18n.roster_search_text && query !== "") {
+            var userIds = [];
             var userId = roster.searchIndex[query];
-            roster.renderMembership({ forceOfficialPicture: false, replace: true, userId: userId });
+            if (!userId) {
+                roster.searchIndexKeys.forEach(function (displayName) {
+
+                    var regex = new RegExp(query, 'i');
+                    if (regex.test(displayName)) {
+                        userIds.push(roster.searchIndex[displayName]);
+                    }
+                });
+
+                if (userIds.length > 5) {
+                    // Limit to 5 users
+                    userIds = userIds.slice(0, 5);
+                }
+            } else {
+                userIds.push(userId);
+            }
+
+            if (userIds.length > 0) {
+                roster.renderMembership({ showOfficialPictures: roster.rosterOfficialPictureMode,
+                                            replace: true,
+                                            userIds: userIds });
+            } else {
+                $('#roster-members').html('<div id="roster-information">' + roster.i18n.no_participants + '</div>');
+                $('#roster-members-total').hide();
+                $('#roster_type_selector').hide();
+                $('#summary').hide();
+            }
         }
     };
 
@@ -533,7 +520,7 @@
                 'currentUserId': roster.userId,
                 'viewOfficialPhoto': roster.currentUserPermissions.viewOfficialPhoto,
                 'viewSiteVisits': roster.currentUserPermissions.viewSiteVisits,
-                'viewConnections': (undefined != window.friendStatus)
+                'viewConnections': ((undefined != window.friendStatus) && roster.viewConnections)
             };
 
         var templateName = (enrollmentsMode) ? 'enrollments' : 'members';
@@ -564,12 +551,10 @@
     };
 
     roster.getRoleFragments = function (roleCounts) {
-
         return Object.keys(roleCounts).map(function (key) {
-
             var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
-            return frag.replace(/\{1\}/, key);
-        }).join();
+            return frag.replace(/\{1\}/, '<strong>' +key + '</strong>');
+        }).join(", ");
     };
 
     roster.formatDate = function (time) {
@@ -585,15 +570,15 @@
     // Functions and attributes added. All the code from hereon is executed
     // after load.
 
-	if (!roster.siteId) {
-		alert('The site id  MUST be supplied as a bootstrap parameter.');
-		return;
-	}
-	
-	if (!roster.userId) {
-		alert("No current user. Have you logged in?");
-		return;
-	}
+    if (!roster.siteId) {
+        alert('The site id  MUST be supplied as a bootstrap parameter.');
+        return;
+    }
+    
+    if (!roster.userId) {
+        alert("No current user. Have you logged in?");
+        return;
+    }
 
     Handlebars.registerHelper('translate', function (key) {
         return roster.i18n[key];
@@ -612,19 +597,19 @@
     });
 
     Handlebars.registerHelper('unconnected', function () {
-	    return this.connectionStatus === CONNECTION_NONE;
+        return this.connectionStatus === CONNECTION_NONE;
     });
 
     Handlebars.registerHelper('confirmed', function () {
-	    return this.connectionStatus === CONNECTION_CONFIRMED;
+        return this.connectionStatus === CONNECTION_CONFIRMED;
     });
 
     Handlebars.registerHelper('requested', function () {
-	    return this.connectionStatus === CONNECTION_REQUESTED;
+        return this.connectionStatus === CONNECTION_REQUESTED;
     });
 
     Handlebars.registerHelper('incoming', function () {
-	    return this.connectionStatus === CONNECTION_INCOMING;
+        return this.connectionStatus === CONNECTION_INCOMING;
     });
 
     Handlebars.registerHelper('roleAllowed', function (options) {
@@ -635,128 +620,163 @@
         return roster.site.permissions[role].indexOf(perm) != -1;
     });
 
-	
-    $.ajax({
-        url: "/direct/roster-membership/" + roster.siteId + "/get-site.json",
-        dataType: "json",
-        async: false,
-        cache: false,
-        success: function (data) {
+    roster.init = function () {
 
-            roster.site = data || {};
+        roster.i18n = $.i18n.map;
 
-            if (null == roster.site.siteGroups
-                    || typeof roster.site.siteGroups === 'undefined') {
-                roster.site.siteGroups = [];
-            }
+        roster.i18n.months = roster.i18n.months.split(',');
+
+        roster.ADMIN = 'admin';
+
+        roster.STATE_OVERVIEW = 'overview';
+        roster.STATE_ENROLLMENT_STATUS = 'status';
+        roster.STATE_VIEW_PROFILE = 'profile';
+        roster.STATE_PERMISSIONS = 'permissions';
+
+        roster.DEFAULT_GROUP_ID = 'all';
+        roster.DEFAULT_ENROLLMENT_STATUS = 'All';
+        roster.DEFAULT_STATE = roster.STATE_OVERVIEW;
+
+        /* Stuff that we always expect to be setup */
+        roster.language = null;
+
+        // so we can return to the previous state after viewing permissions
+        roster.rosterLastStateNotPermissions = null;
+
+        // These are default behaviours, and are global so the tool remembers
+        // the user's choices.
+        roster.hideNames = false;
+        roster.viewSingleColumn = false;
+        roster.groupToView = null;
+        roster.groupToViewText = roster.i18n.roster_sections_all;
+        roster.enrollmentSetToView = null;
+        roster.enrollmentSetToViewText = null;
+        roster.enrollmentStatusToViewText = roster.i18n.roster_enrollment_status_all;
+        roster.rosterOfficialPictureMode = false;
+        roster.nextPage = 0;
+        roster.currentState = null;
+
+        roster.rosterOfficialPictureMode = roster.officialPicturesByDefault;
+
+        // We need the toolbar in a template so we can swap in the translations
+        roster.render('navbar', {}, 'roster_navbar');
+        
+        $('#navbar_overview_link > span > a').click(function (e) {
+            return roster.switchState(roster.STATE_OVERVIEW);
+        });
+
+        $('#navbar_enrollment_status_link > span > a').click(function (e) {
+            return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
+        });
+
+        $('#navbar_export_link > span > a').click(function (e) {
+
+            e.preventDefault();
             
-            if (null == roster.site.userRoles
-                    || typeof roster.site.userRoles === 'undefined') {
-                roster.site.userRoles = [];
-            }
+            var baseUrl = "/direct/roster-export/" + roster.siteId +
+                "/export-to-excel?viewType=" + roster.currentState;
             
-            if (null == roster.site.siteEnrollmentSets
-                    || typeof roster.site.siteEnrollmentSets === 'undefined') {
-                roster.site.siteEnrollmentSets = [];
-            }
-        }
-    });
-
-    roster.rosterOfficialPictureMode = roster.officialPicturesByDefault;
-
-    // Setup the current user's permissions
-    if (roster.userId === roster.ADMIN) {
-        // Admin user. Give the full set.
-        var data = ['roster.export',
-                'roster.viewallmembers',
-                'roster.viewenrollmentstatus',
-                'roster.viewgroup',
-                'roster.viewhidden',
-                'roster.viewprofile',
-                'site.upd'];
-
-        roster.currentUserPermissions = new roster.RosterPermissions(data);
-    } else {
-        roster.currentUserPermissions = new roster.RosterPermissions(
-            roster.sakai.getCurrentUserPermissions(roster.siteId));
-    }
-	
-	// We need the toolbar in a template so we can swap in the translations
-    roster.render('navbar', {}, 'roster_navbar');
-	
-	$('#navbar_overview_link > span > a').click(function (e) {
-		return roster.switchState(roster.STATE_OVERVIEW);
-	});
-
-	$('#navbar_enrollment_status_link > span > a').click(function (e) {
-		return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
-	});
-
-    $('#navbar_export_link > span > a').click(function (e) {
-
-        e.preventDefault();
-        
-        var baseUrl = "/direct/roster-export/" + roster.siteId +
-            "/export-to-excel?viewType=" + roster.currentState;
-        
-        var facetParams = "&facetName=" + roster.i18n.facet_name +
-            "&facetUserId=" + roster.i18n.facet_userId +
-            "&facetEmail=" + roster.i18n.facet_email +
-            "&facetRole=" + roster.i18n.facet_role +
-            "&facetGroups=" + roster.i18n.facet_groups +
-            "&facetStatus=" + roster.i18n.facet_status +
-            "&facetCredits=" + roster.i18n.facet_credits;
-        
-        if (roster.STATE_OVERVIEW === roster.currentState) {
-            var groupId = null;
-            if (null != roster.groupToView) {
-                groupId = roster.groupToView;
-            } else {
-                groupId = roster.DEFAULT_GROUP_ID;
-            }
-        
-            if (null != roster.roleToView) {
-                baseUrl += "&roleId=" + roster.roleToView;
-            }
-    
-            window.location.href = baseUrl + "&groupId=" + groupId + facetParams;
-        } else if (roster.STATE_ENROLLMENT_STATUS === roster.currentState) {
-        
-            var enrollmentStatus = null;
-            if (roster.enrollmentStatusToViewText == roster_enrollment_status_all) {
-                enrollmentStatus = roster.DEFAULT_ENROLLMENT_STATUS;
-            } else {
-                enrollmentStatus = roster.enrollmentStatusToViewText;
-            }
+            var facetParams = "&facetName=" + roster.i18n.facet_name +
+                "&facetUserId=" + roster.i18n.facet_userId +
+                "&facetEmail=" + roster.i18n.facet_email +
+                "&facetRole=" + roster.i18n.facet_role +
+                "&facetGroups=" + roster.i18n.facet_groups +
+                "&facetStatus=" + roster.i18n.facet_status +
+                "&facetCredits=" + roster.i18n.facet_credits;
             
-            window.location.href = baseUrl + 
-                "&enrollmentSetId=" + roster.enrollmentSetToView +
-                "&enrollmentStatus=" + enrollmentStatus +
-                facetParams;
-        }
-    });
-	
-    $('#navbar_permissions_link > span > a').click(function (e) {
-        return roster.switchState(roster.STATE_PERMISSIONS);
-    });
-        	
-    try {
-        if (window.frameElement) {
-            window.frameElement.style.minHeight = '600px';
-        }
-    } catch (err) {}
+            if (roster.STATE_OVERVIEW === roster.currentState) {
+                var groupId = null;
+                if (null != roster.groupToView) {
+                    groupId = roster.groupToView;
+                } else {
+                    groupId = roster.DEFAULT_GROUP_ID;
+                }
+            
+                if (null != roster.roleToView) {
+                    baseUrl += "&roleId=" + roster.roleToView;
+                }
+        
+                window.location.href = baseUrl + "&groupId=" + groupId + facetParams;
+            } else if (roster.STATE_ENROLLMENT_STATUS === roster.currentState) {
+            
+                var enrollmentStatus = null;
+                if (roster.enrollmentStatusToViewText == roster_enrollment_status_all) {
+                    enrollmentStatus = roster.DEFAULT_ENROLLMENT_STATUS;
+                } else {
+                    enrollmentStatus = roster.enrollmentStatusToViewText;
+                }
+                
+                window.location.href = baseUrl + 
+                    "&enrollmentSetId=" + roster.enrollmentSetToView +
+                    "&enrollmentStatus=" + enrollmentStatus +
+                    facetParams;
+            }
+        });
+        
+        $('#navbar_permissions_link > span > a').click(function (e) {
+            return roster.switchState(roster.STATE_PERMISSIONS);
+        });
+                
+        $.ajax({
+            url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
+            dataType: "json",
+            success: function (data) {
+                roster.searchIndex = data.data;
+                roster.searchIndexKeys = Object.keys(data.data);
+                // Now switch into the requested state
+                roster.switchState(roster.state, roster);
+            },
+            error: function () {
+            }
+        });
+    };
 
-    $.ajax({
-        url: '/direct/roster-membership/' + roster.siteId + '/get-search-index.json',
-        dataType: "json",
-        success: function (data) {
-            roster.searchIndex = data.data;
-            roster.searchIndexKeys = Object.keys(data.data);
-            // Now switch into the requested state
-            roster.switchState(roster.state, roster);
-        },
-        error: function () {
+    roster.loadSiteDataAndInit = function () {
+
+        $.ajax({
+            url: "/direct/roster-membership/" + roster.siteId + "/get-site.json",
+            dataType: "json",
+            cache: false,
+            success: function (data) {
+
+                roster.site = data || {};
+
+                if (!roster.site.siteGroups) roster.site.siteGroups = [];
+
+                if (!roster.site.userRoles) roster.site.userRoles = [];
+
+                if (!roster.site.siteEnrollmentSets) roster.site.siteEnrollmentSets = [];
+
+                // Setup the current user's permissions
+                if (roster.userId === roster.ADMIN) {
+                    // Admin user. Give the full set.
+                    var data = ['roster.export',
+                            'roster.viewallmembers',
+                            'roster.viewenrollmentstatus',
+                            'roster.viewgroup',
+                            'roster.viewhidden',
+                            'roster.viewprofile',
+                            'site.upd'];
+
+                    roster.currentUserPermissions = new roster.RosterPermissions(data);
+                    roster.init();
+                } else {
+                    roster.sakai.setCurrentUserPermissions(roster.siteId, function () { roster.init(); });
+                }
+            }
+        });
+    };
+
+    // jquery.i18n
+    $.i18n.properties({
+        name:'ui',
+        path:'/sakai-roster2-tool/i18n/',
+        mode: 'both',
+        async: true,
+        checkAvailableLanguages: true,
+        language: roster.language,
+        callback: function () {
+            roster.loadSiteDataAndInit();
         }
     });
-    
 }) (jQuery);

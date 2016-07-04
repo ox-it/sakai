@@ -46,6 +46,17 @@ import org.sakaiproject.tool.api.ToolException;
 public interface Portal
 {
 
+	/** How to route a login request. */
+	enum LoginRoute {
+		/** Two Factor Authentication for the login. */
+		TWOFACTOR,
+		/** Send through the container for the login. */
+		CONTAINER,
+		/** Get Sakai to prompt for a username/password. */
+		SAKAI,
+		/** Have Sakai prompt as to which way the login should go if more than one option. */
+		NONE
+	};
 	/**
 	 * Error response modes.
 	 */
@@ -84,11 +95,6 @@ public interface Portal
 	 * Configuration option to enable/disable state reset on navigation change
 	 */
 	public static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
-	
-    /**
-	* Configuration option for default number of site tabs to display to users
-	*/
-	public static final String CONFIG_DEFAULT_TABS = "portal.default.tabs";
 
 	/**
 	 * Names of tool config/registration attributes that control the rendering
@@ -142,6 +148,7 @@ public interface Portal
 	/**
 	 * perform login
 	 * 
+	 * @deprecated see {@link #doLogin(HttpServletRequest, HttpServletResponse, Session, String, LoginRoute)} 
 	 * @param req
 	 * @param res
 	 * @param session
@@ -151,6 +158,19 @@ public interface Portal
 	 */
 	void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
 			String returnPath, boolean skipContainer) throws ToolException;
+	
+	/**
+	 * perform login
+	 * 
+	 * @param req The servlet request.
+	 * @param res The servlet response.
+	 * @param session The current session.
+	 * @param returnPath The path to redirect to after sucessful login.
+	 * @param route Which way to route the login request.
+	 * @throws ToolException
+	 */
+	void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,
+			String returnPath, LoginRoute route) throws ToolException;
 
 	/**
 	 * Process a logout

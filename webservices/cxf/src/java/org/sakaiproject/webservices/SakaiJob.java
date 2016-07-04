@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.webservices;
 
 import javax.jws.WebMethod;
@@ -11,8 +26,10 @@ import javax.ws.rs.QueryParam;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
@@ -52,7 +69,7 @@ public class SakaiJob extends AbstractWebService {
             return "error: NonSuperUser trying to collect configuration: " + session.getUserId();
         }
         try {
-            schedulerManager.getScheduler().deleteJob(name, Scheduler.DEFAULT_GROUP);
+            schedulerManager.getScheduler().deleteJob(new JobKey(name, Scheduler.DEFAULT_GROUP));
         } catch (SchedulerException e) {
             LOG.warn(e.getMessage(), e);
             return "error:" + e.getMessage();
@@ -126,7 +143,7 @@ public class SakaiJob extends AbstractWebService {
         Scheduler scheduler = schedulerManager.getScheduler();
 
         try {
-            jobDetail = scheduler.getJobDetail(jobName, Scheduler.DEFAULT_GROUP);
+            jobDetail = scheduler.getJobDetail(new JobKey(jobName, Scheduler.DEFAULT_GROUP));
         } catch (SchedulerException e) {
             LOG.warn(e.getMessage(), e);
             return "error: " + e.getMessage();
@@ -134,7 +151,7 @@ public class SakaiJob extends AbstractWebService {
         
         if (jobDetail != null) {
             try {
-                scheduler.triggerJob(jobDetail.getName(), jobDetail.getGroup());
+                scheduler.triggerJob(jobDetail.getKey());
             } catch (SchedulerException e) {
                 LOG.warn(e.getMessage(), e);
                 return "error: " + e.getMessage();
@@ -147,7 +164,7 @@ public class SakaiJob extends AbstractWebService {
     }
 
     private JobDetail createJobDetail(JobBeanWrapper job, String jobName) {
-        JobDetail jd = new JobDetail(jobName, Scheduler.DEFAULT_GROUP, job.getJobClass(), false, true, true);
+        JobDetail jd = JobBuilder.newJob(job.getJobClass()).withIdentity(new JobKey(jobName, Scheduler.DEFAULT_GROUP)).storeDurably().requestRecovery().build();
         JobDataMap map = jd.getJobDataMap();
 
         map.put(JobBeanWrapper.SPRING_BEAN_NAME, job.getBeanId());

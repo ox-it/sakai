@@ -1,0 +1,4 @@
+<p class="lastRevise textPanelFooter" >Last Edited By Matthew Buckett(buckett) on Mon Oct 15 09:27:22 BST 2012 </p> <p class="MsoNormal" ><span lang="EN-US"   style="mso-ansi-language:EN-US" >Thanks everyone for starting this off!</span></p>
+<p class="MsoNormal" ><span lang="EN-US"   style="mso-ansi-language:EN-US" >Some text here we  </span><span style="mso-bidi-font-weight:bold" > need to make sure that it's ok.</span></p>
+<p class="MsoNormal" ><span style="mso-bidi-font-weight:bold" >There is some more text here that should stay</span></p>
+<p class="MsoNormal" ><span style="mso-bidi-font-weight:bold" >end.</span></p>

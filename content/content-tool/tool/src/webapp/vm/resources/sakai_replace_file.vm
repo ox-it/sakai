@@ -10,7 +10,7 @@
 	<p class="instruction">
 		$tlang.getString("instr.replace")
 	</p>
-	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
+	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")" onsubmit="return confirmFileNamesMatch()" enctype="multipart/form-data">
 		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
 		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
 		
@@ -28,8 +28,8 @@
 				<td style="width:180px;padding-left:0"> 
 					<label>$tlang.getString("label.name")</label>
 				</td>
-				<td style="width:180px;padding-left:0"> 
-					$validator.escapeHtml($item.name)
+				<td style="width:180px;padding-left:0" id="itemName">
+					$item.originalFileName
 				</td>
 			</tr>
 			<tr> 
@@ -80,8 +80,8 @@
 		#end
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doReplace" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.upl")" accesskey="s" />
-			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doReplace" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.upl")" accesskey="s" />
+			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span id="submitnotifxxx"  class="messageProgress"  style="visibility:hidden">$tlang.getString("processmessage.save.file")</span>
 		</p>
 		

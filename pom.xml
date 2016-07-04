@@ -12,7 +12,6 @@
     <name>Sakai base pom</name>
     <groupId>org.sakaiproject</groupId>
     <artifactId>base</artifactId>
-    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -54,13 +53,13 @@
                 <module>calendar</module>
                 <module>chat</module>
                 <module>citations</module>
+                <module>cmprovider</module>
                 <module>common</module>
                 <module>config</module>
                 <module>cloud-content</module>
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
-                <module>dashboard</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
                 <module>deploy</module>
@@ -70,6 +69,7 @@
                 <module>external-calendaring-service</module>
                 <module>feedback</module>
                 <module>gradebook</module>
+                <module>gradebookng</module>
                 <module>help</module>
                 <module>hierarchy</module>
                 <module>jobscheduler</module>
@@ -95,12 +95,14 @@
                 <module>reset-pass</module>
                 <module>rights</module>
                 <module>roster2</module>
+                <module>rsf</module>
                 <module>rwiki</module>
                 <module>samigo</module>
                 <module>search</module>
                 <module>sections</module>
                 <module>shortenedurl</module>
                 <module>signup</module>
+                <module>simple-rss-portlet</module>
                 <module>site</module>
                 <module>site-manage</module>
                 <module>sitestats</module>
@@ -114,6 +116,31 @@
                 <module>velocity</module>
                 <module>web</module>
                 <module>webservices</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>oxford</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>admin-reporting</module>
+                <module>auto-import</module>
+                <module>content-sync</module>
+                <module>course-signup</module>
+                <module>current-load</module>
+                <module>external-groups</module>
+                <module>evaluations</module>
+                <module>oxam</module>
+                <module>oxford-url-shortener</module>
+                <module>proxy</module>
+                <module>root-webapp</module>
+                <module>sirlouie</module>
+                <module>simple-signup-entityprovider</module>
+                <module>switch-server</module>
+                <module>termdates</module>
+                <module>tetraelf-hierarchy</module>
+                <module>turnitin/contentreview-impl</module>
             </modules>
         </profile>
         <profile>

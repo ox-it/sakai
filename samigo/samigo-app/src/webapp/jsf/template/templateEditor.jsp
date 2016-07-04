@@ -114,15 +114,23 @@
       
       <h:outputText value=""/>
       <h:outputText value=""/>
-       <!-- Honor Pledge -->
-	  <h:outputLabel value="#{templateMessages.honor_pledge}"/>
-      <h:panelGroup>
-		<h:selectBooleanCheckbox id="honor_pledge" value="#{template.valueMap.honorpledge_isInstructorEditable}"/>
-		<h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
-      </h:panelGroup> 
-	</div>
-     
     </h:panelGrid>
+    <h:panelGrid columns="1">
+      <!-- Honor Pledge -->
+      <h:panelGroup>
+        <h:outputText value="#{templateMessages.honor_pledge}"/>
+      </h:panelGroup>
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="honor_pledge_can_edit" value="#{template.valueMap.honorpledge_isInstructorEditable}"/>
+        <h:outputLabel for="honor_pledge_can_edit" value="#{templateMessages.template_canbedefault}"/>
+      </h:panelGroup>
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="honor_pledge" value="#{template.honorPledge}"/>
+	    <h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
+      </h:panelGroup>
+    </h:panelGrid>
+	</div>
+
     </div></div>
   </samigo:hideDivision>
 
@@ -302,7 +310,25 @@
     </h:selectOneRadio>
     </h:panelGroup>
     </h:panelGrid>
+          </div>
 
+<!-- Display Scores -->
+      <div class="longtext"><h:outputLabel value="#{templateMessages.displayScores}"/></div>
+      <div class="tier3">
+     <h:panelGrid columns="2" summary="#{templateMessages.displayScores_sub}">
+     
+        <h:selectBooleanCheckbox id="displayScores"
+          value="#{template.valueMap.displayScores_isInstructorEditable}"/>
+        <h:outputLabel for="numbering" value="#{templateMessages.template_canbedefault}"/>
+
+       <h:outputText value=" "/>
+       <h:panelGroup>
+    <h:selectOneRadio layout="pageDirection" value="#{template.displayScoreDuringAssessments}" required="true">
+      <f:selectItem itemValue="1" itemLabel="#{templateMessages.displayScores_show}"/>
+      <f:selectItem itemValue="2" itemLabel="#{templateMessages.displayScores_hide}"/>
+    </h:selectOneRadio>
+    </h:panelGroup>
+    </h:panelGrid>
 </div></div>
   </samigo:hideDivision>
 
@@ -372,6 +398,24 @@
     </h:panelGroup>
     </h:panelGrid>
 </div>
+
+     <!-- SUBMISSION EMAILS / INSTRUCTOR NOTIFICATION -->
+     <div class="longtext"><h:outputLabel value="#{templateMessages.submission_emails}" /></div>
+     <div class="tier3">
+         <h:panelGrid columns="2" summary="#{templateMessages.submission_emails_sub}" >
+             <h:selectBooleanCheckbox id="submission_emails" value="#{template.valueMap.instructorNotification_isInstructorEditable}" />
+             <h:outputLabel for="submission_emails" value="#{templateMessages.template_canbedefault}" />
+
+             <h:outputText value=" " />
+             <h:panelGroup>
+                 <h:selectOneRadio layout="pageDirection" value="#{template.instructorNotification}" required="true">
+                     <f:selectItem itemValue="3" itemLabel="#{templateMessages.submission_emails_one_email}" />
+                     <f:selectItem itemValue="2" itemLabel="#{templateMessages.submission_emails_digest_email}" />
+                     <f:selectItem itemValue="1" itemLabel="#{templateMessages.submission_emails_no_email}" />
+                 </h:selectOneRadio>
+             </h:panelGroup>
+         </h:panelGrid>
+     </div>
 
     <!-- AUTOMATIC SUBMISSION -->
     <div class="longtext"><h:outputLabel value="#{templateMessages.automatic_submission}" rendered="#{templateIndex.automaticSubmissionEnabled}"/></div>

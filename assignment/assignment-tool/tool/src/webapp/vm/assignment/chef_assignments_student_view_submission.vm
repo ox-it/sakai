@@ -2,7 +2,7 @@
 <!-- start: chef_assignments_student_view_submission.vm  -->
 <script type="text/javascript">
 $(document).ready(function(){
-    setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+    ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     $('#submissionFileCount').val(1);
     $('#addMoreAttachmentControls').click(function(e){
         e.preventDefault();
@@ -19,74 +19,10 @@ $(document).ready(function(){
             }
         }
         $('.cloned a').show();
-        resizeFrame('grow');
+        ASN.resizeFrame('grow');
     });
     
 });
-var notifyDeleteControl = function(){
-    $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) - 1);
-    if ($('#submissionFileCount').val() < 5) {
-        $('#addMoreAttachmentControls').show();
-        $('#addMoreAttachmentControlsInactive').hide();
-    }
-};
-
-function submitform(id)
-{
-	var theForm = document.getElementById(id);
-	if(theForm && theForm.onsubmit)
-	{
-		theForm.onsubmit();
-	}
-	if(theForm && theForm.submit)
-	{
-		theForm.submit();
-	}
-}
-	
-var reportsExpanded = false;
-function handleReportsTriangleDisclosure(btn)
-{
-	var reportsDiv = document.getElementById("reportsDiv");
-	if (reportsExpanded)
-	{
-		btn.src = "#imageLink("sakai/expand.gif")";
-		btn.alt = "$tlang.getString('review.report.expand')";
-		reportsDiv.style.display="none";
-	}
-	else
-	{
-		btn.src = "#imageLink("sakai/collapse.gif")";
-		btn.alt = "$tlang.getString('review.report.collapse')";
-		reportsDiv.style.display="block";
-		resizeFrame();
-	}
-	reportsExpanded = !reportsExpanded;
-}	
-
-/* Enables the submit/resubmit button. If checkForFile is true, then it disables the submit/resubmit button if the clonableUpload button has no value*/
-function enableSubmitUnlessNoFile(checkForFile)
-{
-	var btnPost = document.getElementById('post');
-	var doEnable = true;
-	if (checkForFile)
-	{
-		var btnClonableUpload = document.getElementById('clonableUpload');
-		if (btnClonableUpload && btnClonableUpload.value == "")
-		{
-			doEnable = false;
-		}
-	}
-
-	if (doEnable)
-	{
-		btnPost.removeAttribute('disabled');
-	}
-	else
-	{
-		btnPost.setAttribute('disabled', 'disabled');
-	}
-}
 </script>
 ## Include other javascript specific to this page
 <script type="text/javascript" src="/sakai-assignment-tool/js/studentViewSubmission.js"></script>
@@ -362,7 +298,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 								#set($reviewResults=$submission.ContentReviewResults)
 								#if ($reviewResults.size() >= 3)
 									<div class="discTria">
-										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
+										<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
 										$reviewResults.size() $tlang.getString("review.reports")
 									</div>
 									<div id="reportsDiv" style="display:none;">
@@ -372,10 +308,10 @@ function enableSubmitUnlessNoFile(checkForFile)
 										#set ($props = $reviewResult.getContentResource().Properties)
 										<span class="reportIcon">
 										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+											<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-exclamation-triangle errorStyle"></i>
 										#else
 											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+												<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag reviewStyle" style="color:$reviewResult.getReviewIconColor()"></i>
 											</a>
 										#end
 										</span>
@@ -383,6 +319,11 @@ function enableSubmitUnlessNoFile(checkForFile)
 											$tlang.getString("submission.inline")
 										#else
 											$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+										#end
+										#if($reviewResult.getExternalGrade() && $assignment.getContent().AllowStudentViewExternalGrade)
+											<span style="font-style:italic !important">
+												($tlang.getString("gen.gra.ext") $reviewResult.getExternalGrade() / $maxPointsInt)
+											</span>
 										#end
 									</div>
 								#end
@@ -606,7 +547,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 			#end
 			##just show a simple done button for non-electronic submission type
 			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.don')" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.don')" onclick="SPNR.disableControlsAndSpin( this, null );" />
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		#else
@@ -704,7 +645,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 							#end
 							#if ($plagiarismNote)
 								<p>
-									<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
+									<i alt="$reviewIndicator" title="$reviewIndicator" class="fa fa-certificate reviewStyle"></i>
 									<em>
 										$plagiarismNote
 										#if ($plagiarismFileTypes)
@@ -778,7 +719,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 				#if (($submissionType == 2) || ($submissionType == 5))
 					#if ($plagiarismNote)
 						<p>
-							<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
+							<i alt="$reviewIndicator" title="$reviewIndicator" class="fa fa-certificate reviewStyle"></i>
 							<em>
 								$plagiarismNote
 								#if ($plagiarismFileTypes)
@@ -834,9 +775,11 @@ function enableSubmitUnlessNoFile(checkForFile)
 											#propertyDetails($props)
 										</td>
 										<td class="itemAction">
-											<a href="#" onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='removeAttachment'; document.addSubmissionForm.currentAttachment.value='$attachment.id'; document.addSubmissionForm.submit(); return false;">
-												$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
-											</a>
+											<div class="spinnerBesideContainer">
+												<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.doStudentViewSubmissionAction( 'addSubmissionForm', 'removeAttachment', '$attachment.id' ); return false;">
+													$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
+												</a>
+											</div>
 										</td>
 									</tr>
 								#end
@@ -864,23 +807,15 @@ function enableSubmitUnlessNoFile(checkForFile)
 												<span><label for="clonableUpload">$howManySubAtts</label></span>
 											</td>
 											<td>
-												<div id="clonableUploadW"> 
-													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
-													<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+												<div id="clonableUploadW spinnerBesideContainer"> 
+													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/> 
 												</div>
 											</td>
 											<td>
 												<span class="navIntraToolLink">
-													<input
-														class="disableme enabled" 
-														type="button" 
-														value="$howManySubAttsLinks"
-														name="attach" 
-														id="attach"
-														accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
-														onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-													/>
-												</span>	
+													<input class="disableme enabled" type="button" value="$howManySubAttsLinks" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+														onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
+												</span>
 											</td>
 										</tr>	
 										<tr>
@@ -905,41 +840,26 @@ function enableSubmitUnlessNoFile(checkForFile)
 											<label for="upload">$tlang.getString("att.upl")</label>
 										</td>
 										<td>
-											<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
-											<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+											<div class="spinnerBesideContainer">
+												<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
+											</div>
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 										</td>
 										<td>
 											## add browse resources button here
 											#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel.singular"))
-											<input
-												class="disableme enabled"
-												type="button"
-												value="$howManySubAttsLinks"
-												name="attach"
-												id="attach"
-												accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
-												onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-											/>
+											<input class="disableme enabled" type="button" value="$howManySubAttsLinks" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+												onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
 										</td>
 									</tr>
 								</tbody>
 							</table>
 				 		</div>
 					#end
-				#elseif ($submissionType == 5)
+				</div>
+			#elseif ($submissionType == 5)
 					## attachments > 1, but the assignment type is single uploaded file only
 
-					##defines a macro to display attachment details
-					#macro (attachmentDetails)
-						#if ($props.getBooleanProperty($props.NamePropIsCollection))
-							<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")"/>
-						#else
-							<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
-						#end
-						<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
-						#propertyDetails($props)
-					#end
 					<div class="assignmentAttachBox">
 					<h3>
 						#if ($submissionType == 5)
@@ -954,7 +874,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 						#set ($props = $attachment.Properties)
 						#if ($!props)
 							<div class="assignmentAttachRadio">
-								<input type="radio" name="attachmentSelection" value="$attachments.indexOf($attachment)" onclick="highlightSelectedAttachment(); enableSubmitUnlessNoFile(false);">
+								<input type="radio" name="attachmentSelection" value="$attachments.indexOf($attachment)" onclick="ASN.highlightSelectedAttachment(); ASN.enableSubmitUnlessNoFile(false);">
 								#attachmentDetails()
 								<br>
 							</div>
@@ -962,7 +882,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 					#end
 
 					<div class="assignmentAttachRadio assignmentAttachmentHighlight">
-						<input type="radio" name="attachmentSelection" value="newAttachment" onclick="highlightSelectedAttachment(); enableSubmitUnlessNoFile(true);" checked />
+						<input type="radio" name="attachmentSelection" value="newAttachment" onclick="ASN.highlightSelectedAttachment(); ASN.enableSubmitUnlessNoFile(true);" checked />
 						<span>
 							#set($attachment = $newSingleUploadedFile)
 							#if (!$attachment)
@@ -974,24 +894,16 @@ function enableSubmitUnlessNoFile(checkForFile)
 							#set($props = $attachment.Properties)
 							#if ($props)
 								#attachmentDetails()
-								<a href="#" onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='removeNewSingleUploadedFile'; document.addSubmissionForm.submit(); return false;">
+								<a href="javascript:void(0)" onclick="SPNR.insertSpinnerAfter( this, null, null ); ASN.submitForm( 'addSubmissionForm', 'removeNewSingleUploadedFile', null, null ); return false;">
 									$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
 								</a>
 								<br>
 							#else
 								$tlang.getString("stuviewsubm.uploadnew")
-								<input type="file" name="upload" class="upload" id="clonableUpload" #if ($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "")';submitform('addSubmissionForm');"/>
-								<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+								<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="SPNR.insertSpinnerAfter( this, null, null ); document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';ASN.submitForm( 'addSubmissionForm', null, null, null );"/>
 								<span class="navIntraToolLink">
-									<input
-										class="disableme enabled"
-										type="button"
-										value="$tlang.getString("stuviewsubm.attfromserverlabel")"
-										name="attach"
-										id="attach"
-										accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
-										onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-									/>
+									<input class="disableme enabled" type="button" value="$tlang.getString("stuviewsubm.attfromserverlabel")" name="attach" id="attach" accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+										onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'attach', null, null ); return false;" />
 								</span>
 							#end
 						</span>
@@ -1034,8 +946,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 					</div>
 				#end
 			#end
-			</div>
-				
+
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
 						#if ($submissionType==2)
@@ -1149,22 +1060,22 @@ function enableSubmitUnlessNoFile(checkForFile)
 				#if ($!assignment.getContent().HonorPledge!=1)
 					<p class="checkbox highlightPanel">
 						<label for="$name_submission_honor_pledge_yes">
+							#if (!$!canSubmit)
+								## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
+								#if ($value_submission_honor_pledge_yes.equals("false"))
+									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
+								#else
+									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
+								#end
+							#else
+								#if ($value_submission_honor_pledge_yes.equals("false"))
+									<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
+								#else
+									<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
+								#end
+							#end
 							$honor_pledge_text
 						</label>
-						#if (!$!canSubmit)
-							## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
-							#if ($value_submission_honor_pledge_yes.equals("false"))
-								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
-							#else
-								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" disabled="disabled" checked="checked" />
-							#end
-						#else
-							#if ($value_submission_honor_pledge_yes.equals("false"))
-								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" />
-							#else
-								<input id="$name_submission_honor_pledge_yes" name="$name_submission_honor_pledge_yes" type="checkbox" value="true" checked="checked" />
-							#end					
-						#end
 						<br />
 						$tlang.getString("gen.youmus")
 					</p>
@@ -1172,69 +1083,32 @@ function enableSubmitUnlessNoFile(checkForFile)
 				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
 					 class="act">
-						<input 
-							type="button" 
-							name="cancel"
-							accesskey="x"
-							id="cancel" 
-							value="$tlang.getString("gen.don")"
-							onclick="ASN_SVS.confirmDiscardOrSubmit($!new_attachments); return false;"
-						/>
+						<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 					#else
-					 class="act messageInformation">
-							<input
-								type="button"
-								class="active"
+					 class="act">
 								#if ($submitted && $!timeSubmitted)
 									#set($name=$tlang.getString("resubmit"))
 								#else
 									#set($name=$tlang.getString("gen.subm3"))
 								#end
-								name="post"
-								accesskey="s"
-								id="post" 
-								value="$!name"
-								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','post','addSubmissionForm'); document.addSubmissionForm.option.value='post'; document.addSubmissionForm.submit(); return false;"
+								<input type="button" class="active" name="post" accesskey="s" id="post" value="$!name"
+									onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'post', null, null ); return false;" 
 								#if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments && !$!newSingleUploadedFile && (!$!newSingleAttachmentList || $!newSingleAttachmentList.isEmpty()))
-									disabled
+									disabled="disabled"
 								#end
 							/>
 					## for single file upload case, no need for preview or save draft
 					#if ($submissionType!=5)
-							<input
-								class="disableme" 
-								type="button" 
-								name="preview" 
-								accesskey="v"
-								id="preview" 
-								value="$tlang.getString("gen.pre")"
-								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','preview','addSubmissionForm');document.addSubmissionForm.option.value='preview'; document.addSubmissionForm.submit(); return false;"
-							/>
-							<input
-								class="disableme" 
-								type="button" 
-								name="save" 
-								accesskey="d"
-								id="save" 
-								value="$tlang.getString("gen.savdra")"
-								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','save','addSubmissionForm');document.addSubmissionForm.option.value='save'; document.addSubmissionForm.submit(); return false;"
-							/>
+							<input class="disableme" type="button" name="preview" accesskey="v" id="preview" value="$tlang.getString("gen.pre")"
+								onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'preview', null, null ); return false;" />
+							<input class="disableme" type="button" name="save" accesskey="d" id="save" value="$tlang.getString("gen.savdra")"
+								onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'save', null, null ); return false;" />
 							#end
 							#if ($!linkInvoked)
-
-								<input class="disableme" type="submit" accesskey="x" onClick="window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" />
-		
-							#else						
-							
-							<input 
-								class="disableme"
-								type="button" 
-								name="cancel"
-								accesskey="x"
-								id="cancel" 
-								value="$tlang.getString("gen.can")"
-								onclick="ASN_SVS.confirmDiscardOrSubmit($!new_attachments); return false"
-							/>
+								<input class="disableme" type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" />
+							#else
+								<input class="disableme" type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.can")"
+									onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 							#end
 
                             #if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
@@ -1245,12 +1119,11 @@ function enableSubmitUnlessNoFile(checkForFile)
                                 <span class="messageInformation">$tlang.getString("stuviewsubm.submitreminder")</span>
                             #end
 					#end
-				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>
 			<div id="confirmationDialogue" class="act messageInformation" style="display:none;">
 				$tlang.getString("gen.can.discard")
-				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="ASN_SVS.cancelProceed()" />
-				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="ASN_SVS.undoCancel()" />
+				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'cancel', null, null );" />
+				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="ASN_SVS.undoCancel();" />
 			</div>
 		#else
 				#if ($submission.getGradeReleased() && $!submission.FeedbackText && ($submission.FeedbackText.length()>0))
@@ -1377,21 +1250,10 @@ function enableSubmitUnlessNoFile(checkForFile)
 					#end
 					
 		#if ($!linkInvoked)
-
-			<input type="submit" accesskey="x" onClick="window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" class="disableme"/>
-	
-		#else						
-					
-					
+			<input type="submit" accesskey="x" onClick="SPNR.disableControlsAndSpin( this, null ); window.close();" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString("gen.closeexit")" class="disableme"/>
+		#else
 			<p class="act">
-				<input 
-					type="button" 
-					name="cancel"
-					accesskey="x"
-					id="cancel" 
-					value="$tlang.getString("gen.don")"
-					onclick="ASN_SVS.confirmDiscardOrSubmit($!new_attachments); return false;"
-				/>
+				<input type="button" name="cancel" accesskey="x" id="cancel" value="$tlang.getString("gen.don")" onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 			</p>
 		#end
 		#end

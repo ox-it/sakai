@@ -48,6 +48,8 @@ import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCopy;
+import org.sakaiproject.content.api.ContentCopyContext;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.*;
@@ -648,6 +650,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 *        The OpaqueUrlDao.
 	 */
 	public void setOpaqueUrlDao(OpaqueUrlDao opaqueUrlDao) { this.m_opaqueUrlDao = opaqueUrlDao; }
+	
+
+	/** Dependency: CopyCopy */
+	protected ContentCopy contentCopy = null;
+	
+	public void setContentCopy(ContentCopy contentCopy)
+	{
+		this.contentCopy = contentCopy;
+	}
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -1907,7 +1918,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					}
 					nCalendar.setEventFields(allFields);
 				}
-
+				
+				ContentCopyContext copyContext = contentCopy.createCopyContext(fromContext, toContext, true);
 				for (int i = 0; i < oEvents.size(); i++)
 				{
 					CalendarEvent oEvent = (CalendarEvent) oEvents.get(i);
@@ -1918,7 +1930,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						if (assignmentId != null && assignmentId.length() > 0)
 							continue;
 
-						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), oEvent.getDescription(),
+						String newDescription = contentCopy.convertContent(copyContext, oEvent.getDescriptionFormatted(), "text/html", null);
+						CalendarEvent e = nCalendar.addEvent(oEvent.getRange(), oEvent.getDisplayName(), newDescription,
 								oEvent.getType(), oEvent.getLocation(), oEvent.getAttachments());
 
 						try
@@ -2020,6 +2033,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					}
 					catch (PermissionException ignore) {}
 				}
+				contentCopy.copyReferences(copyContext);
 				// commit new calendar
 				m_storage.commitCalendar(nCalendar);
 				((BaseCalendarEdit) nCalendar).closeEdit();
@@ -6375,15 +6389,22 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 	
 	/* Given a current date via the calendarUtil paramter, returns a TimeRange for the year,
-	 * 6 months either side of the current date. (calculate milleseconds in 6 months)
+	  *fromMonthsInput number of months from past to be included
++	  *toMonthsInput number of months in future  to be included.
 	 */
-   private static long SIX_MONTHS = (long)1000 * (long)60 * (long)60 * (long)24 * (long)183;
-	
 	public TimeRange getICalTimeRange()
 	{
-		Time now = m_timeService.newTime();
-		Time startTime = m_timeService.newTime( now.getTime() - SIX_MONTHS );
-		Time endTime = m_timeService.newTime( now.getTime() + SIX_MONTHS );
+		int toMonthsInput = m_serverConfigurationService.getInt("calendar.export.next.months",12);
+		int fromMonthsInput = m_serverConfigurationService.getInt("calendar.export.previous.months",6);
+
+		java.util.Calendar calTo = java.util.Calendar.getInstance();
+		calTo.add(java.util.Calendar.MONTH, toMonthsInput);
+
+		java.util.Calendar calFrom = java.util.Calendar.getInstance();
+		calFrom.add(java.util.Calendar.MONTH, -fromMonthsInput);
+
+		Time startTime = m_timeService.newTime(calFrom.getTimeInMillis());
+		Time endTime = m_timeService.newTime(calTo.getTimeInMillis());
 		
 		return m_timeService.newTimeRange(startTime,endTime,true,true);
 	}
@@ -6776,13 +6797,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		ical.getComponents().add(registry.getTimeZone(tzId.getValue()).getVTimeZone());
 		
 		CalendarOutputter icalOut = new CalendarOutputter();
-		int numEvents = generateICal(ical, calRefs);
+		generateICal(ical, calRefs);
 			
 		try 
 		{
-			if (numEvents > 0) {
-				icalOut.output( ical, os );
-			}
+			icalOut.output( ical, os );
 		}
 		catch (Exception e)
 		{

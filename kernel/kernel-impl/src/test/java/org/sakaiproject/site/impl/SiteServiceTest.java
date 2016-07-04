@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -34,6 +35,9 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -153,6 +157,12 @@ public class SiteServiceTest extends DbSiteService
 	}
 
 	@Override
+	protected DevolvedSakaiSecurity devolvedSakaiSecurity() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
 	protected IdManager idManager() {
 		// TODO Auto-generated method stub
 		return null;
@@ -162,6 +172,11 @@ public class SiteServiceTest extends DbSiteService
 	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort,
 	        PagingPosition page) {
 	    return new ArrayList<String>(0);
+	}
+
+	@Override
+	public Site addSite(String id, Site other) throws IdInvalidException, IdUsedException, PermissionException {
+		return null;
 	}
 
 	@Override

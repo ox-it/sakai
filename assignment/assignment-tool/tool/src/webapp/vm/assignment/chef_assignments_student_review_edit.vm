@@ -2,60 +2,14 @@
 <!-- start: check_assignments_instructor_grading_submission.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_grading_submission.vm,v 1.10 2005/06/03 15:32:15 zqian.umich.edu Exp $ -->
 <script type="text/javascript">
-focus_path = [ '$fField' ];
-function handleEnterKeyPress(ev)
-	{
-		if (!ev) ev = window.event;
-			if (ev && ev.keyCode == 13)
-			{
-				 return false; 
-			 }
-		 }
-</script>
-<script type="text/javascript">
+	focus_path = [ '$fField' ];
 	$(document).ready(function(){
-		setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
-		ASN.setupItemNavigator();
-	});
+		ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+		ASN.setupPeerReviewAttachment();
+     });
 </script>
 <div class="portletBody">
-<ul class="navIntraTool actionToolBar">
-		#set($prevAction=false)
-		#if ($allowAddAssignment)
-			#set($prevAction=true)
-			<li class="firstToolBarItem">
-				<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
-			</li>
-		#end
-		<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-			<span><a href="#" title = "$!tlang.getString('lisofass1')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='lisofass1';document.gradeForm.submit();return false;">$!tlang.getString("lisofass1")</a></span>
-		</li>	
-		#if ($withGrade && $!allowGradeSubmission)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#" title="$!tlang.getString('gen.grarep')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='grarep';document.gradeForm.submit();return false;">$!tlang.getString("gen.grarep")</a></span>
-			</li>				
-		#end
-		#if ($allowAddAssignment)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.gradeForm.submit();return false;">$!tlang.getString("gen.stuvie")</a></span>
-			</li>	
-		#end
-		#if (($allowAllGroups) && ($assignmentscheck))
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#" title="$tlang.getString('gen.reorder')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='reorderNavigation';document.gradeForm.submit();return false;">$tlang.getString('gen.reorder')</a></span>
-			</li>	
-		#end
-		#if ($allowUpdateSite)
-			<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-				<span><a href="#" title="$tlang.getString('permis')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='permissions';document.gradeForm.submit();return false;">$tlang.getString('permis')</a></span>
-			</li>
-			#if ($enableViewOption)	
-				<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
-					<span><a href="#" title="$tlang.getString('options')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='options';document.gradeForm.submit();return false;">$tlang.getString('options')</a></span>
-				</li>
-			#end	
-		#end
-	</ul>
+	#navBarOnClick( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "gradeForm" "" )
 	## confirmation
 	#if ($!gradingDone)
 		<div class="success">
@@ -77,10 +31,11 @@ function handleEnterKeyPress(ev)
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both"></div>#end
 	
 	## the form
-	<form name="gradeForm" id="gradeForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+    <form name="gradeForm" id="gradeForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" enctype="multipart/form-data">
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
+		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="submissionId" id="submissionId" value="$submission.Reference" />
 		
 		<div class="navPanel">
@@ -132,15 +87,14 @@ function handleEnterKeyPress(ev)
 				#end
 		   </div>
 			<div class="itemNav highlightPanel" style="float:right;text-align:right;clear:right">
-				## prev button				
-				<input type="button" name="prevsubmission1" class="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='prevsubmission_review';document.gradeForm.submit();return false;"/>
+				## prev button
+				<input type="button" name="prevsubmission1" class="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="ASN.submitForm( 'gradeForm', 'prevsubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
 				## back to list button
-				<input type="button" name="cancelgradesubmission1" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='cancelgradesubmission_review';document.gradeForm.submit();return false;"/>
+				<input type="button" name="cancelgradesubmission1" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="ASN.submitForm( 'gradeForm', 'cancelgradesubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
 				## next button
-				<input type="button" name="nextsubmission1" class="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='nextsubmission_review';document.gradeForm.submit();return false;"/>
+				<input type="button" name="nextsubmission1" class="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="ASN.submitForm( 'gradeForm', 'nextsubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
 				#if(!$view_only)
 					<div class="instruction textPanelFooter" style="text-align:center">$tlang.getString("nav.message")</div>
-					<div class="messageProgress" style="visibility:hidden;text-align:left;">$tlang.getString("gen.proces")</div>
 				#end
 			</div>
 		</div>
@@ -149,13 +103,13 @@ function handleEnterKeyPress(ev)
 		## show or hide assignment instruction and attachment
 			#if ($assignment_expand_flag)
 				<p class="discTria">
-					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='hide_instruction_review';document.gradeForm.submit();return false;">
+					<a href="javascript:void(0)" onclick="ASN.submitForm( 'gradeForm', 'hide_instruction_review', null, null ); return false;">
 					<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("gradingsub.opecliass")" border="0" width="13" height="13" align="top" /></a>
 					$tlang.getString("gen.assinf")
 				</p>	
 			#else
 				<p class="discTria">
-					<a href="#" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='show_instruction_review';document.gradeForm.submit();return false;">
+					<a href="javascript:void(0)" onclick="ASN.submitForm( 'gradeForm', 'show_instruction_review', null, null ); return false;">
 					<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("gen.clocli")" border="0" width="13" height="13" align="top" /></a>
 					$tlang.getString("gen.assinf")
 				</p>	
@@ -350,7 +304,7 @@ function handleEnterKeyPress(ev)
 											<spn class="instruction">$tlang.getString("peerassessment.noscore")</span>
 										#end
 									#else
-										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return handleEnterKeyPress(event);" /> 
+										<input type="text" name="$name_grade" size="5" maxlength="11" value="$!value_grade" id="grade" onkeypress="return ASN.handleEnterKeyPress(event);" />
 									#end
 									<span class="instruction">($tlang.getString("grade.max") $assignment.getContent().getMaxGradePointDisplay())</span>
 								</p>	
@@ -385,20 +339,124 @@ function handleEnterKeyPress(ev)
 							#end
 						#end
 						</td></tr></table>
+        <h4>
+			$tlang.getString("peerassessment.reviewerAttachments")
+        </h4>
+		#if(!$view_only)
+            <div class="highlightPanel" style="background:#ffe">
+                <h3 style="margin-top:0;margin-bottom:.5em">
+					$tlang.getString("gen.att")
+                </h3>
+				#set ($size = 0)
+				#set ($props = false)
+				#foreach ($attachment in $peer_attachments)
+					#set ($props = $attachment.Properties)
+					#if ($!props)
+						#set ($size = $size + 1)
+					#end
+				#end
+				#if ($size == 0)
+                    <p class="instruction">$tlang.getString("gen.noatt")</p>
+				#else
+                    <table class="attachList listHier indnt1 centerLines" style="margin-bottom:.5em;margin-top:0; width:auto" summary="$tlang.getString("stuviewsubm.listsummary")">
+						#foreach ($attachment in $peer_attachments)
+							#set ($props = false)
+							#set ($props = $attachment.Properties)
+							#if ($!props)
+                                <tr>
+                                    <td>
+										#if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                            <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+										#else
+                                            <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+										#end
+                                        <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+                                    </td>
+                                    <td>
+										#propertyDetails($props)
+                                    </td>
+                                    <td class="itemAction">
+                                        <a href="#" onclick="document.gradeForm.onsubmit();document.gradeForm.option.value='removeAttachment_review'; document.gradeForm.currentAttachment.value='$attachment.id'; document.gradeForm.submit(); return false;">
+											$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
+                                        </a>
+                                    </td>
+                                </tr>
+							#end
+						#end
+                    </table>
+				#end
+                <div class="highlightPanel specialLink" style="margin:0;padding-bottom:.5em;background:#fff">
+					#if ($size==0)
+						#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabel"))
+						#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel"))
+					#else
+						#set($howManySubAtts=$tlang.getString("stuviewsubm.attfromcomputerlabelmore"))
+						#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabelmore"))
+					#end
+                    <input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
+                    <table border="0" cellpadding="0" cellspacing="0" class="listHier  centerLines" style="width:auto;margin:0">
+                        <tr>
+                            <td>
+                                <span>$howManySubAtts</span>
+                            </td>
+                            <td>
+                                <div id="clonableUpload spinnerBesidesContainer">
+									<input type="file" name="upload" class="upload" id="clonableUpload" onchange="SPNR.insertSpinnerAfter(this, null, null);ASN.submitPeerReviewAttachment('gradeForm', '#toolLinkParam("AssignmentAction" "doAttachUpload" "")');""/>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td id="clonedHolder"></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+		#else
+			#if($peer_attachments)
+                <ul class="attachList">
+					#foreach($attachment in $peer_attachments)
+						#set ($props = false)
+						#set ($props = $attachment.Properties)
+						#if ($!props)
+                            <li>
+								#if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                    <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+								#else
+                                    <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+								#end
+								#if ($decoratedUrlMap)
+                                    <a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+								#else
+                                    <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+								#end
+								#propertyDetails($props)
+                            </li>
+						#end
+					#end
+                </ul>
+			#else
+                <div class="tier1 highlightPanel">
+                    <p class="instruction">$tlang.getString("peerassessment.reviewerNoAttachments")</p>
+                </div>
+			#end
+		#end
 						
 		<div class="navPanel">
 		  <div class="viewNav highlight" style="width:70%;line-height:1.4em;padding-top:.75em;">
 				<span class="act">
 					#if($view_only)
 						#if($item_removed)
-							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.restorereview')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='toggleremove_review';document.gradeForm.submit();return false;" title="$tlang.getString("peerassessment.restorereview")" />
+							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.restorereview')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'toggleremove_review', '$validator.escapeUrl($submission.Reference)', null ); return false;" title="$tlang.getString("peerassessment.restorereview")" />
 						#else
-							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.removereview')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='toggleremove_review';document.gradeForm.submit();return false;" title="$tlang.getString("peerassessment.removereview")" />
+							<input type="button" accesskey="s" name="return" value="$tlang.getString('peerassessment.removereview')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'toggleremove_review', '$validator.escapeUrl($submission.Reference)', null ); return false;" title="$tlang.getString("peerassessment.removereview")" />
 						#end
 					#else
-						<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='savegrade_review';document.gradeForm.submit();return false;" title="$tlang.getString("gen.sav")" />	
-						<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='cancelgrade_review';document.gradeForm.submit();return false;" />
-						<input type="button" name="returnSubmit" value="$tlang.getString('gen.subm3')" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='submitgrade_review';document.gradeForm.submit();return false;" title="$tlang.getString("gen.subm3")" />
+						<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.sav')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'savegrade_review', '$validator.escapeUrl($submission.Reference)', null ); return false;" title="$tlang.getString("gen.sav")" />
+						<input type="button" accesskey="x" name="cancel" value="$tlang.getString('cancel_changes')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'cancelgrade_review', null, null ); return false;" />
+						<input type="button" id="post" name="returnSubmit" value="$tlang.getString('gen.subm3')" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'submitgrade_review', '$validator.escapeUrl($submission.Reference)', null ); return false;" title="$tlang.getString("gen.subm3")" />
 					#end
 					#if ($!prevSubmissionId)
 						<input type="hidden" name="prevSubmissionId" value = "$!prevSubmissionId" />
@@ -412,14 +470,13 @@ function handleEnterKeyPress(ev)
 			</div>				
 			<div class="itemNav highlightPanel" style="float:right;text-align:right;clear:right;margin-top:0">
 				## prev button				
-				<input type="button" name="prevsubmission2" class="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='prevsubmission_review';document.gradeForm.submit();return false;"/>
+				<input type="button" name="prevsubmission2" class="prevsubmission" value="$tlang.getString("nav.prev")" #if (!$!goPTButton) disabled="disabled" #end onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'prevsubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
 				## back to list button
-				<input type="button" name="cancelgradesubmission2" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='cancelgradesubmission_review';document.gradeForm.submit();return false;"/>
+				<input type="button" name="cancelgradesubmission2" class="cancelgradesubmission" value="$tlang.getString("nav.list")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm' 'cancelgradesubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
 				## next button
-				<input type="button" name="nextsubmission2" class="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="javascript:document.gradeForm.action=document.gradeForm.action+'&submissionId=$validator.escapeUrl($submission.Reference)';document.gradeForm.onsubmit();document.getElementById('option').value='nextsubmission_review';document.gradeForm.submit();return false;"/>
+				<input type="button" name="nextsubmission2" class="nextsubmission" value="$tlang.getString("nav.next")" #if (!$!goNTButton)disabled="disabled"#end onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'gradeForm', 'nextsubmission_review', '$validator.escapeUrl($submission.Reference)', null ); return false;"/>
 				#if(!$view_only)
-					<div class="instruction textPanelFooter" style="text-align:center">$tlang.getString("nav.message")</div>				
-					<div class="messageProgress" style="visibility:hidden;text-align:left">$tlang.getString("gen.proces")</div>
+					<div class="instruction textPanelFooter" style="text-align:center">$tlang.getString("nav.message")</div>
 				#end
 			</div>
 		</div>	

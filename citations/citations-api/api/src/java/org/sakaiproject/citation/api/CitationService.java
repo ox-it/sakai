@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.osid.repository.Asset;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 
 import org.sakaiproject.citation.api.Citation;
@@ -64,6 +65,9 @@ public interface CitationService extends EntityProducer
 	public static final String HELPER_ID = "sakai.citation.tool";
 	
 	public static final String PROP_TEMPORARY_CITATION_LIST = "citations.temporary_citation_list";
+
+	/** Property for long open introduction (user settable). [String] */
+	public static final String PROP_INTRODUCTION = "CITATIONS:introduction";
 
 	/**
 	 * Checks permissions to add a CitationList.  Returns true if the user 
@@ -183,6 +187,12 @@ public interface CitationService extends EntityProducer
 	public void removeCollection(CitationCollection edit);
 
 	/**
+	 * This method copies a CitationCollection and all Citations it contains.
+	 * @param reference A reference to the CitationCollection to copy.
+	 */
+	public void copyCitationCollection(Reference reference);
+
+	/**
      * 
      * @param citation
      */
@@ -202,5 +212,50 @@ public interface CitationService extends EntityProducer
      * if no citation is found in the request then <code>null</code> is returned.
      */
     public Citation addCitation(HttpServletRequest request);
+	/**
+	 ** This method save a CitationCollectionOrder representing a h1 section
+	 * @param citationCollectionOrder
+	 */
+	public void saveSection(CitationCollectionOrder citationCollectionOrder);
+	/**
+	 ** This method save a CitationCollectionOrder representing a h2 or h3 section
+	 * @param citationCollectionOrder
+	 */
+	public void saveSubsection(CitationCollectionOrder citationCollectionOrder);
+	/**
+	 ** This method saves CitationCollectionOrders representing a nested structure of h1 h2 h3 and citations
+	 * @param citationCollectionOrders
+	 * @param citationCollectionId
+	 */
+	public void save(List<CitationCollectionOrder> citationCollectionOrders, String citationCollectionId);
+	/**
+	 ** This method updates the value of a section
+	 * @param citationCollectionOrder
+	 */
+	public void updateSection(CitationCollectionOrder citationCollectionOrder);
+	/**
+	 ** Gets the nested sections of a citation collection
+	 * @param citationCollectionId
+	 */
+	public CitationCollectionOrder getNestedCollection(String citationCollectionId);
+	/**
+	 ** Removes the section of a citation collection and its children or removes a citation
+	 * @param collectionId
+	 * @param locationId
+	 */
+	public void removeLocation(String collectionId, int locationId);
+	/**
+	 ** Gets a citation collection including nested and unnested citations
+	 * @param citationCollectionId
+	 */
+	public CitationCollection getUnnestedCitationCollection(String citationCollectionId);
+	/**
+	 * Attempt to find a Citation from a request.
+	 * This basically uses the Solo API to look for details of a citation in the request.
+	 * @param req The servlet request.
+	 * @return The returned citation which been saved or added to a citation collection,
+	 * if no citation is found in the request then <code>null</code> is returned.
+	 */
+	public Citation addSoloApiCitation(HttpServletRequest req);
 }	// interface CitationService
 

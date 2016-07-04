@@ -29,10 +29,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -42,6 +44,8 @@ import org.sakaiproject.user.api.UserEdit;
 
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPEntry;
+
+import static java.util.Map.*;
 
 /**
  * Implements LDAP attribute mappings and filter generations using
@@ -64,7 +68,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	 * values are physical attr names.
 	 */
 	private Map<String,String> attributeMappings;
-    
+
     /**
 	 * Formatters used for manipulating attribute values sent to and returned from LDAP.
 	 */
@@ -161,7 +165,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	 */
 	public String getFindUserByEidFilter(String eid) {
 		
-		String eidAttr = 
+		String eidAttr =
 			attributeMappings.get(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY);
 		MessageFormat valueFormat = valueMappings.get(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY);
 		if (valueFormat == null) {
@@ -173,9 +177,15 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	}
 
 	public String getFindUserByAidFilter(String aid) {
-		String eidAttr = 
+		String aidAttr =
 			attributeMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
-		return eidAttr + "=" + escapeSearchFilterTerm(aid);
+		MessageFormat valueFormat = valueMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
+		if (valueFormat == null) {
+			return aidAttr + "=" + escapeSearchFilterTerm(aid);
+		} else {
+			valueFormat = (MessageFormat) valueFormat.clone();
+			return aidAttr + "=" + escapeSearchFilterTerm(valueFormat.format(new Object[]{aid}));
+		}
 	}
 
 	/**
@@ -290,12 +300,12 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         String attrValue = attribute.getStringValue();
         MessageFormat format = valueMappings.get(logicalAttrName);
         if (format != null && attrValue != null) {
-            format = (MessageFormat)format.clone();
-            if ( M_log.isDebugEnabled() ) {
+            format = (MessageFormat) format.clone();
+            if (M_log.isDebugEnabled()) {
                 M_log.debug("mapLdapAttributeOntoUserData(): value mapper [attrValue = " +
                         attrValue + "; format=" + format.toString() + "]");
             }
-            attrValue = (String)(format.parse(attrValue, new ParsePosition(0))[0]);
+            attrValue = (String) (format.parse(attrValue, new ParsePosition(0))[0]);
         }
         
         if ( M_log.isDebugEnabled() ) {
@@ -366,7 +376,14 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         				"][physical attr name = " + attribute.getName() + 
         				"][value = " + attrValue + "]");
         	}
-            userData.setProperty(logicalAttrName, attrValue);
+        	// Support multivalue attributes.
+        	String[] attrValues = attribute.getStringValueArray();
+        	if (attrValues.length > 1) {
+        		List<String> newList = Arrays.asList(attrValues);
+        		userData.getProperties().put(logicalAttrName, newList);
+        	} else {
+        		userData.setProperty(logicalAttrName, attrValue);
+        	}
         }
         
     }
@@ -405,8 +422,14 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 		Properties srcProps = userData.getProperties();
 		ResourceProperties tgtProps = userEdit.getProperties();
 		for ( Entry srcProp : srcProps.entrySet() ) {
-			tgtProps.addProperty((String)srcProp.getKey(), 
-					(String)srcProp.getValue());
+			if (srcProp.getValue() instanceof String) {
+				tgtProps.addProperty((String)srcProp.getKey(), 
+						(String)srcProp.getValue());
+			} else if (srcProp.getValue() instanceof List) {
+				for(String value: (List<String>)srcProp.getValue()) {
+					tgtProps.addPropertyToList((String) srcProp.getKey(), value);
+				}
+			}
 		}
 		
 	}
@@ -666,8 +689,9 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	/**
 	 * @param valueMappings A Map of message formats used for extracting values from LDAP data.
 	 */
-	public void setValueMappings(Map<String, MessageFormat> valueMappings) {
-		this.valueMappings = valueMappings;
+	public void setValueMappings(Map<String, String> valueMappings) {
+		this.valueMappings = valueMappings.entrySet().stream()
+				.collect( Collectors.toMap(Entry::getKey, e -> new MessageFormat(e.getValue())) );
 	}
 
 }

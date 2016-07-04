@@ -1,0 +1,12 @@
+<a class="podcast">
+    <h2 class="highlightable title"></h2>
+    <div class="metadata">
+        <b><span class="type"></span></b> podcast &bull; 
+        Last updated: <b><span class="updated"></span></b> &bull; 
+        <b><span class="division"></span></b>, <span class="faculty"></span>
+    </div>
+    <img class="thumbnail" width="80" height="80"/>
+    <span class="genericPlaceHolder"></span>
+    <div class="highlightable description"></div>
+    <div class="CLEAR"></div>
+</a>

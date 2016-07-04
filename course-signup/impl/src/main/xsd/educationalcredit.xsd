@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://purl.org/net/cm"
+	xmlns:credit="http://purl.org/net/cm" elementFormDefault="qualified">
+
+	<annotation>
+		<documentation xml:lang="en">
+			This is an unofficial schema for
+			the CEN Educational Credit Information Model (CWA 16077:2010)
+		</documentation>
+	</annotation>
+
+	<complexType name="Credit">
+		<sequence>
+			<element ref="credit:scheme" maxOccurs="1" minOccurs="0"/>
+			<element ref="credit:level" maxOccurs="unbounded" minOccurs="0" />
+			<element ref="credit:value" maxOccurs="unbounded" minOccurs="0" />
+			<any namespace="##other" processContents="lax" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<element name="Credit" type="credit:Credit" />
+	<element name="level" type="string" />
+	<element name="scheme" type="string" />
+	<element name="value" type="string" />
+</schema>

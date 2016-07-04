@@ -24,11 +24,12 @@ package org.sakaiproject.portal.charon.handlers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.Session;
 
 /**
- * 
+ * Handle for logins after container logins fails.
  * @author ieb
  * @since Sakai 2.4
  * @version $Rev$
@@ -62,7 +63,7 @@ public class ReLoginHandler extends BasePortalHandler
 				// a possible return path
 				// we expect we are in the middle of a login screen processing,
 				// and it's already set (user login button is "ulogin") -ggolden
-				portal.doLogin(req, res, session, null, false);
+				portal.doLogin(req, res, session, null, Portal.LoginRoute.CONTAINER);
 				return END;
 			}
 			catch (Exception ex)

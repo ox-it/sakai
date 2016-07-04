@@ -35,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -42,6 +44,7 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.StoredState;
+import org.sakaiproject.portal.api.Portal.LoginRoute;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -128,6 +131,8 @@ public class PageHandler extends BasePortalHandler
 
 		// permission check - visit the site
 		Site site = null;
+		TwoFactorAuthentication twoFactorAuthentication = 
+			(TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
 		try
 		{
 			site = SiteService.getSiteVisit(page.getSiteId());
@@ -140,25 +145,28 @@ public class PageHandler extends BasePortalHandler
 		catch (PermissionException e)
 		{
 			// if not logged in, give them a chance
-			if (session.getUserId() == null)
-			{
+			if (session.getUserId() == null) {
 
 				StoredState ss = portalService.newStoredState("", "");
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
 				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
-			}
-			else
-			{
+				
+			} else if (twoFactorAuthentication.isTwoFactorRequired("/site/"+page.getSiteId())
+					&& !twoFactorAuthentication.hasTwoFactor())	{
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), LoginRoute.TWOFACTOR);
+				
+			} else {
 				portal.doError(req, res, session, Portal.ERROR_WORKSITE);
+				
 			}
 			return;
 		}
 
 		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ portal.getSiteHelper().getUserSpecificSiteTitle( site ) + " : " + page.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false ) + " : " + page.getTitle();
 
 		String siteType = portal.calcSiteType(site.getId());
 		// start the response

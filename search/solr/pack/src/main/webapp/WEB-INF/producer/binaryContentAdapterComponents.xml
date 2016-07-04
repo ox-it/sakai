@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+    <bean id="org.sakaiproject.search.solr.producer.BinaryContentHostingContentProducer"
+          class="org.sakaiproject.search.producer.BinaryContentHostingContentProducer" init-method="init">
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="searchService" ref="org.sakaiproject.search.api.SearchService"/>
+        <property name="searchIndexBuilder" ref="org.sakaiproject.search.api.SearchIndexBuilder"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="supportedResourceTypes">
+            <list>
+                <value>org.sakaiproject.content.types.fileUpload</value>
+                <value>org.sakaiproject.content.types.HtmlDocumentType</value>
+                <value>org.sakaiproject.content.types.TextDocumentType</value>
+                <value>org.sakaiproject.content.types.urlResource</value>
+            </list>
+        </property>
+        <!-- Limit the document size to 30MB, don't handle bigger documents -->
+        <property name="documentMaximumSize" value="31457280"/>
+    </bean>
+</beans>

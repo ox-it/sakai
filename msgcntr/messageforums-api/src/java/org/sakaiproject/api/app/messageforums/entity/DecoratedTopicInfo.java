@@ -58,6 +58,16 @@ public class DecoratedTopicInfo {
 		this.gradebookItemId = gradebookItemId;
 	}
 
+	public DecoratedTopicInfo(Long topicId, String topicTitle, int unreadMessagesCount, int messagesCount, String typeUuid,
+	                          Long forumId, String topicShortDescription, String topicExtendedDescription){
+		this.topicId = topicId;
+		this.topicTitle = topicTitle;
+		this.unreadMessagesCount = unreadMessagesCount;
+		this.messagesCount = messagesCount;
+		this.typeUuid = typeUuid;
+	}
+
+
 	public String getTypeUuid() {
 		return typeUuid;
 	}

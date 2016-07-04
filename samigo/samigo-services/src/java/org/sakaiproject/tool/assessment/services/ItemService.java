@@ -38,8 +38,10 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 
@@ -243,7 +245,7 @@ public class ItemService
   public ItemData cloneItem(ItemDataIfc item){
     ItemData cloned= new ItemData(
         item.getSection(),item.getSequence(), item.getDuration(), item.getInstruction(),
-        item.getDescription(),item.getTypeId(),item.getGrade(),item.getScore(), item.getDiscount(),
+        item.getDescription(),item.getTypeId(),item.getGrade(),item.getScore(), item.getScoreDisplayFlag(), item.getDiscount(), item.getMinScore(),
         item.getHint(),item.getHasRationale(),item.getStatus(),item.getCreatedBy(),
         item.getCreatedDate(),item.getLastModifiedBy(),item.getLastModifiedDate(),
         null, null, null, item.getTriesAllowed(), item.getPartialCreditFlag());
@@ -253,10 +255,14 @@ public class ItemService
     Set newItemMetaDataSet = copyItemMetaDataSet(cloned, item.getItemMetaDataSet());
     Set newItemFeedbackSet = copyItemFeedbackSet(cloned, item.getItemFeedbackSet());
     Set newItemAttachmentSet = copyItemAttachmentSet(cloned, item.getItemAttachmentSet());
+    String newItemInstruction = AssessmentService.copyStringAttachment(item.getInstruction());
     cloned.setItemTextSet(newItemTextSet);
     cloned.setItemMetaDataSet(newItemMetaDataSet);
     cloned.setItemFeedbackSet(newItemFeedbackSet);
     cloned.setItemAttachmentSet(newItemAttachmentSet);
+    cloned.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
+    cloned.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
+    cloned.setInstruction(newItemInstruction);
 
     return cloned;
   }
@@ -266,8 +272,10 @@ public class ItemService
     Iterator k = itemTextSet.iterator();
     while (k.hasNext()) {
       ItemText itemText = (ItemText) k.next();
-      ItemText newItemText = new ItemText(cloned, itemText.getSequence(), itemText.getText(), null);
+      String newText = AssessmentService.copyStringAttachment(itemText.getText());
+      ItemText newItemText = new ItemText(cloned, itemText.getSequence(), newText, null);
       newItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
+      newItemText.setItemTextAttachmentSet(copyItemAttachmentSetItemText(newItemText, itemText.getItemTextAttachmentSet()));
       Set newAnswerSet = copyAnswerSet(newItemText, itemText.getAnswerSet());
       newItemText.setAnswerSet(newAnswerSet);
       h.add(newItemText);
@@ -324,7 +332,7 @@ public class ItemService
     while (o.hasNext()) {
       ItemFeedback itemFeedback = (ItemFeedback) o.next();
       ItemFeedback newItemFeedback = new ItemFeedback(
-          cloned, itemFeedback.getTypeId(), itemFeedback.getText());
+          cloned, itemFeedback.getTypeId(), AssessmentService.copyStringAttachment(itemFeedback.getText()));
       h.add(newItemFeedback);
     }
     return h;
@@ -341,13 +349,33 @@ public class ItemService
       ItemAttachmentIfc newItemAttachment = new ItemAttachment(
         null, cr_copy.getId(), itemAttachment.getFilename(),
         itemAttachment.getMimeType(), itemAttachment.getFileSize(), itemAttachment.getDescription(),
-        cr_copy.getUrl(), itemAttachment.getIsLink(), itemAttachment.getStatus(),
+        cr_copy.getUrl(true), itemAttachment.getIsLink(), itemAttachment.getStatus(),
         itemAttachment.getCreatedBy(), itemAttachment.getCreatedDate(), itemAttachment.getLastModifiedBy(),
         itemAttachment.getLastModifiedDate());
       newItemAttachment.setItem(cloned);
       h.add(newItemAttachment);
     }
     return h;
+  }
+  
+  private Set copyItemAttachmentSetItemText(ItemText itemText, Set itemAttachmentSet) {
+	AssessmentService service = new AssessmentService();
+	HashSet h = new HashSet();
+	Iterator n = itemAttachmentSet.iterator();
+	while (n.hasNext()) {
+	  ItemTextAttachmentIfc ItemTextAttachment = (ItemTextAttachmentIfc) n.next();
+	  ContentResource cr_copy = service.createCopyOfContentResource(
+	    		  			ItemTextAttachment.getResourceId(), ItemTextAttachment.getFilename());
+	  ItemTextAttachmentIfc newItemTextAttachment = new ItemTextAttachment(
+	    null, cr_copy.getId(), ItemTextAttachment.getFilename(),
+	    ItemTextAttachment.getMimeType(), ItemTextAttachment.getFileSize(), ItemTextAttachment.getDescription(),
+	    cr_copy.getUrl(true), ItemTextAttachment.getIsLink(), ItemTextAttachment.getStatus(),
+	    ItemTextAttachment.getCreatedBy(), ItemTextAttachment.getCreatedDate(), ItemTextAttachment.getLastModifiedBy(),
+	    ItemTextAttachment.getLastModifiedDate());
+	   newItemTextAttachment.setItemText(itemText);
+	   h.add(newItemTextAttachment);
+	}
+	return h;
   }
 
   public void deleteSet(Set s)

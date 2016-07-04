@@ -10,9 +10,9 @@
   <name>Sakai AuthZ Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>authz-base</artifactId>
-  <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
   <modules>
     <module>authz-tool/tool</module>
+    <module>devolved-admin/tool</module>
   </modules>
 </project>

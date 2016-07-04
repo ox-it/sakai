@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>content-review-impl-base-tii</artifactId>
+		<groupId>org.sakaiproject.contentreview</groupId>
+		<version>11-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<name>Turnitin Scheduler Component</name>
+	<groupId>org.sakaiproject.contentreview</groupId>
+	<artifactId>contentreview-scheduler</artifactId>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.contentreview</groupId>
+			<artifactId>contentreview-service-api</artifactId>
+		</dependency>
+		<dependency>
+            		<groupId>org.quartz-scheduler</groupId>
+            		<artifactId>quartz</artifactId>
+        	</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.scheduler</groupId>
+			<artifactId>scheduler-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/sql</directory>
+				<includes>
+					<include>**/*.sql</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.properties</include>
+				</includes>
+				<excludes>
+					<exclude>**/web.xml</exclude>
+				</excludes>
+			</resource>
+		</resources>
+	</build>
+</project>

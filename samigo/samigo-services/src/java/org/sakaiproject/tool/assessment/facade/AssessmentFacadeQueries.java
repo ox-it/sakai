@@ -42,8 +42,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
@@ -77,6 +77,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachment
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -154,9 +155,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				Integer.valueOf(1), "1", new Date(), "1", new Date());
 		AssessmentAccessControl s = new AssessmentAccessControl(Integer.valueOf(0),
 				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0),
-				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), new Date(),
-				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
-				Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
+				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT,
+				new Date(),	new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
 				"anonymous");
 		s.setAssessmentBase(assessmentTemplate);
 		assessmentTemplate
@@ -206,9 +207,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				"1", new Date(), "1", new Date());
 		AssessmentAccessControl s = new AssessmentAccessControl(Integer.valueOf(1),
 				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),
-				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), new Date(),
-				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
-				Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT,
+				new Date(), new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
+				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),"Thanks for submitting",
 				"anonymous");
 
 		s.setAssessmentBase(assessment);
@@ -1812,8 +1813,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return attach;
 	}
 
-	public void saveOrUpdateAttachments(List list) {
-		getHibernateTemplate().saveOrUpdateAll(list);
+	public void saveOrUpdateAttachments(List<AttachmentIfc> list) {
+	    for (AttachmentIfc attachment : list) {
+	        getHibernateTemplate().saveOrUpdate(attachment);
+	    }
 	}
 
 	public List getAllActiveAssessmentsByAgent(final String siteAgentId) {
@@ -1849,7 +1852,10 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			newList.add(new_a);
 			assessmentMap.put(new_a, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId());
 		}
-		getHibernateTemplate().saveOrUpdateAll(newList); // write
+		for (AssessmentData assessmentData : newList) {
+		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
+        }
+		
 		// authorization
 		for (int i = 0; i < newList.size(); i++) {
 			AssessmentData a = (AssessmentData) newList.get(i);
@@ -1884,7 +1890,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				}
 			}
 		}
-		getHibernateTemplate().saveOrUpdateAll(newList); // write
+		for (AssessmentData assessmentData : newList) {
+		    getHibernateTemplate().saveOrUpdate(assessmentData); // write
+		}
 		for (AssessmentData data: newList) {
 		    String oldRef = assessmentMap.get(data);
 		    if (oldRef != null && data.getAssessmentBaseId() != null)
@@ -1933,6 +1941,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
     	StringBuffer sb = new StringBuffer(assessmentData.getTitle());
     	sb.append(" ");
     	sb.append(apepndCopyTitle);
+    	if(sb.length() >= assessmentData.TITLE_LENGTH){ //title max size
+    		String appendCopyText = "... "+apepndCopyTitle;
+    		String titleCut = sb.substring(0, assessmentData.TITLE_LENGTH-appendCopyText.length()-1); //cut until size needed to add ellipsis and copyTitle without exceed DB field size
+    		log.debug("titleCut = "+titleCut);
+    		sb = new StringBuffer(titleCut);
+    		sb.append(appendCopyText);
+    	}
     	String newTitle = getNewAssessmentTitleForCopy(sb.toString());
     	assessmentData.setTitle(newTitle);
 	  }
@@ -2096,18 +2111,18 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				a.getSubmissionsAllowed(), a.getSubmissionsSaved(), a
 						.getAssessmentFormat(), a.getBookMarkingItem(), a
 						.getTimeLimit(), a.getTimedAssessment(), a
-						.getRetryAllowed(), a.getLateHandling(), a
+						.getRetryAllowed(), a.getLateHandling(), a.getInstructorNotification(),a
 						.getStartDate(), a.getDueDate(), a.getScoreDate(), a
 						.getFeedbackDate(), a.getRetractDate(), a
 						.getAutoSubmit(), a.getItemNavigation(), a
-						.getItemNumbering(), a.getSubmissionMessage(), a
+						.getItemNumbering(), a.getDisplayScoreDuringAssessments(), a.getSubmissionMessage(), a
 						.getReleaseTo());
-		newAccessControl.setUsername(a.getUsername());
 		newAccessControl.setPassword(a.getPassword());
 		newAccessControl.setFinalPageUrl(a.getFinalPageUrl());
 		newAccessControl.setUnlimitedSubmissions(a.getUnlimitedSubmissions());
 		newAccessControl.setAssessmentBase(p);
 		newAccessControl.setMarkForReview(a.getMarkForReview());
+		newAccessControl.setHonorPledge(a.getHonorPledge());
 		return newAccessControl;
 	}
 
@@ -2210,7 +2225,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			ItemData newItem = new ItemData(newSection, item.getSequence(),
 					item.getDuration(), item.getInstruction(), item
 							.getDescription(), item.getTypeId(), item
-							.getGrade(), item.getScore(), item.getDiscount(), item.getHint(), item
+							.getGrade(), item.getScore(), item.getScoreDisplayFlag(), item.getDiscount(), item.getMinScore(), item.getHint(), item
 							.getHasRationale(), item.getStatus(), item
 							.getCreatedBy(), item.getCreatedDate(), item
 							.getLastModifiedBy(), item.getLastModifiedDate(),

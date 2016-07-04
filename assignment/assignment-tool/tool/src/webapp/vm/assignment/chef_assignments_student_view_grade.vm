@@ -1,44 +1,23 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_student_view_grade.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
-<script type="text/javascript">includeLatestJQuery('assignments');</script>
-<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+<!-- jQuery already loaded in assignment_chef_header -->
 <script type="text/javascript">
     $(document).ready(function(){
-        setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+        ASN.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
         $( "#accordion" ).accordion({
 	        	heightStyle: 'content',
 	        	active: 0,
 	        	collapsible: true,
 	        	change: function(event, ui){
-	                    resizeFrame();
+	                    ASN.resizeFrame();
 	            },
 	            activate: function(event, ui){
-	                    resizeFrame();
+	                    ASN.resizeFrame();
 	            }
             }
         );
     });
-
-var reportsExpanded = false;
-function handleReportsTriangleDisclosure(btn)
-{
-	var reportsDiv = document.getElementById("reportsDiv");
-	if (reportsExpanded)
-	{
-		btn.src="/library/image/sakai/expand.gif";
-		btn.alt="$tlang.getString('review.report.expand')";
-		reportsDiv.style.display="none";
-	}
-	else
-	{
-		btn.src="/library/image/sakai/collapse.gif";
-		btn.alt="$tlang.getString('review.report.collapse')";
-		reportsDiv.style.display="block";
-		resizeFrame();
-	}
-	reportsExpanded = !reportsExpanded;
-}
 </script>
 <div class="portletBody">
 	#set ($assignment = $submission.Assignment)
@@ -194,7 +173,7 @@ function handleReportsTriangleDisclosure(btn)
 								#set($reviewResults=$submission.ContentReviewResults)
 								#if ($reviewResults.size() >= 3)
 									<div class="discTria">
-										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="/library/image/sakai/expand.gif" alt="$tlang.getString('review.report.expand')"/>
+										<input class="disclosureTriangle" type="image" onclick="ASN.handleReportsTriangleDisclosure(this,this.parentNode.parentNode.children[1]); return false;" src="/library/image/sakai/expand.gif" alt="$tlang.getString('review.report.expand')"/>
 										## TODO: reconsider for i18n
 										$reviewResults.size() $tlang.getString("review.reports")
 									</div>
@@ -206,10 +185,10 @@ function handleReportsTriangleDisclosure(btn)
 										<span class="reportIcon">
 										
 										#if ($reviewResult.getReviewReport().equals("Error"))
-											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+											<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-exclamation-triangle errorStyle"></i>
 										#else
 											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+												<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag flagStyle" style="color:$reviewResult.getReviewIconColor() !important"></i>
 											</a>
 										#end
 										</span>
@@ -217,6 +196,11 @@ function handleReportsTriangleDisclosure(btn)
 											$tlang.getString("submission.inline")
 										#else
 											$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+										#end
+										#if($reviewResult.getExternalGrade() && $assignment.getContent().AllowStudentViewExternalGrade)
+											<span style="font-style:italic !important">
+												($tlang.getString("gen.gra.ext") $reviewResult.getExternalGrade() / $maxPointsInt)
+											</span>
 										#end
 									</div>
 								#end
@@ -504,6 +488,28 @@ function handleReportsTriangleDisclosure(btn)
 							<b>$tlang.getString("gen.comments")</b> 
 							<div class="textPanel">$validator.escapeHtmlFormattedText($review.getComment())</div>
 						#end
+                        <ul class="attachList">
+                            <lh><strong>$tlang.getString("gen.attachments")</strong></lh>
+							#foreach($attachment in $review.getAttachmentRefList())
+								#set ($props = false)
+								#set ($props = $attachment.Properties)
+								#if ($!props)
+                                    <li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+									#else
+                                        <img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+									#end
+									#if ($decoratedUrlMap)
+                                        <a href="$decoratedUrlMap.get($attachment.Url)" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#else
+                                        <a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+									#end
+										#propertyDetails($props)
+                                    </li>
+								#end
+							#end
+                        </ul>
 						</div>
 					#end
 					</div>
@@ -511,25 +517,10 @@ function handleReportsTriangleDisclosure(btn)
 			#end
 		<form action="#toolForm("AssignmentAction")" method="post" >
 			<div class="act">
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" accesskey="x" class="active TB_hideControl"/>
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_view_grade" value="$tlang.getString("gen.backtolist")" accesskey="x" class="active TB_hideControl"
+					onclick="SPNR.disableControlsAndSpin( this, null );" />
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
-	
-
-							
-				
-					
-	<script type="text/javascript">
-		<!--
-			function display_item(id) {
-				var item = document.getElementById(id);
-				if(item.style.display == 'none')
-				item.style.display = 'block';
-				else
-				item.style.display = 'none';
-			}
-		//-->
-	</script>
 <!-- end: chef_assignments_student_view_grade.vm  -->

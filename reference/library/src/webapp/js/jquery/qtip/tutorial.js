@@ -14,6 +14,10 @@ var dialogPosition = {
 
 function startTutorial(opts){
 	showTutorialPage(sakaiTutorialStartUrl, opts);
+	if (!$PBJQ(".Mrphs-userNav__subnav").hasClass("is-hidden")) {
+		// Hide the user dropdown menu so it doesn't obstruct the tutorial
+		$('.Mrphs-userNav__submenuitem--username').trigger('click');
+	}
 }
 
 function showTutorialPage(url, opts){
@@ -34,10 +38,10 @@ function showTutorialPage(url, opts){
 				if(response.data.dialog == 'true'){
 					response.data.selection = 'div#tutorial';
 				}
-				if(!$(response.data.selection).length 
+				if( (!$(response.data.selection).length || $(response.data.selection).offset().left < 0 || $(response.data.selection).offset().top < 0)
 						&& ((!previousClicked && response.data.nextUrl) 
 								|| (previousClicked && response.data.previousUrl))){
-					//this item doesn't exist, go to the next page if it exists
+					//This item doesn't exist or it´s outside the viewport, go to the next page if it exists
 					if(previousClicked){
 						showTutorialPage(response.data.previousUrl);
 					}else{
@@ -56,7 +60,7 @@ function showTutorialPage(url, opts){
 							{ 
 								content: {
 									title: response.data.title,
-									button: $('<a class="qtipClose" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
+									button: $('<a class="qtipClose" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><i class="fa fa-close tut-icon-close"></i><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
 									text: response.data.body
 								},
 								position: response.data.dialog == 'true' ? dialogPosition: {
@@ -65,7 +69,7 @@ function showTutorialPage(url, opts){
 									viewport: $(document.body)
 								},
 								style: {
-									classes: 'qtip-tipped qtip-shadow qtipBodyContent',
+									classes: 'sakai-tutorial qtip-shadow',
 									tip: {
 										corner: response.data.positionTooltip
 									}
@@ -94,7 +98,7 @@ function showTutorialPage(url, opts){
 											}, 10000);
 										}
 									},
-                                    visible : function() {  $('.qtip-title').attr('tabindex','-1').focus(); },
+                                    visible : function() {  $('.qtip-content .qtipLinkButton').attr('tabindex','-1').focus(); },
 									render: function() {
                                            var api = this;
                                             $(window).bind('keydown', function(e) {

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="hierarchyContent1" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>hierarchy_content1</value>
+    </property>
+    <property name="name">
+      <value>Search Overview</value>
+    </property>
+    <property name="location">
+      <value>/hierarchy/overview.htm</value>
+    </property>
+    <property name="defaultForTool"><value>sakai.hierarchy</value></property>
+
+  </bean>
+  <bean id="hierarchyContent2" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>hierarchy_content2</value>
+    </property>
+    <property name="name">
+      <value>Basic Search</value>
+    </property>
+    <property name="location">
+      <value>/hierarchy/basic_hierarchy.htm</value>
+    </property>
+  </bean>
+  <bean id="hierarchyContent3" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>hierarchy_content3</value>
+    </property>
+    <property name="name">
+      <value>Advanced Search</value>
+    </property>
+    <property name="location">
+      <value>/hierarchy/advanced_hierarchy.htm</value>
+    </property>
+  </bean>
+  <bean id="hierarchyContent4" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>hierarchy_content4</value>
+    </property>
+    <property name="name">
+      <value>Administration</value>
+    </property>
+    <property name="location">
+      <value>/hierarchy/administration.htm</value>
+    </property>
+  </bean>
+  <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+    <property name="name">
+      <value>root</value>
+    </property>
+    <property name="categories">
+      <list>
+        <bean id="hierarchy1" class="org.sakaiproject.component.app.help.model.CategoryBean">
+          <property name="name">
+            <value>Search</value>
+          </property>
+          <property name="resources">
+            <list>
+              <ref bean="hierarchyContent1"/>
+              <ref bean="hierarchyContent2"/>
+              <ref bean="hierarchyContent3"/>
+              <ref bean="hierarchyContent4"/>
+            </list>
+          </property>
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>

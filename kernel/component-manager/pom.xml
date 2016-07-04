@@ -42,7 +42,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
-    </dependency>    
+    </dependency>
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -55,7 +59,7 @@
             completely clean to avoid noise from leftover static
             variables.
           -->
-          <forkMode>pertest</forkMode>
+          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
     </plugins>

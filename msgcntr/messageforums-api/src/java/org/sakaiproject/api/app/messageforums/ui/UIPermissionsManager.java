@@ -27,6 +27,7 @@ import java.util.Set;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.Topic;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -71,8 +72,10 @@ public interface UIPermissionsManager
    * @return
    */
   public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum);
-  
-  /**
+	public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum, String contextId);
+	public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum, String contextId);
+
+	/**
    * 
    * @param topic
    * @param forum
@@ -200,6 +203,11 @@ public interface UIPermissionsManager
   public boolean isModeratePostings(DiscussionTopic topic, DiscussionForum forum, String userId, String siteId);
   public boolean isModeratePostings(DiscussionTopic topic, DiscussionForum forum, String userId);
   public boolean isModeratePostings(DiscussionTopic topic, DiscussionForum forum);
+
+  /**
+   * Returns whether current user has perm to identify anonymous users
+   */
+  public boolean isIdentifyAnonAuthors(Topic topic);
   
   /**
    * Returns list of current user's memberships 

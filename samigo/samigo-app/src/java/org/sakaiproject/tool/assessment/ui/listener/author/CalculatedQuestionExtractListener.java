@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
         ItemBean item = itemauthorbean.getCurrentItem();
                 
-        List<String> errors = this.validate(item);        
+        List<String> errors = this.validate(item,true);        
         
         if (errors.size() > 0) {
             item.setOutcome("calculatedQuestion");
@@ -81,15 +82,18 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * <p>Errors include <ul><li>no variables or formulas named in the instructions</li>
      * <li>variables and formulas sharing a name</li>
      * <li>variables with invalid ranges of values</li>
-     * <li>formulas that are syntactically wrong</li></ul>
+     * <li>formulas that are syntactically wrong</li>
+     * <li>formulas with no variables inside (only when saving a question)</li></ul>
      * Any errors are written to the context messager
      * <p>The validate formula is also called directly from the ItemAddListner, before
      * saving a calculated question, to ensure any last minute changes are caught.
      * @param item - an ItemBean, which contains all of the needed information 
      * about the CalculatedQuestion
+     * @param extracting - boolean. True when extracting Variables a formulas, false when saving
+     * a question.
      * @returns a List<String> of error messages to be displayed in the context messager.
      */
-    public List<String> validate(ItemBean item) {
+    public List<String> validate(ItemBean item,boolean extracting) {
         List<String> errors = new ArrayList<String>();
 
         // prepare any already existing variables and formula for new extracts
@@ -119,7 +123,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
 
         // don't bother looking at formulas if any data validations have failed
         if (errors.size() == 0) {
-            errors.addAll(validateFormulas(item, service));
+            errors.addAll(validateFormulas(item, service,extracting));
             errors.addAll(validateCalculations(item.getCalculatedQuestion(), service));
         } else {
             errors.add(getErrorMessage("formulas_not_validated"));
@@ -155,6 +159,22 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         }
     }
 
+    private Long getMaxSequenceValue(Map<String, CalculatedQuestionVariableBean> variables, Map<String, CalculatedQuestionFormulaBean> formulas){
+    	Long maxValue = 0L;
+
+    	for(CalculatedQuestionVariableBean variable:variables.values()){
+    		Long currentSequence = variable.getSequence(); 
+    		if(currentSequence != null && currentSequence.compareTo(maxValue)>0)
+    			maxValue = currentSequence;
+    	}
+    	for(CalculatedQuestionFormulaBean formula:formulas.values()){
+    		Long currentSequence = formula.getSequence(); 
+    		if(currentSequence != null && currentSequence.compareTo(maxValue)>0)
+    			maxValue = currentSequence;
+    	}
+    	return maxValue;
+    }
+
     /**
      * createFormulasFromInstructions adds any formulas that exist in the list of formulaNames
      * but do not already exist in the question
@@ -165,13 +185,14 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-
+        Long maxSequenceValue = getMaxSequenceValue(variables, formulas);
+        
         // add any missing formulas
         for (String formulaName : formulaNames) {
             if (!formulas.containsKey(formulaName)) {
                 CalculatedQuestionFormulaBean bean = new CalculatedQuestionFormulaBean();
                 bean.setName(formulaName);
-                bean.setSequence(Long.valueOf(variables.size() + formulas.size() + 1));
+                bean.setSequence(++maxSequenceValue);
                 item.getCalculatedQuestion().addFormula(bean);
             } else {
                 CalculatedQuestionFormulaBean bean = formulas.get(formulaName);
@@ -194,13 +215,14 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         List<String> errors = new ArrayList<String>();
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-
+        Long maxSequenceValue = getMaxSequenceValue(variables, formulas);
+        
         // add any missing variables
         for (String variableName : variableNames) {
             if (!variables.containsKey(variableName)) {
                 CalculatedQuestionVariableBean bean = new CalculatedQuestionVariableBean();
                 bean.setName(variableName);
-                bean.setSequence(Long.valueOf(variables.size() + formulas.size() + 1));
+                bean.setSequence(++maxSequenceValue);
                 item.getCalculatedQuestion().addVariable(bean);
             } else {
                 CalculatedQuestionVariableBean bean = variables.get(variableName);
@@ -296,8 +318,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
 
             // no non-number characters (although percentage is allowed
             // allow a negative here, we'll catch negative tolerances in another place
+            // we add scientific notation numbers            
             if (formula.getValidTolerance()) {
-                if (!toleranceStr.matches("[0-9\\.\\-\\%]+")) {
+                if ( (!toleranceStr.matches("[0-9\\.\\-\\%]+") ) &&
+                   	 (!toleranceStr.matches("\\-?[0-9]+\\.?[0-9]*([eE][\\-]?[0-9]+)?") ) ) {
                     errors.add(getErrorMessage("invalid_tolerance"));
                     formula.setValidTolerance(false);
                 }
@@ -337,6 +361,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     private List<String> validateMinMax(ItemBean item) {
         List<String> errors = new ArrayList<String>();
         CalculatedQuestionBean question = item.getCalculatedQuestion();
+        GradingService gradingService = new GradingService();
 
         for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
 
@@ -358,11 +383,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
             if (variable.getValidMin()) {
                 try {
-                    BigDecimal bd = new BigDecimal(minStr);
-                    bd = bd.setScale(decimals);
-                    bd = bd.stripTrailingZeros();
-                    min = bd.doubleValue();
-                    String value = bd.toPlainString();
+                    BigDecimal bd = new BigDecimal(minStr);                    
+                    bd.setScale(decimals,RoundingMode.HALF_UP);
+                    min = bd.doubleValue();                                 
+                    String value = gradingService.toScientificNotation(bd.toPlainString(),decimals);
                     variable.setMin(value);
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_min"));
@@ -379,11 +403,10 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
             if (variable.getValidMax()) {
                 try {
-                    BigDecimal bd = new BigDecimal(maxStr);
-                    bd = bd.setScale(decimals);
-                    bd = bd.stripTrailingZeros();
+                    BigDecimal bd = new BigDecimal(maxStr);                   
+                    bd.setScale(decimals,RoundingMode.HALF_UP);
                     max = bd.doubleValue();
-                    String value = bd.toPlainString();
+                    String value = gradingService.toScientificNotation(bd.toPlainString(),decimals);
                     variable.setMax(value);
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_max"));
@@ -480,10 +503,12 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * is returned.  This is a syntax checker; a syntactically valid formula can
      * definitely return the wrong value if the author enters a wrong formula.
      * @param item
+     * @param extracting - boolean. True when extracting Variables a formulas, false when saving
+     * a question
      * @return a map of errors.  The Key is an integer value, set by the SamigoExpressionParser, the
      * value is the string result of that error message.
      */
-    private List<String> validateFormulas(ItemBean item, GradingService service) {
+    private List<String> validateFormulas(ItemBean item, GradingService service,boolean extracting) {
         List<String> errors = new ArrayList<String>();
         if (service == null) {
             service = new GradingService();
@@ -515,6 +540,9 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 if (formulaStr == null || formulaStr.length() == 0) {
                     formulaBean.setValidFormula(false);
                     errors.add(getErrorMessage("empty_field"));
+                }else if ( !extracting && !formulaStr.contains("{")){
+                    formulaBean.setValidFormula(false);
+                    errors.add(getErrorMessage("no_variables_formula") + " : " + formulaBean.getName() + " = "+ formulaStr);                    
                 } else {
                     String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
                     

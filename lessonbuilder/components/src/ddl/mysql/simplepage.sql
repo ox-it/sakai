@@ -5,6 +5,9 @@
 -- update SAKAI_CLUSTER set SERVER_ID='1' where SERVER_ID='1';
 -- ---------------------------------------------------------------------------
 
+create index lesson_builder_p_eval_res_row on lesson_builder_p_eval_results(page_id);
+alter table lesson_builder_p_eval_results modify column gradee varchar(99) null;                                     
+alter table lesson_builder_p_eval_results modify column row_text varchar(255) null;                                  
 create index lesson_builder_page_folder on lesson_builder_pages(siteId, folder);
 create index lesson_builder_group_site on lesson_builder_groups(siteId);
 create index lesson_builder_item_gb on lesson_builder_items(gradebookid);
@@ -12,7 +15,6 @@ create index lesson_builder_item_altgb on lesson_builder_items(altGradebook);
 create index lesson_builder_prop_idx on lesson_builder_properties(attribute);
 create index lesson_builder_qr_questionId_userId on lesson_builder_q_responses(questionId, userId);
 create index lesson_builder_qr_total_qi on lesson_builder_qr_totals(questionId);
-create index lesson_builder_qr_questionId on lesson_builder_q_responses(questionId);
 create index lesson_builder_comments_itemid_author on lesson_builder_comments(itemId, author);
 create index lesson_builder_student_pages_pageId on lesson_builder_student_pages(pageId);
 create index lesson_builder_student_pages_itemId on lesson_builder_student_pages(itemId);

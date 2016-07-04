@@ -1,11 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>
+	<!-- We need our own connection manager so we can have better validators -->
+	<bean id="edu.amc.sakai.user.LdapConnectionManager"
+		  class="edu.amc.sakai.user.PoolingLdapConnectionManager">
+		<property name="factory">
+			<bean class="edu.amc.sakai.user.PooledLDAPConnectionFactory">
+				<property name="connectionLivenessValidator">
+					<bean class="edu.amc.sakai.user.ConsensusLdapConnectionLivenessValidator">
+						<property name="delegates">
+							<list>
+								<bean class="edu.amc.sakai.user.MaxLifetimeLdapConnectionLivenessValidator">
+									<!-- Only allow connections to last for a minute -->
+									<property name="maxTtl" value="60000"/>
+								</bean>
+								<bean class="edu.amc.sakai.user.NativeLdapConnectionLivenessValidator">
+									<!-- This catches correctly close connections -->
+								</bean>
+							</list>
+						</property>
+					</bean>
+				</property>
+			</bean>
+		</property>
+	</bean>
 
-	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+	<bean id="edu.amc.sakai.user.JLDAPDirectoryProvider"
 		class="edu.amc.sakai.user.JLDAPDirectoryProvider" init-method="init"
-		destroy-method="destroy" singleton="true">
+		destroy-method="destroy">
 		
 		<!-- Setting a MemoryService in JLDAP is deprecated! 
 			Caching is done centrally in the UserDirectoryService.callCache -->
@@ -38,14 +62,14 @@
 
 		<!-- Optional. DN to which to bind for directory searches. 
 			Typically only necessary if autoBind is true -->
-		<!-- property name="ldapUser">
-			<value>attr=value,attr=value,attr=value</value>
-		</property -->
+		<property name="ldapUser">
+			<value>cn=service/bit.oucs.ox.ac.uk,cn=oakInternalPrincipals,dc=oak,dc=ox,dc=ac,dc=uk</value>
+		</property>
 
 		<!-- Optional. Password for ldapUser defined above -->
-		<!--  property name="ldapPassword">
-			<value>usually-set-this-value-in-security-dot-properties</value>
-		</property -->
+		<property name="ldapPassword">
+			<value></value>
+		</property>
 
 		<!-- Optional. Enables/disables secure LDAP connections.
 			defaults to JLDAPDirectoryProvider.DEFAULT_IS_SECURE_CONNECTION (false) -->
@@ -58,9 +82,10 @@
 			instance of com.novell.ldap.LDAPJSSESecureSocketFactory, which
 			is appropriate for SSL connections. Use 
 			com.novell.ldap.LDAPJSSEStartTLSFactory for TLS. -->
-		<!-- property name="secureSocketFactory">
-			<bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" />
-		</property -->
+		<property name="secureSocketFactory">
+			<!-- This actually has a connect timeout -->
+            <bean class="edu.amc.sakai.user.LDAPJSSESecureSocketFactory"/>
+		</property>
 
 		<!-- Optional. Indicate if connection allocation should
 			implicitly bind as ${ldapUser}. Defaults to false -->
@@ -80,7 +105,7 @@
 			<value>false</value>
 		</property -->
 
-		<!-- Optional. LDAP operation timeout in millis. Defaults 
+		<!-- Optional. LDAP operation connectTimeout in millis. Defaults
 			to JLDAPDirectoryProvider.DEFAULT_OPERATION_TIMEOUT_MILLIS (5000) -->
 		<!-- property name="operationTimeout">
 			<value>5000</value>
@@ -124,9 +149,9 @@
 		
 		<!-- Optional. Defaults to an instance of 
 		edu.amc.sakai.user.SimpleLdapConnectionManager -->
-		<!-- property name="ldapConnectionManager">
-			<bean class="edu.amc.sakai.user.SimpleLdapConnectionManager" />
-		</property -->
+		<property name="ldapConnectionManager">
+			<ref bean="edu.amc.sakai.user.LdapConnectionManager" />
+		</property>
 
 		<!-- Optional. Use Connection Pooling?
 			Defaults to JLDAPDirectoryProvider.DEFAULT_POOLING (false). 
@@ -208,40 +233,57 @@
     example describes availabel configuration options for SimpleLdapAttributeMapper
     (the default LdapAttributeMapper implementation). -->
 	<bean id="edu.amc.sakai.user.LdapAttributeMapper"
-			class="edu.amc.sakai.user.SimpleLdapAttributeMapper"
-			init-method="init"
-			singleton="true">
+			class="edu.amc.sakai.user.OakLdapAttributeMapper"
+			init-method="init">
 			
 		<!-- A typical set of attribute mappings. Keys are logical
 		names expected by the application. Values are physical LDAP
 		attribute names. If not specified or empty, defaults to
 		AttributeMappingConstants.DEFAULT_ATTR_MAPPINGS. -->
-		<!-- property name="attributeMappings">
+		<property name="attributeMappings">
 			<map>
-				<entry key="aid"><value>krb5PrincipalName</value></entry>
-				<entry key="login"><value>cn</value></entry>         
-				<entry key="firstName"><value>givenName</value></entry> 
-				<entry key="preferredFirstName"><value>preferredName</value></entry>
-				<entry key="lastName"><value>sn</value></entry> 
-				<entry key="email"><value>email</value></entry>  
-				<entry key="groupMembership"><value>groupMembership</value></entry>   
-				<entry key="jpegPhoto"><value>jpegPhoto</value></entry>   
+			    <!-- Note: Our mapper extracts the desired value from the one 
+			    that is actually returned. -->
+				<entry key="login"><value>oakPrimaryPersonID</value></entry>
+				<entry key="aid"><value>oakPrimaryPrincipal</value></entry>
+				<!-- Note: We parse first name out of the display name ;-). -->
+				<entry key="firstName"><value>displayName</value></entry> 
+				<entry key="lastName"><value>sn</value></entry>
+				<entry key="email"><value>mail</value></entry>
+				<entry key="groupMembership"><value>none</value></entry>
+				<entry key="givenName"><value>givenName</value></entry>
+				<entry key="displayId"><value>oakPrimaryPrincipal</value></entry>
+				<!-- Gets set as a user property -->
+				<entry key="oakStatus"><value>oakStatus</value></entry>
+				<entry key="oakOSSID"><value>oakOSSID</value></entry>
+				<!-- Gets the units a person is part of. This is for course signup -->
+				<entry key="units"><value>ou</value></entry>
+				<entry key="oakOSSCourse"><value>oakOSSCourse</value></entry>
+				<entry key="eduPersonPrimaryOrgUnitDN"><value>eduPersonPrimaryOrgUnitDN</value></entry>
 			</map>
-		</property -->
+		</property>
+		<!--
+			Note: When populating a user object from LDAP, we use this "official"
+			value. When searching for a user, we use the multi-valued
+			*oakAlternativeMail* attribute (which includes this value).
+		-->
+		<property name="alternativeEmail" value="oakAlternativeMail" />
 		
-		<!-- If any of the values need manipulating with message formats they can be set here. -->
-		<!-- property name="valueMappings">
+		<!-- If any of the values need manipulating with message formats they
+		can be set here. -->
+		<property name="valueMappings">
 			<map>
-				<entry key="displayId"><value>{0}@example.edu</value></entry>
+				<entry key="aid"><value>krbPrincipalName={0}@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk</value></entry>
+				<entry key="displayId"><value>krbPrincipalName={0}@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk</value></entry>
 			</map>
-		</property -->
+		</property>
 
 		<!-- Several options for calculating Sakai user types based
 		on LDAP attributes. Defaults to an instance of EmptyStringUserTypeMapper -->
 		<property name="userTypeMapper">
 			<!-- Select one of the following beans -->
-			<ref bean="edu.amc.sakai.user.EmptyStringUserTypeMapper" />
-			<!-- ref bean="edu.amc.sakai.user.EntryAttributeToUserTypeMapper" /-->
+			<!-- ref bean="edu.amc.sakai.user.EmptyStringUserTypeMapper" /-->
+			<ref bean="edu.amc.sakai.user.EntryAttributeToUserTypeMapper" />
 			<!-- ref bean="edu.amc.sakai.user.EntryContainerRdnToUserTypeMapper" /-->
 			<!-- ref bean="edu.amc.sakai.user.StringUserTypeMapper" /-->
 		</property>
@@ -259,14 +301,12 @@
 	<!-- EmptyStringUserTypeMapper assigns gives all users an
 	empty string as their Sakai "type" -->
 	<bean id="edu.amc.sakai.user.EmptyStringUserTypeMapper"
-		class="edu.amc.sakai.user.EmptyStringUserTypeMapper"
-		singleton="true" />
+		class="edu.amc.sakai.user.EmptyStringUserTypeMapper"/>
 	
 	<!-- StringUserTypeMapper assigns a configurable String to all
 	users as their Sakai "type". -->
 	<bean id="edu.amc.sakai.user.StringUserTypeMapper"
-		class="edu.amc.sakai.user.StringUserTypeMapper"
-		singleton="true">
+		class="edu.amc.sakai.user.StringUserTypeMapper">
 		
 		<!--  property name="userType">
 			<value>Registered</value>
@@ -278,8 +318,7 @@
 		types by simply passing attribute values through a map with
 		configurable "miss" behavior. -->
 	<bean id="edu.amc.sakai.user.EntryAttributeToUserTypeMapper"
-		class="edu.amc.sakai.user.EntryAttributeToUserTypeMapper"
-		singleton="true">
+		class="edu.amc.sakai.user.EntryAttributeToUserTypeMapper">
 		
 		<!-- Optional. If not present or empty, behavior is
 		determined by the value of returnLiteralAttributeValueIfNoMapping
@@ -296,7 +335,7 @@
 		attribute mappings associated with this LdapAttributeMapper 
 		instance. -->
 		<property name="logicalAttributeName">
-			<value>groupMembership</value>
+			<value>oakStatus</value>
 		</property>
 				
 		<!-- Optional. Defaults to false -->
@@ -316,8 +355,7 @@
 		types by filtering a user entry's most-local RDN through the
 		assigned map. -->
 	<bean id="edu.amc.sakai.user.EntryContainerRdnToUserTypeMapper"
-		class="edu.amc.sakai.user.EntryContainerRdnToUserTypeMapper"
-		singleton="true">
+		class="edu.amc.sakai.user.EntryContainerRdnToUserTypeMapper">
 		
 		<!-- Optional. Maps between container RDN values and Sakai user types -->
 		<!-- property name="rdnToSakaiUserTypeMap">
@@ -338,7 +376,111 @@
 		</property -->
 		
 	</bean>
+	<!--
+	<bean id="org.sakaiproject.authz.api.GroupProvider"
+		class="edu.amc.sakai.user.JLDAPGroupProvider"
+		init-method="init">
+		
+		<property name="jldapDirectoryProvider">
+			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider"/>
+		</property>
+		<property name="groupManager">
+			<bean class="edu.amc.sakai.user.ProvidedGroupManager">
+				<property name="idManager">
+					<ref bean="org.sakaiproject.id.api.IdManager"/>
+				</property>
+			</bean>
+		</property>
+	</bean>
+	-->
+	
 		
 	<!-- /// End Sample UserTypeMapper Beans /// -->
+	
+	<bean id="org.sakaiproject.authz.api.RoleProvider"
+		class="edu.amc.sakai.user.UserAttributeRoleProvider"
+		init-method="init">
+		<property name="userDirectoryService">
+			<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+		</property>
+		<property name="statusAttribute" value="oakStatus"/>
+		<property name="statusRoles">
+			<map>
+				<entry key="staff">
+					<set>
+						<value>.uk.ac.ox.card.staff</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="college">
+					<set>
+						<value>.uk.ac.ox.card.college</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="dept">
+					<set>
+						<value>.uk.ac.ox.card.dept</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="senmem">
+					<set>
+						<value>.uk.ac.ox.card.senmem</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="visitor">
+					<set>
+						<value>.uk.ac.ox.card.visitor</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="undergrad">
+					<set>
+						<value>.uk.ac.ox.card.undergrad</value>
+						<value>.uk.ac.ox.bod.allstudents</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="postgrad">
+					<set>
+						<value>.uk.ac.ox.card.postgrad</value>
+						<value>.uk.ac.ox.bod.allstudents</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="student">
+					<set>
+						<value>.uk.ac.ox.card.student</value>
+						<value>.uk.ac.ox.bod.allstudents</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="cardholder">
+					<set>
+						<value>.uk.ac.ox.card.cardholder</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="virtual">
+					<set>
+						<value>.uk.ac.ox.card.virtual</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="ret">
+					<set>
+						<value>.uk.ac.ox.card.ret</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+			</map>
+		</property>
+	</bean>
 	
 </beans>

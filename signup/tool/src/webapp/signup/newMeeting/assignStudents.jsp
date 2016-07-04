@@ -94,7 +94,7 @@
 		         		</h:selectOneRadio> 
 					</h:panelGroup>
 				</h:panelGrid>
-			   	    
+			   <h:panelGroup layout="block" styleClass="table-responsive">
 			   <h:dataTable id="preSignup" value="#{NewSignupMeetingBean.timeSlotWrappers}" var="timeSlot"
 			   		rowClasses="oddTimeSlotRow,evenTimeSlotRow"	columnClasses="timeslotCol,orgMaxAttsCol,assignStudentsCol" styleClass="signupTable"  style="width: 55%"
 			   		binding="#{NewSignupMeetingBean.timeslotWrapperTable}">
@@ -117,7 +117,7 @@
 									<f:convertDateTime pattern=", EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlot.timeSlot.endTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
-									<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
+									<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 						</h:panelGroup>		
 			   		</h:column>
@@ -175,7 +175,7 @@
 				   		</h:panelGrid>
 			   		</h:column>
 			   </h:dataTable>
-			   
+			   </h:panelGroup>
 						   
 			    <sakai:doc_section>
 					<h:panelGrid columns="2" styleClass="instruction">

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+	/**********************************************************************************
+	* $URL:  $
+	* $Id:  $
+	***********************************************************************************
+	*
+	* Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+	*
+	* Licensed under the Educational Community License, Version 1.0 (the "License");
+	* you may not use this file except in compliance with the License.
+	* You may obtain a copy of the License at
+	*
+	*      http://www.opensource.org/licenses/ecl1.php
+	*
+	* Unless required by applicable law or agreed to in writing, software
+	* distributed under the License is distributed on an "AS IS" BASIS,
+	* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	* See the License for the specific language governing permissions and
+	* limitations under the License.
+	*
+	**********************************************************************************/
+-->
+<beans>
+
+
+	<import resource="hibernate-hbms.xml"/>
+	<import resource="portal-spring-hibernate.xml"/>
+
+	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager">
+			<ref
+				bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
+				init-method="init">
+				<property name="hierarchyService">
+					<ref bean="org.sakaiproject.hierarchy.HierarchyService" />
+				</property>
+				<property name="siteService">
+					<ref bean="org.sakaiproject.site.api.SiteService" />
+				</property>
+				<property name="threadLocalManager">
+					<ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+				</property>
+				<property name="sessionManager">
+					<ref bean="org.sakaiproject.tool.api.SessionManager" />
+				</property>
+				<property name="securityService">
+					<ref bean="org.sakaiproject.authz.api.SecurityService" />
+				</property>
+				<property name="eventTrackingService">
+					<ref bean="org.sakaiproject.event.api.EventTrackingService" />
+				</property>
+				<property name="functionManager">
+					<ref bean="org.sakaiproject.authz.api.FunctionManager" />
+				</property>
+				<property name="memoryService">
+					<ref bean="org.sakaiproject.memory.api.MemoryService" />
+				</property>
+				<property name="dao">
+					<ref
+						bean="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao" />
+				</property>
+				<!-- Which hierarchy to use. -->
+				<property name="hierarchyId">
+					<value>hierarchy</value>
+				</property>
+				<property name="missingSiteId">
+					<value>!hierarchy.missing</value>
+				</property>
+				<property name="autoDDL">
+					<value>${auto.ddl}</value>
+				</property>
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<!-- Rollback on PermissionException as when deleting the subsites even the admin user might not
+					 have permission on secure sites nested inside the site being moved. -->
+				<prop key="moveNode">PROPAGATION_REQUIRED,-PermissionException</prop>
+				<prop key="deleteNode">PROPAGATION_REQUIRED</prop>
+				<prop key="newNode">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!--  Bean to create some content after component manager starts up but before Sakai is available. -->
+	<bean class="org.sakaiproject.hierarchy.impl.PortalHierarchySetup">
+		<property name="hierarchySiteId"><value>!hierarchy</value></property>
+		<property name="autoDDL"><value>${auto.ddl}</value></property>
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService"/>
+		</property>
+		<property name="usageSessionService">
+			<ref bean="org.sakaiproject.event.api.UsageSessionService"/>
+		</property>
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService"/>
+		</property>
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager"/>
+		</property>
+	</bean>
+	
+	
+
+	<!-- 	
+	<bean id="org.sakaiproject.hierarchy.api.dao.HierarchyDAO"
+		class="org.sakaiproject.hierarchy.impl.model.dao.HierarchyDAO"
+		init-method="init">
+		<property name="idManager">
+			<ref bean="org.sakaiproject.id.api.IdManager" />
+		</property>
+		<property name="threadLocalManager">
+			<ref
+				bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
+		</property>
+		<property name="sqlService">
+			<ref bean="org.sakaiproject.db.api.SqlService" />
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.hierarchy.api.HierarchyService"
+		class="org.sakaiproject.hierarchy.impl.HierarchyServiceImpl"
+		init-method="init">
+		<property name="hierarchyDao">
+			<ref bean="org.sakaiproject.hierarchy.api.dao.HierarchyDAO" />
+		</property>
+	</bean>
+	
+	<bean id="org.sakaiproject.hierarchy.api.PortalHierarchyService"
+		class="org.sakaiproject.hierarchy.impl.PortalHierarchyServiceImpl"
+		init-method="init">
+		<property name="sessionManager">
+			<ref bean="org.sakaiproject.tool.api.SessionManager" />
+		</property>
+		<property name="hierarchyService">
+			<bean
+				class="org.sakaiproject.hierarchy.impl.ContextableHierarchyServiceImpl"
+				init-method="init">
+				<property name="hierarchyService">
+					<ref
+						bean="org.sakaiproject.hierarchy.api.HierarchyService" />
+				</property>
+				<property name="context" value="/portal" />
+			</bean>
+		</property>
+	</bean>
+	-->
+
+
+</beans>

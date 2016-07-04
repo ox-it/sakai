@@ -3,49 +3,77 @@
 ##
 <!-- START VM includePageWithNav.vm -->
 
-#if ( $portalBreadCrumbs or $portalPwd ) 
+    <nav class="Mrphs-siteHierarchy">
 
-    <ul id="siteHierarchy" class="Mrphs-breadCrumbs"> 
-        #set ($tabTotal = 0)
+        #if ( $portalBreadCrumbs or $subSites.parents )
 
-        #foreach ( $pwd in $portalPwd )
+                #set ($tabTotal = 0)
 
-            #set ($tabTotal = $tabTotal + 1)
+                #foreach ( $pwd in $subSites.parents )
 
-        #end ## END of FOREACH ( $pwd in $portalPwd )
+                    #set ($tabTotal = $tabTotal + 1)
+
+                #end ## END of FOREACH ( $pwd in $portalPwd )
+                
+                #foreach ( $crumb in $portalBreadCrumbs )
+
+                    ite
+
+                #end ## END of FOREACH ( $crumb in $portalBreadCrumbs )
+               
+                #set ($tabCountBread = 0)
+                
+                <div class="Mrphs-hierarchy--parent-sites">
+                    #foreach ( $pwd in $subSites.parents )
+
+                        #set ($tabCountBread = $tabCountBread + 1)
+                        <span class="Mrphs-hierarchy-item Mrphs-hierarchy--portalPwd Mrphs-hierarchy--$tabCountBread">
+                            <a href="${pwd.url}" title="${pwd.title}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                            #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.title}#end
+                            </span></a>
+                        </span>
+                        <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
+
+                    #end ## END of FOREACH ( $pwd in $portalPwd )
+                </div>
+                
+                #foreach ( $pwd in $portalBreadCrumbs )
+
+                    #set ($tabCountBread = $tabCountBread + 1)
+                    <a href="${pwd.siteUrl}" title="${pwd.fullTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">
+                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${pwd.shortDescription} ) )${pwd.shortDescription}#else${pwd.siteTitle}#end
+                    </span></a>
+                    <span class="Mrphs-hierarchy--separator-$tabCountBread Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
+
+                #end ## END of FOREACH ( $pwd in $portalBreadCrumbs )
+
+        #end ## END of IF ( $portalBreadCrumbs or $portalPwd )
         
-        #foreach ( $crumb in $portalBreadCrumbs )
+        #set($index = 0)
+        #foreach( $page in $sitePages.pageNavTools )
+            #if ( $index == 0 )
+                <span class="Mrphs-hierarchy--siteName" title="${siteTitle}">
+                    <a href="${page.pageResetUrl}">${siteTitleTruncated}</a>
+                </span>
+                <span class="Mrphs-hierarchy--siteNameSeparator Mrphs-hierarchy--separator"><i class="fa fa-lg fa-angle-right"></i></span>
+            #end
+            #set($index = $index + 1 )
+        #end
 
-            #set ($tabTotal = $tabTotal + 1)
-
-        #end ## END of FOREACH ( $crumb in $portalBreadCrumbs )
-       
-            #set ($tabCountBread = 0)
         
-        #foreach ( $pwd in $portalPwd )
+        #foreach( $page in $sitePages.pageNavTools )
+            #if (${page.current})
+            <a href="${page.pageResetUrl}" class="Mrphs-hierarchy-item Mrphs-hierarchy--toolName">
+                <span class="Mrphs-breadcrumb--reset-icon icon-sakai fa fa-share" aria-hidden="true"></span>
+                <span class="Mrphs-breadcrumb--icon ${page.menuClass} $!{page.menuClassOverride}"></span>
+                <span>${page.pageTitle}</span>
+            </a>
+            #end
+        #end
+    </nav>
 
-            #set ($tabCountBread = $tabCountBread + 1)
-            <li class="Mrphs-breadCrumbs--$tabCountBread">
-                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">${pwd.siteTitle}</span></a>
-            </li>
-
-        #end ## END of FOREACH ( $pwd in $portalPwd )
-        
-        #foreach ( $pwd in $portalBreadCrumbs )
-
-            #set ($tabCountBread = $tabCountBread + 1)
-            <li class="Mrphs-breadCrumbs--$tabCountBread">
-                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">${pwd.siteTitle}</span></a>
-            </li>
-
-        #end ## END of FOREACH ( $pwd in $portalBreadCrumbs )
-        
-    </ul>
-
-#end ## END of IF ( $portalBreadCrumbs or $portalPwd )
-
-<div id="container" class="Mrphs-container Mrphs-container--site" $pageSiteType>
-
+    <div id="pageBody">
+    
     #if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
 
         #parse("/vm/morpheus/includePageNav.vm")
@@ -56,10 +84,18 @@
 
     #end ## END of IF ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
 
-    #parse("/vm/morpheus/includePageBody.vm")
+    <div class="Mrphs-pagebody">
+       
+        #parse("/vm/morpheus/includePageBody.vm")
+        
+        #parse("/vm/morpheus/includeFooter.vm")
+
+    </div>
     
+    </div>
+    
+
 </div>
 
-    #parse("/vm/morpheus/includeFooter.vm")
     
 <!-- END VM includePageWithNav.vm -->

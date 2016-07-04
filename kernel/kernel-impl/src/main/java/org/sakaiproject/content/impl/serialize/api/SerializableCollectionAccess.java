@@ -62,6 +62,11 @@ public interface SerializableCollectionAccess
 	 * @return
 	 */
 	Time getSerializableRetractDate();
+	
+	/**
+	 * @return
+	 */
+	String getSerializableResourceType();
 
 	/**
 	 * @return

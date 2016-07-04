@@ -22,6 +22,7 @@
 package org.sakaiproject.poll.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -126,26 +127,14 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         List<Poll> polls = null;
         // get all allowed sites for this user
         List<String> allowedSites = externalLogic.getSitesForUser(userId, permissionConstant);
-        if (! allowedSites.isEmpty()) {
-            if (siteIds != null) {
-                if (siteIds.length > 0) {
-                    // filter down to just the requested ones
-                    for (int j = 0; j < allowedSites.size(); j++) {
-                        String siteId = allowedSites.get(j);
-                        boolean found = false;
-                        for (int i = 0; i < siteIds.length; i++) {
-                            if (siteId.equals(siteIds[i])) {
-                                found = true;
-                            }
-                        }
-                        if (!found) {
-                            allowedSites.remove(j);
-                        }
-                    }
-                } else {
-                    // no sites to search so EXIT here
-                    return new ArrayList<Poll>();
-                }
+
+        if(siteIds!=null && siteIds.length>0 && !allowedSites.isEmpty()){
+            List<String> requestedSiteIds = Arrays.asList(siteIds);
+            // filter down to just the requested ones
+            allowedSites.retainAll(requestedSiteIds);
+            if(allowedSites.isEmpty()){
+                // no sites to search so EXIT here
+                return new ArrayList<Poll>();
             }
             String[] siteIdsToSearch = allowedSites.toArray(new String[allowedSites.size()]);
             Search search = new Search();
@@ -281,25 +270,22 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     }
 
     public Poll getPollById(Long pollId, boolean includeOptions) throws SecurityException {
-    	
-    	
-    	Search search = new Search();
+        Search search = new Search();
         search.addRestriction(new Restriction("pollId", pollId));
         Poll poll = dao.findOneBySearch(Poll.class, search);
-        if (poll != null) {
-            if (includeOptions) {
-                List<Option> optionList = getOptionsForPoll(poll);
-                poll.setOptions(optionList);
-            }
-        }
-        
-         if (poll == null)
-        	 return null;
-      //user needs at least site visit to read a poll
-    	if (!externalLogic.isAllowedInLocation("site.visit", externalLogic.getSiteRefFromId(poll.getSiteId()), externalLogic.getCurrentuserReference()) && !externalLogic.isUserAdmin()) {
-    		throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't read poll " + pollId);
-    	}
-        
+        if (poll == null)
+            return null;
+
+        if (includeOptions)
+            poll.setOptions(getOptionsForPoll(poll));
+
+        //user needs at least site visit to read a private poll
+        String pollSite = externalLogic.getSiteRefFromId(poll.getSiteId());
+        boolean canVisitSite = externalLogic.isAllowedInLocation("site.visit", pollSite, externalLogic.getCurrentuserReference());
+        boolean userAdmin = externalLogic.isUserAdmin();
+        if (!poll.getIsPublic() && !canVisitSite && !userAdmin)
+            throw new SecurityException("user:" + externalLogic.getCurrentuserReference() + " can't read poll " + pollId);
+
         return poll;
     }
 

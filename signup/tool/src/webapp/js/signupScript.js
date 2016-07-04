@@ -382,14 +382,16 @@
 		
 		var waiting=false;
 		function delayedRecalculateDateTime(){
-			if (!waiting){
-					waiting = true;
-					setEndtimeMonthDateYear();
-					getSignupDurationNoDecimal();
-					sakai.updateSignupBeginsExact();
-					sakai.updateSignupEndsExact(); 
-				  	setTimeout("waiting=false;", 1500);//1.5 sec
-				}			
+			$PBJQ( document ).ready(function() {
+				if (!waiting){
+						waiting = true;
+						setEndtimeMonthDateYear();
+						getSignupDurationNoDecimal();
+						sakai.updateSignupBeginsExact();
+						sakai.updateSignupEndsExact(); 
+						setTimeout("waiting=false;", 1500);//1.5 sec
+				}
+			});
 		}
 	
 //end
@@ -746,6 +748,77 @@ function displayDateTime(d){
 	return (curr_hour + ":" + curr_min + " " + a_p + ", " + d_names[curr_day] + ", "
 		   + m_names[curr_month] + " " +  curr_date + ", " + curr_year);
 
+}
+
+
+$(document).ready(function() {
+    //register click events for the mobile info section
+    $(".mobile-info-link").click(function(){
+        //get the meeting id from the hidden sibling element
+        var meetingId = $(this).siblings('.meetingId').text();
+        meetingId = $.trim(meetingId);
+        //get the siteid from the hidden page element
+        var siteId = $("#siteId").text();
+        siteId = $.trim(siteId);
+        shortenUrl("/signupEvent/" + meetingId + ".json?siteId=" + siteId);
+        return false;
+    });
+});
+function shortenUrl(fullUrl) {
+    var ebUrl = '/direct/oxford/shorten?path=' + fullUrl;
+    $.ajax({
+        url: ebUrl,
+        type: "GET",
+        cache: true,
+        dataType: "text",
+        timeout: 5000,
+        success: function(data) {
+            //set shortenedUrl into link
+            $("#dialog-mox-url").html(data);
+            //also set img tag for QR code
+            var imgUrl = "https://chart.googleapis.com/chart?chs=547x547&cht=qr&chl=" + data;
+            $('#dialog-qr-code').attr("src", imgUrl);
+            //and show the dialog
+            showDialog();
+        },
+        error: function(xhr, status) {
+            alert("Failed to retrieve m.ox url for poll: " + id + ", error: " + xhr.status);
+        }
+    });
+}
+function showDialog() {
+    $("#dialog").dialog({
+        close: function(event, ui){
+            resizeFrame('shrink');
+        },
+        height: 680,
+        width: 580,
+        resizable: false,
+        draggable: true,
+        closeOnEscape: true
+    });
+    //I haven't specified a position here so it is more flexible
+    //i.e. click the first one, move the dialog, click the second, appears in same spot as the moved one.
+    //If you specify a position it will reset to that position on subsequent clicks.
+    //resize iframe
+    resizeFrame('grow');
+}
+function resizeFrame(updown){
+    if (top.location != self.location) {
+        var frame = parent.document.getElementById(window.name);
+    }
+    if (frame) {
+        if (updown == 'shrink') {
+            var clientH = document.body.clientHeight;
+        }
+        else {
+            var clientH = document.body.clientHeight + 450;
+        }
+        $(frame).height(clientH);
+    }
+    else {
+        //throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+    }
 }
 // Display processing message to user for operations that may take some time to process
 function displayProcessingIndicator(el){

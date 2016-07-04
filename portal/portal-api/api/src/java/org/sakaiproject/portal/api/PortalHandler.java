@@ -88,6 +88,13 @@ public interface PortalHandler
 	String getUrlFragment();
 
 	/**
+	 * Returns the priority of this handler, if you attempt to replace a handler
+	 * it will only succeed if the handler has a higher priority.
+	 * @return The priority of this handler, the default priority is 0.
+	 */
+	int getPriority();
+
+	/**
 	 * deregister the the portal, invoked by the portal
 	 * 
 	 * @param portal

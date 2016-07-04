@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TimeZone;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -51,9 +52,13 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -79,10 +84,12 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 public class PublishedAssessmentSettingsBean
   implements Serializable {
-  private static Log log = LogFactory.getLog(PublishedAssessmentSettingsBean.class);
+  private static final Log log = LogFactory.getLog(PublishedAssessmentSettingsBean.class);
   
   private static final IntegrationContextFactory integrationContextFactory =
     IntegrationContextFactory.getInstance();
@@ -126,16 +133,17 @@ public class PublishedAssessmentSettingsBean
   private String assessmentFormat; // question (1)/part(2)/assessment(3) on separate page
   private String itemNavigation; // linear (1)or random (2)
   private String itemNumbering; // continuous between parts(1), restart between parts(2)
+  private String displayScoreDuringAssessments;
   private String unlimitedSubmissions;
   private String submissionsAllowed;
   private String submissionsSaved; // bad name, this is autoSaved
   private String lateHandling;
+  private String instructorNotification = Integer.toString( SamigoConstants.NOTI_PREF_INSTRUCTOR_EMAIL_DEFAULT ); // Default is 'No - I do not want to receive any emails';
   private String submissionMessage;
   private SelectItem[] publishingTargets;
   private String[] targetSelected;
   private String firstTargetSelected;
   private String releaseTo;
-  private String username;
   private String password;
   private String finalPageUrl;
   private String ipAddresses;
@@ -185,6 +193,7 @@ public class PublishedAssessmentSettingsBean
   private boolean updateMostCurrentSubmission = false;
   
   private boolean isMarkForReview;
+  private boolean honorPledge;
   private List attachmentList;
   private boolean editPubAnonyGradingRestricted = false;
   private String releaseToGroupsAsString;
@@ -193,8 +202,11 @@ public class PublishedAssessmentSettingsBean
   private String bgColorSelect;
   private String bgImageSelect;
   
+  private String extendedTimes;
+  private SelectItem[] extendedTimeTargets;
+  
   // SAM-2323 jQuery-UI datepicker
-  private TimeUtil tu = new TimeUtil();
+  private final TimeUtil tu = new TimeUtil();
   private final String HIDDEN_START_DATE_FIELD = "startDateISO8601";
   private final String HIDDEN_END_DATE_FIELD = "endDateISO8601";
   private final String HIDDEN_RETRACT_DATE_FIELD = "retractDateISO8601";
@@ -241,14 +253,28 @@ public class PublishedAssessmentSettingsBean
       else{
     	  this.bgImageSelect=null;
     	  this.bgColorSelect="1";
-      }
-      
+	   }
+			// Get the extended time information for this assessment
+			short extendedTimeCount = 1;
+			String extendedTimeLabel = "extendedTime" + extendedTimeCount;
+			this.extendedTimes = "";
+			while ((assessment.getAssessmentMetaDataByLabel(extendedTimeLabel) != null)
+					&& (!assessment.getAssessmentMetaDataByLabel(extendedTimeLabel).equals(""))) {
+				// server stores in JVM's time zone, convert to user's time zone
+				String extendedTimeValue = ExtendedTimeService.convertZones(assessment.getAssessmentMetaDataByLabel(extendedTimeLabel), TimeZone.getDefault(), TimeService.getLocalTimeZone());
+				// this.extendedTimes.add(extendedTimeValue);
+				// TODO: switch this back to being a list or hashmap
+				this.extendedTimes = this.extendedTimes.concat(extendedTimeValue + "^");
+				extendedTimeCount++;
+				extendedTimeLabel = "extendedTime" + extendedTimeCount;
+			}
+
       setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
       resetIsValidDate();
       resetOriginalDateString();
       
       // these are properties in AssessmentAccessControl
-      AssessmentAccessControlIfc accessControl = null;
+      AssessmentAccessControlIfc accessControl;
       accessControl = assessment.getAssessmentAccessControl();
       if (accessControl != null) {
         this.startDate = accessControl.getStartDate();
@@ -263,36 +289,29 @@ public class PublishedAssessmentSettingsBean
         this.firstTargetSelected = getFirstTargetSelected(releaseTo);
 
         this.timeLimit = accessControl.getTimeLimit(); // in seconds
-        if (timeLimit !=null && timeLimit.intValue()>0)
-          setTimeLimitDisplay(timeLimit.intValue());
+        if (timeLimit !=null && timeLimit>0)
+          setTimeLimitDisplay(timeLimit);
         else 
             resetTimeLimitDisplay();
         if (( Integer.valueOf(1)).equals(accessControl.getTimedAssessment()))
           this.timedAssessment = true;
-        if ((Integer.valueOf(1)).equals(accessControl.getAutoSubmit())) {
-          this.autoSubmit = true;
-        }
-        else {
-          this.autoSubmit = false;        	
-        }
+        this.autoSubmit = (Integer.valueOf(1)).equals(accessControl.getAutoSubmit());
         if (accessControl.getAssessmentFormat()!=null)
           this.assessmentFormat = accessControl.getAssessmentFormat().toString(); // question/part/assessment on separate page
         if (accessControl.getItemNavigation()!=null)
           this.itemNavigation = accessControl.getItemNavigation().toString(); // linear or random
         if (accessControl.getItemNumbering()!=null)
           this.itemNumbering = accessControl.getItemNumbering().toString();
+        if(accessControl.getDisplayScoreDuringAssessments()!=null)
+        	this.displayScoreDuringAssessments=accessControl.getDisplayScoreDuringAssessments().toString();
         if (accessControl.getSubmissionsSaved()!=null)
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
 
-        if (accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview())) {
-            this.isMarkForReview = true;
-        }
-        else {
-        	this.isMarkForReview = false;
-        }
-        
+        this.isMarkForReview = accessControl.getMarkForReview() != null && (Integer.valueOf(1)).equals(accessControl.getMarkForReview());
+        if (accessControl.getHonorPledge() != null)
+          this.honorPledge = accessControl.getHonorPledge();
         // default to unlimited if control value is null
-        if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions().booleanValue()){
+        if (accessControl.getUnlimitedSubmissions()!=null && !accessControl.getUnlimitedSubmissions()){
           this.unlimitedSubmissions=AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
           this.submissionsAllowed = accessControl.getSubmissionsAllowed().toString();
         }
@@ -303,10 +322,13 @@ public class PublishedAssessmentSettingsBean
 
         if (accessControl.getLateHandling() !=null)
           this.lateHandling = accessControl.getLateHandling().toString();
+        if (accessControl.getInstructorNotification() != null) {
+          this.instructorNotification = accessControl.getInstructorNotification().toString();
+          this.assessment.setInstructorNotification(Integer.valueOf(this.instructorNotification));
+        }
         if (accessControl.getSubmissionsSaved()!=null)
           this.submissionsSaved = accessControl.getSubmissionsSaved().toString();
         this.submissionMessage = accessControl.getSubmissionMessage();
-        this.username = accessControl.getUsername();
         this.password = accessControl.getPassword();
         this.finalPageUrl = accessControl.getFinalPageUrl();
       }
@@ -321,65 +343,33 @@ public class PublishedAssessmentSettingsBean
 
       if (feedback.getFeedbackAuthoring()!=null)
           this.feedbackAuthoring = feedback.getFeedbackAuthoring().toString();
-      
-      if ((Boolean.TRUE).equals(feedback.getShowQuestionText()))
-          this.showQuestionText = true;
-        else
-            this.showQuestionText = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowStudentResponse()))
-          this.showStudentResponse = true;
-        else
-            this.showStudentResponse = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowCorrectResponse()))
-          this.showCorrectResponse = true;
-        else
-            this.showCorrectResponse = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowStudentScore()))
-          this.showStudentScore = true;
-        else
-            this.showStudentScore = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowStudentQuestionScore()))
-          this.showStudentQuestionScore = true;
-        else
-            this.showStudentQuestionScore = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowQuestionLevelFeedback()))
-          this.showQuestionLevelFeedback = true;
-        else
-            this.showQuestionLevelFeedback = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowSelectionLevelFeedback()))
-          this.showSelectionLevelFeedback = true;// must be MC
-        else
-            this.showSelectionLevelFeedback = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowGraderComments()))
-          this.showGraderComments = true;
-        else
-            this.showGraderComments = false;
-        
-        if ((Boolean.TRUE).equals(feedback.getShowStatistics()))
-          this.showStatistics = true;
-        else
-            this.showStatistics = false;
+
+      this.showQuestionText = (Boolean.TRUE).equals(feedback.getShowQuestionText());
+      this.showStudentResponse = (Boolean.TRUE).equals(feedback.getShowStudentResponse());
+      this.showCorrectResponse = (Boolean.TRUE).equals(feedback.getShowCorrectResponse());
+      this.showStudentScore = (Boolean.TRUE).equals(feedback.getShowStudentScore());
+      this.showStudentQuestionScore = (Boolean.TRUE).equals(feedback.getShowStudentQuestionScore());
+      this.showQuestionLevelFeedback = (Boolean.TRUE).equals(feedback.getShowQuestionLevelFeedback());
+      this.showSelectionLevelFeedback = (Boolean.TRUE).equals(feedback.getShowSelectionLevelFeedback()); // must be MC
+      this.showGraderComments = (Boolean.TRUE).equals(feedback.getShowGraderComments());
+      this.showStatistics = (Boolean.TRUE).equals(feedback.getShowStatistics());
       }
 
       // properties of EvaluationModel
       EvaluationModelIfc evaluation = assessment.getEvaluationModel();
       if (evaluation != null) {
         if (evaluation.getAnonymousGrading()!=null)
-          this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1") ? true : false;
+          this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1");
         if (evaluation.getToGradeBook()!=null )
-          this.toDefaultGradebook = evaluation.getToGradeBook().toString().equals("1") ? true : false;
+          this.toDefaultGradebook = evaluation.getToGradeBook().equals("1");
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
         
         String currentSiteId = AgentFacade.getCurrentSiteId();
         this.gradebookExists = gbsHelper.isGradebookExist(currentSiteId);
+        
+        this.extendedTimeTargets = initExtendedTimeTargets();
+        
         /*
         GradebookService g = null;
         if (integrated)
@@ -578,9 +568,9 @@ public class PublishedAssessmentSettingsBean
   }
 
   public Integer getTimeLimit() {
-    return Integer.valueOf(timedHours.intValue()*3600
-        + timedMinutes.intValue()*60
-        + timedSeconds.intValue());
+    return timedHours*3600
+           + timedMinutes*60
+           + timedSeconds;
   }
 
   public void setTimeLimit(Integer timeLimit) {
@@ -670,6 +660,7 @@ public class PublishedAssessmentSettingsBean
 	  }
   }
 
+
   public String getSubmissionsAllowed() {
     return submissionsAllowed;
   }
@@ -697,6 +688,15 @@ public class PublishedAssessmentSettingsBean
     return lateHandling;
   }
 
+  public void setInstructorNotification(String instructorNotification) {
+    this.instructorNotification = instructorNotification;
+    this.assessment.setInstructorNotification(Integer.valueOf(this.instructorNotification));
+  }
+
+  public String getInstructorNotification() {
+    return instructorNotification;
+  }
+
   // bad name - this is autoSaved
   public void setSubmissionsSaved(String submissionSaved) {
     this.submissionsSaved = submissionSaved;
@@ -714,13 +714,6 @@ public class PublishedAssessmentSettingsBean
     return submissionMessage;
   }
 
-  public String getUsername() {
-    return this.username;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
   public String getPassword() {
     return this.password;
   }
@@ -897,6 +890,10 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	  this.secureDeliveryAvailable = secureDeliveryAvailable;
   }
 
+  public boolean isHonorPledge() { return honorPledge; }
+
+  public void setHonorPledge(boolean honorPledge) { this.honorPledge = honorPledge; }
+
   public void setValue(String key, Object value){
     this.values.put(key, value);
   }
@@ -946,15 +943,15 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   }
 
   public void setTimeLimitDisplay(int time){
-    this.timedHours=Integer.valueOf(time/60/60);
-    this.timedMinutes = Integer.valueOf((time/60)%60);
-    this.timedSeconds = Integer.valueOf(time % 60);
+    this.timedHours=time/60/60;
+    this.timedMinutes = (time/60)%60;
+    this.timedSeconds = time % 60;
   }
 
   public void resetTimeLimitDisplay(){
-	    this.timedHours=Integer.valueOf(0);
-	    this.timedMinutes = Integer.valueOf(0);
-	    this.timedSeconds = Integer.valueOf(0);
+	    this.timedHours = 0;
+	    this.timedMinutes = 0;
+	    this.timedSeconds = 0;
   }
   
   // followings are set of SelectItem[] used in authorSettings.jsp
@@ -1059,20 +1056,27 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		return getDisplayFormatFromDate(startDate);
 	}
   }
-   
+
   public void setStartDateString(String startDateString)
   {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+    if (startDateString == null || startDateString.trim().equals("")) {
+      this.isValidStartDate = true;
+      this.startDate = null;
+    }
+    else {
 
-	if (tempDate != null) {
-		this.isValidStartDate = true;
-		this.startDate = tempDate;
-	}
-	else {
-		log.error("setStartDateString could not parse hidden start date: " + ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
-		this.isValidStartDate = false;
-		this.originalStartDateString = startDateString;
-	}
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidStartDate = true;
+        this.startDate = tempDate;
+      }
+      else {
+        log.error("setStartDateString could not parse hidden start date: " + ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+        this.isValidStartDate = false;
+        this.originalStartDateString = startDateString;
+      }
+    }
   }
 
   public String getDueDateString()
@@ -1087,17 +1091,24 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   public void setDueDateString(String dueDateString)
   {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
-	
-	if (tempDate != null) {
-		this.isValidDueDate = true;
-		this.dueDate = tempDate;
-	}
-	else {
-		log.error("setDueDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
-		this.isValidDueDate = false;
-		this.originalDueDateString = dueDateString;
-	}
+    if (dueDateString == null || dueDateString.trim().equals("")) {
+      this.isValidDueDate = true;
+      this.dueDate = null;
+    }
+    else {
+
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidDueDate = true;
+        this.dueDate = tempDate;
+      }
+      else {
+        log.error("setDueDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
+        this.isValidDueDate = false;
+        this.originalDueDateString = dueDateString;
+      }
+    }
   }
 
   public String getRetractDateString()
@@ -1112,17 +1123,24 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
   public void setRetractDateString(String retractDateString)
   {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+    if (retractDateString == null || retractDateString.trim().equals("")) {
+      this.isValidRetractDate = true;
+      this.retractDate = null;
+    }
+    else {
 
-	if (tempDate != null) {
-		this.isValidRetractDate = true;
-		this.retractDate = tempDate;
-	}
-	else {
-		log.error("setRetractDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
-		this.isValidRetractDate = false;
-		this.originalRetractDateString = retractDateString;
-	}
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidRetractDate = true;
+        this.retractDate = tempDate;
+      } else {
+
+        log.error("setRetractDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+        this.isValidRetractDate = false;
+        this.originalRetractDateString = retractDateString;
+      }
+    }
   }
 
   public String getFeedbackDateString()
@@ -1135,19 +1153,25 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	}	  	  	  
   }
 
-  public void setFeedbackDateString(String feedbackDateString)
-  {
-	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
-	
-	if (tempDate != null) {
-		this.isValidFeedbackDate = true;
-		this.feedbackDate = tempDate;
-	}
-	else {
-		log.error("setFeedbackDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
-		this.isValidFeedbackDate = false;
-		this.originalFeedbackDateString = feedbackDateString;
-	} 
+  public void setFeedbackDateString(String feedbackDateString) {
+    if (feedbackDateString == null || feedbackDateString.trim().equals("")) {
+      this.isValidFeedbackDate = true;
+      this.feedbackDate = null;
+    }
+    else {
+
+      Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+
+      if (tempDate != null) {
+        this.isValidFeedbackDate = true;
+        this.feedbackDate = tempDate;
+      }
+      else {
+        log.error("setFeedbackDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+        this.isValidFeedbackDate = false;
+        this.originalFeedbackDateString = feedbackDateString;
+      }
+    }
   }
   
   public String getPublishedUrl() {
@@ -1242,12 +1266,9 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
 	public boolean getActive() {
 		Date currentDate = new Date();
-		if ((this.dueDate != null && currentDate.after(this.dueDate))
+		return !((this.dueDate != null && currentDate.after(this.dueDate))
 				|| (this.retractDate != null && currentDate
-						.after(this.retractDate))) {
-			return false;
-		}
-		return true;
+						.after(this.retractDate)));
 	}
 
 	public void setDisplayFormat(String displayDateFormat) {
@@ -1306,7 +1327,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	public SelectItem[] getGroupsForSite() {
 		SelectItem[] groupSelectItems = new SelectItem[0];
 		TreeMap sortedSelectItems = new TreeMap();
-		Site site = null;
+		Site site;
 		try {
 			site = SiteService.getSite(ToolManager.getCurrentPlacement()
 					.getContext());
@@ -1360,13 +1381,14 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
 	/**
 	 * Returns the groups to which this assessment is released
+     * @param publishedAssessmentId
 	 * @return
 	 */
 	public String[] getGroupsAuthorized(String publishedAssessmentId) {
 		groupsAuthorized = null;
 		AuthzQueriesFacadeAPI authz = PersistenceService.getInstance()
 				.getAuthzQueriesFacade();
-		String id = "";
+		String id;
 		if (publishedAssessmentId != null) {
 			id = publishedAssessmentId;
 		}
@@ -1532,6 +1554,106 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
  		  
 		return selections;
 	}
+
+	public void setExtendedTimes(String extendedTimes) {
+		this.extendedTimes = extendedTimes;
+	}
+
+	public String getExtendedTimes() {
+		return extendedTimes;
+	}
+
+	/**
+	 * Popluate the select item list of extended time targets
+	 * 
+	 * @return
+	 */
+	public SelectItem[] initExtendedTimeTargets() {
+		SelectItem[] extTimeSelectItems = null;
+		Site site;
+
+		try {
+			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			Collection groups = site.getGroups();
+			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
+			// List sections = sectionAwareness.getSections(site.getId());
+			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
+
+			// Treemaps are used here because they auto-sort
+			TreeMap groupTargets = new TreeMap<>();
+			TreeMap studentTargets = new TreeMap<>();
+
+			// Add groups to target set
+			if (groups != null && groups.size() > 0) {
+				Iterator groupIter = groups.iterator();
+				while (groupIter.hasNext()) {
+					Group group = (Group) groupIter.next();
+					if (!group.getTitle().startsWith("Access: ")) // do not
+																	// include
+																	// Lessons
+																	// groups
+						groupTargets.put("Group: " + group.getTitle(), group.getId());
+				}
+			}
+
+			// Add students to target set
+			if (enrollments != null && enrollments.size() > 0) {
+				for (Iterator iter = enrollments.iterator(); iter.hasNext();) {
+					EnrollmentRecord enrollmentRecord = (EnrollmentRecord) iter.next();
+					String userId = enrollmentRecord.getUser().getUserUid();
+					String userDisplayName = enrollmentRecord.getUser().getSortName();
+					studentTargets.put(userDisplayName, userId);
+				}
+			}
+
+			// Add targets to selectItem array. We put the alpha name in as the
+			// key so it would
+			// be alphabetized. Now we pull it out and build the select item
+			// list.
+			int listSize = 1 + groupTargets.size() + studentTargets.size();
+			extTimeSelectItems = new SelectItem[listSize];
+			extTimeSelectItems[0] = new SelectItem("1", "Select User/Group");
+			int selectCount = 1;
+
+			// Add in groups to select item list
+			Set keySet = groupTargets.keySet();
+			Iterator iter = keySet.iterator();
+			while (iter.hasNext()) {
+				String alphaName = (String) iter.next();
+				String sakaiId = (String) groupTargets.get(alphaName);
+				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
+			}
+
+			// Add in students to select item list
+			keySet = studentTargets.keySet();
+			iter = keySet.iterator();
+			while (iter.hasNext()) {
+				String alphaName = (String) iter.next();
+				String sakaiId = (String) studentTargets.get(alphaName);
+				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
+			}
+
+		} catch (IdUnusedException ex) {
+			// No site available
+		}
+		return extTimeSelectItems;
+	}
+
+	public SelectItem[] getExtendedTimeTargets() {
+		return extendedTimeTargets;
+	}
+
+	public void setExtendedTimeTargets(SelectItem[] targets) {
+		this.extendedTimeTargets = targets;
+	}
+
+        public String getDisplayScoreDuringAssessments(){
+ 		return displayScoreDuringAssessments;
+ 	}
+  
+ 	public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
+ 		this.displayScoreDuringAssessments = displayScoreDuringAssessments;
+ 	}
 }
 
 

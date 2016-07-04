@@ -162,6 +162,17 @@ public class SAXSerializableCollectionAccess implements SerializableCollectionAc
 	{
 		return retractDate;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess#getSerializableResourceType()
+	 */
+	public String getSerializableResourceType()
+	{
+		if (null == resourceType) {
+			return ResourceType.TYPE_FOLDER;
+		}
+		return resourceType;
+	}
 
 	/*
 	 * (non-Javadoc)

@@ -25,7 +25,7 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -58,9 +58,6 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 
 	/** Our log (commons). */
 	private static final Log M_log = LogFactory.getLog(GroupEditProducer.class);
-	
-	private static final String SECTION_PREFIX = "Section: ";
-	private static final String ROLE_PREFIX = "Role: ";
 	
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupEdit";
@@ -238,7 +235,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 			 // not include in the group yet
 			 if ((groupProviderId == null || !groupProviderId.contains(roster)) && !membersSelected.contains( roster ))
 			 {
-				 siteMemberLabels.add( SECTION_PREFIX + roster );
+				 siteMemberLabels.add( messageLocator.getMessage("group.section_prefix") + handler.getRosterLabel(roster) + " (" + roster + ")");
 				 siteMemberValues.add( roster );
 			 }
 		 }
@@ -248,7 +245,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 			 // not include in the group yet
 			 if ((groupRoleProviderRoles == null || !groupRoleProviderRoles.contains(role.getId())) && !membersSelected.contains( role.getId() ))
 			 {
-				 siteMemberLabels.add( ROLE_PREFIX + role.getId() );
+				 siteMemberLabels.add( messageLocator.getMessage("group.role_prefix") + role.getId() );
 				 siteMemberValues.add( role.getId() );
 			 }
 		 }
@@ -294,15 +291,15 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	     }
 
 		 // SAK-29645
-		 Set<String> groupMemberLabels = new HashSet<>();
-		 Set<String> groupMemberValues = new HashSet<>();
+		 List<String> groupMemberLabels = new ArrayList<>();
+		 List<String> groupMemberValues = new ArrayList<>();
 
 		 // add the rosters first
 		 if (groupRosters != null)
 		 {
 			 for (String groupRoster:groupRosters)
 			 {
-				 groupMemberLabels.add( SECTION_PREFIX + groupRoster );
+				 groupMemberLabels.add( messageLocator.getMessage("group.section_prefix") + handler.getRosterLabel(groupRoster) + " (" + groupRoster + ")" );
 				 groupMemberValues.add( groupRoster );
 			 }
 		 }
@@ -311,7 +308,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 {
 			 for (String groupProviderRole:groupProviderRoles)
 			 {
-				 groupMemberLabels.add( ROLE_PREFIX + groupProviderRole );
+				 groupMemberLabels.add( messageLocator.getMessage("group.role_prefix") + groupProviderRole );
 				 groupMemberValues.add( groupProviderRole );
 			 }
 		 }
@@ -345,14 +342,14 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
                 // Selected roster...
                 if( siteRosters.contains( memberID ) )
                 {
-                    groupMemberLabels.add( SECTION_PREFIX + memberID );
+                    groupMemberLabels.add( messageLocator.getMessage("group.section_prefix") + handler.getRosterLabel(memberID) + " (" + memberID + ")" );
                     groupMemberValues.add( memberID );
                 }
 
                 // Selected role...
                 else if( siteRoleIDs.contains( memberID ) )
                 {
-                    groupMemberLabels.add( ROLE_PREFIX + memberID );
+                    groupMemberLabels.add( messageLocator.getMessage("group.role_prefix") + memberID );
                     groupMemberValues.add( memberID );
                 }
 

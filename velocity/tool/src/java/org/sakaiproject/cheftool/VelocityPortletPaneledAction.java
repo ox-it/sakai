@@ -281,6 +281,29 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	} // addAlert
 
 	/**
+	 * Add another string to the flash notification message.
+	 *
+	 * @param state
+	 *        The session state.
+	 * @param message
+	 *        The string to add.
+	 */
+	public static void addFlashNotif(SessionState state, String message)
+	{
+		String soFar = (String) state.getAttribute(STATE_NOTIF);
+		if (soFar != null)
+		{
+			soFar = soFar + "\n\n" + message;
+		}
+		else
+		{
+			soFar = message;
+		}
+		state.setAttribute(STATE_NOTIF, soFar);
+
+	} // addAlert
+
+	/**
 	 * Switch to a new panel
 	 * 
 	 * @param state
@@ -472,6 +495,19 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				{
 					setVmReference("alertMessage", buf.toString(), req);
 				}
+				//set up for duplicate site alert
+				StringBuilder sbNotif = new StringBuilder();
+				String sNotif = (String) getState(req).getAttribute(STATE_NOTIF);
+				if (sNotif != null)
+				{
+							sbNotif.append(sNotif);
+					getState(req).removeAttribute(STATE_NOTIF);
+				}
+				if (sbNotif.length() > 0)
+				{
+							setVmReference("flashNotif", sbNotif.toString(), req);
+					setVmReference("flashNotifCloseTitle",rb.getString("flashNotifCloseTitle"),req);
+				}
 
 				// setup for old style validator
 				setVmReference("validator", m_validator, req);
@@ -633,7 +669,10 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 
 			try
 			{
-				res.sendRedirect(redirect);
+				//to prevent the 'response already committed' error
+				if(!(res.isCommitted())){
+					res.sendRedirect(redirect);
+				}
 			}
 			catch (IOException e)
 			{
@@ -882,6 +921,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	public static final String STATE_TOOL = "tool";
 
 	public static final String STATE_MESSAGE = "message";
+	public static final String STATE_NOTIF = "notification";
 
 	/** Standard modes. */
 	public static final String MODE_OPTIONS = "options";
@@ -1176,6 +1216,19 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		req.setAttribute(ATTR_RUNDATA, rundata);
 
 		super.doGet(req, res);
+	}
+
+	// Set up RunData if it's not already set up    
+
+        protected void checkRunData(HttpServletRequest req)
+	{
+		if (req.getAttribute(ATTR_RUNDATA) != null)
+		    return;
+
+		// set in VmServlet
+		ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
+		JetspeedRunData rundata = new JetspeedRunData(req, getState(req), getPid(req), params);
+		req.setAttribute(ATTR_RUNDATA, rundata);
 	}
 
 	/** Tool session attribute name used to schedule a peer frame refresh. */

@@ -7,8 +7,8 @@
 			title="Recent Announcements"
 			description="Display recent announcements, updated as messages arrive">
 
-		<configuration name="days" value="10" />
-		<configuration name="items" value="3" />
+		<configuration name="days" value="31" />
+		<configuration name="items" value="10" />
 		<configuration name="length" value="50" />
 		<configuration name="showAllColumns" value="false" />
 		<configuration name="showOnlyOptionsButton" value="true" />

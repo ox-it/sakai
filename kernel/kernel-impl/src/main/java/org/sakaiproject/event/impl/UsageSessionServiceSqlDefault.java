@@ -89,6 +89,10 @@ public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
 		return sql.toString();
 	}
 
+	public String getCleanOldSessionsSql() {
+		return "delete from SAKAI_SESSION WHERE SESSION_ACTIVE IS NULL AND SESSION_END < ?";
+	}
+
 	/**
 	 * @return the sql statement which updates the SESSION_SERVER column in the sakai_session table for a given session id.
 	 */

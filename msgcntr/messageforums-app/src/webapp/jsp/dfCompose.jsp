@@ -64,6 +64,9 @@
 					</td>
 				</tr>
 			</table>
+			<div>
+				<h:outputText value="#{ForumTool.selectedTopic.topic.revealIDsToRoles ? msgs.cdfm_revealIDsToRoles_blurb :  msgs.cdfm_anonymous_blurb}" rendered="#{ForumTool.anonymousEnabled && ForumTool.selectedTopic.topic.postAnonymous}"/>
+			</div>
 			<div class="instruction">			 
 				 <h:outputText value="#{msgs.cdfm_required}"/>
 				 <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
@@ -90,6 +93,7 @@
 			<span style="margin-left:3em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>
 					
 
+	            <sakai:inputRichText textareaOnly="#{ForumTool.textOnly}" buttonSet="#{ForumTool.buttonSet}" value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="120">
 	            <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="132">
 					<f:validateLength maximum="65000"/>
 				</sakai:inputRichText>
