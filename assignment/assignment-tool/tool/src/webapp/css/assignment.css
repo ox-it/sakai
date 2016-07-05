@@ -1,3 +1,17 @@
+.tiioptions {
+   background-color: #eee;
+   margin-left:40px;
+   padding: 10px;
+}
+.tiioptions input[type="radio"]{
+   margin-right: 5px;   
+}
+.tiioptions input[type="checkbox"]{
+   margin-right: 2px;
+}
+.tiioptions label {
+   font-weight: normal;
+}
 .toggleAnchor{
     border:1px solid #cef;
     background:#cef  !important;
@@ -285,4 +299,24 @@ fieldset .alertMessageInline,fieldset .alertMessage {
 
 .itemAction a:link {
     border: 1px solid transparent;
+}
+
+.reviewStyle{
+    color: red !important;
+    font-size: 15px !important;
+}
+
+.flagStyle{
+    font-size: 15px !important;
+}
+
+.errorStyle{
+    color: #f39c12 !important;
+    font-size: 15px !important;
+}
+
+.conflicting-assignment-mark{
+    color: red !important;
+    font-style: italic !important;
+    cursor: pointer !important;
 }
