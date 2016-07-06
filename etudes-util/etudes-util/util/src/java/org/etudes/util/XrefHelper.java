@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -1023,7 +1022,7 @@ public class XrefHelper
 	 */
 	protected static Pattern getPattern()
 	{
-		return Pattern.compile("(src|href)[\\s]*=[\\s]*\"([^#\"]*)([#\"])", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+		return Pattern.compile("(src|href|value)[\\s]*=[\\s]*\"([^#\"]*)([#\"])", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 	}
 
 	/**
@@ -1368,8 +1367,8 @@ public class XrefHelper
 			try
 			{
 				targetCollection = ContentHostingService.getCollection("/group/" + context + relativePath);
-				List<ContentEntity> members = targetCollection.getMemberResources();
-				for (ContentEntity member : members)
+				List<Object> members = targetCollection.getMemberResources();
+				for (Object member : members)
 				{
 					// ignore collections
 					if (member instanceof ContentResource)

@@ -21,6 +21,7 @@
 
 package org.etudes.util;
 
+import java.io.UnsupportedEncodingException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -169,26 +170,44 @@ public class HtmlHelper
 	 */
 	public static String stripBadEncodingCharacters(String data)
 	{
-		// Note: these characters become two characters in the String - the first is 56256 0xDBC0 or 55304 0xD808 and the second varies, but is 56xxx
-
 		if (data == null) return data;
 
-		// quick check for any strange characters
-		if ((data.indexOf(56256) == -1) && (data.indexOf(55304) == -1)) return data;
-
-		// log that we are doing this
-		M_log.warn("HtmlClean: stripBadEncodingCharacters");
-
-		StringBuilder buf = new StringBuilder(data);
-		int len = buf.length() - 1;
-		for (int i = 0; i < len; i++)
+		// MySQL does not support 4 byte UTF-8 characters, in versions before 5.5
+		// so we will replace any character in the data that needs 4 byte encoding with the html escape
+		// we also use the encoding for any multi-character codepoints
+		StringBuilder buf = new StringBuilder();
+		for (int cp, i = 0; i < data.length(); i += Character.charCount(cp))
 		{
-			char c = buf.charAt(i);
-			if ((c == 56256) || (c == 55304))
+			cp = data.codePointAt(i);
+
+			// for single character codepoints
+			if (Character.charCount(cp) == 1)
 			{
-				buf.setCharAt(i, ' ');
-				i++;
-				buf.setCharAt(i, ' ');
+				try
+				{
+					String str = "" + (char) cp;
+					byte[] bytes = str.getBytes("UTF-8");
+					if (bytes.length < 4)
+					{
+						buf.append((char) cp);
+					}
+					else
+					{
+						// encode &#8704; for html
+						buf.append("&#" + cp + ";");
+					}
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					buf.append((char) cp);
+				}
+			}
+
+			// for multi character surrogates
+			else
+			{
+				// encode &#8704; for html
+				buf.append("&#" + cp + ";");
 			}
 		}
 
@@ -335,7 +354,7 @@ public class HtmlHelper
 	}
 
 	/**
-	 * Remove form tags in content by changing them to div tags.  Also disable any input tags.
+	 * Remove form tags in content by changing them to div tags. Also disable any input tags.
 	 * 
 	 * @param source
 	 *        The source content.
@@ -345,7 +364,21 @@ public class HtmlHelper
 	{
 		source = source.replaceAll("<form", "<div");
 		source = source.replaceAll("</form", "</div");
-		source = source.replaceAll("<input","<input disabled");
+		source = source.replaceAll("<input", "<input disabled");
+		return source;
+	}
+
+	/**
+	 * String out 8203 codes from content
+	 * 
+	 * @param source
+	 *        The source content.
+	 * @return The converted content.
+	 */
+	public static String stripEmptyCode(String source)
+	{
+		if (source == null) return source;
+		source = source.replaceAll("&#8203;", "");
 		return source;
 	}
 
@@ -402,6 +435,7 @@ public class HtmlHelper
 
 		// we don't need to keep comments
 		source = stripComments(source);
+		source = stripEmptyCode(source);
 
 		if (fragment)
 		{
