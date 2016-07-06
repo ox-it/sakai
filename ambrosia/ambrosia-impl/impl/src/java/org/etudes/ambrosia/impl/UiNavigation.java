@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -45,6 +45,9 @@ import org.w3c.dom.NodeList;
  */
 public class UiNavigation extends UiComponent implements Navigation
 {
+	/** Added to send hidden value to support ck editor save */
+	protected String hideval = null;
+	
 	/**
 	 * Escape with a preceding '\' (for javascript) any single quotes in the source string.
 	 * 
@@ -236,6 +239,13 @@ public class UiNavigation extends UiComponent implements Navigation
 		{
 			setTitle(title);
 		}
+
+		String hideval = StringUtil.trimToNull(xml.getAttribute("hideval"));
+		if (hideval != null)
+		{
+			setHideval(hideval);
+		}
+
 
 		// short form for style - attribute "style" as BUTTON or LINK
 		String style = StringUtil.trimToNull(xml.getAttribute("style"));
@@ -736,6 +746,16 @@ public class UiNavigation extends UiComponent implements Navigation
 		this.failedRequirements = new UiMessage().setMessage(selector, references);
 		return this;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Navigation setHideval(String hideval)
+	{
+		this.hideval = hideval;
+		return this;
+	}
+	
 
 	/**
 	 * {@inheritDoc}
@@ -1255,6 +1275,11 @@ public class UiNavigation extends UiComponent implements Navigation
 								+ context.getUrl(selectedIcon) + "') right no-repeat;\""
 								: "") + "/>");
 
+				if (title.equals("Save")) response.println("<input type=\"hidden\" id=\"saveVal\" name=\"saveVal\" value=\""+id+"\">");
+				if (title.equals("Done") && hideval != null) 
+				{
+					response.println("<input type=\"hidden\" id=\"saveVal\" name=\"saveVal\" value=\""+id+"\">");
+				}
 				break;
 			}
 		}

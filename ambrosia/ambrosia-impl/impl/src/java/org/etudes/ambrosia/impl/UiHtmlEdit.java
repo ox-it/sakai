@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -49,8 +49,8 @@ import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Element;
@@ -332,6 +332,50 @@ public class UiHtmlEdit extends UiComponent implements HtmlEdit
 			response.println("}");
 			response.println("sakai.editor.launch('" + id + "',new config(),getWidth('.ambrosiaHtmlEditSize_" + this.size.toString()
 					+ "'),getHeight('.ambrosiaHtmlEditSize_" + this.size.toString() + "'));");
+			
+			// auto save for mneme answers only
+			String currentToolId = ToolManager.getCurrentTool().getId();
+			if ((context.getDestination() != null) && (currentToolId != null) && currentToolId.equalsIgnoreCase("sakai.mneme") &&  context.getDestination().startsWith("/question/"))
+			{
+				// refer /mneme-tool/tool/src/java/org/etudes/mneme/tool/QuestionView.java method post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params)
+				String[] params = context.getDestination().split("/");
+				
+				if (params.length >= 5)
+				{					
+					String submissionId = params[2];
+					String questionSelector = params[3];
+					if (questionSelector.endsWith("!"))
+					{
+						questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
+					}
+					
+					// from QuestionView.java
+					boolean question = false;
+					
+					/* may be these checks not needed **/
+					// for requests for a single question
+					if (questionSelector.startsWith("q"))
+					{
+						// for single question - essay question URL format is /question/submissionId/q506/-/list - in q506 506 is question id 
+						question = true;						
+					}
+					// for requests for the entire assessment
+					else if (questionSelector.startsWith("a"))
+					{
+						// for mutiple questions on a page - essay question URL format is /question/submissionId/a/questionId/list. Example /question/113/a/509/list
+						question = true;
+					}
+					
+					if ((submissionId != null) && (question) && (this.propertyReference != null) && (!readOnly))
+					{
+						response.println("CKEDITOR.instances['"+ id +"'].on('change', function() { saveEssayAnswer(true, "+ id +", "+ submissionId +", '"+ decodeId +"', '"+this.propertyReference.getFullReference(context) +"'); })");
+						
+						response.println("CKEDITOR.instances['"+ id +"'].on('blur', function() { saveEssayAnswer(false, "+ id +", "+ submissionId +", '"+ decodeId +"', '"+this.propertyReference.getFullReference(context) +"'); })");
+					}
+					
+				}
+			}
+						
 			response.println("</script>");
 			
 			// on submit, record the editor's changed flag

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -43,6 +43,7 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.api.FormatDelegate;
 import org.etudes.ambrosia.api.PopulatingSet;
 import org.etudes.ambrosia.api.PropertyReference;
+import org.etudes.util.HtmlHelper;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1103,6 +1104,9 @@ public class UiPropertyReference implements PropertyReference
 	 */
 	protected String unFormat(String value)
 	{
+		// deal with special UNICODE characters
+		value = HtmlHelper.stripBadEncodingCharacters(value);
+
 		return value;
 	}
 }

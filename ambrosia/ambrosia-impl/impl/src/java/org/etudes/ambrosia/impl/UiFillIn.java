@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -32,6 +32,7 @@ import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.FillIn;
 import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 
@@ -71,6 +72,9 @@ public class UiFillIn extends UiComponent implements FillIn
 	/** The number of columns per row for each text input. */
 	protected int numCols = 50;
 
+	/** Only one alphanumeric word allowed, only applies to textual response. */
+	protected boolean allowOneWord = false;
+	
 	/** Numeric answers expected. */
 	protected boolean numericAnswers = false;
 
@@ -87,6 +91,9 @@ public class UiFillIn extends UiComponent implements FillIn
 
 	/** The read only decision. */
 	protected Decision readOnly = null;
+	
+	/** The show response decision. */
+	protected Decision showResponse = null;
 
 	/** The message that will provide fill-in text. */
 	protected Message textMessage = null;
@@ -99,6 +106,13 @@ public class UiFillIn extends UiComponent implements FillIn
 
 	/** The message for the validation alert. */
 	protected Message validationPluralMsg = new UiMessage().setMessage("float-edit-validate-plural");
+	
+	/** The message for the validation alert. */
+	protected Message anvalidationMsg = new UiMessage().setMessage("an-edit-validate");
+
+	/** The message for the validation alert. */
+	protected Message anvalidationPluralMsg = new UiMessage().setMessage("an-edit-validate-plural");
+
 
 	/**
 	 * Public no-arg constructor.
@@ -212,6 +226,13 @@ public class UiFillIn extends UiComponent implements FillIn
 		{
 			this.readOnly = service.parseDecisions(settingsXml);
 		}
+		
+		// show response
+		settingsXml = XmlHelper.getChildElementNamed(xml, "showResponse");
+		if (settingsXml != null)
+		{
+			this.showResponse = service.parseDecisions(settingsXml);
+		}
 
 		// text
 		settingsXml = XmlHelper.getChildElementNamed(xml, "text");
@@ -254,6 +275,13 @@ public class UiFillIn extends UiComponent implements FillIn
 		if (this.readOnly != null)
 		{
 			readOnly = this.readOnly.decide(context, focus);
+		}
+		
+		// show response?
+		boolean showResponse = false;
+		if (this.showResponse != null)
+		{
+			showResponse = this.showResponse.decide(context, focus);
 		}
 
 		// alert if empty at submit?
@@ -326,7 +354,7 @@ public class UiFillIn extends UiComponent implements FillIn
 		{
 			correctMarkingIncluded = this.correctDecision.decide(context, focus);
 		}
-
+		
 		// read the correct flags - we want a Boolean[]
 		Boolean[] corrects = null;
 		if (correctMarkingIncluded && (this.correctReference != null))
@@ -383,27 +411,119 @@ public class UiFillIn extends UiComponent implements FillIn
 						}
 					}
 				}
+				
+				
+				// auto save for mneme answers only
+				boolean autoSaveAnswer = false;
+				String submissionId = null;
+				String currentToolId = ToolManager.getCurrentTool().getId();
+				if ((context.getDestination() != null) && (currentToolId != null) && currentToolId.equalsIgnoreCase("sakai.mneme") &&  context.getDestination().startsWith("/question/"))
+				{
+					// refer /mneme-tool/tool/src/java/org/etudes/mneme/tool/QuestionView.java method post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params)
+					String[] params = context.getDestination().split("/");
+					
+					if (params.length >= 5)
+					{					
+						submissionId = params[2];
+						String questionSelector = params[3];
+						if (questionSelector.endsWith("!"))
+						{
+							questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
+						}
+						
+						// from QuestionView.java
+						boolean question = false;
+						
+						/* may be these checks not needed **/
+						// for requests for a single question
+						if (questionSelector.startsWith("q"))
+						{
+							// for single question - essay question URL format is /question/submissionId/q506/-/list - in q506 506 is question id 
+							question = true;						
+						}
+						// for requests for the entire assessment
+						else if (questionSelector.startsWith("a"))
+						{
+							// for mutiple questions on a page - essay question URL format is /question/submissionId/a/questionId/list. Example /question/113/a/509/list
+							question = true;
+						}
+						
+						if ((submissionId != null) && (question) && (this.propertyReference != null) && (!readOnly))
+						{
+							autoSaveAnswer = true;
+						}						
+					}
+				}
 
 				String actionsScripts = "";
 				if (this.numericAnswers && !readOnly)
 				{
-					actionsScripts = " onchange=\"ambrosiaValidateFloats('" + id + "', " + Integer.toString(fillInParts.length - 1) + ", 'invalid_"
-							+ id + "');\"" + " onkeyup=\"ambrosiaValidateFloats('" + id + "', " + Integer.toString(fillInParts.length - 1)
-							+ ", 'invalid_" + id + "');\"";
+					if (autoSaveAnswer && (submissionId != null && submissionId.trim().length() > 0))
+					{
+						actionsScripts = " onchange=\"ambrosiaValidateFloats('" + id + "', " + Integer.toString(fillInParts.length - 1) + ", 'invalid_"
+								+ id + "'); \"" + " onkeyup=\"ambrosiaValidateFloats('" + id + "', " + Integer.toString(fillInParts.length - 1)
+								+ ", 'invalid_" + id + "');\" onblur=\"saveFillInAnswer(false, "+ id + Integer.toString(i) +", "+ submissionId +", '"+ decodeId +"', '"+this.propertyReference.getFullReference(context) +"'); \"";
+					}
+					else
+					{
+						actionsScripts = " onchange=\"ambrosiaValidateFloats('" + id + "', " + Integer.toString(fillInParts.length - 1) + ", 'invalid_"
+								+ id + "');\"" + " onkeyup=\"ambrosiaValidateFloats('" + id + "', " + Integer.toString(fillInParts.length - 1)
+								+ ", 'invalid_" + id + "');\"";
+					}
 				}
-
-				// input
-				response.print("<span style=\"white-space: nowrap;\"><input type=\"text\" name=\"" + id + "\" id=\"" + id + Integer.toString(i)
+				if (!this.numericAnswers && !readOnly && allowOneWord)
+				{
+					if (autoSaveAnswer && (submissionId != null && submissionId.trim().length() > 0))
+					{
+						actionsScripts = " onchange=\"ambrosiaValidateAlphaNumeric('" + id + "', " + Integer.toString(fillInParts.length - 1)
+								+ ",'invalid_" + id + "'); \"" + " onkeyup=\"ambrosiaValidateAlphaNumeric('" + id + "', "
+								+ Integer.toString(fillInParts.length - 1) + ", 'invalid_" + id + "');\" onblur=\"saveFillInAnswer(false, "+ id + Integer.toString(i) +", "+ submissionId +", '"+ decodeId +"', '"+this.propertyReference.getFullReference(context) +"'); \"";						
+					}
+					else
+					{	
+						actionsScripts = " onchange=\"ambrosiaValidateAlphaNumeric('" + id + "', " + Integer.toString(fillInParts.length - 1)
+								+ ",'invalid_" + id + "');\"" + " onkeyup=\"ambrosiaValidateAlphaNumeric('" + id + "', "
+								+ Integer.toString(fillInParts.length - 1) + ", 'invalid_" + id + "');\"";
+						
+					}
+				}
+				
+				if (!showResponse)
+				{
+					if (actionsScripts.trim().equals("") && (autoSaveAnswer && (submissionId != null && submissionId.trim().length() > 0)))
+					{
+						actionsScripts = " onblur=\"saveFillInAnswer(false, "+ id + Integer.toString(i) +", "+ submissionId +", '"+ decodeId +"', '"+this.propertyReference.getFullReference(context) +"'); \"";
+					}
+					// input
+					response.print("<span style=\"white-space: nowrap;\"><input type=\"text\" name=\"" + id + "\" id=\"" + id + Integer.toString(i)
 						+ "\" size=\"" + Integer.toString(this.numCols) + "\"" + actionsScripts + " value=\"");
 
-				boxCount++;
-				if ((values != null) && (values.length > i) && (values[i] != null))
-				{
-					response.print(escapeDoubles(values[i]));
-				}
-				response.print("\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+					boxCount++;
+					if ((values != null) && (values.length > i) && (values[i] != null))
+					{
+						response.print(escapeDoubles(values[i]));
+					}
+					response.print("\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
 
-				response.print("</span>");
+					response.print("</span>");
+				}
+				else
+				{
+					response.print("<span style=\"background-color:lightgrey;\">");
+
+					boxCount++;
+					if ((values != null) && (values.length > i) && (values[i] != null))
+					{
+						response.print("{");
+						response.print(escapeDoubles(values[i]));
+						response.print("}");
+					}
+					response.print("</span>");
+					if (values == null)
+					{
+						response.print("__________");
+					}
+				}
 			}
 
 			// the last text
@@ -441,18 +561,43 @@ public class UiFillIn extends UiComponent implements FillIn
 							+ id + "');\"" + " onkeyup=\"ambrosiaValidateFloats('" + id + "', " + Integer.toString(fillInParts.length - 1)
 							+ ", 'invalid_" + id + "');\"";
 				}
-
-				response.print("<span style=\"white-space: nowrap;\"><input type=\"text\" name=\"" + id + "\" id=\"" + id
-						+ Integer.toString(fillInParts.length - 1) + "\" size=\"" + Integer.toString(this.numCols) + "\"" + actionsScripts
-						+ " value=\"");
-				boxCount++;
-				if ((values != null) && (values.length > fillInParts.length - 1) && (values[fillInParts.length - 1] != null))
+				if (!this.numericAnswers && !readOnly && allowOneWord)
 				{
-					response.print(escapeDoubles(values[fillInParts.length - 1]));
+					actionsScripts = " onchange=\"ambrosiaValidateAlphaNumeric('" + id + "', " + Integer.toString(fillInParts.length - 1)
+							+ ", 'invalid_" + id + "');\"" + " onkeyup=\"ambrosiaValidateAlphaNumeric('" + id + "', "
+							+ Integer.toString(fillInParts.length - 1) + ", 'invalid_" + id + "');\"";
 				}
-				response.print("\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
 
-				response.print("</span>");
+				if (!showResponse)
+				{
+					response.print("<span style=\"white-space: nowrap;\"><input type=\"text\" name=\"" + id + "\" id=\"" + id
+							+ Integer.toString(fillInParts.length - 1) + "\" size=\"" + Integer.toString(this.numCols) + "\"" + actionsScripts
+							+ " value=\"");
+					boxCount++;
+					if ((values != null) && (values.length > fillInParts.length - 1) && (values[fillInParts.length - 1] != null))
+					{
+						response.print(escapeDoubles(values[fillInParts.length - 1]));
+					}
+					response.print("\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+
+					response.print("</span>");
+				}
+				else
+				{
+					response.print("<span style=\"background-color:lightgrey;\">");
+					boxCount++;
+					if ((values != null) && (values.length > fillInParts.length - 1) && (values[fillInParts.length - 1] != null))
+					{
+						response.print("{");
+						response.print(escapeDoubles(values[fillInParts.length - 1]));
+						response.print("}");
+					}
+					response.print("</span>");
+					if (values == null)
+					{
+						response.print("__________");
+					}
+				}
 			}
 		}
 
@@ -465,12 +610,26 @@ public class UiFillIn extends UiComponent implements FillIn
 			// validate failure alert (will display:inline when made visible)
 			response.print("<div style=\"display:none\" id=\"invalid_" + id + "\">");
 			response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(this.invalidIcon) + "\" />");
-			response.print(failureMsg + "</div>");
+			response.print(" "+failureMsg + "</div>");
 
 			// pre-validate all
 			context.addScript("ambrosiaValidateFloats('" + id + "', " + Integer.toString(fillInParts.length - 1) + ", 'invalid_" + id + "');\n");
 		}
+		if (!this.numericAnswers && !readOnly && allowOneWord)
+		{
+			// the validation failure message (plural or singular)
+			String failureMsg = (boxCount > 1) ? this.anvalidationPluralMsg.getMessage(context, focus) : this.anvalidationMsg.getMessage(context,
+					focus);
 
+			// validate failure alert (will display:inline when made visible)
+			response.print("<div style=\"display:none\" id=\"invalid_" + id + "\">");
+			response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(this.invalidIcon) + "\" />");
+			response.print(" "+failureMsg + "</div>");
+
+			// pre-validate all
+			context.addScript("ambrosiaValidateAlphaNumeric('" + id + "', " + Integer.toString(fillInParts.length - 1) + ", 'invalid_" + id + "');\n");
+		}
+		
 		// the decode directive
 		if ((this.propertyReference != null) && (!readOnly))
 		{
@@ -506,6 +665,15 @@ public class UiFillIn extends UiComponent implements FillIn
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public FillIn setAllowOneWord()
+	{
+		this.allowOneWord = true;
+		return this;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -598,6 +766,16 @@ public class UiFillIn extends UiComponent implements FillIn
 		this.readOnly = decision;
 		return this;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public FillIn setShowResponse(Decision decision)
+	{
+		this.showResponse = decision;
+		return this;
+	}
+
 
 	/**
 	 * {@inheritDoc}

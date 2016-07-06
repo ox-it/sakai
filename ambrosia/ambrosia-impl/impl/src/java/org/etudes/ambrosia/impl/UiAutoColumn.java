@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -41,6 +41,9 @@ public class UiAutoColumn extends UiEntityListColumn implements AutoColumn
 
 	/** Optional reference to the model - if set, attempt to get an index value for the display from here. */
 	protected PropertyReference propertyReference = null;
+
+	/** Value of numeric */
+	protected Boolean numeric = Boolean.FALSE;
 
 	/**
 	 * Public no-arg constructor.
@@ -109,6 +112,7 @@ public class UiAutoColumn extends UiEntityListColumn implements AutoColumn
 		if (index < 0) index = 0;
 		if (index >= this.autoValues.length) index = this.autoValues.length - 1;
 
+		if (this.numeric) return String.valueOf(index+1)+".";
 		return this.autoValues[index];
 	}
 
@@ -120,4 +124,14 @@ public class UiAutoColumn extends UiEntityListColumn implements AutoColumn
 		this.propertyReference = propertyReference;
 		return this;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public AutoColumn setNumeric()
+	{
+		this.numeric = Boolean.TRUE;
+		return this;
+}
+
 }

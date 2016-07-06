@@ -55,6 +55,25 @@ public interface Selection extends Component
 	 * @return self.
 	 */
 	Selection addSelection(Message display, Message value);
+	
+	/**
+	 * Add a selection, one more choice the user can select.
+	 * 
+	 * @param display
+	 *        The message for display.
+	 * @param value
+	 *        The message for the value to return if selected.
+	 * @param container
+	 *        The container being added.
+	 * @param separate
+	 *        True if we want to keep it separate.
+	 * @param reversed
+	 *        Value for reversed.
+	 * @param indented
+	 *        Value for indented.
+	 * @return self.
+	 */
+	Selection addSelection(Message selector, Message value, Container container, boolean separate, boolean reversed, boolean indented);
 
 	/**
 	 * Get the value of no print
@@ -98,6 +117,15 @@ public interface Selection extends Component
 	 * @return self.
 	 */
 	Selection setHeight(int height);
+
+	/**
+	 * Set the hide drop down decision.
+	 * 
+	 * @param decision
+	 *        The hide drop down decision.
+	 * @return self.
+	 */
+	Selection setHideDropDown(Decision decision);
 
 	/**
 	 * Set the value of noprint

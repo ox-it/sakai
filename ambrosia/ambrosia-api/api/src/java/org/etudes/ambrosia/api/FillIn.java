@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -24,12 +24,21 @@
 
 package org.etudes.ambrosia.api;
 
+
 /**
  * UiFillIn presents a set of text inputs for the user to edit embedded in a surrounding string. The string is formatted with "{}" where the fill-ins are expected.<br />
  * The values are taken from / returned to an array property by reference.
  */
 public interface FillIn extends Component
 {
+	
+	/**
+	 * Set for allowing one alphanumeric word.
+	 * 
+	 * @return self.
+	 */
+	FillIn setAllowOneWord();
+	
 	/**
 	 * Set the property reference for the correct value Booleans marking each existing entry as correct or not.
 	 * 
@@ -113,6 +122,15 @@ public interface FillIn extends Component
 	 * @return self.
 	 */
 	FillIn setReadOnly(Decision decision);
+	
+	/**
+	 * Show user entered response with a grey background instead of the text field
+	 * 
+	 * @param decision
+	 *        The Decision to provide the show response setting.
+	 * @return self.
+	 */
+	FillIn setShowResponse(Decision decision);
 
 	/**
 	 * Set the fill-in text.

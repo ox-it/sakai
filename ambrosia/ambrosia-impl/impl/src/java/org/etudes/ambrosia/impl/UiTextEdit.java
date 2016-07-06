@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -33,6 +33,7 @@ import org.etudes.ambrosia.api.Destination;
 import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
 import org.etudes.ambrosia.api.TextEdit;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Element;
@@ -289,14 +290,22 @@ public class UiTextEdit extends UiComponent implements TextEdit
 		// the edit control
 		if (this.numRows == 1)
 		{
+			// prepare the value
+			value = FormattedText.decodeNumericCharacterReferences(value);
+			value = Validator.escapeHtml(value);
+
 			response.println("<input " + onchange + "type=\"text\" id=\"" + id + "\" name=\"" + id + "\" size=\"" + Integer.toString(this.numCols)
-					+ "\" value=\"" + Validator.escapeHtml(value) + "\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+					+ "\" value=\"" + value + "\"" + (readOnly ? " disabled=\"disabled\"" : "") + " />");
 		}
 		else
 		{
+			// prepare the value
+			value = FormattedText.decodeNumericCharacterReferences(value);
+			value = Validator.escapeHtmlTextarea(value);
+			
 			response.println("<textarea " + onchange + "id=\"" + id + "\" name=\"" + id + "\" cols=\"" + Integer.toString(this.numCols)
 					+ "\" rows = \"" + Integer.toString(this.numRows) + "\" wrap=\"SOFT\"" + (readOnly ? " disabled=\"disabled\"" : "") + ">\n"
-					+ Validator.escapeHtmlTextarea(value) + "\n" + "</textarea>");
+					+ value + "\n" + "</textarea>");
 		}
 
 		context.editComponentRendered(id);
