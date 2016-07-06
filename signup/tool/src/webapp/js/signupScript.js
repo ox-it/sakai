@@ -750,20 +750,6 @@ function displayDateTime(d){
 
 }
 
-
-$(document).ready(function() {
-    //register click events for the mobile info section
-    $(".mobile-info-link").click(function(){
-        //get the meeting id from the hidden sibling element
-        var meetingId = $(this).siblings('.meetingId').text();
-        meetingId = $.trim(meetingId);
-        //get the siteid from the hidden page element
-        var siteId = $("#siteId").text();
-        siteId = $.trim(siteId);
-        shortenUrl("/signupEvent/" + meetingId + ".json?siteId=" + siteId);
-        return false;
-    });
-});
 function shortenUrl(fullUrl) {
     var ebUrl = '/direct/oxford/shorten?path=' + fullUrl;
     $.ajax({
