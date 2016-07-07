@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014, 2015, 2016 Etudes, Inc.
  *
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -33,6 +33,7 @@ import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
 import org.etudes.ambrosia.api.SelectionColumn;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 
@@ -429,17 +430,127 @@ public class UiSelectionColumn extends UiEntityListColumn implements SelectionCo
 		// for single selection, use a radio set
 		if (single)
 		{
-
-			rv.append("<input type=\"radio\" id=\"" + uid + "\" name=\"" + effectiveId + "\" value=\"" + value + "\" " + (checked ? "CHECKED" : "")
-					+ (readOnly ? " disabled=\"disabled\"" : "") + " />");
+			// auto save for mneme answers only
+			String currentToolId = ToolManager.getCurrentTool().getId();
+			if ((context.getDestination() != null) && (currentToolId != null) && currentToolId.equalsIgnoreCase("sakai.mneme") &&  context.getDestination().startsWith("/question/"))
+			{
+				// refer /mneme-tool/tool/src/java/org/etudes/mneme/tool/QuestionView.java method post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params)
+				String[] params = context.getDestination().split("/");
+				
+				if (params.length >= 5)
+				{					
+					String submissionId = params[2];
+					String questionSelector = params[3];
+					if (questionSelector.endsWith("!"))
+					{
+						questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
+					}
+					
+					// from QuestionView.java
+					boolean question = false;
+					
+					/* may be these checks not needed **/
+					// for requests for a single question
+					if (questionSelector.startsWith("q"))
+					{
+						// for single question - essay question URL format is /question/submissionId/q506/-/list - in q506 506 is question id 
+						question = true;						
+					}
+					// for requests for the entire assessment
+					else if (questionSelector.startsWith("a"))
+					{
+						// for mutiple questions on a page - essay question URL format is /question/submissionId/a/questionId/list. Example /question/113/a/509/list
+						question = true;
+					}
+					
+					if (submissionId != null && question && (this.propertyReference != null) && (!readOnly))
+					{
+						String decodeId = "decode_" + effectiveId;
+						String onclick = "onclick=\"saveSingleAnswer("+ uid +", "+ submissionId +", '"+ decodeId +"', '"+ this.propertyReference.getFullReference(context) +"');\" ";
+						String onkeypress = "onkeypress=\"saveSingleAnswer("+ uid +", "+ submissionId +", '"+ decodeId +"', '"+ this.propertyReference.getFullReference(context) +"');\" ";
+						
+						rv.append("<input type=\"radio\" id=\"" + uid + "\" name=\"" + effectiveId + "\" value=\"" + value + "\" " + (checked ? "CHECKED" : "")
+								+" "+ onclick +" "+ onkeypress +" "
+								+ (readOnly ? " disabled=\"disabled\"" : "") + " />");
+						
+					}
+					else
+					{
+						rv.append("<input type=\"radio\" id=\"" + uid + "\" name=\"" + effectiveId + "\" value=\"" + value + "\" " + (checked ? "CHECKED" : "")
+								+ (readOnly ? " disabled=\"disabled\"" : "") + " />");
+					}
+				}
+			}
+			else
+			{
+				rv.append("<input type=\"radio\" id=\"" + uid + "\" name=\"" + effectiveId + "\" value=\"" + value + "\" " + (checked ? "CHECKED" : "")
+						+ (readOnly ? " disabled=\"disabled\"" : "") + " />");
+			}
 		}
 
 		// for multiple selection, use a checkbox set
 		else
 		{
-			rv.append("<input type=\"checkbox\" id=\"" + uid + "\" name=\"" + effectiveId + "\" value=\"" + value + "\" "
-					+ " onclick=\"ambrosiaSelectChange(this, ids_" + effectiveId + ", 'all_" + effectiveId + "');\"" + (checked ? "CHECKED" : "")
-					+ (readOnly ? " disabled=\"disabled\"" : "") + " />");
+			// auto save for mneme answers only
+			String currentToolId = ToolManager.getCurrentTool().getId();
+			if ((context.getDestination() != null) && (currentToolId != null) && currentToolId.equalsIgnoreCase("sakai.mneme") &&  context.getDestination().startsWith("/question/"))
+			{
+				// refer /mneme-tool/tool/src/java/org/etudes/mneme/tool/QuestionView.java method post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params)
+				String[] params = context.getDestination().split("/");
+				
+				if (params.length >= 5)
+				{					
+					String submissionId = params[2];
+					String questionSelector = params[3];
+					if (questionSelector.endsWith("!"))
+					{
+						questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
+					}
+					
+					// from QuestionView.java
+					boolean question = false;
+					
+					/* may be these checks not needed **/
+					// for requests for a single question
+					if (questionSelector.startsWith("q"))
+					{
+						// for single question - essay question URL format is /question/submissionId/q506/-/list - in q506 506 is question id 
+						question = true;						
+					}
+					// for requests for the entire assessment
+					else if (questionSelector.startsWith("a"))
+					{
+						// for mutiple questions on a page - essay question URL format is /question/submissionId/a/questionId/list. Example /question/113/a/509/list
+						question = true;
+					}
+					
+					if (submissionId != null && question && (this.propertyReference != null) && (!readOnly))
+					{
+						String decodeId = "decode_" + effectiveId;
+						String onclick = "onclick=\"saveMultipleAnswers("+ uid +", "+ submissionId +", '"+ decodeId +"', '"+ this.propertyReference.getFullReference(context) +"'); ambrosiaSelectChange(this, ids_" + effectiveId + ", 'all_" + effectiveId + "');\" ";
+						// String onkeypress = "onkeypress=\"saveSingleAnswer("+ uid +", "+ submissionId +", '"+ decodeId +"', '"+ this.propertyReference.getFullReference(context) +"');\" ";
+						
+						rv.append("<input type=\"checkbox\" id=\"" + uid + "\" name=\"" + effectiveId + "\" value=\"" + value + "\" "
+								+" "+ onclick + " "
+								//+ " onclick=\"ambrosiaSelectChange(this, ids_" + effectiveId + ", 'all_" + effectiveId + "');\"" 
+								+ (checked ? "CHECKED" : "")
+								+ (readOnly ? " disabled=\"disabled\"" : "") + " />");
+						
+					}
+					else
+					{
+						rv.append("<input type=\"checkbox\" id=\"" + uid + "\" name=\"" + effectiveId + "\" value=\"" + value + "\" "
+								+ " onclick=\"ambrosiaSelectChange(this, ids_" + effectiveId + ", 'all_" + effectiveId + "');\"" + (checked ? "CHECKED" : "")
+								+ (readOnly ? " disabled=\"disabled\"" : "") + " />");
+					}
+				}
+			}
+			else
+			{
+				rv.append("<input type=\"checkbox\" id=\"" + uid + "\" name=\"" + effectiveId + "\" value=\"" + value + "\" "
+						+ " onclick=\"ambrosiaSelectChange(this, ids_" + effectiveId + ", 'all_" + effectiveId + "');\"" + (checked ? "CHECKED" : "")
+						+ (readOnly ? " disabled=\"disabled\"" : "") + " />");
+			}
 
 			// collect the ids of each checkbox generated
 			List<String> ids = (List<String>) context.get("UiSelectionColumn:" + effectiveId);

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -206,6 +206,7 @@ public class QuestionView extends ControllerImpl
 		if (anchor != null) context.put("anchor", anchor);
 		if (lastChance) context.put("lastChance", Boolean.TRUE);
 		new CKSetup().setCKCollectionAttrib(getDocsPath(), toolManager.getCurrentPlacement().getContext());
+		new CKSetup().setCKSubmissionAttrib(toolManager.getCurrentPlacement().getContext(), submission.getId());
 
 		// render
 		uiService.render(ui, context);
@@ -250,6 +251,43 @@ public class QuestionView extends ControllerImpl
 		else
 		{
 			returnDestination = "/list";
+		}
+		
+		// auto save for mneme questions
+		if (req.getParameter("destination_") != null && req.getParameter("destination_").equalsIgnoreCase("STAY_SAVE_AUTO"))
+		{
+			// save and return
+			try
+			{
+				// get the submission
+				Submission submission = submissionService.getSubmission(submissionId);
+				if (submission == null)
+				{
+					return;
+				}
+				
+				// collect the questions (actually their answers) to put on the page
+				List<Answer> answers = new ArrayList<Answer>();
+				
+				questionSetup(submission, questionSelector, context, answers, false);
+				
+				// read form
+				String destination = uiService.decode(req, context);
+				submissionService.submitAnswers(answers, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE);
+			}
+			catch (AssessmentPermissionException e)
+			{
+				
+			}
+			catch (AssessmentClosedException e)
+			{
+				
+			}
+			catch (SubmissionCompletedException e)
+			{
+				
+			}
+			return;
 		}
 
 		// if (!context.getPostExpected())

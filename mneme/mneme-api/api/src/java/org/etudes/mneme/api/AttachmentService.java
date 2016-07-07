@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -156,6 +156,25 @@ public interface AttachmentService
 	 */
 	Reference addAttachment(String application, String context, String prefix, NameConflictResolution onConflict, String name, byte[] body,
 			String type, boolean makeThumb, String altRef);
+	
+	/**
+	 * Add an attachment from a byte array using Mneme's default values for all other parameters.
+	 * Invoked by CK connector for audio files
+	 * 
+	 * @param context
+	 *        The context associated with the attachment.
+	 * @param submissionId
+	 *        The submission id.
+	 * @param fileName
+	 *        The file name.
+	 * @param body
+	 *        The attachment body bytes.
+	 * @param type
+	 *        The attachment file type.
+	 * @return The Reference to the added attachment.
+	 */
+	Reference addAttachment(String context, String submissionId, String fileName, byte[] body, String type);
+
 
 	/**
 	 * Find all the attachments in the docs area of the application for this context. Skip image thumbs.

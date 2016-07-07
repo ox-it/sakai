@@ -76,6 +76,9 @@
 					<model type="date" ref="submission.startDate" />
 					<model type="date" ref="submission.submittedDate" />
 					<selectors>
+						<selector selector="question-subheader-review-offline">
+							<compareDecision model="submission.assessment.type" constant="offline" />
+						</selector>
 						<selector selector="question-subheader-review">
 							<decision model="review" />
 							<decision reversed="TRUE" model="submission.isCompletedLate" />

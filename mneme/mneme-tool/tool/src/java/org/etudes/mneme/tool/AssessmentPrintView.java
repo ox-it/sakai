@@ -4,9 +4,6 @@
  ***********************************************************************************
  *
  * Copyright (c) 2014 Etudes, Inc.
- * 
- * Portions completed before September 1, 2008
- * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +22,6 @@
 package org.etudes.mneme.tool;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +33,6 @@ import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
@@ -75,18 +70,6 @@ public class AssessmentPrintView extends ControllerImpl
 
 		String assessmentId = params[2];
 
-		String destination = null;
-		if (params.length > 3)
-		{
-			destination = "/" + StringUtil.unsplit(params, 3, params.length - 3, "/");
-		}
-
-		// if not specified, go to the main assessment page
-		else
-		{
-			destination = "/assessments";
-		}
-
 		Assessment assessment = assessmentService.getAssessment(assessmentId);
 		if (assessment == null)
 		{
@@ -95,8 +78,9 @@ public class AssessmentPrintView extends ControllerImpl
 			return;
 		}
 
-		// security check
-		if (!assessmentService.allowEditAssessment(assessment))
+		// security check - check general maintenance permission, rather than the particular for this assessment
+		// this allows FCEs to be viewed by the normal maintainer, who does not have allowEditAssessment(assessment)
+		if (!assessmentService.allowManageAssessments(assessment.getContext()))
 		{
 			// redirect to error
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
@@ -104,15 +88,17 @@ public class AssessmentPrintView extends ControllerImpl
 		}
 
 		context.put("assessment", assessment);
-		
+
 		// format an invalid message
 		if (!assessment.getIsValid())
 		{
 			context.put("invalidMsg", AssessmentInvalidView.formatInvalidDisplay(assessment, this.messages));
 		}
 
-		if (params.length == 4) context.put("testprintformat", params[3]);
-		else context.put("testprintformat", "testonly");
+		if (params.length == 4)
+			context.put("testprintformat", params[3]);
+		else
+			context.put("testprintformat", "testonly");
 		// render
 		uiService.render(ui, context);
 	}
@@ -143,7 +129,7 @@ public class AssessmentPrintView extends ControllerImpl
 		buf.append(destination);
 		buf.append("/" + req.getParameter("printformat"));
 		destination = buf.toString();
-		
+
 		// go there!
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 	}

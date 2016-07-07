@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2013, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -37,6 +37,13 @@ public interface AssessmentReview
 	 * @return The review date.
 	 */
 	Date getDate();
+	
+	/**
+	 * Returns false if the review date is before open, due or accept until date
+	 * 
+	 * @return FALSE if review date is before open,due or accept until date, TRUE otherwise.
+	 */
+	Boolean getIsValid();	
 
 	/**
 	 * Check if review is enabled right now for this assessment, considering when now is and all the review settings.
@@ -46,19 +53,12 @@ public interface AssessmentReview
 	Boolean getNowAvailable();
 
 	/**
-	 * Access the setting that controls if review includes correct-answer based information (checks and x-es, answer key, item scores).
+	 * Access the ReviewShowCorrect setting
 	 * 
-	 * @return TRUE to include correct-answer based review, FALSE to not.
+	 * @return ReviewShowCorrect setting
 	 */
 	ReviewShowCorrect getShowCorrectAnswer();
-
-	/**
-	 * Access the setting that controls if review includes only incorrect questions.
-	 * 
-	 * @return TRUE to include only incorrect questions, FALSE to not.
-	 */
-	ReviewShowCorrect getShowIncorrectQuestions();
-
+	
 	/**
 	 * Access setting that controls if review includes the authored correct / incorrect feedback.
 	 * 
@@ -89,20 +89,12 @@ public interface AssessmentReview
 	void setDate(Date date);
 
 	/**
-	 * Set the setting that controls if review includes correct-answer based information (checks and xes, answer key, item scores).
+	 * Set the ReviewShowCorrect setting
 	 * 
 	 * @param setting
 	 *        the setting.
 	 */
 	void setShowCorrectAnswer(ReviewShowCorrect setting);
-
-	/**
-	 * Set the setting that controls if review includes only incorect questions.
-	 * 
-	 * @param setting
-	 *        the setting.
-	 */
-	void setShowIncorrectQuestions(ReviewShowCorrect setting);
 
 	/**
 	 * Set setting that controls if review includes the authored correct / incorrect feedback.

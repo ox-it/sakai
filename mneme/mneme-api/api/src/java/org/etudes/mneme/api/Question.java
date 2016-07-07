@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -198,6 +198,13 @@ public interface Question
 	Presentation getPresentation();
 
 	/**
+	 * Access the title of this question.
+	 * 
+	 * @return The question's title. Will be blank (never null) if not defined.
+	 */
+	String getTitle();	
+
+	/**
 	 * Access the question type.
 	 * 
 	 * @return The question type.
@@ -271,4 +278,12 @@ public interface Question
 	 *        The question pool to hold this question.
 	 */
 	void setPool(Pool pool);
+	
+	/**
+	 * Set the title of this question.
+	 * 
+	 * @param title
+	 *        The question's title.
+	 */
+	void setTitle(String title);	
 }

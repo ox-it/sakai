@@ -35,6 +35,7 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Part;
 import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.util.Web;
@@ -110,7 +111,14 @@ public class AssessmentInvalidView extends ControllerImpl
 			// could be points
 			if (!assessment.getIsPointsValid())
 			{
-				msg.append("<li>" + msgs.getString("invalid-points") + "</li>");
+				if (assessment.getType() == AssessmentType.offline)
+				{
+					msg.append("<li>" + msgs.getString("invalid-points-offline") + "</li>");
+				}
+				else
+				{
+					msg.append("<li>" + msgs.getString("invalid-points") + "</li>");
+				}
 			}
 
 			// could be formal course evaluation

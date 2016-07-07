@@ -129,6 +129,8 @@ public class AssessmentsView extends ControllerImpl
 				Boolean.FALSE);
 		context.put("assessments", assessments);
 
+		context.put("allowFCE", this.assessmentService.allowSetFormalCourseEvaluation(toolManager.getCurrentPlacement().getContext()));
+
 		// disable the tool navigation to this view
 		context.put("disableAssessments", Boolean.TRUE);
 

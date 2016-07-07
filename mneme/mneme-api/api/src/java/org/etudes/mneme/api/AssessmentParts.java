@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -37,6 +37,11 @@ public interface AssessmentParts
 	 * @return The new part.
 	 */
 	Part addPart();
+
+	/**
+	 * Remove all parts.
+	 */
+	void clear();
 
 	/**
 	 * Access the continuous numbering flag that controls the numbering of questions across part boundaries.

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -60,6 +60,7 @@ import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
+import org.etudes.util.Different;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.i18n.InternationalizedMessages;
@@ -96,7 +97,7 @@ public class AssessmentImpl implements Assessment
 	protected Boolean frozen = Boolean.FALSE;
 
 	protected AssessmentGrading grading = null;
-	
+
 	protected Boolean hiddenTillOpen = Boolean.FALSE;
 
 	protected Boolean honorPledge = Boolean.FALSE;
@@ -114,7 +115,7 @@ public class AssessmentImpl implements Assessment
 
 	protected transient InternationalizedMessages messages = null;
 
-	protected Integer minScore;
+	protected Integer minScore = null;
 
 	protected Boolean minScoreSet = Boolean.FALSE;
 
@@ -133,6 +134,9 @@ public class AssessmentImpl implements Assessment
 	protected AssessmentPartsImpl parts = null;
 
 	protected AssessmentPassword password = null;
+
+	protected Float points = null;
+	protected Float pointsWas = null;
 
 	/** The auto-pool for this assessment. */
 	protected String poolId = null;
@@ -306,8 +310,8 @@ public class AssessmentImpl implements Assessment
 	 */
 	public Reference getAsmtStatsReference()
 	{
-		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ASMT_STATS
-				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ASMT_STATS + "/"
+				+ this.getContext() + "/" + this.getId() + ".xls");
 		return ref;
 	}
 
@@ -345,8 +349,8 @@ public class AssessmentImpl implements Assessment
 	 */
 	public Reference getExportSummaryReference()
 	{
-		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.EXPORT_SUMMARY
-				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.EXPORT_SUMMARY + "/"
+				+ this.getContext() + "/" + this.getId() + ".xls");
 		return ref;
 	}
 
@@ -386,7 +390,7 @@ public class AssessmentImpl implements Assessment
 		if (!getHasPoints()) return Boolean.FALSE;
 
 		// or don't have points
-		if (!(getParts().getTotalPoints().floatValue() > 0f)) return Boolean.FALSE;
+		if (!(getPoints().floatValue() > 0f)) return Boolean.FALSE;
 
 		return Boolean.TRUE;
 	}
@@ -452,7 +456,7 @@ public class AssessmentImpl implements Assessment
 	{
 		return this.submissionService.getAssessmentHasUnscoredSubmissions(this);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -466,7 +470,6 @@ public class AssessmentImpl implements Assessment
 		}
 		return Boolean.FALSE;
 	}
-
 
 	/**
 	 * {@inheritDoc}
@@ -508,12 +511,22 @@ public class AssessmentImpl implements Assessment
 		// only if we require points
 		if (this.getHasPoints())
 		{
-			// if we have questions
-			if (this.getParts().getNumQuestions() > 0)
+			if (getType() == AssessmentType.offline)
 			{
-				if (this.getParts().getTotalPoints().floatValue() <= 0)
+				if (getPoints().floatValue() <= 0)
 				{
 					return Boolean.FALSE;
+				}
+			}
+			else
+			{
+				// if we have questions
+				if (this.getParts().getNumQuestions() > 0)
+				{
+					if (this.getParts().getTotalPoints().floatValue() <= 0)
+					{
+						return Boolean.FALSE;
+					}
 				}
 			}
 		}
@@ -559,19 +572,20 @@ public class AssessmentImpl implements Assessment
 		{
 			if (this.getResultsEmail() == null) return Boolean.FALSE;
 		}
-		if (this.getResultsEmail() != null && this.getResultsEmail().length() > 255) 
+		if (this.getResultsEmail() != null && this.getResultsEmail().length() > 255)
 		{
-			setResultsEmail(this.getResultsEmail().substring(0,255));
+			setResultsEmail(this.getResultsEmail().substring(0, 255));
 			return Boolean.FALSE;
 		}
 		if (this.getResultsEmail() != null && !isEmailValid(this.getResultsEmail())) return Boolean.FALSE;
-		
+
 		// results email feature needs a due or accept until date
 		if (this.getResultsEmail() != null && isEmailValid(this.getResultsEmail()))
 		{
 			if ((this.dates.getDueDate() == null) && (this.dates.getAcceptUntilDate() == null)) return Boolean.FALSE;
 		}
 
+		// FCE's notify-on-open feature needs an open date
 		if (this.getFormalCourseEval() && this.notifyEval && this.dates.getOpenDate() == null)
 		{
 			return Boolean.FALSE;
@@ -585,18 +599,18 @@ public class AssessmentImpl implements Assessment
 	 */
 	public Reference getItemAnalysisReference()
 	{
-		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ITEM_ANALYSIS
-				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ITEM_ANALYSIS + "/"
+				+ this.getContext() + "/" + this.getId() + ".xls");
 		return ref;
 	}
-	 
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public Integer getMinScore()
-		{
+	{
 		return this.minScore;
-		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -644,7 +658,7 @@ public class AssessmentImpl implements Assessment
 	public Boolean getNotifyEval()
 	{
 		return this.notifyEval;
-	}	
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -660,6 +674,22 @@ public class AssessmentImpl implements Assessment
 	public AssessmentPassword getPassword()
 	{
 		return this.password;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Float getPoints()
+	{
+		if (this.type == AssessmentType.offline)
+		{
+			return this.points == null ? Float.valueOf(0f) : this.points;
+		}
+
+		else
+		{
+			return this.parts.getTotalPoints();
+		}
 	}
 
 	/**
@@ -895,11 +925,9 @@ public class AssessmentImpl implements Assessment
 	{
 		Pattern pattern;
 		Matcher matcher;
-	 
-		String EMAIL_PATTERN = 
-			"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-	 
+
+		String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
 		pattern = Pattern.compile(EMAIL_PATTERN);
 
 		if (emailAddr == null || emailAddr.trim().length() == 0) return false;
@@ -1033,15 +1061,13 @@ public class AssessmentImpl implements Assessment
 		}
 	}
 
-	
-
 	/**
 	 * {@inheritDoc}
 	 */
 	public void setMinScore(Integer minScore)
 	{
 		this.minScore = minScore;
-		
+
 		this.changed.setChanged();
 	}
 
@@ -1057,7 +1083,7 @@ public class AssessmentImpl implements Assessment
 
 		this.changed.setChanged();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1095,6 +1121,24 @@ public class AssessmentImpl implements Assessment
 		this.lockedChanged = Boolean.TRUE;
 
 		this.changed.setChanged();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setPoints(Float points)
+	{
+		// round away bogus decimals
+		float val = 0f;
+		if (points != null) val = points.floatValue();
+		val = Math.round(val * 100.0f) / 100.0f;
+		Float valF = Float.valueOf(val);
+
+		if (Different.different(valF, this.points))
+		{
+			this.points = valF;
+			this.changed.setChanged();
+		}
 	}
 
 	/**
@@ -1359,6 +1403,25 @@ public class AssessmentImpl implements Assessment
 	}
 
 	/**
+	 * @return The original type, before (potentially) being modified.
+	 */
+	protected AssessmentType getOrigType()
+	{
+		return this.typeWas;
+	}
+
+	/**
+	 * Check if the points setting was changed.
+	 * 
+	 * @return TRUE if changed, FALSE if not.
+	 */
+	protected Boolean getPointsChanged()
+	{
+		Boolean rv = Boolean.valueOf(Different.different(this.points, this.pointsWas));
+		return rv;
+	}
+
+	/**
 	 * Check if the published setting was changed.
 	 * 
 	 * @return TRUE if changed, FALSE if not.
@@ -1412,7 +1475,7 @@ public class AssessmentImpl implements Assessment
 	protected void initEvalSent(Date date)
 	{
 		this.evaluationSent = date;
-	}	
+	}
 
 	/**
 	 * Init the formal course evaluation setting.
@@ -1528,7 +1591,18 @@ public class AssessmentImpl implements Assessment
 
 		this.notifyEval = setting;
 	}
-	
+
+	/**
+	 * Establish the points value.
+	 * 
+	 * @param points
+	 *        The points.
+	 */
+	protected void initPoints(Float points)
+	{
+		this.points = points;
+		this.pointsWas = points;
+	}
 
 	/**
 	 * Initialize the poolId field.
@@ -1625,7 +1699,7 @@ public class AssessmentImpl implements Assessment
 	{
 		this.submissionContext = submission;
 	}
-	
+
 	/**
 	 * Establish the title.
 	 * 
@@ -1638,7 +1712,7 @@ public class AssessmentImpl implements Assessment
 		this.title = title;
 		this.titleWas = title;
 	}
-	
+
 	/**
 	 * Lock the assessment, locking down the dependencies (pools and questions).
 	 */
@@ -1765,6 +1839,8 @@ public class AssessmentImpl implements Assessment
 		this.userDirectoryService = other.userDirectoryService;
 		this.minScoreSet = other.minScoreSet;
 		this.minScore = other.minScore;
+		this.points = other.points;
+		this.pointsWas = other.pointsWas;
 	}
 
 }

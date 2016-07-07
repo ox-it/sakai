@@ -6,7 +6,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -109,6 +109,12 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-gradebook-service-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 

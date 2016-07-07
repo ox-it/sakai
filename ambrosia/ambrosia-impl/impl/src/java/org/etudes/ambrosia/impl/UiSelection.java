@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014, 2015, 2016 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -41,6 +41,7 @@ import org.etudes.ambrosia.api.Message;
 import org.etudes.ambrosia.api.PropertyReference;
 import org.etudes.ambrosia.api.RenderListener;
 import org.etudes.ambrosia.api.Selection;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -117,6 +118,9 @@ public class UiSelection extends UiComponent implements Selection
 	 */
 	protected PropertyReference propertyReference = null;
 
+	/** The read only decision. */
+	protected Decision hideDropDown = null;
+	
 	/** The read only decision. */
 	protected Decision readOnly = null;
 
@@ -365,6 +369,13 @@ public class UiSelection extends UiComponent implements Selection
 		}
 
 		// read only shortcut
+		String hideDropDown = StringUtil.trimToNull(xml.getAttribute("hideDropDown"));
+		if ((hideDropDown != null) && ("TRUE".equals(hideDropDown)))
+		{
+			this.hideDropDown = new UiDecision().setProperty(new UiConstantPropertyReference().setValue("true"));
+		}
+		
+		// read only shortcut
 		String readOnly = StringUtil.trimToNull(xml.getAttribute("readOnly"));
 		if ((readOnly != null) && ("TRUE".equals(readOnly)))
 		{
@@ -376,6 +387,13 @@ public class UiSelection extends UiComponent implements Selection
 		if ((readOnlyCollapsed != null) && ("TRUE".equals(readOnlyCollapsed)))
 		{
 			this.readOnlyCollapsed = new UiDecision().setProperty(new UiConstantPropertyReference().setValue("true"));
+		}
+
+		// read only
+		settingsXml = XmlHelper.getChildElementNamed(xml, "hideDropDown");
+		if (settingsXml != null)
+		{
+			this.hideDropDown = service.parseDecisions(settingsXml);
 		}
 
 		// read only
@@ -454,6 +472,18 @@ public class UiSelection extends UiComponent implements Selection
 		this.selectionValues.add(value);
 		this.selectionMessages.add(selector);
 		this.selectionContainers.add(new ContainerRef(new UiContainer(), false, false, false));
+
+		return this;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Selection addSelection(Message selector, Message value, Container container, boolean separate, boolean reversed, boolean indented)
+	{
+		this.selectionValues.add(value);
+		this.selectionMessages.add(selector);
+		this.selectionContainers.add(new ContainerRef(container, separate, reversed, indented));
 
 		return this;
 	}
@@ -806,7 +836,7 @@ public class UiSelection extends UiComponent implements Selection
 					public void componentRendered(String id)
 					{
 						dependency.append("\"" + id + "\",");
-		}
+					}
 				};
 
 				// listen for any dependent edit components being rendered
@@ -828,8 +858,8 @@ public class UiSelection extends UiComponent implements Selection
 						{
 							response.println("<div class=\"ambrosiaContainerComponentIndented\">");
 						}
-		else
-		{
+						else
+						{
 							response.println("<div class=\"ambrosiaContainerComponent\">");
 						}
 					}
@@ -1011,9 +1041,66 @@ public class UiSelection extends UiComponent implements Selection
 				String thisId = id + "_" + i;
 				if (single)
 				{
-					// the radio button
-					response.println("<input " + onclick + "type=\"radio\" name=\"" + id + "\" id=\"" + thisId + "\" value=\"" + val + "\" "
-							+ (selected ? "CHECKED" : "") + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+					// auto save for mneme answers only
+					String currentToolId = ToolManager.getCurrentTool().getId();
+					if ((context.getDestination() != null) && (currentToolId != null) && currentToolId.equalsIgnoreCase("sakai.mneme") &&  context.getDestination().startsWith("/question/"))
+					{
+						// refer /mneme-tool/tool/src/java/org/etudes/mneme/tool/QuestionView.java method post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params)
+						String[] params = context.getDestination().split("/");
+						
+						if (params.length >= 5)
+						{					
+							String submissionId = params[2];
+							String questionSelector = params[3];
+							if (questionSelector.endsWith("!"))
+							{
+								questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
+							}
+							
+							// from QuestionView.java
+							boolean question = false;
+							
+							/* may be these checks not needed **/
+							// for requests for a single question
+							if (questionSelector.startsWith("q"))
+							{
+								// for single question - essay question URL format is /question/submissionId/q506/-/list - in q506 506 is question id 
+								question = true;						
+							}
+							// for requests for the entire assessment
+							else if (questionSelector.startsWith("a"))
+							{
+								// for mutiple questions on a page - essay question URL format is /question/submissionId/a/questionId/list. Example /question/113/a/509/list
+								question = true;
+							}
+							
+							if (submissionId != null && question && (this.propertyReference != null) && (!readOnly) && onclick.trim().equals(""))
+							{
+								onclick = "onclick=\"saveSingleAnswer("+ thisId +", "+ submissionId +", '"+ decodeId +"', '"+ this.propertyReference.getFullReference(context) +"');\" ";
+								
+								String onkeypress = "onkeypress=\"saveSingleAnswer("+ thisId +", "+ submissionId +", '"+ decodeId +"', '"+ this.propertyReference.getFullReference(context) +"');\" ";
+								
+								// the radio button
+								response.println("<input type=\"radio\" name=\"" + id + "\" id=\"" + thisId + "\" value=\"" + val + "\" "
+										+" "+ onclick +" "+ onkeypress +" "
+										+ (selected ? "CHECKED" : "") + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+								
+								onclick = "";
+							}
+							else
+							{
+								// the radio button
+								response.println("<input " + onclick + "type=\"radio\" name=\"" + id + "\" id=\"" + thisId + "\" value=\"" + val + "\" "
+										+ (selected ? "CHECKED" : "") + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+							}
+						}
+					}
+					else
+					{
+						// the radio button
+						response.println("<input " + onclick + "type=\"radio\" name=\"" + id + "\" id=\"" + thisId + "\" value=\"" + val + "\" "
+								+ (selected ? "CHECKED" : "") + (readOnly ? " disabled=\"disabled\"" : "") + " />");
+					}
 				}
 
 				// for multiple selection, use a checkbox set
@@ -1244,6 +1331,15 @@ public class UiSelection extends UiComponent implements Selection
 	/**
 	 * {@inheritDoc}
 	 */
+	public Selection setHideDropDown(Decision decision)
+	{
+		this.hideDropDown = decision;
+		return this;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public Selection setReadOnly(Decision decision)
 	{
 		this.readOnly = decision;
@@ -1330,7 +1426,11 @@ public class UiSelection extends UiComponent implements Selection
 
 		PrintWriter response = context.getResponseWriter();
 
-		// Note: correct / incorrect markings not supported for dropdown
+		boolean hideDropDown = false;
+		if (this.hideDropDown != null)
+		{
+			hideDropDown = this.hideDropDown.decide(context, focus);
+		}
 
 		// title
 		if (this.titleMessage != null)
@@ -1351,30 +1451,135 @@ public class UiSelection extends UiComponent implements Selection
 			onchange = " onchange=\"ambrosiaSubmit(this.value);\" ";
 		}
 
-		response.println("<select size=\"" + Integer.toString(this.height) + "\" " + (single ? "" : "multiple ") + "name=\"" + id + "\" id=\"" + id
-				+ "\"" + (readOnly ? " disabled=\"disabled\"" : "") + onchange + ">");
-
-		// TODO: must have selection values
-
-		// TODO: selectionContainers not supported
-
-		for (int i = 0; i < values.size(); i++)
+		// read the "correct" value
+		if (value.size() == 1)
 		{
-			String val = values.get(i);
-			String message = "";
-			if (i < display.size())
+			String correctValue = null;
+			boolean includeCorrectMarkers = false;
+			if ((this.correctReference != null) && ((this.correctDecision == null) || (this.correctDecision.decide(context, focus))))
 			{
-				message = display.get(i);
+				correctValue = this.correctReference.read(context, focus);
+				if (correctValue != null)
+				{
+					includeCorrectMarkers = true;
+				}
 			}
 
-			boolean selected = value.contains(val);
+			for (int i = 0; i < values.size(); i++)
+			{
+				String val = values.get(i);
+				boolean selected = value.contains(val);
+				
+				// if we are doing correct marking
+				if (includeCorrectMarkers)
+				{
+					// if checked, mark as correct or not
+					if (selected)
+					{
+						// is this one the correct one?
+						boolean correct = (correctValue == null) ? false : correctValue.equals(val);
+						if (correct)
+						{
+							response.print("<img src=\"" + context.getUrl(this.correctIcon) + "\" style=\"border-style: none;\" alt=\""
+									+ this.correctMessage.getMessage(context, focus) + "\" title=\"" + this.correctMessage.getMessage(context, focus)
+									+ "\"/>&nbsp;");
+						}
+						else
+						{
+							response.print("<img src=\"" + context.getUrl(this.incorrectIcon) + "\" style=\"border-style: none;\" alt=\""
+									+ this.incorrectMessage.getMessage(context, focus) + "\" title=\""
+									+ this.incorrectMessage.getMessage(context, focus) + "\"/>&nbsp;");
+						}
+					}
 
-			// the option
-			response.println("<option " + "value=\"" + val + "\" " + (selected ? "selected=\"selected\"" : "") + ">" + message + "</option>");
+					// else leave a placeholder
+					/*else
+					{
+						response.println("<div style=\"float:left;width:16px\">&nbsp;</div>");
+					}*/
+				}
+			}
 		}
+		
+		if (!hideDropDown)
+		{
+			
+			// auto save for mneme matching and ordering questions answers only
+			String currentToolId = ToolManager.getCurrentTool().getId();
+			if ((context.getDestination() != null) && (currentToolId != null) && currentToolId.equalsIgnoreCase("sakai.mneme") &&  context.getDestination().startsWith("/question/"))
+			{
+				// refer /mneme-tool/tool/src/java/org/etudes/mneme/tool/QuestionView.java method post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params)
+				String[] params = context.getDestination().split("/");
+				
+				if (params.length >= 5)
+				{					
+					String submissionId = params[2];
+					String questionSelector = params[3];
+					if (questionSelector.endsWith("!"))
+					{
+						questionSelector = questionSelector.substring(0, questionSelector.length() - 1);
+					}
+					
+					// from QuestionView.java
+					boolean question = false;
+					
+					/* may be these checks not needed **/
+					// for requests for a single question
+					if (questionSelector.startsWith("q"))
+					{
+						// for single question - essay question URL format is /question/submissionId/q506/-/list - in q506 506 is question id 
+						question = true;						
+					}
+					// for requests for the entire assessment
+					else if (questionSelector.startsWith("a"))
+					{
+						// for mutiple questions on a page - essay question URL format is /question/submissionId/a/questionId/list. Example /question/113/a/509/list
+						question = true;
+					}
+					
+					if (submissionId != null && question && (this.propertyReference != null) && (onchange != null) && onchange.trim().equals(""))
+					{
+						onchange = "onchange=\"saveMatchingAnswer("+ id +", "+ submissionId +", '"+ decodeId +"', '"+ this.propertyReference.getFullReference(context) +"');\" ";
+						
+						response.println("<select size=\"" + Integer.toString(this.height) + "\" " + (single ? "" : "multiple ") + "name=\"" + id + "\" id=\""
+								+ id + "\"" + (readOnly ? " disabled=\"disabled\"" : "") + onchange + ">");
+						
+						onchange = "";
+					}
+					else
+					{
+						response.println("<select size=\"" + Integer.toString(this.height) + "\" " + (single ? "" : "multiple ") + "name=\"" + id + "\" id=\""
+								+ id + "\"" + (readOnly ? " disabled=\"disabled\"" : "") + onchange + ">");
+					}
+				}
+			}
+			else
+			{
+				response.println("<select size=\"" + Integer.toString(this.height) + "\" " + (single ? "" : "multiple ") + "name=\"" + id + "\" id=\""
+						+ id + "\"" + (readOnly ? " disabled=\"disabled\"" : "") + onchange + ">");
+			}			
 
-		response.println("</select>");
+			// TODO: must have selection values
 
+			// TODO: selectionContainers not supported
+
+			for (int i = 0; i < values.size(); i++)
+			{
+				String val = values.get(i);
+				String message = "";
+				if (i < display.size())
+				{
+					message = display.get(i);
+				}
+
+				boolean selected = value.contains(val);
+
+				// the option
+				response.println("<option " + "value=\"" + val + "\" " + (selected ? "selected=\"selected\"" : "") + ">" + message + "</option>");
+			}
+
+			response.println("</select>");
+		}
 		// the decode directive
 		if ((this.propertyReference != null) && (!readOnly))
 		{

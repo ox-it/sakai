@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -76,12 +76,26 @@
 							<icon icon="/icons/survey_type.png" style="LEFT" />
 							<included>
 								<compareDecision model="submission.assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="submission.assessment.formalCourseEval" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-type-fce" disabled="TRUE">
+							<icon icon="/icons/fce_type.png" style="LEFT" />
+							<included>
+								<compareDecision model="submission.assessment.type" constant="survey" />
+								<decision model="submission.assessment.formalCourseEval" />
 							</included>
 						</navigation>
 						<navigation style="LINK" submit="TRUE" description="assessment-type-assignment" disabled="TRUE">
 							<icon icon="/icons/assignment_type.png" style="LEFT" />
 							<included>
 								<compareDecision model="submission.assessment.type" constant="assignment" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-type-offline" disabled="TRUE">
+							<icon icon="/icons/offline_type.png" style="LEFT" />
+							<included>
+								<compareDecision model="submission.assessment.type" constant="offline" />
 							</included>
 						</navigation>
 					</navigations>

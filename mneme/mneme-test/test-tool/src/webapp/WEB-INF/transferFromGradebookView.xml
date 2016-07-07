@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd" >
+
+<!--
+/**********************************************************************************
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-test/test-tool/src/webapp/WEB-INF/transferFromGradebookView.xml $
+ * $Id: transferFromGradebookView.xml 9678 2014-12-25 21:34:16Z ggolden $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2014 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<beans>
+
+	<bean id="org.etudes.mneme.tool.TransferFromGradebookView"
+			class="org.etudes.mneme.tool.TransferFromGradebookView"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
+		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
+		<property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookService"/></property>
+
+ 		<property name="toolId"><value>sakai.mneme.admin</value></property>
+ 		<property name="path"><value>gb_transfer</value></property>
+ 		<property name="bundle"><value>home</value></property>
+		<property name="components"><value>confirm.xml</value></property>
+	</bean>
+
+</beans>

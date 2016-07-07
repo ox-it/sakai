@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -185,17 +185,11 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		int extras = 0;
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT COUNT(1) FROM MNEME_QUESTION Q");
-		sql.append(" LEFT OUTER JOIN MNEME_POOL P ON Q.POOL_ID=P.ID");
-		sql.append(" WHERE Q.MINT='0' AND Q.HISTORICAL='0' AND P.CONTEXT=?");
+		sql.append("SELECT COUNT(1) FROM MNEME_QUESTION Q IGNORE INDEX (MNEME_QUESTION_IDX_MINT) WHERE Q.CONTEXT=? AND Q.MINT='0' AND Q.HISTORICAL='0'");
 		if (survey != null)
 		{
 			sql.append(" AND Q.SURVEY=?");
 			extras++;
-		}
-		else
-		{
-			sql.append(" AND Q.SURVEY IN ('0','1')");
 		}
 		if (valid != null)
 		{
@@ -241,8 +235,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		int extras = 0;
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT Q.SURVEY, Q.VALID, COUNT(1) FROM MNEME_QUESTION Q");
-		sql.append(" WHERE Q.MINT='0' AND Q.HISTORICAL IN ('0','1') AND Q.POOL_ID=?");
+		sql.append("SELECT Q.SURVEY, Q.VALID, COUNT(1) FROM MNEME_QUESTION Q IGNORE INDEX (MNEME_QUESTION_IDX_MINT) WHERE Q.POOL_ID=? AND Q.MINT='0'");
 		if (questionType != null)
 		{
 			sql.append(" AND Q.TYPE=?");
@@ -317,9 +310,8 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT P.ID, Q.SURVEY, Q.VALID, COUNT(Q.ID)");
 		sql.append(" FROM MNEME_POOL P");
-		sql.append(" LEFT OUTER JOIN MNEME_QUESTION Q");
-		sql.append(" ON Q.MINT='0' AND Q.HISTORICAL='0' AND Q.POOL_ID=P.ID");
-		sql.append(" WHERE P.CONTEXT=? AND P.MINT='0' AND P.HISTORICAL='0'");
+		sql.append(" LEFT OUTER JOIN MNEME_QUESTION Q IGNORE INDEX (MNEME_QUESTION_IDX_MINT) ON P.ID=Q.POOL_ID");
+		sql.append(" WHERE P.CONTEXT=? AND P.MINT='0' AND P.HISTORICAL='0' AND Q.MINT='0'");
 		sql.append(" GROUP BY P.ID, Q.SURVEY, Q.VALID");
 
 		Object[] fields = new Object[1 + extras];
@@ -421,14 +413,10 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	 */
 	public List<String> findAllNonHistoricalIds()
 	{
-		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT Q.ID");
-		sql.append(" FROM MNEME_QUESTION Q ");
-		sql.append(" WHERE Q.MINT IN ('0', '1') AND Q.HISTORICAL='0'");
-		sql.append(" ORDER BY Q.ID ASC");
+		String sql = "SELECT Q.ID FROM MNEME_QUESTION Q WHERE Q.HISTORICAL='0' ORDER BY Q.ID ASC";
 
 		final List<String> rv = new ArrayList<String>();
-		this.sqlService.dbRead(sql.toString(), null, new SqlReader()
+		this.sqlService.dbRead(sql, null, new SqlReader()
 		{
 			public Object readSqlResultRecord(ResultSet result)
 			{
@@ -456,17 +444,28 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	public List<QuestionImpl> findContextQuestions(String context, QuestionService.FindQuestionsSort sort, String questionType, Integer pageNum,
 			Integer pageSize, Boolean survey, Boolean valid)
 	{
-		// the where and order by
-		StringBuilder whereOrder = new StringBuilder();
-		whereOrder.append("LEFT OUTER JOIN MNEME_POOL P ON Q.POOL_ID=P.ID WHERE Q.MINT='0' AND Q.HISTORICAL='0' AND P.CONTEXT=?"
-				+ ((survey != null) ? " AND Q.SURVEY=?" : " AND Q.SURVEY IN ('0','1')") + ((valid != null) ? " AND Q.VALID=?" : "")
-				+ ((questionType != null) ? " AND Q.TYPE=?" : "") + " ORDER BY ");
-		whereOrder.append(sortToSql(sort));
-
+		// SQL following the select * and from Q:
+		StringBuilder sql = new StringBuilder();
 		int extras = 0;
-		if (questionType != null) extras++;
-		if (survey != null) extras++;
-		if (valid != null) extras++;
+		sql.append("IGNORE INDEX (MNEME_QUESTION_IDX_MINT) LEFT OUTER JOIN MNEME_POOL P ON Q.POOL_ID=P.ID LEFT OUTER JOIN MNEME_QUESTION_TITLE QT ON QT.QUESTION_ID=Q.ID WHERE Q.CONTEXT=? AND Q.MINT='0' AND Q.HISTORICAL='0'");
+		if (survey != null)
+		{
+			sql.append(" AND Q.SURVEY=?");
+			extras++;
+		}
+		if (valid != null)
+		{
+			sql.append(" AND Q.VALID=?");
+			extras++;
+		}
+		if (questionType != null)
+		{
+			sql.append(" AND Q.TYPE=?");
+			extras++;
+		}
+
+		sql.append(" ORDER BY ");
+		sql.append(sortToSql(sort));
 
 		Object[] fields = new Object[1 + extras];
 		fields[0] = context;
@@ -484,7 +483,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 			fields[pos++] = questionType;
 		}
 
-		List<QuestionImpl> rv = readQuestions(whereOrder.toString(), fields);
+		List<QuestionImpl> rv = readQuestions(sql.toString(), fields);
 
 		// TODO: page in the SQL...
 		if ((pageNum != null) && (pageSize != null))
@@ -511,17 +510,27 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	public List<QuestionImpl> findPoolQuestions(Pool pool, QuestionService.FindQuestionsSort sort, String questionType, Integer pageNum,
 			Integer pageSize, Boolean survey, Boolean valid)
 	{
-		// the where and order by
-		StringBuilder whereOrder = new StringBuilder();
-		whereOrder.append("LEFT OUTER JOIN MNEME_POOL P ON Q.POOL_ID=P.ID WHERE Q.MINT='0' AND Q.HISTORICAL=P.HISTORICAL AND Q.POOL_ID=?"
-				+ ((survey != null) ? " AND Q.SURVEY=?" : " AND Q.SURVEY IN ('0','1')") + ((valid != null) ? " AND Q.VALID=?" : "")
-				+ ((questionType != null) ? " AND Q.TYPE=?" : "") + " ORDER BY ");
-		whereOrder.append(sortToSql(sort));
-
+		StringBuilder sql = new StringBuilder();
 		int extras = 0;
-		if (questionType != null) extras++;
-		if (survey != null) extras++;
-		if (valid != null) extras++;
+		sql.append("IGNORE INDEX (MNEME_QUESTION_IDX_MINT) LEFT OUTER JOIN MNEME_POOL P ON Q.POOL_ID=P.ID LEFT OUTER JOIN MNEME_QUESTION_TITLE QT ON QT.QUESTION_ID=Q.ID WHERE Q.POOL_ID=? AND Q.MINT='0'");
+		if (survey != null)
+		{
+			sql.append(" AND Q.SURVEY=?");
+			extras++;
+		}
+		if (valid != null)
+		{
+			sql.append(" AND Q.VALID=?");
+			extras++;
+		}
+		if (questionType != null)
+		{
+			sql.append(" AND Q.TYPE=?");
+			extras++;
+		}
+		
+		sql.append(" ORDER BY ");
+		sql.append(sortToSql(sort));
 
 		Object[] fields = new Object[1 + extras];
 		fields[0] = Long.valueOf(pool.getId());
@@ -539,7 +548,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 			fields[pos++] = questionType;
 		}
 
-		List<QuestionImpl> rv = readQuestions(whereOrder.toString(), fields);
+		List<QuestionImpl> rv = readQuestions(sql.toString(), fields);
 
 		// TODO: page in the SQL...
 		if ((pageNum != null) && (pageSize != null))
@@ -566,35 +575,31 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	public List<String> getPoolQuestions(Pool pool, Boolean survey, Boolean valid)
 	{
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT Q.ID");
-		sql.append(" FROM MNEME_QUESTION Q ");
-		sql.append(" WHERE Q.MINT='0' AND Q.HISTORICAL IN ('0','1') AND Q.POOL_ID=?");
+		int extras = 0;
+		sql.append("SELECT Q.ID FROM MNEME_QUESTION Q IGNORE INDEX (MNEME_QUESTION_IDX_MINT) WHERE Q.POOL_ID=? AND Q.MINT='0'");
 		if (survey != null)
 		{
-			if (survey)
-			{
-				sql.append(" AND Q.SURVEY='1'");
-			}
-			else
-			{
-				sql.append(" AND Q.SURVEY='0'");
-			}
+			sql.append(" AND Q.SURVEY=?");
+			extras++;
 		}
 		if (valid != null)
 		{
-			if (valid)
-			{
-				sql.append(" AND Q.VALID='1'");
-			}
-			else
-			{
-				sql.append(" AND Q.VALID='0'");
-			}
+			sql.append(" AND Q.VALID=?");
+			extras++;
 		}
 		sql.append(" ORDER BY Q.ID ASC");
 
-		Object[] fields = new Object[1];
+		Object[] fields = new Object[1 + extras];
 		fields[0] = Long.valueOf(pool.getId());
+		int pos = 1;
+		if (survey != null)
+		{
+			fields[pos++] = survey ? "1" : "0";
+		}
+		if (valid != null)
+		{
+			fields[pos++] = valid ? "1" : "0";
+		}
 
 		final List<String> rv = new ArrayList<String>();
 		this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
@@ -645,6 +650,92 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	 * {@inheritDoc}
 	 */
 	public abstract QuestionImpl newQuestion();
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String questionCacheKey(String questionId)
+	{
+		String key = "mneme:question:" + questionId;
+		return key;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void readAssessmentQuestions(String context, Boolean publishedOnly)
+	{
+		StringBuilder sql = new StringBuilder();
+
+		sql.append("SELECT XQ.CONTEXT, XQ.CREATED_BY_DATE, XQ.CREATED_BY_USER, XQ.EXPLAIN_REASON, XQ.FEEDBACK, XQ.HINTS, XQ.HISTORICAL, XQ.ID, XQ.MINT, XQ.MODIFIED_BY_DATE, XQ.MODIFIED_BY_USER, XQ.POOL_ID, XQ.PRESENTATION_TEXT, XQ.PRESENTATION_ATTACHMENTS, XQ.SURVEY, XQ.TYPE, XQ.GUEST, XQ.TITLE");
+		sql.append(" FROM");
+		sql.append(" (");
+		sql.append(" SELECT Q.CONTEXT, Q.CREATED_BY_DATE, Q.CREATED_BY_USER, Q.EXPLAIN_REASON, Q.FEEDBACK, Q.HINTS, Q.HISTORICAL, Q.ID, Q.MINT, Q.MODIFIED_BY_DATE, Q.MODIFIED_BY_USER, Q.POOL_ID, Q.PRESENTATION_TEXT, Q.PRESENTATION_ATTACHMENTS, Q.SURVEY, Q.TYPE, Q.GUEST, QT.TITLE");
+		sql.append(" FROM MNEME_ASSESSMENT A");
+		sql.append(" JOIN MNEME_ASSESSMENT_PART_DETAIL D ON A.ID=D.ASSESSMENT_ID");
+		sql.append(" JOIN MNEME_QUESTION Q ON D.QUESTION_ID=Q.ID");
+		sql.append(" LEFT OUTER JOIN MNEME_QUESTION_TITLE QT ON QT.QUESTION_ID=Q.ID");
+		sql.append(" WHERE A.CONTEXT = ? AND A.ARCHIVED='0' AND A.MINT='0'");
+		if (publishedOnly) sql.append(" AND A.PUBLISHED='1'");
+		sql.append(" GROUP BY Q.ID");
+		sql.append(" UNION");
+		sql.append(" SELECT Q.CONTEXT, Q.CREATED_BY_DATE, Q.CREATED_BY_USER, Q.EXPLAIN_REASON, Q.FEEDBACK, Q.HINTS, Q.HISTORICAL, Q.ID, Q.MINT, Q.MODIFIED_BY_DATE, Q.MODIFIED_BY_USER, Q.POOL_ID, Q.PRESENTATION_TEXT, Q.PRESENTATION_ATTACHMENTS, Q.SURVEY, Q.TYPE, Q.GUEST, QT.TITLE");
+		sql.append(" FROM MNEME_ASSESSMENT A");
+		sql.append(" JOIN MNEME_ASSESSMENT_PART_DETAIL D ON A.ID=D.ASSESSMENT_ID");
+		sql.append(" JOIN MNEME_QUESTION Q ON D.POOL_ID=Q.POOL_ID");
+		sql.append(" LEFT OUTER JOIN MNEME_QUESTION_TITLE QT ON QT.QUESTION_ID=Q.ID");
+		sql.append(" WHERE A.CONTEXT = ? AND A.ARCHIVED='0' AND A.MINT='0'");
+		if (publishedOnly) sql.append(" AND A.PUBLISHED='1'");
+		sql.append(" GROUP BY Q.ID");
+		sql.append(" ) XQ");
+		sql.append(" GROUP BY XQ.ID");
+
+		Object[] fields = new Object[2];
+		fields[0] = context;
+		fields[1] = context;
+
+		final QuestionServiceImpl qService = this.questionService;
+		this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
+		{
+			public Object readSqlResultRecord(ResultSet result)
+			{
+				try
+				{
+					QuestionImpl question = newQuestion();
+					question.initContext(SqlHelper.readString(result, 1));
+					question.getCreatedBy().setDate(SqlHelper.readDate(result, 2));
+					question.getCreatedBy().setUserId(SqlHelper.readString(result, 3));
+					question.setExplainReason(SqlHelper.readBoolean(result, 4));
+					question.setFeedback(SqlHelper.readString(result, 5));
+					question.setHints(SqlHelper.readString(result, 6));
+					question.initHistorical(SqlHelper.readBoolean(result, 7));
+					question.initId(SqlHelper.readId(result, 8));
+					question.initMint(SqlHelper.readBoolean(result, 9));
+					question.getModifiedBy().setDate(SqlHelper.readDate(result, 10));
+					question.getModifiedBy().setUserId(SqlHelper.readString(result, 11));
+					question.initPool(SqlHelper.readId(result, 12));
+					question.getPresentation().setText(SqlHelper.readString(result, 13));
+					question.getPresentation().setAttachments(SqlHelper.readReferences(result, 14, attachmentService));
+					question.setIsSurvey(SqlHelper.readBoolean(result, 15));
+					qService.setType(SqlHelper.readString(result, 16), question);
+					question.getTypeSpecificQuestion().setData(SqlHelper.decodeStringArray(StringUtil.trimToNull(result.getString(17))));
+                    question.setTitle(SqlHelper.readString(result, 18));
+
+					question.clearChanged();
+
+					// thread-local cache
+					threadLocalManager.set(questionCacheKey(question.getId()), question);
+
+					return null;
+				}
+				catch (SQLException e)
+				{
+					M_log.warn("readQuestions: " + e);
+					return null;
+				}
+			}
+		});
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -740,14 +831,12 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	 */
 	protected void clearContextTx(String context)
 	{
-		StringBuilder sql = new StringBuilder();
-		sql.append("DELETE FROM MNEME_QUESTION");
-		sql.append(" WHERE CONTEXT=?");
+		String sql = "DELETE FROM MNEME_QUESTION WHERE CONTEXT=?";
 
 		Object[] fields = new Object[1];
 		fields[0] = context;
 
-		if (!this.sqlService.dbWrite(sql.toString(), fields))
+		if (!this.sqlService.dbWrite(sql, fields))
 		{
 			throw new RuntimeException("clearContext: dbWrite failed");
 		}
@@ -948,12 +1037,21 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	 */
 	protected void deleteQuestionTx(QuestionImpl question)
 	{
-		StringBuilder sql = new StringBuilder();
-		sql.append("DELETE FROM MNEME_QUESTION");
-		sql.append(" WHERE ID=?");
+		StringBuilder sqlTitle = new StringBuilder();
+		sqlTitle.append("DELETE FROM MNEME_QUESTION_TITLE");
+		sqlTitle.append(" WHERE QUESTION_ID=?");
 
 		Object[] fields = new Object[1];
 		fields[0] = Long.valueOf(question.getId());
+
+		if (!this.sqlService.dbWrite(sqlTitle.toString(), fields))
+		{
+			throw new RuntimeException("deleteQuestionTx MNEME_QUESTION_TITLE: db write failed");
+		}
+		
+		StringBuilder sql = new StringBuilder();
+		sql.append("DELETE FROM MNEME_QUESTION");
+		sql.append(" WHERE ID=?");
 
 		if (!this.sqlService.dbWrite(sql.toString(), fields))
 		{
@@ -1034,7 +1132,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	 */
 	protected QuestionImpl readQuestion(String id)
 	{
-		String whereOrder = "WHERE Q.ID = ?";
+		String whereOrder = " LEFT OUTER JOIN MNEME_QUESTION_TITLE QT ON QT.QUESTION_ID=Q.ID WHERE Q.ID = ?";
 		Object[] fields = new Object[1];
 		fields[0] = Long.valueOf(id);
 		List<QuestionImpl> rv = readQuestions(whereOrder, fields);
@@ -1062,7 +1160,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT Q.CONTEXT, Q.CREATED_BY_DATE, Q.CREATED_BY_USER, Q.EXPLAIN_REASON, Q.FEEDBACK,");
 		sql.append(" Q.HINTS, Q.HISTORICAL, Q.ID, Q.MINT, Q.MODIFIED_BY_DATE, Q.MODIFIED_BY_USER, Q.POOL_ID,");
-		sql.append(" Q.PRESENTATION_TEXT, Q.PRESENTATION_ATTACHMENTS, Q.SURVEY, Q.TYPE, Q.GUEST");
+		sql.append(" Q.PRESENTATION_TEXT, Q.PRESENTATION_ATTACHMENTS, Q.SURVEY, Q.TYPE, Q.GUEST, QT.TITLE");
 		sql.append(" FROM MNEME_QUESTION Q ");
 		sql.append(whereOrder);
 
@@ -1091,6 +1189,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 					question.setIsSurvey(SqlHelper.readBoolean(result, 15));
 					qService.setType(SqlHelper.readString(result, 16), question);
 					question.getTypeSpecificQuestion().setData(SqlHelper.decodeStringArray(StringUtil.trimToNull(result.getString(17))));
+                    question.setTitle(SqlHelper.readString(result, 18));
 
 					question.clearChanged();
 					rv.add(question);
@@ -1128,6 +1227,16 @@ public abstract class QuestionStorageSql implements QuestionStorage
 			{
 				// TODO: localized
 				return "Q.TYPE DESC, Q.DESCRIPTION DESC, Q.CREATED_BY_DATE DESC";
+			}
+			case title_a:
+			{
+				// TODO: localized
+				return "QT.TITLE ASC, Q.DESCRIPTION ASC, Q.CREATED_BY_DATE ASC";
+			}
+			case title_d:
+			{
+				// TODO: localized
+				return "QT.TITLE DESC, Q.DESCRIPTION DESC, Q.CREATED_BY_DATE DESC";
 			}
 			case description_a:
 			{
@@ -1185,15 +1294,16 @@ public abstract class QuestionStorageSql implements QuestionStorage
 	{
 		// read the question's text
 		StringBuilder sql = new StringBuilder();
-		sql.append("SELECT Q.PRESENTATION_TEXT, Q.GUEST, Q.HINTS, Q.FEEDBACK, Q.PRESENTATION_ATTACHMENTS");
+		sql.append("SELECT Q.PRESENTATION_TEXT, Q.GUEST, Q.HINTS, Q.FEEDBACK, Q.PRESENTATION_ATTACHMENTS, QT.TITLE");
 		sql.append(" FROM MNEME_QUESTION Q ");
+		sql.append(" LEFT OUTER JOIN MNEME_QUESTION_TITLE QT ON QT.QUESTION_ID=Q.ID ");
 		sql.append(" WHERE Q.ID=?");
 
 		Object[] fields = new Object[1];
 		fields[0] = Long.valueOf(qid);
 
-		final Object[] fields2 = new Object[6];
-		fields2[5] = fields[0];
+		final Object[] fields2 = new Object[7];
+		fields2[6] = fields[0];
 
 		this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
 		{
@@ -1206,6 +1316,7 @@ public abstract class QuestionStorageSql implements QuestionStorage
 					fields2[2] = SqlHelper.readString(result, 3);
 					fields2[3] = SqlHelper.readString(result, 4);
 					fields2[4] = SqlHelper.decodeStringArray(StringUtil.trimToNull(result.getString(5)));
+                    fields2[5] = SqlHelper.readString(result, 6);
 
 					return null;
 				}
@@ -1240,6 +1351,16 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		{
 			throw new RuntimeException("translateQuestionAttachmentsTx(write): db write failed");
 		}
+		
+		final Object[] fields3 = new Object[2];
+        fields3[0] = this.attachmentService.translateEmbeddedReferences((String) fields2[5], attachmentTranslations);	
+        fields3[1] = SqlHelper.encodeStringArray(((String[]) fields2[4]));
+        StringBuilder sqlNew = new StringBuilder();
+        sqlNew.append("UPDATE MNEME_QUESTION_TITLE SET TITLE=? WHERE QUESTION_ID=?");
+		if (!this.sqlService.dbWrite(sqlNew.toString(), fields3))
+		{
+			throw new RuntimeException("translateQuestionAttachmentsTx(write MNEME_QUESTION_TITLE): db write failed");
+	}
 	}
 
 	/**
@@ -1297,5 +1418,72 @@ public abstract class QuestionStorageSql implements QuestionStorage
 		{
 			throw new RuntimeException("updateQuestionTx: db write failed");
 		}
+		
+		if (existsQuestionTitle(question.getId()))
+		{
+			if (question.getTitle() != null && question.getTitle().trim().length() > 0)
+			{
+				final Object[] fields3 = new Object[2];
+				fields3[0] = question.getTitle();
+				fields3[1] = Long.valueOf(question.getId());
+				StringBuilder sqlNew = new StringBuilder();
+				sqlNew.append("UPDATE MNEME_QUESTION_TITLE SET TITLE=? WHERE QUESTION_ID=?");
+				if (!this.sqlService.dbWrite(sqlNew.toString(), fields3))
+				{
+					throw new RuntimeException("updateQuestionTx MNEME_QUESTION_TITLE: db write failed");
 	}
+}
+			else
+			{
+				StringBuilder sqlTitle = new StringBuilder();
+				sqlTitle.append("DELETE FROM MNEME_QUESTION_TITLE");
+				sqlTitle.append(" WHERE QUESTION_ID=?");
+
+				Object[] fields2 = new Object[1];
+				fields2[0] = Long.valueOf(question.getId());
+
+				if (!this.sqlService.dbWrite(sqlTitle.toString(), fields2))
+				{
+					throw new RuntimeException("updateQuestionTx MNEME_QUESTION_TITLE delete: db write failed");
+				}
+			}
+		}
+		else
+		{
+			if (question.getTitle() != null && question.getTitle().trim().length() > 0)
+			{
+				StringBuilder sqlTitle = new StringBuilder();
+				sqlTitle.append("INSERT INTO MNEME_QUESTION_TITLE");
+				sqlTitle.append(" (QUESTION_ID, TITLE)");
+				sqlTitle.append(" VALUES(?,?)");
+
+				Object[] fieldsTitle = new Object[2];
+				fieldsTitle[0] = Long.valueOf(question.getId());
+				fieldsTitle[1] = question.getTitle();
+
+				if (!this.sqlService.dbWrite(null, sqlTitle.toString(), fieldsTitle))
+				{
+					throw new RuntimeException("updateQuestionTx MNEME_QUESTION_TITLE insert table : db write failed");
+				}
+			}
+		}
+	}
+	
+	private Boolean existsQuestionTitle(String id)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT COUNT(1) FROM MNEME_QUESTION_TITLE Q");
+		sql.append(" WHERE Q.QUESTION_ID=?");
+		Object[] fields = new Object[1];
+		fields[0] = Long.valueOf(id);
+		List results = this.sqlService.dbRead(sql.toString(), fields, null);
+		if (results.size() > 0)
+		{
+			int size = Integer.parseInt((String) results.get(0));
+			return Boolean.valueOf(size == 1);
+		}
+
+		return Boolean.FALSE;
+	}
+
 }

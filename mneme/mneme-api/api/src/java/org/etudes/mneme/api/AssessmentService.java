@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -43,16 +43,6 @@ public interface AssessmentService
 	{
 		cdate_a, cdate_d, ddate_a, ddate_d, odate_a, odate_d, published_a, published_d, title_a, title_d, type_a, type_d
 	}
-
-	/**
-	 * Create a new Assessment object in the context, but do not save it.
-	 * @param context
-	 *        The context in which the assessment lives.
-	 * @return The new assessment.
-	 */
-	public Assessment newEmptyAssessment(String context);
-
-	public Settings newEmptySettings();
 
 	/**
 	 * Check if the user is allowed to edit this assessment.
@@ -109,6 +99,15 @@ public interface AssessmentService
 	Boolean allowSetFormalCourseEvaluation(String context);
 
 	/**
+	 * Check if the user is allowed to submit in this context.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return TRUE if the user is allowed to submit, FALSE if not.
+	 */
+	Boolean allowSubmit(String context);
+
+	/**
 	 * Apply base date changes to open, due and accept until dates of this context's unarchived assessments
 	 * 
 	 * @param context
@@ -117,6 +116,17 @@ public interface AssessmentService
 	 *        The time difference in days
 	 */
 	void applyBaseDateTx(String context, int days_diff);
+
+	/**
+	 * Check if this context has an assessment with this title. Consider only non-archived assessments.
+	 * 
+	 * @param context
+	 *        The context (site id).
+	 * @param title
+	 *        The Assessment title to look for (exact match).
+	 * @return The assessment (first found) if found, or null if none found.
+	 */
+	Assessment assessmentExists(String context, String title);
 
 	/**
 	 * Clear out any mint objects that are old enough to be considered abandoned.
@@ -147,6 +157,17 @@ public interface AssessmentService
 	Integer countAssessments(String context);
 
 	/**
+	 * Check if an assessment with this title exists.
+	 * 
+	 * @param title
+	 *        The assessment title.
+	 * @param context
+	 *        The context.
+	 * @return TRUE if the pool exists, FALSE if not.
+	 */
+	Boolean existsAssessmentTitle(String title, String context);
+	
+	/**
 	 * Export selected assessments in QTI 2.1 format
 	 * 
 	 * @param ids
@@ -159,13 +180,26 @@ public interface AssessmentService
 	void exportAssessments(String context, String[] ids, ZipOutputStream zip) throws AssessmentPermissionException, IOException;
 
 	/**
+	 * Get all the archived assessments in the context (including FCEs).
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param includeFce
+	 *        if true, include archived formal course evaluations, else skip over them.
+	 * @return The List<Assesment> of all archived assessments in the context, or empty if there are none.
+	 */
+	List<Assessment> getArchivedAssessments(String context);
+
+	/**
 	 * Get all the archived assessments in the context.
 	 * 
 	 * @param context
 	 *        The context.
-	 * @return The List<Assesment> of all archived assesments in the context, or empty if there are none.
+	 * @param includeFce
+	 *        if true, include archived formal course evaluations, else skip over them.
+	 * @return The List<Assesment> of all archived assessments in the context, or empty if there are none.
 	 */
-	List<Assessment> getArchivedAssessments(String context);
+	List<Assessment> getArchivedAssessments(String context, boolean includeFce);
 
 	/**
 	 * Access an assessment by id.
@@ -198,7 +232,7 @@ public interface AssessmentService
 	 * @return the assessments that need to have their student evaluation notifications sent.
 	 */
 	List<Assessment> getFormalEvaluationsNeedingNotification();
-	
+
 	/**
 	 * Get the latest open date of assessments in the context.
 	 * 
@@ -207,7 +241,7 @@ public interface AssessmentService
 	 * @return If open dates exist for assessment, returns the latest open date, otherwise returns null.
 	 */
 	Date getMaxStartDate(String context);
-	
+
 	/**
 	 * Get the earliest open date of assessments in the context.
 	 * 
@@ -236,6 +270,20 @@ public interface AssessmentService
 	 * @return The new Assessment.
 	 */
 	Assessment newAssessment(String context) throws AssessmentPermissionException;
+
+	/**
+	 * Create a new Assessment object in the context, but do not save it.
+	 * 
+	 * @param context
+	 *        The context in which the assessment lives.
+	 * @return The new assessment.
+	 */
+	Assessment newEmptyAssessment(String context);
+
+	/**
+	 * @return A Settings implementation.
+	 */
+	Settings newEmptySettings();
 
 	/**
 	 * Remove this assessment.
@@ -280,7 +328,7 @@ public interface AssessmentService
 	 *        The assessment.
 	 */
 	void sendEvalNotification(Assessment assessment);
-	
+
 	/**
 	 * If the assessment is setup for sending email results, and is closed, send the email.
 	 * 
@@ -297,8 +345,8 @@ public interface AssessmentService
 	 * @param date
 	 *        The date, or null to indicate not sent.
 	 */
-	void setEvaluationSent(Assessment assessment, Date date);	
-	
+	void setEvaluationSent(Assessment assessment, Date date);
+
 	/**
 	 * Set the date that the results email was sent.
 	 * 

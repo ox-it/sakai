@@ -31,6 +31,7 @@ import org.etudes.ambrosia.util.FormatDelegateImpl;
 import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.Question;
+import org.etudes.mneme.api.ReviewShowCorrect;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionCompletionStatus;
 
@@ -126,6 +127,13 @@ public class QuestionScoreDelegate extends FormatDelegateImpl
 			{
 				boolean showCorrect = answer.getShowCorrectReview();
 				boolean showPartialCorrect = answer.getShowPartialCorrectReview();
+				
+				//For correct only, we only want to display scores for completely correct answers
+				//With incorrect only, we don't display scores (we do for the incorrect_key setting)
+				if (assessment.getReview().getShowCorrectAnswer() == ReviewShowCorrect.correct_only || assessment.getReview().getShowCorrectAnswer() == ReviewShowCorrect.incorrect_only)
+				{
+					if (!showCorrect) showPartialCorrect = false;
+				}
 
 				// if we are doing question score feedback
 				if (showCorrect || showPartialCorrect || grading || viewWork)

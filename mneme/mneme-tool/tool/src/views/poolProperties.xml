@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -124,7 +124,7 @@
 		<!-- navigation -->
 		<navigationBar>
 			<container>
-				<navigation title="done" style="BUTTON" accessKey="done-access" description="done-description" submit="TRUE">
+				<navigation title="done" hideval="save" style="BUTTON" accessKey="done-access" description="done-description" submit="TRUE">
 					<icon icon="/icons/return.png" style="LEFT" />
 					<destination template="/pools/{0}">
 						<model ref="poolsSortCode" />

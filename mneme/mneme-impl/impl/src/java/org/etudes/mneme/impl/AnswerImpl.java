@@ -196,7 +196,30 @@ public class AnswerImpl implements Answer
 	public Boolean getShowCorrectReview()
 	{
 		ReviewShowCorrect show = this.getQuestion().getPart().getAssessment().getReview().getShowCorrectAnswer();
-		if (show.equals(ReviewShowCorrect.yes)) return Boolean.TRUE;
+		if (show.equals(ReviewShowCorrect.yes) || show.equals(ReviewShowCorrect.incorrect_key)) return Boolean.TRUE;
+		if (show.equals(ReviewShowCorrect.no)) return Boolean.FALSE;
+
+		// for the correct only setting, check answer (complete) correctness
+		Boolean correct;
+		if (show.equals(ReviewShowCorrect.correct_only)) 
+			correct = this.answerHandler.getPartiallyCorrect();
+		else
+			correct = this.answerHandler.getCompletelyCorrect();
+
+		// null indicates correctness does not apply (likert, essay). In which case, we show.
+		if (correct == null) return Boolean.TRUE;
+
+		// show only if completely correct
+		return correct;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getShowCompletelyCorrectReview()
+	{
+		ReviewShowCorrect show = this.getQuestion().getPart().getAssessment().getReview().getShowCorrectAnswer();
+		if (show.equals(ReviewShowCorrect.yes) || show.equals(ReviewShowCorrect.incorrect_key)) return Boolean.TRUE;
 		if (show.equals(ReviewShowCorrect.no)) return Boolean.FALSE;
 
 		// for the correct only setting, check answer (complete) correctness
@@ -208,6 +231,7 @@ public class AnswerImpl implements Answer
 		// show only if completely correct
 		return correct;
 	}
+	
 
 	/**
 	 * {@inheritDoc}
@@ -215,7 +239,7 @@ public class AnswerImpl implements Answer
 	public Boolean getShowPartialCorrectReview()
 	{
 		ReviewShowCorrect show = this.getQuestion().getPart().getAssessment().getReview().getShowCorrectAnswer();
-		if (show.equals(ReviewShowCorrect.yes)) return Boolean.TRUE;
+		if (show.equals(ReviewShowCorrect.yes) || show.equals(ReviewShowCorrect.incorrect_key)) return Boolean.TRUE;
 		if (show.equals(ReviewShowCorrect.no)) return Boolean.FALSE;
 
 		// for the correct only setting, check answer (complete) correctness

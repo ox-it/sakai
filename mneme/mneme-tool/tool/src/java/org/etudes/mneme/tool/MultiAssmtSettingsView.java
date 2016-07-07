@@ -3,7 +3,7 @@
  * $Id: MultiAssmtSettingsView.java 3635 2012-12-02 21:26:23Z ggolden $
  ***********************************************************************************
  *
- * Copyright (c) 2013 Etudes, Inc.
+ * Copyright (c) 2013, 2015 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,9 +154,11 @@ public class MultiAssmtSettingsView extends ControllerImpl
 		// setup the model: the selected assessment
 		context.put("assessment", assessment);
 		context.put("assmtIds", assmtIds);
-
+		
+		
 		// read the form
 		String destination = uiService.decode(req, context);
+	
 
 		String chSets[] = StringUtil.split(choiceSettings, "+");
 
@@ -264,7 +266,7 @@ public class MultiAssmtSettingsView extends ControllerImpl
 		}
 
 		// if destination became null
-		if (destination == null)
+		if (destination == null || destination.equals("SAVE"))
 		{
 			destination = context.getDestination();
 		}

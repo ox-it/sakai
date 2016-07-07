@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +47,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.Answer;
 import org.etudes.mneme.api.Assessment;
+import org.etudes.mneme.api.AssessmentAccess;
 import org.etudes.mneme.api.AssessmentClosedException;
 import org.etudes.mneme.api.AssessmentCompletedException;
 import org.etudes.mneme.api.AssessmentPermissionException;
@@ -59,6 +59,7 @@ import org.etudes.mneme.api.Ordering;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PoolDraw;
 import org.etudes.mneme.api.Question;
+import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionCompletedException;
@@ -68,6 +69,7 @@ import org.etudes.mneme.api.TypeSpecificAnswer;
 import org.etudes.util.DateHelper;
 import org.etudes.util.HtmlHelper;
 import org.etudes.util.api.AccessAdvisor;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -99,11 +101,11 @@ import org.sakaiproject.util.Validator;
  */
 public class SubmissionServiceImpl implements SubmissionService, Runnable
 {
-	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(SubmissionServiceImpl.class);
-
 	/** The chunk size used when streaming (100k). */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
+
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(SubmissionServiceImpl.class);
 
 	/** Dependency (optional, self-injected): AccessAdvisor. */
 	protected transient AccessAdvisor accessAdvisor = null;
@@ -131,6 +133,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 	/** Messages. */
 	protected transient InternationalizedMessages messages = null;
+
+	/** Dependency: QuestionService */
+	protected QuestionService questionService = null;
 
 	/** Dependency: SecurityService */
 	protected SecurityService securityService = null;
@@ -239,8 +244,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		if (M_log.isDebugEnabled()) M_log.debug("allowEvaluate: " + submission.getId() + " user: " + userId);
 
-		// the submission must be complete
-		if (!submission.getIsComplete()) return Boolean.FALSE;
+		// the submission must be complete (except for offlines)
+		if ((submission.getAssessment().getType() != AssessmentType.offline) && (!submission.getIsComplete())) return Boolean.FALSE;
 
 		// user must have grade permission in the context of the assessment for this submission
 		if (!securityService.checkSecurity(userId, MnemeService.GRADE_PERMISSION, submission.getAssessment().getContext())) return Boolean.FALSE;
@@ -400,6 +405,14 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 */
 	public Integer countAssessmentSubmissions(Assessment assessment, Boolean official, String allUid)
 	{
+		return countAssessmentSubmissions(assessment, official, allUid, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Integer countAssessmentSubmissions(Assessment assessment, Boolean official, String allUid, String sectionFilter)
+	{
 		// TODO: review the efficiency of this method! -ggolden
 
 		if (assessment == null) throw new IllegalArgumentException();
@@ -425,6 +438,19 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		{
 			rv = new ArrayList<Submission>(all.size());
 			rv.addAll(all);
+		}
+
+		// filter by section
+		if (sectionFilter != null)
+		{
+			for (Iterator<Submission> i = rv.iterator(); i.hasNext();)
+			{
+				Submission s = i.next();
+				if (!sectionFilter.equalsIgnoreCase(s.getUserSection()))
+				{
+					i.remove();
+				}
+			}
 		}
 
 		return rv.size();
@@ -636,14 +662,14 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
-	public void evaluateSubmission(Submission submission) throws AssessmentPermissionException
+	public String evaluateSubmission(Submission submission) throws AssessmentPermissionException
 	{
 		Date now = new Date();
 		String userId = sessionManager.getCurrentSessionUserId();
 		if (submission == null) throw new IllegalArgumentException();
 
 		// if the submission is marked as having a stale edit, ignore it quietly
-		if (submission.getIsStaleEdit()) return;
+		if (submission.getIsStaleEdit()) return submission.getId();
 
 		if (M_log.isDebugEnabled()) M_log.debug("evaluateSubmission: " + submission.getId());
 
@@ -666,7 +692,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				}
 			}
 		}
-		if (!changed) return;
+		if (!changed) return submission.getId();
 
 		// security check
 		securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.GRADE_PERMISSION, submission.getAssessment().getContext());
@@ -691,8 +717,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			temp.setSubmittedDate(now);
 			// don't copy over the evaluation, which might have a total score, that need to, instead, go into an answer evaluation
 			// temp.evaluation = (SubmissionEvaluationImpl) submission.getEvaluation();
-	
-			if (submission.getAssessment().getGrading().getAutoRelease())
+
+			if (submission.getAssessment().getGrading().getAutoRelease() || submission.getIsReleased())
 			{
 				temp.setIsReleased(Boolean.TRUE);
 			}
@@ -723,15 +749,26 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			((SubmissionImpl) temp).clearIsChanged();
 
 			// total score might end up in submission, might end up in answer (if it is a single-question assessment)
-			
-			// if we are ending up in the answer, lets force an eval score for the answer first (0 won't stick until there's already a valut there)
-			if ((total == 0f) && (!temp.getEvaluationUsed()))
+
+			// if we are ending up in the answer, lets force an eval score for the answer first (0 won't stick until there's already a value there)
+			if ((!temp.getEvaluationUsed()) && ((total == null) || (total == 0f)))
 			{
 				temp.setTotalScore(1f);
-				temp.consolidateTotalScore();				
+				temp.consolidateTotalScore();
 			}
 			temp.setTotalScore(total);
 			temp.consolidateTotalScore();
+
+			// preserve the evaluation non-score components
+			if (submission.getEvaluation().getComment() != null)
+			{
+				temp.getEvaluation().setComment(submission.getEvaluation().getComment());
+			}
+			if (!submission.getEvaluation().getAttachments().isEmpty())
+			{
+				temp.getEvaluation().setAttachments(submission.getEvaluation().getAttachments());
+			}
+			temp.getEvaluation().setEvaluated(submission.getEvaluation().getEvaluated());
 
 			// force auto-scores
 			for (Answer answer : temp.getAnswers())
@@ -740,16 +777,22 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			}
 
 			this.storage.saveAnswers(temp.getAnswers());
-			if (temp.getIsChanged())
+			if (temp.getIsChanged() || ((EvaluationImpl) temp.getEvaluation()).getIsEvaluatedChanged())
 			{
 				this.storage.saveSubmission(temp);
 			}
 			((SubmissionImpl) temp).clearIsChanged();
 
-			// push the grade - not for test drive
+			// report the grade - not for test drive
 			if (!temp.getIsTestDrive())
 			{
 				this.gradesService.reportSubmissionGrade(temp);
+			}
+
+			// go live - not for test drive
+			if ((!temp.getIsTestDrive()) && (!temp.getAssessment().getIsLive()))
+			{
+				((AssessmentServiceImpl) this.assessmentService).makeLive(temp.getAssessment());
 			}
 
 			// event track it as auto-complete and graded
@@ -757,7 +800,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					.post(eventTrackingService.newEvent(MnemeService.SUBMISSION_AUTO_COMPLETE, getSubmissionReference(temp.getId()), true));
 			eventTrackingService.post(eventTrackingService.newEvent(MnemeService.SUBMISSION_GRADE, getSubmissionReference(temp.getId()), true));
 
-			return;
+			return temp.getId();
 		}
 
 		// attribution for answers - remove any not changed so they are not saved
@@ -817,6 +860,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		{
 			this.gradesService.reportSubmissionGrade(submission);
 		}
+
+		return submission.getId();
 	}
 
 	/**
@@ -959,17 +1004,137 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
+	public void deductLateSubmissions(Assessment assessment, Float score) throws AssessmentPermissionException
+	{
+		if (assessment == null) throw new IllegalArgumentException();
+		Date now = new Date();
+		String userId = sessionManager.getCurrentSessionUserId();
+
+		if (M_log.isDebugEnabled()) M_log.debug("deductLateSubmissions: " + assessment.getId());
+
+		// security check
+		securityService.secure(sessionManager.getCurrentSessionUserId(), MnemeService.GRADE_PERMISSION, assessment.getContext());
+
+		// get the completed submissions to this assessment
+		List<SubmissionImpl> submissions = this.storage.getAssessmentCompleteSubmissions(assessment);
+
+		// TODO: only for the "official" one ? submissions = officialize(submissions);
+
+		float deductedScore = 0.0f;
+		// process all submissions, official or not
+		for (SubmissionImpl submission : submissions)
+		{
+			//Only work with late submissions
+			if (!submission.getIsCompletedLate()) continue;
+			// for single answer submissions that have no submission evaluation
+			if (submission.getIsNonSubmit()) continue;
+			if (!submission.getEvaluationUsed())
+			{
+				Answer answer = submission.answers.get(0);
+
+				// if there's a score to set, add it
+				if (score != null)
+				{
+					if (answer.getEvaluation().getScore() != null)
+					{
+						deductedScore = answer.getEvaluation().getScore() - score;
+					}
+					else
+					{
+						deductedScore = 0 - score;
+					}
+					answer.getEvaluation().setScore(deductedScore);
+				}
+
+				// save (if changed)
+				if (((EvaluationImpl) answer.getEvaluation()).getIsChanged())
+				{
+					// set the attribution
+					answer.getEvaluation().getAttribution().setDate(now);
+					answer.getEvaluation().getAttribution().setUserId(userId);
+
+					// clear the changed flag
+					((EvaluationImpl) answer.getEvaluation()).clearIsChanged();
+
+					// clear the cache
+					String key = cacheKey(submission.getId());
+					this.threadLocalManager.set(key, null);
+
+					// save
+					List<Answer> answers = new ArrayList(1);
+					answers.add(answer);
+					this.storage.saveAnswers(answers);
+
+					// event
+					eventTrackingService.post(eventTrackingService.newEvent(MnemeService.SUBMISSION_GRADE,
+							getSubmissionReference(submission.getId()), true));
+				}
+			}
+
+			else
+			{
+				// if there's a score to set, add it
+				if (score != null)
+				{
+					if (submission.evaluation.getScore() != null)
+					{
+						deductedScore = submission.getEvaluation().getScore() - score;
+					}
+					else
+					{
+						deductedScore = 0 - score;
+					}
+					submission.evaluation.setScore(deductedScore);
+				}
+
+				// save the submission evaluation (if changed)
+				if (((EvaluationImpl) submission.getEvaluation()).getIsChanged())
+				{
+					// set the attribution
+					submission.evaluation.getAttribution().setDate(now);
+					submission.evaluation.getAttribution().setUserId(userId);
+
+					// clear the changed flag
+					((EvaluationImpl) submission.getEvaluation()).clearIsChanged();
+
+					// clear the cache
+					String key = cacheKey(submission.getId());
+					this.threadLocalManager.set(key, null);
+
+					// save
+					this.storage.saveSubmissionEvaluation(submission);
+
+					// event
+					eventTrackingService.post(eventTrackingService.newEvent(MnemeService.SUBMISSION_GRADE,
+							getSubmissionReference(submission.getId()), true));
+				}
+			}
+		}
+
+		// release the grades to the grading authority
+		this.gradesService.reportAssessmentGrades(assessment);
+	}	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<Submission> findAssessmentSubmissions(Assessment assessment, FindAssessmentSubmissionsSort sort, Boolean official, String allUid,
 			Integer pageNum, Integer pageSize, Boolean filterByPermission)
+	{
+		return findAssessmentSubmissions(assessment, sort, official, allUid, pageNum, pageSize, filterByPermission, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Submission> findAssessmentSubmissions(Assessment assessment, FindAssessmentSubmissionsSort sort, Boolean official, String allUid,
+			Integer pageNum, Integer pageSize, Boolean filterByPermission, String sectionFilter)
 	{
 		if (assessment == null) throw new IllegalArgumentException();
 		if (official == null) throw new IllegalArgumentException();
 		if (sort == null) sort = FindAssessmentSubmissionsSort.userName_a;
-		Date asOf = new Date();
 
-		if (M_log.isDebugEnabled())
-			M_log.debug("findAssessmentSubmissions: assessment: " + assessment.getId() + " sort: " + sort + " official: " + official + " allUid: "
-					+ allUid);
+		Date asOf = new Date();
 
 		// get the submissions to the assessment made by all possible submitters
 		List<SubmissionImpl> all = getAssessmentSubmissions(assessment, sort, null,
@@ -994,6 +1159,19 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		if (sort == FindAssessmentSubmissionsSort.status_a || sort == FindAssessmentSubmissionsSort.status_d)
 		{
 			rv = sortByGradingSubmissionStatus((sort == FindAssessmentSubmissionsSort.status_d), rv);
+		}
+
+		// filter by section
+		if (sectionFilter != null)
+		{
+			for (Iterator<Submission> i = rv.iterator(); i.hasNext();)
+			{
+				Submission s = i.next();
+				if (!sectionFilter.equalsIgnoreCase(s.getUserSection()))
+				{
+					i.remove();
+				}
+			}
 		}
 
 		// page the results
@@ -1075,6 +1253,15 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 */
 	public Ordering<String> findPrevNextSubmissionIds(Submission submission, FindAssessmentSubmissionsSort sort, Boolean official)
 	{
+		return findPrevNextSubmissionIds(submission, sort, official, null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Ordering<String> findPrevNextSubmissionIds(Submission submission, FindAssessmentSubmissionsSort sort, Boolean official,
+			String sectionFilter)
+	{
 		// TODO: can we do this cheaper?
 		if (submission == null) throw new IllegalArgumentException();
 		if (official == null) throw new IllegalArgumentException();
@@ -1092,32 +1279,49 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		checkAutoComplete(all, asOf);
 
 		// pick one for each assessment - the one in progress, or the official complete one (if official)
-		List<Submission> officialSubmissions = null;
+		List<Submission> working = null;
 		if (official)
 		{
-			officialSubmissions = officializeByUser(all, null);
+			working = officializeByUser(all, null);
 		}
 		else
 		{
-			officialSubmissions = new ArrayList<Submission>(all.size());
-			officialSubmissions.addAll(all);
+			working = new ArrayList<Submission>(all.size());
+			working.addAll(all);
+		}
+
+		// filter by section
+		if (sectionFilter != null)
+		{
+			for (Iterator<Submission> i = working.iterator(); i.hasNext();)
+			{
+				Submission s = i.next();
+				if (!sectionFilter.equalsIgnoreCase(s.getUserSection()))
+				{
+					i.remove();
+				}
+			}
 		}
 
 		// if sorting by status, do that sort
 		if (sort == FindAssessmentSubmissionsSort.status_a || sort == FindAssessmentSubmissionsSort.status_d)
 		{
-			officialSubmissions = sortByGradingSubmissionStatus((sort == FindAssessmentSubmissionsSort.status_d), officialSubmissions);
+			working = sortByGradingSubmissionStatus((sort == FindAssessmentSubmissionsSort.status_d), working);
 		}
 
-		// remove the incomplete and phantom
-		List<Submission> working = new ArrayList<Submission>();
-		for (Submission s : officialSubmissions)
+		// remove the incomplete and phantom - except for offlines
+		if (submission.getAssessment().getType() != AssessmentType.offline)
 		{
-			// TODO: we should not have to filter these out...
-			if (((SubmissionImpl) s).getIsPhantom()) continue;
-			if (!((SubmissionImpl) s).getIsComplete()) continue;
+			for (Iterator<Submission> i = working.iterator(); i.hasNext();)
+			{
+				Submission s = i.next();
 
-			working.add(s);
+				// TODO: we should not have to filter these out...
+				if (((SubmissionImpl) s).getIsPhantom() || (!((SubmissionImpl) s).getIsComplete()))
+				{
+					i.remove();
+				}
+			}
 		}
 
 		// find our submission by id
@@ -1180,8 +1384,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		final Submission fNext = next;
 		final int fPos = pos;
 		final int fSize = working.size();
-		final Submission fFirst = working.get(0);
-		final Submission fLast = working.get(working.size() - 1);
+		final Submission fFirst = working.isEmpty() ? null : working.get(0);
+		final Submission fLast = working.isEmpty() ? null : working.get(working.size() - 1);
 
 		return new Ordering<String>()
 		{
@@ -1197,7 +1401,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 			public String getNext()
 			{
-				return (fNext == null ? fFirst.getId() : fNext.getId());
+				return (fNext == null ? (fFirst == null ? null : fFirst.getId()) : fNext.getId());
 			}
 
 			public Integer getPosition()
@@ -1207,7 +1411,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 			public String getPrevious()
 			{
-				return (fPrev == null ? fLast.getId() : fPrev.getId());
+				return (fPrev == null ? (fLast == null ? null : fLast.getId()) : fPrev.getId());
 			}
 
 			public Integer getSize()
@@ -1220,17 +1424,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<Answer> findSubmissionAnswers(Assessment assessment, Question question, FindAssessmentSubmissionsSort sort, Integer pageNum,
-			Integer pageSize)
-	{
-		return findSubmissionAnswers(assessment, question, Boolean.FALSE, sort, pageNum, pageSize);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public List<Answer> findSubmissionAnswers(Assessment assessment, Question question, Boolean official, FindAssessmentSubmissionsSort sort, Integer pageNum,
-			Integer pageSize)
+	public List<Answer> findSubmissionAnswers(Assessment assessment, Question question, Boolean official, FindAssessmentSubmissionsSort sort,
+			Integer pageNum, Integer pageSize)
 	{
 		// TODO: review the efficiency of this method! -ggolden
 		// TODO: consider removing the official (set to false, getting all) to improve efficiency -ggolden
@@ -1248,7 +1443,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// see if any needs to be completed based on time limit or dates
 		checkAutoComplete(all, asOf);
-		
+
 		// pick one for each assessment - the one in progress, or the official complete one (if official)
 		List<Submission> rv = null;
 		if (official)
@@ -1298,6 +1493,15 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		}
 
 		return answers;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Answer> findSubmissionAnswers(Assessment assessment, Question question, FindAssessmentSubmissionsSort sort, Integer pageNum,
+			Integer pageSize)
+	{
+		return findSubmissionAnswers(assessment, question, Boolean.FALSE, sort, pageNum, pageSize);
 	}
 
 	/**
@@ -1422,6 +1626,90 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		List<? extends Submission> all = this.storage.getContextSubmissions(context);
 
 		return all;
+	}
+
+	/**
+	 * Returns the text of an assessment evaluation notification sample with dates filled in
+	 * 
+	 * @param assmt
+	 *        Assessment object
+	 * @return Evaluation notification sample
+	 */
+	public String getEvalNotificationSample(Assessment assmt)
+	{
+		StringBuilder contents = new StringBuilder();
+		BufferedReader input = null;
+		String message = null;
+		InputStream inputStream = null;
+
+		try
+		{
+			inputStream = AttachmentServiceImpl.class.getClassLoader().getResourceAsStream("evalnotif.html");
+
+			input = new BufferedReader(new InputStreamReader(inputStream));
+
+			String line = null;
+
+			while ((line = input.readLine()) != null)
+			{
+				contents.append(line);
+			}
+
+			message = contents.toString();
+
+			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+			if (assmt != null)
+			{
+				Date finalDate;
+				if (assmt.getDates().getAcceptUntilDate() != null)
+					finalDate = assmt.getDates().getAcceptUntilDate();
+				else
+					finalDate = assmt.getDates().getDueDate();
+				if (assmt.getDates().getOpenDate() != null && finalDate != null)
+				{
+					message = message.replace("date.info", "It opens on " + dateFormat.format(assmt.getDates().getOpenDate()) + " and closes on "
+							+ dateFormat.format(finalDate) + ".");
+				}
+				else
+				{
+					if (assmt.getDates().getOpenDate() != null && finalDate == null)
+						message = message.replace("date.info", "It opens on " + dateFormat.format(assmt.getDates().getOpenDate()) + ".");
+					if (assmt.getDates().getOpenDate() == null && finalDate != null)
+						message = message.replace("date.info", "It closes on " + dateFormat.format(finalDate) + ".");
+					if (assmt.getDates().getOpenDate() == null && finalDate == null) message = message.replace("date.info", " ");
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.warn("Error in getEvalNotificationSample", e);
+		}
+		finally
+		{
+			if (input != null)
+			{
+				try
+				{
+					input.close();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+
+			if (inputStream != null)
+			{
+				try
+				{
+					inputStream.close();
+				}
+				catch (IOException e)
+				{
+
+				}
+			}
+		}
+		return message;
 	}
 
 	/**
@@ -1579,7 +1867,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 */
 	public List<Submission> getUnfilteredUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sortParam)
 	{
-		return getUserContextSubmissions(context, userId, sortParam, false);
+		return getUserContextSubmissions(context, userId, sortParam, false, true);
 	}
 
 	/**
@@ -1588,6 +1876,14 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	public List<Submission> getUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sortParam)
 	{
 		return getUserContextSubmissions(context, userId, sortParam, true);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Submission> getCMUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sortParam)
+	{
+		return getUserContextSubmissions(context, userId, sortParam, true, true);
 	}
 
 	/**
@@ -1981,6 +2277,17 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	public void setGradesService(GradesService service)
 	{
 		this.gradesService = service;
+	}
+
+	/**
+	 * Dependency: QuestionService.
+	 * 
+	 * @param service
+	 *        The QuestionService.
+	 */
+	public void setQuestionService(QuestionService service)
+	{
+		this.questionService = service;
 	}
 
 	/**
@@ -2599,10 +2906,15 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// subject
 		String subject = null;
-		if (assessment.getFormalCourseEval()) subject = "Course Evaluation: " + siteTitle;
-		if (assessment.getType().equals(AssessmentType.assignment)) subject = "Assignment: " + assessment.getTitle() + " : " + siteTitle;
-		if (assessment.getType().equals(AssessmentType.test)) subject = "Test: " + assessment.getTitle() + " : " + siteTitle;
-		if (assessment.getType().equals(AssessmentType.survey)) subject = "Survey: " + assessment.getTitle() + " : " + siteTitle;
+		if (assessment.getFormalCourseEval())
+			subject = "Course Evaluation: " + siteTitle;
+		else if (assessment.getType().equals(AssessmentType.assignment))
+			subject = "Assignment: " + assessment.getTitle() + " : " + siteTitle;
+		else if (assessment.getType().equals(AssessmentType.test))
+			subject = "Test: " + assessment.getTitle() + " : " + siteTitle;
+		else if (assessment.getType().equals(AssessmentType.survey))
+			subject = "Survey: " + assessment.getTitle() + " : " + siteTitle;
+		else if (assessment.getType().equals(AssessmentType.offline)) subject = "Offline: " + assessment.getTitle() + " : " + siteTitle;
 
 		// for html
 		List<String> headers = new ArrayList<String>();
@@ -2619,141 +2931,6 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 
 		// mark the assessment as having the results sent
 		this.assessmentService.setResultsSent(assessment, new Date());
-	}
-
-	/**
-	 * Notifies students about the evaluation
-	 * 
-	 * @param assessment
-	 *        The assessment.
-	 */
-	protected void notifyStudentEvaluation(Assessment assessment)
-	{
-		if (!assessment.getFormalCourseEval() && !assessment.getNotifyEval()) return;
-		
-		// to
-		List<User> submitUsers = assessment.getSubmitUsers();
-		StringBuffer toStrBuf = new StringBuffer();
-		
-		for (User user : submitUsers)
-		{
-			toStrBuf.append(user.getEmail());
-			toStrBuf.append(",");
-		}
-		
-		if (toStrBuf.length() > 0 && toStrBuf.charAt(toStrBuf.length()-1) == ',')
-			toStrBuf.deleteCharAt(toStrBuf.length()-1);
-		
-		String to = toStrBuf.toString();
-
-		// from
-		String from = "\"" + this.serverConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"
-				+ this.serverConfigurationService.getServerName() + ">";
-
-		String siteTitle = "";
-		try
-		{
-			Site site = this.siteService.getSite(assessment.getContext());
-			siteTitle = site.getTitle();
-		}
-		catch (IdUnusedException e)
-		{
-		}
-
-		// subject
-		String subject = null;
-		if (assessment.getFormalCourseEval()) subject = "Course Evaluation Now Open: " + siteTitle;
-		
-		// for html
-		List<String> headers = new ArrayList<String>();
-		headers.add("content-type: text/html");
-
-		String content = getEvalNotificationSample(assessment);
-
-		this.emailService.send(from, to, subject, content, null, null, headers);
-
-		// mark the assessment as having the results sent
-		this.assessmentService.setEvaluationSent(assessment, new Date());
-	}	
-	
-	/**
-	 * Returns the text of an assessment evaluation notification sample with dates filled in
-	 * @param assmt Assessment object
-	 * @return Evaluation notification sample
-	 */
-	public String getEvalNotificationSample(Assessment assmt)
-	{
-		StringBuilder contents = new StringBuilder();
-		BufferedReader input = null;
-		String message = null;
-		InputStream inputStream = null;
-
-		try
-		{
-			inputStream = AttachmentServiceImpl.class.getClassLoader().getResourceAsStream("evalnotif.html");
-
-			input = new BufferedReader(new InputStreamReader(inputStream));
-
-			String line = null;
-			
-			while ((line = input.readLine()) != null)
-			{
-				contents.append(line);
-			}
-
-			message = contents.toString();
-			
-			DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
-			if (assmt != null)
-			{
-				Date finalDate;
-				if (assmt.getDates().getAcceptUntilDate() != null) finalDate = assmt.getDates().getAcceptUntilDate();
-				else finalDate = assmt.getDates().getDueDate();
-				if (assmt.getDates().getOpenDate() != null && finalDate != null) 
-				{
-					message = message.replace("date.info", "It opens on "+dateFormat.format(assmt.getDates().getOpenDate())+" and closes on "+dateFormat.format(finalDate)+".");
-				}
-				else
-				{
-					if (assmt.getDates().getOpenDate() != null && finalDate == null)
-						message = message.replace("date.info", "It opens on " + dateFormat.format(assmt.getDates().getOpenDate()) + ".");
-					if (assmt.getDates().getOpenDate() == null && finalDate != null)
-						message = message.replace("date.info", "It closes on " + dateFormat.format(finalDate) + ".");
-					if (assmt.getDates().getOpenDate() == null && finalDate == null)
-						message = message.replace("date.info", " ");
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			M_log.warn("Error in getEvalNotificationSample", e);
-		}
-		finally
-		{
-			if (input != null)
-			{
-				try
-				{
-					input.close();
-				}
-				catch (IOException e)
-				{
-				}
-			}
-
-			if (inputStream != null)
-			{
-				try
-				{
-					inputStream.close();
-				}
-				catch (IOException e)
-				{
-
-				}
-			}
-		}	
-		return message;
 	}
 
 	/**
@@ -2779,6 +2956,8 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 *        if true, return submissions only from users who are currently permitted to submit, otherwise return any submissions found.
 	 * @return A List<Submission> of the submissions for the assessment.
 	 */
+	@SuppressWarnings(
+	{ "unchecked", "rawtypes" })
 	protected List<SubmissionImpl> getAssessmentSubmissions(Assessment assessment, final FindAssessmentSubmissionsSort sort, final Question question,
 			boolean filterByPermission)
 	{
@@ -2830,11 +3009,12 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			}
 		}
 
-		// for all but user name & status sorts, separate out the completed, not-started, in-progress
+		// for all but user name, section & status sorts, separate out the completed, not-started, in-progress
 		List<SubmissionImpl> inProgress = new ArrayList<SubmissionImpl>();
 		List<SubmissionImpl> notStarted = new ArrayList<SubmissionImpl>();
 		if ((sort != FindAssessmentSubmissionsSort.userName_a) && (sort != FindAssessmentSubmissionsSort.userName_d)
-				&& (sort != FindAssessmentSubmissionsSort.status_a) && (sort != FindAssessmentSubmissionsSort.status_d))
+				&& (sort != FindAssessmentSubmissionsSort.status_a) && (sort != FindAssessmentSubmissionsSort.status_d)
+				&& (sort != FindAssessmentSubmissionsSort.section_a) && (sort != FindAssessmentSubmissionsSort.section_d))
 		{
 			for (Iterator i = rv.iterator(); i.hasNext();)
 			{
@@ -2959,6 +3139,19 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 						}
 
 						if (sort == FindAssessmentSubmissionsSort.sdate_d) rv = -1 * rv;
+
+						secondary = FindAssessmentSubmissionsSort.userName_a;
+						break;
+					}
+					case section_a:
+					case section_d:
+					{
+						String section0 = StringUtil.trimToZero(((Submission) arg0).getUserSection());
+						String section1 = StringUtil.trimToZero(((Submission) arg1).getUserSection());
+
+						rv = section0.compareToIgnoreCase(section1);
+
+						if (sort == FindAssessmentSubmissionsSort.section_d) rv = -1 * rv;
 
 						secondary = FindAssessmentSubmissionsSort.userName_a;
 						break;
@@ -3274,6 +3467,29 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	}
 
 	/**
+	 * This method checks to see if this assessment has a special access entry that sets this assessment
+	 * to hide until open = false
+	 * 
+	 * @param assmt Assessment object
+	 * @param userId User ID
+	 * @return true if this assessment does not have an entry with hide until open=false, false otherwise
+	 */
+	public boolean isHidden(Assessment assmt, String userId)
+	{
+		if (!assmt.getFormalCourseEval())
+		{
+			AssessmentAccess special = assmt.getSpecialAccess().getUserAccess(userId);
+			//This means there is a special access entry for this user that allows this assmt to be revealed
+			if (special != null)
+			{
+				if (special.getHideUntilOpen()) return true;
+			}
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Get the submissions to assessments in this context made by this user. Consider:
 	 * <ul>
 	 * <li>published and valid assessments (if filtering)</li>
@@ -3294,11 +3510,37 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	 */
 	protected List<Submission> getUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sortParam, boolean filter)
 	{
+		return getUserContextSubmissions(context, userId, sortParam, filter, false);
+	}
+
+	/**
+	 * Get the submissions to assessments in this context made by this user. Consider:
+	 * <ul>
+	 * <li>published and valid assessments (if filtering)</li>
+	 * <li>assessments in this context</li>
+	 * <li>assessments this user can submit to and have submitted to</li>
+	 * <li>the one (of many for this user) submission that will be the official (graded) (depending on the assessment settings, and submission time and score)</li>
+	 * </ul>
+	 * 
+	 * @param context
+	 *        The context to use.
+	 * @param userId
+	 *        The user id - if null, use the current user.
+	 * @param sortParam
+	 *        The sort order.
+	 * @param filter
+	 *        - if true, filter away invalid and unpublished, else include them.
+	 * @param callFromCMStudent
+	 *        - if true, call is from course map and we need to show hidden entries
+	 * @return A List<Submission> of the submissions that are the official submissions for assessments in the context by this user, sorted.
+	 */
+	protected List<Submission> getUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sortParam, boolean filter, boolean callFromCMStudent)
+	{
 		if (context == null) throw new IllegalArgumentException();
 		if (userId == null) userId = sessionManager.getCurrentSessionUserId();
 		if (sortParam == null) sortParam = GetUserContextSubmissionsSort.title_a;
 		final GetUserContextSubmissionsSort sort = sortParam;
-		Date asOf = new Date();
+		Date now = new Date();
 
 		if (M_log.isDebugEnabled()) M_log.debug("getUserContextSubmissions: context: " + context + " userId: " + userId + ": " + sort);
 
@@ -3316,47 +3558,79 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 			publishedOnly = Boolean.FALSE;
 			skipHidden = Boolean.FALSE;
 		}
+		else if (securityService.checkSecurity(userId, "site.observer", context))
+		{
+			skipHidden = Boolean.FALSE;
+		}
+
+		// for checking FCE permission, get the user's membership in the site
+		Member m = null;
+		try
+		{
+			Site site = this.siteService.getSite(context);
+			m = site.getMember(userId);
+		}
+		catch (IdUnusedException e)
+		{
+		}
 
 		// read all the submissions for this user in the context
 		List<SubmissionImpl> all = this.storage.getUserContextSubmissions(context, userId, publishedOnly);
 
-		// filter out invalid assessments
+		// get all the assessments for this context
+		List<Assessment> assessments = this.assessmentService
+				.getContextAssessments(context, AssessmentService.AssessmentsSort.title_a, publishedOnly);
+
+		// filter out submissions with invalid or hide-until-open hidden assessments
 		if (filter)
 		{
-			
-			for (Iterator i = all.iterator(); i.hasNext();)
+			for (Iterator<SubmissionImpl> i = all.iterator(); i.hasNext();)
 			{
-				Submission s = (Submission) i.next();
+				Submission s = i.next();
 				if (!s.getAssessment().getIsValid())
 				{
 					i.remove();
 				}
 				else
 				{
-					if (skipHidden)
+					if (skipHidden && !callFromCMStudent)
 					{
-						Date currentDate = new java.util.Date();
-						if (s.getAssessment().getDates().getHideUntilOpen() != null && s.getAssessment().getDates().getHideUntilOpen()
-								&& s.getAssessment().getDates().getOpenDate() != null
-								&& s.getAssessment().getDates().getOpenDate().after(currentDate))
+						if (s.getAssessment().getDates().getHideUntilOpen() && (s.getAssessment().getDates().getOpenDate() != null)
+								&& s.getAssessment().getDates().getOpenDate().after(now))
 						{
 							i.remove();
-			}
-		}
+						}
+					}
 				}
 			}
 		}
 
-		
-		// get all the assessments for this context
-		List<Assessment> assessments = this.assessmentService
-				.getContextAssessments(context, AssessmentService.AssessmentsSort.title_a, publishedOnly);
-
 		// if any valid (or, if not filtering, any at all) assessment is not represented in the submissions we found, add an empty submission for it
 		for (Assessment a : assessments)
 		{
+			// skip invalid assessments
 			if (filter && (!a.getIsValid())) continue;
 
+			// skip FCEs for non-provided Students
+			if (a.getFormalCourseEval() && (m != null) && (!m.isProvided()) && m.getRole().getId().equals("Student")) continue;
+
+			
+			if ((isHidden(a, userId) || a.getDates().getHideUntilOpen()) && (a.getDates().getOpenDate() != null)	&& a.getDates().getOpenDate().after(now))
+			{
+				//In a Test Drive situation, show hidden until open
+				if (securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)
+						&& (!securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context)))
+				{
+					//Don't do anything
+				}
+				else
+				{
+					// skip for hidden hide-until-open assessments
+					if (!callFromCMStudent) continue;
+				}
+			}
+			
+			// do we have a submission?
 			boolean found = false;
 			for (Submission s : all)
 			{
@@ -3367,81 +3641,62 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 				}
 			}
 
+			// if not, add a phantom
 			if (!found)
 			{
 				SubmissionImpl s = this.getPhantomSubmission(userId, a);
 				all.add(s);
 			}
 		}
-		if (filter && skipHidden)
-		{
-			for (Iterator i = all.iterator(); i.hasNext();)
-			{
-				SubmissionImpl s = (SubmissionImpl) i.next();
-				Date currentDate = new java.util.Date();
-				if (s.getAssessment().getDates().getHideUntilOpen() != null && s.getAssessment().getDates().getHideUntilOpen()
-						&& s.getAssessment().getDates().getOpenDate() != null && s.getAssessment().getDates().getOpenDate().after(currentDate))
-				{
-					i.remove();
-				}
-			}
-		}
 
-		// sort
-		// status sorts first by due date descending, then status final sorting is done in the service
-		Collections.sort(all, new Comparator()
+		// sort - status sorts first by due date descending, then status final sorting is done in the service
+		Collections.sort(all, new Comparator<Submission>()
 		{
-			public int compare(Object arg0, Object arg1)
+			public int compare(Submission arg0, Submission arg1)
 			{
 				int rv = 0;
 				switch (sort)
 				{
 					case title_a:
 					{
-						String s0 = StringUtil.trimToZero(((Submission) arg0).getAssessment().getTitle());
-						String s1 = StringUtil.trimToZero(((Submission) arg1).getAssessment().getTitle());
+						String s0 = StringUtil.trimToZero(arg0.getAssessment().getTitle());
+						String s1 = StringUtil.trimToZero(arg1.getAssessment().getTitle());
 						rv = s0.compareToIgnoreCase(s1);
 						break;
 					}
 					case title_d:
 					{
-						String s0 = StringUtil.trimToZero(((Submission) arg0).getAssessment().getTitle());
-						String s1 = StringUtil.trimToZero(((Submission) arg1).getAssessment().getTitle());
+						String s0 = StringUtil.trimToZero(arg0.getAssessment().getTitle());
+						String s1 = StringUtil.trimToZero(arg1.getAssessment().getTitle());
 						rv = -1 * s0.compareToIgnoreCase(s1);
 						break;
 					}
 					case type_a:
 					{
-						rv = ((Submission) arg0).getAssessment().getType().getSortValue()
-								.compareTo(((Submission) arg1).getAssessment().getType().getSortValue());
+						rv = arg0.getAssessment().getType().getSortValue().compareTo(arg1.getAssessment().getType().getSortValue());
 						break;
 					}
 					case type_d:
 					{
-						rv = -1
-								* ((Submission) arg0).getAssessment().getType().getSortValue()
-										.compareTo(((Submission) arg1).getAssessment().getType().getSortValue());
+						rv = -1 * arg0.getAssessment().getType().getSortValue().compareTo(arg1.getAssessment().getType().getSortValue());
 						break;
 					}
 					case published_a:
 					{
-						rv = ((Submission) arg0).getAssessment().getPublished()
-								.compareTo(((Submission) arg1).getAssessment().getPublished());
+						rv = arg0.getAssessment().getPublished().compareTo(arg1.getAssessment().getPublished());
 						break;
 					}
 					case published_d:
 					{
-						rv = -1
-								* ((Submission) arg0).getAssessment().getPublished()
-										.compareTo(((Submission) arg1).getAssessment().getPublished());
+						rv = -1 * arg0.getAssessment().getPublished().compareTo(arg1.getAssessment().getPublished());
 						break;
 					}
 					case dueDate_a:
 					{
 						// no due date sorts high
-						if (((Submission) arg0).getAssessment().getDates().getDueDate() == null)
+						if (arg0.getAssessment().getDates().getDueDate() == null)
 						{
-							if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
+							if (arg1.getAssessment().getDates().getDueDate() == null)
 							{
 								rv = 0;
 								break;
@@ -3449,13 +3704,12 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 							rv = 1;
 							break;
 						}
-						if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
+						if (arg1.getAssessment().getDates().getDueDate() == null)
 						{
 							rv = -1;
 							break;
 						}
-						rv = ((Submission) arg0).getAssessment().getDates().getDueDate()
-								.compareTo(((Submission) arg1).getAssessment().getDates().getDueDate());
+						rv = arg0.getAssessment().getDates().getDueDate().compareTo(arg1.getAssessment().getDates().getDueDate());
 						break;
 					}
 					case dueDate_d:
@@ -3463,9 +3717,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 					case status_d:
 					{
 						// no due date sorts high
-						if (((Submission) arg0).getAssessment().getDates().getDueDate() == null)
+						if (arg0.getAssessment().getDates().getDueDate() == null)
 						{
-							if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
+							if (arg1.getAssessment().getDates().getDueDate() == null)
 							{
 								rv = 0;
 								break;
@@ -3473,14 +3727,12 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 							rv = -1;
 							break;
 						}
-						if (((Submission) arg1).getAssessment().getDates().getDueDate() == null)
+						if (arg1.getAssessment().getDates().getDueDate() == null)
 						{
 							rv = 1;
 							break;
 						}
-						rv = -1
-								* ((Submission) arg0).getAssessment().getDates().getDueDate()
-										.compareTo(((Submission) arg1).getAssessment().getDates().getDueDate());
+						rv = -1 * arg0.getAssessment().getDates().getDueDate().compareTo(arg1.getAssessment().getDates().getDueDate());
 						break;
 					}
 				}
@@ -3490,7 +3742,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		});
 
 		// see if any needs to be completed based on time limit or dates
-		checkAutoComplete(all, asOf);
+		checkAutoComplete(all, now);
 
 		// pick one for each assessment - the one in progress, or the official complete one
 		List<Submission> official = officializeByAssessment(all);
@@ -3533,6 +3785,60 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		}
 
 		return official;
+	}
+
+	/**
+	 * Notifies students about the evaluation
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 */
+	protected void notifyStudentEvaluation(Assessment assessment)
+	{
+		if (!assessment.getFormalCourseEval() && !assessment.getNotifyEval()) return;
+
+		// to
+		List<User> submitUsers = assessment.getSubmitUsers();
+		StringBuffer toStrBuf = new StringBuffer();
+
+		for (User user : submitUsers)
+		{
+			toStrBuf.append(user.getEmail());
+			toStrBuf.append(",");
+		}
+
+		if (toStrBuf.length() > 0 && toStrBuf.charAt(toStrBuf.length() - 1) == ',') toStrBuf.deleteCharAt(toStrBuf.length() - 1);
+
+		String to = toStrBuf.toString();
+
+		// from
+		String from = "\"" + this.serverConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"
+				+ this.serverConfigurationService.getServerName() + ">";
+
+		String siteTitle = "";
+		try
+		{
+			Site site = this.siteService.getSite(assessment.getContext());
+			siteTitle = site.getTitle();
+		}
+		catch (IdUnusedException e)
+		{
+		}
+
+		// subject
+		String subject = null;
+		if (assessment.getFormalCourseEval()) subject = "Course Evaluation Now Open: " + siteTitle;
+
+		// for html
+		List<String> headers = new ArrayList<String>();
+		headers.add("content-type: text/html");
+
+		String content = getEvalNotificationSample(assessment);
+
+		this.emailService.send(from, to, subject, content, null, null, headers);
+
+		// mark the assessment as having the results sent
+		this.assessmentService.setEvaluationSent(assessment, new Date());
 	}
 
 	/**

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -53,11 +53,11 @@ import org.sakaiproject.user.api.UserDirectoryService;
  */
 public class GradesServiceGradebook23Impl implements GradesService
 {
-	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(GradesServiceGradebook23Impl.class);
-
 	/** Our application name in the grade book UI. */
 	protected static final String APPLICATION_NAME = "AT&S";
+
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(GradesServiceGradebook23Impl.class);
 
 	/** Dependency: AssessmentService */
 	protected AssessmentService assessmentService = null;
@@ -104,6 +104,10 @@ public class GradesServiceGradebook23Impl implements GradesService
 		{
 			M_log.warn("assessmentReported:" + e.toString());
 		}
+		catch (Exception e)
+		{
+			M_log.warn("assessmentReported: aid: " + assessment.getId() + " : " + e.toString());
+		}
 
 		return Boolean.FALSE;
 	}
@@ -123,6 +127,10 @@ public class GradesServiceGradebook23Impl implements GradesService
 			M_log.debug("Exception thrown while getting site" + e.toString());
 		}
 		boolean hasGradebook = gradebookService.isGradebookDefined(context) && site.getToolForCommonId("sakai.gradebook.tool") != null;
+		if (!hasGradebook)
+		{
+			hasGradebook = site.getToolForCommonId("e3.gradebook") != null;
+		}
 		return Boolean.valueOf(hasGradebook);
 	}
 
@@ -172,13 +180,14 @@ public class GradesServiceGradebook23Impl implements GradesService
 
 				// make an entry for the assessment
 				gradebookService.addExternalAssessment(assessment.getContext(), assessment.getTitle(), url, assessment.getTitle(),
-						toDoubleScore(assessment.getParts().getTotalPoints()), assessment.getDates().getDueDate(), APPLICATION_NAME);
+						toDoubleScore(assessment.getPoints()), assessment.getDates().getDueDate(), APPLICATION_NAME);
 				return Boolean.TRUE;
 			}
 		}
 		catch (GradebookNotFoundException e)
 		{
 			M_log.warn("initAssessmentGrades: " + assessment.getId() + e.toString());
+			throw new GradesRejectsAssessmentException();
 		}
 		catch (ConflictingAssignmentNameException e)
 		{
@@ -186,11 +195,18 @@ public class GradesServiceGradebook23Impl implements GradesService
 		}
 		catch (ConflictingExternalIdException e)
 		{
-			M_log.warn("reportAssessmentGrades: " + assessment.getId() + e.toString());
+			M_log.warn("initAssessmentGrades: " + assessment.getId() + e.toString());
+			throw new GradesRejectsAssessmentException();
 		}
 		catch (AssignmentHasIllegalPointsException e)
 		{
-			M_log.warn("reportAssessmentGrades: " + assessment.getId() + e.toString());
+			M_log.warn("initAssessmentGrades: " + assessment.getId() + e.toString());
+			throw new GradesRejectsAssessmentException();
+		}
+		catch (Exception e)
+		{
+			M_log.warn("initAssessmentGrades: aid: " + assessment.getId() + " : " + e.toString());
+			throw new GradesRejectsAssessmentException();
 		}
 
 		return Boolean.FALSE;
@@ -244,6 +260,10 @@ public class GradesServiceGradebook23Impl implements GradesService
 		{
 			M_log.warn("reportAssessmentGrades: " + assessment.getId() + e.toString());
 		}
+		catch (Exception e)
+		{
+			M_log.warn("reportAssessmentGrades: aid: " + assessment.getId() + " : " + e.toString());
+		}
 
 		return Boolean.FALSE;
 	}
@@ -292,13 +312,16 @@ public class GradesServiceGradebook23Impl implements GradesService
 		}
 		catch (GradebookNotFoundException e)
 		{
-			M_log.warn("reportAssessmentGrades: " + assessment.getId() + e.toString());
+			M_log.warn("reportSubmissionGrade: " + assessment.getId() + e.toString());
 		}
 		catch (AssessmentNotFoundException e)
 		{
-			M_log.warn("reportAssessmentGrades: " + assessment.getId() + e.toString());
+			M_log.warn("reportSubmissionGrade: " + assessment.getId() + e.toString());
 		}
-
+		catch (Exception e)
+		{
+			M_log.warn("reportSubmissionGrade: aid: " + assessment.getId() + " : " + e.toString());
+		}
 		return Boolean.FALSE;
 	}
 
@@ -329,6 +352,10 @@ public class GradesServiceGradebook23Impl implements GradesService
 		catch (AssessmentNotFoundException e)
 		{
 			M_log.warn("retractAssessmentGrades" + e.toString());
+		}
+		catch (Exception e)
+		{
+			M_log.warn("retractAssessmentGrades: aid: " + assessment.getId() + " : " + e.toString());
 		}
 
 		return Boolean.FALSE;
@@ -364,11 +391,15 @@ public class GradesServiceGradebook23Impl implements GradesService
 		}
 		catch (GradebookNotFoundException e)
 		{
-			M_log.warn("reportAssessmentGrades: " + assessment.getId() + e.toString());
+			M_log.warn("retractSubmissionGrade: " + assessment.getId() + e.toString());
 		}
 		catch (AssessmentNotFoundException e)
 		{
-			M_log.warn("reportAssessmentGrades: " + assessment.getId() + e.toString());
+			M_log.warn("retractSubmissionGrade: " + assessment.getId() + e.toString());
+		}
+		catch (Exception e)
+		{
+			M_log.warn("retractSubmissionGrade: aid: " + assessment.getId() + " : " + e.toString());
 		}
 
 		return Boolean.FALSE;
@@ -408,17 +439,6 @@ public class GradesServiceGradebook23Impl implements GradesService
 	}
 
 	/**
-	 * Dependency: SiteService.
-	 * 
-	 * @param service
-	 *        The SiteService.
-	 */
-	public void setSiteService(SiteService service)
-	{
-		this.siteService = service;
-	}
-
-	/**
 	 * Dependency: SessionManager.
 	 * 
 	 * @param service
@@ -427,6 +447,17 @@ public class GradesServiceGradebook23Impl implements GradesService
 	public void setSessionManager(SessionManager service)
 	{
 		this.sessionManager = service;
+	}
+
+	/**
+	 * Dependency: SiteService.
+	 * 
+	 * @param service
+	 *        The SiteService.
+	 */
+	public void setSiteService(SiteService service)
+	{
+		this.siteService = service;
 	}
 
 	/**

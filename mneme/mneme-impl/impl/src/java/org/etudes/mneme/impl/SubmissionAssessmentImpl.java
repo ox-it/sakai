@@ -135,8 +135,8 @@ public class SubmissionAssessmentImpl implements Assessment
 	 */
 	public Reference getAsmtStatsReference()
 	{
-		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ASMT_STATS
-				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ASMT_STATS + "/"
+				+ this.getContext() + "/" + this.getId() + ".xls");
 		return ref;
 	}
 
@@ -168,7 +168,8 @@ public class SubmissionAssessmentImpl implements Assessment
 			AssessmentAccess special = getAssessment().getSpecialAccess().getUserAccess(this.submission.getUserId());
 			if (special != null)
 			{
-				if (special.getOverrideAcceptUntilDate() || special.getOverrideDueDate() || special.getOverrideOpenDate() || special.getOverrideHideUntilOpen() || getAssessment().getDates().getHideUntilOpen() != special.getHideUntilOpen())
+				if (special.getOverrideAcceptUntilDate() || special.getOverrideDueDate() || special.getOverrideOpenDate()
+						|| special.getOverrideHideUntilOpen() || getAssessment().getDates().getHideUntilOpen() != special.getHideUntilOpen())
 				{
 					// return a special dates impl that knows how to override
 					return new AssessmentDatesOverrideImpl(getAssessment(), special);
@@ -192,8 +193,8 @@ public class SubmissionAssessmentImpl implements Assessment
 	 */
 	public Reference getExportSummaryReference()
 	{
-		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.EXPORT_SUMMARY
-				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.EXPORT_SUMMARY + "/"
+				+ this.getContext() + "/" + this.getId() + ".xls");
 		return ref;
 	}
 
@@ -299,7 +300,7 @@ public class SubmissionAssessmentImpl implements Assessment
 	{
 		return getAssessment().getHasUnscoredSubmissions();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -385,8 +386,8 @@ public class SubmissionAssessmentImpl implements Assessment
 	 */
 	public Reference getItemAnalysisReference()
 	{
-		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ITEM_ANALYSIS
-				+ "/" + this.getContext() + "/" + this.getId() + ".xls");
+		Reference ref = EntityManager.newReference("/mneme/" + AttachmentService.DOWNLOAD + "/" + AttachmentService.ITEM_ANALYSIS + "/"
+				+ this.getContext() + "/" + this.getId() + ".xls");
 		return ref;
 	}
 
@@ -466,6 +467,14 @@ public class SubmissionAssessmentImpl implements Assessment
 		}
 
 		return getAssessment().getPassword();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public Float getPoints()
+	{
+		return getAssessment().getPoints();
 	}
 
 	/**
@@ -683,7 +692,7 @@ public class SubmissionAssessmentImpl implements Assessment
 	{
 		return getAssessment().hashCode();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -691,7 +700,7 @@ public class SubmissionAssessmentImpl implements Assessment
 	{
 		throw new IllegalArgumentException();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -762,7 +771,7 @@ public class SubmissionAssessmentImpl implements Assessment
 	public void setMinScore(Integer minScore)
 	{
 		throw new IllegalArgumentException();
-	}	
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -784,6 +793,14 @@ public class SubmissionAssessmentImpl implements Assessment
 	 * {@inheritDoc}
 	 */
 	public void setNotifyEval(Boolean setting)
+	{
+		throw new IllegalArgumentException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setPoints(Float points)
 	{
 		throw new IllegalArgumentException();
 	}
@@ -891,7 +908,7 @@ public class SubmissionAssessmentImpl implements Assessment
 	{
 		throw new IllegalArgumentException();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -899,7 +916,7 @@ public class SubmissionAssessmentImpl implements Assessment
 	{
 		throw new IllegalArgumentException();
 	}
-	
+
 	/**
 	 * Access the assessment.
 	 * 
@@ -913,7 +930,7 @@ public class SubmissionAssessmentImpl implements Assessment
 		rv.initSubmissionContext(this.submission);
 		return rv;
 	}
-	
+
 	/**
 	 * Set as a copy of another.
 	 * 

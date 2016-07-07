@@ -509,6 +509,15 @@ public class SelectAddPartQuestionsView extends ControllerImpl
 		{
 			sort = QuestionService.FindQuestionsSort.description_d;
 		}
+		// 3 is question title
+		else if ((sortCode.charAt(0) == '4') && (sortCode.charAt(1) == 'A'))
+		{
+			sort = QuestionService.FindQuestionsSort.title_a;
+		}
+		else if ((sortCode.charAt(0) == '4') && (sortCode.charAt(1) == 'D'))
+		{
+			sort = QuestionService.FindQuestionsSort.title_d;
+		}
 
 		return sort;
 	}

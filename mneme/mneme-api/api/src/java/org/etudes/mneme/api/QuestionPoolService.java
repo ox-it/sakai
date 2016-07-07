@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -37,7 +37,7 @@ public interface QuestionPoolService
 	 */
 	enum FindQuestionsSort
 	{
-		cdate_a, cdate_d, description_a, description_d, pool_difficulty_a, pool_difficulty_d, pool_points_a, pool_points_d, pool_title_a, pool_title_d, type_a, type_d;
+		cdate_a, cdate_d, description_a, description_d, pool_difficulty_a, pool_difficulty_d, pool_points_a, pool_points_d, pool_title_a, pool_title_d, type_a, type_d, title_a, title_d;
 	}
 
 	/**

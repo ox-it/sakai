@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -53,6 +53,7 @@ import org.etudes.ambrosia.api.UiService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
 import org.etudes.mneme.api.TypeSpecificQuestion;
+import org.etudes.util.HtmlHelper;
 import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.util.StringUtil;
 
@@ -508,9 +509,9 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 	}
 
 	/**
-	 * Access the actual choices as authored. The choices in the list can be altered, changing the question definition.
+	 * Access a copy of the choices in as-authored order.
 	 * 
-	 * @return The choices as authored.
+	 * @return The choices in as-authored order.
 	 */
 	public List<MultipleChoiceQuestionChoice> getChoicesAsAuthored()
 	{
@@ -519,14 +520,14 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		{
 			consolidate("INIT:5");
 		}
-		List newChoices = new ArrayList<MultipleChoiceQuestionChoice>();
+
+		List<MultipleChoiceQuestionChoice> rv = new ArrayList<MultipleChoiceQuestionChoice>();
 		for (MultipleChoiceQuestionChoice choice : this.answerChoices)
 		{
-			newChoices.add(choice);
+			rv.add(choice);
 		}
 
-		this.answerChoices = newChoices;
-		return this.answerChoices;
+		return rv;
 	}
 
 	/**
@@ -782,10 +783,15 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		selCol.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers"));
 		selCol.setReadOnly(this.uiService.newTrueDecision());
 		selCol.setCorrect(this.uiService.newPropertyReference().setReference("answer.question.typeSpecificQuestion.correctAnswers"));
-        CompareDecision compDec = this.uiService.newCompareDecision();
-        compDec.setProperty(this.uiService.newPropertyReference().setReference("answer.question.part.assessment.review.showCorrectAnswer"));
-        compDec.setEqualsConstant("incorrect_only");
-		selCol.setExcludeCorrectMiss(compDec);
+		
+		AndDecision andComp = this.uiService.newAndDecision();
+        Decision[] compDec = new Decision[2];
+		compDec[0] = this.uiService.newCompareDecision();
+        compDec[0].setProperty(this.uiService.newPropertyReference().setReference("answer.question.part.assessment.review.showCorrectAnswer"));
+        ((CompareDecision)compDec[0]).setEqualsConstant("incorrect_only");
+        compDec[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading")).setReversed();
+        andComp.setRequirements(compDec);
+		selCol.setExcludeCorrectMiss(andComp);
 
 		// should we show correct marks?
 		AndDecision mayReviewAndShowCorrect = this.uiService.newAndDecision();
@@ -835,8 +841,12 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		refs[1] = this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.answerKey");
 		answerKey.setText("answer-key", refs);
 
+		Decision[] innerOrInc = new Decision[2];
+		innerOrInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("showIncorrect")).setReversed();
+		innerOrInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("hideKey")).setReversed();
+		
 		Decision[] innerAndInc = new Decision[2];
-		innerAndInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.showCorrectReview"));
+		innerAndInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.showCompletelyCorrectReview"));
 		innerAndInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("review"));
 		Decision[] orInc = new Decision[2];
 		orInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"));
@@ -844,7 +854,7 @@ public class MultipleChoiceQuestionImpl implements TypeSpecificQuestion
 		Decision[] andInc = new Decision[4];
 		andInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.hasCorrect"));
 		andInc[1] = this.uiService.newOrDecision().setOptions(orInc);
-		andInc[2] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("showIncorrect")).setReversed();
+		andInc[2] = this.uiService.newOrDecision().setOptions(innerOrInc);
 		andInc[3] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.part.assessment.allowedPoints"));
 		answerKey.setIncluded(this.uiService.newAndDecision().setRequirements(andInc));
 

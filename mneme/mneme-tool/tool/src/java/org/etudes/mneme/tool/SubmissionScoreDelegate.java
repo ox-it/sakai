@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -77,7 +77,7 @@ public class SubmissionScoreDelegate extends FormatDelegateImpl
 		Boolean review = (Boolean) context.get("review");
 
 		String selector = "worth-points";
-		
+
 		// if we are doing review and the submission has been graded
 		if ((review != null) && review && (submission != null) && submission.getIsReleased())
 		{
@@ -96,17 +96,17 @@ public class SubmissionScoreDelegate extends FormatDelegateImpl
 			}
 			if (assessment.getMinScoreSet().booleanValue() && (assessment.getType() != AssessmentType.survey))
 			{
-				float minScore = (assessment.getMinScore() * assessment.getParts().getTotalPoints().floatValue())/100;
+				float minScore = (assessment.getMinScore() * assessment.getPoints().floatValue()) / 100;
 				if (score.floatValue() >= minScore)
 				{
 					context.put("minscoremet", Boolean.TRUE);
-		        }
+				}
 			}
 
 		}
 
 		// add the total possible points for the assessment
-		Float score = assessment.getParts().getTotalPoints();
+		Float score = assessment.getPoints();
 		if (score.equals(Float.valueOf(1)))
 		{
 			selector += "-singular";
@@ -114,7 +114,7 @@ public class SubmissionScoreDelegate extends FormatDelegateImpl
 		Object[] args = new Object[1];
 		args[0] = FormatScoreDelegate.formatScore(score);
 		rv.append(context.getMessages().getFormattedMessage(selector, args));
-		
+
 		return rv.toString();
 	}
 

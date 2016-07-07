@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2012, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -164,6 +164,10 @@ public class PoolPropertiesView extends ControllerImpl
 				// send them to edit pool
 				destination = "/pool_edit/" + pool.getId() + "/-/-/-" + destination;
 			}
+		}
+		if ("SAVE".equals(destination))
+		{
+			destination = context.getDestination();
 		}
 
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));

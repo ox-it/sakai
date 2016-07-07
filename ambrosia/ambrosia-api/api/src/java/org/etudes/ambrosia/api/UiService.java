@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -376,6 +376,13 @@ public interface UiService
 	 * @return a new FillIn
 	 */
 	FillIn newFillIn();
+
+	/**
+	 * Construct a new FillInline
+	 * 
+	 * @return a new FillInline
+	 */
+	FillInline newFillInline();
 
 	/**
 	 * Construct a new FinePrint

@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -27,7 +27,7 @@
  **********************************************************************************/
 -->
 
-<interface focus="adjustScores">
+<interface>
 
 	<!--mode bar-->
 	<modeContainer>
@@ -53,7 +53,7 @@
 			</text>
 			<text>
 				<message selector="assessment-total-points">
-					<model ref="assessment.Parts.totalPoints" />
+					<model ref="assessment.points" />
 				</message>
 				<included>
 					<decision model="assessment.hasPoints" />
@@ -66,6 +66,9 @@
 
 		<!--navigation-->
 		<navigationBar>
+			<included>
+				<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+			</included>
 			<container>
 				<navigation title="grade-submission-title" style="LINK" submit="TRUE" disabled="TRUE">
 					<icon icon="/icons/grade_student.png" style="LEFT" />
@@ -97,6 +100,20 @@
 				
 			</container>
 		</navigationBar>
+		<navigationBar>
+			<included>
+				<compareDecision model="assessment.type" constant="offline"/>
+			</included>
+			<container>
+				<navigation title="export-data-title" style="LINK" accessKey="export-data-access" submit="TRUE">
+					<icon icon="/icons/export.png" style="LEFT" />
+					<destination template="/export_data/{0}/{1}">
+						<model ref="sort_grades" />
+						<model ref="assessment.id" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
 		<section>
 			<title>
 				<message selector="actions">
@@ -125,6 +142,19 @@
 						<decision model="assessment.hasPoints" />
 					</included>
 				</text>
+				<text>
+					<message selector="deduct-submissions">
+						<model type="icon" icon="/icons/adjust_scores.png" />
+						<model type="component">
+							<container>
+								<floatEdit id="deductScores" model="lateSubmissionDeduct.value" cols="6" />
+							</container>
+						</model>
+					</message>
+					<included>
+						<decision model="assessment.hasPoints" />
+					</included>
+				</text>
 				<!-- toggle to show comments -->
 				<toggle target="comments" title="add-comments" style="LINK">
 					<icon icon="/icons/note.png" style="LEFT" />
@@ -143,7 +173,15 @@
 						<gap />
 					</container>
 				</overlay>
-				
+				<navigation title="zero-closed" style="LINK" submit="TRUE" destination="ZEROCLOSED">
+					<icon icon="/icons/adjust_scores.png" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-zero-closed" />
+					<included>
+						<decision model="assessment.hasPoints" />
+						<decision model="assessment.dates.isClosed" />
+					</included>
+				</navigation>
+
 				<!--  Note: if using inlay collapsed section instead of overlay, we use this:
 				
 				<section treatment="inlay" collapsed="TRUE" blended="TRUE">
@@ -162,9 +200,49 @@
 				in place of the comments overlay above, and do not need the toggle -ggolden
 				-->
 
+				<!-- toggle to show upload -->
+				<toggle target="upload" title="upload-grades-toggle" style="LINK">
+					<icon icon="/icons/import_export.png" style="LEFT" />
+					<included>
+						<decision model="assessment.hasPoints" />
+					</included>
+				</toggle>
+				<!-- upload overlay -->
+				<overlay id="upload">
+					<container>
+						<instructions selector="upload-instructions" />					
+						<fileUpload>
+							<model ref="upload.upload" />
+							<title>
+								<message selector="upload-grades" />
+							</title>
+							<upload>
+								<message selector="upload-button" />
+							</upload>
+							<destination template="UPLOAD" />
+						</fileUpload>
+					</container>
+					<included>
+						<decision model="assessment.hasPoints" />
+					</included>
+				</overlay>
 			</container>
 		</section>
-
+        <!-- navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="done" style="BUTTON" accessKey="done-access" description="done-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="/grades/{0}">
+						<model ref="sort_grades" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
 		<entityList style="FLAT">
 			<iterator name="submission">
 				<model ref="submissions" indexRef="id" />
@@ -178,14 +256,64 @@
 			<columns>
 				<column pixels="16">
 					<entityActions>
+						<text>
+							<included>
+								<decision reversed="TRUE" model="assessment.anonymous" />
+							</included>
+							<message selector="section">
+								<model type="component">
+									<container>
+										<selection orientation="DROPDOWN" submitValue="TRUE">
+											<model ref="selectedSection.value" />
+											<selectionChoices>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="all" />
+													</displayMessage>
+													<valueMessage>
+														<message template="/grade_assessment/{0}/{1}/{2}{3}/{4}/{5}/-">
+															<model ref="sort_grades" />
+															<model ref="assessment.id" />
+															<model ref="sort_column" />
+															<model ref="sort_direction" />
+															<model type="paging" ref="paging" />
+															<model ref="view" />
+														</message>
+													</valueMessage>
+												</selectionChoice>
+											</selectionChoices>
+											<selectionModel model="sections" name="section">
+												<valueMessage>
+													<message template="/grade_assessment/{0}/{1}/{2}{3}/{4}/{5}/{6}">
+														<model ref="sort_grades" />
+														<model ref="assessment.id" />
+														<model ref="sort_column" />
+														<model ref="sort_direction" />
+														<model type="paging" ref="paging" />
+														<model ref="view" />
+														<model ref="section" />
+													</message>
+												</valueMessage>
+												<displayMessage>
+													<message>
+														<model ref="section" type="text" />
+													</message>
+												</displayMessage>
+											</selectionModel>
+										</selection>
+									</container>
+								</model>
+							</message>
+						</text>
 						<pager paging="paging" submit="TRUE">
-							<destination template="/grade_assessment/{0}/{1}/{2}{3}/{4}/{5}">
+							<destination template="/grade_assessment/{0}/{1}/{2}{3}/{4}/{5}/{6}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model ref="sort_column" />
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 							<sizeOptions>
 								<model ref="pageSizes" />
@@ -212,7 +340,7 @@
 					<container>
 						<navigation style="LINK" submit="TRUE" description="unscored-alt">
 							<icon icon="/icons/grade.png" />
-							<destination template="/grade_submission/{0}/-/-/{1}/grade_assessment/{2}/{3}/{4}{5}/{6}/{7}">
+							<destination template="/grade_submission/{0}/-/-/{1}/grade_assessment/{2}/{3}/{4}{5}/{6}/{7}/{8}">
 								<model ref="submission.id" />
 								<model ref="sort" />
 								<model ref="sort_grades" />
@@ -221,6 +349,7 @@
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</navigation>
 					</container>
@@ -238,7 +367,7 @@
 					</included>
 					<entityNavigations>
 						<navigation style="LINK" submit="TRUE">
-							<destination template="/grade_submission/{0}/-/-/{1}/grade_assessment/{2}/{3}/{4}{5}/{6}/{7}">
+							<destination template="/grade_submission/{0}/-/-/{1}/grade_assessment/{2}/{3}/{4}{5}/{6}/{7}/{8}">
 								<model ref="submission.id" />
 								<model ref="sort" />
 								<model ref="sort_grades" />
@@ -247,9 +376,13 @@
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 							<included>
-								<decision model="submission.isComplete" />
+								<orDecision>
+									<compareDecision model="submission.assessment.type" constant="offline" />							
+									<decision model="submission.isComplete" />
+								</orDecision>
 							</included>
 						</navigation>
 					</entityNavigations>
@@ -263,20 +396,22 @@
 						</direction>
 						<asc icon="/icons/sortascending.gif">
 							<message selector="asc" />
-							<destination template="/grade_assessment/{0}/{1}/0A/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/0A/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</asc>
 						<desc icon="/icons/sortdescending.gif">
 							<message selector="desc" />
-							<destination template="/grade_assessment/{0}/{1}/0D/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/0D/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</desc>
 					</sort>
@@ -290,7 +425,7 @@
 					</included>
 					<entityNavigations>
 						<navigation style="LINK" submit="TRUE">
-							<destination template="/grade_submission/{0}/-/-/{1}/grade_assessment/{2}/{3}/{4}{5}/{6}/{7}">
+							<destination template="/grade_submission/{0}/-/-/{1}/grade_assessment/{2}/{3}/{4}{5}/{6}/{7}/{8}">
 								<model ref="submission.id" />
 								<model ref="sort" />
 								<model ref="sort_grades" />
@@ -299,6 +434,7 @@
 								<model ref="sort_direction" />
 								<model type="paging" ref="paging" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 							<included>
 								<decision model="submission.isComplete" />
@@ -309,6 +445,43 @@
 						<text selector="anonymous" />
 					</container>
 				</column>
+				<modelColumn>
+					<title>
+						<message selector="submission-section" />
+					</title>
+					<included>
+						<decision reversed="TRUE" model="assessment.anonymous" />
+					</included>
+					<model ref="submission.userSection" missing="dash" />
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="6" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/grade_assessment/{0}/{1}/6A/{2}/{3}/{4}">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="view" />
+								<model ref="sectionFilter" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/grade_assessment/{0}/{1}/6D/{2}/{3}/{4}">
+								<model ref="sort_grades" />
+								<model ref="assessment.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="view" />
+								<model ref="sectionFilter" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
 				<column>
 					<title>
 						<message selector="submission-tries" />
@@ -326,6 +499,9 @@
 					</included>
 				</column>
 				<modelColumn wrap="FALSE">
+					<included>
+						<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+					</included>
 					<title>
 						<message selector="submission-started" />
 					</title>
@@ -336,6 +512,9 @@
 					</entityIncluded>
 				</modelColumn>
 				<column wrap="FALSE">
+					<included>
+						<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+					</included>
 					<title>
 						<message selector="submission-finished" />
 					</title>
@@ -408,20 +587,22 @@
 						</direction>
 						<asc icon="/icons/sortascending.gif">
 							<message selector="asc" />
-							<destination template="/grade_assessment/{0}/{1}/5A/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/5A/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</asc>
 						<desc icon="/icons/sortdescending.gif">
 							<message selector="desc" />
-							<destination template="/grade_assessment/{0}/{1}/5D/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/5D/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</desc>
 					</sort>
@@ -435,6 +616,7 @@
 					</entityIncluded>
 					<included>
 						<decision model="assessment.hasPoints" />
+						<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
 					</included>
 				</modelColumn>
 				<column>
@@ -450,20 +632,22 @@
 						</direction>
 						<asc icon="/icons/sortascending.gif">
 							<message selector="asc" />
-							<destination template="/grade_assessment/{0}/{1}/2A/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/2A/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</asc>
 						<desc icon="/icons/sortdescending.gif">
 							<message selector="desc" />
-							<destination template="/grade_assessment/{0}/{1}/2D/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/2D/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</desc>
 					</sort>
@@ -505,20 +689,22 @@
 						</direction>
 						<asc icon="/icons/sortascending.gif">
 							<message selector="asc" />
-							<destination template="/grade_assessment/{0}/{1}/3A/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/3A/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</asc>
 						<desc icon="/icons/sortdescending.gif">
 							<message selector="desc" />
-							<destination template="/grade_assessment/{0}/{1}/3D/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/3D/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</desc>
 					</sort>
@@ -553,20 +739,22 @@
 						</direction>
 						<asc icon="/icons/sortascending.gif">
 							<message selector="asc" />
-							<destination template="/grade_assessment/{0}/{1}/4A/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/4A/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</asc>
 						<desc icon="/icons/sortdescending.gif">
 							<message selector="desc" />
-							<destination template="/grade_assessment/{0}/{1}/4D/{2}/{3}">
+							<destination template="/grade_assessment/{0}/{1}/4D/{2}/{3}/{4}">
 								<model ref="sort_grades" />
 								<model ref="assessment.id" />
 								<model type="paging" ref="paging" selector="FIRST" />
 								<model ref="view" />
+								<model ref="sectionFilter" />
 							</destination>
 						</desc>
 					</sort>
@@ -623,13 +811,14 @@
 		<navigationBar>
 			<container>
 				<pager paging="paging" submit="TRUE">
-					<destination template="/grade_assessment/{0}/{1}/{2}{3}/{4}/{5}">
+					<destination template="/grade_assessment/{0}/{1}/{2}{3}/{4}/{5}/{6}">
 						<model ref="sort_grades" />
 						<model ref="assessment.id" />
 						<model ref="sort_column" />
 						<model ref="sort_direction" />
 						<model type="paging" ref="paging" />
 						<model ref="view" />
+						<model ref="sectionFilter" />
 					</destination>
 					<sizeOptions>
 						<model ref="pageSizes" />

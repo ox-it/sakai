@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -219,6 +219,16 @@ public interface QuestionService extends QuestionPoolService, QuestionGetService
 	 *        The context.
 	 */
 	void preCountContextQuestions(String context);
+
+	/**
+	 * Read and cache all the questions used by the assessments in this context.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param publishedOnly
+	 *        if TRUE, read just those questions used by published assessments (the historical ones), otherwise read those used by published and unpublished assessments.
+	 */
+	void readAssessmentQuestions(String context, Boolean publishedOnly);
 
 	/**
 	 * Remove this question.

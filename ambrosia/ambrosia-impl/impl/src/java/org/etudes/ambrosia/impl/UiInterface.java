@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2012, 2013, 2014, 2015, 2016 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -375,8 +375,8 @@ public class UiInterface extends UiContainer implements Interface
 			response.println("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />");
 
 			// include the portal's stuff in head (css and js links)
-			String headInclude = (String) context.get("sakai.html.head");
-			//String headInclude = (String) context.get("sakai.html.head.no.wiris");
+			//String headInclude = (String) context.get("sakai.html.head");
+			String headInclude = (String) context.get("sakai.html.head.no.wiris");
 			if (headInclude != null)
 			{
 				response.println(headInclude);
@@ -388,7 +388,10 @@ public class UiInterface extends UiContainer implements Interface
 			// jquery, used for, among possibly other things, drag and drop entity list reordering
 			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/jquery-1.6.2.min.js\"></script>\n");
 			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/jquery-ui-1.8.16.custom.min.js\"></script>\n");
-		//	response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ckeditor/ckeditor/plugins/ckeditor_wiris/core/WIRISplugins.js?viewer=image\" defer=\"defer\"></script>");
+			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ckeditor/ckeditor/plugins/ckeditor_wiris/core/WIRISplugins.js?viewer=image\" defer=\"defer\"></script>");
+			
+			// autosave
+			response.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/ambrosia_library/js/autosave.js\"></script>\n");
 			
 			// for rich editing - tiny
 			if (this.popup)
@@ -404,8 +407,8 @@ public class UiInterface extends UiContainer implements Interface
 			}
 			else
 			{
-				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor/ckeditor.js?version=\"></script>\n");
-				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor.launch.js?version=\"></script>\n");
+				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor/ckeditor.js\"></script>\n");
+				response.println("<script type=\"text/javascript\" src=\"" +ServerConfigurationService.getString("etudes.editor.path")+ "/ckeditor.launch.js\"></script>\n");
 				
 				String css = findCss(headInclude);
 				if (css == null)

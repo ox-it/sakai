@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -406,7 +406,7 @@ public class QuestionServiceImpl implements QuestionService
 		if (questionId == null) return null;
 
 		// for thread-local caching
-		String key = cacheKey(questionId);
+		String key = this.storage.questionCacheKey(questionId);
 		QuestionImpl rv = (QuestionImpl) this.threadLocalManager.get(key);
 		if (rv != null)
 		{
@@ -472,7 +472,7 @@ public class QuestionServiceImpl implements QuestionService
 		this.storage.saveQuestion((QuestionImpl) question);
 
 		// clear thread-local caches
-		this.threadLocalManager.set(cacheKey(question.getId()), null);
+		this.threadLocalManager.set(this.storage.questionCacheKey(question.getId()), null);
 		this.threadLocalManager.set(this.cacheKeyPoolCount(question.getPool().getId()), null);
 		this.threadLocalManager.set(this.cacheKeyContextCount(question.getContext()), null);
 		this.threadLocalManager.set(this.cacheKeyPoolQuestions(question.getPool().getId()), null);
@@ -521,7 +521,7 @@ public class QuestionServiceImpl implements QuestionService
 		if (questionId == null) throw new IllegalArgumentException();
 
 		// for thread-local caching
-		String key = cacheKey(questionId);
+		String key = this.storage.questionCacheKey(questionId);
 		QuestionImpl rv = (QuestionImpl) this.threadLocalManager.get(key);
 		if (rv != null)
 		{
@@ -533,7 +533,7 @@ public class QuestionServiceImpl implements QuestionService
 
 		rv = this.storage.getQuestion(questionId);
 
-		// thread-local cache (a copy)
+		// thread-local cache a copy
 		if (rv != null) this.threadLocalManager.set(key, this.storage.clone(rv));
 
 		return rv;
@@ -605,7 +605,7 @@ public class QuestionServiceImpl implements QuestionService
 		}
 
 		// clear the cache
-		String key = cacheKey(question.getId());
+		String key = this.storage.questionCacheKey(question.getId());
 		this.threadLocalManager.set(key, null);
 
 		// do the move
@@ -754,6 +754,20 @@ public class QuestionServiceImpl implements QuestionService
 				this.threadLocalManager.set(key, cached);
 			}
 			cached.map.put(secondaryKey, counts);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void readAssessmentQuestions(String context, Boolean publishedOnly)
+	{
+		String key = "mneme:readAssessmentQuestions:" + publishedOnly + ":" + context;
+		Boolean alreadyDone = (Boolean) this.threadLocalManager.get(key);
+		if (alreadyDone == null)
+		{
+			this.threadLocalManager.set(key, Boolean.TRUE);
+			this.storage.readAssessmentQuestions(context, publishedOnly);
 		}
 	}
 
@@ -922,6 +936,8 @@ public class QuestionServiceImpl implements QuestionService
 	 * @param options
 	 *        The PoolStorage options.
 	 */
+	@SuppressWarnings(
+	{ "rawtypes", "unchecked" })
 	public void setStorage(Map options)
 	{
 		this.storgeOptions = options;
@@ -958,19 +974,6 @@ public class QuestionServiceImpl implements QuestionService
 	public void setThreadLocalManager(ThreadLocalManager service)
 	{
 		threadLocalManager = service;
-	}
-
-	/**
-	 * Form a key for caching a question.
-	 * 
-	 * @param questionId
-	 *        The question id.
-	 * @return The cache key.
-	 */
-	protected String cacheKey(String questionId)
-	{
-		String key = "mneme:question:" + questionId;
-		return key;
 	}
 
 	/**
@@ -1071,7 +1074,7 @@ public class QuestionServiceImpl implements QuestionService
 		this.storage.removeQuestion((QuestionImpl) question);
 
 		// clear caches
-		this.threadLocalManager.set(cacheKey(question.getId()), null);
+		this.threadLocalManager.set(this.storage.questionCacheKey(question.getId()), null);
 		this.threadLocalManager.set(cacheKeyPoolCount(question.getPool().getId()), null);
 		this.threadLocalManager.set(cacheKeyContextCount(question.getContext()), null);
 		this.threadLocalManager.set(cacheKeyPoolQuestions(question.getPool().getId()), null);
@@ -1114,7 +1117,7 @@ public class QuestionServiceImpl implements QuestionService
 		this.storage.saveQuestion((QuestionImpl) question);
 
 		// clear thread-local caches
-		this.threadLocalManager.set(cacheKey(question.getId()), null);
+		this.threadLocalManager.set(this.storage.questionCacheKey(question.getId()), null);
 		this.threadLocalManager.set(this.cacheKeyPoolCount(question.getPool().getId()), null);
 		this.threadLocalManager.set(this.cacheKeyContextCount(question.getContext()), null);
 		this.threadLocalManager.set(this.cacheKeyPoolQuestions(question.getPool().getId()), null);

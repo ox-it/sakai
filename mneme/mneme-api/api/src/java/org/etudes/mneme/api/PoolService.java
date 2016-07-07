@@ -1,10 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.etudes.org/svn/apps/mneme/tags/2.1.27/mn
-eme-api/api/src/java/org/etudes/mneme/api/PoolService.java $
+ * $URL$
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -37,7 +36,7 @@ public interface PoolService extends PoolGetService
 	 */
 	enum FindPoolsSort
 	{
-		points_a, points_d, title_a, title_d, created_a, created_d
+		created_a, created_d, points_a, points_d, title_a, title_d
 	}
 
 	/**
@@ -75,6 +74,17 @@ public interface PoolService extends PoolGetService
 	 * @return TRUE if the pool exists, FALSE if not.
 	 */
 	Boolean existsPool(String poolId);
+
+	/**
+	 * Check if a pool with this title exists.
+	 * 
+	 * @param title
+	 *        The pool title.
+	 * @param context
+	 *        The context.
+	 * @return TRUE if the pool exists, FALSE if not.
+	 */
+	Boolean existsPoolTitle(String title, String context);	
 
 	/**
 	 * Locate a list of pools in this context with this criteria (excluding mints and historical).
@@ -117,6 +127,16 @@ public interface PoolService extends PoolGetService
 	 *         if the current user is not allowed to create a new pool.
 	 */
 	Pool newPool(String context) throws AssessmentPermissionException;
+
+	/**
+	 * Read and cache all the pools used by the assessments in this context.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param publishedOnly
+	 *        if TRUE, consider questions only for published assessments.
+	 */
+	void readAssessmentPools(String context, Boolean publishedOnly);
 
 	/**
 	 * Remove this pool.

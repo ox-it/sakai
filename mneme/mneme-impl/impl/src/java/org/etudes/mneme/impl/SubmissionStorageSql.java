@@ -186,7 +186,9 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		sql.append("SELECT DISTINCT S.USERID FROM MNEME_ANSWER A");
 		sql.append(" JOIN MNEME_SUBMISSION S ON A.SUBMISSION_ID=S.ID AND S.ASSESSMENT_ID=? AND S.COMPLETE='1' AND S.TEST_DRIVE='0' AND S.EVAL_EVALUATED='0' AND S.STATUS!='E'");
 		sql.append(" JOIN MNEME_QUESTION Q ON A.QUESTION_ID=Q.ID");
-		sql.append(" WHERE A.ANSWERED='1' AND A.EVAL_SCORE IS NULL AND A.AUTO_SCORE IS NULL AND S.EVAL_SCORE IS NULL AND Q.SURVEY='0'");
+		sql.append(" WHERE A.ANSWERED='1' AND A.EVAL_SCORE IS NULL AND S.EVAL_SCORE IS NULL AND Q.SURVEY='0'");
+		// A.AUTO_SCORE IS NULL handles the case of subjectives (essays) not yet scored, the other side of the or handles the case of objectives with reasons given, not scored or commented on or released
+		sql.append(" AND ((A.AUTO_SCORE IS NULL) OR (S.RELEASED='0' AND A.REASON IS NOT NULL AND A.EVAL_COMMENT IS NULL AND S.EVAL_COMMENT IS NULL))");
 
 		Object[] fields = new Object[1];
 		fields[0] = Long.valueOf(assessment.getId());
@@ -202,7 +204,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 	{
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT S.ID, S.USERID, S.EVAL_SCORE, SUM(A.EVAL_SCORE), SUM(A.AUTO_SCORE) FROM MNEME_SUBMISSION S");
-		sql.append(" JOIN  MNEME_ANSWER A ON S.ID=A.SUBMISSION_ID");
+		sql.append(" LEFT OUTER JOIN  MNEME_ANSWER A ON S.ID=A.SUBMISSION_ID");
 		sql.append(" WHERE S.ASSESSMENT_ID=? AND S.COMPLETE='1' AND S.TEST_DRIVE='0'");
 		if (releasedOnly)
 		{
@@ -269,7 +271,9 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT DISTINCT S.USERID FROM MNEME_ANSWER A");
 		sql.append(" JOIN MNEME_SUBMISSION S ON A.SUBMISSION_ID=S.ID AND S.ASSESSMENT_ID=? AND S.COMPLETE='1' AND S.TEST_DRIVE='0' AND S.EVAL_EVALUATED='0' AND S.STATUS!='E'");
-		sql.append(" WHERE A.QUESTION_ID=? AND A.ANSWERED='1' AND A.EVAL_SCORE IS NULL AND A.AUTO_SCORE IS NULL AND S.EVAL_SCORE IS NULL");
+		sql.append(" WHERE A.QUESTION_ID=? AND A.ANSWERED='1' AND A.EVAL_SCORE IS NULL AND S.EVAL_SCORE IS NULL");
+		// A.AUTO_SCORE IS NULL handles the case of subjectives (essays) not yet scored, the other side of the or handles the case of objectives with reasons given, not scored or commented on or released
+		sql.append(" AND ((A.AUTO_SCORE IS NULL) OR (S.RELEASED='0' AND A.REASON IS NOT NULL AND A.EVAL_COMMENT IS NULL AND S.EVAL_COMMENT IS NULL))");
 
 		Object[] fields = new Object[2];
 		fields[0] = Long.valueOf(assessment.getId());
@@ -386,7 +390,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT S.ID, S.EVAL_SCORE, SUM(A.EVAL_SCORE), SUM(A.AUTO_SCORE) FROM MNEME_SUBMISSION S");
-		sql.append(" JOIN  MNEME_ANSWER A ON S.ID=A.SUBMISSION_ID");
+		sql.append(" LEFT OUTER JOIN  MNEME_ANSWER A ON S.ID=A.SUBMISSION_ID");
 		sql.append(" WHERE S.ASSESSMENT_ID=? AND S.USERID=? AND S.COMPLETE='1' AND S.RELEASED='1'");
 		// TODO: the MNEME_SUBMISSION_IDX_AUC index should work here, then only needing to test released - if not, we can read it and filter it out here -ggolden
 		sql.append(" GROUP BY S.ID, S.EVAL_SCORE");
@@ -458,7 +462,7 @@ public abstract class SubmissionStorageSql implements SubmissionStorage
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT S.EVAL_SCORE, SUM(A.EVAL_SCORE), SUM(A.AUTO_SCORE) FROM MNEME_SUBMISSION S");
-		sql.append(" JOIN  MNEME_ANSWER A ON S.ID=A.SUBMISSION_ID");
+		sql.append(" LEFT OUTER JOIN  MNEME_ANSWER A ON S.ID=A.SUBMISSION_ID");
 		sql.append(" WHERE S.ID=?");
 		sql.append(" GROUP BY S.ID, S.EVAL_SCORE");
 

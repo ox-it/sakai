@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -77,7 +77,6 @@ public class QuestionPreviewView extends ControllerImpl
 
 		// if there's a * instead of question id, expect multiple ids at the end of the URL
 		boolean multiple = "*".equals(params[2]);
-
 		String destination = null;
 		if (params.length > 3)
 		{
@@ -166,6 +165,12 @@ public class QuestionPreviewView extends ControllerImpl
 			// for list of selected questions "qid+qid+qid"
 			else
 			{
+				String poolId = params[4];
+				Pool pool = this.poolService.getPool(poolId);
+				if (pool != null)
+				{
+					context.put("pool", pool.getTitle());
+				}
 				String qids[] = StringUtil.split(qidParam, "+");
 				for (String qid : qids)
 				{

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -177,6 +177,17 @@ public interface Navigation extends Component
 	 * @return self.
 	 */
 	Navigation setFailedRequirmentsMessage(String selector, PropertyReference... references);
+
+	/**
+	 * Set the hide value for the navigation
+	 * Used for ckeditor save feature when we want to trigger the Done button
+	 * 
+	 * @param hideval
+	 *        Any string value.
+	 *
+	 * @return self.
+	 */
+	Navigation setHideval(String hideval);
 
 	/**
 	 * Set the icon for the navigation

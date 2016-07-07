@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -36,4 +36,11 @@ public interface AutoColumn extends EntityListColumn
 	 *        The property reference for an index to use for the display value.
 	 */
 	AutoColumn setProperty(PropertyReference propertyReference);
+	
+	/**
+	 * Set the indexing to number
+	 * 
+	 * @return self.
+	 */
+	AutoColumn setNumeric();
 }

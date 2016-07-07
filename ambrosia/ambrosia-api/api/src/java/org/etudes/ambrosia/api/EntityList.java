@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -105,6 +105,13 @@ public interface EntityList extends Component
 	 * @return self.
 	 */
 	EntityList setColorize(Decision decision, String color);
+
+	/**
+	 * Set dnd reordering.
+	 * 
+	 * @return self.
+	 */
+	EntityList setDndReorder();
 
 	/**
 	 * Set the message for text to display instead of the title if there are no items in the list.

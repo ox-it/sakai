@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -35,6 +35,7 @@ import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.ControllerImpl;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
@@ -94,12 +95,30 @@ public class GuestViewView extends ControllerImpl
 			return;
 		}
 
-		// security check
-		if (!this.assessmentService.allowGuest(this.toolManager.getCurrentPlacement().getContext()))
+		// for offline, guest, submit, or fce permission
+		if (assessment.getType() == AssessmentType.offline)
 		{
-			// redirect to error
-			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
-			return;
+			// security check - guest view, manage, or, fce permission
+			if ((!this.assessmentService.allowGuest(this.toolManager.getCurrentPlacement().getContext()))
+					&& (!this.assessmentService.allowSetFormalCourseEvaluation(this.toolManager.getCurrentPlacement().getContext()))
+					&& (!this.assessmentService.allowSubmit(this.toolManager.getCurrentPlacement().getContext()))
+					&& (!this.assessmentService.allowManageAssessments(this.toolManager.getCurrentPlacement().getContext())))
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+				return;
+			}
+		}
+		else
+		{
+			// security check - guest view, or, FCE permission
+			if ((!this.assessmentService.allowGuest(this.toolManager.getCurrentPlacement().getContext()))
+					&& (!this.assessmentService.allowSetFormalCourseEvaluation(this.toolManager.getCurrentPlacement().getContext())))
+			{
+				// redirect to error
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+				return;
+			}
 		}
 
 		context.put("assessment", assessment);

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2009 Etudes, Inc.
+ * Copyright (c) 2009, 2015 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,12 @@ public class ImportTextServiceImpl implements ImportTextService
 	/** Dependency: ThreadLocalManager. */
 	protected ThreadLocalManager threadLocalManager = null;
 	
+	/** Title key1 */
+	protected static final String titleKey = "title:";
+	
+	/** Question Title key */
+	protected static final String questionTitleKey = "questiontitle:";
+	
 	/** Hint key */
 	protected static final String hintKey = "hint:";
 	
@@ -116,6 +122,12 @@ public class ImportTextServiceImpl implements ImportTextService
 	
 	/** Survey */
 	protected static final String surveyKey = "survey";
+	
+	/** dropdown */
+	protected static final String dropdownKey = "dropdown";
+	
+	/** ordering */
+	protected static final String orderKey = "ordering";
 	
 	/** Regular expression for digit with period */
 	protected static final String digitPeriodRegex = "\\*?\\d+\\.";
@@ -436,7 +448,9 @@ public class ImportTextServiceImpl implements ImportTextService
 	protected void processTextGroup(Pool pool, String[] lines) throws AssessmentPermissionException
 	{
 		if (processTextTrueFalse(pool, lines)) return;
+		if (processTextOrdering(pool, lines)) return;
 		if (processTextMultipleChoice(pool, lines)) return;
+		if (processTextFillInline(pool, lines)) return;
 		if (processTextFillIn(pool, lines)) return;
 		if (processTextEssay(pool, lines)) return;
 		if (processTextMatching(pool, lines)) return;
@@ -462,6 +476,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		
 		boolean foundAnswer = false;
 		boolean isTrue = false;
+		String title = null;
 		String feedback = null;
 		String hints = null;
 		boolean explainReason = false;
@@ -569,7 +584,14 @@ public class ImportTextServiceImpl implements ImportTextService
 			{
 				// get feedback, hints, reason, survey. Ignore the line if the key is not found
 				String lower = line.toLowerCase();
-				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				if (lower.startsWith(questionTitleKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) title = parts[1].trim(); 
+					
+					foundQuestionAttributes = true;
+				} 
+				else if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 				{
 					String[] parts = StringUtil.splitFirst(line, ":");
 					if (parts.length > 1) feedback = parts[1].trim(); 
@@ -638,6 +660,12 @@ public class ImportTextServiceImpl implements ImportTextService
 		// the correct answer
 		tf.setCorrectAnswer(Boolean.toString(isTrue));
 
+		// add title
+		if (StringUtil.trimToNull(title) != null)
+		{
+			question.setTitle(Validator.escapeHtml(title));
+		}
+		
 		// add feedback
 		if (StringUtil.trimToNull(feedback) != null)
 		{
@@ -687,6 +715,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		List<String> choices = new ArrayList<String>();
 		String clean = null;
 		
+		String title = null;
 		String feedback = null;
 		String hints = null;
 		boolean explainReason = false;
@@ -712,10 +741,20 @@ public class ImportTextServiceImpl implements ImportTextService
 			
 			// hints and feedback
 			String lower = line.toLowerCase();
+			if (lower.equalsIgnoreCase(orderKey))
+			{
+				return false;
+			}
 			if (foundAnswer)
 			{
-				// get feedback, hints, reason, survey. Ignore the line if the key is not found
-				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				// get title,feedback, hints, reason, survey. Ignore the line if the key is not found
+				if (lower.startsWith(questionTitleKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) title = parts[1].trim(); 
+					foundQuestionAttributes = true;
+				} 
+				else if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 				{
 					String[] parts = StringUtil.splitFirst(line, ":");
 					if (parts.length > 1) feedback = parts[1].trim(); 
@@ -841,6 +880,12 @@ public class ImportTextServiceImpl implements ImportTextService
 		// shuffle choices
 		mc.setShuffleChoices(Boolean.toString(shuffleChoices));
 		
+		// add title
+		if (StringUtil.trimToNull(title) != null)
+		{
+			question.setTitle(Validator.escapeHtml(title));
+		}
+		
 		// add feedback
 		if (StringUtil.trimToNull(feedback) != null)
 		{
@@ -867,6 +912,184 @@ public class ImportTextServiceImpl implements ImportTextService
 	}
 	
 	/**
+	 * Process if it is recognized as an ordering question.
+	 * 
+	 * @param pool
+	 * 		  The pool to hold the question.
+	 * @param lines
+	 * 		  The lines to process.
+	 * @return true if successfully recognized and processed, false if not.
+	 * 
+	 * @throws AssessmentPermissionException
+	 */
+	protected boolean processTextOrdering(Pool pool, String[] lines) throws AssessmentPermissionException
+	{
+		//if there is one or more answers for more answer choices then that may be a multiple choice question
+		if (lines.length < 3)
+			return false;
+		
+		boolean first = true;
+		boolean foundAnswer = false;
+		String answerChoice = null;
+		List<Integer> multipleAnswers = new ArrayList<Integer>();
+		List<String> choices = new ArrayList<String>();
+		String clean = null;
+		
+		String title = null;
+		String feedback = null;
+		String hints = null;
+		boolean explainReason = false;
+		boolean isSurvey = false;
+		boolean foundQuestionAttributes = false;
+		boolean isOrdering = false;
+		
+		boolean numberFormatEstablished = false;
+		
+		NumberingType numberingType = null;
+		
+		
+		int answersIndex = 0;
+		for (String line : lines)
+		{
+			// ignore first line as first line is question text
+			if (first)
+			{
+				first = false;
+				continue;
+			}
+			
+			// hints and feedback
+			String lower = line.toLowerCase();
+			/*if (foundAnswer)
+			{*/
+				// get title, feedback, hints, reason, survey. Ignore the line if the key is not found
+			    if (lower.startsWith(questionTitleKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+				    if (parts.length > 1) title = parts[1].trim();
+				    foundQuestionAttributes = true;
+			    }
+			    else if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) feedback = parts[1].trim(); 
+					foundQuestionAttributes = true;
+				} 
+				else if (lower.startsWith(hintKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) hints = parts[1].trim();
+					foundQuestionAttributes = true;
+				}
+				else if (lower.equalsIgnoreCase(reasonKey))
+				{
+					explainReason = true;
+					foundQuestionAttributes = true;
+				}
+				else if (lower.equalsIgnoreCase(surveyKey))
+				{
+					isSurvey = true;
+					foundQuestionAttributes = true;
+				} 
+				else if (lower.equalsIgnoreCase(orderKey))
+				{
+					isOrdering = true;
+					foundQuestionAttributes = true;
+				}
+				
+				//after finding feedback or hints or reason or survey, ignore any answers
+				if (foundQuestionAttributes)
+					continue;	
+			//}
+			
+			String[] answer = line.trim().split("\\s+");
+			
+			// ignore answer choices with incorrect format
+			if (answer.length < 2)
+				continue;
+			
+			if (!numberFormatEstablished)
+			{
+				numberingType = establishNumberingType(answer[0]);
+				
+				if (numberingType == NumberingType.none)
+					continue;
+				
+				numberFormatEstablished = true;
+			}
+			
+			// ignore answer choices with incorrect format
+			if (!validateNumberingType(answer[0], numberingType))
+				continue;
+			
+			answerChoice = line.substring(answer[0].length()).trim();
+			clean = Validator.escapeHtml(answerChoice);
+			choices.add(clean);
+			answersIndex++;
+		}
+		
+		if (!isOrdering) return false;
+		
+		// create the question
+		Question question = this.questionService.newQuestion(pool, "mneme:Order");
+		OrderQuestionImpl ord = (OrderQuestionImpl) (question.getTypeSpecificQuestion());
+
+		// set the text
+		String text = lines[0].trim();
+		if (text.matches("^\\d+\\.\\s.*"))
+		{
+			String[] parts = StringUtil.splitFirst(text, ".");
+			if (parts.length > 1) 
+			{
+				text = parts[1].trim();
+				clean = Validator.escapeHtml(text);
+			}
+			else
+				return false;
+		}
+		else
+			clean = Validator.escapeHtml(text);
+
+		question.getPresentation().setText(clean);
+
+		// answer choices
+		if (choices.size() < 2)
+			return false;
+		
+		ord.setAnswerChoices(choices);
+		
+		// add title
+		if (StringUtil.trimToNull(title) != null)
+		{
+			question.setTitle(Validator.escapeHtml(title));
+		}
+		
+		// add feedback
+		if (StringUtil.trimToNull(feedback) != null)
+		{
+			question.setFeedback(Validator.escapeHtml(feedback));
+		}
+		
+		// add hints
+		if (StringUtil.trimToNull(hints) != null)
+		{
+			question.setHints(Validator.escapeHtml(hints));
+		}
+		
+		// explain reason
+		question.setExplainReason(explainReason);
+		
+		// survey
+		question.setIsSurvey(isSurvey);
+		
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
+		
+		return true;
+	}	
+	
+	/**
 	 * Process if it is recognized as an essay question.
 	 * 
 	 * @param pool
@@ -885,6 +1108,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		
 		boolean first = true;
 		String clean = null;
+		String title = null;
 		String feedback = null;
 		String hints = null;
 		boolean explainReason = false;
@@ -910,7 +1134,14 @@ public class ImportTextServiceImpl implements ImportTextService
 			
 			// get feedback, hints, reason, survey. Ignore the line if the key is not found
 			String lower = line.toLowerCase();
-			if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+			if (lower.startsWith(questionTitleKey))
+			{
+				String[] parts = StringUtil.splitFirst(line, ":");
+				if (parts.length > 1) title = parts[1].trim();
+				
+				foundQuestionAttributes = true;
+			} 
+			else if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 			{
 				String[] parts = StringUtil.splitFirst(line, ":");
 				if (parts.length > 1) feedback = parts[1].trim();
@@ -986,6 +1217,12 @@ public class ImportTextServiceImpl implements ImportTextService
 			e.setModelAnswer(Validator.escapeHtml(modelAnswer));
 		}
 		
+		// add title
+		if (StringUtil.trimToNull(title) != null)
+		{
+			question.setTitle(Validator.escapeHtml(title));
+		}
+		
 		// add feedback
 		if (StringUtil.trimToNull(feedback) != null)
 		{
@@ -1032,6 +1269,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean first = true;
 		boolean foundAnswer = false;
 		List<String> answers = new ArrayList<String>();
+		String title = null;
 		String feedback = null;
 		String hints = null;
 		boolean explainReason = false;
@@ -1130,7 +1368,12 @@ public class ImportTextServiceImpl implements ImportTextService
 				
 				// hints and feedback
 				String lower = line.toLowerCase();
-				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+			    if (lower.startsWith(questionTitleKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) title = parts[1].trim();
+				}
+			    else if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 				{
 					String[] parts = StringUtil.splitFirst(line, ":");
 					if (parts.length > 1) feedback = parts[1].trim();
@@ -1148,7 +1391,11 @@ public class ImportTextServiceImpl implements ImportTextService
 				{
 					isSurvey = true;
 				} 
+				else if (lower.equalsIgnoreCase(dropdownKey))
+				{
+					return false;
 			}			
+		}
 		}
 		else
 		{
@@ -1168,7 +1415,13 @@ public class ImportTextServiceImpl implements ImportTextService
 				String lower = line.toLowerCase();
 				if (foundAnswer)
 				{
-					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+					if (lower.startsWith(questionTitleKey))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) title = parts[1].trim();
+						foundQuestionAttributes = true;
+					} 
+					else if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 					{
 						String[] parts = StringUtil.splitFirst(line, ":");
 						if (parts.length > 1) feedback = parts[1].trim();
@@ -1296,6 +1549,12 @@ public class ImportTextServiceImpl implements ImportTextService
 		// text or numeric
 		f.setResponseTextual(Boolean.toString(isResponseTextual));
 		
+		// add title
+		if (StringUtil.trimToNull(title) != null)
+		{
+			question.setTitle(Validator.escapeHtml(title));
+		}
+		
 		// add feedback
 		if (StringUtil.trimToNull(feedback) != null)
 		{
@@ -1325,6 +1584,283 @@ public class ImportTextServiceImpl implements ImportTextService
 	}
 	
 	/**
+	 * Process if it is recognized as an fill-inline question.
+	 * 
+	 * @param pool
+	 * 		  The pool to hold the question.
+	 * @param lines
+	 * 		  The lines to process.
+	 * @return true if successfully recognized and processed, false if not.
+	 * 
+	 * @throws AssessmentPermissionException
+	 */
+	protected boolean processTextFillInline(Pool pool, String[] lines) throws AssessmentPermissionException
+	{
+		// if there are only answers then that may be a fill-in question. Another case is if the question has braces that may be a fill-in question
+		if (lines.length == 0)
+			return false;
+		
+		boolean braces = false;
+		boolean first = true;
+		boolean foundAnswer = false;
+		List<String> answers = new ArrayList<String>();
+		String title = null;
+		String feedback = null;
+		String hints = null;
+		boolean explainReason = false;
+		boolean isSurvey = false;
+		boolean foundQuestionAttributes = false;
+		boolean bracesNoAnswer = false;
+		boolean isDropdown = false;
+		
+		String clean = null;
+			
+		// question with braces may be a fill in question
+		if ((lines[0].indexOf("{") != -1) && (lines[0].indexOf("}") != -1) && (lines[0].indexOf("{") < lines[0].indexOf("}")))
+		{
+			String validateBraces = lines[0];
+			while (validateBraces.indexOf("{") != -1)
+			{
+				validateBraces = validateBraces.substring(validateBraces.indexOf("{")+1);
+				int startBraceIndex = validateBraces.indexOf("{");
+				int endBraceIndex = validateBraces.indexOf("}");
+				String answer;
+				
+				if (startBraceIndex != -1 && endBraceIndex != -1)
+				{
+					if (endBraceIndex > startBraceIndex)
+						return false;
+				}
+				if (endBraceIndex != -1)
+				{
+					answer = validateBraces.substring(0, endBraceIndex);
+					if (StringUtil.trimToNull(answer) == null)
+					{
+						if (lines.length < 1)
+							return false;
+						
+						bracesNoAnswer = true;
+						return false;
+					}
+				}
+				else
+					return false;
+				
+				validateBraces = validateBraces.substring(validateBraces.indexOf("}")+1);
+			}
+			
+			braces = true;
+		}
+		
+		if (braces)
+		{
+			// hints and feedback
+			for (String line : lines)
+			{
+				// ignore first line as first line is question text
+				if (first)
+				{
+					first = false;
+					continue;
+				}
+				
+				if (line.startsWith("*") || line.matches("^\\[\\w.*\\].*"))
+					return false;
+				
+				// hints and feedback
+				String lower = line.toLowerCase();
+				if (lower.startsWith(questionTitleKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) title = parts[1].trim();
+				} 
+				else if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) feedback = parts[1].trim();
+				} 
+				else if (lower.startsWith(hintKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) hints = parts[1].trim();
+				}
+				else if (lower.equalsIgnoreCase(reasonKey))
+				{
+					explainReason = true;
+				}
+				else if (lower.equalsIgnoreCase(surveyKey))
+				{
+					isSurvey = true;
+				} 
+				else if (lower.equalsIgnoreCase(dropdownKey))
+				{
+					isDropdown = true;
+				} 
+			}			
+		}
+		/*else
+		{
+			for (String line : lines)
+			{
+				// ignore first line as first line is question text
+				if (first)
+				{
+					first = false;
+					continue;
+				}
+				
+				if (line.startsWith("*") || line.matches("^\\[\\w.*\\].*"))
+					return false;
+				
+				// hints and feedback
+				String lower = line.toLowerCase();
+				if (foundAnswer)
+				{
+					if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) feedback = parts[1].trim();
+						foundQuestionAttributes = true;
+					} 
+					else if (lower.startsWith(hintKey))
+					{
+						String[] parts = StringUtil.splitFirst(line, ":");
+						if (parts.length > 1) hints = parts[1].trim();
+						foundQuestionAttributes = true;
+					}
+					else if (lower.equalsIgnoreCase(reasonKey))
+					{
+						explainReason = true;
+						foundQuestionAttributes = true;
+					}
+					else if (lower.equalsIgnoreCase(surveyKey))
+					{
+						isSurvey = true;
+						foundQuestionAttributes = true;
+					} 
+					else if (lower.equalsIgnoreCase(dropdownKey))
+					{
+						isDropdown = true;
+					} 
+					
+					// ignore the answer choices after hints or feedback found
+					if (foundQuestionAttributes)
+							continue;
+				}
+				
+				String[] answer = line.trim().split("\\s+");
+				if (answer.length < 2)
+					return false;
+				
+				if (!numberFormatEstablished)
+				{
+					numberingType = establishNumberingType(answer[0]);
+					
+					if (numberingType == NumberingType.none)
+						continue;
+					
+					numberFormatEstablished = true;
+				}
+				
+				if (validateNumberingType(answer[0], numberingType))
+				{
+					String answerChoice = line.substring(answer[0].length()).trim();
+					answers.add(answerChoice);
+					if (!foundAnswer) foundAnswer = true;
+				}
+				else
+					continue;
+			}
+			
+			if (!foundAnswer)
+				return false;
+		}*/
+		
+		if (!isDropdown) return false;
+		
+		// create the question
+		Question question = this.questionService.newQuestion(pool, "mneme:FillInline");
+		FillInlineQuestionImpl f = (FillInlineQuestionImpl) (question.getTypeSpecificQuestion());
+		
+		//if found answers append them at the end of question
+		String questionText = lines[0].trim();
+		/*if (!braces && foundAnswer) {
+			StringBuffer buildAnswers = new StringBuffer();
+			buildAnswers.append("{");
+			for (String answer : answers)
+			{
+				//if (!isResponseTextual)
+				//{
+					String[] multiAnswers = answer.split("\\|");
+					if (multiAnswers.length > 1) {
+						for (String multiAnswer : multiAnswers)
+						{
+							
+						}
+					}
+					else
+					{
+						
+					}
+				//}
+				buildAnswers.append(answer);
+				buildAnswers.append("|");
+			}
+			buildAnswers.replace(buildAnswers.length() - 1, buildAnswers.length(), "}");
+			questionText = questionText.concat(buildAnswers.toString());
+		}
+				
+		// set the text
+		if (questionText.matches("^\\d+\\.\\s.*"))
+		{
+			String[] parts = StringUtil.splitFirst(questionText, ".");
+			if (parts.length > 1) 
+			{
+				questionText = parts[1].trim();
+				clean = Validator.escapeHtml(questionText);
+			}
+			else
+				return false;
+		}
+		else
+			clean = Validator.escapeHtml(questionText);
+		*/
+		
+		clean = Validator.escapeHtml(questionText);
+		f.setText(clean);
+		
+		// add title
+		if (StringUtil.trimToNull(title) != null)
+		{
+			question.setTitle(Validator.escapeHtml(title));
+		}
+		
+		// add feedback
+		if (StringUtil.trimToNull(feedback) != null)
+		{
+			question.setFeedback(Validator.escapeHtml(feedback));
+		}
+		
+		// add hints
+		if (StringUtil.trimToNull(hints) != null)
+		{
+			question.setHints(Validator.escapeHtml(hints));
+		}
+		
+		// explain reason
+		question.setExplainReason(explainReason);
+		
+		// survey
+		question.setIsSurvey(isSurvey);
+		
+		// save
+		question.getTypeSpecificQuestion().consolidate("");
+		this.questionService.saveQuestion(question);
+		
+		return true;
+	}	
+	
+	/**
 	 * Process if it is recognized as an match question.
 	 * 
 	 * @param pool
@@ -1346,6 +1882,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		boolean blankMatch = false;
 		boolean foundQuestionAttributes = false;
 		boolean foundDrawMatch = false;
+		String title = null;
 		String feedback = null;
 		String hints = null;
 		boolean isSurvey = false;
@@ -1371,7 +1908,13 @@ public class ImportTextServiceImpl implements ImportTextService
 		    {
 				String lower = line.toLowerCase();
 				// get feedback, hints, reason, survey. Ignore the line if the key is not found
-				if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
+				if (lower.startsWith(questionTitleKey))
+				{
+					String[] parts = StringUtil.splitFirst(line, ":");
+					if (parts.length > 1) title = parts[1].trim(); 
+					foundQuestionAttributes = true;
+				} 
+				else if (lower.startsWith(feedbackKey1) || lower.startsWith(feedbackKey2))
 				{
 					String[] parts = StringUtil.splitFirst(line, ":");
 					if (parts.length > 1) feedback = parts[1].trim(); 
@@ -1530,6 +2073,7 @@ public class ImportTextServiceImpl implements ImportTextService
 		for (String key : choicePairs.keySet())
 		{
 			clean = Validator.escapeHtml(key);
+			if (index == m.getMax()) continue;
 			pairs.get(index).setMatch(clean);
 			
 			if (drawChoicePairs.size() > 0)
@@ -1551,6 +2095,12 @@ public class ImportTextServiceImpl implements ImportTextService
 		
 		if (distractor != null)
 			m.setDistractor(distractor);
+		
+		// add title
+		if (StringUtil.trimToNull(title) != null)
+		{
+			question.setTitle(Validator.escapeHtml(title));
+		}
 		
 		// add feedback
 		if (StringUtil.trimToNull(feedback) != null)

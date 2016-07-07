@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -99,6 +99,21 @@ public class GradeSubmissionView extends ControllerImpl
 		// [2]sid, [3] paging, [4] anchor, [5]next/prev sort (optional- leave out to disable next/prev), optionally followed by a return destination
 		if (params.length < 5) throw new IllegalArgumentException();
 
+		// if (checkForPhantom(req, res, params)) return;
+
+		if (params[2].equals("phantom"))
+		{
+			// reconstruct the full phantom id
+			String sid = params[2] + "/" + params[3] + "/" + params[4];
+
+			// slide params[5] down over params[3], insert the submission id in params[2]
+			String[] newParams = new String[params.length - 2];
+			System.arraycopy(params, 0, newParams, 0, 2);
+			System.arraycopy(params, 5, newParams, 3, params.length - 5);
+			newParams[2] = sid;
+			params = newParams;
+		}
+
 		Submission submission = this.submissionService.getSubmission(params[2]);
 		if (submission == null)
 		{
@@ -130,6 +145,14 @@ public class GradeSubmissionView extends ControllerImpl
 
 		context.put("submission", submission);
 
+		// check the section filter from the destination
+		String sectionFilter = null;
+		if (params.length > 12)
+		{
+			sectionFilter = params[12];
+			if ("-".equals(sectionFilter)) sectionFilter = null;
+		}
+
 		// next and prev, based on the sort
 		String sortCode = "userName_a";
 		SubmissionService.FindAssessmentSubmissionsSort sort = null;
@@ -154,7 +177,7 @@ public class GradeSubmissionView extends ControllerImpl
 				official = Boolean.TRUE;
 			}
 
-			Ordering<String> nextPrev = submissionService.findPrevNextSubmissionIds(submission, sort, official);
+			Ordering<String> nextPrev = submissionService.findPrevNextSubmissionIds(submission, sort, official, sectionFilter);
 
 			if (nextPrev.getPrevious() != null) context.put("prev", nextPrev.getPrevious());
 			if (nextPrev.getNext() != null) context.put("next", nextPrev.getNext());
@@ -254,6 +277,19 @@ public class GradeSubmissionView extends ControllerImpl
 	{
 		// [2]sid, [3] paging, [4] anchor, [5]next/prev sort (optional- leave out to disable next/prev), optionally followed by a return destination
 		if (params.length < 5) throw new IllegalArgumentException();
+
+		if (params[2].equals("phantom"))
+		{
+			// reconstruct the full phantom id
+			String sid = params[2] + "/" + params[3] + "/" + params[4];
+
+			// slide params[5] down over params[3], insert the submission id in params[2]
+			String[] newParams = new String[params.length - 2];
+			System.arraycopy(params, 0, newParams, 0, 2);
+			System.arraycopy(params, 5, newParams, 3, params.length - 5);
+			newParams[2] = sid;
+			params = newParams;
+		}
 
 		final Submission submission = this.submissionService.getSubmission(params[2]);
 		if (submission == null)
@@ -356,7 +392,14 @@ public class GradeSubmissionView extends ControllerImpl
 		// save graded submission
 		try
 		{
-			this.submissionService.evaluateSubmission(submission);
+			String newId = this.submissionService.evaluateSubmission(submission);
+
+			// if the save resulted in a phantom changing into a real submission, and our destination is back to grade_submission for this submission, update the submission id in the destination
+			if (!newId.equals(submission.getId()) && destination.startsWith("/grade_submission/" + params[2]))
+			{
+				params[2] = newId;
+				destination = StringUtil.unsplit(params, "/");
+			}
 		}
 		catch (AssessmentPermissionException e)
 		{
@@ -452,4 +495,46 @@ public class GradeSubmissionView extends ControllerImpl
 	{
 		this.toolManager = toolManager;
 	}
+
+	// protected boolean checkForPhantom(HttpServletRequest req, HttpServletResponse res, String[] params) throws IOException
+	// {
+	// // if a phantom submission was selected for grading /grade_submission/phantom/1/3385ad09-e384-41cb-80af-f96924b05009/-/-/userName_a/grade_assessment/0A/1/0A/1-50/all
+	// if (params[2].equals("phantom"))
+	// {
+	// // reconstruct the full phantom id
+	// String sid = params[2] + "/" + params[3] + "/" + params[4];
+	//
+	// // slide params[5] down over params[3], insert the submission id in params[2]
+	// String[] newParams = new String[params.length - 2];
+	// System.arraycopy(params, 0, newParams, 0, 2);
+	// System.arraycopy(params, 5, newParams, 3, params.length - 5);
+	// newParams[2] = sid;
+	// params = newParams;
+	//
+	// // get the phantom and make it real
+	// Submission s = this.submissionService.getSubmission(sid);
+	// if (s != null)
+	// {
+	// s.setTotalScore(0f);
+	//
+	// try
+	// {
+	// String newSubmissionId = this.submissionService.evaluateSubmission(s);
+	// params[2] = newSubmissionId;
+	// }
+	// catch (AssessmentPermissionException e)
+	// {
+	// res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+	// return true;
+	// }
+	// }
+	//
+	// // adjust the destination for this submission
+	// String destination = StringUtil.unsplit(params, "/");
+	// res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+	// return true;
+	// }
+	//
+	// return false;
+	// }
 }

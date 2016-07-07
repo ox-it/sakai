@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008,2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -112,6 +112,8 @@ public class HomeView extends ControllerImpl
 		context.put("poolRmDupsContext", poolRmDupsContext);
 		Value poolRmContext = this.uiService.newValue();
 		context.put("poolRmContext", poolRmContext);
+		Value transferTerm = this.uiService.newValue();
+		context.put("transferTerm", transferTerm);
 
 		String destination = uiService.decode(req, context);
 
@@ -166,6 +168,16 @@ public class HomeView extends ControllerImpl
 			if (poolRmContext.getValue() != null)
 			{
 				destination = "/pool_rm/" + poolRmContext.getValue();
+				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+				return;
+			}
+		}
+
+		else if ("GB_TRANSFER".equals(destination))
+		{
+			if (transferTerm.getValue() != null)
+			{
+				destination = "/gb_transfer/" + transferTerm.getValue();
 				res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
 				return;
 			}

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2010, 2011, 2012, 2014 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ public class ResultsFormatterImpl
 		if (assessment.getHasPoints())
 		{
 			content.append("<br />");
-			content.append(format("results-assessment-total-points", assessment.getParts().getTotalPoints()));
+			content.append(format("results-assessment-total-points", assessment.getPoints()));
 		}
 		content.append("<br />\n");
 
@@ -90,8 +90,12 @@ public class ResultsFormatterImpl
 
 			if (assessment.getParts().getShowPresentation())
 			{
-				content.append("<br />");
-				content.append(HtmlHelper.clean(part.getPresentation().getText()));
+				String text = part.getPresentation().getText();
+				if (text != null)
+				{
+					content.append("<br />");
+					content.append(HtmlHelper.clean(text));
+				}
 			}
 			content.append("</p>\n");
 
@@ -136,6 +140,12 @@ public class ResultsFormatterImpl
 					formatMultipleChoice(content, (MultipleChoiceQuestionImpl) question.getTypeSpecificQuestion(), question, submissions);
 				}
 
+				else if (question.getTypeSpecificQuestion() instanceof OrderQuestionImpl)
+				{
+					formatOrder(content, (OrderQuestionImpl) question.getTypeSpecificQuestion(), question, submissions);
+				}
+
+
 				else if (question.getTypeSpecificQuestion() instanceof LikertScaleQuestionImpl)
 				{
 					formatLikert(content, (LikertScaleQuestionImpl) question.getTypeSpecificQuestion(), question, submissions);
@@ -158,6 +168,11 @@ public class ResultsFormatterImpl
 				else if (question.getTypeSpecificQuestion() instanceof FillBlanksQuestionImpl)
 				{
 					formatFillBlanks(content, (FillBlanksQuestionImpl) question.getTypeSpecificQuestion(), question, submissions);
+				}
+
+				else if (question.getTypeSpecificQuestion() instanceof FillInlineQuestionImpl)
+				{
+					formatFillInline(content, (FillInlineQuestionImpl) question.getTypeSpecificQuestion(), question, submissions);
 				}
 
 				content.append("</p>\n");
@@ -266,6 +281,67 @@ public class ResultsFormatterImpl
 
 		return "";
 	}
+
+	/**
+	 * Count the answers to this question that match this target value, formatting count and percent for display.
+	 * 
+	 * @param question
+	 *        The question.
+	 * @param submissions
+	 *        The submissions to the assessment that has this question.
+	 * @param target
+	 *        The target answer value.
+	 * @param index
+	 *        The index value for the answer.
+	 * @return The formatted count and percent.
+	 */
+	protected String formatOrderCountPercent(Question question, List<Submission> submissions, String choiceId, String correctPos)
+	{
+		int count = 0;
+		int total = 0;
+		for (Submission s : submissions)
+		{
+			if (s.getIsPhantom()) continue;
+			if (!s.getIsComplete()) continue;
+
+			Answer a = s.getAnswer(question);
+			if (a != null)
+			{
+				total++;
+
+				if (a.getIsAnswered())
+				{
+					// does the answer's value match our target answer?
+					// Note: assume that the answer is one of the getData() strings
+					String[] answers = a.getTypeSpecificAnswer().getData();
+					if (answers != null)
+					{
+						for (int i = 0; i < answers.length; i++)
+						{
+							String answerPos = answers[i++];
+							String answerChoiceId = answers[i];
+							if ((answerPos != null) && (answerPos.equals(correctPos)))
+							{
+								if ((answerChoiceId != null) && (answerChoiceId.equals(choiceId)))
+							{
+								count++;
+							}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (total > 0)
+		{
+			int pct = (count * 100) / total;
+
+			return format("results-format-count", Integer.valueOf(pct), Integer.valueOf(count));
+		}
+
+		return "";
+	}	
 
 	/**
 	 * Prepare a display string for the date.
@@ -404,6 +480,122 @@ public class ResultsFormatterImpl
 
 		formatReasons(content, question, submissions);
 	}
+
+	/**
+	 * Format the fill-in question.
+	 * 
+	 * @param content
+	 *        The building response.
+	 * @param tsq
+	 *        The type-specific question.
+	 * @param question
+	 *        The question.
+	 * @param submissions
+	 *        The submissions.
+	 */
+	protected void formatFillInline(StringBuilder content, FillInlineQuestionImpl tsq, Question question, List<Submission> submissions)
+	{
+		List<String> corrects = tsq.getCorrectAnswers();
+
+		// for each position
+		int pos = 0;
+		for (String correct : corrects)
+		{
+			if (pos > 0) content.append("<br />\n");
+
+			// position pos+1, answer is 'correct'
+			content.append(format("results-position", Integer.valueOf(pos + 1), correct));
+			content.append("<br />\n");
+
+			// collect the given answers
+			List<String> given = new ArrayList<String>();
+			for (Submission s : submissions)
+			{
+				if (s.getIsPhantom()) continue;
+				if (!s.getIsComplete()) continue;
+
+				Answer a = s.getAnswer(question);
+				if (a != null)
+				{
+					if (a.getIsAnswered())
+					{
+						String[] answers = a.getTypeSpecificAnswer().getData();
+						if ((answers != null) && (answers.length > pos))
+						{
+							String answer = answers[pos];
+							if (answer != null)
+							{
+								if (!given.contains(answer)) given.add(answer);
+							}
+						}
+					}
+				}
+			}
+
+			Collections.sort(given);
+
+			content.append("<table>\n");
+
+			// show each given and the # times it shows up
+			for (String target : given)
+			{
+				int hits = 0;
+				int total = 0;
+				for (Submission s : submissions)
+				{
+					if (s.getIsPhantom()) continue;
+					if (!s.getIsComplete()) continue;
+
+					Answer a = s.getAnswer(question);
+					if (a != null)
+					{
+						total++;
+
+						if (a.getIsAnswered())
+						{
+							// does the answer's value match our target answer?
+							// Note: assume that the answer for this position is the nth data element
+							String[] answers = a.getTypeSpecificAnswer().getData();
+							if ((answers != null) && (answers.length > pos) && (answers[pos] != null))
+							{
+
+								if (answers[pos].equalsIgnoreCase(target))
+								{
+									hits++;
+								}
+
+							}
+						}
+					}
+				}
+
+				int pct = total > 0 ? (hits * 100) / total : 0;
+
+				// target hits percent
+				content.append("<tr><td>");
+				content.append(target);
+				content.append("</td><td>");
+				content.append(format("results-format-count", Integer.valueOf(pct), Integer.valueOf(hits)));
+				content.append("</td></tr>\n");
+			}
+
+			content.append("</table>\n");
+
+			pos++;
+		}
+
+		// unanswered
+		content.append("<table>\n");
+		content.append("<tr><td colspan=\"3\">&nbsp;</td></tr><tr><td>");
+		content.append(format("results-unanswered"));
+		content.append("</td>");
+		content.append(formatUnanswered(question, submissions));
+		content.append("</tr>\n");
+
+		content.append("</table>\n");
+
+		formatReasons(content, question, submissions);
+	}	
 
 	/**
 	 * Format the likert question.
@@ -595,6 +787,44 @@ public class ResultsFormatterImpl
 
 		formatReasons(content, question, submissions);
 	}
+
+	/**
+	 * Format the order question.
+	 * 
+	 * @param content
+	 *        The building response.
+	 * @param tsq
+	 *        The type-specific question.
+	 * @param question
+	 *        The question.
+	 * @param submissions
+	 *        The submissions.
+	 */
+	protected void formatOrder(StringBuilder content, OrderQuestionImpl tsq, Question question, List<Submission> submissions)
+	{
+		content.append("<table>\n");
+		int i = 0;
+		for (OrderQuestionImpl.OrderQuestionChoice choice : tsq.getChoicesAsAuthored())
+		{
+			content.append("<tr><td>");
+			content.append(HtmlHelper.clean(choice.getText()));
+			content.append("</td>");
+			content.append(formatOrderCountPercent(question, submissions, choice.getId(), choice.getCorrectPos()));
+			content.append("</tr>\n");
+			i++;
+		}
+
+		// unanswered
+		content.append("<tr><td colspan=\"3\">&nbsp;</td></tr><tr><td>");
+		content.append(format("results-unanswered"));
+		content.append("</td>");
+		content.append(formatUnanswered(question, submissions));
+		content.append("</tr>\n");
+
+		content.append("</table>\n");
+
+		formatReasons(content, question, submissions);
+	}	
 
 	/**
 	 * Format the reason for answer values from submissions

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -79,6 +79,7 @@ import org.etudes.ambrosia.api.EntityListColumn;
 import org.etudes.ambrosia.api.EnumPropertyReference;
 import org.etudes.ambrosia.api.FileUpload;
 import org.etudes.ambrosia.api.FillIn;
+import org.etudes.ambrosia.api.FillInline;
 import org.etudes.ambrosia.api.FinePrint;
 import org.etudes.ambrosia.api.FloatEdit;
 import org.etudes.ambrosia.api.FloatPropertyReference;
@@ -583,6 +584,14 @@ public class UiServiceImpl implements UiService
 	/**
 	 * {@inheritDoc}
 	 */
+	public FillInline newFillInline()
+	{
+		return new UiFillInline();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public FinePrint newFinePrint()
 	{
 		return new UiFinePrint();
@@ -1059,7 +1068,7 @@ public class UiServiceImpl implements UiService
 		context.setResponseWriter(out);
 		context.put(UiContext.FRAGMENT, Boolean.valueOf(fragment));
 		context.put("sakai.html.head", req.getAttribute("sakai.html.head"));
-	//	context.put("sakai.html.head.no.wiris", req.getAttribute("sakai.html.head.no.wiris"));
+		context.put("sakai.html.head.no.wiris", req.getAttribute("sakai.html.head.no.wiris"));
 		context.put("sakai.html.body.onload", req.getAttribute("sakai.html.body.onload"));
 		context.put("sakai.return.url", Web.returnUrl(req, ""));
 		context.put("sakai.server.url", Web.serverUrl(req));
@@ -1376,6 +1385,7 @@ public class UiServiceImpl implements UiService
 		if (xml.getTagName().equals("floatEdit")) return new UiFloatEdit(this, xml);
 		if (xml.getTagName().equals("fileUpload")) return new UiFileUpload(this, xml);
 		if (xml.getTagName().equals("fillIn")) return new UiFillIn(this, xml);
+		if (xml.getTagName().equals("fillInline")) return new UiFillInline(this, xml);
 		if (xml.getTagName().equals("finePrint")) return new UiFinePrint(this, xml);
 		if (xml.getTagName().equals("fragment")) return new UiFragment(this, xml);
 		if (xml.getTagName().equals("gap")) return new UiGap(this, xml);

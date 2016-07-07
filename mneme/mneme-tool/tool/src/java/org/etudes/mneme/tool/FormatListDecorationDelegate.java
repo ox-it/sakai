@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
 import org.etudes.ambrosia.util.FormatDelegateImpl;
 import org.etudes.mneme.api.AssessmentSubmissionStatus;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionCompletionStatus;
 import org.etudes.util.api.AccessAdvisor;
@@ -89,7 +90,7 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 						.getAssessment().getId(), submission.getUserId());
 				if (masteryPercent != null)
 				{
-					masteryPoints = FormatScoreDelegate.formatScore(Float.valueOf(submission.getAssessment().getParts().getTotalPoints().floatValue()
+					masteryPoints = FormatScoreDelegate.formatScore(Float.valueOf(submission.getAssessment().getPoints().floatValue()
 							* (masteryPercent.floatValue() / 100.0f)));
 				}
 			}
@@ -100,6 +101,7 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 
 		// non-user submission status, 0 points, not answered
 		Boolean nonUserZeroEmpty = ((submission.getCompletionStatus() != SubmissionCompletionStatus.userFinished)
+				&& (submission.getAssessment().getType() != AssessmentType.offline)
 				&& ((!submission.getIsReleased()) || (submission.getTotalScore() == null) || (submission.getTotalScore() == 0.0)) && (submission
 				.getIsUnanswered()));
 
@@ -127,10 +129,21 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 			{
 				if (!blocked)
 				{
-					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
-							+ context.getMessages().getString("format-list-decoration-todo") + "\" title=\""
-							+ context.getMessages().getString("format-list-decoration-todo") + "\" /><br /><span style=\"font-size:smaller\">"
-							+ context.getMessages().getString("format-list-decoration-todo") + "</span>";
+					if (submission.getAssessment().getType() == AssessmentType.offline)
+					{
+						rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+								+ context.getMessages().getString("format-list-decoration-open") + "\" title=\""
+								+ context.getMessages().getString("format-list-decoration-open") + "\" /><br /><span style=\"font-size:smaller\">"
+								+ context.getMessages().getString("format-list-decoration-open") + "</span>";
+
+					}
+					else
+					{
+						rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+								+ context.getMessages().getString("format-list-decoration-todo") + "\" title=\""
+								+ context.getMessages().getString("format-list-decoration-todo") + "\" /><br /><span style=\"font-size:smaller\">"
+								+ context.getMessages().getString("format-list-decoration-todo") + "</span>";
+					}
 				}
 				break;
 			}
@@ -139,13 +152,25 @@ public class FormatListDecorationDelegate extends FormatDelegateImpl
 			{
 				if (!blocked)
 				{
-					rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
-							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
-							+ context.getMessages().getString("format-list-decoration-inprogress") + "\" />"
-							+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/warning.png\" alt=\""
-							+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
-							+ context.getMessages().getString("format-list-decoration-urgent") + "\" />" + "<br /><span style=\"font-size:smaller\">"
-							+ context.getMessages().getString("format-list-decoration-overdue-ready") + "</span>";
+					if (submission.getAssessment().getType() == AssessmentType.offline)
+					{
+						rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/begin.gif\" alt=\""
+								+ context.getMessages().getString("format-list-decoration-open") + "\" title=\""
+								+ context.getMessages().getString("format-list-decoration-open") + "\" /><br /><span style=\"font-size:smaller\">"
+								+ context.getMessages().getString("format-list-decoration-open") + "</span>";
+
+					}
+					else
+					{
+						rv = "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/exit.gif\" alt=\""
+								+ context.getMessages().getString("format-list-decoration-inprogress") + "\" title=\""
+								+ context.getMessages().getString("format-list-decoration-inprogress") + "\" />"
+								+ "<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/warning.png\" alt=\""
+								+ context.getMessages().getString("format-list-decoration-urgent") + "\" title=\""
+								+ context.getMessages().getString("format-list-decoration-urgent") + "\" />"
+								+ "<br /><span style=\"font-size:smaller\">"
+								+ context.getMessages().getString("format-list-decoration-overdue-ready") + "</span>";
+					}
 				}
 				break;
 			}

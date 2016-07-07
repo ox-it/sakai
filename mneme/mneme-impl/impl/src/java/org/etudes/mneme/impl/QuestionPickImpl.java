@@ -300,6 +300,17 @@ public class QuestionPickImpl extends PartDetailImpl implements QuestionPick
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getTitle()
+	{
+		// use the question type
+		Question q = this.questionService.getQuestion(this.questionId);
+		if (q == null) return "?";
+		return q.getTitle();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getType()
 	{
 		// use the question type

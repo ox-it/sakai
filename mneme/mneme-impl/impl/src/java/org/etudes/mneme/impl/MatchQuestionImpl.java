@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -819,6 +819,11 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		return rv;
 	}
 
+	public int getMax()
+	{
+		return this.MAX;
+	}
+	
 	/**
 	 * Access the pairs as an entity (MatchQuestionChoice) list in as-authored order.
 	 * 
@@ -1057,8 +1062,12 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		refs[1] = this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.answerKey");
 		answerKey.setText("answer-key", refs);
 
+		Decision[] innerOrInc = new Decision[2];
+		innerOrInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("showIncorrect")).setReversed();
+		innerOrInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("hideKey")).setReversed();
+		
 		Decision[] innerAndInc = new Decision[2];
-		innerAndInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.showCorrectReview"));
+		innerAndInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.showCompletelyCorrectReview"));
 		innerAndInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("review"));
 		Decision[] orInc = new Decision[2];
 		orInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"));
@@ -1066,7 +1075,7 @@ public class MatchQuestionImpl implements TypeSpecificQuestion
 		Decision[] andInc = new Decision[4];
 		andInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.hasCorrect"));
 		andInc[1] = this.uiService.newOrDecision().setOptions(orInc);
-		andInc[2] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("showIncorrect")).setReversed();
+		andInc[2] = this.uiService.newOrDecision().setOptions(innerOrInc);
 		andInc[3] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.part.assessment.allowedPoints"));
 		
 		answerKey.setIncluded(this.uiService.newAndDecision().setRequirements(andInc));

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -172,6 +172,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 							this.attachmentService.translateEmbeddedReferences(q.getPresentation().getText(), attachmentTranslations));
 					q.setFeedback(this.attachmentService.translateEmbeddedReferences(q.getFeedback(), attachmentTranslations));
 					q.setHints(this.attachmentService.translateEmbeddedReferences(q.getHints(), attachmentTranslations));
+                    q.setTitle(this.attachmentService.translateEmbeddedReferences(q.getTitle(), attachmentTranslations));
 
 					String[] data = q.getTypeSpecificQuestion().getData();
 					for (int i = 0; i < data.length; i++)
@@ -512,6 +513,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 			q.setPool(poolService.getPool("b1"));
 			q.getCreatedBy().setUserId("admin");
 			q.getPresentation().setText("True or False (one)?");
+			q.setTitle("TrueFalseTitle");
 			((TrueFalseQuestionImpl) q.getTypeSpecificQuestion()).setCorrectAnswer("TRUE");
 			q.getCreatedBy().setUserId("admin");
 			q.getCreatedBy().setDate(now);
@@ -530,6 +532,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 			q.setExplainReason(Boolean.TRUE);
 			q.setPool(poolService.getPool("b1"));
 			q.getCreatedBy().setUserId("admin");
+			q.setTitle("TrueFalse2Title");
 			q.getPresentation().setText("True or False (two)?");
 			((TrueFalseQuestionImpl) q.getTypeSpecificQuestion()).setCorrectAnswer("FALSE");
 			q.getCreatedBy().setUserId("admin");
@@ -550,6 +553,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 			q.setPool(poolService.getPool("b1"));
 			q.getCreatedBy().setUserId("admin");
 			q.getPresentation().setText("Which value will it be?");
+			q.setTitle("MultipleChoiceTitle");
 			((MultipleChoiceQuestionImpl) q.getTypeSpecificQuestion()).setSingleCorrect("FALSE");
 			List<String> answerChoices = new ArrayList<String>();
 			answerChoices.add("This is the first item");
@@ -613,6 +617,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 			q.setPool(poolService.getPool("b1"));
 			q.getCreatedBy().setUserId("admin");
 			q.getPresentation().setText("Match the following");
+			q.setTitle("Match");
 			((MatchQuestionImpl) q.getTypeSpecificQuestion()).addPair("First choice", "First Match");
 			((MatchQuestionImpl) q.getTypeSpecificQuestion()).addPair("Second choice", "Second Match");
 			((MatchQuestionImpl) q.getTypeSpecificQuestion()).addPair("Third choice", "Third Match");
@@ -633,6 +638,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 			q.initId("q7");
 			q.setPool(poolService.getPool("b1"));
 			q.getCreatedBy().setUserId("admin");
+			q.setTitle("Essay");
 			q.getPresentation().setText("Tell me a little bit about yourself.");
 			((EssayQuestionImpl) q.getTypeSpecificQuestion()).setModelAnswer("I need more space, this space is too short.");
 			((EssayQuestionImpl) q.getTypeSpecificQuestion()).setSubmissionType(EssayQuestionImpl.SubmissionType.both);
@@ -652,6 +658,7 @@ public abstract class QuestionStorageSample implements QuestionStorage
 			q.initId("q8");
 			q.setPool(poolService.getPool("b1"));
 			q.getCreatedBy().setUserId("admin");
+	        q.setTitle("Task");
 			q.getPresentation().setText("Do this presentation and discuss it in class.");
 			((TaskQuestionImpl) q.getTypeSpecificQuestion()).setModelAnswer("Review tutorial 5.");
 			q.getCreatedBy().setUserId("admin");
@@ -714,6 +721,15 @@ public abstract class QuestionStorageSample implements QuestionStorage
 							rv = ((Question) arg0).getTypeName().compareTo(((Question) arg1).getTypeName());
 						}
 						secondary = QuestionService.FindQuestionsSort.description_a;
+						break;
+					}
+					case title_a:
+					case title_d:
+					{
+						String s0 = StringUtil.trimToZero(((Question) arg0).getTitle());
+						String s1 = StringUtil.trimToZero(((Question) arg1).getTitle());
+						rv = s0.compareToIgnoreCase(s1);
+						secondary = QuestionService.FindQuestionsSort.title_a;
 						break;
 					}
 					case description_a:

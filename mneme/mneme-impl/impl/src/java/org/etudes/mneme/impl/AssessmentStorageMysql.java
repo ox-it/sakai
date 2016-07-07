@@ -158,13 +158,13 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 		sql.append(" DATES_ACCEPT_UNTIL, DATES_ARCHIVED, DATES_DUE, DATES_OPEN, HIDE_UNTIL_OPEN,");
 		sql.append(" GRADING_ANONYMOUS, GRADING_AUTO_RELEASE, GRADING_GRADEBOOK, GRADING_REJECTED, FORMAL_EVAL, NOTIFY_EVAL, EVAL_SENT, RESULTS_EMAIL,");
 		sql.append(" RESULTS_SENT, HONOR_PLEDGE, LIVE, LOCKED, MINT, MODIFIED_BY_DATE, MODIFIED_BY_USER,");
-		sql.append(" PARTS_CONTINUOUS, PARTS_SHOW_PRES, PASSWORD, PRESENTATION_TEXT,");
+		sql.append(" PARTS_CONTINUOUS, PARTS_SHOW_PRES, PASSWORD, PRESENTATION_TEXT, PRESENTATION_ATTACHMENTS,");
 		sql.append(" PUBLISHED, FROZEN, QUESTION_GROUPING, RANDOM_ACCESS,");
 		sql.append(" REVIEW_DATE, REVIEW_SHOW_CORRECT, REVIEW_SHOW_FEEDBACK, REVIEW_SHOW_SUMMARY, REVIEW_TIMING, MIN_SCORE_SET, MIN_SCORE, ");
-		sql.append(" SHOW_HINTS, SHOW_MODEL_ANSWER, SUBMIT_PRES_TEXT, TIME_LIMIT, TITLE, TRIES, TYPE, POOL, NEEDSPOINTS, SHUFFLE_CHOICES)");
-		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append(" SHOW_HINTS, SHOW_MODEL_ANSWER, SUBMIT_PRES_TEXT, TIME_LIMIT, TITLE, TRIES, TYPE, POOL, NEEDSPOINTS, SHUFFLE_CHOICES, POINTS)");
+		sql.append(" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
-		Object[] fields = new Object[49];
+		Object[] fields = new Object[51];
 		int i = 0;
 		fields[i++] = assessment.getArchived() ? "1" : "0";
 		fields[i++] = assessment.getContext();
@@ -195,13 +195,14 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 				: (((AssessmentPartsImpl) assessment.getParts()).showPresentation ? "1" : "0");
 		fields[i++] = assessment.getPassword().getPassword();
 		fields[i++] = assessment.getPresentation().getText();
+		fields[i++] = SqlHelper.encodeReferences(assessment.getPresentation().getAttachments());
 		fields[i++] = assessment.getPublished() ? "1" : "0";
 		fields[i++] = assessment.getFrozen() ? "1" : "0";
 		fields[i++] = assessment.getQuestionGrouping().toString();
 		fields[i++] = assessment.getRandomAccess() ? "1" : "0";
 		fields[i++] = (assessment.getReview().getDate() == null) ? null : assessment.getReview().getDate().getTime();
 		fields[i++] = assessment.getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.yes) ? "1" : (assessment.getReview()
-				.getShowCorrectAnswer().equals(ReviewShowCorrect.no) ? "0" : (assessment.getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.correct_only) ? "C" : "I"));
+				.getShowCorrectAnswer().equals(ReviewShowCorrect.no) ? "0" : (assessment.getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.correct_only) ? "C" : (assessment.getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.incorrect_only) ? "I":"K")));
 		fields[i++] = assessment.getReview().getShowFeedback() ? "1" : "0";
 		fields[i++] = assessment.getReview().getShowSummary() ? "1" : "0";
 		fields[i++] = assessment.getReview().getTiming().toString();
@@ -218,6 +219,7 @@ public class AssessmentStorageMysql extends AssessmentStorageSql implements Asse
 		fields[i++] = ((AssessmentImpl) assessment).poolId == null ? null : Long.valueOf(((AssessmentImpl) assessment).poolId);
 		fields[i++] = assessment.getNeedsPoints() ? "1" : "0";
 		fields[i++] = assessment.getShuffleChoicesOverride() == null ? null : (assessment.getShuffleChoicesOverride() ? "1" : "0");
+		fields[i++] = ((AssessmentImpl) assessment).points;
 
 		Long id = this.sqlService.dbInsert(null, sql.toString(), fields, "ID");
 		if (id == null)

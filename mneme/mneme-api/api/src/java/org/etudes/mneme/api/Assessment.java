@@ -36,6 +36,14 @@ import org.sakaiproject.user.api.User;
 public interface Assessment
 {
 	/**
+	 * Get the value of hidden till open
+	 * 
+	 * @return TRUE if the open date is after the current date and hide until open is true
+	 * 
+	 */
+	public Boolean getHiddenTillOpen();
+
+	/**
 	 * Get the submit-able status for the assessment - this indicates if we are expecting submissions now.
 	 * 
 	 * @return The submit-able status
@@ -164,14 +172,6 @@ public interface Assessment
 	 * @return TRUE if there are unscored submissions to this assessment, FALSE if not.
 	 */
 	Boolean getHasUnscoredSubmissions();
-	
-	/**
-	 * Get the value of hidden till open
-	 * 
-	 * @return TRUE if the open date is after the current date and hide until open is true
-	 * 
-	 */
-	public Boolean getHiddenTillOpen();	
 
 	/**
 	 * Access the id of this assessment.
@@ -222,6 +222,7 @@ public interface Assessment
 
 	/**
 	 * Get reference for item analysis info
+	 * 
 	 * @return Reference object
 	 */
 	Reference getItemAnalysisReference();
@@ -239,7 +240,7 @@ public interface Assessment
 	 * @return TRUE if min score is set, FALSE if not
 	 */
 	Boolean getMinScoreSet();
-	
+
 	/**
 	 * Check if the end user has never made initial settings.
 	 * 
@@ -279,6 +280,13 @@ public interface Assessment
 	 * @return The password.
 	 */
 	AssessmentPassword getPassword();
+
+	/**
+	 * Get the total points for the assessment.
+	 * 
+	 * @return The assessment's points, or 0 if it has none.
+	 */
+	Float getPoints();
 
 	/**
 	 * Get the auto-pool for the assessment; the one to hold the assessment's unique questions.
@@ -442,11 +450,12 @@ public interface Assessment
 	 *        The assessment type.
 	 */
 	void initType(AssessmentType type);
-	
+
 	/**
 	 * Checks to see if the email address entered is valid in terms of format
 	 * 
-	 * @param emailAddr Email address to check
+	 * @param emailAddr
+	 *        Email address to check
 	 * @return true if email address is valid, false if not
 	 */
 	boolean isEmailValid(String emailAddr);
@@ -537,6 +546,14 @@ public interface Assessment
 	void setNotifyEval(Boolean setting);
 
 	/**
+	 * Set the assessment's total points - only good for offline assessments (other types set their points through their parts).
+	 * 
+	 * @param points
+	 *        The assessment total points.
+	 */
+	void setPoints(Float points);
+
+	/**
 	 * Set the assessment's auto-pool to this pool - ignored if it already has an auto-pool.
 	 * 
 	 * @param pool
@@ -623,7 +640,7 @@ public interface Assessment
 	 *        The time limit for the assessment, or null for unlimited.
 	 */
 	void setTimeLimit(Long limit);
-	
+
 	/**
 	 * Set the title of this assessment.
 	 * 
@@ -631,7 +648,7 @@ public interface Assessment
 	 *        The assessment's title.
 	 */
 	void setTitle(String title);
-	
+
 	/**
 	 * Set the number of submissions allowed for limited submissions.
 	 * 
@@ -639,8 +656,7 @@ public interface Assessment
 	 *        The number of submissions allowed, or null to make it unlimited.
 	 */
 	void setTries(Integer count);
-	
-	
+
 	/**
 	 * Set the type of this assessment.
 	 * 

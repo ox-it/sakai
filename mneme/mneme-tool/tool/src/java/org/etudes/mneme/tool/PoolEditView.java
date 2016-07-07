@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2012, 2013, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -92,6 +92,12 @@ public class PoolEditView extends ControllerImpl
 			sort = QuestionService.FindQuestionsSort.cdate_a;
 		else if ((sortCode.charAt(0) == '2') && (sortCode.charAt(1) == 'D'))
 			sort = QuestionService.FindQuestionsSort.cdate_d;
+		
+		// 3 is creation date
+		else if ((sortCode.charAt(0) == '3') && (sortCode.charAt(1) == 'A'))
+			sort = QuestionService.FindQuestionsSort.title_a;
+		else if ((sortCode.charAt(0) == '3') && (sortCode.charAt(1) == 'D'))
+			sort = QuestionService.FindQuestionsSort.title_d;
 
 		else
 		{
@@ -375,6 +381,10 @@ public class PoolEditView extends ControllerImpl
 
 			// create URL for add questions /select_question_type/POOL/RETURN
 			destination = "/question_edit/" + newQuestion.getId() + "/0/0" + returnDest;
+		}
+		else if ("SAVE".equals(destination))
+		{
+			destination = context.getDestination();
 		}
 
 		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));

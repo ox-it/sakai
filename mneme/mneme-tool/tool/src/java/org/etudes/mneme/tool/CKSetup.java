@@ -1,9 +1,9 @@
 /**********************************************************************************
  * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-tool/tool/src/java/org/etudes/mneme/tool/CKSetup.java $
- * $Id: CKSetup.java 3635 2012-12-02 21:26:23Z ggolden $
+ * $Id: CKSetup.java 10534 2015-04-21 19:54:09Z mallikamt $
  ***********************************************************************************
  *
- * Copyright (c) 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2012, 2015 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class CKSetup
 		{
 			docsPath = docsPath.replace("{CONTEXT}", toolContext);
 			SessionManager.getCurrentSession().setAttribute("ck.collectionId", docsPath);
-			String attrb = "fck.security.advisor." + docsPath;
+			String attrb = "ck.security.advisor." + docsPath;
 
 			SessionManager.getCurrentSession().setAttribute(attrb, new SecurityAdvisor()
 			{
@@ -96,5 +96,22 @@ public class CKSetup
 			});
 		}
 	}
+	
+	/**
+	 * Sets the session manager with the site id, submission id and security advisor
+	 * 
+	 * @param toolContext
+	 *        Current site id
+	 * @param submissionId
+	 *        Current submission id       
+	 */
+	public void setCKSubmissionAttrib(String toolContext, String submissionId)
+	{
+		if (toolContext != null && submissionId != null)
+		{
+			SessionManager.getCurrentSession().setAttribute("ck.siteId", toolContext);
+			SessionManager.getCurrentSession().setAttribute("ck.submissionId", submissionId);
+		}
+	}	
 
 }

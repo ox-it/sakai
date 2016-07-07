@@ -7,11 +7,8 @@
  * $Id: multiAssmtSettings.xml 6108 2013-10-04 18:29:15Z mallikamt $
  ***********************************************************************************
  *
- * Copyright (c) 2013 Etudes, Inc.
+ * Copyright (c) 2013, 2014, 2015 Etudes, Inc.
  * 
- * Portions completed before September 1, 2008
- * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -232,6 +229,14 @@
 													</displayMessage>
 													<valueMessage>
 														<message template="incorrect_only" />
+													</valueMessage>
+												</selectionChoice>
+												<selectionChoice>
+													<displayMessage>
+														<message selector="incorrectKeyQuestions" />
+													</displayMessage>
+													<valueMessage>
+														<message template="incorrect_key" />
 													</valueMessage>
 												</selectionChoice>
 												<selectionChoice>
@@ -670,7 +675,7 @@
 		<!-- navigation otherwise -->
 		<navigationBar>
 			<container>
-				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE" destination="DONE">
+				<navigation title="done" hideval="save" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE" destination="DONE">
 					<icon icon="/icons/return.png" style="LEFT" />
 					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
 								<message selector="confirm-change">
@@ -678,6 +683,7 @@
 								</message>
 							</confirm>
 				</navigation>
+				<divider />
 				<navigation title="cancel" accessKey="cancel-access" description="cancel-description" style="BUTTON">
 					<icon icon="/icons/cancel.gif" style="LEFT" />
 					<destination template="/assmt_settings_choice/{0}/{1}">

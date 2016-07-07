@@ -184,7 +184,21 @@ public class AssessmentStorageSample implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<AssessmentImpl> getArchivedAssessments(String context)
+	public Boolean existsAssessmentTitle(String title, String context)
+	{
+		fakeIt();
+
+		for (AssessmentImpl assessment : this.assessments.values())
+		{
+			if (assessment.getTitle().equals(title)) return new Boolean(true);
+		}
+		return new Boolean(false);
+	}	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<AssessmentImpl> getArchivedAssessments(String context, boolean includeFce)
 	{
 		fakeIt();
 
@@ -194,7 +208,10 @@ public class AssessmentStorageSample implements AssessmentStorage
 		{
 			if (assessment.getContext().equals(context) && assessment.getArchived())
 			{
-				rv.add(new AssessmentImpl(assessment));
+				if (includeFce && !assessment.getFormalCourseEval())
+				{
+					rv.add(new AssessmentImpl(assessment));
+				}
 			}
 		}
 
@@ -447,7 +464,7 @@ public class AssessmentStorageSample implements AssessmentStorage
 		// TODO: could be implemented
 		return null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -455,7 +472,7 @@ public class AssessmentStorageSample implements AssessmentStorage
 	{
 		// TODO: could be implemented
 		return null;
-	}	
+	}
 
 	/**
 	 * Final initialization, once all dependencies are set.

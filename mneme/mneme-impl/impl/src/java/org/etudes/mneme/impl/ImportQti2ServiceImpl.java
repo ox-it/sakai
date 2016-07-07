@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-impl/impl/src/java/org/etudes/mneme/impl/ImportQti2ServiceImpl.java $
- * $Id: ImportQti2ServiceImpl.java 8562 2014-08-30 06:07:15Z mallikamt $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2013, 2014, 2015 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -364,6 +364,10 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		// read identifier to find survey, assignment or test
 		AssessmentType testType = findAssessmentType(testItem);
 		test.setType(testType);
+		
+		ArrayList<String> embedMedia = new ArrayList<String>();
+		embedMedia.add(fileLocation);
+		test = processAssessmentAttachments(testItem, context, test, embedMedia, unzipBackUpLocation);
 
 		// read title and description from testItem
 		String description = findDescription(testItem);
@@ -397,7 +401,10 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		XPath finalMessagePath = new DOMXPath("/assessmentTest/testFeedback[@access='atEnd']");
 		String finalMessage = finalMessagePath.stringValueOf(contentsDOM);
 		if (finalMessage != null && finalMessage.length() > 0)
-			test.getSubmitPresentation().setText(finalMessage);		
+		{
+			finalMessage = processInstructionsEmbedMedia(unzipBackUpLocation.concat(baseName), context, finalMessage, new ArrayList<String>());
+			test.getSubmitPresentation().setText(finalMessage);
+		}
 
 		// add parts and questions
 		List<Element> partElements = new ArrayList();
@@ -545,10 +552,10 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 //		if (rights != null) test.getPresentation().setText(test.getPresentation().getText().concat(rights));
 			
 		// auto release of grading
-		if (autoRelease != null) test.getGrading().setAutoRelease(autoRelease);
+		if (!settings.containsKey("AutoRelease") && autoRelease != null) test.getGrading().setAutoRelease(autoRelease);
 
 		// send to gradebook
-		if (test.getType() != AssessmentType.survey)
+		if (!settings.containsKey("GradebookIntegration") && test.getType() != AssessmentType.survey)
 			test.getGrading().setGradebookIntegration(Boolean.TRUE);
 		
 		assessmentService.saveAssessment(test);
@@ -643,6 +650,10 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 			test.setMinScore(new Integer(settings.get("PASSFACTOR")));
 			test.setMinScoreSet(new Boolean(true));
 		}
+		if (settings.containsKey("SCORE") && test.getType() == AssessmentType.offline)
+		{
+			test.setPoints(new Float(settings.get("SCORE")));
+		}
 
 		//review options
 		if (settings.containsKey("ReviewShowSummary")) test.getReview().setShowSummary(new Boolean(true));
@@ -657,12 +668,17 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		{
 			String correctAnswer = settings.get("ReviewCorrectAnswer");
 			if ("incorrect_only".equalsIgnoreCase(correctAnswer))test.getReview().setShowCorrectAnswer(ReviewShowCorrect.incorrect_only);
+			else if ("incorrect_key".equalsIgnoreCase(correctAnswer))test.getReview().setShowCorrectAnswer(ReviewShowCorrect.incorrect_key);
 			else if ("correct_only".equalsIgnoreCase(correctAnswer))test.getReview().setShowCorrectAnswer(ReviewShowCorrect.correct_only);
 			else if ("no".equalsIgnoreCase(correctAnswer))test.getReview().setShowCorrectAnswer(ReviewShowCorrect.no);
 		}
 		
 		// AnonymousGrading
 		if (settings.containsKey("AnonymousGrading")) test.getGrading().setAnonymous(new Boolean(settings.get("AnonymousGrading")));
+		
+		if (settings.containsKey("AutoRelease")) test.getGrading().setAutoRelease(new Boolean(settings.get("AutoRelease")));
+
+		if (settings.containsKey("GradebookIntegration")) test.getGrading().setGradebookIntegration(new Boolean(settings.get("GradebookIntegration")));
 
 		// layout
 		if (settings.containsKey("QuestionLayout"))
@@ -677,6 +693,18 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		}
 		else
 			test.setQuestionGrouping(QuestionGrouping.question);
+		
+		if (settings.containsKey("ResultsEmail"))
+		{
+			if (settings.get("ResultsEmail") != null && settings.get("ResultsEmail").trim().length() > 0)
+			  test.setResultsEmail(settings.get("ResultsEmail"));	
+		}
+			
+		if (settings.containsKey("Password"))
+		{
+			if (settings.get("Password") != null && settings.get("Password").trim().length() > 0)
+			  test.getPassword().setPassword(settings.get("Password"));	
+		}
 
 		// pledge
 		if (settings.containsKey("HonorPledge")) test.setRequireHonorPledge(new Boolean(settings.get("HonorPledge")));
@@ -714,6 +742,43 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		if (question == null) return question;
 		List<Reference> currAttachments = question.getPresentation().getAttachments();
 
+		if (!processCoreAttachments(resourceItem, context, currAttachments, embedMedia, unzipLocation)) return question;
+		
+		question.getPresentation().setAttachments(currAttachments);
+	    return question;
+	}
+	
+	/**
+	 * Find Attachments and bring them in. Resource file elements which are not in embedMedia list are attachments.
+	 * 
+	 * @param resourceItem
+	 * @param context
+	 * @param question
+	 * @param embedMedia
+	 * @return
+	 */
+	private Assessment processAssessmentAttachments(Element resourceItem, String context, Assessment assessment, List<String> embedMedia, String unzipLocation)
+	{
+		if (assessment == null) return assessment;
+		List<Reference> currAttachments = assessment.getPresentation().getAttachments();
+
+		if (!processCoreAttachments(resourceItem, context, currAttachments, embedMedia, unzipLocation)) return assessment;
+		assessment.getPresentation().setAttachments(currAttachments);
+		return assessment;
+	}
+	
+	/**
+	 * Core method that does the work. Resource file elements which are not in embedMedia list are attachments.
+	 * 
+	 * @param resourceItem
+	 * @param context
+	 * @param currAttachments
+	 * @param question
+	 * @param embedMedia
+	 * @return
+	 */
+	private boolean processCoreAttachments(Element resourceItem, String context, List<Reference> currAttachments, List<String> embedMedia, String unzipLocation)
+	{
 		NodeList attachments = resourceItem.getElementsByTagName("file");
 		for (int i = 0; i < attachments.getLength(); i++)
 		{
@@ -722,15 +787,15 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 			if (!findInEmbedMedia(hrefLocation, embedMedia))
 			{
 				Reference attachRef = transferEmbeddedData(unzipLocation + File.separator + hrefLocation, hrefLocation, context);
-				if (attachRef == null) return question;
+				if (attachRef == null) return false;
 				if (currAttachments == null) currAttachments = new ArrayList<Reference>();
 				currAttachments.add(attachRef);
 			}
 		}
-		question.getPresentation().setAttachments(currAttachments);
-		return question;
+		return true;
 	}
-
+	
+	
 	/**
 	 * Read Question.xml file and process it to create a question.
 	 * 
@@ -784,14 +849,17 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		
 		if (likertClass) question = buildLikertScaleChoice(pool, text, interaction, contentsDOM);
 		if ("".equals(interaction) && question == null) question = buildTask(pool, text, interaction, contentsDOM);
-		if (question == null) question = buildEssay(pool, text, interaction, contentsDOM);
+		if (question == null) question = buildEssay(pool, text, interaction, contentsDOM, unzipBackUpLocation.concat(baseName), context, embedMedia);
 		if (question == null) question = buildMatchforManyMultipleChoice(pool, text, interaction, contentsDOM);
 		if (question == null) question = buildTrueFalse(pool, text, interaction, contentsDOM);
-		if (question == null) question = buildMultipleChoice(pool, text, interaction, contentsDOM);		
-		if (question == null) question = buildMatch(pool, text, interaction, contentsDOM);
+		
+		if (question == null) question = buildMultipleChoice(pool, text, interaction, contentsDOM, unzipBackUpLocation.concat(baseName), context, embedMedia);		
+		if (question == null) question = buildOrder(pool, text, interaction, contentsDOM, unzipBackUpLocation.concat(baseName), context, embedMedia);	
+		if (question == null) question = buildMatch(pool, text, interaction, contentsDOM, unzipBackUpLocation.concat(baseName), context, embedMedia);
 		if (question == null) question = buildFillBlanks(pool, text, interaction, contentsDOM);
 		if (question == null) question = buildFillBlankforGapText(pool, text, interaction, contentsDOM);
 		if (question == null) question = buildFillBlankforOrdered(pool, text, interaction, contentsDOM);
+		if (question == null) question = buildFillInline(pool, text, interaction, contentsDOM);
 		if (question == null) question = buildMultipleChoiceforUnsupported(pool, text, unzipBackUpLocation.concat(baseName), context, contentsDOM);
 		
 		if (question == null) return null;
@@ -805,6 +873,11 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 			// question description
 			String description = findDescription(resourceItem);
 
+			XPath questionPath = new DOMXPath("/assessmentItem");
+			Element aiElement = (Element) questionPath.selectSingleNode(contentsDOM);
+			String title = aiElement.getAttribute("title");
+			if (!title.startsWith("question")) question.setTitle(title);
+			
 			// explain reason
 			Set<String> allInteractions = findAllInteraction(contentsDOM);
 			if (allInteractions.size() > 1 && allInteractions.contains("textEntryInteraction"))
@@ -813,13 +886,14 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 			}
 
 			// hints mostly from identifier as correct otherwise from the correctresponse Identifier
-			String hints = getQuestionHints(contentsDOM);
+			String hints = getQuestionHints(contentsDOM, unzipBackUpLocation.concat(baseName), context, embedMedia);
 			if (question.getHints() != null) hints = question.getHints().concat(hints);
 			question.setHints(hints);
 
 			// feedback
 			XPath modalFeedbackPath = new DOMXPath("/assessmentItem/modalFeedback");
 			String feedback = modalFeedbackPath.stringValueOf(contentsDOM);
+			feedback = processInstructionsEmbedMedia(unzipBackUpLocation.concat(baseName), context, feedback, embedMedia);
 			question.setFeedback(feedback);
 
 			// points ...some packages have que_score or score1 or SCORE or MAXSCORE or multiple of these records
@@ -1103,6 +1177,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 				String type = typeElement.getTextContent();
 				if ("assignment".equals(type)) testType = AssessmentType.assignment;
 				if ("survey".equals(type)) testType = AssessmentType.survey;
+				if ("offline".equals(type)) testType = AssessmentType.offline;
 			}
 		}
 		catch (Exception e)
@@ -1297,10 +1372,13 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 	 * Get the correct answer hints
 	 * 
 	 * @param contentsDOM
+	 * @param unzipBackUpLocation
+	 * @param context
+	 * @param embedMedia
 	 * @return
 	 * @throws Exception
 	 */
-	private String getQuestionHints(Document contentsDOM) throws Exception
+	private String getQuestionHints(Document contentsDOM, String unzipBackUpLocation, String context, List<String> embedMedia) throws Exception
 	{
 		String hints = "";
 		XPath hintsPath = new DOMXPath(".//feedbackInline[@identifier='Correct'] | .//feedbackBlock[@identifier='Correct']");
@@ -1311,12 +1389,14 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		String feedbackIdentifier = feedbackIdDeterminePath.stringValueOf(contentsDOM);
 		if (feedbackIdentifier != null && feedbackIdentifier.length() > 0)
 		{
-			XPath correctAnswerPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/value");
+			XPath correctAnswerPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
+			
 			String correctAnswerIdentifier = correctAnswerPath.stringValueOf(contentsDOM);
 			if (correctAnswerIdentifier != null && correctAnswerIdentifier.length() > 0)
 			{
 				hintsPath = new DOMXPath(".//feedbackInline[@identifier='" + correctAnswerIdentifier + "']");
 				hints = hintsPath.stringValueOf(contentsDOM);
+				hints = processInstructionsEmbedMedia(unzipBackUpLocation, context, hints, embedMedia);
 			}
 		}
 		else
@@ -1327,6 +1407,13 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 			{
 				hintsPath = new DOMXPath(".//feedbackInline[@identifier='" + feedbackIdentifier + "']");
 				hints = hintsPath.stringValueOf(contentsDOM);
+				hints = processInstructionsEmbedMedia(unzipBackUpLocation, context, hints, embedMedia);
+			}
+			else
+			{
+				hintsPath = new DOMXPath(".//feedbackInline");
+				hints = hintsPath.stringValueOf(contentsDOM);
+				hints = processInstructionsEmbedMedia(unzipBackUpLocation, context, hints, embedMedia);
 			}
 		}
 		return hints;
@@ -1648,10 +1735,13 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 	 * @param essay
 	 * @param text
 	 * @param contentsDOM
+	 * @param unzipBackUpLocation
+	 * @param context
+	 * @param embedMedia
 	 * @return
 	 * @throws Exception
 	 */
-	private Question buildEssay(Pool pool, String text, String interactionText, Document contentsDOM) throws Exception
+	private Question buildEssay(Pool pool, String text, String interactionText, Document contentsDOM, String unzipBackUpLocation, String context, List<String> embedMedia) throws Exception
 	{
 		String modelAnswer = "";
 		SubmissionType setting = SubmissionType.inline;
@@ -1659,7 +1749,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		boolean essayType = false;
 
 		// correct answer
-		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/value");
+		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
 		List<Element> values = identifierPath.selectNodes(contentsDOM);
 
 		if (interactionText != null)
@@ -1696,6 +1786,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		EssayQuestionImpl essay = (EssayQuestionImpl) (question.getTypeSpecificQuestion());
 		text = text.replace("{}", "");
 		question.getPresentation().setText(text);
+		modelAnswer = processInstructionsEmbedMedia(unzipBackUpLocation, context, modelAnswer, embedMedia);
 		essay.setModelAnswer(modelAnswer);
 		essay.setSubmissionType(setting);
 
@@ -1715,7 +1806,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 	 */
 	private Question buildFillBlanks(Pool pool, String text, String interactionText, Document contentsDOM) throws Exception
 	{
-		if (!(("textEntryInteraction").equalsIgnoreCase(interactionText) || ("inlineChoiceInteraction").equalsIgnoreCase(interactionText)))
+		if (!(("textEntryInteraction").equalsIgnoreCase(interactionText)))
 			return null;
 
 		// choice interaction
@@ -1735,7 +1826,8 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 			{	
 				String answerText = ""; 
 				
-				XPath valuePath = new DOMXPath(".//correctResponse/value");
+				XPath valuePath = new DOMXPath(".//correctResponse/*[translate(name(), 'VALUE', 'value')='value']"); 
+				 
 				Element value = (Element)valuePath.selectSingleNode(response);
 			
 				// if response declaration has correct answer 
@@ -1750,6 +1842,13 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 					if (answers != null && answers.size() > 0) answerText = answers.get(0);
 				}
 				
+				//Remove the div tags as they are added to enclose the text and create unnecessary new lines
+				if (text != null)
+				{
+					text = text.replaceAll("<div>"," ");
+					text = text.replaceAll("</div>"," ");
+				}
+				
 				text = text.replaceFirst("\\{\\}", "{" + answerText + "}");
 				if (responseTextual == null)
 					responseTextual = checkIfTextualorNumeric(answerText);
@@ -1759,6 +1858,90 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		}
 
 		return buildMnemeFillBlanks(pool, responseTextual, text);
+	}
+
+	/**
+	 * Build Inline Choice question
+	 * 
+	 * @param question
+	 * @param text
+	 * @param contentsDOM
+	 * @return
+	 * @throws Exception
+	 */
+	private Question buildFillInline(Pool pool, String text, String interactionText, Document contentsDOM) throws Exception
+	{
+		if (!("inlineChoiceInteraction").equalsIgnoreCase(interactionText)) return null;
+		// choice interaction
+		XPath choicesPath = new DOMXPath("/assessmentItem/itemBody//" + interactionText);
+		List<Element> choiceInteractions = choicesPath.selectNodes(contentsDOM);
+		if (choiceInteractions == null || choiceInteractions.size() == 0) return null;
+
+		List<String> correctAnswerChoices = new ArrayList<String>();
+
+		// correct answer
+		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
+		
+		List<Element> values = identifierPath.selectNodes(contentsDOM);
+
+		boolean valuesNullFlag = false;
+		// if response declaration has correct answer
+		if (values != null && values.size() > 0)
+		{
+			for (Element value : values)
+				correctAnswerChoices.add(getCorrectResponse(value, contentsDOM, false));
+		}
+		else
+		{
+			valuesNullFlag = true;
+		}
+
+		List<String> answerTextList = new ArrayList<String>();
+
+		StringBuffer strBuf;
+		for (Element choiceInteraction : choiceInteractions)
+		{
+			strBuf = new StringBuffer();
+			NodeList choiceList = choiceInteraction.getElementsByTagName("inlineChoice");
+			if (choiceList != null && choiceList.getLength() > 0)
+			{
+				for (int i = 0; i < choiceList.getLength(); i++)
+				{
+					Element Choice = (Element) choiceList.item(i);
+					String id = Choice.getAttribute("identifier");
+					String label = normalizeElementBody(contentsDOM, Choice);
+					if (correctAnswerChoices == null || correctAnswerChoices.size() == 0 || valuesNullFlag)
+					{
+						correctAnswerChoices = getCorrectResponsefromResponseProcessing(contentsDOM,
+								choiceInteraction.getAttribute("responseIdentifier"), false);
+					}
+					if (correctAnswerChoices != null && correctAnswerChoices.size() > 0 && correctAnswerChoices.contains(id)) strBuf.append("*");
+					strBuf.append(label);
+					strBuf.append("|");
+				}
+			}
+			if ((strBuf != null) && (strBuf.length() > 0) && (strBuf.charAt(strBuf.length() - 1) == '|')) strBuf.deleteCharAt(strBuf.length() - 1);
+			if ((strBuf != null) && (strBuf.length() > 0)) answerTextList.add(strBuf.toString());
+		}
+
+		//Remove the div tags as they are added to enclose the text and create unnecessary new lines
+		if (text != null)
+		{
+			text = text.replaceAll("<div>"," ");
+			text = text.replaceAll("</div>"," ");
+		}
+		
+		if (answerTextList != null)
+		{
+			for (String answerText : answerTextList)
+			{
+				if (answerText != null)
+				{
+					text = text.replaceFirst("\\{\\}", "{" + answerText + "}");
+				}
+			}
+		}
+		return buildMnemeFillInline(pool, text);
 	}
 
 	/**
@@ -1936,7 +2119,8 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 	{
 		if (interactionText == null || !interactionText.equals("choiceInteraction")) return null;
 
-		XPath scalePath = new DOMXPath(".//correctResponse/value");
+		XPath scalePath = new DOMXPath(".//correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
+		
 		String scale = scalePath.stringValueOf(contentsDOM);
 
 		if (scale == null || scale.length() == 0)
@@ -1967,10 +2151,13 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 	 * @param question
 	 * @param text
 	 * @param contentsDOM
+	 * @param unzipBackUpLocation
+	 * @param context
+	 * @param embedMedia
 	 * @return
 	 * @throws Exception
 	 */
-	private Question buildMatch(Pool pool, String text, String interactionText, Document contentsDOM) throws Exception
+	private Question buildMatch(Pool pool, String text, String interactionText, Document contentsDOM, String unzipBackUpLocation, String context, List<String> embedMedia) throws Exception
 	{
 		if (!(("matchInteraction").equals(interactionText) || ("associateInteraction").equals(interactionText))) return null;
 
@@ -1985,7 +2172,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		Element choices = (Element) choicesPath.selectSingleNode(contentsDOM);
 
 		// correct answer
-		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/value");
+		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
 		List<Element> values = (List<Element>) identifierPath.selectNodes(contentsDOM);
 
 		if (choices == null || values == null) return null;
@@ -1997,7 +2184,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 
 		Question question = this.questionService.newQuestion(pool, "mneme:Match");
 		MatchQuestionImpl mc = (MatchQuestionImpl) (question.getTypeSpecificQuestion());
-		mc = buildMatchforAssociate(values, choices, interactionText, contentsDOM, mc);
+		mc = buildMatchforAssociate(values, choices, interactionText, contentsDOM, mc, unzipBackUpLocation, context, embedMedia);
 
 		if (text == null || text.equals("")) text = "Match the equivalent:";
 		question.getPresentation().setText(text);
@@ -2013,11 +2200,14 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 	 * @param interactionText
 	 * @param contentsDOM
 	 * @param mc
+	 * @param unzipBackUpLocation
+	 * @param context
+	 * @param embedMedia
 	 * @return
 	 * @throws Exception
 	 */
 	private MatchQuestionImpl buildMatchforAssociate(List<Element> correctValues, Element choices, String interactionText, Document contentsDOM,
-			MatchQuestionImpl mc) throws Exception
+			MatchQuestionImpl mc, String unzipBackUpLocation, String context, List<String> embedMedia) throws Exception
 	{
 		if (!(("matchInteraction").equals(interactionText) || ("associateInteraction").equals(interactionText))) return mc;
 
@@ -2039,11 +2229,15 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 
 				XPath choicePath = new DOMXPath(".//simpleAssociableChoice[@identifier='" + labelIdentifier1 + "']");
 				Element choice1 = (Element) choicePath.selectSingleNode(contentsDOM);
+				processEmbedMedia(choice1, unzipBackUpLocation, context, embedMedia);
+				
 				String choiceLabel1 = normalizeElementBody(contentsDOM, choice1);
 				matchDone.add(choice1);
 
 				XPath choicePath2 = new DOMXPath("/assessmentItem/itemBody//simpleAssociableChoice[@identifier='" + labelIdentifier2 + "']");
 				Element choice2 = (Element) choicePath2.selectSingleNode(contentsDOM);
+				processEmbedMedia(choice2, unzipBackUpLocation, context, embedMedia);
+				
 				String choiceLabel2 = normalizeElementBody(contentsDOM, choice2);
 				matchDone.add(choice2);
 
@@ -2105,7 +2299,8 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 			//choice 2 from responseDeclaration
 			String choiceIdentifier = choice.getAttribute("responseIdentifier");
 			if (choiceIdentifier == null || choiceIdentifier.length() == 0) continue;
-			XPath responsePath = new DOMXPath("/assessmentItem/responseDeclaration[@identifier='" + choiceIdentifier + "']/correctResponse/value");
+			XPath responsePath = new DOMXPath("/assessmentItem/responseDeclaration[@identifier='" + choiceIdentifier + "']/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
+			
 			Element responseElement = (Element) responsePath.selectSingleNode(contentsDOM);
 			String choice2 = "";
 			// if response declaration has correct answer 
@@ -2157,7 +2352,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		String questionText = "";
 
 		// correct answer
-		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/value");
+		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
 		List<Element> values = identifierPath.selectNodes(contentsDOM);
 
 		XPath gapInteractionPath = new DOMXPath("/assessmentItem/itemBody//gapMatchInteraction");
@@ -2174,7 +2369,9 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 			String otherId = "";
 			
 			XPath responseValuePath = new DOMXPath("/assessmentItem/responseDeclaration[@identifier='" + interactionIdentifier
-					+ "']/correctResponse/value[contains(text(),'" + identifier + "')]");
+					+ "']/correctResponse/*[translate(name(), 'VALUE', 'value')='value'][contains(text(),'" + identifier + "')]");
+			
+			
 			Element value = (Element) responseValuePath.selectSingleNode(contentsDOM);
 
 			if (value != null)
@@ -2240,7 +2437,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		if (choices == null) return null;
 
 		// correct answer
-		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/value");
+		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
 		List<Element> values = identifierPath.selectNodes(contentsDOM);
 
 		XPath simpleChoicesPath = new DOMXPath("//simpleChoice");
@@ -2345,18 +2542,19 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		return buildMnemeMultipleChoice(pool, text, 1, false, answerChoices, correctAnswers);
 	}
 
-	
-
 	/**
 	 * Create Multiple Choice Question when interaction is Choice and more than 2 choices.
 	 * 
 	 * @param mc
 	 * @param text
 	 * @param contentsDOM
+	 * @param unzipBackUpLocation
+	 * @param context
+	 * @param embedMedia
 	 * @return
 	 * @throws Exception
 	 */
-	private Question buildMultipleChoice(Pool pool, String text, String interactionText, Document contentsDOM) throws Exception
+	private Question buildMultipleChoice(Pool pool, String text, String interactionText, Document contentsDOM, String unzipBackUpLocation, String context, List<String> embedMedia) throws Exception
 	{
 		if (!("choiceInteraction").equals(interactionText)) return null;
 
@@ -2373,7 +2571,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		if (choices == null) return null;
 
 		// correct answer
-		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/value");
+		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
 		List<Element> values = identifierPath.selectNodes(contentsDOM);
 
 		XPath simpleChoicesPath = new DOMXPath("//simpleChoice");
@@ -2404,6 +2602,8 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		for (Element Choice : choiceList)
 		{
 			String id = Choice.getAttribute("identifier");
+			// embed images
+			processEmbedMedia(Choice, unzipBackUpLocation, context, embedMedia);
 			String label = normalizeElementBody(contentsDOM, Choice);
 			answerChoices.add(label);
 
@@ -2414,6 +2614,76 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 		if (maxChoices < correctAnswers.size()) maxChoices = correctAnswers.size();
 		return buildMnemeMultipleChoice(pool, text, maxChoices, shuffle, answerChoices, correctAnswers);
 	}
+
+	/**
+	 * Create Order Question when interaction is Choice and more than 2 choices.
+	 * 
+	 * @param mc
+	 * @param text
+	 * @param contentsDOM
+	 * @param unzipBackUpLocation
+	 * @param context
+	 * @param embedMedia
+	 * @return
+	 * @throws Exception
+	 */
+	private Question buildOrder(Pool pool, String text, String interactionText, Document contentsDOM, String unzipBackUpLocation, String context, List<String> embedMedia) throws Exception
+	{
+		if (!("orderInteraction").equals(interactionText)) return null;
+
+		// correct answer
+		XPath responseDeclarePath = new DOMXPath("/assessmentItem/responseDeclaration");
+		Element responseDeclare = (Element) responseDeclarePath.selectSingleNode(contentsDOM);
+		String cardinality = (responseDeclare.getAttribute("cardinality") != null) ? responseDeclare.getAttribute("cardinality") : null;
+		String basetype = (responseDeclare.getAttribute("baseType") != null) ? responseDeclare.getAttribute("baseType") : null;
+
+		// choice interaction
+		XPath choicesPath = new DOMXPath("/assessmentItem/itemBody//" + interactionText);
+		Element choices = (Element) choicesPath.selectSingleNode(contentsDOM);
+
+		if (choices == null) return null;
+
+		// correct answer
+		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
+		List<Element> values = identifierPath.selectNodes(contentsDOM);
+
+		XPath simpleChoicesPath = new DOMXPath("//simpleChoice");
+		List<Element> choiceList = simpleChoicesPath.selectNodes(contentsDOM);
+
+		if (!("identifier".equalsIgnoreCase(basetype) && cardinality != null && choiceList.size() > 0)) return null;
+
+		boolean shuffle = (choices.getAttribute("shuffle") != null) ? Boolean.parseBoolean(choices.getAttribute("shuffle")) : false;
+		List<String> answerChoices = new ArrayList<String>();
+		List<String> correctAnswerChoices = new ArrayList<String>();
+		Set<Integer> correctAnswers = new HashSet<Integer>();
+
+		// if response declaration has correct answer 
+		if (values != null && values.size() > 0)
+		{
+			for (Element value : values)
+				correctAnswerChoices.add(getCorrectResponse(value, contentsDOM, false));			
+		}
+		else
+		{
+			// get correct answers from RequestProcessing
+			correctAnswerChoices = getCorrectResponsefromResponseProcessing(contentsDOM, choices.getAttribute("responseIdentifier"), false);
+		}
+
+		int i = 0;
+		for (Element Choice : choiceList)
+		{
+			String id = Choice.getAttribute("identifier");
+			processEmbedMedia(Choice, unzipBackUpLocation, context, embedMedia);
+			String label = normalizeElementBody(contentsDOM, Choice);
+			answerChoices.add(label);
+
+			if (correctAnswerChoices.contains(id)) correctAnswers.add(i);
+			i++;
+		}
+
+		int maxChoices = correctAnswers.size();
+		return buildMnemeOrder(pool, text, answerChoices, correctAnswers);
+	}	
 
 	/**
 	 * 
@@ -2445,6 +2715,28 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 
 		return question;
 	}
+
+	/**
+	 * 
+	 * @param pool
+	 * @param responseTextual
+	 * @param text
+	 * @return
+	 * @throws Exception
+	 */
+	private Question buildMnemeFillInline(Pool pool, String text) throws Exception
+	{
+		Question question = this.questionService.newQuestion(pool, "mneme:FillInline");
+		FillInlineQuestionImpl fb = (FillInlineQuestionImpl) (question.getTypeSpecificQuestion());
+
+		fb.setText(text);
+
+		question.getPresentation().setText(text);
+
+		question.getTypeSpecificQuestion().consolidate("");
+
+		return question;
+	}	
 
 	/**
 	 * Commonly used method to create mneme's multiple choice question
@@ -2479,6 +2771,30 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 	}
 
 	/**
+	 * Commonly used method to create mneme's multiple choice question
+	 * 
+	 * @param pool
+	 * @param text
+	 * @param values
+	 * @param answerChoices
+	 * @param correctAnswers
+	 * @return
+	 */
+	private Question buildMnemeOrder(Pool pool, String text, List<String> answerChoices, Set<Integer> correctAnswers) throws Exception
+	{
+		Question question = this.questionService.newQuestion(pool, "mneme:Order");
+
+		OrderQuestionImpl mc = (OrderQuestionImpl) (question.getTypeSpecificQuestion());
+		question.getPresentation().setText(text);
+
+		mc.setAnswerChoices(answerChoices);
+		mc.setCorrectAnswerSet(correctAnswers);
+
+		question.getTypeSpecificQuestion().consolidate("");
+		return question;
+	}	
+
+	/**
 	 * Create True False question when interaction is choiceInteraction and 2 choices.
 	 * 
 	 * @param tf
@@ -2503,7 +2819,7 @@ public class ImportQti2ServiceImpl implements ImportQti2Service
 
 		if (choices == null) return null;
 
-		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/value");
+		XPath identifierPath = new DOMXPath("/assessmentItem/responseDeclaration/correctResponse/*[translate(name(), 'VALUE', 'value')='value']");
 		List<Element> values = identifierPath.selectNodes(contentsDOM);
 
 		XPath simpleChoicesPath = new DOMXPath("//simpleChoice");
