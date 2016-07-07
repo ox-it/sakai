@@ -10,9 +10,6 @@
 		<style type="text/css">
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
-		<link href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" type="text/css" rel="stylesheet" media="all"/>
-		<script language="javascript" type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
-		<script language="javascript" type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js"></script>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
 		
@@ -85,7 +82,6 @@
 		         	}
 		         	//reSize the iFrame
 		         	//signup_resetIFrameHeight(iFrameId);//no refresh
-			         resizeFrame('grow');
 		         }
 
 		         function resetRecurRows(recurRowId){
@@ -246,7 +242,7 @@
 				 		rowId="#{wrapper.recurId}"
 				 		rowStyle="#{wrapper.hideStyle}"
 				 		rowClasses="oddRow,evenRow"
-					    columnClasses="titleCol, mobileCol, creatorCol, locationCol, dateCol, timeCol, statusCol, removeCol"
+					    columnClasses="titleCol, creatorCol, locationCol, dateCol, timeCol, statusCol"
 				 		styleClass="table table-bordered table-hover table-striped">
 	
 						<t:column defaultSorted="true" sortable="true">
@@ -269,25 +265,6 @@
 									<h:commandLink id="cmdlink90" action="#{SignupMeetingsBean.processSignup}" >
 								<h:outputText value="#{wrapper.meeting.title}" />
 							</h:commandLink>							
-						</t:column>
-
-					    <t:column sortable="false">
-							<f:facet name="header">
-								<h:outputText value="#{msgs.signup_mobile_title}" escape="false"/>
-							</f:facet>
-							<f:verbatim>
-								<a href="#" class="mobile-info-link">
-									<img src="/library/image/m_ox.png" alt="m.ox info"/>
-								</a>
-							</f:verbatim>
-							<!-- hidden div to store meetingId -->
-							<f:verbatim>
-								<span class="meetingId" style="display:none;">
-								</f:verbatim>
-									<h:outputText value="#{wrapper.meetingId}" escape="false"/>
-								<f:verbatim>
-								</div>
-							</f:verbatim>
 						</t:column>
 
 					<t:column sortable="true">
@@ -409,22 +386,7 @@
 				</h:panelGroup>
 			 </h:form>
 			<!-- hidden div to store siteid -->
-			<f:verbatim>
-				<div id="siteId" style="display:none;">
-				</f:verbatim>
-				<h:outputText value="#{SignupMeetingsBean.currentLocationId}" escape="false"/>
-			<f:verbatim>
-				</div>
-				</f:verbatim>
-  		</sakai:view_content>	
+  		</sakai:view_content>
 	</sakai:view_container>
-
-	<!-- dialog for mobile oxford -->
-	<div id="dialog" title="Mobile Oxford" style="display:none;">
-		<h3>m.ox URL:</h3>
-		<code id="dialog-mox-url"></code>
-		<h3>QR code:</h3>
-		<img id="dialog-qr-code" alt="QR code"/>
-	</div>
 
 </f:view> 
