@@ -1045,14 +1045,6 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		return userLoggedInStatus;
 	}
 
-	/**
-	 * Get the current site id
-	 * @return 
-	 */
-	public String getCurrentLocationId() {
-		return sakaiFacade.getCurrentLocationId();
-	}
-
 	
 	/**
 	 * @return true if sakai property signup.enableAttendance is true, else will return false
