@@ -296,6 +296,8 @@ $(document).ready(function() {
 		        '#comments-dialog', '#student-dialog', '#question-dialog', '#delete-confirm'];
 			for (var i = 0; i < modalDialogList.length; i++) {
 				$(modalDialogList[i]).dialog("option", "width", modalDialogWidth());
+			}
+		});
 		$('#add-announcements-dialog').dialog({
 			autoOpen: false,
 			width: 700,
