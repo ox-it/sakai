@@ -109,7 +109,7 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 				+ org.sakaiproject.component.cover.ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrlPrefix = siteUrlPrefix + prefix + "/";
 		map.put("url", siteUrlPrefix + siteHelper.getSiteEffectiveId(site));
-		map.put("class", "icon-sakai-subsite");
+		map.put("iconClass", "icon-sakai-sub-site");
 		return map;
 	}
 
@@ -121,7 +121,7 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 				+ org.sakaiproject.component.cover.ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrlPrefix = siteUrlPrefix + prefix + "/";
 		map.put("url", siteUrlPrefix + (redirect.getId() ));
-		map.put("class", "icon-sakai-subsite"); // TODO Different icon for redirects.
+		map.put("iconClass", "icon-sakai-redirect");
 		return map;
 	}
 

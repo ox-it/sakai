@@ -1,3 +1,5 @@
+@import "font-awesome";
+
 $logo: '/library/skin/morpheus-default/images/ox/logo-white-height-30.png';
 $logo-height: 30px;
 $logo-width: 132px;
@@ -16,4 +18,17 @@ $col2of2-width: 31%;
 /* Prevent capitalization of the tool name in the breadcrumb bar. */
 .#{$namespace}siteHierarchy a.#{$namespace}hierarchy--toolName {
     text-transform: none;
+}
+
+/* Extra icon mappings specific to WL. */
+@if $skin-with-icons {
+    .icon-sakai-sub-site {                   @extend .fa-sitemap;}
+    .icon-sakai-redirect {                   @extend .fa-link;}
+    .icon-sakai-hierarchy-new-site {         @extend .fa-plus;}
+    .icon-sakai-hierarchy-bring-site {       @extend .fa-arrow-left;}
+    .icon-sakai-hierarchy-delete-site {      @extend .fa-remove;}
+    .icon-sakai-hierarchy-move-site {        @extend .fa-scissors;}
+    .icon-sakai-hierarchy-paste-site {       @extend .fa-paste;}
+    .icon-sakai-hierarchy-replace-site {     @extend .fa-copy;}
+    .icon-sakai-hierarchy-redirect-site {    @extend .fa-link;}
 }
