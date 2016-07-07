@@ -190,7 +190,7 @@
 
                         <li>
                             <a class="Mrphs-toolsNav__menuitem--link" href="${site.url}" title="${rloader.subsite} ${site.title}" role="menuitem">
-                                <span class="Mrphs-toolsNav__menuitem--icon ${sitePages.class}"></span>
+								<span class="Mrphs-toolsNav__menuitem--icon ${site.iconClass}"></span>
                                 <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsite} ${site.titleTruncated}</span>
                             </a>
                         </li>
