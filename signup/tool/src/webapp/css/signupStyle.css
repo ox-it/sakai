@@ -11,6 +11,7 @@ h4{
     font-weight:bold !important;    
     background:#ccc !important
 }
+
 table.signupTable {
 	text-align: left;
 	margin-top: 20px;
@@ -505,11 +506,4 @@ table.emailTable td.valueColumn {
 .dateExact {
 	color: #888;
 	margin-left: 10px;
-}
-table.signupTable td.mobileCol{	
-	text-align:center;
-}
-
-.mobile-info-link img {
-	height: 50px;
 }
