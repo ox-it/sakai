@@ -1,14 +1,15 @@
 #!groovy
 node {
+  // Mark the code checkout 'stage'....
+  stage 'Checkout'
+  // Get some code from a GitHub repository
+  checkout scm
+  // Clean any locally modified files and ensure we are actually on origin/master
+  // as a failed release could leave the local workspace ahead of origin/master
+  sh "git clean -f && git reset --hard origin/11.x"
+
+  stage 'Build'
   docker.image('maven:3.3.9-jdk-8').inside {
-    // Mark the code checkout 'stage'....
-    stage 'Checkout'
-    // Get some code from a GitHub repository
-    checkout scm
-    // Clean any locally modified files and ensure we are actually on origin/master
-    // as a failed release could leave the local workspace ahead of origin/master
-    sh "git clean -f && git reset --hard origin/11.x"
-    stage 'Build'
     // Make sure we cache the maven settings
     writeFile file: 'settings.xml', text: "<settings><localRepository>${pwd()}/.m2repo</localRepository></settings>"
     // Apache Maven related side notes:
