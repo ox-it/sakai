@@ -2435,7 +2435,7 @@ $(document).ready(function() {
 	$("[aria-describedby='moreDiv'] .ui-dialog-titlebar-close")
 	    .click(closeDropdown);
 	$('.no-highlight').folderListing({
-		enableHighlight: false,
+		enableHighlight: false
 	});
 	return false;
 });
