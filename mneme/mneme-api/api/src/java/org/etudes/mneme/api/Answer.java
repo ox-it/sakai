@@ -97,10 +97,19 @@ public interface Answer
 
 	/**
 	 * Check if this answer should show correct answer in review, based on the assessment setting and answer correctness.
+	 * For the setting correct_only, this method check's partial correctness, otherwise complete correctness
 	 * 
 	 * @return TRUE if the answer should show correct answer in review, FALSE if not.
 	 */
 	Boolean getShowCorrectReview();
+	
+	/**
+	 * Check if this answer should show correct answer in review, based on the assessment setting and answer correctness.
+	 * Checks for complete correctness in all settings
+	 * 
+	 * @return TRUE if the answer should show correct answer in review, FALSE if not.
+	 */
+	Boolean getShowCompletelyCorrectReview();	
 
 	/**
 	 * Check if this answer should show correct answer in review, based on the assessment setting and partial answer correctness.

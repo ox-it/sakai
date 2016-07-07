@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -186,6 +186,8 @@ public class AssessmentEditView extends ControllerImpl
 		// value holders for the selection check boxes
 		Values values = this.uiService.newValues();
 		context.put("ids", values);
+
+		new CKSetup().setCKCollectionAttrib(getDocsPath(), toolManager.getCurrentPlacement().getContext());
 
 		// render
 		uiService.render(ui, context);
@@ -390,6 +392,8 @@ public class AssessmentEditView extends ControllerImpl
 
 			else if (destination.equals("PARTS"))
 			{
+				if (assessment.getTitle().trim().length() == 0) assessment.setTitle(messages.getString("untitled-test"));
+				
 				// save
 				this.assessmentService.saveAssessment(assessment);
 
@@ -398,6 +402,8 @@ public class AssessmentEditView extends ControllerImpl
 
 			else if (destination.equals("INSTRUCTIONS"))
 			{
+				if (assessment.getTitle().trim().length() == 0) assessment.setTitle(messages.getString("untitled-test"));
+				
 				// save
 				this.assessmentService.saveAssessment(assessment);
 
@@ -447,6 +453,11 @@ public class AssessmentEditView extends ControllerImpl
 				destination = context.getDestination();
 				
 				this.assessmentService.sendEvalNotification(assessment);
+			}
+			else if (destination.startsWith("/assessment_settings"))
+			{
+				if (assessment.getTitle().trim().length() == 0) assessment.setTitle(messages.getString("untitled-test"));
+				this.assessmentService.saveAssessment(assessment);
 			}
 			else
 			{

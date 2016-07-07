@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,13 +39,13 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.etudes.gradebook.api.GradebookItemType;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
-import org.etudes.mneme.api.ExportQtiService;
 import org.etudes.mneme.api.GradesRejectsAssessmentException;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.MnemeService;
@@ -61,12 +61,13 @@ import org.etudes.mneme.api.Settings;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.util.api.Translation;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.StringUtil;
 
 /**
  * AssessmentServiceImpl implements AssessmentService.
@@ -76,18 +77,18 @@ public class AssessmentServiceImpl implements AssessmentService
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(AssessmentServiceImpl.class);
 
-	/** A cache of assessments. */
-	protected Cache assessmentCache = null;
-
 	/** Dependency: AttachmentService */
 	protected AttachmentService attachmentService = null;
+
+	/** Dependency: Etudes GradebookService. */
+	protected org.etudes.gradebook.api.GradebookService etudesGradebookService = null;
 
 	/** Dependency: EventTrackingService */
 	protected EventTrackingService eventTrackingService = null;
 
 	/** Dependency: ExportQtiService */
-	protected ExportQtiServiceImpl  exportService = null;
-	
+	protected ExportQtiServiceImpl exportService = null;
+
 	/** Dependency: GradesService */
 	protected GradesService gradesService = null;
 
@@ -122,6 +123,9 @@ public class AssessmentServiceImpl implements AssessmentService
 	protected ThreadLocalManager threadLocalManager = null;
 
 	protected UserDirectoryService userDirectoryService = null;
+	
+	/** Configuration: if true, pre-load questions and pools, and cache assessments, in getContextAssessments (MN-1420 MN-1458), otherwise don't */
+	boolean preLoadCache = true;
 
 	/**
 	 * {@inheritDoc}
@@ -135,6 +139,12 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		// check permission - user must have MANAGE_PERMISSION in the context
 		boolean ok = securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, assessment.getContext());
+
+		// for FCE, user must have that permission, too
+		if (ok && assessment.getFormalCourseEval())
+		{
+			ok = securityService.checkSecurity(userId, MnemeService.COURSE_EVAL_PERMISSION, assessment.getContext());
+		}
 
 		return ok;
 	}
@@ -224,6 +234,20 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean allowSubmit(String context)
+	{
+		if (context == null) throw new IllegalArgumentException();
+		String userId = sessionManager.getCurrentSessionUserId();
+
+		// check permission - user must have SUBMIT_PERMISSION in the context
+		boolean ok = securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context);
+
+		return ok;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void applyBaseDateTx(String context, int days)
 	{
 		if (context == null) throw new IllegalArgumentException("applyBaseDateTx: context is null");
@@ -297,6 +321,23 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
+	public Assessment assessmentExists(String context, String title)
+	{
+		List<Assessment> assessments = getContextAssessments(context, AssessmentService.AssessmentsSort.cdate_a, Boolean.FALSE);
+		for (Assessment candidate : assessments)
+		{
+			if (!StringUtil.different(candidate.getTitle().toLowerCase(), title.toLowerCase()))
+			{
+				return candidate;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void clearStaleMintAssessments()
 	{
 		// give it a day
@@ -353,11 +394,21 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean existsAssessmentTitle(String title, String context)
+	{
+		if (M_log.isDebugEnabled()) M_log.debug("existsAssessment: title: " + title);
+
+		return this.storage.existsAssessmentTitle(title, context);
+	}		
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public void exportAssessments(String context, String[] ids, ZipOutputStream zip) throws AssessmentPermissionException, IOException
 	{
 		this.exportService.exportAssessments(context, ids, zip);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -367,7 +418,20 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		if (M_log.isDebugEnabled()) M_log.debug("getArchivedAssessments: " + context);
 
-		List<Assessment> rv = new ArrayList<Assessment>(this.storage.getArchivedAssessments(context));
+		List<Assessment> rv = new ArrayList<Assessment>(this.storage.getArchivedAssessments(context, true));
+		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Assessment> getArchivedAssessments(String context, boolean includeFce)
+	{
+		if (context == null) throw new IllegalArgumentException();
+
+		if (M_log.isDebugEnabled()) M_log.debug("getArchivedAssessments: " + context);
+
+		List<Assessment> rv = new ArrayList<Assessment>(this.storage.getArchivedAssessments(context, includeFce));
 		return rv;
 	}
 
@@ -384,15 +448,15 @@ public class AssessmentServiceImpl implements AssessmentService
 		if (rv != null)
 		{
 			// return a copy
-			return this.storage.clone(rv);
+			return this.storage.clone((AssessmentImpl) rv);
 		}
 
 		if (M_log.isDebugEnabled()) M_log.debug("getAssessment: " + id);
 
 		rv = this.storage.getAssessment(id);
 
-		// thread-local cache (a copy)
-		if (rv != null) this.threadLocalManager.set(key, this.storage.clone(rv));
+		// thread-local cache a copy
+		if (rv != null) this.threadLocalManager.set(key, this.storage.clone((AssessmentImpl) rv));
 
 		return rv;
 	}
@@ -413,8 +477,8 @@ public class AssessmentServiceImpl implements AssessmentService
 		for (Assessment a : assessments)
 		{
 			// surveys that are not formal evals do not support this feature
-			//if ((a.getType() == AssessmentType.survey) && (!a.getFormalCourseEval())) continue;
-			//surveys that are not formal evals need to have view results clicked to support this feature
+			// if ((a.getType() == AssessmentType.survey) && (!a.getFormalCourseEval())) continue;
+			// surveys that are not formal evals need to have view results clicked to support this feature
 			if ((a.getType() == AssessmentType.survey) && (!a.getFormalCourseEval()) && !a.getFrozen()) continue;
 
 			if (a.getDates().getIsClosed())
@@ -437,15 +501,25 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		if (M_log.isDebugEnabled()) M_log.debug("getContextAssessments: " + context + " sort: " + sort + " publishOnly: " + publishedOnly);
 
+		if (this.preLoadCache)
+		{
+			// pre-load the questions & pools for all assessments in this context, needed for the validity checks on the assessments (parts).
+			// publishedOnly == true is the case that needs this, but we do it always cause it's likely the caller will be checking validity.
+			this.questionService.readAssessmentQuestions(context, publishedOnly);
+			this.poolService.readAssessmentPools(context, publishedOnly);
+		}
+
 		List<Assessment> rv = new ArrayList<Assessment>(this.storage.getContextAssessments(context, sort, publishedOnly));
 
-		// TODO: needed?
-		// // thread-local cache each found assessment
-		// for (Assessment assessment : rv)
-		// {
-		// String key = cacheKey(assessment.getId());
-		// this.threadLocalManager.set(key, this.storage.newAssessment((AssessmentImpl) assessment));
-		// }
+		if (this.preLoadCache)
+		{
+			// thread-local cache a copy of each found assessment
+			for (Assessment assessment : rv)
+			{
+				String key = cacheKey(assessment.getId());
+				this.threadLocalManager.set(key, this.storage.clone((AssessmentImpl) assessment));
+			}
+		}
 
 		return rv;
 	}
@@ -455,8 +529,6 @@ public class AssessmentServiceImpl implements AssessmentService
 	 */
 	public List<Assessment> getFormalEvaluationsNeedingNotification()
 	{
-		List<Assessment> rv = new ArrayList<Assessment>();
-
 		// this gets the candidates - but does not check the close dates
 		List<Assessment> assessments = new ArrayList<Assessment>(this.storage.getFormalEvaluationsNeedingNotification());
 
@@ -485,6 +557,8 @@ public class AssessmentServiceImpl implements AssessmentService
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings(
+	{ "unchecked", "rawtypes" })
 	public List<User> getSubmitUsers(String context)
 	{
 		if (M_log.isDebugEnabled()) M_log.debug("getSubmitUsers: " + context);
@@ -501,7 +575,7 @@ public class AssessmentServiceImpl implements AssessmentService
 			public int compare(Object arg0, Object arg1)
 			{
 				int rv = ((User) arg0).getSortName().compareToIgnoreCase(((User) arg1).getSortName());
-				
+
 				return rv;
 			}
 		});
@@ -538,7 +612,7 @@ public class AssessmentServiceImpl implements AssessmentService
 
 			storage.init();
 
-			M_log.info("init(): storage: " + this.storage);
+			M_log.info("init(): storage: " + this.storage + " preLoadCache: " + this.preLoadCache);
 		}
 		catch (Throwable t)
 		{
@@ -580,16 +654,16 @@ public class AssessmentServiceImpl implements AssessmentService
 		if (M_log.isDebugEnabled()) M_log.debug("newEmptyAssessment: ");
 		AssessmentImpl rv = this.storage.newAssessment();
 		rv.setContext(context);
-		
+
 		return rv;
 	}
-	
+
 	public Settings newEmptySettings()
 	{
 		if (M_log.isDebugEnabled()) M_log.debug("newEmptySettings: ");
 		SettingsImpl rv = new SettingsImpl();
-		
-		return (Settings)rv;
+
+		return (Settings) rv;
 	}
 
 	/**
@@ -611,8 +685,7 @@ public class AssessmentServiceImpl implements AssessmentService
 		this.submissionService.removeTestDriveSubmissions(assessment);
 
 		// clear the cache
-		String key = cacheKey(assessment.getId());
-		this.threadLocalManager.set(key, null);
+		this.threadLocalManager.set(cacheKey(assessment.getId()), null);
 
 		// retract the test from the gb
 		if (assessment.getIsValid() && assessment.getGrading().getGradebookIntegration() && assessment.getPublished())
@@ -671,26 +744,40 @@ public class AssessmentServiceImpl implements AssessmentService
 		if (assessment == null) throw new IllegalArgumentException();
 		if (assessment.getId() == null) throw new IllegalArgumentException();
 
+		// get the current (before changes) assessment
+		Assessment current = getAssessment(assessment.getId());
+
 		// check for empty special access
 		((AssessmentSpecialAccessImpl) assessment.getSpecialAccess()).consolidate();
 
-		// if the type is changed to assignment, enforce related settings changes
-		if ((((AssessmentImpl) assessment).getTypeChanged()) && (assessment.getType() == AssessmentType.assignment))
+		// if the type is changed ...
+		if (((AssessmentImpl) assessment).getTypeChanged())
 		{
-			// assignments always are flexible
-			assessment.setRandomAccess(Boolean.TRUE);
+			// ... to assignment, enforce related settings changes
+			if (assessment.getType() == AssessmentType.assignment)
+			{
+				// assignments always are flexible
+				assessment.setRandomAccess(Boolean.TRUE);
 
-			// also default to "review available upon submission" and "manual release"
-			assessment.getReview().setTiming(ReviewTiming.submitted);
-			assessment.getGrading().setAutoRelease(Boolean.FALSE);
-		}
+				// also default to "review available upon submission" and "manual release"
+				assessment.getReview().setTiming(ReviewTiming.submitted);
+				assessment.getGrading().setAutoRelease(Boolean.FALSE);
+			}
 
-		// if type is changed from survey, clear formal evaluation
-		if ((((AssessmentImpl) assessment).getTypeChanged()) && (assessment.getType() != AssessmentType.survey))
-		{
-			// formal course evaluation is only for surveys
-			assessment.setFormalCourseEval(Boolean.FALSE);
-			assessment.setNotifyEval(Boolean.FALSE);
+			// ... to offline, adjust
+			else if (assessment.getType() == AssessmentType.offline)
+			{
+				// remove parts
+				assessment.getParts().clear();
+			}
+
+			// if changing from survey
+			if (((AssessmentImpl) assessment).getOrigType() == AssessmentType.survey)
+			{
+				// formal course evaluation is only for surveys
+				assessment.setFormalCourseEval(Boolean.FALSE);
+				assessment.setNotifyEval(Boolean.FALSE);
+			}
 		}
 
 		// enforce 1 try for formal course evaluation
@@ -699,11 +786,17 @@ public class AssessmentServiceImpl implements AssessmentService
 			assessment.setTries(1);
 		}
 
-		// enforce surveys that are not formal evals cannot have results email
-		/*if ((assessment.getType() == AssessmentType.survey) && (!assessment.getFormalCourseEval()))
+		// for offline, enforce...
+		if (assessment.getType() == AssessmentType.offline)
 		{
-			assessment.setResultsEmail(null);
-		}*/
+			// review timing change from submitted to graded
+			if (assessment.getReview().getTiming() == ReviewTiming.submitted) assessment.getReview().setTiming(ReviewTiming.graded);
+
+			// 1 try, no time limit, no anon grading
+			assessment.setTries(1);
+			assessment.setTimeLimit(null);
+			assessment.getGrading().setAnonymous(Boolean.FALSE);
+		}
 
 		// if any changes made, clear mint
 		if (assessment.getIsChanged())
@@ -788,16 +881,19 @@ public class AssessmentServiceImpl implements AssessmentService
 		boolean typeChanged = ((AssessmentImpl) assessment).getTypeChanged();
 		assessment.initType(assessment.getType());
 
+		// see if the points changed (and clear)
+		boolean pointsChanged = ((AssessmentImpl) assessment).getPointsChanged();
+		((AssessmentImpl) assessment).initPoints(assessment.getPoints());
+
 		// make sure we are not still considered invalid for gb - if we are, we will pick that up down below
 		((AssessmentGradingImpl) (assessment.getGrading())).initGradebookRejectedAssessment(Boolean.FALSE);
 
 		// see if we have changed our validity
 		boolean validityChanged = false;
 		boolean nowValid = assessment.getIsValid();
-		Assessment b4 = getAssessment(assessment.getId());
-		if (b4 != null)
+		if (current != null)
 		{
-			validityChanged = (b4.getIsValid().booleanValue() != nowValid);
+			validityChanged = (current.getIsValid().booleanValue() != nowValid);
 		}
 
 		// if we are just going published and not yet live, bring the assessment live
@@ -805,9 +901,64 @@ public class AssessmentServiceImpl implements AssessmentService
 		{
 			((AssessmentImpl) assessment).lock();
 		}
+		
+		boolean isEtudesGradebookInSite = false;		
+		boolean isCurrTitleAvailable = false;
+		boolean isCurrTitleDefined = false;
+		
+		isEtudesGradebookInSite = etudesGradebookService.isToolAvailable(current.getContext());
+		
+		// etudes gradebook - duplicate titles - current assessment
+		if (isEtudesGradebookInSite)
+		{
+			if (current.getGradebookIntegration())
+			{
+				isCurrTitleAvailable = etudesGradebookService.isTitleAvailable(current.getContext(), userDirectoryService.getCurrentUser().getId(), current.getTitle());
+				
+				GradebookItemType gradebookItemType = null;
+				if (current.getType() == AssessmentType.assignment)
+				{
+					gradebookItemType = GradebookItemType.assignment;
+				}
+				else if (current.getType() == AssessmentType.test)
+				{
+					gradebookItemType = GradebookItemType.test;
+				}
+				else if (assessment.getType() == AssessmentType.offline)
+				{
+					gradebookItemType = GradebookItemType.offline;
+				}
+				else if (assessment.getType() == AssessmentType.survey)
+				{
+					gradebookItemType = GradebookItemType.survey;
+				}
+				
+				isCurrTitleDefined = etudesGradebookService.isTitleDefined(current.getContext(), userDirectoryService.getCurrentUser().getId(), current.getTitle(), current.getId(), gradebookItemType);
+				
+				M_log.debug("isCurrTitleAvaialble :"+ isCurrTitleAvailable);
+				M_log.debug("isCurrTitleDefined :"+ isCurrTitleAvailable);
+			}
+		}
+		
+		// check duplicate titles in gradebook - current assessment not added to gradebook  and updated assessment added to gradebook before saving the assessment
+		boolean checkDuplicateTitlesNeeded = false;
+		if (isEtudesGradebookInSite && !isCurrTitleDefined && assessment.getGradebookIntegration())
+		{
+			boolean isTitleAvailable = etudesGradebookService.isTitleAvailable(assessment.getContext(), userDirectoryService.getCurrentUser().getId(), assessment.getTitle());
+			
+			M_log.debug("isTitleAvaialble :"+ isTitleAvailable);
+			
+			if (!isTitleAvailable)
+			{
+				// mark as invalid
+				((AssessmentGradingImpl) (assessment.getGrading())).initGradebookRejectedAssessment(Boolean.TRUE);
 
-		// get the assessment before these changes
-		Assessment current = getAssessment(assessment.getId());
+				// save
+				//save((AssessmentImpl) assessment);
+				
+				checkDuplicateTitlesNeeded = true;
+			}
+		}
 
 		// save the changes
 		save((AssessmentImpl) assessment);
@@ -826,14 +977,89 @@ public class AssessmentServiceImpl implements AssessmentService
 						getAssessmentReference(assessment.getId()), true));
 			}
 		}
+		
+		// etudes gradebook - duplicate titles
+		if (isEtudesGradebookInSite && checkDuplicateTitlesNeeded)
+		{
+			if (isCurrTitleDefined)
+			{
+				// check for changes - type, title etc
+				if (assessment.getGradebookIntegration())
+				{
+					GradebookItemType gradebookItemType = null;
+					if (assessment.getType() == AssessmentType.assignment)
+					{
+						gradebookItemType = GradebookItemType.assignment;
+					}
+					else if (assessment.getType() == AssessmentType.test)
+					{
+						gradebookItemType = GradebookItemType.test;
+					}
+					else if (assessment.getType() == AssessmentType.offline)
+					{
+						gradebookItemType = GradebookItemType.offline;
+					}
+					else if (assessment.getType() == AssessmentType.survey)
+					{
+						gradebookItemType = GradebookItemType.survey;
+					}
+					
+					boolean isTitleDefined = etudesGradebookService.isTitleDefined(assessment.getContext(), userDirectoryService.getCurrentUser().getId(), assessment.getTitle(), assessment.getId(), gradebookItemType);
+					
+					M_log.debug("isTitleDefined :"+ isTitleDefined);
+					
+					if (!isTitleDefined)
+					{
+						// title might have changed
+						boolean isTitleAvailable = etudesGradebookService.isTitleAvailable(assessment.getContext(), userDirectoryService.getCurrentUser().getId(), assessment.getTitle());
+						
+						M_log.debug("isTitleAvaialble :"+ isTitleAvailable);
+						
+						if (!isTitleAvailable)
+						{
+							// mark as invalid
+							((AssessmentGradingImpl) (assessment.getGrading())).initGradebookRejectedAssessment(Boolean.TRUE);
+	
+							// re-save
+							save((AssessmentImpl) assessment);
+						}
+					}
+					
+				}
+			}
+			else
+			{
+				// check for title availability
+				if (assessment.getGradebookIntegration())
+				{
+					boolean isTitleAvailable = etudesGradebookService.isTitleAvailable(assessment.getContext(), userDirectoryService.getCurrentUser().getId(), assessment.getTitle());
+					
+					M_log.debug("isTitleAvaialble :"+ isTitleAvailable);
+					
+					if (!isTitleAvailable)
+					{
+						// mark as invalid
+						((AssessmentGradingImpl) (assessment.getGrading())).initGradebookRejectedAssessment(Boolean.TRUE);
+						
+						if (assessment.getPublished())
+						{
+							assessment.setPublished(Boolean.FALSE);
+						}
+	
+						// re-save
+						save((AssessmentImpl) assessment);
+					}
+				}
+			}
+		}
 
 		// if the name or due date has changed, or we are retracting submissions, or we are now unpublished,
 		// or we are now invalid, or we have just been archived, or we are now not gradebook integrated,
 		// or we are releasing (we need to remove our entry so we can add it back without conflict)
-		// or we changed type to survey
+		// or we changed type to survey or our points have changed
 		// retract the assessment from the grades authority
 		if (rescore || titleChanged || dueChanged || retract || release || (publishedChanged && !assessment.getPublished())
-				|| (validityChanged && !nowValid) || (archivedChanged && assessment.getArchived())
+				|| (validityChanged && !nowValid) || (archivedChanged && assessment.getArchived()) || pointsChanged
 				|| (gbIntegrationChanged && !assessment.getGradebookIntegration()) || (typeChanged && assessment.getType() == AssessmentType.survey))
 		{
 			// retract the entire assessment from grades - use the old information (title) (if we existed before this call)
@@ -860,7 +1086,7 @@ public class AssessmentServiceImpl implements AssessmentService
 		// or we are now valid (and are published), or we are now gradebook integrated,
 		// or we are retracting (we need to add the entry back in that we just removed)
 		// report the assessment and all completed submissions to the grades authority
-		if (rescore || titleChanged || dueChanged || release || retract || (publishedChanged && assessment.getPublished())
+		if (rescore || titleChanged || dueChanged || release || retract || (publishedChanged && assessment.getPublished()) || pointsChanged
 				|| (validityChanged && nowValid && assessment.getPublished()) || (gbIntegrationChanged && assessment.getGradebookIntegration()))
 		{
 			if (assessment.getIsValid() && assessment.getGradebookIntegration() && assessment.getPublished())
@@ -946,11 +1172,11 @@ public class AssessmentServiceImpl implements AssessmentService
 	public void sendEvalNotification(Assessment assessment)
 	{
 		if (assessment == null) throw new IllegalArgumentException();
-		
+
 		// do it - the submission service handles this
 		((SubmissionServiceImpl) this.submissionService).notifyStudentEvaluation(assessment);
-	}	
-	
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -978,6 +1204,14 @@ public class AssessmentServiceImpl implements AssessmentService
 	}
 
 	/**
+	 * @param etudesGradebookService the etudesGradebookService to set
+	 */
+	public void setEtudesGradebookService(org.etudes.gradebook.api.GradebookService etudesGradebookService)
+	{
+		this.etudesGradebookService = etudesGradebookService;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public void setEvaluationSent(Assessment assessment, Date date)
@@ -1000,7 +1234,8 @@ public class AssessmentServiceImpl implements AssessmentService
 		eventTrackingService = service;
 	}
 
-	public void setExportService(ExportQtiServiceImpl exportService) {
+	public void setExportService(ExportQtiServiceImpl exportService)
+	{
 		this.exportService = exportService;
 	}
 
@@ -1024,6 +1259,17 @@ public class AssessmentServiceImpl implements AssessmentService
 	public void setPoolService(PoolService service)
 	{
 		poolService = service;
+	}
+
+	/**
+	 * Set the preLoadCache setting.
+	 * 
+	 * @param value
+	 *        The preLoadCache setting.
+	 */
+	public void setPreLoadCache(boolean value)
+	{
+		this.preLoadCache = value;
 	}
 
 	/**
@@ -1088,6 +1334,8 @@ public class AssessmentServiceImpl implements AssessmentService
 	 * @param options
 	 *        The PoolStorage options.
 	 */
+	@SuppressWarnings(
+	{ "unchecked", "rawtypes" })
 	public void setStorage(Map options)
 	{
 		this.storgeOptions = options;
@@ -1210,16 +1458,8 @@ public class AssessmentServiceImpl implements AssessmentService
 		// email results not sent
 		rv.initResultsSent(null);
 
-		// newly copied are never formal course evaluation
-		rv.initFormalCourseEval(Boolean.FALSE);
-		rv.initNotifyEval(Boolean.FALSE);
+		// open notification not sent
 		rv.initEvalSent(null);
-
-		// surveys can't have auto-send results email
-		/*if ((rv.getType() == AssessmentType.survey) && (!rv.getFormalCourseEval()))
-		{
-			rv.initResultsEmail(null);
-		}*/
 
 		((AssessmentGradingImpl) (rv.getGrading())).initGradebookRejectedAssessment(Boolean.FALSE);
 
@@ -1246,13 +1486,54 @@ public class AssessmentServiceImpl implements AssessmentService
 		// translate embedded media references
 		if (attachmentTranslations != null)
 		{
+			// question presentation text and attachments
 			rv.getPresentation().setText(this.attachmentService.translateEmbeddedReferences(rv.getPresentation().getText(), attachmentTranslations));
+			List<Reference> attachments = rv.getPresentation().getAttachments();
+			List<Reference> newAttachments = new ArrayList<Reference>();
+			for (Reference ref : attachments)
+			{
+				String newRef = ref.getReference();
+				for (Translation t : attachmentTranslations)
+				{
+					newRef = t.translate(newRef);
+				}
+				newAttachments.add(this.attachmentService.getReference(newRef));
+			}
+			rv.getPresentation().setAttachments(newAttachments);
+
+			// submit message text and attachments
 			rv.getSubmitPresentation().setText(
 					this.attachmentService.translateEmbeddedReferences(rv.getSubmitPresentation().getText(), attachmentTranslations));
+			attachments = rv.getSubmitPresentation().getAttachments();
+			newAttachments = new ArrayList<Reference>();
+			for (Reference ref : attachments)
+			{
+				String newRef = ref.getReference();
+				for (Translation t : attachmentTranslations)
+				{
+					newRef = t.translate(newRef);
+				}
+				newAttachments.add(this.attachmentService.getReference(newRef));
+			}
+			rv.getSubmitPresentation().setAttachments(newAttachments);
+
 			for (Part p : rv.getParts().getParts())
 			{
+				// part instruction and attachments
 				p.getPresentation()
 						.setText(this.attachmentService.translateEmbeddedReferences(p.getPresentation().getText(), attachmentTranslations));
+				attachments = p.getPresentation().getAttachments();
+				newAttachments = new ArrayList<Reference>();
+				for (Reference ref : attachments)
+				{
+					String newRef = ref.getReference();
+					for (Translation t : attachmentTranslations)
+					{
+						newRef = t.translate(newRef);
+					}
+					newAttachments.add(this.attachmentService.getReference(newRef));
+				}
+				p.getPresentation().setAttachments(newAttachments);
 			}
 		}
 
@@ -1358,7 +1639,7 @@ public class AssessmentServiceImpl implements AssessmentService
 
 		return Boolean.TRUE;
 	}
-
+	
 	/**
 	 * Save the assessment
 	 * 
@@ -1390,11 +1671,11 @@ public class AssessmentServiceImpl implements AssessmentService
 		assessment.getModifiedBy().setDate(now);
 		assessment.getModifiedBy().setUserId(userId);
 
-		// clear the cache
-		this.threadLocalManager.set(cacheKey(assessment.getId()), null);
-
 		// save
 		this.storage.saveAssessment(assessment);
+
+		// clear the cache
+		this.threadLocalManager.set(cacheKey(assessment.getId()), null);
 
 		// event
 		eventTrackingService.post(eventTrackingService.newEvent(event, getAssessmentReference(assessment.getId()), true));

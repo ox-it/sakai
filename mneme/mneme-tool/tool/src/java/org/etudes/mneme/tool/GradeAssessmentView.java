@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -26,12 +26,15 @@ package org.etudes.mneme.tool;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.ambrosia.api.Context;
@@ -45,10 +48,22 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentType;
+import org.etudes.mneme.api.MnemeService;
+import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
+import org.etudes.roster.api.RosterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
@@ -63,17 +78,32 @@ public class GradeAssessmentView extends ControllerImpl
 	/** Assessment service. */
 	protected AssessmentService assessmentService = null;
 
+	/** Dependency: SessionManager */
+	protected SessionManager m_sessionManager = null;
+
 	/** Configuration: the page sizes for the view. */
 	protected List<Integer> pageSizes = new ArrayList<Integer>();
 
+	/** The RosterService. */
+	protected RosterService rosterService = null;
+
+	/** Dependency: SecurityService */
+	protected SecurityService securityService = null;
+
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService serverConfigurationService = null;
+
+	/** The SiteService. */
+	protected SiteService siteService = null;
 
 	/** Submission Service */
 	protected SubmissionService submissionService = null;
 
 	/** Dependency: ToolManager */
 	protected ToolManager toolManager = null;
+
+	/** UserDirectoryService */
+	protected UserDirectoryService userDirectoryService = null;
 
 	/**
 	 * Shutdown.
@@ -88,8 +118,8 @@ public class GradeAssessmentView extends ControllerImpl
 	 */
 	public void get(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// [2]sort for /grades, [3]aid |optional->| [4]our sort, [5]our page, [6]our highest/all-for-uid
-		if ((params.length < 4) || params.length > 7) throw new IllegalArgumentException();
+		// [2]sort for /grades, [3]aid |optional->| [4]our sort, [5]our page, [6]our highest/all-for-uid, [7] section filter
+		if ((params.length < 4) || params.length > 8) throw new IllegalArgumentException();
 
 		// check for user permission to access the assessments for grading
 		if (!this.submissionService.allowEvaluate(toolManager.getCurrentPlacement().getContext()))
@@ -149,14 +179,6 @@ public class GradeAssessmentView extends ControllerImpl
 			pagingParameter = "1-" + Integer.toString(this.pageSizes.get(0));
 		}
 
-		// official or all
-		// Boolean official = Boolean.TRUE;
-		// String allUid = "official";
-		// if ((params.length > 6) && (!params[6].equals("official")))
-		// {
-		// allUid = params[6];
-		// }
-
 		Boolean official = Boolean.FALSE;
 		String allUid = null;
 		if (params.length > 6)
@@ -170,6 +192,15 @@ public class GradeAssessmentView extends ControllerImpl
 			official = Boolean.FALSE;
 			allUid = null;
 		}
+
+		// section filter
+		String sectionFilter = null;
+		if (params.length > 7)
+		{
+			sectionFilter = params[7];
+			if ("-".equals(sectionFilter)) sectionFilter = null;
+		}
+		context.put("sectionFilter", sectionFilter == null ? "-" : sectionFilter);
 
 		// view highest only decision (boolean string)
 		Value highest = this.uiService.newValue();
@@ -187,7 +218,7 @@ public class GradeAssessmentView extends ControllerImpl
 		}
 
 		// get the size
-		Integer maxSubmissions = this.submissionService.countAssessmentSubmissions(assessment, official, allUid);
+		Integer maxSubmissions = this.submissionService.countAssessmentSubmissions(assessment, official, allUid, sectionFilter);
 
 		// paging
 		Paging paging = uiService.newPaging();
@@ -197,7 +228,7 @@ public class GradeAssessmentView extends ControllerImpl
 
 		// get all Assessment submissions
 		List<Submission> submissions = this.submissionService.findAssessmentSubmissions(assessment, sort, official, allUid,
-				paging.getSize() == 0 ? null : paging.getCurrent(), paging.getSize() == 0 ? null : paging.getSize(), null);
+				paging.getSize() == 0 ? null : paging.getCurrent(), paging.getSize() == 0 ? null : paging.getSize(), null, sectionFilter);
 		context.put("submissions", submissions);
 
 		// pages sizes
@@ -206,6 +237,45 @@ public class GradeAssessmentView extends ControllerImpl
 			context.put("pageSizes", this.pageSizes);
 		}
 		new CKSetup().setCKCollectionAttrib(getDocsPath(), toolManager.getCurrentPlacement().getContext());
+
+		// the sections for the site
+		List<String> sections = siteSections(assessment.getContext());
+		context.put("sections", sections);
+
+		// for the selected section (the destination string at page 0)
+		// [2]sort for /grades, [3]aid |optional->| [4]our sort, [5]our page, [6]our highest/all-for-uid, [7] section filter
+		String[] dest = new String[8];
+		for (int i = 0; i < params.length; i++)
+		{
+			dest[i] = params[i];
+		}
+		// fill in missing sort
+		if (dest[4] == null)
+		{
+			dest[4] = "0A";
+		}
+		// fill in missing paging
+		if (dest[5] == null)
+		{
+			dest[5] = "1-" + paging.getSize().toString();
+		}
+		// set the official / all
+		if ("true".equals(highest.getValue()))
+		{
+			dest[6] = "official";
+		}
+		else
+		{
+			dest[6] = "all";
+		}
+		if (dest[7] == null)
+		{
+			dest[7] = "-";
+		}
+		String newDestination = StringUtil.unsplit(dest, "/");
+		Value value = this.uiService.newValue();
+		value.setValue(newDestination);
+		context.put("selectedSection", value);
 
 		uiService.render(ui, context);
 	}
@@ -232,22 +302,44 @@ public class GradeAssessmentView extends ControllerImpl
 	/**
 	 * {@inheritDoc}
 	 */
+	@SuppressWarnings("rawtypes")
 	public void post(HttpServletRequest req, HttpServletResponse res, Context context, String[] params) throws IOException
 	{
-		// [2]sort for /grades, [3]aid |optional->| [4]our sort, [5]our page, [6]our all/highest
-		if ((params.length < 4) || params.length > 7) throw new IllegalArgumentException();
+		// [2]sort for /grades, [3]aid |optional->| [4]our sort, [5]our page, [6]our all/highest, [7] section filter
+		if ((params.length < 4) || params.length > 8) throw new IllegalArgumentException();
+
+		String siteId = toolManager.getCurrentPlacement().getContext();
 
 		// check for user permission to access the assessments for grading
-		if (!this.submissionService.allowEvaluate(toolManager.getCurrentPlacement().getContext()))
+		if (!this.submissionService.allowEvaluate(siteId))
 		{
 			// redirect to error
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
 			return;
 		}
 
+		Site site = null;
+		try
+		{
+			site = this.siteService.getSite(siteId);
+		}
+		catch (IdUnusedException e)
+		{
+			// redirect to error
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
+			return;
+		}
+
+		String iidCode = this.rosterService.findInstitutionCode(site.getTitle());
+
 		// for Adjust every student's test submission by
 		Value submissionAdjustValue = this.uiService.newValue();
 		context.put("submissionAdjust", submissionAdjustValue);
+
+		// for Adjust every student's test submission by
+		Value deductLateValue = this.uiService.newValue();
+		context.put("lateSubmissionDeduct", deductLateValue);
+
 
 		// for "Adjust every student's test submission by" comments
 		Value submissionAdjustCommentsValue = this.uiService.newValue();
@@ -286,6 +378,10 @@ public class GradeAssessmentView extends ControllerImpl
 		Value highest = this.uiService.newValue();
 		context.put("highest", highest);
 
+		// a CSV uploader for the CSV file
+		UploadCsv upload = new UploadCsv();
+		context.put("upload", upload);
+
 		// read form
 		String destination = this.uiService.decode(req, context);
 
@@ -302,29 +398,84 @@ public class GradeAssessmentView extends ControllerImpl
 			}
 		}
 
-		// apply the global adjustments
+		// get a valid global score adjustment (must not be more than 2x the assessment's points)
+		Float score = null;
 		String adjustScore = StringUtil.trimToNull(submissionAdjustValue.getValue());
+		if (adjustScore != null)
+		{
+			Float totalPoints = assessment.getPoints();
+			if (totalPoints != null)
+			{
+				try
+				{
+					score = Float.parseFloat(adjustScore);
+					if (Math.abs(score) > (totalPoints.floatValue() * 2f))
+					{
+						M_log.warn("post: adjustScore out of range: score: " + score + " assessment points: " + totalPoints + " assessment id: "
+								+ assessment.getId());
+						score = null;
+					}
+				}
+				catch (NumberFormatException e)
+				{
+					score = null;
+				}
+			}
+			else
+			{
+				M_log.warn("post: adjustScore against an assessment with no points: assessment id: " + assessment.getId());
+			}
+		}
+
+		// the global comment adjustment
 		String adjustComments = StringUtil.trimToNull(submissionAdjustCommentsValue.getValue());
-		if (adjustScore != null || adjustComments != null)
+
+		// apply the global adjustments
+		if ((score != null) || (adjustComments != null))
 		{
 			try
 			{
-				// parse the score
-				Float score = null;
-				if (adjustScore != null)
-				{
-					score = Float.parseFloat(adjustScore);
-				}
-
-				// apply (no release)
 				this.submissionService.evaluateSubmissions(assessment, adjustComments, score);
 			}
 			catch (AssessmentPermissionException e)
 			{
 				M_log.warn("post: " + e);
 			}
-			catch (NumberFormatException e)
+		}
+
+		// get a valid global penalty adjustment )
+		Float deductValue = null;
+		String deductScore = StringUtil.trimToNull(deductLateValue.getValue());
+		if (deductScore != null)
+		{
+			Float totalPoints = assessment.getPoints();
+			if (totalPoints != null)
 			{
+				try
+				{
+					deductValue = Float.parseFloat(deductScore);
+				}
+				catch (NumberFormatException e)
+				{
+					deductValue = null;
+				}
+			}
+			else
+			{
+				M_log.warn("post: deductValue against an assessment with no points: assessment id: " + assessment.getId());
+			}
+		}
+		
+		// apply the global adjustments
+		if (deductValue != null)
+		{
+			try
+			{
+				this.submissionService.deductLateSubmissions(assessment, deductValue);
+			}
+			catch (AssessmentPermissionException e)
+			{
+				M_log.warn("post: " + e);
 			}
 		}
 
@@ -357,9 +508,172 @@ public class GradeAssessmentView extends ControllerImpl
 			destination = context.getDestination();
 		}
 
+		else if (destination.equals("ZEROCLOSED"))
+		{
+			List<Submission> submissionsToZero = this.submissionService.findAssessmentSubmissions(assessment, null, false, null, null, null, null,
+					null);
+			for (Submission s : submissionsToZero)
+			{
+				if (s.getIsPhantom() && !s.getAssessment().getDates().getIsOpen(Boolean.FALSE))
+				{
+					s.setTotalScore(0f);
+					s.getEvaluation().setEvaluated(Boolean.TRUE);
+					s.setIsReleased(Boolean.TRUE);
+					try
+					{
+						this.submissionService.evaluateSubmission(s);
+					}
+					catch (AssessmentPermissionException e)
+					{
+					}
+				}
+			}
+
+			destination = context.getDestination();
+		}
+
 		else if (destination.equals("SAVE"))
 		{
 			destination = context.getDestination();
+		}
+
+		else if (destination.equals("UPLOAD"))
+		{
+			GradeImportSet importSet = new GradeImportSet();
+			importSet.assessment = assessment;
+
+			List<GradeImportSet> importSets = new ArrayList<GradeImportSet>(1);
+			importSets.add(importSet);
+
+			// get the Tool session, where we will be storing this until confirmed
+			ToolSession toolSession = m_sessionManager.getCurrentToolSession();
+			toolSession.setAttribute(GradeImportSet.ATTR_NAME, importSets);
+
+			List<CSVRecord> records = upload.getRecords();
+			if ((records != null) && (records.size() > 1))
+			{
+				// get the header record
+				CSVRecord header = records.get(0);
+
+				// find the "Student ID" column
+				int idCol = -1;
+				for (int c = 0; c < header.size(); c++)
+				{
+					// get the assessment title, extras
+					String title = StringUtil.trimToZero(header.get(c));
+					if ("Student ID".equalsIgnoreCase(title))
+					{
+						idCol = c;
+						break;
+					}
+				}
+
+				// find the scores column - the one with a title matching the assessment title
+				int col = -1;
+				for (int c = 0; c < header.size(); c++)
+				{
+					// get the assessment title, extras
+					String title = StringUtil.trimToZero(header.get(c));
+					int extraPos = title.indexOf("{{");
+					if (extraPos != -1)
+					{
+						title = StringUtil.trimToZero(title.substring(0, extraPos));
+					}
+
+					if (title.equalsIgnoreCase(assessment.getTitle()))
+					{
+						col = c;
+						break;
+					}
+				}
+
+				if ((col != -1) && (idCol != -1) && (col != idCol))
+				{
+					// get the assesssment's submissions
+					List<Submission> subs = this.submissionService.findAssessmentSubmissions(assessment, null, true, null, null, null, null);
+
+					for (CSVRecord r : records)
+					{
+						// skip the header
+						if (r.getRecordNumber() == 1) continue;
+
+						GradeImport x = new GradeImport();
+						importSet.rows.add(x);
+
+						if (r.size() > 0)
+						{
+							x.studentId = r.get(idCol);
+						}
+						if (r.size() > col)
+						{
+							x.scoreGiven = r.get(col);
+						}
+
+						if (x.scoreGiven != null)
+						{
+							try
+							{
+								x.score = Float.parseFloat(x.scoreGiven);
+							}
+							catch (NumberFormatException e)
+							{
+							}
+						}
+
+						if ((x.score != null) & (x.studentId != null))
+						{
+							// use value in paren, if there
+							String id = x.studentId;
+							int parenPos = id.indexOf("(");
+							if (parenPos != -1)
+							{
+								id = StringUtil.trimToZero(id.substring(parenPos + 1, id.length() - 1));
+							}
+
+							User user = findIdentifiedStudentInSite(id, siteId, iidCode);
+
+							if (user != null)
+							{
+								// check for duplicate records
+								boolean duplicate = false;
+								for (GradeImport gi : importSet.rows)
+								{
+									if (gi == x) continue;
+									if (gi.userId == null) continue;
+									if (gi.userId.equals(user.getId()))
+									{
+										duplicate = true;
+										x.duplicate = Boolean.TRUE;
+										break;
+									}
+								}
+
+								if (!duplicate)
+								{
+									// find the submission
+									Submission forUser = null;
+									for (Submission submission : subs)
+									{
+										if (submission.getUserId().equals(user.getId()))
+										{
+											forUser = submission;
+											break;
+										}
+									}
+
+									if (forUser != null)
+									{
+										x.userId = user.getId();
+										x.name = user.getDisplayName();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			destination = "/confirm_grades_import" + context.getDestination();
 		}
 
 		else if (destination.equals("VIEW"))
@@ -373,7 +687,7 @@ public class GradeAssessmentView extends ControllerImpl
 			else
 			{
 				// build the new dest parameters
-				String[] dest = new String[7];
+				String[] dest = new String[8];
 				for (int i = 0; i < params.length; i++)
 				{
 					dest[i] = params[i];
@@ -399,6 +713,10 @@ public class GradeAssessmentView extends ControllerImpl
 				else
 				{
 					dest[6] = "all";
+				}
+				if (dest[7] == null)
+				{
+					dest[7] = "-";
 				}
 
 				destination = StringUtil.unsplit(dest, "/");
@@ -434,6 +752,26 @@ public class GradeAssessmentView extends ControllerImpl
 	}
 
 	/**
+	 * @param rosterService
+	 *        the rosterService to set
+	 */
+	public void setRosterService(RosterService rosterService)
+	{
+		this.rosterService = rosterService;
+	}
+
+	/**
+	 * Dependency: SecurityService.
+	 * 
+	 * @param service
+	 *        The SecurityService.
+	 */
+	public void setSecurityService(SecurityService service)
+	{
+		securityService = service;
+	}
+
+	/**
 	 * Set the ServerConfigurationService.
 	 * 
 	 * @param service
@@ -442,6 +780,26 @@ public class GradeAssessmentView extends ControllerImpl
 	public void setServerConfigurationService(ServerConfigurationService service)
 	{
 		this.serverConfigurationService = service;
+	}
+
+	/**
+	 * Dependency: SessionManager.
+	 * 
+	 * @param service
+	 *        The SessionManager.
+	 */
+	public void setSessionManager(SessionManager service)
+	{
+		m_sessionManager = service;
+	}
+
+	/**
+	 * @param siteService
+	 *        the siteService to set
+	 */
+	public void setSiteService(SiteService siteService)
+	{
+		this.siteService = siteService;
 	}
 
 	/**
@@ -460,6 +818,73 @@ public class GradeAssessmentView extends ControllerImpl
 	public void setToolManager(ToolManager toolManager)
 	{
 		this.toolManager = toolManager;
+	}
+
+	/**
+	 * @param userDirectoryService
+	 *        the userDirectoryService to set
+	 */
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService)
+	{
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	/**
+	 * Pick a user uniquely identified by the id in the site.
+	 * 
+	 * @param id
+	 *        The id - can be IID or EID.
+	 * @param siteId
+	 *        The site id.
+	 * @param iidCode
+	 *        The site's institution code.
+	 * @return The user, or null if not found.
+	 */
+	protected User findIdentifiedStudentInSite(String id, String siteId, String iidCode)
+	{
+		User rv = null;
+
+		// first, try by IID
+		try
+		{
+			rv = this.userDirectoryService.getUserByIid(iidCode, id);
+		}
+		catch (UserNotDefinedException e)
+		{
+		}
+
+		// next, by EID
+		if (rv == null)
+		{
+			List<User> candidates = this.userDirectoryService.getUsersByEid(id);
+
+			// filter down by who is in the site
+			List<User> filtered = new ArrayList<User>();
+			for (User u : candidates)
+			{
+				if (this.securityService.checkSecurity(u.getId(), MnemeService.SUBMIT_PERMISSION, siteId))
+				{
+					filtered.add(u);
+				}
+			}
+
+			// if just one
+			if (filtered.size() == 1)
+			{
+				rv = filtered.get(0);
+			}
+		}
+
+		// assure in site
+		if (rv != null)
+		{
+			if (!this.securityService.checkSecurity(rv.getId(), MnemeService.SUBMIT_PERMISSION, siteId))
+			{
+				rv = null;
+			}
+		}
+
+		return rv;
 	}
 
 	/**
@@ -507,6 +932,10 @@ public class GradeAssessmentView extends ControllerImpl
 					sort = SubmissionService.FindAssessmentSubmissionsSort.sdate_a;
 				else if ((sortCode.charAt(0) == '5') && (sortCode.charAt(1) == 'D'))
 					sort = SubmissionService.FindAssessmentSubmissionsSort.sdate_d;
+				else if ((sortCode.charAt(0) == '6') && (sortCode.charAt(1) == 'A'))
+					sort = SubmissionService.FindAssessmentSubmissionsSort.section_a;
+				else if ((sortCode.charAt(0) == '6') && (sortCode.charAt(1) == 'D'))
+					sort = SubmissionService.FindAssessmentSubmissionsSort.section_d;
 				else
 				{
 					throw new IllegalArgumentException();
@@ -535,5 +964,39 @@ public class GradeAssessmentView extends ControllerImpl
 		}
 
 		return sort;
+	}
+
+	/**
+	 * Create a sorted list of the sections for this site.
+	 * 
+	 * @param context
+	 *        The context (site id).
+	 * @return The list of sections.
+	 */
+	protected List<String> siteSections(String context)
+	{
+		List<String> rv = new ArrayList<String>();
+
+		try
+		{
+			Site site = this.siteService.getSite(context);
+			Collection groups = site.getGroups();
+			for (Object groupO : groups)
+			{
+				Group g = (Group) groupO;
+
+				// skip non-section groups
+				if (g.getProperties().getProperty("sections_category") == null) continue;
+
+				rv.add(g.getTitle());
+			}
+		}
+		catch (IdUnusedException e)
+		{
+		}
+
+		Collections.sort(rv);
+
+		return rv;
 	}
 }

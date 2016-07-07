@@ -3,7 +3,7 @@
 -- $Id$
 --**********************************************************************************
 --
--- Copyright (c) 2008 Etudes, Inc.
+-- Copyright (c) 2008, 2015 Etudes, Inc.
 -- 
 -- Portions completed before September 1, 2008
 -- Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -46,15 +46,8 @@ CREATE TABLE MNEME_QUESTION
 	SURVEY				CHAR (1),
 	TYPE				VARCHAR (99),
 	VALID				CHAR (1),
-	GUEST				LONGTEXT
+	GUEST				LONGTEXT,
+	KEY					MNEME_QUESTION_IDX_C (CONTEXT),
+	KEY					MNEME_QUESTION_IDX_POOL (POOL_ID),
+	KEY					MNEME_QUESTION_IDX_MINT (MINT)
 );
-
-CREATE INDEX MNEME_QUESTION_IDX_MHPSV ON MNEME_QUESTION
-(
-	MINT		ASC,
-	HISTORICAL	ASC,
-	POOL_ID		ASC,
-	SURVEY		ASC,
-	VALID		ASC
-);
-

@@ -1,9 +1,9 @@
 /**********************************************************************************
  * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-impl/impl/src/java/org/etudes/mneme/impl/ExportQtiServiceImpl.java $
- * $Id: ExportQtiServiceImpl.java 8562 2014-08-30 06:07:15Z mallikamt $
+ * $Id: ExportQtiServiceImpl.java 11231 2015-07-13 21:00:02Z mallikamt $
  ***********************************************************************************
  *
- * Copyright (c) 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2013, 2014, 2015 Etudes, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 package org.etudes.mneme.impl;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,6 +42,7 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentParts;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentService;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.ExportQtiService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
@@ -50,6 +52,7 @@ import org.etudes.mneme.api.QuestionService;
 import org.etudes.mneme.impl.LikertScaleQuestionImpl.LikertScaleQuestionChoice;
 import org.etudes.mneme.impl.MatchQuestionImpl.MatchQuestionPair;
 import org.etudes.mneme.impl.MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice;
+import org.etudes.mneme.impl.OrderQuestionImpl.OrderQuestionChoice;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -178,9 +181,11 @@ public class ExportQtiServiceImpl implements ExportQtiService
 	public Element createManifest(Document doc)
 	{
 		Element root = doc.createElementNS("http://www.imsglobal.org/xsd/imscp_v1p1", "manifest");
+		root.setAttribute("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
+		root.setAttribute("xsi:schemaLocation", "http://www.imsglobal.org/xsd/imscp_v1p1 http://www.imsglobal.org/xsd/qti/qtiv2p1/qtiv2p1_imscpv1p2_v1p0.xsd http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1p1.xsd");
 		root.setAttribute("xmlns:imsqti", "http://www.imsglobal.org/xsd/imsqti_v2p1");
 		root.setAttribute("xmlns:imsmd", "http://www.imsglobal.org/xsd/imsmd_v1p2");
-//		root.setAttribute("xmlns", "http://www.imsglobal.org/xsd/imscp_v1p1");
+		root.setAttribute("xmlns", "http://www.imsglobal.org/xsd/imscp_v1p1");
 		root.setAttribute("identifier", "Manifest-" + getUUID());
 		return root;
 	}
@@ -444,9 +449,13 @@ public class ExportQtiServiceImpl implements ExportQtiService
 	 * 
 	 * @param assessmentTestDocument
 	 * @param text
+	 * @param zip
+	 *        The zip output stream for export
+	 * @param testId
+	 *        test id of folder to export to
 	 * @return
 	 */
-	private Element createFinalFeedbackElement(Document assessmentTestDocument, String text)
+	private Element createFinalFeedbackElement(Document assessmentTestDocument, String text, ZipOutputStream zip, String testId)
 	{
 		Element testFeedbackElement = assessmentTestDocument.createElement("testFeedback");
 		testFeedbackElement.setAttribute("access", "atEnd");
@@ -454,10 +463,14 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		testFeedbackElement.setAttribute("identifier", "FB_Total");
 
 		Element feedbackContentElement = assessmentTestDocument.createElement("div");
+		ArrayList fbFiles = new ArrayList<String>();
+		text = translateEmbedData(zip,  testId + "/Resources/", "Resources/", text, fbFiles);
+		
 		feedbackContentElement.appendChild(assessmentTestDocument.createCDATASection(text));
 		testFeedbackElement.appendChild(feedbackContentElement);
 		return testFeedbackElement;
 	}
+
 
 	/**
 	 * Create QTI meta data element
@@ -485,6 +498,8 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		if (("mneme:Essay").equals(questionType)) interaction = "extendedTextInteraction";
 		if (("mneme:Match").equals(questionType)) interaction = "matchInteraction";
 		if (("mneme:FillBlanks").equals(questionType)) interaction = "textEntryInteraction";
+		if (("mneme:FillInline").equals(questionType)) interaction = "inlineChoiceInteraction";
+		if (("mneme:Order").equals(questionType)) interaction = "orderInteraction";
 
 		interactionType.setTextContent(interaction);
 		qtiMetaData.appendChild(interactionType);
@@ -525,6 +540,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 
 			// 2. add the resource element entry in manifest file
 			Element resourceAssessment = createResourceElementforAssessment(zip, doc, ++count, test);
+			resourceAssessment = getAttachments(zip, test.getId(), doc, resourceAssessment, test);
 
 			// 3. create assessmentTest document
 			String resourceAssessmentIdent = resourceAssessment.getAttribute("identifier");
@@ -616,6 +632,9 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		Element assessmentTestElement = assessmentTestDocument.createElement("assessmentTest");
 
 		assessmentTestElement.setAttribute("xmlns", "http://www.imsglobal.org/xsd/imsqti_v2p1");
+		assessmentTestElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+		assessmentTestElement.setAttribute("xsi:schemaLocation", "http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1p1.xsd");
+		
 		HashMap<String, List<Element>> miscellaneousItems = new HashMap<String, List<Element>>();
 		HashMap<String, Element> questionsList = new HashMap<String, Element>();
 
@@ -643,6 +662,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			assessmentTestElement.appendChild(limitElement);
 		}
 
+		if (test.getType() == AssessmentType.offline) points = String.valueOf(test.getPoints());
 		// create outcomeDeclaration
 		Element outcomeDeclarationElement = createOutcomeElement(assessmentTestDocument, "SCORE", "float", points);
 		if (outcomeDeclarationElement != null) assessmentTestElement.appendChild(outcomeDeclarationElement);
@@ -778,7 +798,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		// Final Message
 		if (test.getSubmitPresentation() != null && test.getSubmitPresentation().getText() != null)
 		{
-			Element testFeedbackElement = createFinalFeedbackElement(assessmentTestDocument, test.getSubmitPresentation().getText());
+			Element testFeedbackElement = createFinalFeedbackElement(assessmentTestDocument, test.getSubmitPresentation().getText(), zip, test.getId());
 			assessmentTestElement.appendChild(testFeedbackElement);
 		}
 
@@ -804,11 +824,17 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		if (question == null) return null;
 
 		String fileTitle = testId + "/question" + question.getId() + ".xml";
-		String title = "question" + count;
+		String title;
+
+		if (question.getTitle() != null && question.getTitle().trim().length() > 0) title = question.getTitle();
+		else title = "question" + count;
 
 		Document assessmentItemDocument = Xml.createDocument();
 		Element item = assessmentItemDocument.createElement("assessmentItem");
 		item.setAttribute("xmlns", "http://www.imsglobal.org/xsd/imsqti_v2p1");
+		item.setAttribute("xmlns:xsi","http://www.w3.org/2001/XMLSchema-instance");
+		item.setAttribute("xsi:schemaLocation", "http://www.imsglobal.org/xsd/imsqti_v2p1 http://www.imsglobal.org/xsd/qti/qtiv2p1/imsqti_v2p1p1.xsd");
+		
 		item.setAttribute("identifier", question.getPool().getId() + ":"+ question.getId());
 		item.setAttribute("title", title);
 		item.setAttribute("adaptive", "false");
@@ -886,6 +912,12 @@ public class ExportQtiServiceImpl implements ExportQtiService
 				.getShowCorrectAnswer().toString());
 		if (outcomeDeclarationShowAnswerElement != null) assessmentTestElement.appendChild(outcomeDeclarationShowAnswerElement);	
 
+		Element outcomeDeclarationReleaseElement = createOutcomeElement(assessmentTestDocument, "AutoRelease", "string", test.getGrading().getAutoRelease().toString());
+		if (outcomeDeclarationReleaseElement != null) assessmentTestElement.appendChild(outcomeDeclarationReleaseElement);
+
+		Element outcomeDeclarationIntegrationElement = createOutcomeElement(assessmentTestDocument, "GradebookIntegration", "string", test.getGradebookIntegration().toString());
+		if (outcomeDeclarationIntegrationElement != null) assessmentTestElement.appendChild(outcomeDeclarationIntegrationElement);
+
 		// anonymous grading
 		if (test.getAnonymous())
 		{
@@ -898,6 +930,20 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		Element outcomeDeclarationGroupingElement = createOutcomeElement(assessmentTestDocument, "QuestionLayout", "string", test
 				.getQuestionGrouping().toString());
 		if (outcomeDeclarationGroupingElement != null) assessmentTestElement.appendChild(outcomeDeclarationGroupingElement);
+
+		if (test.getResultsEmail() != null && test.getResultsEmail().trim().length() > 0)
+		{
+			Element outcomeDeclarationEmailElement = createOutcomeElement(assessmentTestDocument, "ResultsEmail", "string", test
+					.getResultsEmail());
+			if (outcomeDeclarationEmailElement != null) assessmentTestElement.appendChild(outcomeDeclarationEmailElement);
+		}
+		
+		if (test.getPassword().getPassword() != null && test.getPassword().getPassword().trim().length() > 0)
+		{
+			Element outcomePasswordElement = createOutcomeElement(assessmentTestDocument, "Password", "string", test
+					.getPassword().getPassword());
+			if (outcomePasswordElement != null) assessmentTestElement.appendChild(outcomePasswordElement);
+		}
 
 		// honor pledge
 		if (test.getRequireHonorPledge())
@@ -1015,6 +1061,34 @@ public class ExportQtiServiceImpl implements ExportQtiService
 	{
 		List<Reference> attachments = question.getPresentation().getAttachments();
 
+		return getCoreAttachments(zip, testId, document, questionResourceElement, attachments);
+	}
+	
+	/**
+	 * 
+	 * @param zip
+	 * @param assessmentDocument
+	 * @param assessmentResourceElement
+	 * @param assessment
+	 * @return
+	 */
+	public Element getAttachments(ZipOutputStream zip, String testId, Document document, Element assessmentResourceElement, Assessment assessment)
+	{
+		List<Reference> attachments = assessment.getPresentation().getAttachments();
+
+		return getCoreAttachments(zip, testId, document, assessmentResourceElement, attachments);
+	}
+
+	/**
+	 * 
+	 * @param zip
+	 * @param assessmentDocument
+	 * @param assessmentResourceElement
+	 * @param attachments
+	 * @return
+	 */
+	public Element getCoreAttachments(ZipOutputStream zip, String testId, Document document, Element resourceElement, List<Reference> attachments)
+	{
 		if (attachments != null && attachments.size() > 0)
 		{
 			// security advisor
@@ -1034,7 +1108,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 
 					Element file = document.createElement("file");
 					file.setAttribute("href", subFolder + fileName);
-					questionResourceElement.appendChild(file);
+					resourceElement.appendChild(file);
 				}
 				catch (Exception e)
 				{
@@ -1043,7 +1117,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			}
 			popAdvisor();
 		}
-		return questionResourceElement;
+		return resourceElement;
 	}
 
 	/**
@@ -1062,7 +1136,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		Element itemBody = questionDocument.createElement("itemBody");
 
 		// for fill blanks text will be chopped
-		if (!"mneme:FillBlanks".equals(question.getType()))
+		if (!"mneme:FillBlanks".equals(question.getType())&&!"mneme:FillInline".equals(question.getType()))
 		{
 			if (text == null) return questionParts;
 			// process embed media and change path as Resources/xxxx.jpg
@@ -1086,7 +1160,13 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		{
 			FillBlanksQuestionImpl f = (FillBlanksQuestionImpl) (question.getTypeSpecificQuestion());
 			text = f.getText();
-			itemBody = getFillBlanksResponseChoices(questionDocument, itemBody, f, questionParts);
+			itemBody = getFillBlanksResponseChoices(questionDocument, itemBody, f, questionParts, zip, testId);
+		}
+		else if ("mneme:FillInline".equals(question.getType()))
+		{
+			FillInlineQuestionImpl f = (FillInlineQuestionImpl) (question.getTypeSpecificQuestion());
+			text = f.getText();
+			itemBody = getFillInlineResponseChoices(questionDocument, itemBody, f, questionParts, zip, testId);
 		}
 		else if ("mneme:TrueFalse".equals(question.getType()))
 		{
@@ -1095,17 +1175,22 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		}
 		else if ("mneme:MultipleChoice".equals(question.getType()))
 		{
-			getMCResponseChoices(questionDocument, question, questionParts);
+			getMCResponseChoices(questionDocument, question, questionParts, zip, testId);
 			if (questionParts.containsKey("choiceInteraction")) itemBody.appendChild(questionParts.get("choiceInteraction"));
+		}
+		else if ("mneme:Order".equals(question.getType()))
+		{
+			getOrderResponseChoices(questionDocument, question, questionParts, zip, testId);
+			if (questionParts.containsKey("orderInteraction")) itemBody.appendChild(questionParts.get("orderInteraction"));
 		}
 		else if ("mneme:Match".equals(question.getType()))
 		{
-			getMatchResponseChoices(questionDocument, question, questionParts);
+			getMatchResponseChoices(questionDocument, question, questionParts, zip, testId);
 			if (questionParts.containsKey("matchInteraction")) itemBody.appendChild(questionParts.get("matchInteraction"));
 		}
 		else if ("mneme:Essay".equals(question.getType()))
 		{
-			getEssayResponseChoices(questionDocument, question, questionParts);
+			getEssayResponseChoices(questionDocument, question, questionParts, zip, testId);
 			if (questionParts.containsKey("extendedTextInteraction")) itemBody.appendChild(questionParts.get("extendedTextInteraction"));
 			if (questionParts.containsKey("uploadInteraction")) itemBody.appendChild(questionParts.get("uploadInteraction"));
 		}
@@ -1131,7 +1216,10 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			Element feedbackInlineElement = questionDocument.createElement("feedbackInline");
 			feedbackInlineElement.setAttribute("showHide", "hide");
 			feedbackInlineElement.setAttribute("identifier", "FB_Hints");
-			feedbackInlineElement.appendChild(questionDocument.createCDATASection(question.getHints()));
+			ArrayList hintFiles = new ArrayList<String>();
+			String hints = question.getHints();
+			hints = translateEmbedData(zip,  testId + "/Resources/", "Resources/", hints, hintFiles);
+			feedbackInlineElement.appendChild(questionDocument.createCDATASection(hints));
 			itemBody.appendChild(feedbackInlineElement);
 		}
 
@@ -1141,7 +1229,10 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			Element feedbackElement = questionDocument.createElement("modalFeedback");
 			feedbackElement.setAttribute("showHide", "hide");
 			feedbackElement.setAttribute("identifier", "FB_Question");
-			feedbackElement.appendChild(questionDocument.createCDATASection(question.getFeedback()));
+			ArrayList fbFiles = new ArrayList<String>();
+			String feedback = question.getFeedback();
+			feedback = translateEmbedData(zip,  testId + "/Resources/", "Resources/", feedback, fbFiles);
+			feedbackElement.appendChild(questionDocument.createCDATASection(feedback));
 			questionParts.put("modalFeedback", feedbackElement);
 		}
 		questionParts.put("itemBody", itemBody);
@@ -1153,8 +1244,12 @@ public class ExportQtiServiceImpl implements ExportQtiService
 	 * @param questionDocument
 	 * @param question
 	 * @param questionParts
+	 * @param zip
+	 *        The zip output stream for export
+	 * @param testId
+	 *        test id of folder to export to
 	 */
-	public void getEssayResponseChoices(Document questionDocument, Question question, Map<String, Element> questionParts)
+	public void getEssayResponseChoices(Document questionDocument, Question question, Map<String, Element> questionParts, ZipOutputStream zip, String testId)
 	{
 		if (question == null) return;
 
@@ -1187,6 +1282,8 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		if (answer != null && answer.length() > 0)
 		{
 			answer = FormattedText.unEscapeHtml(answer);
+			ArrayList anFiles = new ArrayList<String>();
+			answer = translateEmbedData(zip,  testId + "/Resources/", "Resources/", answer, anFiles);
 			Element correctResponseValue = questionDocument.createElement("value");			
 			correctResponseValue.setTextContent(answer);
 			correctResponse.appendChild(correctResponseValue);
@@ -1202,10 +1299,14 @@ public class ExportQtiServiceImpl implements ExportQtiService
 	 * @param itemBody
 	 * @param question
 	 * @param questionParts
+	 * @param zip
+	 *        The zip output stream for export
+	 * @param testId
+	 *        test id of folder to export to
 	 * @return
 	 */
 	public Element getFillBlanksResponseChoices(Document questionDocument, Element itemBody, FillBlanksQuestionImpl question,
-			Map<String, Element> questionParts)
+			Map<String, Element> questionParts, ZipOutputStream zip, String testId)
 	{
 		if (question == null) return itemBody;
 
@@ -1238,9 +1339,14 @@ public class ExportQtiServiceImpl implements ExportQtiService
 
 		if (sb.length() > 0)
 		{
-			Element textDiv = questionDocument.createElement("div");
-			textDiv.setTextContent(sb.toString());
-			itemBody.appendChild(textDiv);
+			ArrayList mediaFiles = new ArrayList<String>();
+			itemBody = translateEmbedData(zip, testId + "/Resources/", sb.toString(), itemBody, mediaFiles, questionDocument);
+			if (mediaFiles.isEmpty())
+			{
+				Element textDiv = questionDocument.createElement("div");
+				textDiv.setTextContent(sb.toString());
+				itemBody.appendChild(textDiv);
+			}
 		}
 
 		// answer
@@ -1263,6 +1369,112 @@ public class ExportQtiServiceImpl implements ExportQtiService
 
 		Element countDiv = questionDocument.createElement("div");
 		countDiv.setTextContent(Integer.toString(responseCount));
+		questionParts.put("responseDeclarationCount", countDiv);
+		questionParts.put("itemBody", itemBody);
+		return itemBody;
+	}
+
+	/**
+	 * 
+	 * @param questionDocument
+	 * @param itemBody
+	 * @param question
+	 * @param questionParts
+	 * @param zip
+	 *        The zip output stream for export
+	 * @param testId
+	 *        test id of folder to export to
+	 * @return
+	 */
+	public Element getFillInlineResponseChoices(Document questionDocument, Element itemBody, FillInlineQuestionImpl question,
+			Map<String, Element> questionParts, ZipOutputStream zip, String testId)
+	{
+		if (question == null) return itemBody;
+
+		// itemBody
+		String text = question.getText();
+
+		Pattern p_fillInline_curly = Pattern
+				.compile("([^{]*.?)(\\{)([^}]*.?)(\\})", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
+
+		Matcher m_fillInline = p_fillInline_curly.matcher(text);
+		StringBuffer sb = new StringBuffer();
+
+		List<ArrayList<String>> selectionLists = new ArrayList<ArrayList<String>>();
+		List<String> correctAnswers = new ArrayList<String>();
+		question.parseSelectionLists(selectionLists, correctAnswers);
+
+		// in each part look for {} fill in the blank symbol and create render_fib tag
+		int count = 1;
+		while (m_fillInline.find())
+		{
+			String fib = m_fillInline.group(1);
+			Element textDiv = questionDocument.createElement("div");
+			textDiv.setTextContent(fib);
+			itemBody.appendChild(textDiv);
+
+			String fib_curly = m_fillInline.group(2);
+
+			List<String> choices = selectionLists.get(count - 1);
+
+			// <inlineChoiceInteraction responseIdentifier="RESPONSE" shuffle="false" maxChoices="1">
+			Element inlineChoiceInteraction = questionDocument.createElement("inlineChoiceInteraction");
+			inlineChoiceInteraction.setAttribute("responseIdentifier", "RESPONSE" + count);
+
+			// <responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier">
+			Element responseDeclaration = createResponseDeclaration(questionDocument, "RESPONSE" + count, "single", "identifier");
+			Element correctResponse = questionDocument.createElement("correctResponse");
+			responseDeclaration.appendChild(correctResponse);
+
+			// response choices
+			int ccount = 1;
+			for (String str : choices)
+			{
+				// <inlineChoice identifier="ChoiceA">You must stay with your luggage at all times.</inlineChoice>
+				Element inlineChoice = questionDocument.createElement("inlineChoice");
+				inlineChoice.setAttribute("identifier", "Choice" + Integer.toString(ccount++) + "_" + count + "_" + question.getId());
+				str = FormattedText.unEscapeHtml(str);
+				inlineChoice.setTextContent(str);
+				inlineChoiceInteraction.appendChild(inlineChoice);
+			}
+
+			String correct = correctAnswers.get(count - 1);
+			// correct answers
+			ccount = 1;
+			for (String str : choices)
+			{
+				Element correctResponseValue = questionDocument.createElement("value");
+				if (str.equals(correct))
+				{
+					correctResponseValue.setTextContent("Choice" + Integer.toString(ccount) + "_" + count + "_" + question.getId());
+					correctResponse.appendChild(correctResponseValue);
+					break;
+				}
+				ccount++;
+			}
+			// questionParts.put("inlineChoiceInteraction", inlineChoiceInteraction);
+			questionParts.put("responseDeclaration" + count, responseDeclaration);
+			
+			itemBody.appendChild(inlineChoiceInteraction);
+			m_fillInline.appendReplacement(sb, "");
+			count++;
+		}
+		m_fillInline.appendTail(sb);
+
+		if (sb.length() > 0)
+		{
+			ArrayList mediaFiles = new ArrayList<String>();
+			itemBody = translateEmbedData(zip, testId + "/Resources/", sb.toString(), itemBody, mediaFiles, questionDocument);
+			if (mediaFiles.isEmpty())
+			{
+				Element textDiv = questionDocument.createElement("div");
+				textDiv.setTextContent(sb.toString());
+				itemBody.appendChild(textDiv);
+			}
+		}
+
+		Element countDiv = questionDocument.createElement("div");
+		countDiv.setTextContent(Integer.toString(count));
 		questionParts.put("responseDeclarationCount", countDiv);
 		questionParts.put("itemBody", itemBody);
 		return itemBody;
@@ -1324,8 +1536,12 @@ public class ExportQtiServiceImpl implements ExportQtiService
 	 *        The Question
 	 * @param questionParts
 	 *        Map containing different w3c dom elements
+	 * @param zip
+	 *        The zip output stream for export
+	 * @param testId
+	 *        test id of folder to export to
 	 */
-	public void getMCResponseChoices(Document questionDocument, Question question, Map<String, Element> questionParts)
+	public void getMCResponseChoices(Document questionDocument, Question question, Map<String, Element> questionParts, ZipOutputStream zip, String testId)
 	{
 		if (question == null) return;
 
@@ -1356,7 +1572,12 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			simpleChoice.setAttribute("identifier", "Choice" + Integer.toString(count++) + "_" + question.getId());
 			String choiceText = c.getText();
 			choiceText = FormattedText.unEscapeHtml(choiceText);
-			simpleChoice.setTextContent(choiceText);
+			ArrayList mediaFiles = new ArrayList<String>();
+			simpleChoice = translateEmbedData(zip, testId + "/Resources/", choiceText, simpleChoice, mediaFiles, questionDocument);
+			if (mediaFiles.isEmpty())
+			{
+				simpleChoice.setTextContent(choiceText);
+			}
 			choiceInteraction.appendChild(simpleChoice);
 		}
 
@@ -1373,13 +1594,82 @@ public class ExportQtiServiceImpl implements ExportQtiService
 	}
 
 	/**
+	 * Get the Elements needed for question.xml
+	 * 
+	 * @param questionDocument
+	 *        The AssessmentItem Document
+	 * @param question
+	 *        The Question
+	 * @param questionParts
+	 *        Map containing different w3c dom elements
+	 * @param zip
+	 *        The zip output stream for export
+	 * @param testId
+	 *        test id of folder to export to
+	 */
+	public void getOrderResponseChoices(Document questionDocument, Question question, Map<String, Element> questionParts, ZipOutputStream zip, String testId)
+	{
+		if (question == null) return;
+
+		OrderQuestionImpl mc = (OrderQuestionImpl) (question.getTypeSpecificQuestion());
+//		String cardinality = ("False".equalsIgnoreCase(mc.getSingleCorrect())) ? "multiple" : "single";
+		List<OrderQuestionChoice> choices = mc.getChoicesAsAuthored();
+		Set<Integer> correctAnswers = mc.getCorrectAnswerSet();
+		int maxChoice = (correctAnswers != null) ? correctAnswers.size() : 0;
+
+		// <choiceInteraction responseIdentifier="RESPONSE" shuffle="false" maxChoices="1">
+		Element orderInteraction = questionDocument.createElement("orderInteraction");
+		orderInteraction.setAttribute("responseIdentifier", "RESPONSE");
+		orderInteraction.setAttribute("shuffle", "true");
+		
+		// <responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier">
+		Element responseDeclaration = createResponseDeclaration(questionDocument, "RESPONSE", "single", "identifier");
+		Element correctResponse = questionDocument.createElement("correctResponse");
+		responseDeclaration.appendChild(correctResponse);
+
+		// response choices
+		int count = 1;
+		for (OrderQuestionChoice c : choices)
+		{
+			// <simpleChoice identifier="ChoiceA">You must stay with your luggage at all times.</simpleChoice>
+			Element simpleChoice = questionDocument.createElement("simpleChoice");
+			simpleChoice.setAttribute("identifier", "Choice" + Integer.toString(count++) + "_" + question.getId());
+			String choiceText = c.getText();
+			choiceText = FormattedText.unEscapeHtml(choiceText);
+			ArrayList mediaFiles = new ArrayList<String>();
+			simpleChoice = translateEmbedData(zip, testId + "/Resources/", choiceText, simpleChoice, mediaFiles, questionDocument);
+			if (mediaFiles.isEmpty())
+			{
+				simpleChoice.setTextContent(choiceText);
+			}
+			orderInteraction.appendChild(simpleChoice);
+		}
+
+		// correct answers
+		for (Integer correct : correctAnswers)
+		{
+			Element correctResponseValue = questionDocument.createElement("value");
+			correctResponseValue.setTextContent("Choice" + (correct.intValue() + 1) + "_" + question.getId());
+			correctResponse.appendChild(correctResponseValue);
+		}
+		questionParts.put("orderInteraction", orderInteraction);
+		questionParts.put("responseDeclaration", responseDeclaration);
+		return;
+	}
+	
+
+	/**
 	 * Get different components of a match type question
 	 * 
 	 * @param questionDocument
 	 * @param question
 	 * @param questionParts
+	 * @param zip
+	 *        The zip output stream for export
+	 * @param testId
+	 *        test id of folder to export to
 	 */
-	public void getMatchResponseChoices(Document questionDocument, Question question, Map<String, Element> questionParts)
+	public void getMatchResponseChoices(Document questionDocument, Question question, Map<String, Element> questionParts, ZipOutputStream zip, String testId)
 	{
 		if (question == null) return;
 
@@ -1415,7 +1705,12 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			simpleAssociableChoice.setAttribute("matchMax", "1");
 			String choiceText = c.getChoice();
 			choiceText = FormattedText.unEscapeHtml(choiceText);
-			simpleAssociableChoice.setTextContent(choiceText);
+			ArrayList mediaFiles = new ArrayList<String>();
+			simpleAssociableChoice = translateEmbedData(zip, testId + "/Resources/", choiceText, simpleAssociableChoice, mediaFiles, questionDocument);
+			if (mediaFiles.isEmpty())
+			{
+				simpleAssociableChoice.setTextContent(choiceText);
+			}
 			simpleMatchSet1.appendChild(simpleAssociableChoice);
 
 			// match
@@ -1425,7 +1720,12 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			simpleAssociableMatch.setAttribute("matchMax", "1");
 			String matchText = c.getMatch();
 			matchText = FormattedText.unEscapeHtml(matchText);
-			simpleAssociableMatch.setTextContent(matchText);
+			mediaFiles = new ArrayList<String>();
+			simpleAssociableMatch = translateEmbedData(zip, testId + "/Resources/", matchText, simpleAssociableMatch, mediaFiles, questionDocument);
+			if (mediaFiles.isEmpty())
+			{
+				simpleAssociableMatch.setTextContent(matchText);
+			}
 			simpleMatchSet2.appendChild(simpleAssociableMatch);
 
 			// correct pair
@@ -1518,9 +1818,17 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			if (!ref.contains("/access/mneme/content/")) continue;
 
 			String resource_id = ref.replace("/access/mneme", "");
-			String resource_name = ref.substring(ref.lastIndexOf("/") + 1);
-			resource_name = resource_name.replaceAll("%20", " ");
-			resource_name = Validator.escapeResourceName(resource_name);
+			resource_id = resource_id.replaceAll("%20", " ");
+			//resource with comma and other special characters
+			String resource_name = Validator.getFileName(resource_id);
+			try
+			{
+				resource_name = URLDecoder.decode(resource_name, "UTF-8");
+			}
+			catch(Exception e)
+			{
+				// do nothing
+			}
 			mediaFiles.add(subFolder + resource_name);
 			m.appendReplacement(sb, m.group(1) + "= \"" + writeSubFolder + resource_name  + "\"");
 
@@ -1580,7 +1888,16 @@ public class ExportQtiServiceImpl implements ExportQtiService
 					}
 					ref = ref.replaceAll("%20", " ");
 					String resource_id = ref.replace("/access/mneme", "");
-					String embedFileName = ref.substring(ref.lastIndexOf("/") + 1);
+					//resource with comma and other special characters
+					String embedFileName = Validator.getFileName(resource_id);
+					try
+					{
+						embedFileName = URLDecoder.decode(embedFileName, "UTF-8");
+					}
+					catch(Exception e)
+					{
+						// do nothing
+					}
 					ref = subFolder + embedFileName;
 					mediaFiles.add(ref);
 				
@@ -1589,10 +1906,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 					media.setAttribute(m_src.group(1), embedSubFolder + embedFileName);
 					m.appendReplacement(sb, "");
 
-					String fileName = Validator.getFileName(resource_id);
-					fileName = fileName.replaceAll("%20", " ");
-					fileName = Validator.escapeResourceName(fileName);
-					writeContentResourceToZip(zip, subFolder, resource_id, fileName);
+					writeContentResourceToZip(zip, subFolder, resource_id, embedFileName);
 					itemBody.appendChild(div);
 					itemBody.appendChild(media);
 				}				
@@ -1637,6 +1951,15 @@ public class ExportQtiServiceImpl implements ExportQtiService
 
 			// write attachment to the zip
 			id = id.replaceAll("%20", " ");
+			// if resource has special characters like comma or so then decode for CHS
+			try
+			{
+				id = URLDecoder.decode(id, "UTF-8");
+			}
+			catch(Exception e)
+			{
+				// do nothing
+			}
 			ContentResource resource = this.contentHostingService.getResource(id);
 			zip.putNextEntry(new ZipEntry(fileName));
 			zip.write(resource.getContent());

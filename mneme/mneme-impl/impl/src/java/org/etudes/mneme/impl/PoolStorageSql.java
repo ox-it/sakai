@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -107,6 +107,27 @@ public abstract class PoolStorageSql implements PoolStorage
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean existsPoolTitle(String title, String context)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT COUNT(1) FROM MNEME_POOL P");
+		sql.append(" WHERE P.TITLE=? AND P.CONTEXT=?");
+		Object[] fields = new Object[2];
+		fields[0] = String.valueOf(title);
+		fields[1] = String.valueOf(context);
+		List results = this.sqlService.dbRead(sql.toString(), fields, null);
+		if (results.size() > 0)
+		{
+			int size = Integer.parseInt((String) results.get(0));
+			return Boolean.valueOf(size == 1);
+		}
+
+		return Boolean.FALSE;
+	}	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<PoolImpl> findPools(String context, PoolService.FindPoolsSort sort)
 	{
 		// if ((!pool.historical) && (!pool.getMint()) && pool.getContext().equals(context))
@@ -203,6 +224,83 @@ public abstract class PoolStorageSql implements PoolStorage
 	 * {@inheritDoc}
 	 */
 	public abstract PoolImpl newPool();
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void readAssessmentPools(String context, Boolean publishedOnly)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT XP.CONTEXT, XP.CREATED_BY_DATE, XP.CREATED_BY_USER, XP.DESCRIPTION, XP.DIFFICULTY, XP.HISTORICAL, XP.ID, XP.MINT, XP.MODIFIED_BY_DATE, XP.MODIFIED_BY_USER, XP.POINTS, XP.TITLE");
+		sql.append(" FROM");
+		sql.append(" (");
+		sql.append(" SELECT P.CONTEXT, P.CREATED_BY_DATE, P.CREATED_BY_USER, P.DESCRIPTION, P.DIFFICULTY, P.HISTORICAL, P.ID, P.MINT, P.MODIFIED_BY_DATE, P.MODIFIED_BY_USER, P.POINTS, P.TITLE");
+		sql.append(" FROM MNEME_ASSESSMENT A");
+		sql.append(" JOIN MNEME_ASSESSMENT_PART_DETAIL D ON A.ID=D.ASSESSMENT_ID");
+		sql.append(" JOIN MNEME_QUESTION Q ON (D.QUESTION_ID=Q.ID)");
+		sql.append(" JOIN MNEME_POOL P ON Q.POOL_ID = P.ID");
+		sql.append(" WHERE A.CONTEXT = ? AND A.ARCHIVED='0' AND A.MINT='0'");
+		if (publishedOnly) sql.append(" AND A.PUBLISHED='1'");
+		sql.append(" GROUP BY P.ID");
+		sql.append(" UNION");
+		sql.append(" SELECT P.CONTEXT, P.CREATED_BY_DATE, P.CREATED_BY_USER, P.DESCRIPTION, P.DIFFICULTY, P.HISTORICAL, P.ID, P.MINT, P.MODIFIED_BY_DATE, P.MODIFIED_BY_USER, P.POINTS, P.TITLE");
+		sql.append(" FROM MNEME_ASSESSMENT A");
+		sql.append(" JOIN MNEME_ASSESSMENT_PART_DETAIL D ON A.ID=D.ASSESSMENT_ID");
+		sql.append(" JOIN MNEME_POOL P ON D.POOL_ID = P.ID");
+		sql.append(" WHERE A.CONTEXT = ? AND A.ARCHIVED='0' AND A.MINT='0'");
+		if (publishedOnly) sql.append(" AND A.PUBLISHED='1'");
+		sql.append(" GROUP BY P.ID");
+		sql.append(" ) XP");
+		sql.append(" GROUP BY XP.ID");
+
+		Object[] fields = new Object[2];
+		fields[0] = context;
+		fields[1] = context;
+
+		this.sqlService.dbRead(sql.toString(), fields, new SqlReader()
+		{
+			public Object readSqlResultRecord(ResultSet result)
+			{
+				try
+				{
+					PoolImpl pool = newPool();
+					pool.setContext(SqlHelper.readString(result, 1));
+					pool.getCreatedBy().setDate(SqlHelper.readDate(result, 2));
+					pool.getCreatedBy().setUserId(SqlHelper.readString(result, 3));
+					pool.setDescription(SqlHelper.readString(result, 4));
+					pool.setDifficulty(SqlHelper.readInteger(result, 5));
+					pool.initHistorical(SqlHelper.readBoolean(result, 6));
+					pool.initId(SqlHelper.readId(result, 7));
+					pool.initMint(SqlHelper.readBoolean(result, 8));
+					pool.getModifiedBy().setDate(SqlHelper.readDate(result, 9));
+					pool.getModifiedBy().setUserId(SqlHelper.readString(result, 10));
+					pool.setPointsEdit(SqlHelper.readFloat(result, 11));
+					pool.setTitle(SqlHelper.readString(result, 12));
+
+					pool.changed.clearChanged();
+
+					// thread-local cache
+					threadLocalManager.set(poolCacheKey(pool.getId()), pool);
+
+					return null;
+				}
+				catch (SQLException e)
+				{
+					M_log.warn("readAssessmentPools: " + e);
+					return null;
+				}
+			}
+		});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String poolCacheKey(String poolId)
+	{
+		String key = "mneme:pool:" + poolId;
+		return key;
+	}
 
 	/**
 	 * {@inheritDoc}

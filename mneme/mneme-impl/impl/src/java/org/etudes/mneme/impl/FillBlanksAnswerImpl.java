@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -345,6 +345,10 @@ public class FillBlanksAnswerImpl implements TypeSpecificAnswer
 
 		// no point questions and questions that have no correct answer have no score
 		if ((!question.getHasPoints()) || (!question.getHasCorrect())) return Float.valueOf(0f);
+		
+		boolean automateScore = Boolean.parseBoolean(((FillBlanksQuestionImpl) question.getTypeSpecificQuestion()).getAutomateScore());
+		
+		if (!automateScore) return null;
 
 		// partial credit for each correct answer, 0 for each incorrect, floor at 0.
 		List<Boolean> corrects = getEntryCorrects();

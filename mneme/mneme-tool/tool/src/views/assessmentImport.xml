@@ -4,7 +4,7 @@
 <!--
 /**********************************************************************************
  * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-tool/tool/src/views/assessmentImport.xml $
- * $Id: assessmentImport.xml 7145 2014-01-16 18:56:42Z rashmim $
+ * $Id: assessmentImport.xml 9578 2014-12-18 03:27:47Z ggolden $
  ***********************************************************************************
  *
  * Copyright (c) 2014 Etudes, Inc.
@@ -73,7 +73,23 @@
 				<gap />
 			</container>
 		</section>
-			
+		
+		<section>
+			<container>
+				<navigation title="import-offline" style="LINK">
+					<icon icon="/icons/import_export.png" style="LEFT" />
+					<destination template="/import_offline/{0}/{1}">
+						<model ref="returnUrl" />
+						<model ref="returnSort" />
+					</destination>				
+				</navigation>
+				<instructions>
+					<message selector="import-offline-instructions" />
+				</instructions>
+				<gap />
+			</container>
+		</section>
+		
 		<!--navigation-->
 		<navigationBar>
 			<container>

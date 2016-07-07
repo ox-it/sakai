@@ -429,6 +429,14 @@ public class PoolDrawImpl extends PartDetailImpl implements PoolDraw
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getTitle()
+	{
+		return ((PartImpl) this.part).messages.getFormattedMessage("random-draw-title", null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getType()
 	{
 		return ((PartImpl) this.part).messages.getFormattedMessage("random-draw-type", null);

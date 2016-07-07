@@ -41,6 +41,7 @@ import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentAccess;
 import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.AssessmentType;
+import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
 import org.etudes.mneme.api.Pool;
@@ -70,6 +71,9 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 
 	/** Dependency: AssessmentService. */
 	protected AssessmentService assessmentService = null;
+
+	/** Dependency: AttachmentService. */
+	protected AttachmentService attachmentService = null;
 
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean autoDdl = false;
@@ -176,9 +180,31 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<AssessmentImpl> getArchivedAssessments(String context)
+	public Boolean existsAssessmentTitle(String title, String context)
+	{
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT COUNT(1) FROM MNEME_ASSESSMENT A");
+		sql.append(" WHERE A.TITLE=? AND A.CONTEXT=?");
+		Object[] fields = new Object[2];
+		fields[0] = String.valueOf(title);
+		fields[1] = String.valueOf(context);
+		List results = this.sqlService.dbRead(sql.toString(), fields, null);
+		if (results.size() > 0)
+		{
+			int size = Integer.parseInt((String) results.get(0));
+			return Boolean.valueOf(size == 1);
+		}
+
+		return Boolean.FALSE;
+	}	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<AssessmentImpl> getArchivedAssessments(String context, boolean includeFce)
 	{
 		String where = "WHERE A.CONTEXT=? AND A.ARCHIVED='1' AND A.MINT='0'";
+		if (!includeFce) where = where + " AND A.FORMAL_EVAL='0'";
 		String order = "ORDER BY DATES_ARCHIVED ASC";
 
 		Object[] fields = new Object[1];
@@ -308,6 +334,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 
 		return rv;
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -328,7 +355,9 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	 */
 	public List<AssessmentImpl> getFormalEvaluationsNeedingNotification()
 	{
-		String where = "WHERE A.FORMAL_EVAL = '1' AND A.PUBLISHED = '1' AND A.NOTIFY_EVAL = '1' AND A.DATES_OPEN < "+Calendar.getInstance().getTimeInMillis()+" AND (A.DATES_DUE > "+Calendar.getInstance().getTimeInMillis()+" OR A.DATES_ACCEPT_UNTIL > "+Calendar.getInstance().getTimeInMillis()+") AND A.EVAL_SENT IS NULL";
+		String where = "WHERE A.FORMAL_EVAL = '1' AND A.PUBLISHED = '1' AND A.NOTIFY_EVAL = '1' AND A.DATES_OPEN < "
+				+ Calendar.getInstance().getTimeInMillis() + " AND (A.DATES_DUE > " + Calendar.getInstance().getTimeInMillis()
+				+ " OR A.DATES_ACCEPT_UNTIL > " + Calendar.getInstance().getTimeInMillis() + ") AND A.EVAL_SENT IS NULL";
 
 		return readAssessments(where, null, null);
 	}
@@ -543,6 +572,17 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 	public void setAssessmentService(AssessmentService service)
 	{
 		this.assessmentService = service;
+	}
+
+	/**
+	 * Dependency: AttachmentService.
+	 * 
+	 * @param service
+	 *        The AttachmentService.
+	 */
+	public void setAttachmentService(AttachmentService service)
+	{
+		attachmentService = service;
 	}
 
 	/**
@@ -1001,10 +1041,10 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		sql.append(" A.DATES_ACCEPT_UNTIL, A.DATES_ARCHIVED, A.DATES_DUE, A.DATES_OPEN, A.HIDE_UNTIL_OPEN,");
 		sql.append(" A.GRADING_ANONYMOUS, A.GRADING_AUTO_RELEASE, A.GRADING_GRADEBOOK, A.GRADING_REJECTED, A.FORMAL_EVAL, A.NOTIFY_EVAL, A.EVAL_SENT, A.RESULTS_EMAIL,");
 		sql.append(" A.RESULTS_SENT, A.HONOR_PLEDGE, A.ID, A.LIVE, A.LOCKED, A.MINT, A.MODIFIED_BY_DATE, A.MODIFIED_BY_USER,");
-		sql.append(" A.PARTS_CONTINUOUS, A.PARTS_SHOW_PRES, A.PASSWORD, A.PRESENTATION_TEXT,");
+		sql.append(" A.PARTS_CONTINUOUS, A.PARTS_SHOW_PRES, A.PASSWORD, A.PRESENTATION_TEXT, A.PRESENTATION_ATTACHMENTS,");
 		sql.append(" A.PUBLISHED, A.FROZEN, A.QUESTION_GROUPING, A.RANDOM_ACCESS,");
 		sql.append(" A.REVIEW_DATE, A.REVIEW_SHOW_CORRECT, A.REVIEW_SHOW_FEEDBACK, A.REVIEW_SHOW_SUMMARY, A.REVIEW_TIMING, A.MIN_SCORE_SET, A.MIN_SCORE,");
-		sql.append(" A.SHOW_HINTS, A.SHOW_MODEL_ANSWER, A.SUBMIT_PRES_TEXT, A.TIME_LIMIT, A.TITLE, A.TRIES, A.TYPE, A.POOL, A.NEEDSPOINTS, A.SHUFFLE_CHOICES");
+		sql.append(" A.SHOW_HINTS, A.SHOW_MODEL_ANSWER, A.SUBMIT_PRES_TEXT, A.TIME_LIMIT, A.TITLE, A.TRIES, A.TYPE, A.POOL, A.NEEDSPOINTS, A.SHUFFLE_CHOICES, POINTS");
 		sql.append(" FROM MNEME_ASSESSMENT A ");
 		sql.append(where);
 		if (order != null) sql.append(order);
@@ -1046,6 +1086,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 					assessment.getParts().setShowPresentation(SqlHelper.readBoolean(result, i++));
 					assessment.getPassword().setPassword(SqlHelper.readString(result, i++));
 					assessment.getPresentation().setText(SqlHelper.readString(result, i++));
+					assessment.getPresentation().setAttachments(SqlHelper.readReferences(result, i++, attachmentService));
 					assessment.initPublished(SqlHelper.readBoolean(result, i++));
 					assessment.initFrozen(SqlHelper.readBoolean(result, i++));
 					assessment.setQuestionGrouping(QuestionGrouping.valueOf(SqlHelper.readString(result, i++)));
@@ -1053,13 +1094,12 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 					assessment.getReview().setDate(SqlHelper.readDate(result, i++));
 					ReviewShowCorrect rsc = readReviewShowCorrect(result, i++);
 					assessment.getReview().setShowCorrectAnswer(rsc);
-					assessment.getReview().setShowIncorrectQuestions(rsc);
 					assessment.getReview().setShowFeedback(SqlHelper.readBoolean(result, i++));
 					assessment.getReview().setShowSummary(SqlHelper.readBoolean(result, i++));
 					assessment.getReview().setTiming(ReviewTiming.valueOf(SqlHelper.readString(result, i++)));
 					assessment.setMinScoreSet(SqlHelper.readBoolean(result, i++));
 					assessment.setMinScore(SqlHelper.readInteger(result, i++));
-					
+
 					assessment.setShowHints(SqlHelper.readBoolean(result, i++));
 					assessment.initShowModelAnswer(SqlHelper.readBoolean(result, i++));
 					assessment.getSubmitPresentation().setText(SqlHelper.readString(result, i++));
@@ -1070,6 +1110,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 					assessment.initPool(SqlHelper.readId(result, i++));
 					assessment.initNeedsPoints(SqlHelper.readBoolean(result, i++));
 					assessment.initShuffleChoicesOverride(SqlHelper.readBoolean(result, i++));
+					assessment.initPoints(SqlHelper.readFloat(result, i++));
 
 					rv.add(assessment);
 					assessments.put(assessment.getId(), assessment);
@@ -1220,7 +1261,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 					access.initUsers(Arrays.asList(SqlHelper.decodeStringArray(SqlHelper.readString(result, 15))));
 					access.initHideUntilOpen(SqlHelper.readBoolean(result, 16));
 					access.initOverrideHideUntilOpen(SqlHelper.readBoolean(result, 17));
-					
+
 					a.changed.clearChanged();
 
 					return null;
@@ -1259,6 +1300,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		if (s.equals("0")) return ReviewShowCorrect.no;
 		if (s.equals("C")) return ReviewShowCorrect.correct_only;
 		if (s.equals("I")) return ReviewShowCorrect.incorrect_only;
+		if (s.equals("K")) return ReviewShowCorrect.incorrect_key;
 		return ReviewShowCorrect.yes;
 	}
 
@@ -1293,7 +1335,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 			throw new RuntimeException("setEvaluationSentTx: dbWrite failed");
 		}
 	}
-	
+
 	/**
 	 * Update the assessment email results sent date (transaction code).
 	 * 
@@ -1487,13 +1529,13 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		sql.append(" DATES_ACCEPT_UNTIL=?, DATES_ARCHIVED=?, DATES_DUE=?, DATES_OPEN=?, HIDE_UNTIL_OPEN=?,");
 		sql.append(" GRADING_ANONYMOUS=?, GRADING_AUTO_RELEASE=?, GRADING_GRADEBOOK=?, GRADING_REJECTED=?, FORMAL_EVAL=?, NOTIFY_EVAL=?, EVAL_SENT=?, RESULTS_EMAIL=?,");
 		sql.append(" RESULTS_SENT=?, HONOR_PLEDGE=?, LIVE=?, LOCKED=?, MINT=?, MODIFIED_BY_DATE=?, MODIFIED_BY_USER=?,");
-		sql.append(" PARTS_CONTINUOUS=?, PARTS_SHOW_PRES=?, PASSWORD=?, PRESENTATION_TEXT=?,");
+		sql.append(" PARTS_CONTINUOUS=?, PARTS_SHOW_PRES=?, PASSWORD=?, PRESENTATION_TEXT=?, PRESENTATION_ATTACHMENTS=?,");
 		sql.append(" PUBLISHED=?, FROZEN=?, QUESTION_GROUPING=?, RANDOM_ACCESS=?,");
 		sql.append(" REVIEW_DATE=?, REVIEW_SHOW_CORRECT=?, REVIEW_SHOW_FEEDBACK=?, REVIEW_SHOW_SUMMARY=?, REVIEW_TIMING=?, MIN_SCORE_SET=?, MIN_SCORE=?,");
-		sql.append(" SHOW_HINTS=?, SHOW_MODEL_ANSWER=?, SUBMIT_PRES_TEXT=?, TIME_LIMIT=?, TITLE=?, TRIES=?, TYPE=?, POOL=?, NEEDSPOINTS=?, SHUFFLE_CHOICES=?");
+		sql.append(" SHOW_HINTS=?, SHOW_MODEL_ANSWER=?, SUBMIT_PRES_TEXT=?, TIME_LIMIT=?, TITLE=?, TRIES=?, TYPE=?, POOL=?, NEEDSPOINTS=?, SHUFFLE_CHOICES=?, POINTS=?");
 		sql.append(" WHERE ID=?");
 
-		Object[] fields = new Object[48];
+		Object[] fields = new Object[50];
 		int i = 0;
 		fields[i++] = assessment.getArchived() ? "1" : "0";
 		fields[i++] = assessment.getContext();
@@ -1509,7 +1551,8 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		fields[i++] = assessment.getFormalCourseEval() ? "1" : "0";
 		fields[i++] = assessment.getNotifyEval() ? "1" : "0";
 		fields[i++] = (assessment.getEvaluationSent() == null) ? null : assessment.getEvaluationSent().getTime();
-		fields[i++] = (assessment.getResultsEmail() != null && assessment.getResultsEmail().length() > 255) ? assessment.getResultsEmail().substring(0, 255): assessment.getResultsEmail();
+		fields[i++] = (assessment.getResultsEmail() != null && assessment.getResultsEmail().length() > 255) ? assessment.getResultsEmail().substring(
+				0, 255) : assessment.getResultsEmail();
 		fields[i++] = (assessment.getResultsSent() == null) ? null : assessment.getResultsSent().getTime();
 		fields[i++] = assessment.getRequireHonorPledge() ? "1" : "0";
 		fields[i++] = assessment.getIsLive() ? "1" : "0";
@@ -1522,13 +1565,16 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 				: (((AssessmentPartsImpl) assessment.getParts()).showPresentation ? "1" : "0");
 		fields[i++] = assessment.getPassword().getPassword();
 		fields[i++] = assessment.getPresentation().getText();
+		fields[i++] = SqlHelper.encodeReferences(assessment.getPresentation().getAttachments());
 		fields[i++] = assessment.getPublished() ? "1" : "0";
 		fields[i++] = assessment.getFrozen() ? "1" : "0";
 		fields[i++] = assessment.getQuestionGrouping().toString();
 		fields[i++] = assessment.getRandomAccess() ? "1" : "0";
 		fields[i++] = (assessment.getReview().getDate() == null) ? null : assessment.getReview().getDate().getTime();
 		fields[i++] = assessment.getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.yes) ? "1" : (assessment.getReview()
-				.getShowCorrectAnswer().equals(ReviewShowCorrect.no) ? "0" : (assessment.getReview().getShowCorrectAnswer().equals(ReviewShowCorrect.correct_only) ? "C" : "I"));
+				.getShowCorrectAnswer().equals(ReviewShowCorrect.no) ? "0" : (assessment.getReview().getShowCorrectAnswer()
+				.equals(ReviewShowCorrect.correct_only) ? "C" : (assessment.getReview().getShowCorrectAnswer()
+				.equals(ReviewShowCorrect.incorrect_only) ? "I" : "K")));
 		fields[i++] = assessment.getReview().getShowFeedback() ? "1" : "0";
 		fields[i++] = assessment.getReview().getShowSummary() ? "1" : "0";
 		fields[i++] = assessment.getReview().getTiming().toString();
@@ -1544,6 +1590,7 @@ public abstract class AssessmentStorageSql implements AssessmentStorage
 		fields[i++] = ((AssessmentImpl) assessment).poolId == null ? null : Long.valueOf(((AssessmentImpl) assessment).poolId);
 		fields[i++] = assessment.getNeedsPoints() == null ? null : (assessment.getNeedsPoints() ? "1" : "0");
 		fields[i++] = assessment.getShuffleChoicesOverride() == null ? null : (assessment.getShuffleChoicesOverride() ? "1" : "0");
+		fields[i++] = ((AssessmentImpl) assessment).points;
 		fields[i++] = Long.valueOf(assessment.getId());
 
 		if (!this.sqlService.dbWrite(sql.toString(), fields))

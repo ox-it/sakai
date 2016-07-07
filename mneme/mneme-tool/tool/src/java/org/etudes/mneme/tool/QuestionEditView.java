@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -534,7 +534,7 @@ public class QuestionEditView extends ControllerImpl
 		}
 
 		// if destination became null, or is the stay here
-		if ((destination == null) || ("STAY".equals(destination) || "RETYPE".equals(destination)))
+		if ((destination == null) || "STAY".equals(destination) || "REORDER".equals(destination)|| "RETYPE".equals(destination)|| "SAVE".equals(destination))
 		{
 			destination = context.getDestination();
 		}

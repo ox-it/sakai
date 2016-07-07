@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -247,6 +247,13 @@ public class QuestionTest extends TestCase
 		assertTrue(question.getIsChanged().equals(Boolean.FALSE));
 		question.getPresentation().setText("x");
 		assertTrue(question.getIsChanged().equals(Boolean.TRUE));
+		
+		question.setTitle("");
+		question.clearChanged();
+		question.setTitle("");
+		assertTrue(question.getIsChanged().equals(Boolean.FALSE));
+		question.setTitle("x");
+		assertTrue(question.getIsChanged().equals(Boolean.TRUE));
 	}
 
 	/**
@@ -441,6 +448,31 @@ public class QuestionTest extends TestCase
 		question.getPresentation().setText("<p>this is some <b>html</b></p>");
 		assertTrue(question.getPresentation().getText().equals("<p>this is some <b>html</b></p>"));
 	}
+
+	public void testTitle() throws Exception
+	{
+		// default
+		assertTrue(question.getTitle() == null);
+
+		question.setTitle(null);
+		assertTrue(question.getTitle() == null);
+
+		question.setTitle("");
+		assertTrue(question.getTitle() == null);
+
+		question.setTitle("title");
+		assertTrue(question.getTitle().equals("title"));
+
+		question.setTitle("   title   ");
+		assertTrue(question.getTitle().equals("title"));
+
+		final String CHARS260 = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+		question.setTitle(CHARS260);
+		assertTrue(question.getTitle().equals(CHARS260));
+
+		question.setTitle("<p>this is some <b>html</b></p>");
+		assertTrue(question.getTitle().equals("<p>this is some <b>html</b></p>"));
+	}	
 
 	/**
 	 * @param arg0

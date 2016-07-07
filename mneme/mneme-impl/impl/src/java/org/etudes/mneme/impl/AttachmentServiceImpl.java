@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2013, 2014, 2015 Etudes, Inc.
  *
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -24,21 +24,10 @@
 
 package org.etudes.mneme.impl;
 
-import java.awt.Container;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.MediaTracker;
-import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -97,7 +86,6 @@ import org.etudes.mneme.api.SubmissionService.FindAssessmentSubmissionsSort;
 import org.etudes.mneme.api.TypeSpecificAnswer;
 import org.etudes.mneme.api.TypeSpecificQuestion;
 import org.etudes.mneme.impl.EssayQuestionImpl.SubmissionType;
-import org.etudes.mneme.impl.MatchQuestionImpl.MatchQuestionPair;
 import org.etudes.util.DateHelper;
 import org.etudes.util.TranslationImpl;
 import org.etudes.util.api.Translation;
@@ -105,7 +93,6 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -405,6 +392,30 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		{
 			popAdvisor();
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Reference addAttachment(String context, String submissionId, String fileName, byte[] body, String type)
+	{
+		pushAdvisor();	
+		try
+		{
+			if (context != null && submissionId != null)
+			{
+				Reference rv = addAttachment(AttachmentService.MNEME_APPLICATION, context, AttachmentService.SUBMISSIONS_AREA + "/" + submissionId,
+						AttachmentService.NameConflictResolution.alwaysUseFolder, fileName, body, type, false, AttachmentService.REFERENCE_ROOT);
+				
+				return rv;
+			}
+			return null;
+		}
+		finally
+		{
+			popAdvisor();
+		}
+		
 	}
 
 	/**
@@ -1550,9 +1561,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			String[] parts = StringUtil.split(ref.getId(), "/");
 			if ((parts.length == 9) && (SUBMISSIONS_AREA.equals(parts[5])))
 			{
-				// manage or grade permission for the context is still a winner
+				// manage or grade or guest permission for the context is still a winner
 				if (this.securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)) return true;
 				if (this.securityService.checkSecurity(userId, MnemeService.GRADE_PERMISSION, context)) return true;
+				if (this.securityService.checkSecurity(userId, MnemeService.GUEST_PERMISSION, context)) return true;
 
 				// otherwise, user must be submission user and have submit permission
 				if (this.securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context))
@@ -1573,6 +1585,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			// this is how we used to do it, without a submission id in the ref
 			if (this.securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, context)) return true;
 			if (this.securityService.checkSecurity(userId, MnemeService.SUBMIT_PERMISSION, context)) return true;
+			if (this.securityService.checkSecurity(userId, MnemeService.GUEST_PERMISSION, context)) return true;
 			return false;
 		}
 	}
@@ -1878,15 +1891,15 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 			// get the members of this collection
 			ContentCollection docs = contentHostingService.getCollection(docsCollection);
-			List<ContentEntity> members = docs.getMemberResources();
-			for (ContentEntity m : members)
+			List<Object> members = docs.getMemberResources();
+			for (Object m : members)
 			{
 				if (m instanceof ContentCollection)
 				{
 					// get the member within
 					ContentCollection holder = (ContentCollection) m;
-					List<ContentEntity> innerMembers = holder.getMemberResources();
-					for (ContentEntity mm : innerMembers)
+					List<Object> innerMembers = holder.getMemberResources();
+					for (Object mm : innerMembers)
 					{
 						if (mm instanceof ContentResource)
 						{
@@ -2277,7 +2290,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 						}
 						message = message.replace("student.score", String.valueOf(submission.getTotalScore().floatValue()));
 						Assessment assmt = submission.getAssessment();
-						message = message.replace("test.points", String.valueOf(assmt.getParts().getTotalPoints().floatValue()));
+						message = message.replace("test.points", String.valueOf(assmt.getPoints().floatValue()));
 						message = message.replace("test.title", assmt.getTitle());
 						String siteTitle = null;
 						try
@@ -2808,23 +2821,44 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
-	 * Iterates through the answers for a Fill In question and returns an array
+	 * Iterates through the answers for a Fill Blanks question and returns an array
 	 * with correct answers marked with asterisks
-	 * @param fb FillBlanksAnswerImpl object
+	 * @param a FillBlanksAnswerImpl object
+	 * @param isSurvey true if survey, false if not
 	 * @return String array with correct answers marked with asterisks
 	 */
-	String[] checkCorrectFill(FillBlanksAnswerImpl fb)
+	String[] checkCorrectFill(FillBlanksAnswerImpl fb, boolean isSurvey)
 	{
 		String[] answers = fb.getAnswers();
 		String[] checkedFillAnswers = new String[answers.length];
 		if (answers.length == 0) return checkedFillAnswers;
 		for (int l = 0; l < answers.length; l++)
 		{
-			if (fb.correctFillAnswer(answers[l],l)) checkedFillAnswers[l] = "*"+answers[l]+"*";
+			if (!isSurvey && fb.correctFillAnswer(answers[l],l)) checkedFillAnswers[l] = "*"+answers[l]+"*";
 			else checkedFillAnswers[l] = answers[l];
 		}
 		return checkedFillAnswers;
 	}
+
+	/**
+	 * Iterates through the answers for a Fill Inline question and returns an array
+	 * with correct answers marked with asterisks
+	 * @param a FillInlineAnswerImpl object
+	 * @param isSurvey true if survey, false if not
+	 * @return String array with correct answers marked with asterisks
+	 */
+	String[] checkCorrectFillInline(FillInlineAnswerImpl fi, boolean isSurvey)
+	{
+		String[] answers = fi.getAnswers();
+		String[] checkedFillAnswers = new String[answers.length];
+		if (answers.length == 0) return checkedFillAnswers;
+		for (int l = 0; l < answers.length; l++)
+		{
+			if (!isSurvey && fi.correctFillAnswer(answers[l],l)) checkedFillAnswers[l] = "*"+answers[l]+"*";
+			else checkedFillAnswers[l] = answers[l];
+		}
+		return checkedFillAnswers;
+	}	
 
 	/**
 	 * Checks if the key and value constitute a correct math
@@ -2881,7 +2915,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		cell5.setCellValue(this.messages.getFormattedMessage("asmt_ascore", null));
 		HSSFCell cell6 = headerRow.createCell((short) (6));
 		cell6.setCellStyle(style);
-		cell6.setCellValue(this.messages.getFormattedMessage("asmt_final", null)+" "+this.messages.getFormattedMessage("asmt_outof", null)+" "+submissions.get(0).getAssessment().getParts().getTotalPoints()+")");
+		cell6.setCellValue(this.messages.getFormattedMessage("asmt_final", null)+" "+this.messages.getFormattedMessage("asmt_outof", null)+" "+submissions.get(0).getAssessment().getPoints()+")");
 		HSSFCell cell7 = headerRow.createCell((short) (7));
 		cell7.setCellStyle(style);
 		cell7.setCellValue(this.messages.getFormattedMessage("asmt_released", null));
@@ -2902,8 +2936,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			{
 				M_log.warn("createAsmtStatsSheet: " + e.toString());
 			}
-			if (sub.getStartDate() != null) row.createCell((short) 2).setCellValue(formatDate(sub.getStartDate()));
-			if (sub.getSubmittedDate() != null) row.createCell((short) 3).setCellValue(formatDate(sub.getSubmittedDate()));
+			if (sub.getStartDate() != null && !sub.getIsNonSubmit()) row.createCell((short) 2).setCellValue(formatDate(sub.getStartDate()));
+			if (sub.getSubmittedDate() != null && !sub.getIsNonSubmit()) row.createCell((short) 3).setCellValue(formatDate(sub.getSubmittedDate()));
 			row.createCell((short) 4).setCellValue(getSubmissionStatus(sub));
 			
 			if (sub.getAnswersAutoScore() != null) row.createCell((short) 5).setCellValue(sub.getAnswersAutoScore().floatValue());
@@ -3024,6 +3058,114 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
+	 * Creates Fill Inline tab for answers Item Analysis
+	 *
+	 * @param fb_questions List of Fill Blanks questions
+	 * @param workbook Workbook object
+	 * @param assessment Assessment object
+	 */
+	void createFillInlineTab(List<Question> fi_questions, HSSFWorkbook workbook, Assessment assessment)
+	{
+		if (fi_questions == null || fi_questions.size() == 0) return;
+
+		String assmtId = assessment.getId();
+		HSSFSheet sheet = null;
+		HSSFRow row;
+
+		boolean headerRowDone = false;
+		for (Iterator it = fi_questions.iterator(); it.hasNext();)
+		{
+			Question q = (Question) it.next();
+			Map<String, Integer> fbqMap = new HashMap<String, Integer>();
+
+			List<Answer> answers = this.submissionService.findSubmissionAnswers(assessment, q, FindAssessmentSubmissionsSort.userName_a, null, null);
+			if (answers == null || answers.size() == 0) return;
+
+			List<ArrayList<String>> selectionLists = new ArrayList<ArrayList<String>>();
+			List<String> correctAnswers = new ArrayList<String>();
+
+			if (!headerRowDone)
+			{
+				sheet = workbook.createSheet("InlineDropdown");
+
+				HSSFRow headerRow = sheet.createRow((short) 0);
+
+				HSSFCellStyle style = workbook.createCellStyle();
+				HSSFFont font = workbook.createFont();
+				font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+				style.setFont(font);
+				// Printing header row
+				HSSFCell cell0 = headerRow.createCell((short) (0));
+				cell0.setCellStyle(style);
+				cell0.setCellValue(this.messages.getFormattedMessage("item_analysis_question", null));
+
+				int i = 1;
+				int k = 0;
+				((FillInlineQuestionImpl) q.getTypeSpecificQuestion()).parseSelectionLists(selectionLists, correctAnswers);
+				for (List<String> selList : selectionLists)
+				{
+					for (String str : selList)
+					{
+						HSSFCell cell1 = headerRow.createCell((short) (i));
+						cell1.setCellStyle(style);
+						cell1.setCellValue(str);
+						fbqMap.put(Integer.toString(k) + str, 0);
+						i++;
+					}
+					k++;
+				}
+				headerRowDone = true;
+			}
+
+			for (Answer answer : answers)
+			{
+				TypeSpecificAnswer a = answer.getTypeSpecificAnswer();
+
+				if (a instanceof FillInlineAnswerImpl)
+				{
+					FillInlineAnswerImpl fb = (FillInlineAnswerImpl) a;
+					String[] fbAnswers = fb.getAnswers();
+					for (int i = 0; i < fbAnswers.length; i++)
+					{
+						String fbAnswer = fbAnswers[i];
+						if (fbqMap.get(Integer.toString(i) + fbAnswer) != null)
+						{
+							int count = fbqMap.get(Integer.toString(i) + fbAnswer).intValue();
+							count++;
+							fbqMap.put(Integer.toString(i) + fbAnswer, count);
+						}
+					}
+				}
+			}
+
+			int rowNum = sheet.getLastRowNum() + 1;
+			row = sheet.createRow(rowNum);
+
+			String quest_desc = stripHtml(((FillInlineQuestionImpl) q.getTypeSpecificQuestion()).getText());
+			row.createCell((short) 0).setCellValue(quest_desc);
+			int j = 1;
+			if (fbqMap != null && fbqMap.size() > 0)
+			{
+				int k = 0;
+				for (List<String> selList : selectionLists)
+				{
+					for (String str : selList)
+					{
+						if (str.equals(correctAnswers.get(k)))
+						  row.createCell((short) j).setCellValue("*"+fbqMap.get(Integer.toString(k) + str)+"*");
+						else
+					      row.createCell((short) j).setCellValue(fbqMap.get(Integer.toString(k) + str));
+						j++;
+					}
+					k++;
+				}
+			}
+
+		}
+	}
+	
+
+	/**
 	 * Creates main frequency tab for Item analysis
 	 *
 	 * @param questions List of questions
@@ -3072,28 +3214,31 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 					HSSFCell cell0 = headerRow.createCell((short) (0));
 					cell0.setCellStyle(style);
 					cell0.setCellValue(this.messages.getFormattedMessage("item_analysis_question", null));
-					HSSFCell cell1 = headerRow.createCell((short) (1));
+					HSSFCell cell9 = headerRow.createCell((short) (1));
+					cell9.setCellStyle(style);
+					cell9.setCellValue(this.messages.getFormattedMessage("item_analysis_title", null));
+					HSSFCell cell1 = headerRow.createCell((short) (2));
 					cell1.setCellStyle(style);
 					cell1.setCellValue(this.messages.getFormattedMessage("item_analysis_pool", null));
-					HSSFCell cell2 = headerRow.createCell((short) (2));
+					HSSFCell cell2 = headerRow.createCell((short) (3));
 					cell2.setCellStyle(style);
 					cell2.setCellValue(this.messages.getFormattedMessage("item_analysis_numbers", null));
-					HSSFCell cell3 = headerRow.createCell((short) (3));
+					HSSFCell cell3 = headerRow.createCell((short) (4));
 					cell3.setCellStyle(style);
 					cell3.setCellValue(this.messages.getFormattedMessage("item_analysis_whole_group", null));
-					HSSFCell cell4 = headerRow.createCell((short) (4));
+					HSSFCell cell4 = headerRow.createCell((short) (5));
 					cell4.setCellStyle(style);
 					cell4.setCellValue(this.messages.getFormattedMessage("item_analysis_upper_27", null));
-					HSSFCell cell5 = headerRow.createCell((short) (5));
+					HSSFCell cell5 = headerRow.createCell((short) (6));
 					cell5.setCellStyle(style);
 					cell5.setCellValue(this.messages.getFormattedMessage("item_analysis_lower_27", null));
-					HSSFCell cell6 = headerRow.createCell((short) (6));
+					HSSFCell cell6 = headerRow.createCell((short) (7));
 					cell6.setCellStyle(style);
 					cell6.setCellValue(this.messages.getFormattedMessage("item_analysis_diff_in", null));
-					HSSFCell cell7 = headerRow.createCell((short) (7));
+					HSSFCell cell7 = headerRow.createCell((short) (8));
 					cell7.setCellStyle(style);
 					cell7.setCellValue(this.messages.getFormattedMessage("item_analysis_disc", null));
-					HSSFCell cell8 = headerRow.createCell((short) (8));
+					HSSFCell cell8 = headerRow.createCell((short) (9));
 					cell8.setCellStyle(style);
 					cell8.setCellValue(this.messages.getFormattedMessage("item_analysis_freq", null));
 					headerRowDone = true;
@@ -3106,32 +3251,50 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 				{
 					quest_desc = stripHtml(((FillBlanksQuestionImpl) tsq).getText());
 				}
+				else if (tsq instanceof FillInlineQuestionImpl)
+				{
+					quest_desc = stripHtml(((FillInlineQuestionImpl) tsq).getText());
+				}
 				else
 				{
 					quest_desc = stripHtml(q.getDescription());
+					if (tsq instanceof OrderQuestionImpl)
+					{
+						List<OrderQuestionImpl.OrderQuestionChoice> choiceList = ((OrderQuestionImpl) tsq).getChoicesAsAuthored();
+						String[] choiceTextArray = new String[choiceList.size()];
+						int j = 0;
+
+						for (OrderQuestionImpl.OrderQuestionChoice oqc : choiceList)
+						{
+							choiceTextArray[j] = (j + 1) + "." + stripHtml(oqc.getText());
+							j++;
+				}
+						quest_desc = quest_desc + getCommaAnswers(choiceTextArray);
+					}
 				}
 				row.createCell((short) 0).setCellValue(quest_desc);
-				row.createCell((short) 1).setCellValue(q.getPool().getTitle());
-				row.createCell((short) 2).setCellValue(answers.size());
+				row.createCell((short) 1).setCellValue(q.getTitle());
+				row.createCell((short) 2).setCellValue(q.getPool().getTitle());
+				row.createCell((short) 3).setCellValue(answers.size());
 				int numCorrects =  numberOfCorrects(answers);
 				double ncPc = 0.0;
 				if (numCorrects > 0) ncPc = ((double) numberOfCorrects(answers) / answers.size()) * 100;
-				row.createCell((short) 3).setCellValue(roundTwoDecimals(ncPc) + "%" + "(N=" + numCorrects +")");
+				row.createCell((short) 4).setCellValue(roundTwoDecimals(ncPc) + "%" + "(N=" + numCorrects +")");
 				List<ScoreUser> scoreUserList = createScoreUserList(answers);
 				List<String> upperUserList = fetchUpperList(scoreUserList, 27);
 				List<String> lowerUserList = fetchLowerList(scoreUserList, 27);
 				int upCorrectCount = calculateCorrects(upperUserList, answers);
 				double uppPc = 0.0;
 				if (upCorrectCount > 0) uppPc = ((double) upCorrectCount / upperUserList.size()) * 100;
-				row.createCell((short) 4).setCellValue(roundTwoDecimals(uppPc) + "%" + "(N=" + upCorrectCount + ")");
+				row.createCell((short) 5).setCellValue(roundTwoDecimals(uppPc) + "%" + "(N=" + upCorrectCount + ")");
 				int loCorrectCount = calculateCorrects(lowerUserList, answers);
 				double lowPc = 0.0;
 				if (loCorrectCount > 0) lowPc = ((double) loCorrectCount / lowerUserList.size()) * 100;
-				row.createCell((short) 5).setCellValue(roundTwoDecimals(lowPc) + "%" + "(N=" + loCorrectCount + ")");
+				row.createCell((short) 6).setCellValue(roundTwoDecimals(lowPc) + "%" + "(N=" + loCorrectCount + ")");
 				double diffIdx = (uppPc + lowPc) / 2;
 				double discrim = (uppPc - lowPc) / 100;
-				row.createCell((short) 6).setCellValue(roundTwoDecimals(diffIdx));
-				row.createCell((short) 7).setCellValue(roundTwoDecimals(discrim));
+				row.createCell((short) 7).setCellValue(roundTwoDecimals(diffIdx));
+				row.createCell((short) 8).setCellValue(roundTwoDecimals(discrim));
 				for (Submission s : submissions)
 				{
 					if (s.getIsPhantom()) continue;
@@ -3146,7 +3309,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 						}
 					}
 				}
-				row.createCell((short) 8).setCellValue(count);
+				row.createCell((short) 9).setCellValue(count);
 			}
 		}
 		return answersExist;
@@ -3168,8 +3331,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		if (part == null) return null;
 
 		List<Question> mc_questions = new ArrayList<Question>();
+		List<Question> or_questions = new ArrayList<Question>();
 		List<Question> tf_questions = new ArrayList<Question>();
 		List<Question> fb_questions = new ArrayList<Question>();
+		List<Question> fi_questions = new ArrayList<Question>();
 		List<Question> ma_questions = new ArrayList<Question>();
 		List<Question> ls_questions = new ArrayList<Question>();
 
@@ -3197,6 +3362,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			{
 				mc_questions.add(q);
 			}
+			if (tsq instanceof OrderQuestionImpl)
+			{
+				or_questions.add(q);
+			}
 			if (tsq instanceof TrueFalseQuestionImpl)
 			{
 				tf_questions.add(q);
@@ -3204,6 +3373,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			if (tsq instanceof FillBlanksQuestionImpl)
 			{
 				fb_questions.add(q);
+			}
+			if (tsq instanceof FillInlineQuestionImpl)
+			{
+				fi_questions.add(q);
 			}
 			if (tsq instanceof MatchQuestionImpl)
 			{
@@ -3216,8 +3389,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		}
 
 		createMultipleChoiceTab(mc_questions, workbook, assessment);
+		createOrderTab(or_questions, workbook, assessment);
 		createTrueFalseTab(tf_questions, workbook, assessment);
 		createFillBlanksTab(fb_questions, workbook, assessment);
+		createFillInlineTab(fi_questions, workbook, assessment);
 		createMatchTab(ma_questions, workbook, assessment);
 		createLikertScaleTab(ls_questions, workbook, assessment);
 		return workbook;
@@ -3430,9 +3605,9 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		HSSFSheet sheet = null;
 		HSSFRow row;
 		String[] choiceLabels = new String[]
-		{ "A", "B", "C", "D", "E", "F", "G", "H", "I" };
-		int[] choiceCount = new int[9];
-		boolean[] choiceCorrect = new boolean[9];
+		{ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "0", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y" };
+		int[] choiceCount = new int[25];
+		boolean[] choiceCorrect = new boolean[25];
 
 		//Determine which question has most number of choices so as to determine header column count
 		int headerSize = getMaxChoices(mc_questions);
@@ -3537,24 +3712,30 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		}
 	}
 
-	/*void createMultipleChoiceTab(List<Question> mc_questions, HSSFWorkbook workbook, Assessment assessment)
+	/**
+	 * Creates the Order tab for answers Item Analysis
+	 *
+	 * @param or_questions List of Order questions
+	 * @param workbook Workbook object
+	 * @param assessment Assessment object
+	 */
+	void createOrderTab(List<Question> or_questions, HSSFWorkbook workbook, Assessment assessment)
 	{
-		if (mc_questions == null || mc_questions.size() == 0) return;
+		if (or_questions == null || or_questions.size() == 0) return;
 
 		String assmtId = assessment.getId();
 		HSSFSheet sheet = null;
 		HSSFRow row;
 		String[] choiceLabels = new String[]
-		{ "A", "B", "C", "D", "E", "F", "G", "H", "I" };
-		int[] choiceCount = new int[9];
-		boolean[] choiceCorrect = new boolean[9];
-
+		{ "1.", "2.", "3.", "4.", "5.", "6.", "7.", "8.","9.","10."};
+		int[] choiceCount = new int[10];
+		
 		//Determine which question has most number of choices so as to determine header column count
-		int headerSize = getMaxChoices(mc_questions);
+		int headerSize = getMaxChoices(or_questions);
 
 		boolean headerRowDone = false;
 		//Iterate through each question
-		for (Iterator it = mc_questions.iterator(); it.hasNext();)
+		for (Iterator it = or_questions.iterator(); it.hasNext();)
 		{
 			Question q = (Question) it.next();
 
@@ -3565,7 +3746,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			//Create header row once
 			if (!headerRowDone)
 			{
-				sheet = workbook.createSheet("MultipleChoice");
+				sheet = workbook.createSheet("Order");
 				HSSFRow headerRow = sheet.createRow((short) 0);
 
 				HSSFCellStyle style = workbook.createCellStyle();
@@ -3588,54 +3769,61 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			}
 
 			int choiceListSize = 0;
+			Set<Integer> correctAnswers = ((OrderQuestionImpl) q.getTypeSpecificQuestion()).getCorrectAnswerSet();
+
+			List<OrderQuestionImpl.OrderQuestionChoice> choiceList = ((OrderQuestionImpl) q.getTypeSpecificQuestion()).getChoicesAsAuthored();
+			choiceListSize = choiceList.size();
+
 			//Iterate through each submission
 			for (Answer answer : answers)
 			{
 				TypeSpecificAnswer a = answer.getTypeSpecificAnswer();
 
-				if (a instanceof MultipleChoiceAnswerImpl)
+				if (a instanceof OrderAnswerImpl)
 				{
-					MultipleChoiceAnswerImpl mc = (MultipleChoiceAnswerImpl) a;
-                    //Get choice list as authored
-					List<MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice> choiceList = ((MultipleChoiceQuestionImpl) mc.getAnswerObject()
-							.getQuestion().getTypeSpecificQuestion()).getChoicesAsAuthored();
-					String[] ansArray = mc.getAnswers();
-					String[] choiceArray = new String[mc.getAnswers().length];
-					choiceListSize = choiceList.size();
-					Set<Integer> correctAnswers = ((MultipleChoiceQuestionImpl) mc.getAnswerObject().getQuestion().getTypeSpecificQuestion()).getCorrectAnswerSet();
-
-					for (int l = 0; l < ansArray.length; l++)
+					OrderAnswerImpl oa = (OrderAnswerImpl) a;
+					Map<String, Value> ansMap = oa.getAnswer();
+					
+					int l = 0;
+					for (OrderQuestionImpl.OrderQuestionChoice oqc : choiceList)
 					{
-						int pos = 0;
-						for (Iterator chIt = choiceList.iterator(); chIt.hasNext();)
+						if (ansMap.get(oqc.getId()) != null)
 						{
-							MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice mq = (MultipleChoiceQuestionImpl.MultipleChoiceQuestionChoice) chIt
-									.next();
-							if (mq.getId().equals(ansArray[l]))
+							Value value = ansMap.get(oqc.getId());
+							if (value.getValue() != null && value.getValue().equals(String.valueOf(l)))
 							{
-								choiceCount[pos]++;
+								choiceCount[l]++;
 							}
-							if (correctAnswers.contains(Integer.parseInt(mq.getId())))
-							{
-								choiceCorrect[pos] = true;
-							}
-							pos++;
 						}
+						l++;
 					}
+
 				}
 			}
 			int rowNum = sheet.getLastRowNum() + 1;
 			row = sheet.createRow(rowNum);
-			String quest_desc = stripHtml(q.getDescription());
+			
+			String[] choiceTextArray = new String[choiceList.size()];
+			int j = 0;
+			
+			for (OrderQuestionImpl.OrderQuestionChoice oqc : choiceList)
+			{
+				choiceTextArray[j] = (j+1)+"." + stripHtml(oqc.getText());
+				j++;
+			}
+			String quest_desc = stripHtml(q.getDescription()) + getCommaAnswers(choiceTextArray);
 			row.createCell((short) 0).setCellValue(quest_desc);
 			for (int k = 1; k <= choiceListSize; k++)
 			{
-				if (choiceCorrect[k-1]) row.createCell((short) k).setCellValue("*"+choiceCount[k - 1]+"*");
-				else row.createCell((short) k).setCellValue(choiceCount[k - 1]);
-				choiceCount[k - 1] = 0;
+				row.createCell((short) k).setCellValue(choiceCount[k - 1]);
+			}
+			for (int k = 1; k <= choiceListSize; k++)
+			{
+				choiceCount[k-1] = 0;
 			}
 		}
-	}*/
+	}	
+
 
 	/**
 	 * Iterates through all question types, captures responses and creates export summary spreadsheet
@@ -3706,6 +3894,10 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			if (tsq instanceof FillBlanksQuestionImpl)
 			{
 				quest_desc = stripHtml(((FillBlanksQuestionImpl) tsq).getText());
+			}
+			else if (tsq instanceof FillInlineQuestionImpl)
+			{
+				quest_desc = stripHtml(((FillInlineQuestionImpl) tsq).getText());
 			}
 			else
 			{
@@ -3842,10 +4034,48 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 						row.createCell((short) j).setCellValue(getCommaAnswers(choiceArray));
 					}
+					if (a instanceof OrderAnswerImpl)
+					{
+						OrderAnswerImpl oa = (OrderAnswerImpl) a;
+						List<OrderQuestionImpl.OrderQuestionChoice> choiceList = ((OrderQuestionImpl) oa.getAnswerObject()
+								.getQuestion().getTypeSpecificQuestion()).getChoicesAsAuthored();
+						Map<String, Value>  ansMap = oa.getAnswer();
+						String[] choiceArray = new String[ansMap.size()];
+						int l = 0;
+						for (Map.Entry entry : ansMap.entrySet())
+						{
+							String entryId = (String) entry.getKey();
+							// Value value = ansMap.get(oqc.getId());
+							if (!isSurvey && entry.getValue() != null && ((Value)entry.getValue()).getValue() != null && ((Value)entry.getValue()).getValue().equals(entryId)/*((OrderQuestionImpl.OrderQuestionChoice) choiceList.get(l)).getId().equals(entryId)*/)
+							{
+								choiceArray[l] = "*" + stripHtml(getChoiceText(choiceList, entryId).trim()) + "*";
+							}
+							else
+							{
+								if (((Value)entry.getValue()).getValue() == null)
+								{
+								    choiceArray[l] = "Select";
+								}
+								else
+								{
+									choiceArray[l] = stripHtml(getChoiceText(choiceList, entryId).trim());
+								}
+							}
+
+							l++;
+						}
+
+						row.createCell((short) j).setCellValue(getCommaAnswers(choiceArray));
+					}
 					if (a instanceof FillBlanksAnswerImpl)
 					{
 						FillBlanksAnswerImpl fb = (FillBlanksAnswerImpl) a;
-						row.createCell((short) j).setCellValue(stripHtml(getCommaAnswers(checkCorrectFill(fb))));
+						row.createCell((short) j).setCellValue(stripHtml(getCommaAnswers(checkCorrectFill(fb, isSurvey))));
+					}
+					if (a instanceof FillInlineAnswerImpl)
+					{
+						FillInlineAnswerImpl fi = (FillInlineAnswerImpl) a;
+						row.createCell((short) j).setCellValue(stripHtml(getCommaAnswers(checkCorrectFillInline(fi, isSurvey))));
 					}
 					if (a instanceof LikertScaleAnswerImpl)
 					{
@@ -3908,6 +4138,24 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 		}
 		if (!answersExist) return null;
 		return sheet;
+	}
+
+	/**
+	 * Returns the text of the choice given the id
+	 * 
+	 * @param choiceList List of OrderQuestionChoice objects
+	 * @param id id to search for
+	 * @return text that corresponds to the id
+	 */
+	private String getChoiceText(List<OrderQuestionImpl.OrderQuestionChoice> choiceList, String id)
+	{
+		if (choiceList == null || choiceList.size() == 0) return null;
+		if (id == null) return null;
+		for (OrderQuestionImpl.OrderQuestionChoice oqc : choiceList)
+		{
+			if (oqc.getId().equals(id)) return oqc.getText();
+		}
+		return null;
 	}
 
 	/**
@@ -4124,7 +4372,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	}
 
 	/**
-	 * Iterates through all Multiple Choice questions to determine which one has the max number of choices
+	 * Iterates through all Multiple Choice/Order questions to determine which one has the max number of choices
 	 * @param mc_questions List of Question objects
 	 * @return Number of max choices
 	 */
@@ -4132,6 +4380,8 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 	{
 		if (mc_questions == null || mc_questions.size() == 0) return 0;
 		int maxChoices = 1;
+		if (mc_questions.get(0).getTypeSpecificQuestion() instanceof MultipleChoiceQuestionImpl)
+		{
 		for (Iterator it = mc_questions.iterator(); it.hasNext();)
 		{
 			Question q = (Question) it.next();
@@ -4140,6 +4390,19 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 			if (choiceList != null)
 			{
 				if (choiceList.size() > maxChoices) maxChoices = choiceList.size();
+			}
+		}
+		}
+		if (mc_questions.get(0).getTypeSpecificQuestion()  instanceof OrderQuestionImpl)
+		{
+			for (Iterator it = mc_questions.iterator(); it.hasNext();)
+			{
+				Question q = (Question) it.next();
+				List<OrderQuestionImpl.OrderQuestionChoice> choiceList = ((OrderQuestionImpl) q.getTypeSpecificQuestion()).getChoices();
+				if (choiceList != null)
+				{
+					if (choiceList.size() > maxChoices) maxChoices = choiceList.size();
+				}
 			}
 		}
 		return maxChoices;

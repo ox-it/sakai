@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-impl/impl/src/java/org/etudes/mneme/impl/ImporteCollegeTextServiceImpl.java $
- * $Id: ImporteCollegeTextServiceImpl.java 3635 2012-12-02 21:26:23Z ggolden $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2012 Etudes, Inc.
+ * Copyright (c) 2012, 2014 Etudes, Inc.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,7 +176,7 @@ public class ImporteCollegeTextServiceImpl implements ImporteCollegeTextService
 			{				
 				assmt.getGrading().setGradebookIntegration(Boolean.TRUE);
 
-				if (assmt.getParts().getTotalPoints().floatValue() <= 0)
+				if (assmt.getPoints().floatValue() <= 0)
 				{
 					assmt.setNeedsPoints(Boolean.FALSE);
 				}

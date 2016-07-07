@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2013, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -44,8 +44,6 @@ public class AssessmentReviewImpl implements AssessmentReview
 
 	protected ReviewShowCorrect showCorrectAnswer = ReviewShowCorrect.yes;
 
-	protected ReviewShowCorrect showIncorrectQuestions = ReviewShowCorrect.incorrect_only;
-
 	protected Boolean showFeedback = Boolean.TRUE;
 
 	protected Boolean showSummary = Boolean.FALSE;
@@ -85,6 +83,24 @@ public class AssessmentReviewImpl implements AssessmentReview
 	{
 		return this.date;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getIsValid()
+	{
+		if (getDate() == null)  return Boolean.TRUE;
+		
+		Date openDate = this.assessment.dates.getOpenDate();
+		Date dueDate = this.assessment.dates.getDueDate();
+		Date acceptUntilDate = this.assessment.dates.getAcceptUntilDate();
+
+        if (openDate != null && getDate().before(openDate)) return Boolean.FALSE;
+        if (dueDate != null && getDate().before(dueDate)) return Boolean.FALSE;
+        if (acceptUntilDate != null && getDate().before(acceptUntilDate)) return Boolean.FALSE;
+        
+		return Boolean.TRUE;
+	}	
 
 	/**
 	 * {@inheritDoc}
@@ -133,14 +149,6 @@ public class AssessmentReviewImpl implements AssessmentReview
 	/**
 	 * {@inheritDoc}
 	 */
-	public ReviewShowCorrect getShowIncorrectQuestions()
-	{
-		return this.showIncorrectQuestions;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public Boolean getShowFeedback()
 	{
 		return this.showFeedback;
@@ -183,19 +191,6 @@ public class AssessmentReviewImpl implements AssessmentReview
 		if (this.showCorrectAnswer.equals(setting)) return;
 
 		this.showCorrectAnswer = setting;
-
-		this.owner.setChanged();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setShowIncorrectQuestions(ReviewShowCorrect setting)
-	{
-		if (setting == null) return;
-		if (this.showIncorrectQuestions.equals(setting)) return;
-
-		this.showIncorrectQuestions = setting;
 
 		this.owner.setChanged();
 	}
@@ -253,7 +248,6 @@ public class AssessmentReviewImpl implements AssessmentReview
 	{
 		this.date = other.date;
 		this.showCorrectAnswer = other.showCorrectAnswer;
-		this.showIncorrectQuestions = other.showIncorrectQuestions;
 		this.showFeedback = other.showFeedback;
 		this.showSummary = other.showSummary;
 		this.timing = other.timing;

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -42,6 +42,7 @@ import org.etudes.mneme.api.QuestionPick;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionUnscoredQuestionService;
 import org.etudes.mneme.api.TypeSpecificQuestion;
+import org.etudes.util.HtmlHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.util.FormattedText;
@@ -426,6 +427,8 @@ public class QuestionImpl implements Question
 
 	protected boolean surveyChanged = false;
 
+	protected String title = "";
+
 	protected String type = null;
 
 	/**
@@ -493,6 +496,9 @@ public class QuestionImpl implements Question
 
 		// strip any html
 		rv = FormattedText.convertFormattedTextToPlaintext(rv);
+
+		// restore the UNICODE special characters as entity references
+		rv = HtmlHelper.stripBadEncodingCharacters(rv);
 
 		// trim to max length
 		if (rv.length() > 255) rv = rv.substring(0, 255);
@@ -709,6 +715,14 @@ public class QuestionImpl implements Question
 	/**
 	 * {@inheritDoc}
 	 */
+	public String getTitle()
+	{
+		return this.title;
+	}	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public String getType()
 	{
 		return this.type;
@@ -864,6 +878,29 @@ public class QuestionImpl implements Question
 	{
 		this.submissionService = service;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setTitle(String title)
+	{
+		// massage the title
+		if (title != null)
+		{
+			title = title.trim();
+			if (title.length() > 255) title = title.substring(0, 255);
+		}
+		else
+		{
+			title = "";
+		}
+
+		if (this.title.equals(title)) return;
+
+		this.title = title;
+
+		this.changed.setChanged();
+	}	
 
 	/**
 	 * Clear the changed settings.
@@ -1072,6 +1109,7 @@ public class QuestionImpl implements Question
 		this.submissionService = other.submissionService;
 		this.survey = other.survey;
 		this.surveyChanged = other.surveyChanged;
+		this.title = other.title;
 		this.type = other.type;
 	}
 }

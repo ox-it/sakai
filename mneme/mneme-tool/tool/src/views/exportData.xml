@@ -7,11 +7,8 @@
  * $Id: assessmentStats.xml 5584 2013-08-12 17:01:25Z mallikamt $
  ***********************************************************************************
  *
- * Copyright (c) 2013 Etudes, Inc.
+ * Copyright (c) 2013, 2014 Etudes, Inc.
  * 
- * Portions completed before September 1, 2008
- * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -53,7 +50,7 @@
 			</text>
 			<text>
 				<message selector="assessment-total-points">
-					<model ref="assessment.Parts.totalPoints" />
+					<model ref="assessment.points" />
 				</message>
 				<included>
 					<decision model="assessment.hasPoints" />
@@ -67,7 +64,10 @@
 		<!--navigation-->
 		<navigationBar>
 			<included>
+			  <andDecision>
 				<compareDecision model="assessment.type" constant="survey" reversed="TRUE" />
+				<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+			  </andDecision>	
 			</included>
 			<container>
 				<navigation title="grade-submission-title" style="LINK" accessKey="grade-submission-access">
@@ -99,6 +99,16 @@
 				</navigation>
 			</container>
 		</navigationBar>
+		<navigationBar>
+			<included>
+				<compareDecision model="assessment.type" constant="offline" />
+			</included>
+			<container>
+				<navigation title="export-data-title" style="LINK" accessKey="export-data-access" submit="TRUE" disabled="TRUE">
+					<icon icon="/icons/export.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
         <section>
           <title>
 		    <message selector="export" />
@@ -106,6 +116,9 @@
 		  <container>
 		    <attachments list="FALSE" model="assessment.exportSummaryReference"/>
 		  </container>
+		  <included>
+			<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+		  </included>
 		</section>
 		  <section>
           <title>
@@ -114,6 +127,9 @@
 		  <container>
 		    <attachments list="FALSE" model="assessment.itemAnalysisReference"/>
 		  </container>
+		   <included>
+			 <compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+		  </included>
 		</section>
 		 <section>
           <title>

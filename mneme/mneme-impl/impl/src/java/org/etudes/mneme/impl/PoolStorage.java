@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -61,6 +61,17 @@ public interface PoolStorage
 	Boolean existsPool(String poolId);
 
 	/**
+	 * Check if a pool by this title exists.
+	 * 
+	 * @param title
+	 *        The pool title
+	 * @param context
+	 *        The context
+	 * @return TRUE if the pool with this title exists, FALSE if not.
+	 */
+	Boolean existsPoolTitle(String title, String context);
+
+	/**
 	 * Find all the pools in this context that meet the criteria (excluding mints and historicals).
 	 * 
 	 * @param context
@@ -111,6 +122,25 @@ public interface PoolStorage
 	 * @return A pool object.
 	 */
 	PoolImpl newPool();
+
+	/**
+	 * Form a key for caching a pool.
+	 * 
+	 * @param poolId
+	 *        The pool id.
+	 * @return The cache key.
+	 */
+	String poolCacheKey(String poolId);
+
+	/**
+	 * Read and cache all the pools used by the assessments in this context.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @param publishedOnly
+	 *        if TRUE, consider questions only for published assessments.
+	 */
+	void readAssessmentPools(String context, Boolean publishedOnly);
 
 	/**
 	 * Remove a pool from storage.

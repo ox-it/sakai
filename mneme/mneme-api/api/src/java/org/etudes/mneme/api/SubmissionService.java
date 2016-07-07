@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -39,7 +39,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 */
 	enum FindAssessmentSubmissionsSort
 	{
-		evaluated_a, evaluated_d, final_a, final_d, released_a, released_d, sdate_a, sdate_d, status_a, status_d, userName_a, userName_d
+		evaluated_a, evaluated_d, final_a, final_d, released_a, released_d, sdate_a, sdate_d, section_a, section_d, status_a, status_d, userName_a, userName_d
 	}
 
 	/**
@@ -47,7 +47,7 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 */
 	enum GetUserContextSubmissionsSort
 	{
-		dueDate_a, dueDate_d, status_a, status_d, title_a, title_d, type_a, type_d, published_a, published_d
+		dueDate_a, dueDate_d, published_a, published_d, status_a, status_d, title_a, title_d, type_a, type_d
 	}
 
 	/** Phantom submissions start with this, and are followed by the assessment id, another slash, then the user id. */
@@ -141,6 +141,25 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Integer countAssessmentSubmissions(Assessment assessment, Boolean official, String allUid);
 
 	/**
+	 * Count the submissions to the assessment made by all users.<br />
+	 * If a user has not yet submitted, a phantom one for that user is included. <br
+	 * />
+	 * Optionally group multiple submissions from a single user and select the in-progress or "best" one. <br />
+	 * Optionally when grouping leave one user's submissions all there un-clumped.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param official
+	 *        if TRUE, clump multiple submissions by the same user behind the best one, else include all.
+	 * @param allUid
+	 *        if set and official, leave this user's submissions all there un-clumped
+	 * @param sectionFilter
+	 *        If set, consider only submissions from this section.
+	 * @return A sorted List<Submission> of the submissions for the assessment.
+	 */
+	Integer countAssessmentSubmissions(Assessment assessment, Boolean official, String allUid, String sectionFilter);
+
+	/**
 	 * Count the submission answers to the assessment and question made by all users, answered, in completed submissions.
 	 * 
 	 * @param assessment
@@ -181,10 +200,11 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * 
 	 * @param submission
 	 *        The submission
+	 * @return the submission id (which may be created if the submission was phantom and saved).
 	 * @throws AssessmentPermissionException
 	 *         if the user does not have permission to evaluate this submission.
 	 */
-	void evaluateSubmission(Submission submission) throws AssessmentPermissionException;
+	String evaluateSubmission(Submission submission) throws AssessmentPermissionException;
 
 	/**
 	 * Apply an evaluation to all the official completed submissions to this assessment.
@@ -200,6 +220,18 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 */
 	void evaluateSubmissions(Assessment assessment, String comment, Float score) throws AssessmentPermissionException;
 
+	/**
+	 * Deduct points for all late submissions of this assessment.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param score
+	 *        The overall score adjustment. If null, no change to score is made.
+	 * @throws AssessmentPermissionException
+	 *         If the current user is not allowed to save this Submission.
+	 */
+	void deductLateSubmissions(Assessment assessment, Float score) throws AssessmentPermissionException;
+	
 	/**
 	 * Find the submissions to the assessment made by all users.<br />
 	 * If a user has not yet submitted, a phantom one for that user is included. <br
@@ -227,6 +259,34 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 			Integer pageNum, Integer pageSize, Boolean filterByPermission);
 
 	/**
+	 * Find the submissions to the assessment made by all users.<br />
+	 * If a user has not yet submitted, a phantom one for that user is included. <br
+	 * />
+	 * Optionally group multiple submissions from a single user and select the in-progress or "best" one. <br />
+	 * Optionally when grouping leave one user's submissions all there un-clumped.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param sort
+	 *        The sort order.
+	 * @param official
+	 *        if TRUE, clump multiple submissions by the same user behind the best one, else include all.
+	 * @param allUid
+	 *        if set and official, leave this user's submissions all there un-clumped
+	 * @param pageNum
+	 *        The page number (1 based) to display, or null to disable paging and get them all.
+	 * @param pageSize
+	 *        The number of items for the requested page, or null if we are not paging.
+	 * @param filterByPermission
+	 *        if null or TRUE, return submissions for only users currently permitted to submit, otherwise return all found submissions.
+	 * @param sectionFilter
+	 *        If not null, filter away any submissions from users not in this section.
+	 * @return A sorted List<Submission> of the submissions for the assessment.
+	 */
+	List<Submission> findAssessmentSubmissions(Assessment assessment, FindAssessmentSubmissionsSort sort, Boolean official, String allUid,
+			Integer pageNum, Integer pageSize, Boolean filterByPermission, String sectionFilter);
+
+	/**
 	 * Find the questions that have been used in submissions in this assessment part.<br />
 	 * Order by question description.
 	 * 
@@ -251,6 +311,42 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	Ordering<String> findPrevNextSubmissionIds(Submission submission, FindAssessmentSubmissionsSort sort, Boolean official);
 
 	/**
+	 * Find the previous and next submissions, from this one, to this one's assessment, based on the sort.<br />
+	 * Real (not phantom) submissions only.
+	 * 
+	 * @param submission
+	 *        The current submission.
+	 * @param sort
+	 *        The sort.
+	 * @param official
+	 *        if TRUE, clump multiple submissions by the same user behind the best one, else include all.
+	 * @param sectionFilter
+	 *        If set, include only submissions from this section.
+	 * @return [0], the previous id, or null, [1], the next id, or null.
+	 */
+	Ordering<String> findPrevNextSubmissionIds(Submission submission, FindAssessmentSubmissionsSort sort, Boolean official, String sectionFilter);
+
+	/**
+	 * Find the submission answers to the assessment and question made by all users, answered, in completed submissions.
+	 * 
+	 * @param assessment
+	 *        The assessment.
+	 * @param question
+	 *        The question.
+	 * @param official
+	 *        if TRUE, clump multiple submissions by the same user behind the best one, else include all.
+	 * @param sort
+	 *        The sort order.
+	 * @param pageNum
+	 *        The page number (1 based) to display, or null to disable paging and get them all.
+	 * @param pageSize
+	 *        The number of items for the requested page, or null if we are not paging.
+	 * @return A sorted List<Answer> of the answers.
+	 */
+	List<Answer> findSubmissionAnswers(Assessment assessment, Question question, Boolean official, FindAssessmentSubmissionsSort sort,
+			Integer pageNum, Integer pageSize);
+
+	/**
 	 * Find the submission answers to the assessment and question made by all users, answered, in completed submissions.
 	 * 
 	 * @param assessment
@@ -266,25 +362,6 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * @return A sorted List<Answer> of the answers.
 	 */
 	List<Answer> findSubmissionAnswers(Assessment assessment, Question question, FindAssessmentSubmissionsSort sort, Integer pageNum, Integer pageSize);
-	
-	/**
-	 * Find the submission answers to the assessment and question made by all users, answered, in completed submissions.
-	 * 
-	 * @param assessment
-	 *        The assessment.
-	 * @param question
-	 *        The question.
-	 * @param official
-	 *        if TRUE, clump multiple submissions by the same user behind the best one, else include all.        
-	 * @param sort
-	 *        The sort order.
-	 * @param pageNum
-	 *        The page number (1 based) to display, or null to disable paging and get them all.
-	 * @param pageSize
-	 *        The number of items for the requested page, or null if we are not paging.
-	 * @return A sorted List<Answer> of the answers.
-	 */
-	List<Answer> findSubmissionAnswers(Assessment assessment, Question question, Boolean official, FindAssessmentSubmissionsSort sort, Integer pageNum, Integer pageSize);
 
 	/**
 	 * Find this answer.
@@ -335,7 +412,9 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 
 	/**
 	 * Returns the text of an assessment evaluation notification sample with dates filled in
-	 * @param assmt Assessment object
+	 * 
+	 * @param assmt
+	 *        Assessment object
 	 * @return Evaluation notification sample
 	 */
 	String getEvalNotificationSample(Assessment assmt);
@@ -430,6 +509,27 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	List<Submission> getUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sort);
 
 	/**
+	 * From the CourseMap, Get the submissions to assessments in this context made by this user.
+	 * Do not skip hidden items Consider:
+	 * <ul>
+	 * <li>published and valid assessments</li>
+	 * <li>assessments in this context</li>
+	 * <li>assessments this user can submit to and have submitted to</li>
+	 * <li>the one (of many for this user) submission that will be the official (graded) (depending on the assessment settings, and submission time and score)</li>
+	 * </ul>
+	 * 
+	 * @param context
+	 *        The context to use.
+	 * @param userId
+	 *        The user id - if null, use the current user.
+	 * @param sort
+	 *        The sort order.
+	 * @return A List<Submission> of the submissions that are the official submissions for assessments in the context by this user, sorted.
+	 */
+	List<Submission> getCMUserContextSubmissions(String context, String userId, GetUserContextSubmissionsSort sort);
+
+
+	/**
 	 * Record the date that this submission was reviewed, if this is being reviewed by the submission's user.
 	 * 
 	 * @param submission
@@ -515,8 +615,8 @@ public interface SubmissionService extends SubmissionUnscoredQuestionService
 	 * @throws SubmissionCompletedException
 	 *         if the submission is already completed.
 	 */
-	void submitAnswers(List<Answer> answers, Boolean completeAnswers, Boolean completeSubmission, Boolean autoComplete) throws AssessmentPermissionException,
-			AssessmentClosedException, SubmissionCompletedException;
+	void submitAnswers(List<Answer> answers, Boolean completeAnswers, Boolean completeSubmission, Boolean autoComplete)
+			throws AssessmentPermissionException, AssessmentClosedException, SubmissionCompletedException;
 
 	/**
 	 * Collect the submissions for this question in this assessment into the zip stream.

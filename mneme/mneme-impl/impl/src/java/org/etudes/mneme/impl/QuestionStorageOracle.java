@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -86,7 +86,23 @@ public abstract class QuestionStorageOracle extends QuestionStorageSql implement
 
 		if (!this.sqlService.dbWrite(null, sql.toString(), fields))
 		{
-			throw new RuntimeException("copyQuestionTx: dbWrite failed");
+			throw new RuntimeException("copyQuestionTx QUESTION table : db write failed");
+		}
+		else
+		{
+			StringBuilder sqlTitle = new StringBuilder();
+			sqlTitle.append("INSERT INTO MNEME_QUESTION_TITLE");
+			sql.append(" (QUESTION_ID, TITLE)");
+			sql.append(" SELECT");
+			sql.append(" '" + id.longValue() + "', ");
+			sql.append(" QT.TITLE ");
+			sql.append(" FROM MNEME_QUESTION_TITLE QT WHERE QT.QUESTION_ID=?");
+
+			id = this.sqlService.dbInsert(null, sql.toString(), fields, "QUESTION_ID");
+			if (id == null)
+			{
+				throw new RuntimeException("copyQuestionTx QUESTION_TITLE table : db write failed");
+			}
 		}
 
 		return id.toString();
@@ -127,6 +143,22 @@ public abstract class QuestionStorageOracle extends QuestionStorageSql implement
 		if (!this.sqlService.dbWrite(null, sql.toString(), fields))
 		{
 			throw new RuntimeException("copyQuestionTx: dbWrite failed");
+		}
+		else
+		{
+			StringBuilder sqlTitle = new StringBuilder();
+			sqlTitle.append("INSERT INTO MNEME_QUESTION_TITLE");
+			sql.append(" (QUESTION_ID, TITLE)");
+			sql.append(" SELECT");
+			sql.append(" '" + id.longValue() + "', ");
+			sql.append(" QT.TITLE ");
+			sql.append(" FROM MNEME_QUESTION_TITLE QT WHERE QT.QUESTION_ID=?");
+
+			id = this.sqlService.dbInsert(null, sql.toString(), fields, "QUESTION_ID");
+			if (id == null)
+			{
+				throw new RuntimeException("copyQuestionTx QUESTION_TITLE table : db write failed");
+			}
 		}
 
 		return id.toString();
@@ -175,6 +207,26 @@ public abstract class QuestionStorageOracle extends QuestionStorageSql implement
 		{
 			throw new RuntimeException("insertQuestionTx: dbWrite failed");
 		}
+		else
+		{
+			if (question.getTitle() != null)
+			{
+				StringBuilder sqlTitle = new StringBuilder();
+				sqlTitle.append("INSERT INTO MNEME_QUESTION_TITLE");
+				sqlTitle.append(" (QUESTION_ID, TITLE)");
+				sqlTitle.append(" VALUES(?,?)");
+
+				Object[] fieldsTitle = new Object[2];
+				fieldsTitle[0] = Long.valueOf(id);
+				fieldsTitle[1] = question.getTitle();
+
+				if (!this.sqlService.dbWrite(null, sql.toString(), fieldsTitle))
+				{
+					throw new RuntimeException("insertQuestionTx QUESTION_TITLE table : db write failed");
+				}
+			}
+		}
+
 
 		// set the question's id
 		question.initId(id.toString());

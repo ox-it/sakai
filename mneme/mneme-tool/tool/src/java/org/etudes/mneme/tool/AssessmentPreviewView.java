@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -95,8 +95,9 @@ public class AssessmentPreviewView extends ControllerImpl
 			return;
 		}
 
-		// security check
-		if (!assessmentService.allowEditAssessment(assessment))
+		// security check - check general maintenance permission, rather than the particular for this assessment
+		// this allows FCEs to be viewed by the normal maintainer, who does not have allowEditAssessment(assessment)
+		if (!assessmentService.allowManageAssessments(assessment.getContext()))
 		{
 			// redirect to error
 			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, "/error/" + Errors.unauthorized)));
@@ -212,7 +213,10 @@ public class AssessmentPreviewView extends ControllerImpl
 		// if from assessments_restore view
 		else
 		{
-			assessments = this.assessmentService.getArchivedAssessments(this.toolManager.getCurrentPlacement().getContext());
+			// include FCE only if the user has permission
+			boolean includeFce = this.assessmentService.allowSetFormalCourseEvaluation(this.toolManager.getCurrentPlacement().getContext());
+
+			assessments = this.assessmentService.getArchivedAssessments(this.toolManager.getCurrentPlacement().getContext(), includeFce);
 		}
 
 		// figure this one's position (0 based)

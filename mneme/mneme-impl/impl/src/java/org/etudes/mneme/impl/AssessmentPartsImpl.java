@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.etudes.mneme.api.AssessmentParts;
+import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.Changeable;
 import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.PartDetail;
@@ -123,6 +124,26 @@ public class AssessmentPartsImpl implements AssessmentParts
 		this.owner.setChanged();
 
 		return rv;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void clear()
+	{
+		// this is a change that cannot be made to live tests
+		this.assessment.lockedChanged = Boolean.TRUE;
+
+		for (Iterator<Part> i = this.parts.iterator(); i.hasNext();)
+		{
+			Part part = i.next();
+
+			i.remove();
+			((PartImpl) part).initContainer(null);
+
+			this.owner.setChanged();
+			this.deleted.add(part);
+		}
 	}
 
 	/**
@@ -328,6 +349,9 @@ public class AssessmentPartsImpl implements AssessmentParts
 	 */
 	public Boolean getIsValid()
 	{
+		// offlines need no parts
+		if (this.assessment.getType() == AssessmentType.offline) return Boolean.TRUE;
+
 		// we must have some parts defined
 		if (this.parts.isEmpty()) return Boolean.FALSE;
 

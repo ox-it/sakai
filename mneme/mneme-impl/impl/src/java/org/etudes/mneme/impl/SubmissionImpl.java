@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -25,8 +25,10 @@
 package org.etudes.mneme.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,9 +52,15 @@ import org.etudes.mneme.api.SubmissionCompletionStatus;
 import org.etudes.mneme.api.SubmissionEvaluation;
 import org.etudes.mneme.api.SubmissionService;
 import org.etudes.util.api.AccessAdvisor;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -335,17 +343,18 @@ public class SubmissionImpl implements Submission
 		Assessment assessment = getAssessment();
 
 		// if not open yet...
-		if ((!assessment.getDates().getHideUntilOpen()) &&(assessment.getDates().getOpenDate() != null) && now.before(assessment.getDates().getOpenDate()) && (!assessment.getFrozen()))
+		if ((!assessment.getDates().getHideUntilOpen()) && (assessment.getDates().getOpenDate() != null)
+				&& now.before(assessment.getDates().getOpenDate()) && (!assessment.getFrozen()))
 		{
 			return AssessmentSubmissionStatus.future;
 		}
 
 		// if in future and hidden
-		if ((assessment.getDates().getHideUntilOpen()) && (assessment.getDates().getOpenDate() != null) && now.before(assessment.getDates().getOpenDate()) && (!assessment.getFrozen()))
+		if ((assessment.getDates().getHideUntilOpen()) && (assessment.getDates().getOpenDate() != null)
+				&& now.before(assessment.getDates().getOpenDate()) && (!assessment.getFrozen()))
 		{
 			return AssessmentSubmissionStatus.hiddenTillOpen;
 		}
-		
 
 		// are we past the hard end date? Or frozen?
 		boolean over = ((assessment.getFrozen()) || ((assessment.getDates().getSubmitUntilDate() != null) && (now.after(assessment.getDates()
@@ -358,6 +367,21 @@ public class SubmissionImpl implements Submission
 			if (assessment.getDates().getIsLate())
 			{
 				return AssessmentSubmissionStatus.overdueReady;
+			}
+
+			// for FCE and non-provided users, call it closed
+			if (getAssessment().getFormalCourseEval())
+			{
+				try
+				{
+					String userId = this.sessionManager.getCurrentSessionUserId();
+					Site site = siteService().getSite(this.getAssessment().getContext());
+					Member m = site.getMember(userId);
+					if ((m != null) && (!m.isProvided())) return AssessmentSubmissionStatus.over;
+				}
+				catch (IdUnusedException e)
+				{
+				}
 			}
 
 			return AssessmentSubmissionStatus.ready;
@@ -407,7 +431,8 @@ public class SubmissionImpl implements Submission
 	 */
 	public Submission getBest()
 	{
-		return this.bestSubmissionId == null ? this : this.submissionService.getSubmission(this.bestSubmissionId);
+		return ((this.bestSubmissionId == null) || (this.bestSubmissionId == this.id)) ? this : this.submissionService
+				.getSubmission(this.bestSubmissionId);
 	}
 
 	/**
@@ -550,8 +575,8 @@ public class SubmissionImpl implements Submission
 	 */
 	public Boolean getEvaluationUsed()
 	{
-		// multiple answers or evaluation already in use (or phantom)
-		if ((this.answers.size() > 1) || (this.getEvaluation().getDefined()) || this.getIsPhantom()) return Boolean.TRUE;
+		// non-single answer or evaluation already in use (or phantom)
+		if ((this.answers.size() != 1) || (this.getEvaluation().getDefined()) || this.getIsPhantom()) return Boolean.TRUE;
 
 		return Boolean.FALSE;
 	}
@@ -769,19 +794,31 @@ public class SubmissionImpl implements Submission
 		if (!getIsComplete()) return Boolean.FALSE;
 
 		// if marked as evaluated, it is no longer candidate for unscored
-		if (this.evaluation.getEvaluated().booleanValue()) return Boolean.FALSE;
+		if (getEvaluation().getEvaluated()) return Boolean.FALSE;
 
 		// submissions created in the evaluation process are never considered unscored
-		if (this.getCompletionStatus() == SubmissionCompletionStatus.evaluationNonSubmit) return Boolean.FALSE;
+		if (getCompletionStatus() == SubmissionCompletionStatus.evaluationNonSubmit) return Boolean.FALSE;
 
 		// if the overall score has been set, none of the answers are considered unscored
-		if (this.evaluation.getScore() != null) return Boolean.FALSE;
+		if (getEvaluation().getScore() != null) return Boolean.FALSE;
 
 		for (Answer answer : getAnswers())
 		{
-			if ((answer.getIsAnswered()) && (answer.getTotalScore() == null) && (!answer.getQuestion().getIsSurvey().booleanValue()))
+			// check answered non-survey that have not been evaluation scored
+			if ((answer.getIsAnswered()) && (!answer.getQuestion().getIsSurvey()) && (answer.getEvaluation().getScore() == null))
 			{
-				return Boolean.TRUE;
+				// handles unscored subjectives (essays)
+				if (answer.getTotalScore() == null)
+				{
+					return Boolean.TRUE;
+				}
+
+				// handles the objectives that have reason, are not released, and have not been commented on
+				else if ((!getIsReleased()) && (answer.getReason() != null) && (getEvaluation().getComment() == null)
+						&& (answer.getEvaluation().getComment() == null))
+				{
+					return Boolean.TRUE;
+				}
 			}
 		}
 
@@ -983,8 +1020,13 @@ public class SubmissionImpl implements Submission
 	{
 		Assessment a = getAssessment();
 
-		// phantoms, or real submissions with no answers are unanswered
+		// phantoms are unanswered
 		if (getIsPhantom()) return Boolean.TRUE;
+
+		// offlines are never considered unanswered
+		if (getAssessment().getType() == AssessmentType.offline) return Boolean.FALSE;
+
+		// real submissions with no answers are unanswered
 		if (getAnswers().isEmpty()) return Boolean.TRUE;
 
 		// look for a question that is answered
@@ -1012,8 +1054,16 @@ public class SubmissionImpl implements Submission
 		// - the one in progress, if there is one
 		// - the "official" completed one, if any
 
-		// not yet started
-		if (getStartDate() != null) return Boolean.FALSE;
+		// not for offline
+		// TODO: if (getAssessment().getType() == AssessmentType.offline) return Boolean.FALSE;
+
+		boolean offline = getAssessment().getType() == AssessmentType.offline;
+
+		// not yet started (skip if an offline)
+		if (!offline)
+		{
+			if (getStartDate() != null) return Boolean.FALSE;
+		}
 
 		// published (test drive need not be)
 		if (!getIsTestDrive())
@@ -1049,17 +1099,34 @@ public class SubmissionImpl implements Submission
 					.getContext())) return Boolean.FALSE;
 		}
 
-		// under limit (test drive can skip this)
-		if (!getIsTestDrive())
+		// under limit (test drive and offline can skip this)
+		if ((!getIsTestDrive()) && (!offline))
 		{
 			if ((getAssessment().getTries() != null) && (this.getSiblingCount() >= getAssessment().getTries())) return Boolean.FALSE;
 		}
 
-		// one last test! If not in test drive, and we have an access advisor, see if it wants to block things
+		// one last test! If not in test drive or offline, and we have an access advisor, see if it wants to block things
 		if ((this.accessAdvisor != null) && (!getIsTestDrive()))
 		{
 			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(),
 					this.sessionManager.getCurrentSessionUserId()))
+			{
+				return Boolean.FALSE;
+			}
+		}
+
+		if (getAssessment().getFormalCourseEval())
+		{
+			// user must be provided for FCE
+			try
+			{
+				String userId = this.sessionManager.getCurrentSessionUserId();
+				Site site = siteService().getSite(this.getAssessment().getContext());
+				Member m = site.getMember(userId);
+				if (m == null) return Boolean.FALSE;
+				if (!m.isProvided()) return Boolean.FALSE;
+			}
+			catch (IdUnusedException e)
 			{
 				return Boolean.FALSE;
 			}
@@ -1085,6 +1152,9 @@ public class SubmissionImpl implements Submission
 		// - the placeholder, if none other exist
 		// - the one in progress, if there is one
 		// - the "official" completed one, if any
+
+		// not for offline
+		if (getAssessment().getType() == AssessmentType.offline) return Boolean.FALSE;
 
 		// submission is complete
 		if (!getIsComplete()) return Boolean.FALSE;
@@ -1132,6 +1202,22 @@ public class SubmissionImpl implements Submission
 		if ((this.accessAdvisor != null) && (!getIsTestDrive()))
 		{
 			if (this.accessAdvisor.denyAccess("sakai.mneme", getAssessment().getContext(), getAssessment().getId(), userId))
+			{
+				return Boolean.FALSE;
+			}
+		}
+
+		if (getAssessment().getFormalCourseEval())
+		{
+			// user must be provided for FCE
+			try
+			{
+				Site site = siteService().getSite(this.getAssessment().getContext());
+				Member m = site.getMember(userId);
+				if (m == null) return Boolean.FALSE;
+				if (!m.isProvided()) return Boolean.FALSE;
+			}
+			catch (IdUnusedException e)
 			{
 				return Boolean.FALSE;
 			}
@@ -1214,8 +1300,10 @@ public class SubmissionImpl implements Submission
 		// valid
 		if (!getAssessment().getIsValid()) return Boolean.FALSE;
 
-		// assessment is open
-		if (!getAssessment().getDates().getIsOpen(Boolean.FALSE)) return Boolean.FALSE;
+		// assessment is open, unless the user has observer permission
+		boolean observer = this.securityService.checkSecurity(this.sessionManager.getCurrentSessionUserId(), "site.observer", getAssessment()
+				.getContext());
+		if ((!observer) && (!getAssessment().getDates().getIsOpen(Boolean.FALSE))) return Boolean.FALSE;
 
 		// permission - userId must have GUEST_PERMISSION in the context of the assessment
 		if (!this.securityService.checkSecurity(this.sessionManager.getCurrentSessionUserId(), MnemeService.GUEST_PERMISSION, getAssessment()
@@ -1279,9 +1367,10 @@ public class SubmissionImpl implements Submission
 		// submission must be complete
 		if (!getIsComplete()) return Boolean.FALSE;
 
-		// assessment must not be formal eval or survey
-		if (this.getAssessment().getFormalCourseEval()) return Boolean.FALSE;
-		if (this.getAssessment().getType() == AssessmentType.survey) return Boolean.FALSE;
+		// assessment must not be formal eval or survey or testdrive
+		if (getAssessment().getFormalCourseEval()) return Boolean.FALSE;
+		if (getAssessment().getType() == AssessmentType.survey) return Boolean.FALSE;
+		if (getIsTestDrive()) return Boolean.FALSE;
 
 		return Boolean.TRUE;
 	}
@@ -1371,6 +1460,71 @@ public class SubmissionImpl implements Submission
 	public String getUserId()
 	{
 		return this.userId;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings(
+	{ "rawtypes", "unchecked" })
+	public String getUserSection()
+	{
+		String rv = null;
+
+		try
+		{
+			Site site = siteService().getSite(this.getAssessment().getContext());
+
+			String titleActive = null;
+			String titleInactive = null;
+			Collection groups = site.getGroups();
+			for (Object groupO : groups)
+			{
+				Group g = (Group) groupO;
+
+				// skip non-section groups
+				if (g.getProperties().getProperty("sections_category") == null) continue;
+
+				// we want to find the user even if not active, so we cannot use g.getUsers(), which only returns active users -ggolden
+				// if (g.getUsers().contains(userId))
+
+				// since we are getting all the groups for the site to get the section for this submission, and we are likely to be doing this for all the submissions / users in the site, cache the groups.
+				Set<Member> groupMemebers = (Set<Member>) ThreadLocalManager.get("mneme:submission:group:" + g.getId());
+				if (groupMemebers == null)
+				{
+					groupMemebers = g.getMembers();
+					ThreadLocalManager.set("mneme:submission:group:" + g.getId(), groupMemebers);
+				}
+
+				for (Member gm : groupMemebers)
+				{
+					if (gm.getUserId().equals(this.userId))
+					{
+						if (gm.isActive())
+						{
+							if (titleActive == null) titleActive = g.getTitle();
+						}
+						else
+						{
+							if (titleInactive == null) titleInactive = g.getTitle();
+						}
+					}
+				}
+			}
+			if (titleActive != null)
+			{
+				rv = titleActive;
+			}
+			else if (titleInactive != null)
+			{
+				rv = titleInactive;
+			}
+		}
+		catch (IdUnusedException e)
+		{
+		}
+
+		return rv;
 	}
 
 	/**
@@ -1851,5 +2005,13 @@ public class SubmissionImpl implements Submission
 		this.testDrive = other.testDrive;
 		this.ungradedSiblings = other.ungradedSiblings;
 		this.userId = other.userId;
+	}
+
+	/**
+	 * @return The SiteService, via the component manager.
+	 */
+	private SiteService siteService()
+	{
+		return (SiteService) ComponentManager.get(SiteService.class);
 	}
 }

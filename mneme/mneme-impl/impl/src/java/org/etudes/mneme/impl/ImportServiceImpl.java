@@ -31,8 +31,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -41,21 +39,17 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
-import org.etudes.mneme.api.AssessmentPolicyException;
 import org.etudes.mneme.api.AssessmentService;
-import org.etudes.mneme.api.AssessmentType;
 import org.etudes.mneme.api.AttachmentService;
 import org.etudes.mneme.api.Ent;
 import org.etudes.mneme.api.GradesService;
 import org.etudes.mneme.api.ImportService;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.MnemeTransferService;
-import org.etudes.mneme.api.Part;
 import org.etudes.mneme.api.Pool;
 import org.etudes.mneme.api.PoolService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionService;
-import org.etudes.mneme.api.ReviewTiming;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.util.DateHelper;
 import org.etudes.util.HtmlHelper;
@@ -70,12 +64,9 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.i18n.InternationalizedMessages;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -233,19 +224,24 @@ public class ImportServiceImpl implements ImportService
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<Ent> getAssessments(String source, String destionation)
+	public List<Ent> getAssessments(String source, String destination)
 	{
 		List<Ent> rv = new ArrayList<Ent>();
 
 		List<Assessment> assessments = this.assessmentService.getContextAssessments(source, AssessmentService.AssessmentsSort.title_a, Boolean.FALSE);
 
+		boolean includeFce = this.assessmentService.allowSetFormalCourseEvaluation(destination);
+
 		// to check the title conflicts in the destination
-		List<Assessment> existingAssessments = this.assessmentService.getContextAssessments(destionation, AssessmentService.AssessmentsSort.cdate_a,
+		List<Assessment> existingAssessments = this.assessmentService.getContextAssessments(destination, AssessmentService.AssessmentsSort.cdate_a,
 				Boolean.FALSE);
 
-		// make an End from each assessment
+		// make an Ent from each assessment
 		for (Assessment assessment : assessments)
 		{
+			// skip FCEs, unless user has permission
+			if (assessment.getFormalCourseEval() && !includeFce) continue;
+
 			Ent ent = new EntImpl(assessment.getId(), assessment.getTitle());
 			rv.add(ent);
 
@@ -386,9 +382,9 @@ public class ImportServiceImpl implements ImportService
 	/**
 	 * {@inheritDoc}
 	 */
-	public void importMneme(Set<String> ids, String fromContext, String toContext) throws AssessmentPermissionException
+	public List<Assessment> importMneme(Set<String> ids, String fromContext, String toContext) throws AssessmentPermissionException
 	{
-		this.transferService.importFromSite(fromContext, toContext, ids);
+		return this.transferService.importFromSite(fromContext, toContext, ids);
 	}
 
 	/**
@@ -1334,23 +1330,18 @@ public class ImportServiceImpl implements ImportService
 	 */
 	protected List<Ent> getAuthSites(String userId, String permission, String excludeContext)
 	{
+		List<Site> visibleSites = new ArrayList<Site>();
+		List<Site> hiddenSites = new ArrayList<Site>();
+		this.siteService.getOrderedSites(userId, visibleSites, hiddenSites);
 		List<Ent> rv = new ArrayList<Ent>();
-
-		// get the authz groups in which this user has this permission
-		Set refs = this.authzGroupService.getAuthzGroupsIsAllowed(userId, permission, null);
-		for (Object o : refs)
+		for (Site site : visibleSites)
 		{
-			String ref = (String) o;
-
-			// each is a site ref
-			Reference siteRef = this.entityManager.newReference(ref);
-
-			// skip this one
-			if ((excludeContext != null) && siteRef.getId().equals(excludeContext)) continue;
-
+			boolean ok = securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, site.getId());
+			if (ok)
+			{
+				if ((excludeContext != null) && site.getId().equals(excludeContext)) continue;
 				// get the site display
-			String display = this.siteService.getSiteDisplay(siteRef.getId());
-
+				String display = this.siteService.getSiteDisplay(site.getId());
 				// take only the site title (between first and last quotes)
 				int firstPos = display.indexOf("\"");
 				int lastPos = display.lastIndexOf("\"");
@@ -1360,12 +1351,33 @@ public class ImportServiceImpl implements ImportService
 				}
 
 				// record for return
-			Ent ent = new EntImpl(siteRef.getId(), display);
+				Ent ent = new EntImpl(site.getId(), display, Long.parseLong(site.getTermId()), site.getTermDescription());
 				rv.add(ent);
 			}
+		}
+		for (Site site : hiddenSites)
+		{
+			boolean ok = securityService.checkSecurity(userId, MnemeService.MANAGE_PERMISSION, site.getId());
+			if (ok)
+			{
+				if ((excludeContext != null) && site.getId().equals(excludeContext)) continue;
+				// get the site display
+				String display = this.siteService.getSiteDisplay(site.getId());
+				// take only the site title (between first and last quotes)
+				int firstPos = display.indexOf("\"");
+				int lastPos = display.lastIndexOf("\"");
+				if ((firstPos != -1) && (lastPos != -1))
+				{
+					display = display.substring(firstPos + 1, lastPos);
+				}
 
+				// record for return
+				Ent ent = new EntImpl(site.getId(), display, Long.parseLong(site.getTermId()), site.getTermDescription());
+				rv.add(ent);
+			}
+		}
 		// sort
-		Collections.sort(rv, new EntComparator());
+		Collections.sort(rv, new EntTermComparator());
 
 		return rv;
 

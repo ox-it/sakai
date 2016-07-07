@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008 Etudes, Inc.
+ * Copyright (c) 2008, 2014 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -85,8 +85,11 @@ public class AssessmentsRestoreView extends ControllerImpl
 		}
 		context.put("sort", sort);
 
+		// include FCE only if the user has permission
+		boolean includeFce = this.assessmentService.allowSetFormalCourseEvaluation(this.toolManager.getCurrentPlacement().getContext());
+
 		// collect the archived assessments in this context
-		List<Assessment> assessments = this.assessmentService.getArchivedAssessments(this.toolManager.getCurrentPlacement().getContext());
+		List<Assessment> assessments = this.assessmentService.getArchivedAssessments(this.toolManager.getCurrentPlacement().getContext(), includeFce);
 		context.put("archived", assessments);
 
 		// render

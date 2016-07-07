@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -84,7 +84,23 @@ public abstract class QuestionStorageMysql extends QuestionStorageSql implements
 		Long id = this.sqlService.dbInsert(null, sql.toString(), fields, "ID");
 		if (id == null)
 		{
-			throw new RuntimeException("copyQuestionTx: db write failed");
+			throw new RuntimeException("copyQuestionTx QUESTION table : db write failed");
+		}
+		else
+		{
+			StringBuilder sqlTitle = new StringBuilder();
+			sqlTitle.append("INSERT INTO MNEME_QUESTION_TITLE");
+			sqlTitle.append(" (QUESTION_ID, TITLE)");
+			sqlTitle.append(" SELECT");
+			sqlTitle.append(" " + id.longValue() + ", ");
+			sqlTitle.append(" QT.TITLE ");
+			sqlTitle.append(" FROM MNEME_QUESTION_TITLE QT WHERE QT.QUESTION_ID=?");
+
+			Long titleId = this.sqlService.dbInsert(null, sqlTitle.toString(), fields, "QUESTION_ID");
+			if (titleId == null)
+			{
+				//throw new RuntimeException("copyQuestionTx QUESTION_TITLE table : db write failed");
+			}
 		}
 
 		return id.toString();
@@ -124,6 +140,23 @@ public abstract class QuestionStorageMysql extends QuestionStorageSql implements
 		{
 			throw new RuntimeException("copyQuestionTx: db write failed");
 		}
+		else
+		{
+			StringBuilder sqlTitle = new StringBuilder();
+			sqlTitle.append("INSERT INTO MNEME_QUESTION_TITLE");
+			sqlTitle.append(" (QUESTION_ID, TITLE)");
+			sqlTitle.append(" SELECT");
+			sqlTitle.append(" " + id.longValue() + ", ");
+			sqlTitle.append(" QT.TITLE ");
+			sqlTitle.append(" FROM MNEME_QUESTION_TITLE QT WHERE QT.QUESTION_ID=?");
+
+			Long titleId = this.sqlService.dbInsert(null, sqlTitle.toString(), fields, "QUESTION_ID");
+			if (titleId == null)
+			{
+				//throw new RuntimeException("copyQuestionTx QUESTION_TITLE table : db write failed");
+			}
+		}
+
 
 		return id.toString();
 	}
@@ -168,6 +201,26 @@ public abstract class QuestionStorageMysql extends QuestionStorageSql implements
 		{
 			throw new RuntimeException("insertQuestionTx: db write failed");
 		}
+		else
+		{
+			if (question.getTitle() != null && question.getTitle().trim().length() > 0)
+			{
+				StringBuilder sqlTitle = new StringBuilder();
+				sqlTitle.append("INSERT INTO MNEME_QUESTION_TITLE");
+				sqlTitle.append(" (QUESTION_ID, TITLE)");
+				sqlTitle.append(" VALUES(?,?)");
+
+				Object[] fieldsTitle = new Object[2];
+				fieldsTitle[0] = Long.valueOf(id);
+				fieldsTitle[1] = question.getTitle();
+
+				if (!this.sqlService.dbWrite(null, sqlTitle.toString(), fieldsTitle))
+				{
+					throw new RuntimeException("insertQuestionTx QUESTION_TITLE table : db write failed");
+				}
+			}
+		}
+
 
 		// set the question's id
 		question.initId(id.toString());

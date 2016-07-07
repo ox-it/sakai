@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -45,7 +45,7 @@
 				<message selector="list-empty" />
 			</emptyTitle>
 			<columns>
-			    	<column pixels="16" centered="TRUE">
+			    <column pixels="16" centered="TRUE">
 					<title>
 						<message selector="published" />
 					</title>
@@ -122,12 +122,26 @@
 							<icon icon="/icons/survey_type.png" style="LEFT" />
 							<included>
 								<compareDecision model="submission.assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="submission.assessment.formalCourseEval" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-type-fce" disabled="TRUE">
+							<icon icon="/icons/fce_type.png" style="LEFT" />
+							<included>
+								<compareDecision model="submission.assessment.type" constant="survey" />
+								<decision model="submission.assessment.formalCourseEval" />
 							</included>
 						</navigation>
 						<navigation style="LINK" submit="TRUE" description="assessment-type-assignment" disabled="TRUE">
 							<icon icon="/icons/assignment_type.png" style="LEFT" />
 							<included>
 								<compareDecision model="submission.assessment.type" constant="assignment" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-type-offline" disabled="TRUE">
+							<icon icon="/icons/offline_type.png" style="LEFT" />
+							<included>
+								<compareDecision model="submission.assessment.type" constant="offline" />
 							</included>
 						</navigation>
 					</navigations>
@@ -158,6 +172,7 @@
 							<destination template="/enter/{0}/list" model="submission.assessment.id" />
 							<included>
 								<decision model="submission.mayBegin" />
+								<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
 							</included>
 						</navigation>
 						<navigation style="LINK" title="list-nav-continue" small="TRUE">
@@ -170,6 +185,13 @@
 							<destination template="/enter/{0}/list" model="submission.assessment.id" />
 							<included>
 								<decision model="submission.mayBeginAgain" />
+							</included>
+						</navigation>
+						<navigation style="LINK" title="list-nav-view" small="TRUE">
+							<destination template="/guest_view/{0}/list" model="submission.assessment.id" />
+							<included>
+								<decision model="submission.mayBegin" />
+								<compareDecision model="submission.assessment.type" constant="offline" />
 							</included>
 						</navigation>
 					</navigations>
@@ -200,6 +222,14 @@
 							<destination template="/enter/{0}/list" model="submission.assessment.id" />
 							<included>
 								<decision model="submission.mayBegin" />
+								<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
+							</included>
+						</navigation>
+						<navigation>
+							<destination template="/guest_view/{0}/list" model="submission.assessment.id" />
+							<included>
+								<decision model="submission.mayBegin" />
+								<compareDecision model="submission.assessment.type" constant="offline" />
 							</included>
 						</navigation>
 						<navigation>
@@ -333,6 +363,9 @@
 
 				<!-- time limit -->
 				<column>
+					<entityIncluded selector="dash">
+						<compareDecision reversed="TRUE" model="submission.assessment.type" constant="offline" />
+					</entityIncluded>
 					<title>
 						<message selector="list-header-limit" />
 					</title>
@@ -365,6 +398,9 @@
 				</column>
 
 				<column wrap="FALSE">
+					<entityIncluded selector="dash">
+						<compareDecision reversed="TRUE" model="submission.assessment.type" constant="offline" />
+					</entityIncluded>
 					<title>
 						<message selector="list-header-tries" />
 					</title>
@@ -383,6 +419,7 @@
 					</title>
 					<model type="date" twoLine="TRUE" missing="dash" ref="submission.best.startDate" />
 					<entityIncluded selector="dash">
+						<compareDecision reversed="TRUE" model="submission.assessment.type" constant="offline" />
 						<decision model="submission.best.isStarted" />
 						<decision model="submission.best.isNonSubmit" reversed="TRUE" />
 					</entityIncluded>
@@ -393,6 +430,7 @@
 					</title>
 					<model type="date" twoLine="TRUE" missing="dash" ref="submission.best.submittedDate" />
 					<entityIncluded selector="dash">
+						<compareDecision reversed="TRUE" model="submission.assessment.type" constant="offline" />
 						<decision model="submission.best.isComplete" />
 						<decision model="submission.best.isNonSubmit" reversed="TRUE" />
 					</entityIncluded>

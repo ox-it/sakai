@@ -169,6 +169,9 @@
 					</container>
 				</overlay>
 				<selection title="allowTries">
+					<included>
+						<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+					</included>				
 					<model ref="access.hasTriesLimit" />
 					<selectionChoices>
 						<selectionChoice>
@@ -198,6 +201,9 @@
 					</selectionChoices>
 				</selection>
 				<textEdit cols="16">
+					<included>
+						<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+					</included>
 					<title>
 						<message selector="password">
 							<model type="icon" icon="/icons/password.png" />

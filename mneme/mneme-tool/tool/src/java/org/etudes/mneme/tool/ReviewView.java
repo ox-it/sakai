@@ -198,15 +198,15 @@ public class ReviewView extends ControllerImpl
 			submissionService.markReviewed(submission);
 		}
 
-		if ((!instructorViewWork) && (submission.getAssessment().getReview().getShowIncorrectQuestions() == ReviewShowCorrect.incorrect_only))
+		if ((!instructorViewWork) && (submission.getAssessment().getReview().getShowCorrectAnswer() == ReviewShowCorrect.incorrect_only || (submission.getAssessment().getReview().getShowCorrectAnswer() == ReviewShowCorrect.incorrect_key)))
 		{
 			boolean incorrectExists = false;
 			// Check to see if there is at least one non-essay, non-task and non-likert-scale question
 			for (Answer a : answers)
 			{
 				String questionType = a.getQuestion().getType();
-				if (questionType.equals("mneme:FillBlanks") || questionType.equals("mneme:Match") || questionType.equals("mneme:MultipleChoice")
-						|| questionType.equals("mneme:TrueFalse"))
+				if (questionType.equals("mneme:FillBlanks") || questionType.equals("mneme:FillInline") || questionType.equals("mneme:Match") || questionType.equals("mneme:MultipleChoice")
+						|| questionType.equals("mneme:TrueFalse")|| questionType.equals("mneme:Order"))
 				{
 					incorrectExists = true;
 					break;
@@ -217,9 +217,18 @@ public class ReviewView extends ControllerImpl
 			{
 				context.put("questionIncorrect", messages.getString("question-incorrect"));
 				context.put("showIncorrect", Boolean.TRUE);
+				if (submission.getAssessment().getReview().getShowCorrectAnswer() == ReviewShowCorrect.incorrect_only)
+				{
+					context.put("hideKey", Boolean.TRUE);
+			    }
+				else
+				{
+					context.put("hideKey", Boolean.FALSE);
+		        }
 			}
 		}
-
+		
+		
 		SubmissionCompletionStatus subComp = submission.getCompletionStatus();
 		boolean noneAnswered = false;
 		if (subComp.equals(SubmissionCompletionStatus.evaluationNonSubmit)

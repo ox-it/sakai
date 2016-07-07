@@ -74,13 +74,27 @@ public interface AssessmentStorage
 	Boolean existsAssessment(String id);
 
 	/**
+	 * Check if an assessment by this title exists.
+	 * 
+	 * @param title
+	 *        The assessment title
+	 * @param context
+	 *        The context
+	 * @return TRUE if the assessment with this title exists, FALSE if not.
+	 */
+	Boolean existsAssessmentTitle(String title, String context);
+	
+
+	/**
 	 * Get all the archived assessments in the context.
 	 * 
 	 * @param context
 	 *        The context.
-	 * @return The List<Assesment> of all archived assesments in the context, or empty if there are none.
+	 * @param includeFce
+	 *        if true, include archived formal course evaluations, else skip over them.
+	 * @return The List<Assesment> of all archived assessments in the context, or empty if there are none.
 	 */
-	List<AssessmentImpl> getArchivedAssessments(String context);
+	List<AssessmentImpl> getArchivedAssessments(String context, boolean includeFce);
 
 	/**
 	 * Access a assessment by id.
@@ -95,11 +109,6 @@ public interface AssessmentStorage
 	 * @return the assessments that *may* need to have their results email sent - set for email, not yet sent - but we are not sure if these are closed yet.
 	 */
 	List<AssessmentImpl> getAssessmentsNeedingResultsEmail();
-
-	/**
-	 * @return the assessments that are formal course evaluations and set for students to receive notifications and whose open date has come by.
-	 */
-	List<AssessmentImpl> getFormalEvaluationsNeedingNotification();
 
 	/**
 	 * Get all the assessments defined in this context, sorted. Does not include archived assessments.
@@ -124,14 +133,10 @@ public interface AssessmentStorage
 	List<AssessmentImpl> getContextGbInvalidAssessments(String context);
 
 	/**
-	 * Get the earliest open date of assessments in this context.
-	 * 
-	 * @param context
-	 *        The context.
-	 * @return If open dates exist for assessment, returns the earliest open date, otherwise returns null.
+	 * @return the assessments that are formal course evaluations and set for students to receive notifications and whose open date has come by.
 	 */
-	Date getMinStartDate(String context);
-	
+	List<AssessmentImpl> getFormalEvaluationsNeedingNotification();
+
 	/**
 	 * Get the latest open date of assessments in this context.
 	 * 
@@ -139,7 +144,16 @@ public interface AssessmentStorage
 	 *        The context.
 	 * @return If open dates exist for assessment, returns the latest open date, otherwise returns null.
 	 */
-	Date getMaxStartDate(String context);	
+	Date getMaxStartDate(String context);
+
+	/**
+	 * Get the earliest open date of assessments in this context.
+	 * 
+	 * @param context
+	 *        The context.
+	 * @return If open dates exist for assessment, returns the earliest open date, otherwise returns null.
+	 */
+	Date getMinStartDate(String context);
 
 	/**
 	 * Initialize.
@@ -202,7 +216,7 @@ public interface AssessmentStorage
 	 *        The date, or null to indicate not sent.
 	 */
 	void setEvaluationSent(String id, Date date);
-	
+
 	/**
 	 * Set the date that the results email was sent.
 	 * 

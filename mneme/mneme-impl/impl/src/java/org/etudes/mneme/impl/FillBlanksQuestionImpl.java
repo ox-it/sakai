@@ -30,7 +30,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.etudes.ambrosia.api.AndDecision;
+import org.etudes.ambrosia.api.CompareDecision;
 import org.etudes.ambrosia.api.Component;
+import org.etudes.ambrosia.api.Container;
 import org.etudes.ambrosia.api.Decision;
 import org.etudes.ambrosia.api.EntityList;
 import org.etudes.ambrosia.api.FillIn;
@@ -48,6 +50,7 @@ import org.etudes.ambrosia.api.UiService;
 import org.etudes.mneme.api.Question;
 import org.etudes.mneme.api.QuestionPlugin;
 import org.etudes.mneme.api.TypeSpecificQuestion;
+import org.etudes.util.HtmlHelper;
 import org.sakaiproject.i18n.InternationalizedMessages;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.StringUtil;
@@ -62,6 +65,12 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 
 	/** TRUE means answer is case sensitive, FALSE means it is not */
 	protected Boolean caseSensitive = Boolean.FALSE;
+	
+	/** TRUE means multiple words are allowed, FALSE means it is not */
+	protected Boolean allowOneWord = Boolean.FALSE;
+	
+	/** TRUE means this is auto scored, if not it needs to be scored manually */
+	protected Boolean automateScore = Boolean.TRUE;
 
 	protected InternationalizedMessages messages = null;
 
@@ -75,7 +84,10 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 
 	/** The question text. */
 	protected String text = null;
-
+	
+	/** Size of blanks **/
+	protected String blankSize = "20";
+	
 	/** Dependency: The UI service (Ambrosia). */
 	protected UiService uiService = null;
 
@@ -92,6 +104,9 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		this.messages = other.messages;
 		this.question = question;
 		this.responseTextual = other.responseTextual;
+		this.allowOneWord = other.allowOneWord;
+		this.blankSize = other.blankSize;
+		this.automateScore = other.automateScore;
 		this.text = other.text;
 		this.uiService = other.uiService;
 		this.plugin = other.plugin;
@@ -144,6 +159,14 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		return destination;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getAllowOneWord()
+	{
+		return this.allowOneWord.toString();
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -211,11 +234,22 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		Section questionSection = this.uiService.newSection();
 		questionSection.add(question).add(instructions).add(viewInstructions);
 
+		Container oneWordContainer = this.uiService.newContainer();
+		CompareDecision decision = this.uiService.newCompareDecision();
+		decision.setEqualsProperty(this.uiService.newPropertyReference().setReference("question.typeSpecifiQuestion.responseTextual"));
+		decision.setEqualsConstant("true");
+		Selection allowOneWordSet = this.uiService.newSelection();
+		allowOneWordSet.addSelection(this.uiService.newMessage().setMessage("only-one-word"), this.uiService.newMessage().setTemplate("true"));
+		allowOneWordSet.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.allowOneWord"));
+		
+		oneWordContainer.add(allowOneWordSet);
+		oneWordContainer.setIncluded(decision);
+		
 		// answer options
 		Selection response = this.uiService.newSelection();
 		response.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.responseTextual"));
-		response.addSelection(this.uiService.newMessage().setMessage("textual"), this.uiService.newMessage().setTemplate("true"));
 		response.addSelection(this.uiService.newMessage().setMessage("numeric"), this.uiService.newMessage().setTemplate("false"));
+		response.addSelection(this.uiService.newMessage().setMessage("textual"), this.uiService.newMessage().setTemplate("true"), oneWordContainer, true, false, true);
 		response.setTitle("answer", this.uiService.newIconPropertyReference().setIcon("/icons/answer_key.png"));
 
 		Selection caseSensitive = this.uiService.newSelection();
@@ -226,12 +260,41 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		order.addSelection(this.uiService.newMessage().setMessage("any-order"), this.uiService.newMessage().setTemplate("true"));
 		order.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.anyOrder"));
 
+		Selection sizeSel = this.uiService.newSelection();
+		sizeSel.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.blankSize"));
+		sizeSel.addSelection(this.uiService.newMessage().setMessage("small"), this.uiService.newMessage().setTemplate("20"));
+		sizeSel.addSelection(this.uiService.newMessage().setMessage("medium"), this.uiService.newMessage().setTemplate("30"));
+		sizeSel.addSelection(this.uiService.newMessage().setMessage("large"), this.uiService.newMessage().setTemplate("40"));
+		sizeSel.setTitle("blanksize", this.uiService.newIconPropertyReference().setIcon("/icons/answer_key.png"));
+
+		Selection autoScoreSet = this.uiService.newSelection();
+		autoScoreSet.addSelection(this.uiService.newMessage().setMessage("automatic"), this.uiService.newMessage().setTemplate("true"));
+		autoScoreSet.addSelection(this.uiService.newMessage().setMessage("manual"), this.uiService.newMessage().setTemplate("false"));
+		autoScoreSet.setProperty(this.uiService.newPropertyReference().setReference("question.typeSpecificQuestion.automateScore"));
+		autoScoreSet.setTitle("scoring", this.uiService.newIconPropertyReference().setIcon("/icons/grade.png"));
+		
 		Section answerSection = this.uiService.newSection();
-		answerSection.add(response).add(caseSensitive).add(order);
+		answerSection.add(response).add(caseSensitive).add(order).add(sizeSel).add(autoScoreSet);
 		answerSection.setIncluded(this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("question.isSurvey"))
 				.setReversed());
 
 		return this.uiService.newFragment().setMessages(this.messages).add(questionSection).add(answerSection);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getAutomateScore()
+	{
+		return this.automateScore.toString();
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getBlankSize()
+	{
+		return this.blankSize;
 	}
 
 	/**
@@ -263,11 +326,14 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	 */
 	public String[] getData()
 	{
-		String[] rv = new String[4];
+		String[] rv = new String[7];
 		rv[0] = this.anyOrder.toString();
 		rv[1] = this.caseSensitive.toString();
 		rv[2] = this.responseTextual.toString();
-		rv[3] = this.text;
+		rv[3] = this.allowOneWord.toString();
+		rv[4] = this.automateScore.toString();
+		rv[5] = this.blankSize;
+		rv[6] = this.text;
 
 		return rv;
 	}
@@ -279,9 +345,10 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	{
 		FillIn fillIn = this.uiService.newFillIn();
 		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.typeSpecificQuestion.questionText"))
-				.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers")).setWidth(20);
-		fillIn.setWidth(20);
+				.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers")).setWidth(Integer.parseInt(this.blankSize));
+		fillIn.setWidth(Integer.parseInt(this.blankSize));
 		if (!responseTextual) fillIn.setNumeric();
+		if (responseTextual && allowOneWord) fillIn.setAllowOneWord();
 
 		Section section = this.uiService.newSection();
 		section.add(fillIn);
@@ -427,9 +494,13 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		FillIn fillIn = this.uiService.newFillIn();
 		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.typeSpecificQuestion.questionText"));
 		fillIn.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers"));
-		fillIn.setWidth(20);
-		fillIn.setCorrectDecision(showCorrect);
-		fillIn.setReadOnly(this.uiService.newTrueDecision());
+		fillIn.setWidth(Integer.parseInt(this.blankSize));
+		boolean automateScore = Boolean.parseBoolean(getAutomateScore());
+		
+		if (automateScore) fillIn.setCorrectDecision(showCorrect);
+		else fillIn.setCorrectDecision(this.uiService.newTrueDecision().setReversed());
+		
+		fillIn.setShowResponse(this.uiService.newTrueDecision());
 		fillIn.setCorrect(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.entryCorrects"));
 
 		Text answerKey = this.uiService.newText();
@@ -438,8 +509,12 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		refs[1] = this.uiService.newHtmlPropertyReference().setReference("answer.question.typeSpecificQuestion.answerKey");
 		answerKey.setText("answer-key", refs);
 
+		Decision[] innerOrInc = new Decision[2];
+		innerOrInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("showIncorrect")).setReversed();
+		innerOrInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("hideKey")).setReversed();
+		
 		Decision[] innerAndInc = new Decision[2];
-		innerAndInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.showCorrectReview"));
+		innerAndInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.showCompletelyCorrectReview"));
 		innerAndInc[1] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("review"));
 		Decision[] orInc = new Decision[2];
 		orInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("grading"));
@@ -447,7 +522,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		Decision[] andInc = new Decision[4];
 		andInc[0] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.hasCorrect"));
 		andInc[1] = this.uiService.newOrDecision().setOptions(orInc);
-		andInc[2] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("showIncorrect")).setReversed();
+		andInc[2] = this.uiService.newOrDecision().setOptions(innerOrInc);
 		andInc[3] = this.uiService.newDecision().setProperty(this.uiService.newPropertyReference().setReference("answer.question.part.assessment.allowedPoints"));
 		answerKey.setIncluded(this.uiService.newAndDecision().setRequirements(andInc));
 
@@ -516,9 +591,9 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 		FillIn fillIn = this.uiService.newFillIn();
 		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("answer.question.typeSpecificQuestion.questionText"));
 		fillIn.setProperty(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.answers"));
-		fillIn.setWidth(20);
+		fillIn.setWidth(Integer.parseInt(this.blankSize));
 		fillIn.setCorrectDecision(this.uiService.newTrueDecision());
-		fillIn.setReadOnly(this.uiService.newTrueDecision());
+		fillIn.setShowResponse(this.uiService.newTrueDecision());
 		fillIn.setCorrect(this.uiService.newPropertyReference().setReference("answer.typeSpecificAnswer.entryCorrects"));
 		fillIn.setCorrectDecision(this.uiService.newDecision().setProperty(
 				this.uiService.newPropertyReference().setReference("answer.question.hasCorrect")));
@@ -533,8 +608,8 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	{
 		FillIn fillIn = this.uiService.newFillIn();
 		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.typeSpecificQuestion.questionText"));
-		fillIn.setWidth(20);
-		fillIn.setReadOnly(this.uiService.newTrueDecision());
+		fillIn.setWidth(Integer.parseInt(this.blankSize));
+		fillIn.setShowResponse(this.uiService.newTrueDecision());
 
 		Section first = this.uiService.newSection();
 		first.add(fillIn);
@@ -549,7 +624,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	{
 		FillIn fillIn = this.uiService.newFillIn();
 		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.typeSpecificQuestion.questionText"));
-		fillIn.setWidth(20);
+		fillIn.setWidth(Integer.parseInt(this.blankSize));
 		fillIn.setReadOnly(this.uiService.newTrueDecision());
 
 		Text answerKey = this.uiService.newText();
@@ -575,7 +650,7 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	{
 		FillIn fillIn = this.uiService.newFillIn();
 		fillIn.setText(null, this.uiService.newHtmlPropertyReference().setDirty().setReference("question.typeSpecificQuestion.questionText"));
-		fillIn.setWidth(20);
+		fillIn.setWidth(Integer.parseInt(this.blankSize));
 		fillIn.setReadOnly(this.uiService.newTrueDecision());
 
 		Text answerKey = this.uiService.newText();
@@ -659,6 +734,21 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setAllowOneWord(String allowOneWord)
+	{
+		if (allowOneWord == null) throw new IllegalArgumentException();
+
+		Boolean b = Boolean.valueOf(allowOneWord);
+		if (!Different.different(b, this.allowOneWord)) return;
+
+		this.allowOneWord = b;
+
+		this.question.setChanged();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void setAnyOrder(String anyOrder)
 	{
 		if (anyOrder == null) throw new IllegalArgumentException();
@@ -668,6 +758,30 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 
 		this.anyOrder = b;
 
+		this.question.setChanged();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setAutomateScore(String automateScore)
+	{
+		if (automateScore == null) throw new IllegalArgumentException();
+
+		Boolean b = Boolean.valueOf(automateScore);
+		if (!Different.different(b, this.automateScore)) return;
+
+		this.automateScore = b;
+
+		this.question.setChanged();
+	}	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setBlankSize(String blankSize)
+	{
+		this.blankSize = blankSize;
 		this.question.setChanged();
 	}
 
@@ -697,9 +811,35 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 			this.caseSensitive = Boolean.valueOf(data[1]);
 			this.responseTextual = Boolean.valueOf(data[2]);
 			this.text = data[3];
-
+			this.allowOneWord = Boolean.FALSE;
+			this.automateScore = Boolean.TRUE;
+            this.blankSize = "20";
 			this.question.setChanged();
 		}
+		if ((data != null) && (data.length == 6))
+		{
+			this.anyOrder = Boolean.valueOf(data[0]);
+			this.caseSensitive = Boolean.valueOf(data[1]);
+			this.responseTextual = Boolean.valueOf(data[2]);
+			this.allowOneWord = Boolean.valueOf(data[3]);
+			this.automateScore = Boolean.valueOf(data[4]);
+			this.blankSize = "20";
+			this.text = data[5];		
+
+			this.question.setChanged();
+	    }
+		if ((data != null) && (data.length == 7))
+		{
+			this.anyOrder = Boolean.valueOf(data[0]);
+			this.caseSensitive = Boolean.valueOf(data[1]);
+			this.responseTextual = Boolean.valueOf(data[2]);
+			this.allowOneWord = Boolean.valueOf(data[3]);
+			this.automateScore = Boolean.valueOf(data[4]);
+			this.blankSize = data[5];
+			this.text = data[6];		
+
+			this.question.setChanged();
+	}
 	}
 
 	/**
@@ -996,6 +1136,10 @@ public class FillBlanksQuestionImpl implements TypeSpecificQuestion
 			// save the newlines which convertFormattedTextToPlaintext just strips out
 			tmp = tmp.replace("\n", " ");
 			tmp = FormattedText.convertFormattedTextToPlaintext(tmp);
+			
+			// restore entities for special UNICODE characters
+			tmp = HtmlHelper.stripBadEncodingCharacters(tmp);
+
 			tmp = tmp.replaceAll("_mnemelb_", "{");
 			tmp = tmp.replaceAll("_mnemerb_", "}");
 

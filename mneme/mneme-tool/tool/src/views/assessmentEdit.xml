@@ -157,26 +157,26 @@
 														<message template="true" />
 													</valueMessage>
 													<container>
-													<navigation style="LINK" submit="TRIGGER" title="eval-email-sample">
-			                                        <icon icon="/icons/test.png" style="LEFT" />
-			                                        <destination template="openWindow('/portal/tool/{0}/eval_notif/{1}',null,'toolbar=no,scrollbars=yes,resizable=yes,menubar=no,status=no,directories=no,location=no,width=600,height=400');">
-			                                          <model ref="toolId" />
-			                                          <model ref="assessment.id" />
-			                                        </destination>
-			                                        <included>
-				                                      <compareDecision model="assessment.type" constant="survey" />
-				                                      <decision model="assessment.formalCourseEval" />
-											          <hasValueDecision model="allowEval" />
-			                                        </included>
-		                                            </navigation>
-									</container>
-								</selectionChoice>
-							</selectionChoices>
+														<navigation style="LINK" submit="TRIGGER" title="eval-email-sample">
+															<icon icon="/icons/test.png" style="LEFT" />
+															<destination template="openWindow('/portal/tool/{0}/eval_notif/{1}',null,'toolbar=no,scrollbars=yes,resizable=yes,menubar=no,status=no,directories=no,location=no,width=600,height=400');">
+																<model ref="toolId" />
+																<model ref="assessment.id" />
+															</destination>
+															<included>
+																<compareDecision model="assessment.type" constant="survey" />
+																<decision model="assessment.formalCourseEval" />
+																<hasValueDecision model="allowEval" />
+															</included>
+														</navigation>
+													</container>
+												</selectionChoice>
+											</selectionChoices>
 											<model ref="assessment.notifyEval" />
 											<readOnly>
 												<decision model="assessment.isLocked" />
 											</readOnly>
-							<included>
+											<included>
 												<compareDecision model="assessment.type" constant="survey" />
 												<decision model="assessment.formalCourseEval" />
 												<hasValueDecision model="allowEval" />
@@ -188,6 +188,14 @@
 										</selection>								
 									</container>
 								</selectionChoice>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="assessment-type-offline" />
+									</displayMessage>
+									<valueMessage>
+										<message template="offline" />
+									</valueMessage>
+								</selectionChoice>
 							</selectionChoices>
 							<included>
 								<decision reversed="TRUE" model="assessment.isLocked" />
@@ -198,7 +206,7 @@
 							</destination>
 						</selection>
 
-						<!-- type when locked & not survey -->
+						<!-- type when locked & not survey & not offline-->
 						<selection id="type" title="type">
 							<model ref="assessment.type" />
 							<selectionChoices>
@@ -222,6 +230,7 @@
 							<included>
 								<decision model="assessment.isLocked" />
 								<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
+								<compareDecision reversed="TRUE" model="assessment.type" constant="offline" />
 							</included>
 							<destination template="/assessment_edit/{0}{1}">
 								<model ref="assessment.id" />
@@ -229,7 +238,7 @@
 							</destination>
 						</selection>
 
-						<!-- switch to survey when locked and not a survey -->
+						<!-- switch to survey when locked and not a survey and not on online -->
 						<navigation title="change-to-survey" description="change-to-survey-description" style="LINK" submit="TRUE">
 							<icon icon="/icons//survey_type.png" style="LEFT" />
 							<destination template="SURVEY" />
@@ -239,6 +248,7 @@
 							<included>
 								<decision model="assessment.isLocked" />
 								<compareDecision reversed="TRUE" model="assessment.type" constant="survey" />
+								<compareDecision reversed="TRUE" model="assessment.type" constant="offline" />
 							</included>
 						</navigation>
 
@@ -346,6 +356,21 @@
 							</included>
 						</selection>
 
+						<text>
+							<message selector="set-points">
+								<model type="icon" icon="/icons/adjust_scores.png" />
+								<model type="component">
+									<container>
+										<floatEdit model="assessment.points" cols="6" />
+									</container>
+								</model>
+							</message>
+							<included>
+								<compareDecision model="assessment.type" constant="offline" />
+								<decision model="assessment.hasPoints" />
+							</included>
+						</text>
+
 						<!-- title -->
 						<textEdit id="title" title="test-title" cols="40">
 							<model ref="assessment.title" type="text" />
@@ -353,9 +378,54 @@
 
 						<navigation destination="INSTRUCTIONS" title="edit-instructions" style="LINK" submit="TRUE">
 							<icon icon="/icons/test.png" style="LEFT" />
+							<included>
+								<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+							</included>
 						</navigation>
 
+						<htmlEdit size="FULL">
+							<title>
+								<message selector="test-instructions">
+									<model type="icon" icon="/icons/test.png" />
+								</message>
+							</title>
+							<model type="html" dirty="TRUE" ref="assessment.presentation.text" />
+							<included>
+								<compareDecision model="assessment.type" constant="offline" />
+							</included>
+						</htmlEdit>
+						<attachments title="attachments" model="assessment.presentation.attachments" name="attachment">
+							<navigations>
+								<navigation destination="REMOVE" title="remove-attachment" style="LINK" description="remove-attachment-description" submit="TRUE" small="TRUE">
+									<icon icon="/icons/delete.png" style="NONE" />
+									<destination template="REMOVE:{0}">
+										<model ref="attachment.reference" />
+									</destination>
+									<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif"
+										selector="confirm-remove-attachment" />
+								</navigation>
+							</navigations>
+							<included>
+								<compareDecision model="assessment.type" constant="offline" />
+							</included>
+						</attachments>
+						<fileUpload>
+							<model ref="upload.upload" />
+							<title>
+								<message selector="upload-attachment" />
+							</title>
+							<upload>
+								<message selector="upload-button" />
+							</upload>
+							<included>
+								<compareDecision model="assessment.type" constant="offline" />
+							</included>
+						</fileUpload>
+
 						<navigation destination="PARTS" title="manage-parts" style="LINK" submit="TRUE">
+							<included>
+								<compareDecision reversed="TRUE" model="assessment.type" constant="offline" />
+							</included>
 							<icon icon="/icons/manage-parts.png" style="LEFT" />
 						</navigation>
 
@@ -373,6 +443,10 @@
 		</section>
 
 		<section>
+			<included>
+				<compareDecision reversed="TRUE" model="assessment.type" constant="offline" />
+			</included>
+
 			<container>
 
 				<!-- the list of details (questions) -->
@@ -582,6 +656,15 @@
 								<decision model="assessment.isLocked" />
 							</included>
 						</modelColumn>
+						<modelColumn>
+							<title>
+								<message selector="title" />
+							</title>
+							<entityIncluded>
+								<decision reversed="TRUE" model="detail.isPhantom" />
+							</entityIncluded>
+							<model ref="detail.title" />
+						</modelColumn>
 						<modelColumn em="10">
 							<title>
 								<message selector="detail-type" />
@@ -679,7 +762,7 @@
 							<container>
 								<text id="total">
 									<message template="{0}">
-										<model ref="assessment.parts.totalPoints" />
+										<model ref="assessment.points" />
 									</message>
 								</text>
 							</container>

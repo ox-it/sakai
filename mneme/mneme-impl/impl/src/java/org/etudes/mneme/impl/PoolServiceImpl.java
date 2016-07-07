@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -171,6 +171,16 @@ public class PoolServiceImpl implements PoolService
 	/**
 	 * {@inheritDoc}
 	 */
+	public Boolean existsPoolTitle(String title, String context)
+	{
+		if (M_log.isDebugEnabled()) M_log.debug("existsPool: title: " + title);
+
+		return this.storage.existsPoolTitle(title, context);
+	}	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public List<Pool> findPools(String context, FindPoolsSort sort, String search)
 	{
 		if (context == null) throw new IllegalArgumentException();
@@ -182,10 +192,10 @@ public class PoolServiceImpl implements PoolService
 
 		List<Pool> rv = new ArrayList<Pool>(storage.findPools(context, sort));
 
-		// thread-local cache each found pool
+		// thread-local cache a copy of each found pool
 		for (Pool pool : rv)
 		{
-			String key = cacheKey(pool.getId());
+			String key = this.storage.poolCacheKey(pool.getId());
 			this.threadLocalManager.set(key, this.storage.clone((PoolImpl) pool));
 		}
 
@@ -215,20 +225,20 @@ public class PoolServiceImpl implements PoolService
 		if (poolId == null) throw new IllegalArgumentException();
 
 		// for thread-local caching
-		String key = cacheKey(poolId);
+		String key = this.storage.poolCacheKey(poolId);
 		PoolImpl rv = (PoolImpl) this.threadLocalManager.get(key);
 		if (rv != null)
 		{
 			// return a copy
-			return this.storage.clone(rv);
+			return this.storage.clone((PoolImpl) rv);
 		}
 
 		if (M_log.isDebugEnabled()) M_log.debug("getPool: " + poolId);
 
 		rv = this.storage.getPool(poolId);
 
-		// thread-local cache (a copy)
-		if (rv != null) this.threadLocalManager.set(key, this.storage.clone(rv));
+		// thread-local cache a copy
+		if (rv != null) this.threadLocalManager.set(key, this.storage.clone((PoolImpl) rv));
 
 		return rv;
 	}
@@ -310,6 +320,20 @@ public class PoolServiceImpl implements PoolService
 		doSave(pool);
 
 		return pool;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void readAssessmentPools(String context, Boolean publishedOnly)
+	{
+		String key = "mneme:readAssessmentPools:" + publishedOnly + ":" + context;
+		Boolean alreadyDone = (Boolean) this.threadLocalManager.get(key);
+		if (alreadyDone == null)
+		{
+			this.threadLocalManager.set(key, Boolean.TRUE);
+			this.storage.readAssessmentPools(context, publishedOnly);
+		}
 	}
 
 	/**
@@ -457,6 +481,8 @@ public class PoolServiceImpl implements PoolService
 	 * @param options
 	 *        The PoolStorage options.
 	 */
+	@SuppressWarnings(
+	{ "unchecked", "rawtypes" })
 	public void setStorage(Map options)
 	{
 		this.storgeOptions = options;
@@ -508,19 +534,6 @@ public class PoolServiceImpl implements PoolService
 		String rv = this.messages.getFormattedMessage(selector, args);
 
 		return rv;
-	}
-
-	/**
-	 * Form a key for caching a pool.
-	 * 
-	 * @param poolId
-	 *        The pool id.
-	 * @return The cache key.
-	 */
-	protected String cacheKey(String poolId)
-	{
-		String key = "mneme:pool:" + poolId;
-		return key;
 	}
 
 	/**
@@ -642,7 +655,7 @@ public class PoolServiceImpl implements PoolService
 		this.assessmentService.removeDependency(pool);
 
 		// clear the cache
-		this.threadLocalManager.set(cacheKey(pool.getId()), null);
+		this.threadLocalManager.set(this.storage.poolCacheKey(pool.getId()), null);
 
 		// remove the pool
 		storage.removePool(pool);
@@ -683,11 +696,11 @@ public class PoolServiceImpl implements PoolService
 		// clear the changed settings
 		pool.clearChanged();
 
-		// clear the cache
-		this.threadLocalManager.set(cacheKey(pool.getId()), null);
-
 		// save
 		storage.savePool(pool);
+
+		// clear the cache
+		this.threadLocalManager.set(this.storage.poolCacheKey(pool.getId()), null);
 
 		// event
 		eventTrackingService.post(eventTrackingService.newEvent(event, getPoolReference(pool.getId()), true));

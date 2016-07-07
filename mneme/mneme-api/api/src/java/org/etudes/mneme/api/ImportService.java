@@ -121,10 +121,11 @@ public interface ImportService
 	 *        The context source for the assessments.
 	 * @param toContext
 	 *        The context where the new assessments will live.
+	 * @return The imported assessments.
 	 * @throws AssessmentPermissionException
 	 *         if the user does not have permission to create pools and questions.
 	 */
-	void importMneme(Set<String> ids, String fromContext, String toContext) throws AssessmentPermissionException;
+	List<Assessment> importMneme(Set<String> ids, String fromContext, String toContext) throws AssessmentPermissionException;
 
 	/**
 	 * Import the Samigo pool with this id into this context

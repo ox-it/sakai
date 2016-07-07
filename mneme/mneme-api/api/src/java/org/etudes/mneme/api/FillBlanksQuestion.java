@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-api/api/src/java/org/etudes/mneme/api/FillBlanksQuestion.java $
- * $Id: FillBlanksQuestion.java 3635 2012-12-02 21:26:23Z ggolden $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2011 Etudes, Inc.
+ * Copyright (c) 2011, 2014 Etudes, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,32 @@ package org.etudes.mneme.api;
 public interface FillBlanksQuestion extends Question
 {
 	/**
+	 * Get allowOneWord information.
+	 * 
+	 * @return The allow one word value.
+	 */
+	public boolean getAllowOneWord();
+	
+	/**
+	 * Get autoscore information.
+	 * 
+	 * @return The auto score value.
+	 */
+	public boolean getAutomateScore();
+	
+	/**
 	 * Access order information.
 	 * 
 	 * @return The ordering.
 	 */
 	public boolean getAnyOrder();
+	
+	/**
+	 * Access the blank size.
+	 * 
+	 * @return The blank size.
+	 */
+	public String getBlankSize();
 	
 	/**
 	 * Access if case sensitive.
@@ -53,6 +74,14 @@ public interface FillBlanksQuestion extends Question
 	 * @return The question text.
 	 */
 	public String getText();
+	
+	/**
+	 * Set allow one word info.
+	 * 
+	 * @param allowOneWord
+	 *        The allowOneWord setting.
+	 */
+	public void setAllowOneWord(boolean allowOneWord);
 
 	/**
 	 * Set the ordering.
@@ -61,6 +90,22 @@ public interface FillBlanksQuestion extends Question
 	 *        The ordering.
 	 */
 	public void setAnyOrder(boolean anyOrder);
+	
+	/**
+	 * Set automate score info.
+	 * 
+	 * @param automateScore
+	 *        The automateScore setting.
+	 */
+	public void setAutomateScore(boolean automateScore);
+	
+	/**
+	 * Set the blank size.
+	 * 
+	 * @param blankSize
+	 *        The question blank size.
+	 */
+	public void setBlankSize(String blankSize);
 
 	/**
 	 * Set the case sensitive value.

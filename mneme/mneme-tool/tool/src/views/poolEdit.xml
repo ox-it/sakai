@@ -7,7 +7,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
  * 
  * Portions completed before September 1, 2008
  * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
@@ -374,6 +374,40 @@
 				</modelColumn>
 				<modelColumn>
 					<title>
+						<message selector="question-title" />
+					</title>
+					<model ref="question.title" />
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="3" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/{3}/{0}/3A/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/{3}/{0}/3D/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
+				<modelColumn>
+					<title>
 						<message selector="question-type" />
 					</title>
 					<model ref="question.typeName" />
@@ -459,7 +493,7 @@
 		<!--navigation-->
 		<navigationBar>
 			<container>
-				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+				<navigation title="done" hideval="save" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
 					<icon icon="/icons/return.png" style="LEFT" />
 					<destination template="{0}">
 						<model ref="return" />
