@@ -39,31 +39,31 @@
 	<div class="portletBody">
 	<div rsf:id="navIntraTool:" class="navIntraTool"/>
 
-		<ul class="breadCrumb"  rsf:id="toolsBox:"   style="clear:both;height:1.5em">
-			<li class="lastCrumb" style="float:right"><a href="evaluation_start.html" rsf:id="beginEvaluationLink" class="addItem">New Evaluation</a></li>
-			<li class="lastCrumb" style="float:right"><a href="template_title_desc.html" rsf:id="createTemplateLink" class="addItem">New Template</a></li>
+    <ul class="breadCrumb" rsf:id="toolsBox:">
+        <li class="lastCrumb"><a href="evaluation_start.html" rsf:id="beginEvaluationLink" class="addItem">New Evaluation</a></li>
+        <li class="lastCrumb"><a href="template_title_desc.html" rsf:id="createTemplateLink" class="addItem">New Template</a></li>
 		</ul>
 
 		<div rsf:id="message-for:*" class="alertMessage">
-            <ul style="margin:0px;">
+            <ul>
                <li>Message for user here</li>
             </ul>
          </div>
 
          <h3 rsf:id="msg=summary.page.title">Evaluations dashboard</h3>
-         <p rsf:id="msg=summary.page.instruction" class="instruction">Quick links to evaluation items</p>
-         <p rsf:id="instructor-instructions" class="instruction"></p>
-		<table class="summaryTable" cellspacing="5" cellpadding="0" width="100%" border="0">
+         <p rsf:id="msg=summary.page.instruction" class="instructionText">Quick links to evaluation items</p>
+         <p rsf:id="instructor-instructions" class="instructionText"></p>
+		<table class="evalsysTable">
 			<tr>
 				<td valign="top" align="left">
 	      			<div rsf:id="evaluationsBox:" class="summaryBox">
 	      				<h4 rsf:id="msg=summary.evaluations.title">Current evaluations I need to take</h4>
 	
-	                    <p rsf:id="evaluationsNone" class="instruction indnt2">No evaluations to take</p>
+	                    <p rsf:id="evaluationsNone" class="instructionText indnt2">No evaluations to take</p>
 	
 	      				<div rsf:id="evaluationsList:" class="innerPanel">
 	      				<!-- // gsilver: reformatted table to 4 cols, added placeholder rsf:id for things-->
-							<table cellspacing="0" cellpadding="0" width="99%" border="0" class="listHier  lines nolines">
+							<table class="evalsysTable">
 								<tr>
 									<th rsf:id="evaluationTitleTitle" colspan="2">
 										Evaluation title
@@ -101,12 +101,12 @@
 	      					<ol class="summaryEvaluateList">
 	      						<li rsf:id="evaluatedList:"><span rsf:id="evaluatedListTitle">Site/Group Title</span></li>
 	      					</ol>
-	      					<p rsf:id="evaluatedListNone" class="instruction indnt2">No items to list</p>
+	      					<p rsf:id="evaluatedListNone" class="instructionText indnt2">No items to list</p>
 	      					<h5 rsf:id="sitelisting-evaluate-text">Sites you can evaluate:</h5>
 	      					<ol class="summaryEvaluateList">
 	      						<li rsf:id="evaluateList:"><span rsf:id="evaluateListTitle">Site/Group Title</span></li>
 	      					</ol>
-	      					<p rsf:id="evaluateListNone" class="instruction indnt2">No items to list</p>
+	      					<p rsf:id="evaluateListNone" class="instructionText indnt2">No items to list</p>
 	      				</div>
 	      			</div>
 				</td>
@@ -114,12 +114,12 @@
 					<div rsf:id="notificationsBox:"  class="summaryBox">
 						<h4 rsf:id="notifications-title">Notifications</h4>
 						<div class="innerPanel">
-							<p rsf:id="notifications-higher-level" class="instruction">An evaluation has been assigned from a higher level:</p>
+							<p rsf:id="notifications-higher-level" class="instructionText">An evaluation has been assigned from a higher level:</p>
 							<!-- // gsilver: reformatted table to 4 cols, added placeholder rsf:id for things
 								 - if notifications have a "type" and expect an "action" both of these should be reclected in the UI - that is,
 									a user would need to know what the link does without clicking on it...
 								 -->
-							<table cellspacing="0" cellpadding="0" width="99%" border="0" class="listHier lines nolines">
+							<table class="evalsysTable">
 								<tr>
 									<th  rsf:id="notification-title-title">
 										Title
@@ -147,8 +147,8 @@
 						<h4 rsf:id="msg=summary.responses.title">Evaluations in which I may be evaluated</h4>
 	      				<div class="innerPanel">
 	      					<form rsf:id="evalResponsesForm" action="evaluation_settings.html">
-	      						<p rsf:id="summary-be-evaluated-none" class="instruction indnt2">You currently have no active or pending evaluations</p>
-	      						<table rsf:id="evalResponseTable:" cellspacing="0" cellpadding="0" width="99%" class="listHier  lines nolines" border="0">
+	      						<p rsf:id="summary-be-evaluated-none" class="instructionText indnt2">You currently have no active or pending evaluations</p>
+	      						<table rsf:id="evalResponseTable:" class="evalsysTable">
 	      							<thead>
 	      								<tr>
 		      								<th rsf:id="summary-responses-evaltitle">
@@ -191,7 +191,7 @@
 	      				<h4><a rsf:id="evaladmin-title-link" href="control_panel.html">Evaluations I am creating or administering</a><span rsf:id="evaladmin-title"></span></h4>
 	      				<div class="innerPanel">
 	      					<form rsf:id="evalAdminForm" action="evaluation_settings.html">
-	      						<table cellspacing="0" cellpadding="0" width="99%" class="listHier  lines nolines" border="0">
+	      						<table class="evalsysTable">
 	      							<thead>
 	      								<tr>
 	      									<th>Title</th>

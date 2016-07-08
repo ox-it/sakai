@@ -35,24 +35,18 @@
 <div class="portletBody">
      <div rsf:id="navIntraTool:" class="navIntraTool"/>
 
-    <ul class="breadCrumb" style="clear: both; height: 1.5em">
-        <li style="float: left"><a rsf:id="summary-link" href="summary.html">Summary</a></li>
-        <li style="float: left"><a rsf:id="administrate-link" href="administrate.html">Administrate</a></li>
-        <li style="float: left"><a rsf:id="hierarchy-toplink" href="hierarchy.html">Hierarchy</a></li>
-        <li style="float: left" rsf:id="page-title" class="lastCrumb" >Add / Modify</li>
+    <ul class="breadCrumb">
+        <li><a rsf:id="summary-link" href="summary.html">Summary</a></li>
+        <li><a rsf:id="administrate-link" href="administrate.html">Administrate</a></li>
+        <li><a rsf:id="hierarchy-toplink" href="hierarchy.html">Hierarchy</a></li>
+        <li rsf:id="page-title" class="lastCrumbNoFloat" >Add / Modify</li>
     </ul>
     <h3 rsf:id="assign-groups-title">Assign groups for a hierarchy node</h3>
-    <!-- 
-    <p>
-      <span>Filter</span>
-      <input type="text" value="" id="filterinput" />
-    </p>
-    -->
-    <form rsf:id="assign-groups-form">
-        <table border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
+    <form rsf:id="assign-groups-form" class="inlineBlockForm">
+        <table class="evalsysTable">
             <thead>
                 <tr>
-                    <th width="3%">
+                    <th>
                         <input id="selectAllNone" type="checkbox" />
                         <span rsf:id="select-header">Select</span>
                     </th>
@@ -62,7 +56,7 @@
             <tbody>
                 <tr rsf:id="group-row:">
                     <td>
-                        <input class=" groupcheckbox "rsf:id="group-checkbox" type="checkbox" />
+                        <input class="groupcheckbox "rsf:id="group-checkbox" type="checkbox" />
                     </td>
                     <td>
                         <label rsf:id="group-title">Group Title</label>
