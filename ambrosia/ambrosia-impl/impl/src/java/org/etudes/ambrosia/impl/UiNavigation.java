@@ -1106,7 +1106,7 @@ public class UiNavigation extends UiComponent implements Navigation
 			{
 				//  - put it on the secondary output stream
 				PrintWriter secondary = context.getSecondaryResponseWriter();
-				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; width:480px; height:130px\" id=\"confirm_"
+				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; width:480px; /*height:130px*/\" id=\"confirm_"
 						+ id + "\">");
 				secondary.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
 				secondary.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"
@@ -1135,7 +1135,7 @@ public class UiNavigation extends UiComponent implements Navigation
 			{
 				// the "failure" panel shown if requirements are not met - put it on the secondary output stream
 				PrintWriter secondary = context.getSecondaryResponseWriter();
-				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; width:480px; height:130px\" id=\"failure_"
+				secondary.println("<div class=\"ambrosiaConfirmPanel\" role=\"alertdialog\" aria-hidden=\"true\" style=\"display:none; width:480px; /*height:130px*/\" id=\"failure_"
 						+ id + "\">");
 				secondary.println("<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr>");
 				secondary.println("<td colspan=\"2\" style=\"padding:1em; white-space:normal; line-height:1em; \" align=\"left\">"

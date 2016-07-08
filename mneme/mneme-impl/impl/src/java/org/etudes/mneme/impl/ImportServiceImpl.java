@@ -1332,7 +1332,7 @@ public class ImportServiceImpl implements ImportService
 	{
 		List<Site> visibleSites = new ArrayList<Site>();
 		List<Site> hiddenSites = new ArrayList<Site>();
-		this.siteService.getOrderedSites(userId, visibleSites, hiddenSites);
+		//this.siteService.getOrderedSites(userId, visibleSites, hiddenSites);//TODO
 		List<Ent> rv = new ArrayList<Ent>();
 		for (Site site : visibleSites)
 		{
@@ -1351,7 +1351,8 @@ public class ImportServiceImpl implements ImportService
 				}
 
 				// record for return
-				Ent ent = new EntImpl(site.getId(), display, Long.parseLong(site.getTermId()), site.getTermDescription());
+				//Ent ent = new EntImpl(site.getId(), display, Long.parseLong(site.getTermId()), site.getTermDescription());
+				Ent ent = new EntImpl(site.getId(), display, 0, null);
 				rv.add(ent);
 			}
 		}
@@ -1372,12 +1373,43 @@ public class ImportServiceImpl implements ImportService
 				}
 
 				// record for return
-				Ent ent = new EntImpl(site.getId(), display, Long.parseLong(site.getTermId()), site.getTermDescription());
+				//Ent ent = new EntImpl(site.getId(), display, Long.parseLong(site.getTermId()), site.getTermDescription());
+				Ent ent = new EntImpl(site.getId(), display, 0, null);
 				rv.add(ent);
 			}
 		}
+		
+		// get the authz groups in which this user has this permission
+		Set refs = this.authzGroupService.getAuthzGroupsIsAllowed(userId, permission, null);
+		for (Object o : refs)
+		{
+			String ref = (String) o;
+
+			// each is a site ref
+			Reference siteRef = this.entityManager.newReference(ref);
+
+			// skip this one
+			if ((excludeContext != null) && siteRef.getId().equals(excludeContext)) continue;
+
+				// get the site display
+			String display = this.siteService.getSiteDisplay(siteRef.getId());
+
+				// take only the site title (between first and last quotes)
+				int firstPos = display.indexOf("\"");
+				int lastPos = display.lastIndexOf("\"");
+				if ((firstPos != -1) && (lastPos != -1))
+				{
+					display = display.substring(firstPos + 1, lastPos);
+				}
+
+				// record for return
+			Ent ent = new EntImpl(siteRef.getId(), display);
+			rv.add(ent);
+		}
+		
 		// sort
-		Collections.sort(rv, new EntTermComparator());
+		//Collections.sort(rv, new EntTermComparator());
+		Collections.sort(rv, new EntComparator());
 
 		return rv;
 

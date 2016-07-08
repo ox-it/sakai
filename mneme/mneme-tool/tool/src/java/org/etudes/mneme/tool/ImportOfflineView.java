@@ -38,7 +38,6 @@ import org.etudes.mneme.api.AssessmentService;
 import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.SubmissionService;
-import org.etudes.roster.api.RosterService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -61,9 +60,6 @@ public class ImportOfflineView extends ControllerImpl
 
 	/** Assessment Service */
 	protected AssessmentService assessmentService = null;
-
-	/** The RosterService. */
-	protected RosterService rosterService = null;
 
 	/** Dependency: SecurityService */
 	protected SecurityService securityService = null;
@@ -150,7 +146,8 @@ public class ImportOfflineView extends ControllerImpl
 			return;
 		}
 
-		String iidCode = this.rosterService.findInstitutionCode(site.getTitle());
+		//String iidCode = this.rosterService.findInstitutionCode(site.getTitle());
+		String iidCode = null;
 
 		// a CSV uploader for the CSV file
 		UploadCsv upload = new UploadCsv();
@@ -332,15 +329,6 @@ public class ImportOfflineView extends ControllerImpl
 	}
 
 	/**
-	 * @param rosterService
-	 *        the rosterService to set
-	 */
-	public void setRosterService(RosterService rosterService)
-	{
-		this.rosterService = rosterService;
-	}
-
-	/**
 	 * Dependency: SecurityService.
 	 * 
 	 * @param service
@@ -415,7 +403,7 @@ public class ImportOfflineView extends ControllerImpl
 	{
 		User rv = null;
 
-		// first, try by IID
+		/*// first, try by IID
 		try
 		{
 			rv = this.userDirectoryService.getUserByIid(iidCode, id);
@@ -444,6 +432,14 @@ public class ImportOfflineView extends ControllerImpl
 			{
 				rv = filtered.get(0);
 			}
+		}*/
+		
+		try
+		{
+			rv = this.userDirectoryService.getUserByEid(id);
+		}
+		catch (UserNotDefinedException e)
+		{
 		}
 
 		// assure in site

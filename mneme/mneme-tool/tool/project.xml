@@ -59,12 +59,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>etudes</groupId>
-			<artifactId>etudes-roster-api</artifactId>
-			<version>${roster.version}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-authz-api</artifactId>
 			<version>${sakai.version}</version>

@@ -41,6 +41,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -1367,8 +1368,8 @@ public class XrefHelper
 			try
 			{
 				targetCollection = ContentHostingService.getCollection("/group/" + context + relativePath);
-				List<Object> members = targetCollection.getMemberResources();
-				for (Object member : members)
+				List<ContentEntity> members = targetCollection.getMemberResources();
+				for (ContentEntity member : members)
 				{
 					// ignore collections
 					if (member instanceof ContentResource)

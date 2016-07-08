@@ -29,14 +29,14 @@
 	<bean id="org.etudes.mneme.tool.TransferFromGradebookView"
 			class="org.etudes.mneme.tool.TransferFromGradebookView"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
 		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
 		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
 		<property name="gradebookService"><ref bean="org.sakaiproject.service.gradebook.GradebookService"/></property>
+		<property name="gradebookExternalAssessmentService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property>
 
  		<property name="toolId"><value>sakai.mneme.admin</value></property>
  		<property name="path"><value>gb_transfer</value></property>

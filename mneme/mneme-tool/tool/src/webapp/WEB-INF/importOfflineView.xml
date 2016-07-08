@@ -29,8 +29,7 @@
 	<bean id="org.etudes.mneme.tool.ImportOfflineView"
 			class="org.etudes.mneme.tool.ImportOfflineView"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
  		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService"/></property>
   		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService"/></property>
@@ -38,7 +37,6 @@
 		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
   		<property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService"/></property>
   		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
-  		<property name="rosterService"><ref bean="org.etudes.roster.api.RosterService"/></property>
   		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
   		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
  

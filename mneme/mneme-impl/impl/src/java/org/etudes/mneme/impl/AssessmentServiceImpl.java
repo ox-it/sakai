@@ -39,7 +39,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.etudes.gradebook.api.GradebookItemType;
 import org.etudes.mneme.api.Assessment;
 import org.etudes.mneme.api.AssessmentPermissionException;
 import org.etudes.mneme.api.AssessmentPolicyException;
@@ -79,9 +78,6 @@ public class AssessmentServiceImpl implements AssessmentService
 
 	/** Dependency: AttachmentService */
 	protected AttachmentService attachmentService = null;
-
-	/** Dependency: Etudes GradebookService. */
-	protected org.etudes.gradebook.api.GradebookService etudesGradebookService = null;
 
 	/** Dependency: EventTrackingService */
 	protected EventTrackingService eventTrackingService = null;
@@ -906,7 +902,7 @@ public class AssessmentServiceImpl implements AssessmentService
 		boolean isCurrTitleAvailable = false;
 		boolean isCurrTitleDefined = false;
 		
-		isEtudesGradebookInSite = etudesGradebookService.isToolAvailable(current.getContext());
+		/*isEtudesGradebookInSite = etudesGradebookService.isToolAvailable(current.getContext());
 		
 		// etudes gradebook - duplicate titles - current assessment
 		if (isEtudesGradebookInSite)
@@ -938,11 +934,11 @@ public class AssessmentServiceImpl implements AssessmentService
 				M_log.debug("isCurrTitleAvaialble :"+ isCurrTitleAvailable);
 				M_log.debug("isCurrTitleDefined :"+ isCurrTitleAvailable);
 			}
-		}
+		}*/
 		
 		// check duplicate titles in gradebook - current assessment not added to gradebook  and updated assessment added to gradebook before saving the assessment
 		boolean checkDuplicateTitlesNeeded = false;
-		if (isEtudesGradebookInSite && !isCurrTitleDefined && assessment.getGradebookIntegration())
+		/*if (isEtudesGradebookInSite && !isCurrTitleDefined && assessment.getGradebookIntegration())
 		{
 			boolean isTitleAvailable = etudesGradebookService.isTitleAvailable(assessment.getContext(), userDirectoryService.getCurrentUser().getId(), assessment.getTitle());
 			
@@ -958,7 +954,7 @@ public class AssessmentServiceImpl implements AssessmentService
 				
 				checkDuplicateTitlesNeeded = true;
 			}
-		}
+		}*/
 
 		// save the changes
 		save((AssessmentImpl) assessment);
@@ -979,7 +975,7 @@ public class AssessmentServiceImpl implements AssessmentService
 		}
 		
 		// etudes gradebook - duplicate titles
-		if (isEtudesGradebookInSite && checkDuplicateTitlesNeeded)
+		/*if (isEtudesGradebookInSite && checkDuplicateTitlesNeeded)
 		{
 			if (isCurrTitleDefined)
 			{
@@ -1051,7 +1047,7 @@ public class AssessmentServiceImpl implements AssessmentService
 					}
 				}
 			}
-		}
+		}*/
 
 		// if the name or due date has changed, or we are retracting submissions, or we are now unpublished,
 		// or we are now invalid, or we have just been archived, or we are now not gradebook integrated,
@@ -1201,14 +1197,6 @@ public class AssessmentServiceImpl implements AssessmentService
 	public void setAttachmentService(AttachmentService service)
 	{
 		attachmentService = service;
-	}
-
-	/**
-	 * @param etudesGradebookService the etudesGradebookService to set
-	 */
-	public void setEtudesGradebookService(org.etudes.gradebook.api.GradebookService etudesGradebookService)
-	{
-		this.etudesGradebookService = etudesGradebookService;
 	}
 
 	/**

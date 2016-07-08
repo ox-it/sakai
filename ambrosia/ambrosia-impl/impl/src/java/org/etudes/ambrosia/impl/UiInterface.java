@@ -375,8 +375,8 @@ public class UiInterface extends UiContainer implements Interface
 			response.println("<meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />");
 
 			// include the portal's stuff in head (css and js links)
-			//String headInclude = (String) context.get("sakai.html.head");
-			String headInclude = (String) context.get("sakai.html.head.no.wiris");
+			String headInclude = (String) context.get("sakai.html.head");
+			//String headInclude = (String) context.get("sakai.html.head.no.wiris");
 			if (headInclude != null)
 			{
 				response.println(headInclude);

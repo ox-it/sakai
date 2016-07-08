@@ -40,6 +40,7 @@ import org.etudes.mneme.api.QuestionService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -57,6 +58,9 @@ public class TransferFromGradebookView extends ControllerImpl
 
 	/** Dependency: GradebookService. */
 	protected GradebookService gradebookService = null;
+	
+	/** Dependency: GradebookExternalAssessmentService. */
+	protected GradebookExternalAssessmentService gradebookExternalAssessmentService = null;
 
 	/** The question service. */
 	protected QuestionService questionService = null;
@@ -165,6 +169,17 @@ public class TransferFromGradebookView extends ControllerImpl
 	{
 		this.gradebookService = gradebookService;
 	}
+	
+	/**
+	 * Set the gradebookExternalAssessmentService.
+	 * 
+	 * @param service
+	 *        The gradebookExternalAssessmentService.
+	 */
+	public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService gradebookExternalAssessmentService)
+	{
+		this.gradebookExternalAssessmentService = gradebookExternalAssessmentService;
+	}
 
 	/**
 	 * Set the QuestionService.
@@ -222,7 +237,7 @@ public class TransferFromGradebookView extends ControllerImpl
 						this.assessmentService.saveAssessment(assessment);
 
 						// remove only if saved successfully
-						this.gradebookService.removeAssessment(siteId, gba.getName());
+						this.gradebookExternalAssessmentService.removeExternalAssessment(siteId, gba.getName());
 
 						// now that it has been removed from the GB, we can publish (else we are invalid because the name already is the GB)
 						assessment.setPublished(Boolean.TRUE);

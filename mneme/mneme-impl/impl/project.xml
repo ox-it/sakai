@@ -159,12 +159,6 @@
 			<artifactId>sakai-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-		
-		<dependency>
-            <groupId>etudes</groupId>
-            <artifactId>etudes-gradebook-api</artifactId>
-            <version>${etudesgradebook.version}</version>
-        </dependency>
 
 		<dependency>
 			<groupId>jaxen</groupId>

@@ -52,7 +52,6 @@ import org.etudes.mneme.api.MnemeService;
 import org.etudes.mneme.api.SecurityService;
 import org.etudes.mneme.api.Submission;
 import org.etudes.mneme.api.SubmissionService;
-import org.etudes.roster.api.RosterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
@@ -83,9 +82,6 @@ public class GradeAssessmentView extends ControllerImpl
 
 	/** Configuration: the page sizes for the view. */
 	protected List<Integer> pageSizes = new ArrayList<Integer>();
-
-	/** The RosterService. */
-	protected RosterService rosterService = null;
 
 	/** Dependency: SecurityService */
 	protected SecurityService securityService = null;
@@ -330,7 +326,8 @@ public class GradeAssessmentView extends ControllerImpl
 			return;
 		}
 
-		String iidCode = this.rosterService.findInstitutionCode(site.getTitle());
+		//String iidCode = this.rosterService.findInstitutionCode(site.getTitle());
+		String iidCode = null;
 
 		// for Adjust every student's test submission by
 		Value submissionAdjustValue = this.uiService.newValue();
@@ -752,15 +749,6 @@ public class GradeAssessmentView extends ControllerImpl
 	}
 
 	/**
-	 * @param rosterService
-	 *        the rosterService to set
-	 */
-	public void setRosterService(RosterService rosterService)
-	{
-		this.rosterService = rosterService;
-	}
-
-	/**
 	 * Dependency: SecurityService.
 	 * 
 	 * @param service
@@ -845,7 +833,7 @@ public class GradeAssessmentView extends ControllerImpl
 		User rv = null;
 
 		// first, try by IID
-		try
+		/*try
 		{
 			rv = this.userDirectoryService.getUserByIid(iidCode, id);
 		}
@@ -873,6 +861,14 @@ public class GradeAssessmentView extends ControllerImpl
 			{
 				rv = filtered.get(0);
 			}
+		}*/
+		
+		try
+		{
+			rv = this.userDirectoryService.getUserByEid(id);
+		}
+		catch (UserNotDefinedException e)
+		{
 		}
 
 		// assure in site
