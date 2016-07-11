@@ -558,7 +558,11 @@ function ambrosiaNavigate(enabled, enableFunction, confirm, confirmDivId, valida
 	}
 	if ((!validateFlag) || validate())
 	{
-		submitted=true;
+		// Frig to allow Export CSV flag in TT&S
+		if (destination !== "EXPORT")
+		{
+			submitted=true;
+		}
 		if (submit)
 		{
 			document.form0.destination_.value=destination;
