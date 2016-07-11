@@ -567,7 +567,7 @@
 				#if ($!value_UseReviewService.equals("true") && $!value_SubmissionType != 4)
 					<div id="reviewServiceOptions" class="indnt3 tiioptions">
 				#else
-					<div id="reviewServiceOptions" style="display:none" class="indnt3">
+					<div id="reviewServiceOptions" style="display:none" class="indnt3 tiioptions">
 				#end
 					<div>
 						<label for="$name_AllowStudentView">

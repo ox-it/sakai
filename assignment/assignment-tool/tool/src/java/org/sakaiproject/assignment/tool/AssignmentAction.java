@@ -6925,7 +6925,10 @@ public class AssignmentAction extends PagedResourceActionII
 		String resourceId = StringUtils.substring(sb_resourceId.toString(), 0, maxChars) + fileExtension;
 
 		ResourcePropertiesEdit inlineProps = m_contentHostingService.newResourceProperties();
-		inlineProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, rb.getString("submission.inline"));
+		String fileName = rb.getString("submission.inline");
+		if (!fileName.endsWith(".html"))
+		    fileName = fileName + ".html";
+		inlineProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
 		inlineProps.addProperty(ResourceProperties.PROP_DESCRIPTION, resourceId);
 		inlineProps.addProperty(AssignmentSubmission.PROP_INLINE_SUBMISSION, "true");
 
@@ -6945,7 +6948,9 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				if(function.equals(m_contentHostingService.AUTH_RESOURCE_ADD)){
 					return SecurityAdvice.ALLOWED;
-				}else if(function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_ANY)){
+				}else if(function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_ANY)) {
+					return SecurityAdvice.ALLOWED;
+				}else if (function.equals(m_contentHostingService.AUTH_RESOURCE_HIDDEN)) {
 					return SecurityAdvice.ALLOWED;
 				}else{
 					return SecurityAdvice.PASS;
