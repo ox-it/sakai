@@ -96,6 +96,12 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>xml-resolver</artifactId>
+			<version>1.2</version>
+		</dependency>
 
 	</dependencies>
 
@@ -113,6 +119,15 @@
 				<directory>${basedir}/src/views</directory>
 				<includes>
 					<include>**/*.xml</include>
+				</includes>
+			</resource>
+			
+			<resource>
+				<directory>${basedir}/src/resources</directory>
+				<includes>
+					<include>**/*.xml</include>
+					<include>**/*.dtd</include>
+					<include>**/*.properties</include>
 				</includes>
 			</resource>
 

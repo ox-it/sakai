@@ -777,6 +777,30 @@
 
 			</container>
 		</section>
+		
+		<section>
+			<container>
+				<floatEdit cols="6">
+					<title>
+						<message selector="pass-mark-title" />
+					</title>
+					<model ref="assessment.passMark" />
+				</floatEdit>
+				<selection title="send-email-header">                                                    
+					<selectionChoices>                                         
+						<selectionChoice>                                      
+							<displayMessage>                                   
+								<message selector="send-email" />           
+							</displayMessage>                                  
+							<valueMessage>                                     
+								<message template="true" />                    
+							</valueMessage>                                    
+						</selectionChoice>                                     
+					</selectionChoices>                                        
+					<model ref="assessment.sendEmailOnSubmission" />              
+				</selection>
+			</container>
+		</section>
 
 		<!-- navigations -->
 		<navigationBar id="nav">

@@ -79,12 +79,13 @@ public class SubmissionScoreDelegate extends FormatDelegateImpl
 		String selector = "worth-points";
 
 		// if we are doing review and the submission has been graded
+		Float score = null;
 		if ((review != null) && review && (submission != null) && submission.getIsReleased())
 		{
 			// the total score
 			rv.append("<img style=\"border-style: none;\" src=\"" + context.get("sakai.return.url") + "/icons/grade.png\" alt=\""
 					+ context.getMessages().getString("grade") + "\" />");
-			Float score = submission.getTotalScore();
+			score = submission.getTotalScore();
 			rv.append(context.getMessages().getString("grade") + ":&nbsp;" + FormatScoreDelegate.formatScore(score) + "&nbsp;&nbsp;&nbsp;");
 
 			selector = "of-points";
@@ -106,15 +107,42 @@ public class SubmissionScoreDelegate extends FormatDelegateImpl
 		}
 
 		// add the total possible points for the assessment
-		Float score = assessment.getPoints();
-		if (score.equals(Float.valueOf(1)))
+		Float maxPoints = assessment.getPoints();
+		//Float maxPoints = assessment.getParts().getTotalPoints();
+		if (maxPoints.equals(Float.valueOf(1)))
 		{
 			selector += "-singular";
 		}
 		Object[] args = new Object[1];
-		args[0] = FormatScoreDelegate.formatScore(score);
+		args[0] = FormatScoreDelegate.formatScore(maxPoints);
 		rv.append(context.getMessages().getFormattedMessage(selector, args));
 
+		
+		Float passMark = assessment.getPassMark(); 
+		if (passMark != null)
+		{
+			rv.append("&nbsp;&nbsp;&nbsp;");
+			if (score != null) 
+			{
+				if ((maxPoints > 0 ? score / maxPoints * 100 : 0) >= passMark)
+				{
+					rv.append("<img src=\"").append(context.get("sakai.return.url"));
+					rv.append("/icons/correct.png\" alt=\"");
+					rv.append(context.getMessages().getString("pass")).append("\" />&nbsp;");
+					rv.append(context.getMessages().getString("pass")).append("&nbsp;");
+				}
+				else
+				{
+					rv.append("<img src=\"").append(context.get("sakai.return.url"));
+					rv.append("/icons/incorrect.png\" alt=\"");
+					rv.append(context.getMessages().getString("fail")).append("\" />&nbsp;");
+					rv.append(context.getMessages().getString("fail")).append("&nbsp;");
+				}
+			}
+			rv.append("(Pass Mark:&nbsp;");
+			rv.append(FormatScoreDelegate.formatScore(passMark)).append("&nbsp;%)");
+		}
+		
 		return rv.toString();
 	}
 

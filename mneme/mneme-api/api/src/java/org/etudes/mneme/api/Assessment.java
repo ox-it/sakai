@@ -273,6 +273,16 @@ public interface Assessment
 	 * @return The assessment part information.
 	 */
 	AssessmentParts getParts();
+	
+	/**
+	 * Get the (optional) pass mark. This is an optional value that can, for example, be 
+	 * used in conjunction with the {@link #getSendEmailOnSubmission()} value in
+	 * order to control when a submission e-mail should get sent.
+	 * 
+	 * @return The pass mark.
+	 * @see #getSendEmailOnSubmission()
+	 */
+	Float getPassMark();
 
 	/**
 	 * Access the password.
@@ -362,6 +372,13 @@ public interface Assessment
 	 * @return A List containing all the scores for completed submissions to this assessment, or an empty list if there are none.
 	 */
 	List<Float> getScores();
+
+	/**
+	 * Check if the user should receive an e-mail when they submit.
+	 * 
+	 * @return TRUE if the user should receive an e-mail when they submit, FALSE if not.
+	 */
+	Boolean getSendEmailOnSubmission();
 
 	/**
 	 * Access the "show hints" setting
@@ -560,6 +577,14 @@ public interface Assessment
 	 *        The Pool to use for questions created inside the assessment.
 	 */
 	void setPool(Pool pool);
+	
+	/**
+	 * Set the assessment's pass mark. (This is an optional setting).
+	 * 
+	 * @param passMark the pass mark setting.
+	 * @see #getPassMark()
+	 */
+	void setPassMark(Float passMark);
 
 	/**
 	 * Set the assessment's published setting.
@@ -609,6 +634,13 @@ public interface Assessment
 	 */
 	void setResultsSent(Date date);
 
+	/**
+	 * Set whether or not the user should receive an e-mail when they submit.
+	 * 
+	 * @param send the value indicating whether or not a user should receive an e-mail when they submit.
+	 */
+	void setSendEmailOnSubmission(Boolean send);
+	
 	/**
 	 * Set the "show hints" setting
 	 * 

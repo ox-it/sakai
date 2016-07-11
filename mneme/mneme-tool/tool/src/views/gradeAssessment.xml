@@ -360,7 +360,7 @@
 				</column>
 				<modelColumn>
 					<title>
-						<message selector="submission-username" />
+						<message selector="submission-name" />
 					</title>
 					<included>
 						<decision reversed="TRUE" model="assessment.anonymous" />
@@ -418,7 +418,7 @@
 				</modelColumn>
 				<column>
 					<title>
-						<message selector="submission-username" />
+						<message selector="submission-name" />
 					</title>
 					<included>
 						<decision model="assessment.anonymous" />
@@ -482,6 +482,18 @@
 						</desc>
 					</sort>
 				</modelColumn>
+				<column>
+					<title>
+						<message selector="submission-username" />
+					</title>
+					<container>
+						<text>
+							<message>
+								<model ref="submission.userId" delegate="DisplayIdFormat" tool="sakai.mneme" />
+							</message>
+						</text>
+					</container>
+				</column>
 				<column>
 					<title>
 						<message selector="submission-tries" />
@@ -834,6 +846,12 @@
 				<divider />
 				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
 					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+				
+				<divider />
+				
+				<navigation title="export-csv" accessKey="export-access" description="export-description" style="BUTTON" submit="TRUE" destination="EXPORT">
+					<icon icon="/icons/import_export.png" style="LEFT" />
 				</navigation>
 			</container>
 		</navigationBar>

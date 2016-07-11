@@ -30,8 +30,8 @@
 
 	<tool
 			id="sakai.mneme"
-			title="Assignments, Tests and Surveys"
-			description="For authoring, publishing, delivering and grading assessments."
+			title="Tests"
+			description="For creating, delivering and marking tests."
 	>
 
 		<category name="course" />

@@ -32,7 +32,8 @@
 	<bean id="org.etudes.mneme.tool.GradeAssessmentView"
 			class="org.etudes.mneme.tool.GradeAssessmentView"
 			init-method="init"
-			destroy-method="destroy">
+			destroy-method="destroy"
+			depends-on="SubmissionStatus,DisplayIdFormat">
 
 		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
 		<property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService" /></property>
@@ -62,6 +63,17 @@
 
 		<property name="id"><value>SubmissionStatus</value></property>
 		<property name="toolId"><value>sakai.mneme</value></property>
+	</bean>
+
+	<bean id="DisplayIdFormat"
+			class="org.etudes.mneme.tool.DisplayIdFormatDelegate"
+			init-method="init"
+			destroy-method="destroy">
+
+		<property name="ui"><ref bean="org.etudes.ambrosia.api.UiService" /></property>
+		<property name="id"><value>DisplayIdFormat</value></property>
+		<property name="toolId"><value>sakai.mneme</value></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
 	</bean>
 
 </beans>

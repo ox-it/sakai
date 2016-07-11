@@ -73,6 +73,22 @@ public class SubmissionAssessmentImpl implements Assessment
 		this.submission = submission;
 	}
 
+	public Boolean getSendEmailOnSubmission() {
+		return getAssessment().getSendEmailOnSubmission();
+	}
+
+	public void setSendEmailOnSubmission(Boolean send) {
+		throw new IllegalArgumentException();
+	}
+
+	public Float getPassMark() {
+		return getAssessment().getPassMark();
+	}
+
+	public void setPassMark(Float passMark) {
+		throw new IllegalArgumentException();
+	}
+	
 	/**
 	 * Construct as a deep copy of another
 	 */

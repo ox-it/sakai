@@ -46,6 +46,8 @@
 
 	<container>
 
+		<instructions selector="instructions" />
+		
 		<!-- the list of assessments -->
 		<entityList style="FLAT">
 			<iterator name="assessment">

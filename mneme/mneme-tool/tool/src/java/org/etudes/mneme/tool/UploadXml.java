@@ -23,11 +23,14 @@ package org.etudes.mneme.tool;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -35,6 +38,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
+import org.apache.xml.resolver.tools.CatalogResolver;
 
 /**
  * Upload handles file uploads of XML documents, parsing the text into a DOM.
@@ -68,31 +72,30 @@ public class UploadXml
 	 * @param file
 	 *        The file.
 	 */
-	public void setUpload(FileItem file)
+	public void setUpload(FileItem file)//OJO TODO bastantes cambios respecto al original
 	{
-		try
-		{
-			String fileName = file.getName();
-			String extension = (fileName != null && fileName.lastIndexOf('.') != -1) ? fileName.substring(fileName.lastIndexOf('.') + 1) : null;
-			// parse into a doc
-			if ("xml".equals(extension))
-			{
-				this.upload = Xml.readDocumentFromStream(file.getInputStream());
-				this.unzipLocation = "";
-			}
-			else if ("zip".equals(extension))
-			{
-				this.unzipLocation = unpackageZipFile(fileName, file);
-				this.upload = Xml.readDocument(unzipLocation + File.separator + "imsmanifest.xml");
-			}
+		try {
+			DocumentBuilder docBuilder = getDocumentBuilder();
+			CatalogResolver resolver = new CatalogResolver();
+			resolver.getCatalog().parseCatalog("catalog.xml");
+			String base = resolver.getCatalog().getCurrentBase();
+			docBuilder.setEntityResolver(resolver);
+			this.upload = docBuilder.parse(file.getInputStream(), base);
 
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		catch (IOException e)
-		{
-		}
-		catch (Exception e)
-		{
-		}
+	}
+	
+	/**
+	 * @return a DocumentBuilder object for XML parsing.
+	 */
+	protected static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException
+	{
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+		return dbf.newDocumentBuilder();
 	}
 
 	/**

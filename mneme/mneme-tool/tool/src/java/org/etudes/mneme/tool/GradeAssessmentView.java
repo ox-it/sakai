@@ -25,7 +25,10 @@
 package org.etudes.mneme.tool;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -100,6 +103,8 @@ public class GradeAssessmentView extends ControllerImpl
 
 	/** UserDirectoryService */
 	protected UserDirectoryService userDirectoryService = null;
+
+	protected SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy hh:mm aa");
 
 	/**
 	 * Shutdown.
@@ -719,8 +724,63 @@ public class GradeAssessmentView extends ControllerImpl
 				destination = StringUtil.unsplit(dest, "/");
 			}
 		}
-
-		res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+		
+		if (destination.equals("EXPORT")) 
+		{
+			String fileName = assessment.getTitle().replaceAll(" ", "_")+".csv";
+			StringBuffer sb = new StringBuffer();
+			
+			// Temporarily hardcode this parameter so tries are not displayed
+			// there is currently no reliable method to get the number of tries
+			boolean showTries = false;
+			
+			sb.append(this.csvTitles(showTries));
+			
+			ArrayList<String> csvLines = new ArrayList<String>();
+			Iterator iter = submissions.getSet().iterator();
+			while (iter.hasNext()) {
+				Object object = iter.next();
+				if (object instanceof Submission) {
+					Submission submission = (Submission)object;
+					csvLines.add(toCSV(submission, showTries));
+				}
+			}
+			
+			this.sortLines(csvLines);
+			this.joinLines(sb, csvLines);
+			
+			String csvString = sb.toString();
+			
+			res.setContentType("text/comma-separated-values");
+			String disposition = "attachment; fileName="+fileName;
+			res.setHeader("Content-Disposition", disposition);
+			res.setHeader("Cache-Control", "max-age=0");
+			res.setContentLength(csvString.length());
+			OutputStream out = null;
+			try {
+				out = res.getOutputStream();
+				out.write(csvString.getBytes());
+				out.flush();
+				
+			} catch(IOException e) {
+				e.printStackTrace();
+				
+			} finally {
+				
+				try {
+					if(out != null) out.close();
+					
+				} catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			destination = context.getDestination();
+			
+		} else {
+			
+			res.sendRedirect(res.encodeRedirectURL(Web.returnUrl(req, destination)));
+		}
 	}
 
 	/**
@@ -994,5 +1054,86 @@ public class GradeAssessmentView extends ControllerImpl
 		Collections.sort(rv);
 
 		return rv;
+	}
+
+	private void sortLines(ArrayList<String> lines) {
+		java.util.Collections.sort(lines, new Comparator<String>() {
+			public int compare(String s, String s2) {
+				return s.compareToIgnoreCase(s2);
+			}
+		});
+	}
+
+	private void joinLines(StringBuffer sb, ArrayList<String> lines) {
+		for (String line : lines) {
+			sb.append(line);
+			sb.append("\n");
+		}
+	}
+
+	private String csvTitles(boolean showTries) {
+		String titles = "";
+		titles += "\"Name\",\"User Name\",";
+		titles += showTries ? "\"Tries\"," : "";
+		titles += "\"Finished\",\"Auto Score\",\"Final\",\"Evaluated\",\"Released\"\n";
+		return titles;
+	}
+
+	private String toCSV(Submission submission, boolean showTries) {
+		StringBuffer sb = new StringBuffer();
+		
+		try {
+			User user;
+			user = userDirectoryService.getUser(submission.getUserId());
+			sb.append("\""+user.getSortName()+"\"");
+			sb.append(",");
+			sb.append("\""+user.getDisplayId()+"\"");
+		} catch (UserNotDefinedException e) {
+			sb.append("\"not known\",\"not known\"");
+		}
+			
+		sb.append(",");
+		
+		if (showTries) {
+			sb.append("\""+submission.getSiblingCount()+"/");
+			if (null != submission.getAssessment()) {
+				Integer tries = submission.getAssessment().getTries();
+				if (tries != null) {
+					sb.append(tries +"\"");
+				} else {
+					sb.append("unlimited\"");
+				}
+			}
+			sb.append(",");
+		}
+		
+		if (null != submission.getSubmittedDate()) {
+			sb.append("\""+sdf.format(submission.getSubmittedDate())+"\"");
+		} else {
+			sb.append("\"not started\"");
+		}
+		
+		sb.append(",");
+		if (null != submission.getAnswersAutoScore()) {
+			sb.append("\""+submission.getAnswersAutoScore()+"\"");
+		}
+		
+		sb.append(",");
+		if (null != submission.getTotalScore()) {
+			sb.append("\""+submission.getTotalScore()+"\"");
+		}
+		
+		sb.append(",");
+		if (null != submission.getEvaluation() && 
+				null != submission.getEvaluation().getEvaluated()) {
+			sb.append("\""+submission.getEvaluation().getEvaluated()+"\"");
+		}
+		
+		sb.append(",");
+		if (null != submission.getIsReleased()) {
+			sb.append("\""+submission.getIsReleased()+"\"");
+		}
+		
+		return sb.toString();
 	}
 }

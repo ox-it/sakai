@@ -82,6 +82,12 @@ public class AssessmentInvalidView extends ControllerImpl
 				msg.append("<li>" + msgs.getString("invalid-dates") + "</li>");
 			}
 
+			Float passMark = assessment.getPassMark();
+			if (passMark != null && (passMark < 0 || passMark > 100))
+			{
+				msg.append("<li>" + msgs.getFormattedMessage("invalid-passmark", new Object[]{passMark}) + "</li>");
+			}
+			
 			// could be parts
 			if (!assessment.getParts().getIsValid())
 			{
