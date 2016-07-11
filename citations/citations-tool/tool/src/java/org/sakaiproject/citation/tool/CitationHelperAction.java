@@ -2622,6 +2622,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if( getConfigurationService().librarySearchEnabled() ) {
 			context.put( "searchLibrary", Boolean.TRUE );
 		}
+
+		if (getConfigurationService().isExternalSerarchEnabled())
+		{
+			// External Library Search
+			context.put("externalSearch", Boolean.TRUE);
+			context.put("externalSearchUrl", getConfigurationService().getExternalSearchUrl());
+
+			String windowName = getSearchManager().getExternalSearchWindowName(contentService.getUuid(resourceId));
+			context.put("externalSearchWindowName", windowName);
+		}
 		
 		if(citationCollection == null || (citationCollection.size() <= 0 && unnestedCitationCollection.size()<=0) && nestedCollection.getChildren().size()<=0) {
 			
