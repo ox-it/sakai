@@ -13,7 +13,7 @@
 	<name>etudes-mneme-tool-base</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-mneme-tool-base</artifactId>
-	<version>pom</version>
+	<version>11-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 

@@ -25,9 +25,10 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<artifactId>master</artifactId>
-		<groupId>org.sakaiproject</groupId>
+		<artifactId>etudes-mneme-tool-base</artifactId>
+		<groupId>org.etudes</groupId>
 		<version>11-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<name>lticontact-base</name>
