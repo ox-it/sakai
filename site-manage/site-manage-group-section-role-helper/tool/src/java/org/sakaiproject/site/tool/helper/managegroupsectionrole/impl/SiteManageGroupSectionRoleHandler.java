@@ -340,21 +340,18 @@ public class SiteManageGroupSectionRoleHandler {
         String label = rosterID;
         try
         {
-            if (cms != null)
-            {
-                Section s = cms.getSection(rosterID);
-                if (s != null) {
-                    label = StringUtils.defaultIfBlank(s.getTitle(), rosterID);
-                }
-            }
-            if (groupProvider instanceof DisplayGroupProvider)
-            {
-                label = ((DisplayGroupProvider)groupProvider).getGroupName(rosterID);
+            Section s = cms.getSection(rosterID);
+            if (s != null) {
+                label = StringUtils.defaultIfBlank(s.getTitle(), rosterID);
             }
         }
         catch( IdNotFoundException ex )
         {
-            M_log.debug( this + ".getRosterLabel: no section found for " + rosterID, ex );
+            M_log.debug(this + ".getRosterLabel: no section found for " + rosterID, ex);
+            if (groupProvider instanceof DisplayGroupProvider)
+            {
+                label = ((DisplayGroupProvider)groupProvider).getGroupName(rosterID);
+            }
         }
 
         return label;
