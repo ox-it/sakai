@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>master</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+	</parent>
+
+	<name>etudes-mneme-tool-base</name>
+	<groupId>org.etudes</groupId>
+	<artifactId>etudes-mneme-tool-base</artifactId>
+	<version>pom</version>
+
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>etudes-util</module>
+		<module>ltiContent</module>
+		<module>ambrosia</module>
+		<module>mneme</module>
+	</modules>
+
+</project>
