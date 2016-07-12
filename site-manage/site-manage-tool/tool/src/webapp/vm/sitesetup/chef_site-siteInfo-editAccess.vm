@@ -173,11 +173,6 @@
 				#if(!$!site)$tlang.getString("ediacc.gloacc2")#end
 			</p>
 			<div class="radio">
-				<label for="access_private">
-					$tlang.getString("ediacc.pri")
-				</label>
-			</p>
-			<p class="checkbox indnt1">
 				<label for="access_public">
 					<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end aria-describedby="site_vis_inst" />
 					$tlang.getString("ediacc.dismysit")
