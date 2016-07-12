@@ -273,25 +273,7 @@ public class SiteHandler extends WorksiteHandler
 		String userId = session.getUserId();
 		if (siteId == null)
 		{
-			if (userId == null)
-			{
-				siteId = portal.getSiteHelper().getGatewaySiteId();
-				if (siteId == null)
-				{
-					siteId = ServerConfigurationService.getGatewaySiteId();
-				}
-			}
-			else
-			{
-				// TODO Should maybe switch to portal.getSiteHelper().getMyWorkspace()
-				AllSitesViewImpl allSites = (AllSitesViewImpl)portal.getSiteHelper().getSitesView(SiteView.View.ALL_SITES_VIEW, req, session, siteId, null);
-				List<Map> sites = (List<Map>)allSites.getRenderContextObject();
-				if (sites.size() > 0) {
-					siteId = (String)sites.get(0).get("siteId");
-				}
-				else
-					siteId = SiteService.getUserSiteId(userId);
-			}
+			siteId = ":";
 		}
 
 		// Can get a URL like /portal/site/-/page/-/tool/sakai.rwiki.  
