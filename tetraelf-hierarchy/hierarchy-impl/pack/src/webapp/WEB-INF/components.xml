@@ -91,6 +91,7 @@
 	<!--  Bean to create some content after component manager starts up but before Sakai is available. -->
 	<bean class="org.sakaiproject.hierarchy.impl.PortalHierarchySetup">
 		<property name="hierarchySiteId"><value>!hierarchy</value></property>
+		<property name="hierarchyMissingSiteId"><value>!hierarchy.missing</value></property>
 		<property name="autoDDL"><value>${auto.ddl}</value></property>
 		<property name="siteService">
 			<ref bean="org.sakaiproject.site.api.SiteService"/>

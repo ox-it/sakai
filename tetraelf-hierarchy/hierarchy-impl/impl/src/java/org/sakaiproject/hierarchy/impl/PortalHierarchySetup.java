@@ -37,6 +37,7 @@ public class PortalHierarchySetup implements ApplicationListener {
 
 	private boolean autoDDL;
 	private String hierarchySiteId;
+	private String hierarchyMissingSiteId;
 	private SecurityService securityService;
 	private UsageSessionService usageSessionService;
 	private SiteService siteService;
@@ -65,34 +66,58 @@ public class PortalHierarchySetup implements ApplicationListener {
 			session.setUserId("admin");
 			sessionManager.setCurrentSession(session);
 			usageSessionService.startSession("admin", null, null);
-			
-			siteService.getSite(hierarchySiteId);
-		} catch (IdUnusedException e) {
 			try {
-				Site hierarchySite = siteService.addSite(hierarchySiteId, "hierarchy");
-				hierarchySite.setTitle("Hierarchy Site");
-				addPage(hierarchySite, "New Site", "sakai.hierarchy-new-site");
-				addPage(hierarchySite, "Bring Site", "sakai.hierarchy-bring-site");
-				addPage(hierarchySite, "Remove Site", "sakai.hierarchy-delete-site");
-				addPage(hierarchySite, "Move Site", "sakai.hierarchy-move-site");
-				addPage(hierarchySite, "Paste Site", "sakai.hierarchy-paste-site");
-				addPage(hierarchySite, "Replace Site", "sakai.hierarchy-replace-site");
-				addPage(hierarchySite, "Add Redirect", "sakai.hierarchy-redirect-site");
-				hierarchySite.setPublished(true);
-				Role anonRole = hierarchySite.addRole(".anon");
-				anonRole.allowFunction("site.visit");
-				siteService.save(hierarchySite);
-				log.debug("Created the site: "+ hierarchySiteId);
-			} catch (IdUsedException iue) {
-				log.info("Site already created. Another node started up at the same time?");
-			} catch (IdInvalidException iie) {
-				log.warn("Failed to create site with ID: "+ hierarchySiteId);
-			} catch (PermissionException pe) {
-				log.warn("Failed to create site due to lack of permission.");
-			} catch (IdUnusedException iuue) {
-				log.warn("Incosistent code, ID isn't used.");
-			} catch (RoleAlreadyDefinedException rade) {
-				log.warn(".anon roles already on site.");
+				siteService.getSite(hierarchySiteId);
+			} catch (IdUnusedException e) {
+				try {
+					Site hierarchySite = siteService.addSite(hierarchySiteId, "hierarchy");
+					hierarchySite.setTitle("Hierarchy Site");
+					addPage(hierarchySite, "New Site", "sakai.hierarchy-new-site");
+					addPage(hierarchySite, "Bring Site", "sakai.hierarchy-bring-site");
+					addPage(hierarchySite, "Remove Site", "sakai.hierarchy-delete-site");
+					addPage(hierarchySite, "Move Site", "sakai.hierarchy-move-site");
+					addPage(hierarchySite, "Paste Site", "sakai.hierarchy-paste-site");
+					addPage(hierarchySite, "Replace Site", "sakai.hierarchy-replace-site");
+					addPage(hierarchySite, "Add Redirect", "sakai.hierarchy-redirect-site");
+					hierarchySite.setPublished(true);
+					Role anonRole = hierarchySite.addRole(".anon");
+					anonRole.allowFunction("site.visit");
+					siteService.save(hierarchySite);
+					log.debug("Created the site: " + hierarchySiteId);
+				} catch (IdUsedException iue) {
+					log.info("Site already created. Another node started up at the same time?");
+				} catch (IdInvalidException iie) {
+					log.warn("Failed to create site with ID: " + hierarchySiteId);
+				} catch (PermissionException pe) {
+					log.warn("Failed to create site due to lack of permission.");
+				} catch (IdUnusedException iuue) {
+					log.warn("Incosistent code, ID isn't used.");
+				} catch (RoleAlreadyDefinedException rade) {
+					log.warn(".anon roles already on site.");
+				}
+			}
+			try {
+				siteService.getSite(hierarchyMissingSiteId);
+			} catch (IdUnusedException e) {
+				try {
+					Site hierarchySite = siteService.addSite(hierarchyMissingSiteId, "hierarchy");
+					hierarchySite.setTitle("Missing Site");
+					hierarchySite.setPublished(true);
+					Role anonRole = hierarchySite.addRole(".anon");
+					anonRole.allowFunction("site.visit");
+					siteService.save(hierarchySite);
+					log.debug("Created the site: " + hierarchyMissingSiteId);
+				} catch (IdUsedException iue) {
+					log.info("Site already created. Another node started up at the same time?");
+				} catch (IdInvalidException iie) {
+					log.warn("Failed to create site with ID: " + hierarchyMissingSiteId);
+				} catch (PermissionException pe) {
+					log.warn("Failed to create site due to lack of permission.");
+				} catch (IdUnusedException iuue) {
+					log.warn("Incosistent code, ID isn't used.");
+				} catch (RoleAlreadyDefinedException rade) {
+					log.warn(".anon roles already on site.");
+				}
 			}
 		} finally {
 			Session session = sessionManager.getCurrentSession();
@@ -115,6 +140,14 @@ public class PortalHierarchySetup implements ApplicationListener {
 
 	public void setHierarchySiteId(String hierarchySiteId) {
 		this.hierarchySiteId = hierarchySiteId;
+	}
+
+	public String getHierarchyMissingSiteId() {
+		return hierarchyMissingSiteId;
+	}
+
+	public void setHierarchyMissingSiteId(String hierarchyMissingSiteId) {
+		this.hierarchyMissingSiteId = hierarchyMissingSiteId;
 	}
 
 	public SecurityService getSecurityService() {
