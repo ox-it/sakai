@@ -19,8 +19,16 @@ public interface Neighbour {
      * A redirect that should be shown to the user.
      */
     interface Redirect {
+        /**
+         * The ID of the redirect.
+         * @return Cannot be <code>null</code>.
+         */
         String getId();
 
+        /**
+         * The title of the redirect.
+         * @return Cannot be <code>null</code>.
+         */
         String getTitle();
 
     }

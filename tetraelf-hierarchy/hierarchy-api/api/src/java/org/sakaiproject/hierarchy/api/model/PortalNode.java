@@ -35,7 +35,7 @@ public interface PortalNode {
 	
 	/**
 	 * The title of this node that is displayed to the end user.
-	 * @return A String title. This may be <code>null</code>.
+	 * @return A String title. This may be <code>null</code> for example when this is a hidden redirect.
 	 */
 	public String getTitle();
 	

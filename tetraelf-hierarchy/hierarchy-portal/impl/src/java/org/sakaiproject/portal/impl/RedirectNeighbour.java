@@ -33,7 +33,12 @@ public class RedirectNeighbour implements Neighbour {
 
             @Override
             public String getTitle() {
-                return redirect.getTitle();
+                // Hidden redirects don't have titles.
+                if (redirect.getTitle() == null) {
+                    return redirect.getName();
+                } else {
+                    return redirect.getTitle();
+                }
             }
         });
     }
