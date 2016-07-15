@@ -36,7 +36,6 @@
 	<name>lticontact-webapp</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>lticontact-webapp</artifactId>
-	<version>${lticontact.version}</version>
 
 	<packaging>war</packaging>
 

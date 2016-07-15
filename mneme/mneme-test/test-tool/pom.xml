@@ -36,7 +36,6 @@
 	<name>etudes-mneme-test-tool</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-mneme-test-tool</artifactId>
-	<version>${mneme.version}</version>
 
 	<packaging>war</packaging>
 

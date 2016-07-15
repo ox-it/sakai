@@ -36,7 +36,6 @@
 	<name>etudes-ambrosia-pack</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-ambrosia-pack</artifactId>
-	<version>${ambrosia.version}</version>
 
 	<packaging>sakai-component</packaging>
 	<properties>

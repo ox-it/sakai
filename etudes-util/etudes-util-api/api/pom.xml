@@ -36,7 +36,6 @@
 	<name>etudes-util-api</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-util-api</artifactId>
-	<version>${etudes.util.version}</version>
 
 	<packaging>jar</packaging>
 	<properties>

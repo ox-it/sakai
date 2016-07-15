@@ -36,7 +36,6 @@
 	<name>etudes-ambrosia-api</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-ambrosia-api</artifactId>
-	<version>${ambrosia.version}</version>
 
 	<packaging>jar</packaging>
 	<properties>

@@ -39,7 +39,6 @@
 	<name>etudes-mneme-impl</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-mneme-impl</artifactId>
-	<version>${mneme.version}</version>
 	
 	<packaging>jar</packaging>
 

@@ -36,7 +36,6 @@
 	<name>etudes-mneme-api</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-mneme-api</artifactId>
-	<version>${mneme.version}</version>
 
 	<packaging>jar</packaging>
 	<properties>

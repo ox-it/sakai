@@ -36,7 +36,6 @@
 	<name>etudes-mneme-pack</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-mneme-pack</artifactId>
-	<version>${mneme.version}</version>
 
 	<packaging>sakai-component</packaging>
 	<properties>

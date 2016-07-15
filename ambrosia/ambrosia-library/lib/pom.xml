@@ -36,7 +36,6 @@
 	<name>ambrosia_library</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>ambrosia_library</artifactId>
-	<version>${ambrosia.version}</version>
 
 	<packaging>war</packaging>
 
