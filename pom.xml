@@ -30,4 +30,49 @@
 		<ambrosia.version>2.1.35</ambrosia.version>
 		<mneme.version>2.1.36</mneme.version>
 	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-util-api</artifactId>
+				<version>${etudes.util.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-util-util</artifactId>
+				<version>${etudes.util.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-lticontact-util</artifactId>
+				<version>${lticontact.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-ambrosia-api</artifactId>
+				<version>${ambrosia.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-ambrosia-util</artifactId>
+				<version>${ambrosia.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-mneme-api</artifactId>
+				<version>${mneme.version}</version>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
 </project>
