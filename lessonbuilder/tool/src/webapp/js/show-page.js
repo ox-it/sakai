@@ -71,11 +71,12 @@ var blankRubricTemplate, blankRubricRow;
 $(document).ready(function() {
 	// if we're in morpheus, move breadcrums into top bar, and generate an H2 with the title
 
-        $("li.multimediaType iframe").each(function() {
+        $("li.multimediaType iframe, li.multimediaType object, li.multimediaType embed, li.multimediaType video").each(function() {
 		var width = $(this).attr("width");
 		var height = $(this).attr("height");
-                if (typeof width !== 'undefined' && width !== '' &&
-                    (typeof height === 'undefined' || height ==''))
+                if ($(this).attr('defaultsize') === 'true' ||
+		    (typeof width !== 'undefined' && width !== '' &&
+		     (typeof height === 'undefined' || height =='')))
                     $(this).height($(this).width() * 0.75);
             });
 
@@ -528,6 +529,7 @@ $(document).ready(function() {
 				
 				// create the test link from prototype, because oembed will remove it
 				var testlink = $('#mm-test-prototype').clone();
+				testlink.attr('id', 'mm-test-link');
 				$('#mm-test-prototype').after(testlink);
 				testlink.attr('href', url);
 				$('#mm-test-oembed-results').show();
@@ -2166,7 +2168,7 @@ $(document).ready(function() {
 		section = section.next();
 		// and move current item and following into the first col of the new section
 		if (addAboveItem > 0)
-		    section.find("ul").append(addAboveLI, tail_lis);
+		    section.find("ul.mainList").append(addAboveLI, tail_lis);
 		section.find(".column").append(tail_uls);
 		section.append(tail_cols);
 
@@ -2195,7 +2197,7 @@ $(document).ready(function() {
 		column = column.next();
 		// and move current item and following into the first col of the new section
 		if (addAboveItem > 0)
-		    column.find("ul").append(addAboveLI, tail_lis);
+		    column.find("ul.mainList").append(addAboveLI, tail_lis);
 		column.find(".column").append(tail_uls);
 		// need trigger on the A we just added
 		column.find('.column-merge-link').click(columnMergeLink);
@@ -2221,7 +2223,7 @@ $(document).ready(function() {
 		// current section DIV
 		var section = thisCol.parent();
 		// append rest of ul last one in prevous section
-		section.prev().find('ul').last().append(tail_lis);
+		section.prev().find('ul.mainList').last().append(tail_lis);
 		section.prev().find('.column').last().append(tail_uls);
 		section.prev().append(tail_cols);
 		// nothing should be left in current section. kill it
@@ -2239,7 +2241,7 @@ $(document).ready(function() {
 		var tail_uls = thisCol.find('.mainList').nextAll();
 
 		// append rest of ul last one in prevous column;
-		thisCol.prev().find('ul').last().append(tail_lis);
+		thisCol.prev().find('ul.mainList').last().append(tail_lis);
 		thisCol.prev().append(tail_uls);
 		// nothing should be left in current section. kill it
 		thisCol.remove();
@@ -2816,8 +2818,8 @@ function buttonOpenDropdowna() {
 
 function buttonOpenDropdownb() {
     oldloc = $(this);
-    addAboveItem = '-' + $(this).closest('.column').find('ul').children().last().find("span.itemid").text();
-    addAboveLI = $(this).closest('.column').find('ul').children().last().closest("li");
+    addAboveItem = '-' + $(this).closest('.column').find('ul.mainList').children().last().find("span.itemid").text();
+    addAboveLI = $(this).closest('.column').find('ul.mainList').children().last().closest("li");
     $(".addbreak").show();
     openDropdown($("#addContentDiv"), $("#dropdownc"));
     return false;

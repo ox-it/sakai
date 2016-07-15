@@ -1398,7 +1398,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	public boolean allowRemoveSite(String id)
 	{
 		String lock = SECURE_REMOVE_SITE;
-		if(serverConfigurationService().getBoolean("site.soft.deletion", false))
+		if(serverConfigurationService().getBoolean("site.soft.deletion", true))
 		{
 			try
 			{
@@ -1425,7 +1425,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		unlock(SECURE_REMOVE_SITE, site.getReference());
 
 		// if soft site deletes are active
-		if(serverConfigurationService().getBoolean("site.soft.deletion", false)) {
+		if(serverConfigurationService().getBoolean("site.soft.deletion", true)) {
 			
 			M_log.debug("Soft site deletes are enabled.");
 			

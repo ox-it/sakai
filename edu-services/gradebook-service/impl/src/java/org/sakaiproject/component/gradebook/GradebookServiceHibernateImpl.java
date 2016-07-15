@@ -801,7 +801,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 				// external assessments are supported, but not these fields
 				if (!assignmentDefinition.isExternallyMaintained()) {
-					assignment.setName(assignmentDefinition.getName().trim());
+					assignment.setName(StringUtils.trim(assignmentDefinition.getName()));
 					assignment.setPointsPossible(assignmentDefinition.getPoints());
 					assignment.setDueDate(assignmentDefinition.getDueDate());
 				}
@@ -3028,15 +3028,30 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<org.sakaiproject.service.gradebook.shared.Assignment> viewableAssignments, Map<Long,String> gradeMap) {
 		
 		Gradebook gb = (Gradebook) gradebook;
-				
+		
+		// used for translating letter grades
+		final Map<String, Double> gradingSchema = gb.getSelectedGradeMapping().getGradeMap();
+		
 		//collect the data and turn it into a list of AssignmentGradeRecords
 		//this is the info that is compatible with both applyDropScores and the calculateCategoryScore method
 		List<AssignmentGradeRecord> gradeRecords = new ArrayList<>();
 		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: viewableAssignments) {
 			
 			Long assignmentId = assignment.getId();
-			Double grade = NumberUtils.createDouble(gradeMap.get(assignmentId));
 			
+			String rawGrade = gradeMap.get(assignmentId);
+			Double pointsPossible = assignment.getPoints();
+			Double grade = null;
+			
+			//determine the grade we should be using depending on the grading type
+			if (gb.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+				grade = calculateEquivalentPointValueForPercent(pointsPossible, NumberUtils.createDouble(rawGrade));
+			} else if (gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER){
+				grade = gradingSchema.get(rawGrade);
+			} else {
+				grade = NumberUtils.createDouble(rawGrade);
+			}
+									
 			//recreate the category (required fields only)
 			Category c = new Category();
 			c.setId(category.getId());
@@ -3118,7 +3133,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Assignment assignment = gradeRecord.getAssignment();
 						
 			//check category ids match, otherwise skip
-			if(assignment.getCategory() != null && categoryId != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
+			if(assignment.getCategory() != null && categoryId.longValue() != assignment.getCategory().getId().longValue()){
 				continue;
 			}
 						
@@ -3481,7 +3496,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 
 		//get all assignments for this gradebook
-		List<Assignment> assignments = getAssignments(gradebookId, SortType.SORT_BY_SORTING, true);
+		List<Assignment> assignments = getAssignments(gradebookId, SortType.SORT_BY_CATEGORY, true);
 		List<Assignment> assignmentsInNewCategory = new ArrayList<Assignment>();
 		for (Assignment assignment : assignments) {
 			if (assignment.getCategory() == null) {

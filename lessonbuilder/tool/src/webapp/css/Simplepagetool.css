@@ -50,7 +50,7 @@
   overflow-wrap:break-word;
 }
 /* without this, these divs expand beyond the width of the column if there's an unbreakable word */
-.right-col, .contentCol {
+.right-col, .contentCol, .checklistDiv, .checklistDescription, .playerwidth, .playerwidth iframe, .playerwidth object, .playerwidth embed {
   max-width:100%;
 }
 
@@ -240,6 +240,7 @@ body .below-link-help, #error.below-link-help {
 }
 body .error-spacingabove {
    margin-top: 30px;
+   clear:both;
 }
 body .error-nospacebelow {
    margin-bottom: 0px;
@@ -887,7 +888,7 @@ h3.author {
     cursor:pointer;
 }
 .link-div .usebutton {
-	font-size: 160%
+	  background-color: rgb(246,246,246)
 }
 .link-div {
 	display:inline;
@@ -1238,6 +1239,9 @@ div[role="dialog"] {
     margin-top:0.5em;
     margin-bottom:1.0em;
 }
+#mm-test-prototype, #mm-test-link, .oembedall-closehide {
+    display: none !important;
+}
 .neoPortletTitleWrap {
     border-radius:0
 }
@@ -1500,6 +1504,9 @@ font-size: 90%;
 .portletBody {
   margin-top:2px;
 }
+.PagePicker {
+  margin-top:12px;
+}
 /* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
 .Mrphs-container--toolTitleNav {
@@ -1508,6 +1515,7 @@ font-size: 90%;
 .genTitle {
   display:none;
 }
+
 /* student mode only */
 .genTitle ~ .action {
   margin-top:-5px;
