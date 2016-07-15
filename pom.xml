@@ -24,4 +24,10 @@
 		<module>mneme</module>
 	</modules>
 
+	<properties>
+		<etudes.util.version>1.0.25</etudes.util.version>
+		<lticontact.version>1.2</lticontact.version>
+		<ambrosia.version>2.1.35</ambrosia.version>
+		<mneme.version>2.1.36</mneme.version>
+	</properties>
 </project>
