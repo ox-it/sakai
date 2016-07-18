@@ -77,9 +77,8 @@
 			"cache" : false,
 			"success" : function(data) {
 				// This is because we now top and tail files in Sakai.
-				data = data.replace(/^(.|\n)*<body[^>]*>/im, "");
-				data = data.replace(/<\/body[^>]*>(.|\n)*$/im, "");
-				$("#notes").html(data);
+				var body = Text.extractBody(data);
+				$("#notes").html(body);
 			}
 		});
 

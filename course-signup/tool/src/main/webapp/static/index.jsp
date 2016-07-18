@@ -160,10 +160,8 @@
 							"url": signupSiteId + "/html/" + id + ".html",
 							"cache": false,
 							"success": function(data){
-								// This is because we now top and tail files in Sakai.
-								data = data.replace(/^(.|\n)*<body[^>]*>/im, "");
-								data = data.replace(/<\/body[^>]*>(.|\n)*$/im, "");
-								$("#details").html(data);
+								var body = Text.extractBody(data);
+								$("#details").html(body);
 							}
 						});
 					};

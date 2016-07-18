@@ -53,6 +53,19 @@ var Text = (function() {
 		 */
 		"isEmail": function(email) {
 		    return emailRegex.test(email);
+		},
+
+		/**
+		 * Extract HTML body.
+		 * @param html A string representing a HTML document.
+		 * @return Just the contents of the body.
+		 */
+		"extractBody": function (html) {
+			// This is because we now top and tail files in Sakai.
+			var body = html;
+			body = body.replace(/^(.|\n)*<body[^>]*>/im, "");
+			body = body.replace(/<\/body[^>]*>(.|\n)*$/im, "");
+			return body;
 		}
 	};
 })();
