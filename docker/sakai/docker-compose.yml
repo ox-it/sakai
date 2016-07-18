@@ -17,6 +17,7 @@ app:
    - ./local.properties:/opt/tomcat/sakai/local.properties
    - ./sakai-jaas.conf:/opt/tomcat/sakai/sakai-jaas.conf
    - ./krb5.conf:/opt/tomcat/sakai/krb5.conf
+   - ./sakai-keytab:/opt/tomcat/sakai/sakai-keytab
   command: /opt/tomcat/bin/catalina.sh jpda run
   environment:
    # In development this means we can read files without anything special
