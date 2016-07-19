@@ -39,7 +39,7 @@ With your source checkout of Sakai build it and deploy it into the folder `sakai
 
 ```
 cd sakai/checkout
-mvn install directory:directory sakai:deploy 
+mvn install directory:directory-of sakai:deploy 
 ```
 
 Once it's deployed bring up the application and supporting services:
