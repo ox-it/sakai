@@ -39,7 +39,7 @@ With your source checkout of Sakai build it and deploy it into the folder `sakai
 
 ```
 cd sakai/checkout
-mvn install sakai:deploy -Dmaven.tomcat.home=/home/user/sakai/docker/sakai/tomcat
+mvn install directory:directory sakai:deploy 
 ```
 
 Once it's deployed bring up the application and supporting services:
