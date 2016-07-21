@@ -3,5 +3,5 @@
 //////////////////////////////
 
 
-$calendar-event-background-color: $button-color-border-color;
-$calendar-event-text-color: $button-color-text-color;
+$calendar-event-background-color: $button-color-border-color !default;
+$calendar-event-text-color: $button-color-text-color !default;
