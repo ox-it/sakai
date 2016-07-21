@@ -1,4 +1,5 @@
 @import "font-awesome";
+@import "base/extendables";
 
 $logo: '/library/skin/morpheus-default/images/ox/logo-white-height-30.png';
 $logo-height: 30px;
@@ -6,6 +7,60 @@ $logo-width: 132px;
 
 $col1of2-width: 66%;
 $col2of2-width: 31%;
+
+/* Use the Oxford blue and no gradient on the banner. Save Sakai colour as we use it. */
+$orig-primary-color: #2a94c0;
+$primary-color: #002147;
+
+$header-gradient-a: $primary-color;
+$header-gradient-b: $primary-color;
+$header-gradient-c: $primary-color;
+$header-gradient-d: $primary-color;
+
+$breadcrumbs-color:			 #FFF;
+$breadcrumbs-tool-color:     $breadcrumbs-color;
+$breadcrumbs-hover-color:	 $breadcrumbs-color;
+
+$link-color: $primary-color;
+$link-active-color: $primary-color;
+$link-hover-color: $primary-color;
+
+$button-text-color:	 #777;
+$button-border-color: #C0C0C0;
+$button-background-color: #F0F0F0;
+$button-background-secondary-color: #FFF;
+/* General button colors */
+$button-color-text-color: #FFF;
+$button-color-border-color: $primary-color;
+$button-color-background-color: $primary-color;
+$button-color-background-secondary-color: #2a94c0;
+
+/* Use the original Sakai blue when hovering. */
+.#{$namespace}loginNav a:hover{
+    color: lighten($orig-primary-color, 35%);
+}
+
+/* Override the hover styles as background is now dark. */
+.#{$namespace}breadCrumbs--title:hover{
+    color: $breadcrumbs-hover-color;
+    border-bottom: 1px solid $breadcrumbs-hover-color;
+}
+
+/* Change the default calendar colour. */
+$calendar-event-background-color: darken(#F8F8F8, 45%);
+
+/* Revert back to Sakai pale blue colour for headings. */
+.instruction{
+    @include bs-callout($orig-primary-color, lighten($orig-primary-color, 45%));
+}
+.bs-callout-primary, .bs-callout-info, .messageInformation, .messageInstruction, .messageProgress {
+    @include bs-callout($orig-primary-color, lighten($orig-primary-color, 45%));
+}
+
+/* Change the separator colour as the banner is now dark. */
+.#{$namespace}hierarchy--separator, .#{$namespace}hierarchy--siteNameSeparator{
+    color: $breadcrumbs-color;
+}
 
 /* Tweek of the margins necessary for our logo to be centred. */
 .#{$namespace}mainHeader .#{$namespace}headerLogo .#{$namespace}headerLogo--institution{
