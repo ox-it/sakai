@@ -22,6 +22,7 @@ $col2of2-width: 31%;
 
 /* Extra icon mappings specific to WL. */
 @if $skin-with-icons {
+    .icon-sakai-oauth {                      @extend .fa-key;}
     .icon-sakai-sub-site {                   @extend .fa-sitemap;}
     .icon-sakai-redirect {                   @extend .fa-link;}
     .icon-sakai-hierarchy-new-site {         @extend .fa-plus;}
