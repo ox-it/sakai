@@ -1,0 +1,942 @@
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface autoComplete="FALSE" anchor="anchor">
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme">
+			<included>
+				<hasValueDecision model="maintainer" />
+			</included>
+		</alias>
+	</modeContainer>
+
+	<!-- title & header-->
+	<title>
+		<message selector="question-title">
+			<model ref="actionTitle" />
+			<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+			<model ref="submission.assessment.title" type="text" />
+		</message>
+	</title>
+
+	<header>
+		<message selector="question-header">
+			<model type="icon" icon="/icons/begin.gif" />
+			<model ref="actionTitle" />
+			<model type="enum" messageRoot="assessment-type-" ref="submission.assessment.type" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message selector="incorrect-subheader">
+					<model ref="questionIncorrect" />
+				</message>
+			</text>
+			<text>
+				<message selector="submission-username">
+					<model type="userInfo" selector="DISPLAYNAME" ref="submission.userId" disambiguate="TRUE"  />
+				</message>
+				<included>
+					<decision model="review" />
+					<decision model="viewWork" />
+				</included>
+			</text>
+			<text>
+				<message selector="question-subheader">
+					<model ref="submission.assessment.title" type="text" missing="no-title" />
+					<model type="date" ref="submission.startDate" />
+					<model type="date" ref="submission.submittedDate" />
+					<selectors>
+						<selector selector="question-subheader-review-offline">
+							<compareDecision model="submission.assessment.type" constant="offline" />
+						</selector>
+						<selector selector="question-subheader-review">
+							<decision model="review" />
+							<decision reversed="TRUE" model="submission.isCompletedLate" />
+							<decision model="submission.isNonSubmit" reversed="TRUE" />
+							<decision model="submission.isAutoCompleted" reversed="TRUE" />
+						</selector>
+						<selector selector="question-subheader-review-late">
+							<decision model="review" />
+							<decision model="submission.isCompletedLate" />
+							<decision model="submission.isAutoCompleted" reversed="TRUE" />
+							<decision model="submission.isNonSubmit" reversed="TRUE" />
+						</selector>
+						<selector selector="question-subheader-review-auto">
+							<decision model="review" />
+							<decision reversed="TRUE" model="submission.isCompletedLate" />
+							<decision model="submission.isAutoCompleted" />
+							<decision model="submission.isNonSubmit" reversed="TRUE" />
+						</selector>
+						<selector selector="question-subheader-review-auto-late">
+							<decision model="review" />
+							<decision model="submission.isCompletedLate" />
+							<decision model="submission.isAutoCompleted" />
+							<decision model="submission.isNonSubmit" reversed="TRUE" />
+						</selector>
+						<selector selector="question-subheader-review-non-submit">
+							<decision model="review" />
+							<decision model="submission.isNonSubmit" />
+						</selector>
+					</selectors>
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!-- courier to keep the session alive -->
+		<courier destination="/courier" frequency="600" />
+
+		<!-- review nav bar -->
+		<navigationBar id="nav">
+			<included>
+				<decision model="review" />
+			</included>
+			<container>
+				<navigation title="prev" accessKey="prev-access" description="review-prev-description" style="BUTTON">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="prevSubmissionId" />
+					</disabled>
+					<destination template="/review/{0}{1}">
+						<model ref="prevSubmissionId" />
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="count" />
+					</message>
+				</text>
+				<navigation title="next" accessKey="next-access" description="review-next-description" style="BUTTON">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="nextSubmissionId" />
+					</disabled>
+					<destination template="/review/{0}{1}">
+						<model ref="nextSubmissionId" />
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<text>
+					<message selector="best-submission">
+						<model type="icon" icon="/icons/star.png" />
+					</message>
+					<included>
+						<decision model="best" />
+					</included>
+				</text>
+				<divider />
+				<navigation style="LINK" title="list-show-summary">
+				    <icon icon="/icons/stats.png" style="LEFT" />
+				    <destination template="/assessment_stats/0A/{0}/{1}">
+						<model ref="submission.assessment.id" />
+						<model ref="submission.id" />
+					</destination>
+				   <included>
+				        <andDecision>
+				          <decision model="showsummary" />
+				         
+				        </andDecision>  
+					</included>
+			    </navigation>
+			</container>
+		</navigationBar>
+
+		<navigationBar>
+			<included>
+				<decision reversed="TRUE" model="review" />
+			</included>
+			<container>
+				<navigation title="prev" description="prev-description" style="BUTTON" destination="PREV" submit="TRUE">
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<disabled>
+						<orDecision>
+							<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+							<andDecision>
+								<hasValueDecision model="question" />
+								<decision model="question.assessmentOrdering.isFirst" />
+								<decision reversed="TRUE" model="question.part.assessment.parts.showPresentation" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision model="part" />
+								<decision model="part.ordering.isFirst" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision reversed="TRUE" model="question" />
+								<hasValueDecision reversed="TRUE" model="part" />
+							</andDecision>
+						</orDecision>
+					</disabled>
+				</navigation>
+				<navigation title="toc" description="toc-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/contents.gif" style="LEFT" />
+					<destination template="/toc/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+					<disabled>
+						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+					</disabled>
+				</navigation>
+				<navigation title="next" description="next-description" style="BUTTON" destination="NEXT" submit="TRUE"
+					default="TRUE">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<validate>
+						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+					</validate>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+					<disabled>
+						<orDecision>
+							<andDecision>
+								<hasValueDecision model="question" />
+								<decision model="question.assessmentOrdering.isLast" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision model="part" />
+								<decision model="part.ordering.isLast" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision reversed="TRUE" model="question" />
+								<hasValueDecision reversed="TRUE" model="part" />
+							</andDecision>
+						</orDecision>
+					</disabled>
+				</navigation>
+				<divider>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+				</divider>
+				<navigation title="save-exit" description="save-exit-description" style="BUTTON" submit="TRUE" destination="LIST">
+					<icon icon="/icons/exit.gif" style="LEFT" />
+					<validate>
+						<trueDecision reversed="TRUE" />
+					</validate>
+				</navigation>
+				<navigation title="finish-exam" description="finish-exam-description" style="BUTTON" submit="TRUE"
+					destination="SUBMIT" id="finish">
+					<icon icon="/icons/finish.gif" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="finish-confirm">
+							<model type="enum" messageRoot="assessment-type-lc-" ref="submission.assessment.type" />
+						</message>
+					</confirm>
+					<validate>
+						<trueDecision reversed="TRUE" />
+					</validate>
+				</navigation>
+				<divider />
+				<navigation title="instructions" style="LINK" submit="TRUE">
+					<icon icon="/icons/test.png" style="LEFT" />
+					<destination template="/instructions/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="curDestination" />
+					</destination>
+					<validate>
+						<trueDecision reversed="TRUE" />
+					</validate>
+				</navigation>
+			</container>
+		</navigationBar>
+
+		<!-- timer for timed tests -->
+		<countdownTimer submit="TRUE" destination="AUTO">
+			<duration>
+				<message selector="timer-duration">
+					<model type="duration" concise="TRUE" ref="submission.expiration.limit" />
+				</message>
+				<model ref="submission.expiration.limit" />
+			</duration>
+			<remaining>
+				<message selector="timer-remaining" />
+			</remaining>
+			<timeTillExpire>
+				<model ref="submission.expiration.duration" />
+			</timeTillExpire>
+			<included>
+				<decision model="review" reversed="TRUE" />
+				<hasValueDecision model="submission.expiration" />
+				<compareDecision model="submission.expiration.cause" constant="timeLimit" />
+			</included>
+		</countdownTimer>
+
+		<!-- timer for near-due tests -->
+		<countdownTimer submit="TRUE" destination="AUTO">
+			<duration>
+				<message selector="timer-due">
+					<model type="date" concise="TRUE" ref="submission.expiration.time" />
+				</message>
+				<model ref="submission.expiration.limit" />
+			</duration>
+			<remaining>
+				<message selector="timer-remaining" />
+			</remaining>
+			<timeTillExpire>
+				<model ref="submission.expiration.duration" />
+			</timeTillExpire>
+			<included>
+				<decision model="review" reversed="TRUE" />
+				<hasValueDecision model="submission.expiration" />
+				<compareDecision model="submission.expiration.cause" constant="closedDate" />
+			</included>
+		</countdownTimer>
+
+		<!-- review only - not graded alert -->
+		<alert>
+			<message selector="review-not-graded" />
+			<included>
+				<decision model="review" />
+				<orDecision>
+					<decision model="viewWork" />
+					<decision model="submission.mayReview" />
+				</orDecision>
+				<decision reversed="TRUE" model="submission.isReleased" />
+				<decision model="submission.assessment.hasPoints" />
+			</included>
+		</alert>
+
+		<!-- view only - not released alert -->
+		<alert>
+			<message selector="view-not-released-later">
+				<model type="date" ref="submission.best.assessment.review.date" />
+			</message>
+			<included>
+				<decision model="review" />
+				<decision reversed="TRUE" model="viewWork" />
+				<decision reversed="TRUE" model="submission.mayReview" />
+				<decision model="submission.mayReviewLater" />
+				<compareDecision model="submission.assessment.review.timing" constant="date" />
+			</included>
+		</alert>
+		<alert>
+			<message selector="view-not-released-graded" />
+			<included>
+				<decision model="review" />
+				<decision reversed="TRUE" model="viewWork" />
+				<decision reversed="TRUE" model="submission.mayReview" />
+				<decision model="submission.mayReviewLater" />
+				<compareDecision model="submission.best.assessment.review.timing" constant="graded" />
+			</included>
+		</alert>
+		<alert>
+			<message selector="view-not-released-not" />
+			<included>
+				<decision model="review" />
+				<decision reversed="TRUE" model="viewWork" />
+				<decision reversed="TRUE" model="submission.mayReview" />
+				<decision reversed="TRUE" model="submission.mayReviewLater" />
+			</included>
+		</alert>
+
+		<!-- test title, description and comments -->
+		<section>
+			<title>
+				<message selector="question-test-title">
+					<model type="icon" icon="/icons/test.png" />
+					<model ref="submission.assessment.title" type="text" />
+					<model type="html" ref="submission" delegate="SubmissionScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="question-test-title-no-points">
+							<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+			
+			<container>
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="submission.assessment.presentation.text" />
+					</message>
+				</text>
+				<attachments model="submission.assessment.presentation.attachments">
+					<included>
+						<hasValueDecision model="submission.assessment.presentation.attachments" />
+					</included>
+				</attachments>
+				<section treatment="evaluation">
+					<title>
+						<message selector="question-evaluation">
+							<model type="icon" icon="/icons/note.png" />
+						</message>
+					</title>
+					<container>
+						<text>
+							<message>
+								<model type="html" dirty="TRUE" ref="submission.evaluation.commentFormatted" />
+								<included>
+									<hasValueDecision model="submission.evaluation.comment" />
+								</included>
+							</message>
+						</text>
+						<attachments model="submission.evaluation.attachments">
+							<included>
+								<hasValueDecision model="submission.evaluation.attachments" />
+							</included>
+						</attachments>
+					</container>
+					<included>
+						<orDecision>
+							<decision model="viewWork" />
+							<andDecision>
+								<decision model="submission.mayReview" />
+								<decision model="submission.isReleased" />
+							</andDecision>
+						</orDecision>
+						<orDecision>
+							<hasValueDecision model="submission.evaluation.comment" />
+							<hasValueDecision model="submission.evaluation.attachments" />
+						</orDecision>
+					</included>
+				</section>
+			</container>
+			<included>
+				<hasValueDecision reversed="TRUE" model="question" />
+				<hasValueDecision reversed="TRUE" model="part" />
+				<orDecision>
+					<decision reversed="TRUE" model="review" />
+					<decision model="viewWork" />
+					<decision model="submission.mayReview" />
+				</orDecision>
+			</included>
+		</section>
+
+		<section>
+			<container>
+		       <attachments list="FALSE" model="submission.certReference" icon="/icons/award.png">
+		       </attachments>
+		  </container>
+		  <included>
+		    <orDecision>
+		      <andDecision>
+		        <decision model="minscoremet" />
+		        <compareDecision model="count" constant="1" />
+		      </andDecision>
+		      <andDecision>  
+		        <decision model="minscoremet" />
+		        <decision model="best" />
+		      </andDecision>
+		    </orDecision>    
+		  </included>  
+		</section>
+		  
+		<section>
+			<container>
+				<!-- test's submit message -->
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="submission.assessment.submitPresentation.text" />
+					</message>
+				</text>
+			</container>
+			<included>
+				<hasValueDecision model="submission.assessment.submitPresentation.text" />
+				<decision model="review" />
+				<orDecision>
+					<decision model="viewWork" />
+					<decision model="submission.mayReview" />
+				</orDecision>
+			</included>
+		</section>
+
+		<alert>
+			<message selector="linear-missing" />
+			<included>
+				<hasValueDecision model="lastChance" />
+			</included>
+		</alert>
+
+		<!-- iterating section for each answer -->
+		<section>
+			<iterator name="answer">
+				<model ref="answers" />
+			</iterator>
+
+			<included>
+				<orDecision>
+					<decision reversed="TRUE" model="review" />
+					<decision model="submission.mayReview" />
+					<decision model="viewWork" />
+				</orDecision>
+			</included>
+
+			<!-- part title -->
+			<title>
+				<message selector="instructions-part-title">
+					<model type="icon" icon="/icons/section.png" />
+					<model type="text" ref="answer.question.part.ordering.position" />
+					<model type="text" ref="answer.question.part.assessment.parts.size" />
+					<model type="text" ref="answer.question.part.title" />
+					<model ref="answer.question.part" delegate="SectionScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="instructions-part-title-no-points">
+							<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+						</selector>
+					</selectors>
+				</message>
+				<included>
+					<orDecision>
+						<hasValueDecision model="question" />
+						<decision model="answer.question.partOrdering.isFirst" />
+					</orDecision>
+					<decision model="answer.question.part.assessment.parts.showPresentation" />
+				</included>
+			</title>
+
+			<!-- page anchor to be able to return to this particular question -->
+			<anchor>
+				<message selector="question-anchor">
+					<model ref="answer.question.id" />
+				</message>
+			</anchor>
+			<container>
+
+				<!-- part presentation -->
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="answer.question.part.presentation.text" />
+					</message>
+					<included>
+						<decision model="answer.question.partOrdering.isFirst" />
+						<hasValueDecision reversed="TRUE" model="question" />
+						<decision model="answer.question.part.assessment.parts.showPresentation" />
+					</included>
+				</text>
+				<attachments model="answer.question.part.presentation.attachments">
+					<included>
+						<hasValueDecision model="answer.question.part.presentation.attachments" />
+						<decision model="answer.question.partOrdering.isFirst" />
+						<hasValueDecision reversed="TRUE" model="question" />
+						<decision model="answer.question.part.assessment.parts.showPresentation" />
+					</included>
+				</attachments>
+
+				<section>
+
+					<!-- question header -->
+					<title highlighted="TRUE">
+						<message selector="quesion-header-selector">
+							<model type="html" ref="answer.question" delegate="FormatQuestionTitle" tool="sakai.mneme" />
+							<model type="component">
+								<container>
+									<navigation title="save" description="save-description" style="BUTTON" submit="TRUE">
+										<icon icon="/icons/exit.gif" style="LEFT" />
+										<destination template="STAY_SAVE:{0}">
+											<model ref="answer.question.id" />
+										</destination>
+										<validate>
+											<trueDecision reversed="TRUE" />
+										</validate>
+										<included>
+											<decision model="review" reversed="TRUE" />
+										</included>
+									</navigation>
+								</container>
+							</model>
+						</message>
+					</title>
+
+					<container>
+
+						<!-- Question specific delivery -->
+						<modelComponent model="answer.question.typeSpecificQuestion.deliveryUi">
+							<included>
+								<decision reversed="TRUE" model="review" />
+							</included>
+						</modelComponent>
+
+						<!-- Question specific review -->
+						<modelComponent model="answer.question.typeSpecificQuestion.reviewUi">
+							<included>
+								<decision model="review" />
+								<decision reversed="TRUE" model="answer.typeSpecificAnswer.completelyCorrect" />
+								<decision model="showIncorrect" />
+							</included>
+						</modelComponent>
+
+						<text>
+							<message selector="question-correct" />
+							<included>
+								<decision model="review" />
+								<decision model="answer.typeSpecificAnswer.completelyCorrect" />
+								<decision model="showIncorrect" />
+							</included>
+						</text>
+
+						<modelComponent model="answer.question.typeSpecificQuestion.reviewUi">
+							<included>
+								<decision model="review" />
+								<decision reversed="TRUE" model="showIncorrect" />
+							</included>
+						</modelComponent>
+
+						<!-- reason for delivery -->
+						<section>
+							<container>
+								<htmlEdit>
+									<title>
+										<message selector="question-rationale">
+											<model type="icon" icon="/icons/reason.png" />
+										</message>
+									</title>
+									<readOnly>
+										<decision model="review" />
+									</readOnly>
+									<model type="html" dirty="TRUE" ref="answer.reason" />
+								</htmlEdit>
+							</container>
+							<included>
+								<decision reversed="TRUE" model="review" />
+								<decision model="answer.question.explainReason" />
+							</included>
+						</section>
+
+						<!-- reason for review -->
+						<section>
+							<container>
+								<text>
+									<title>
+										<message selector="question-rationale">
+											<model type="icon" icon="/icons/reason.png" />
+										</message>
+									</title>
+									<message>
+										<model type="html" dirty="TRUE" ref="answer.reason" />
+									</message>
+								</text>
+							</container>
+							<included>
+								<decision model="review" />
+								<hasValueDecision model="answer.reason" />
+							</included>
+						</section>
+
+						<!-- mark for review -->
+						<section>
+							<container>
+								<selection>
+									<title>
+										<message selector="question-mark-review-header">
+											<model type="icon" icon="/icons/markedforreview.png" />
+										</message>
+									</title>
+									<selectionChoices>
+										<selectionChoice>
+											<displayMessage>
+												<message selector="question-mark-review" />
+											</displayMessage>
+											<valueMessage>
+												<message template="true" />
+											</valueMessage>
+										</selectionChoice>
+									</selectionChoices>
+									<readOnly>
+										<decision model="review" />
+									</readOnly>
+									<model ref="answer.markedForReview" />
+								</selection>
+							</container>
+							<included>
+								<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+								<decision model="answer.question.part.assessment.randomAccess" />
+								<orDecision>
+									<decision reversed="TRUE" model="review" />
+									<decision model="answer.markedForReview" />
+								</orDecision>
+							</included>
+						</section>
+
+						<!-- hints -->
+						<section collapsed="TRUE" treatment="inlay" maxHeight="400">
+							<title plain="TRUE">
+								<message selector="show-hints">
+									<model type="icon" icon="/icons/hints.png" />
+								</message>
+							</title>
+							<container>
+								<text>
+									<message>
+										<model type="html" dirty="TRUE" ref="answer.question.hints" />
+									</message>
+								</text>
+							</container>
+							<included>
+								<decision reversed="TRUE" model="review" />
+								<decision model="answer.question.part.assessment.showHints" />
+								<hasValueDecision model="answer.question.hints" />
+							</included>
+						</section>
+
+						<!-- question feedback -->
+						<section treatment="inlay" maxHeight="400">
+							<title>
+								<message selector="question-feedback">
+									<model type="icon" icon="/icons/feedback.png" />
+								</message>
+							</title>
+							<container>
+								<text>
+									<message>
+										<model type="html" dirty="TRUE" ref="answer.question.feedback" />
+									</message>
+								</text>
+							</container>
+							<included>
+								<decision model="review" />
+								<orDecision>
+									<decision model="viewWork" />
+									<decision model="answer.submission.mayReview" />
+								</orDecision>
+								<decision model="answer.question.part.assessment.review.showFeedback" />
+								<hasValueDecision model="answer.question.feedback" />
+							</included>
+						</section>
+
+						<!-- evaluation -->
+						<section treatment="evaluation">
+							<title>
+								<message selector="question-evaluation">
+									<model type="icon" icon="/icons/note.png" />
+								</message>
+							</title>
+							<container>
+								<text>
+									<message>
+										<model type="html" dirty="TRUE" ref="answer.evaluation.commentFormatted" />
+										<included>
+											<hasValueDecision model="answer.evaluation.comment" />
+										</included>
+									</message>
+								</text>
+								<attachments model="answer.evaluation.attachments">
+									<included>
+										<hasValueDecision model="answer.evaluation.attachments" />
+									</included>
+								</attachments>
+							</container>
+							<included>
+								<orDecision>
+									<decision model="viewWork" />
+									<andDecision>
+										<decision model="submission.mayReview" />
+										<decision model="submission.isReleased" />
+									</andDecision>
+								</orDecision>
+								<orDecision>
+									<hasValueDecision model="answer.evaluation.comment" />
+									<hasValueDecision model="answer.evaluation.attachments" />
+								</orDecision>
+							</included>
+						</section>
+
+					</container>
+				</section>
+			</container>
+		</section>
+
+		<!-- repeat the review nav down here w/o access key -->
+		<navigationBar>
+			<included>
+				<decision model="review" />
+			</included>
+			<container>
+				<navigation title="prev" description="review-prev-description" style="BUTTON">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="prevSubmissionId" />
+					</disabled>
+					<destination template="/review/{0}{1}">
+						<model ref="prevSubmissionId" />
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="count" />
+					</message>
+				</text>
+				<navigation title="next" description="review-next-description" style="BUTTON">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<disabled>
+						<hasValueDecision reversed="TRUE" model="nextSubmissionId" />
+					</disabled>
+					<destination template="/review/{0}{1}">
+						<model ref="nextSubmissionId" />
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="return" description="return-description" style="BUTTON">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<text>
+					<message selector="best-submission">
+						<model type="icon" icon="/icons/star.png" />
+					</message>
+					<included>
+						<decision model="best" />
+					</included>
+				</text>
+			</container>
+		</navigationBar>
+
+		<!-- question nav bar -->
+		<navigationBar id="nav">
+			<included>
+				<decision reversed="TRUE" model="review" />
+			</included>
+			<container>
+				<navigation title="prev" accessKey="prev-access" description="prev-description" style="BUTTON" destination="PREV" submit="TRUE">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+					<disabled>
+						<orDecision>
+							<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+							<andDecision>
+								<hasValueDecision model="question" />
+								<decision model="question.assessmentOrdering.isFirst" />
+								<decision reversed="TRUE" model="question.part.assessment.parts.showPresentation" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision model="part" />
+								<decision model="part.ordering.isFirst" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision reversed="TRUE" model="question" />
+								<hasValueDecision reversed="TRUE" model="part" />
+							</andDecision>
+						</orDecision>
+					</disabled>
+				</navigation>
+				<navigation title="toc" accessKey="toc-access" description="toc-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/contents.gif" style="LEFT" />
+					<destination template="/toc/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+					<disabled>
+						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+					</disabled>
+				</navigation>
+				<navigation title="next" accessKey="next-access" description="next-description" style="BUTTON" destination="NEXT" submit="TRUE"
+					default="TRUE">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<validate>
+						<decision reversed="TRUE" model="submission.assessment.randomAccess" />
+					</validate>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+					<disabled>
+						<orDecision>
+							<andDecision>
+								<hasValueDecision model="question" />
+								<decision model="question.assessmentOrdering.isLast" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision model="part" />
+								<decision model="part.ordering.isLast" />
+							</andDecision>
+							<andDecision>
+								<hasValueDecision reversed="TRUE" model="question" />
+								<hasValueDecision reversed="TRUE" model="part" />
+							</andDecision>
+						</orDecision>
+					</disabled>
+				</navigation>
+				<divider>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.isSingleQuestion" />
+					</included>
+				</divider>
+				<navigation title="save-exit" accessKey="save-exit-access" description="save-exit-description" style="BUTTON" submit="TRUE" destination="LIST" onExit="TRUE">
+					<icon icon="/icons/exit.gif" style="LEFT" />
+					<validate>
+						<trueDecision reversed="TRUE" />
+					</validate>
+				</navigation>
+				<navigation title="finish-exam" accessKey="finish-exam-access" description="finish-exam-description" style="BUTTON" submit="TRUE"
+					destination="SUBMIT" id="finish">
+					<icon icon="/icons/finish.gif" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="finish-confirm">
+							<model type="enum" messageRoot="assessment-type-lc-" ref="submission.assessment.type" />
+						</message>
+					</confirm>
+					<validate>
+						<trueDecision reversed="TRUE" />
+					</validate>
+				</navigation>
+				<divider />
+				<navigation title="instructions" accessKey="instructions-access" style="LINK" submit="TRUE">
+					<icon icon="/icons/test.png" style="LEFT" />
+					<destination template="/instructions/{0}{1}">
+						<model ref="submission.id" />
+						<model ref="curDestination" />
+					</destination>
+					<validate>
+						<trueDecision reversed="TRUE" />
+					</validate>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface anchor="anchor">
+
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="grading-submission-title" />
+	</title>
+
+	<header>
+		<message selector="grading-submission-header">
+			<model type="icon" icon="/icons/grade.png" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message>
+					<model ref="submission.assessment.title" type="text" />
+				</message>
+			</text>
+			<text>
+				<message selector="assessment-total-points">
+					<model ref="submission.assessment.points" />
+				</message>
+				<included>
+					<decision model="submission.assessment.hasPoints" />
+				</included>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!-- repeat the nav up top w/o access key -->
+		<navigationBar>
+			<container>
+				<text selector="questions">
+					<included>
+						<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
+					</included>
+				</text>
+				<pager paging="paging" submit="TRUE">
+					<included>
+						<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
+					</included>
+					<destination template="/grade_submission/{0}/{1}/-/{2}{3}">
+						<model ref="submission.id" />
+						<model type="paging" ref="paging" />
+						<model ref="sort" />
+						<model ref="return" />
+					</destination>
+					<sizeOptions>
+						<model ref="pageSizes" />
+					</sizeOptions>
+				</pager>
+				<divider>
+					<included>
+						<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
+					</included>
+				</divider>
+				<text selector="submissions" />
+				<navigation title="prev" style="BUTTON" description="prev-description" submit="TRUE">
+					<disabled>
+						<hasValueDecision model="prev" reversed="TRUE" />
+					</disabled>
+					<icon icon="/icons/previous.png" style="LEFT" />
+					<destination template="/grade_submission/{0}/{1}/-/{2}{3}">
+						<model ref="prev" />
+						<model type="paging" ref="paging" selector="FIRST" />
+						<model ref="sort" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<hasValueDecision model="sort" />
+					</included>
+				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</text>
+				<navigation title="next" style="BUTTON" description="next-description" submit="TRUE">
+					<disabled>
+						<hasValueDecision model="next" reversed="TRUE" />
+					</disabled>
+					<icon icon="/icons/next.png" style="LEFT" />
+					<destination template="/grade_submission/{0}/{1}/-/{2}{3}">
+						<model ref="next" />
+						<model type="paging" ref="paging" selector="FIRST" />
+						<model ref="sort" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<hasValueDecision model="sort" />
+					</included>
+				</navigation>
+				<divider />
+				<navigation title="done" style="BUTTON" description="done-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="save" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+
+		<section>
+			<container>
+				<text>
+					<message selector="submission-username">
+						<model type="userInfo" selector="DISPLAYNAME" ref="submission.userId" disambiguate="TRUE"  />
+					</message>
+					<included>
+						<decision reversed="TRUE" model="submission.assessment.anonymous" />
+					</included>
+				</text>
+				<text>
+					<message selector="dates">
+					    <model type="date" ref="submission.assessment.dates.dueDate" />
+						<model type="date" ref="submission.assessment.dates.acceptUntilDate" />
+						<model type="date" ref="submission.startDate" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+					<included>
+						<decision reversed="TRUE" model="submission.isCompletedLate" />
+						<decision model="submission.isNonSubmit" reversed="TRUE" />
+						<decision model="submission.isAutoCompleted" reversed="TRUE" />
+					</included>
+				</text>
+				<text>
+					<message selector="dates-late">
+					    <model type="date" ref="submission.assessment.dates.dueDate" />
+						<model type="date" ref="submission.assessment.dates.acceptUntilDate" />
+						<model type="date" ref="submission.startDate" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+					<included>
+						<decision model="submission.isCompletedLate" />
+						<decision model="submission.isNonSubmit" reversed="TRUE" />
+						<decision model="submission.isAutoCompleted" reversed="TRUE" />
+					</included>
+				</text>
+				<text>
+					<message selector="dates-auto">
+					    <model type="date" ref="submission.assessment.dates.dueDate" />
+						<model type="date" ref="submission.assessment.dates.acceptUntilDate" />
+						<model type="date" ref="submission.startDate" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+					<included>
+						<decision model="submission.isAutoCompleted" />
+						<decision reversed="TRUE" model="submission.isCompletedLate" />
+					</included>
+				</text>
+				<text>
+					<message selector="dates-auto-late">
+					    <model type="date" ref="submission.assessment.dates.dueDate" />
+						<model type="date" ref="submission.assessment.dates.acceptUntilDate" />
+						<model type="date" ref="submission.startDate" />
+						<model type="date" ref="submission.submittedDate" />
+					</message>
+					<included>
+						<decision model="submission.isAutoCompleted" />
+						<decision model="submission.isCompletedLate" />
+					</included>
+ 				</text>
+				<text>
+					<message selector="dates-non-submit">
+					  <model type="date" ref="submission.assessment.dates.dueDate" />
+				      <model type="date" ref="submission.assessment.dates.acceptUntilDate" />
+					</message>	
+					<included>
+						<decision model="submission.isNonSubmit" />
+					</included>
+				</text>
+				<text>
+					<message selector="released">
+						<model type="icon" icon="/icons/active.png" />
+					</message>
+					<included>
+						<decision model="submission.isReleased" />
+					</included>
+				</text>
+			</container>
+		</section>
+
+		<section>
+			<iterator name="answer">
+				<model ref="answers" indexRef="id" />
+			</iterator>
+			<!--  indexRef="id" -->
+			<!-- section title -->
+			<title>
+				<message selector="instructions-part-title">
+					<model type="icon" icon="/icons/section.png" />
+					<model type="text" ref="answer.question.part.ordering.position" />
+					<model type="text" ref="answer.question.part.assessment.parts.size" />
+					<model type="text" ref="answer.question.part.title" />
+					<model ref="answer.question.part" delegate="SectionScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="instructions-part-title-no-points">
+							<decision reversed="TRUE" model="submission.assessment.hasPoints" />
+						</selector>
+					</selectors>
+				</message>
+				<included>
+					<orDecision>
+						<decision model="answer.question.partOrdering.isFirst" />
+					</orDecision>
+					<decision model="answer.question.part.assessment.parts.showPresentation" />
+				</included>
+			</title>
+
+			<container>
+
+				<!-- part presentation -->
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="answer.question.part.presentation.text" />
+					</message>
+					<included>
+						<decision model="answer.question.partOrdering.isFirst" />
+						<decision model="answer.question.part.assessment.parts.showPresentation" />
+					</included>
+				</text>
+				<attachments title="attachments" model="answer.question.part.presentation.attachments">
+					<included>
+						<hasValueDecision model="answer.question.part.presentation.attachments" />
+						<decision model="answer.question.partOrdering.isFirst" />
+						<decision model="answer.question.part.assessment.parts.showPresentation" />
+					</included>
+				</attachments>
+
+				<section>
+
+					<!-- question header -->
+					<title highlighted="TRUE">
+						<message selector="question-header">
+							<model type="html" ref="answer.question" delegate="FormatQuestionTitlePositional" tool="sakai.mneme" />
+						</message>
+					</title>
+
+					<!-- page anchor to be able to return to this particular answer -->
+					<anchor>
+						<message>
+							<model ref="answer.id" />
+						</message>
+					</anchor>
+
+					<container>
+
+						<!-- Question specific review -->
+						<modelComponent model="answer.question.typeSpecificQuestion.reviewUi" />
+
+						<!-- reason -->
+						<section>
+							<container>
+								<text>
+									<title>
+										<message selector="question-rationale">
+											<model type="icon" icon="/icons/reason.png" />
+										</message>
+									</title>
+									<message>
+										<model type="html" dirty="TRUE" ref="answer.reason" />
+									</message>
+								</text>
+							</container>
+							<included>
+								<hasValueDecision model="answer.reason" />
+							</included>
+						</section>
+
+						<!-- question feedback -->
+						<section maxHeight="400" treatment="inlay" collapsed="TRUE">
+							<title plain="TRUE">
+								<message selector="question-feedback">
+									<model type="icon" icon="/icons/feedback.png" />
+								</message>
+							</title>
+							<container>
+								<text>
+									<message>
+										<model type="html" dirty="TRUE" ref="answer.question.feedback" />
+									</message>
+								</text>
+							</container>
+							<included>
+								<hasValueDecision model="answer.question.feedback" />
+							</included>
+						</section>
+
+						<!-- evaluation -->
+						<section>
+							<container>
+								<text>
+									<message selector="auto-eval-score">
+										<model type="icon" icon="/icons/grade.png">
+											<title>
+												<message selector="score" />
+											</title>
+										</model>
+										<model type="component">
+											<container>
+												<floatEdit model="answer.totalScore" defaultValue="answer.autoScore" sumTo="total" cols="6" />
+											</container>
+										</model>
+										<model ref="answer.autoScore" missing="dash" />
+										<model ref="answer.question.points" />
+									</message>
+									<included>
+										<decision model="answer.question.hasPoints" />
+										<decision model="submission.assessment.hasPoints" />
+									</included>
+								</text>
+								<htmlEdit size="TALL">
+									<model type="html" dirty="TRUE" ref="answer.evaluation.comment" />
+									<title>
+										<message selector="question-evaluation">
+											<model type="icon" icon="/icons/note.png" />
+										</message>
+									</title>
+								</htmlEdit>
+								<fileUpload>
+									<model ref="answer.evaluation.upload" />
+									<title>
+										<message selector="upload-evaluation" />
+									</title>
+									<upload>
+										<message selector="upload-button" />
+									</upload>
+									<destination template="STAY_UPLOAD:{0}">
+										<model ref="answer.id" />
+									</destination>
+								</fileUpload>
+								<attachments model="answer.evaluation.attachments" name="attachment">
+									<navigations>
+										<navigation title="remove-attachment" style="LINK" description="remove-attachment-description" submit="TRUE"
+											small="TRUE">
+											<icon icon="/icons/delete.png" style="NONE" />
+											<destination template="STAY_REMOVE:{0}:{1}">
+												<model ref="answer.id" />
+												<model ref="attachment.reference" />
+											</destination>
+											<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif"
+												selector="confirm-remove-attachment" />
+										</navigation>
+									</navigations>
+								</attachments>
+							</container>
+						</section>
+
+					</container>
+				</section>
+			</container>
+		</section>
+
+		<!--  overall -->
+		<section>
+			<title highlighted="TRUE">
+				<message selector="overall" />
+				<included>
+					<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
+				</included>
+			</title>
+
+			<anchor>
+				<message selector="submission-anchor" />
+			</anchor>
+
+			<container>
+
+ 				<text>
+					<message selector="submission-username">
+						<model type="userInfo" selector="DISPLAYNAME" ref="submission.userId" disambiguate="TRUE"  />
+					</message>
+					<included>
+						<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
+						<decision reversed="TRUE" model="submission.assessment.anonymous" />
+					</included>
+				</text>
+
+				<section treatment="inlay" collapsed="TRUE" maxHeight="400" minHeight="60">
+					<included>
+						<compareDecision model="submission.assessment.type" constant="offline" />
+					</included>
+					<title plain="TRUE">
+						<message selector="instructions">
+							<model type="icon" icon="/icons/question_view.png" />
+						</message>
+					</title>
+					<container>
+						<text>
+							<message>
+								<model type="html" dirty="TRUE" ref="submission.assessment.presentation.text" />
+							</message>
+						</text>
+						<attachments title="attachments" model="submission.assessment.presentation.attachments">
+							<included>
+								<hasValueDecision model="assessment.presentation.attachments" />
+							</included>
+						</attachments>
+					</container>
+				</section>
+
+				<!-- overall comments -->
+				<section>
+					<container>
+						<htmlEdit size="TALL">
+							<model type="html" dirty="TRUE" ref="submission.evaluation.comment" />
+							<title>
+								<message selector="overall-comments">
+									<model type="icon" icon="/icons/note.png" />
+								</message>
+							</title>
+						</htmlEdit>
+						<fileUpload>
+							<model ref="submission.evaluation.upload" />
+							<title>
+								<message selector="upload-evaluation" />
+							</title>
+							<upload>
+								<message selector="upload-button" />
+							</upload>
+							<destination template="STAY_UPLOAD:SUBMISSION" />
+						</fileUpload>
+						<attachments model="submission.evaluation.attachments" name="attachment">
+							<navigations>
+								<navigation title="remove-attachment" style="LINK" description="remove-attachment-description" submit="TRUE"
+									small="TRUE">
+									<icon icon="/icons/delete.png" style="NONE" />
+									<destination template="STAY_REMOVE:SUBMISSION:{0}">
+										<model ref="attachment.reference" />
+									</destination>
+									<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif"
+										selector="confirm-remove-attachment" />
+								</navigation>
+							</navigations>
+						</attachments>
+					</container>
+					<included>
+						<decision model="submission.evaluationUsed" />
+					</included>
+				</section>
+
+				<!-- evaluated and released -->
+				<section>
+					<container>
+						<!-- final score -->
+						<text>
+							<message selector="final-score">
+								<model type="icon" icon="/icons/grade.png">
+									<title>
+										<message selector="score" />
+									</title>
+								</model>
+								<model type="component">
+									<container>
+										<floatEdit id="total" model="submission.totalScore" cols="6" />
+									</container>
+								</model>
+								<model ref="submission.assessment.points" />
+							</message>
+							<included>
+								<decision model="submission.assessment.hasPoints" />
+								<decision model="submission.evaluationUsed" />
+							</included>
+						</text>
+						<!--mark as evaluated -->
+						<selection>
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="mark-evaluated" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="submission.evaluation.evaluated" />
+						</selection>
+						<!-- release -->
+						<selection>
+							<selectionChoices>
+								<selectionChoice>
+									<displayMessage>
+										<message selector="release-scores" />
+									</displayMessage>
+									<valueMessage>
+										<message template="true" />
+									</valueMessage>
+								</selectionChoice>
+							</selectionChoices>
+							<model ref="submission.isReleased" />
+						</selection>
+						<!-- Note: this hidden could be anywhere that will make it into the UI -->
+						<hidden model="submission.evaluationVersion" />
+					</container>
+				</section>
+			</container>
+		</section>
+
+		<!--navigation-->
+		<navigationBar id="nav">
+			<container>
+				<text selector="questions">
+					<included>
+						<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
+					</included>
+				</text>
+				<pager paging="paging" submit="TRUE">
+					<destination template="/grade_submission/{0}/{1}/-/{2}{3}">
+						<model ref="submission.id" />
+						<model type="paging" ref="paging" />
+						<model ref="sort" />
+						<model ref="return" />
+					</destination>
+					<sizeOptions>
+						<model ref="pageSizes" />
+					</sizeOptions>
+					<included>
+						<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
+					</included>
+				</pager>
+				<divider>
+					<included>
+						<compareDecision model="submission.assessment.type" constant="offline" reversed="TRUE" />
+					</included>
+				</divider>
+				<text selector="submissions" />
+				<navigation title="prev" style="BUTTON" accessKey="prev-access" description="prev-description" submit="TRUE">
+					<disabled>
+						<hasValueDecision model="prev" reversed="TRUE" />
+					</disabled>
+					<icon icon="/icons/previous.png" style="LEFT" />
+					<destination template="/grade_submission/{0}/{1}/-/{2}{3}">
+						<model ref="prev" />
+						<model type="paging" ref="paging" selector="FIRST" />
+						<model ref="sort" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<hasValueDecision model="sort" />
+					</included>
+				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+					<included>
+						<hasValueDecision model="position" />
+					</included>
+				</text>
+				<navigation title="next" style="BUTTON" accessKey="next-access" description="next-description" submit="TRUE">
+					<disabled>
+						<hasValueDecision model="next" reversed="TRUE" />
+					</disabled>
+					<icon icon="/icons/next.png" style="LEFT" />
+					<destination template="/grade_submission/{0}/{1}/-/{2}{3}">
+						<model ref="next" />
+						<model type="paging" ref="paging" selector="FIRST" />
+						<model ref="sort" />
+						<model ref="return" />
+					</destination>
+					<included>
+						<hasValueDecision model="sort" />
+					</included>
+				</navigation>
+				<divider />
+				<navigation title="done" style="BUTTON" accessKey="done-access" description="done-description" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

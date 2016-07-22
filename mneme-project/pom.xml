@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<artifactId>master</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+	</parent>
+
+	<name>etudes-mneme-tool-base</name>
+	<groupId>org.etudes</groupId>
+	<artifactId>etudes-mneme-tool-base</artifactId>
+	<version>11-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>etudes-util</module>
+		<module>ltiContent</module>
+		<module>ambrosia</module>
+		<module>mneme</module>
+	</modules>
+
+	<properties>
+		<etudes.util.version>1.0.26-SNAPSHOT</etudes.util.version>
+		<lticontact.version>1.3-SNAPSHOT</lticontact.version>
+		<ambrosia.version>2.1.36-SNAPSHOT</ambrosia.version>
+		<mneme.version>2.1.37-SNAPSHOT</mneme.version>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-util-api</artifactId>
+				<version>${etudes.util.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-util-util</artifactId>
+				<version>${etudes.util.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-lticontact-util</artifactId>
+				<version>${lticontact.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-ambrosia-api</artifactId>
+				<version>${ambrosia.version}</version>
+				<scope>provided</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-ambrosia-util</artifactId>
+				<version>${ambrosia.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.etudes</groupId>
+				<artifactId>etudes-mneme-api</artifactId>
+				<version>${mneme.version}</version>
+				<scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+
+</project>

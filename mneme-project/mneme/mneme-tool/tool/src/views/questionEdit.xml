@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2015 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+	<!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<!-- title -->
+	<title>
+		<message selector="question-edit-title" />
+	</title>
+
+	<!-- header -->
+	<header>
+		<message selector="question-edit-header">
+			<model type="icon" icon="/icons/edit.png" />
+			<selectors>
+				<selector selector="question-edit-header-historical">
+					<decision model="question.isHistorical" />
+				</selector>
+			</selectors>
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message selector="question-pool">
+					<model ref="question.pool.title" type="text" missing="no-title" />
+					<selectors>
+						<selector selector="question-pool-historical">
+							<decision model="question.isHistorical" />
+						</selector>
+					</selectors>
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+		<!-- repeat the nav up top w/o access keys-->
+		<navigationBar>
+			<container>
+				<navigation title="prev" description="edit-prev-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<destination template="PREV" />
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</text>
+				<navigation title="next" description="edit-next-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<destination template="NEXT" />
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</navigation>
+				<divider>
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</divider>
+				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="add" description="add-description" style="BUTTON" submit="TRUE">
+					<destination template="ADD" />
+					<icon icon="/icons/add.png" style="LEFT" />
+					<included>
+						<hasValueDecision reversed="TRUE" model="fix" />
+					</included>
+				</navigation>
+			</container>
+		</navigationBar>
+
+		<selection title="parts">
+			<included>
+				<hasValueDecision model="assessment" />
+				<hasValueDecision model="fix" reversed="TRUE" />
+			</included>
+			<model ref="partId.value" />
+			<selectionModel name="forpart" model="assessment.parts.parts">
+				<valueMessage>
+					<message model="forpart.id" />
+				</valueMessage>
+				<displayMessage>
+					<message model="forpart.tag" />
+				</displayMessage>
+			</selectionModel>
+			<selectionChoices>
+				<selectionChoice>
+					<displayMessage>
+						<message selector="new-part" />
+					</displayMessage>
+					<valueMessage>
+						<message template="0" />
+					</valueMessage>
+				</selectionChoice>
+			</selectionChoices>
+		</selection>
+
+		<selection title="question-types">
+			<included>
+				<hasValueDecision model="fix" reversed="TRUE" />
+			</included>
+			<model ref="selectedQuestionType.value" />
+			<selectionModel model="questionTypes" name="type">
+				<valueMessage>
+					<message model="type.type" />
+				</valueMessage>
+				<displayMessage>
+					<message model="type.typeName" />
+				</displayMessage>
+			</selectionModel>
+			<destination template="RETYPE" />
+		</selection>
+
+		<!--  if invalid -->
+		<section>
+			<container>
+				<text>
+					<message selector="invalid-question">
+						<model type="icon" icon="/icons/warning.png" />
+						<model type="html" ref="question.typeSpecificQuestion.invalidMessage" />
+					</message>
+				</text>
+			</container>
+			<included>
+				<decision model="question.isValid" reversed="TRUE" />
+				<decision model="question.mint" reversed="TRUE" />
+			</included>
+		</section>
+
+		<!-- survey -->
+		<section>
+			<container>
+				<selection>
+					<title>
+						<message selector="question-author-survey-header">
+							<model type="icon" icon="/icons/survey_type.png" />
+						</message>
+					</title>
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="question-author-survey">
+									<selectors>
+										<selector selector="question-author-survey-selected">
+											<decision model="question.isSurvey" />
+										</selector>
+									</selectors>
+								</message>
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<model ref="question.isSurvey" />
+					<readOnly>
+						<orDecision>
+							<decision model="question.typeSpecificQuestion.isSurvey" />
+							<hasValueDecision model="fix" />
+						</orDecision>
+					</readOnly>
+					<destination template="STAY" />
+				</selection>
+			</container>
+		</section>
+
+        <!-- title -->
+        <section>
+			<container>
+				<textEdit id="title" title="question-title" cols="40">
+					<model ref="question.title" type="text" />
+				</textEdit>
+			</container>
+		</section>	
+				
+		<!-- generic presentation -->
+		<section>
+			<container>
+				<htmlEdit size="TALL" title="question-presentation">
+					<model type="html" dirty="TRUE" ref="question.presentation.text" />
+				</htmlEdit>
+				<fileUpload>
+					<model ref="upload.upload" />
+					<title>
+						<message selector="upload-attachment" />
+					</title>
+					<upload>
+						<message selector="upload-button" />
+					</upload>
+					<destination template="STAY" />
+					<included>
+						<decision model="question.typeSpecificQuestion.useQuestionPresentationAttachments" />
+					</included>
+				</fileUpload>
+				<attachments model="question.presentation.attachments" name="attachment">
+					<navigations>
+						<navigation title="remove-attachment" style="LINK" description="remove-attachment-description" submit="TRUE"
+							small="TRUE">
+							<icon icon="/icons/delete.png" style="NONE" />
+							<destination template="REMOVE:{0}">
+								<model ref="attachment.reference" />
+							</destination>
+							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif"
+								selector="confirm-remove-attachment" />
+						</navigation>
+					</navigations>
+					<included>
+						<decision model="question.typeSpecificQuestion.useQuestionPresentationAttachments" />
+					</included>
+				</attachments>
+			</container>
+			<included>
+				<decision model="question.typeSpecificQuestion.useQuestionPresentation" />
+			</included>
+		</section>
+
+		<!-- question specific -->
+		<modelComponent model="question.typeSpecificQuestion.authoringUi" />
+
+		<!--  generic reason -->
+		<section>
+			<container>
+				<selection>
+					<title>
+						<message selector="question-author-reason-header">
+							<model type="icon" icon="/icons/reason.png" />
+						</message>
+					</title>
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="question-author-reason" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+					<model ref="question.explainReason" />
+				</selection>
+			</container>
+			<included>
+				<decision model="question.typeSpecificQuestion.useReason" />
+			</included>
+		</section>
+
+		<!--  generic hints -->
+		<section>
+			<container>
+				<htmlEdit>
+					<title>
+						<message selector="question-author-hints">
+							<model type="icon" icon="/icons/hints.png" />
+						</message>
+					</title>
+					<model type="html" dirty="TRUE" ref="question.hints" />
+				</htmlEdit>
+			</container>
+			<included>
+				<decision model="question.typeSpecificQuestion.useHints" />
+			</included>
+		</section>
+
+		<!--  generic feedback -->
+		<section>
+			<container>
+				<htmlEdit>
+					<title>
+						<message selector="question-author-feedback">
+							<model type="icon" icon="/icons/feedback.png" />
+						</message>
+					</title>
+					<model type="html" dirty="TRUE" ref="question.feedback" />
+				</htmlEdit>
+			</container>
+			<included>
+				<decision model="question.typeSpecificQuestion.useFeedback" />
+			</included>
+		</section>
+
+		<!-- navigation -->
+		<navigationBar id="nav">
+			<container>
+				<navigation title="prev" accessKey="prev-access" description="edit-prev-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/prev.gif" style="LEFT" />
+					<destination template="PREV" />
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</navigation>
+				<text>
+					<message selector="n-of-size">
+						<model ref="position" />
+						<model ref="size" />
+					</message>
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</text>
+				<navigation title="next" accessKey="next-access" description="edit-next-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/next.gif" style="RIGHT" />
+					<destination template="NEXT" />
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</navigation>
+				<divider>
+					<included>
+						<hasValueDecision model="nextPrev" />
+					</included>
+				</divider>
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+					<icon icon="/icons/return.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE" destination="SAVE">
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+				<divider />
+				<navigation title="add" accessKey="add-access" description="add-description" style="BUTTON" submit="TRUE">
+					<destination template="ADD" />
+					<icon icon="/icons/add.png" style="LEFT" />
+					<included>
+						<hasValueDecision reversed="TRUE" model="fix" />
+					</included>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+
+	<footer>
+		<container>
+			<finePrint selector="id-display" model="question.id" />
+			<finePrint>
+				<message selector="history-createText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="question.createdBy.userId" />
+					<model type="date" ref="question.createdBy.date" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-modifyText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="question.modifiedBy.userId" />
+					<model type="date" ref="question.modifiedBy.date" />
+				</message>
+			</finePrint>
+		</container>
+	</footer>
+
+</interface>

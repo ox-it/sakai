@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL: https://source.etudes.org/svn/apps/mneme/trunk/mneme-tool/tool/src/views/importOffline.xml $
+ * $Id: importOffline.xml 9633 2014-12-22 03:37:23Z ggolden $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2014 Etudes, Inc.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+	<title>
+		<message selector="import-offline-title" />
+	</title>
+	<header>
+		<message selector="import-offline-header">
+			<model type="icon" icon="/icons/import_export.png" />
+		</message>
+	</header>
+	<container>
+		<section>
+			<container>
+				<instructions selector="upload-instructions" />
+				<fileUpload>
+					<model ref="upload.upload" />
+					<title>
+						<message selector="upload-offline" />
+					</title>
+					<destination template="UPLOAD" />
+				</fileUpload>
+			</container>
+		</section>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="upload-button" style="BUTTON" accessKey="ok-access" description="ok-description" submit="TRUE">
+					<icon icon="/icons/OK.png" style="LEFT" />
+					<destination template="UPLOAD" />
+				</navigation>
+				<divider />
+				<navigation title="cancel" style="BUTTON" accessKey="cancel-access" description="cancel-description">
+					<icon icon="/icons/cancel.gif" style="LEFT" />
+					<destination template="/{0}/{1}">
+						<model ref="returnUrl" />
+						<model ref="sort" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+	</container>
+</interface>

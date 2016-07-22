@@ -1,0 +1,599 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
+/* Ambrosia CSS */
+
+/*
+Around the entire view page (Interface)
+Sakai ~ portletBody
+TODO: padding or margin works
+*/
+.ambrosiaInterface
+{
+	padding: 2px 8px 2px 8px;
+}
+
+/*
+Around the entire view page (Interface) to handle large view scroll
+*/
+.ambrosiaInterfaceScroll
+{
+	height:100%;
+	overflow:hidden;
+}
+
+/*
+Header text at the top of a view (Interface.header)
+Sakai ~ H3 in portletBody
+*/
+.ambrosiaInterfaceHeader
+{
+	color: #555;
+	padding: 0;
+	font-size: 110%;
+	font-weight: bold;
+	font-family: Arial,Helvetica,sans-serif;
+	margin: 1em 0 0 0;
+	background-color: transparent !important;
+}
+
+/*
+Sub-header for interface.
+*/
+.ambrosiaInterfaceSubHeader
+{
+	padding: 0;
+	font-family: Arial,Helvetica,sans-serif;
+	margin: 1em 0 2em 0;
+}
+
+/*
+Footer for interface.
+*/
+.ambrosiaInterfaceFooter
+{
+	padding: 0;
+	font-family: Arial,Helvetica,sans-serif;
+	margin: 1em 0 2em 0;
+}
+
+/*
+Around each section of a view (Section)
+*/
+.ambrosiaSection
+{
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+
+/*
+Items in a container.
+*/
+.ambrosiaContainerComponent
+{
+	margin-top: 1em;
+	margin-bottom: 1em;
+	clear: both;
+}
+
+/*
+Items in a container - indented.
+*/
+.ambrosiaContainerComponentIndented
+{
+	margin-bottom: 1em;
+	clear: both;
+	margin-left: 2em;
+}
+
+/*
+For component titles.
+*/
+.ambrosiaComponentTitle
+{
+	display:block;
+	font-weight: bold;
+}
+
+/*
+Header text at the top of a section (Section.header)
+*/
+.ambrosiaSectionHeader
+{
+	font-weight: bold;
+	line-height: 2em;
+	overflow: hidden;
+}
+
+/*
+Header text at the top of a section (Section.header)
+*/
+.ambrosiaSectionPlain
+{
+	line-height: 2em;
+}
+
+/*
+Header text at the top of a section that has been highlighted (Section.header)
+*/
+.ambrosiaSectionHeaderHighlight
+{
+	background: #EEEEEE;
+	border: 1px solid #bbb;
+	padding-left: 0.5em;
+	font-weight: bold;
+	line-height: 2em;
+	overflow: hidden;
+}
+
+/*
+Navigation bar that contains the navigations at the top (and bottom) of the view (NavigationBar)
+Sakai ~ navPanel + style
+*/
+.ambrosiaNavigationBar
+{
+	background: #EEEEEE;
+	border: 1px solid #bbb;
+	margin: 5px 0 0 0;
+	line-height: 2em;
+	padding-left: 1em;
+}
+
+/*
+Mode bar that contains the tool mode navigations at the very top of the view (ModeBar)
+*/
+.ambrosiaModeBar
+{
+	background: #EEEEEE;
+	border: 1px solid #bbb;
+	margin: 5px 0 0 0;
+	text-align: center;
+	line-height: 2em;
+}
+
+/*
+Entity action bar that contains the navigations that pertain to entities in a list (EntityActionBar)
+*/
+.ambrosiaEntityActionBar
+{
+	border-top: 1px solid #bbb;
+	border-left: 1px solid #bbb;
+	border-right: 1px solid #bbb;
+	line-height: 2em;
+	padding-left: 1em;
+}
+.ambrosiaEntityActionBar a:link,
+.ambrosiaEntityActionBar a:visited,
+.ambrosiaEntityActionBar a:hover,
+.ambrosiaEntityActionBar a:active,
+.ambrosiaEntityActionBar a:focus
+{
+	color: #6066AC;
+	text-decoration: none;
+}
+
+/*
+Component action bar that contains the navigations that pertain to a component
+*/
+.ambrosiaComponentActionBar
+{
+	line-height: 2em;
+	padding-left: 1em;
+}
+
+/*
+Container for fine print (FinePrint)
+*/
+.ambrosiaFinePrint
+{
+	text-align: right;
+	font-style: italic;
+	font-size: 0.8em;
+}
+
+/*
+Confirm for Navigation
+*/
+.ambrosiaNavigationConfirm
+{
+	font-weight:bolder;
+	color:#b11;
+}
+.ambrosiaConfirmPanel
+{
+	border-left:medium double black;
+	border-right:medium double black;
+	border-bottom:medium double black;
+	border-top:medium double black;
+	background:#FFFFCC;
+	position:absolute;
+	margin:auto;
+	z-index:1005;
+	overflow:hidden;
+}
+
+.ambrosiaOverlay
+{
+/*	border-left: medium double black;
+	border-right: medium double black;
+	border-bottom: medium double black;
+	border-top: medium double black;
+	background: #F8F8F8;
+ 	position: absolute;
+	padding: 1em;
+	z-index: 99999;
+*/
+}
+
+/*
+Alert message. (Alert)
+Sakai ~ alertMessage
+*/
+.ambrosiaAlert
+{
+	background: #FFFFCC url(images/warning.png) .3em center no-repeat;
+	border: 1px solid #555;
+	display: block;
+	width: 70%;
+	clear: both;
+	margin: 5px 0;
+	padding: 5px 5px 5px 25px;
+}
+
+.ambrosiaAlertColor
+{
+	color: #A00000;
+}
+
+/*
+Title for attachments display (Attachments)
+Sakai ~ indnt1 h4
+*/
+.ambrosiaAttachmentsTitle
+{
+	margin-top: 1em;
+	color: #555;
+	padding: 0;
+	font-size: 100%;
+	font-weight: bold;
+	font-family: Arial,Helvetica,sans-serif;
+	background-color: transparent !important;
+}
+
+/*
+List of attachments (Attachments)
+Sakai ~ attachList ul li
+*/
+ul.ambrosiaAttachmentsList
+{
+	margin: 1em 0;
+	padding: 0;
+}
+ul.ambrosiaAttachmentsList img
+{
+	vertical-align: middle;
+	margin: 0 1em 0 0;
+}
+ul.ambrosiaAttachmentsList li
+{
+	list-style: none;
+	margin: 0 0 .3em 0;
+}
+
+/*
+Navigation container as links under an option (Attachment) (EntityList?)
+Sakai ~ itemAction
+*/
+.ambrosiaNavSmall
+{
+	font-size: .8em;
+	white-space: nowrap;
+}
+
+.ambrosiaNavNormal
+{
+	white-space: nowrap;
+	height: 2em;
+}
+.ambrosiaNavNormal a:link,
+.ambrosiaNavNormal a:visited,
+.ambrosiaNavNormal a:hover,
+.ambrosiaNavNormal a:active,
+.ambrosiaNavNormal a:focus
+{
+	color: #6066AC;
+	text-decoration: none;
+}
+
+.ambrosiaNavWrap
+{
+	height: 2em;
+}
+.ambrosiaNavWrap a:link,
+.ambrosiaNavWrap a:visited,
+.ambrosiaNavWrap a:hover,
+.ambrosiaNavWrap a:active,
+.ambrosiaNavWrap a:focus
+{
+	color: #6066AC;
+	text-decoration: none;
+}
+
+/*
+Divider in a navigation bar between navigations (use in a span around a &nbsp;)
+*/
+.ambrosiaDivider
+{
+	border: none;
+	padding: 0 0 0 1em;
+	white-space: nowrap;
+}
+
+/*
+Instructions (Instructions)
+Sakai ~ instruction
+*/
+.ambrosiaInstructions
+{
+	color: #555;
+}
+
+/*
+Section treatment = "evaluation"
+*/
+.ambrosiaSectionEvaluation
+{
+	padding: 0em 1em 0em 1em;
+	border: 3px double #A00000;
+	width: 90%;
+}
+
+/*
+Section treatment = "indented"
+*/
+.ambrosiaSectionIndented
+{
+	margin-left: 2em;
+}
+
+/*
+Section treatment = "inlay"
+*/
+.ambrosiaSectionInlay
+{
+	margin-left: 2em;
+	background:#F8F8F8;
+}
+
+/*
+EntityDisplay (EntityDisplay)
+Sakai ~ itemSummary
+*/
+.ambrosiaEntityDisplay
+{
+	margin: .5em 0;
+}
+.ambrosiaEntityDisplay th
+{
+	font-weight: normal;	
+	white-space: nowrap;
+	vertical-align: top;
+	text-align: left;
+	padding: .3em 1em .3em .3em;	
+}
+table.ambrosiaEntityDisplay td
+{
+	text-align: left;
+	padding: .3em 1em;
+	vertical-align: top;	
+}
+table.ambrosiaEntityDisplay caption
+{
+	text-align: left;
+	font-weight: bold;
+	padding: 1em 0 0 0;
+}
+
+/*
+EntityList
+Sakai ~ listHier lines nolines
+*/
+.ambrosiaEntityList
+{
+	margin-bottom: 1em;
+}
+.ambrosiaEntityListTable
+{
+	font-size: 1em;
+	clear: both;
+	border-collapse: collapse;
+}
+.ambrosiaEntityList th a:link,
+.ambrosiaEntityList th a:visited,
+.ambrosiaEntityList th a:hover,
+.ambrosiaEntityList th a:active,
+.ambrosiaEntityList th a:focus
+{
+	color: #6066AC;
+	text-decoration: underline;
+	border: none;
+}
+.ambrosiaEntityList th
+{
+	font-weight: normal;
+	text-align: left;
+	white-space: nowrap;
+	padding: .3em;
+	background-color: #EEEEEE;
+}
+.ambrosiaEntityList td
+{
+	vertical-align: top;
+	padding: .3em;
+}
+.ambrosiaEntityList td a:link,
+.ambrosiaEntityList td a:visited,
+.ambrosiaEntityList td a:hover,
+.ambrosiaEntityList td a:active,
+.ambrosiaEntityList td a:focus
+{
+	color: #6066AC;
+	text-decoration: none;
+}
+
+.ambrosiaEntityList tr:hover
+{
+	background-color: #ffc;
+}
+.ambrosiaEntityListForm
+{
+	width: auto;
+}
+.ambrosiaEntityListForm td
+{
+	vertical-align:middle
+}
+.ambrosiaEntityListForm td input
+{
+	margin: 0 5px 1px 1px;
+	vertical-align:top;
+}
+.ambrosiaEntityListForm td label
+{
+	border: 1px solid #bbb;
+	padding: 0 3px;
+	background: #ddd;
+}
+.ambrosiaEntityListFlat
+{
+	width: 100%;
+}
+
+/*
+Gap
+*/
+.ambrosiaGap
+{
+	height:1em
+}
+.ckeditorGap_small
+{
+  height:4em;
+}
+.ckeditorGap_full
+{
+  height:4em;
+}
+.ckeditorGap_tall
+{
+  height:4em;
+}
+
+/*
+IconKey
+Sakai ~ listHier lines nolines tableAction
+*/
+.ambrosiaIconKey
+{
+	font-size: 1em;
+	width: auto;
+	clear: both;
+	margin-top: .5em;
+	border-collapse: collapse;
+}
+.ambrosiaIconKey td
+{
+	vertical-align:middle;
+	padding: .3em;
+}
+
+/*
+Special class for text that is to stand out
+*/
+.ambrosiaSpecialText
+{
+	color: #006400;
+	font-weight: 900;
+	background: #E4E4E4;
+	padding: 2px;
+}
+
+/*
+Rendered text for html edit.
+*/
+.ambrosiaHtmlEditRendered
+{
+	border: 1px solid #bbb;
+	padding: 0px 4px 0px 4px;
+	overflow: auto;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+/*
+Container for the editor / rendered components
+*/
+.ambrosiaHtmlEditContainer
+{
+	position: relative;
+}
+
+/*
+size for "small" html edit. (will be 2 (border) + 4+4 (padding) wider, 2 (border) higher)
+*/
+.ambrosiaHtmlEditSize_small
+{
+	max-width: 540px;
+	
+}
+
+/*
+size for "full" html edit.
+*/
+.ambrosiaHtmlEditSize_full
+{
+	max-width: 680px;
+	
+}
+
+/*
+size for "tall" html edit.
+*/
+.ambrosiaHtmlEditSize_tall
+{
+	max-width: 680px;
+	
+}
+
+a.ambrosiaUiHot:link,
+a.ambrosiaUiHot:visited,
+a.ambrosiaUiHot:hover,
+a.ambrosiaUiHot:active,
+a.ambrosiaUiHot:focus
+{
+	color: #6066AC;
+	text-decoration: none;
+}
+@media print  { .noprint  { display: none; } }

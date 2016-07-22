@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+    <!-- attachment picker view -->
+	<attachmentPicker>
+		<destination template="/attachments" />
+	</attachmentPicker>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<title>
+		<message selector="pool-edit-title" />
+	</title>
+
+	<header>
+		<message selector="pool-edit-header">
+			<model type="icon" icon="/icons/basket_add.png" />
+			<model ref="pool.title" type="text" missing="no-title" />
+			<selectors>
+				<selector selector="pool-edit-header-historical">
+					<decision model="pool.isHistorical" />
+				</selector>
+			</selectors>
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message selector="point-value-text">
+					<model ref="pool.points" />
+				</message>
+			</text>
+			<text>
+				<message selector="difficult-level-text">
+					<model ref="pool.difficulty" />
+				</message>
+			</text>
+		</container>
+		<included>
+			<hasValueDecision reversed="TRUE" model="fix" />
+		</included>
+	</subHeader>
+
+	<container>
+
+		<!-- toggle to show settings -->
+		<toggle target="settings" title="edit-pool" style="LINK">
+			<icon icon="/icons/gear-edit.png" style="LEFT" />
+			<included>
+				<hasValueDecision reversed="TRUE" model="fix" />
+			</included>
+		</toggle>
+		<!-- settings overlay -->
+		<overlay id="settings" >
+			<title plain="TRUE">
+				<message selector="edit-pool">
+					<model type="icon" icon="/icons/gear-edit.png" />
+				</message>
+			</title>
+
+			<included>
+				<hasValueDecision reversed="TRUE" model="fix" />
+			</included>
+
+			<container>
+				<textEdit title="pool-title" cols="40">
+					<model type="text" ref="pool.title" />
+				</textEdit>
+
+				<htmlEdit title="pool-description" size="FULL">
+					<model type="html" dirty="TRUE" ref="pool.description" />
+				</htmlEdit>
+
+				<floatEdit title="pool-points" model="pool.pointsEdit" cols="6">
+					<minValue>
+						<model type="constant" value="0" />
+					</minValue>
+				</floatEdit>
+
+				<selection title="pool-difficulty">
+					<model ref="pool.difficulty" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-1" />
+							</displayMessage>
+							<valueMessage>
+								<message template="1" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-2" />
+							</displayMessage>
+							<valueMessage>
+								<message template="2" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-3" />
+							</displayMessage>
+							<valueMessage>
+								<message template="3" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-4" />
+							</displayMessage>
+							<valueMessage>
+								<message template="4" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="Level-5" />
+							</displayMessage>
+							<valueMessage>
+								<message template="5" />
+							</valueMessage>
+						</selectionChoice>
+					</selectionChoices>
+				</selection>
+
+			</container>
+		</overlay>
+<!--  Note: if using an inlay collapsed section instead of overlay, the above overlay would be a section:
+            section treatment="inlay" collapsed="TRUE"
+            and we don't need the toggle below or the close toggle in the section -ggolden -->
+
+		<!-- the list of questions -->
+		<entityList style="FLAT">
+			<iterator name="question" model="questions" />
+			<emptyTitle>
+				<message selector="no-questions" />
+			</emptyTitle>
+			<columns>
+				<column pixels="16">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="invalid-alt">
+							<icon icon="/icons/warning.png" style="LEFT" />
+							<destination template="/question_edit/{5}/0/0/{6}/{0}/{1}{2}/{3}/{7}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="question.id" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+							<included>
+								<decision reversed="TRUE" model="question.isValid" />
+							</included>
+						</navigation>
+					</navigations>
+				</column>
+				<selectionColumn multiple="TRUE" pixels="16">
+					<value>
+						<model type="text" ref="question.id" />
+					</value>
+					<model ref="questionids.values" />
+					<entityActions>
+						<navigation submit="TRUE" style="LINK" title="add-question-title">
+							<destination template="ADD" />
+							<icon icon="/icons/add_qst.png" style="LEFT" />
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
+						</navigation>
+						<navigation title="preview" selectRequirement="SOME" selectRequirementMessage="preview-failed-requirements" style="LINK"
+							disabled="FALSE" submit="TRUE">
+							<icon icon="/icons/preview.png" style="LEFT" />
+							<destination template="/question_preview/*/{5}/{0}/{1}{2}/{3}/{6}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</navigation>
+						<navigation title="move-to-pool" selectRequirement="SOME" selectRequirementMessage="move-failed-requirements" style="LINK"
+							disabled="FALSE" submit="TRUE">
+							<icon icon="/icons/page_go.png" style="LEFT" />
+							<destination template="/question_move/{5}/{0}/{1}{2}/{3}/{6}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
+						</navigation>
+						<navigation title="copy-to-pool" selectRequirement="SOME" selectRequirementMessage="copy-failed-requirements" style="LINK"
+							submit="TRUE">
+							<icon icon="/icons/copy.png" style="LEFT" />
+							<destination template="/question_copy/{5}/{0}/{1}{2}/{3}/{6}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
+						</navigation>
+						<navigation title="delete-title" selectRequirement="SOME" selectRequirementMessage="delete-failed-requirements" style="LINK"
+							submit="TRUE" destination="DELETE">
+							<icon icon="/icons/delete.png" style="LEFT" />
+							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-delete" />
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
+						</navigation>
+						<pager paging="paging" submit="TRUE">
+							<destination template="/{5}/{0}/{1}{2}/{3}/{6}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+							<sizeOptions>
+								<model ref="pageSizes" />
+							</sizeOptions>
+						</pager>
+					</entityActions>
+				</selectionColumn>
+				<column pixels="16">
+					<navigations>
+						<navigation style="LINK" description="view-question" submit="TRUE">
+							<icon icon="/icons/preview.png" style="LEFT" />
+							<destination template="/question_preview/{5}/{6}/{0}/{1}{2}/{3}/{7}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="question.id" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+							<included>
+								<decision reversed="TRUE" model="question.isSurvey" />
+							</included>
+						</navigation>
+						<navigation style="LINK" description="view-survey" submit="TRUE">
+							<icon icon="/icons/survey_view.png" style="LEFT" />
+							<destination template="/question_preview/{5}/{6}/{0}/{1}{2}/{3}/{7}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="question.id" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+							<included>
+								<decision model="question.isSurvey" />
+							</included>
+						</navigation>
+					</navigations>
+				</column>
+				<modelColumn>
+					<title>
+						<message selector="question-description" />
+					</title>
+					<model type="text" ref="question.description" missing="no-title" stripHtml="TRUE" max="60" />
+					<entityNavigations>
+						<navigation submit="TRUE">
+							<destination template="/question_edit/{5}/0/0/{6}/{0}/{1}{2}/{3}/{7}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="question.id" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+							<included>
+								<hasValueDecision reversed="TRUE" model="fix" />
+							</included>
+						</navigation>
+						<navigation submit="TRUE">
+							<destination template="/question_fix/{5}/{7}/0/{6}/{0}/{1}{2}/{3}/{7}{4}">
+								<model ref="pool.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model type="paging" ref="paging" />
+								<model ref="return" />
+								<model ref="question.id" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+							<included>
+								<hasValueDecision model="fix" />
+							</included>
+						</navigation>
+					</entityNavigations>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="0" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/{3}/{0}/0A/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/{3}/{0}/0D/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="question-title" />
+					</title>
+					<model ref="question.title" />
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="3" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/{3}/{0}/3A/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/{3}/{0}/3D/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="question-type" />
+					</title>
+					<model ref="question.typeName" />
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="1" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/{3}/{0}/1A/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/{3}/{0}/1D/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
+				<modelColumn>
+					<title>
+						<message selector="question-date" />
+					</title>
+					<model type="date" ref="question.createdBy.date" />
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="2" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/{3}/{0}/2A/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/{3}/{0}/2D/{1}/{4}{2}">
+								<model ref="pool.id" />
+								<model type="paging" ref="paging" selector="FIRST" />
+								<model ref="return" />
+								<model ref="view" />
+								<model ref="aid" />
+							</destination>
+						</desc>
+					</sort>
+				</modelColumn>
+				<modelColumn pixels="16">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="question-duplicate-description">
+							<icon icon="/icons/copy.png" style="LEFT" />
+							<destination template="DUPLICATE:{0}">
+								<model ref="question.id" />
+							</destination>
+						</navigation>
+					</navigations>
+					<included>
+						<hasValueDecision reversed="TRUE" model="fix" />
+					</included>
+				</modelColumn>
+			</columns>
+		</entityList>
+
+		<!--navigation-->
+		<navigationBar>
+			<container>
+				<navigation title="done" hideval="save" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<divider />
+				<pager paging="paging" submit="TRUE">
+					<destination template="/{5}/{0}/{1}{2}/{3}/{6}{4}">
+						<model ref="pool.id" />
+						<model ref="sort_column" />
+						<model ref="sort_direction" />
+						<model type="paging" ref="paging" />
+						<model ref="return" />
+						<model ref="view" />
+						<model ref="aid" />
+					</destination>
+					<sizeOptions>
+						<model ref="pageSizes" />
+					</sizeOptions>
+				</pager>
+			</container>
+		</navigationBar>
+
+	</container>
+
+	<footer>
+		<container>
+			<finePrint>
+				<message selector="id-display">
+					<model ref="pool.id" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-createText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="pool.createdBy.UserId" />
+					<model type="date" ref="pool.createdBy.date" />
+				</message>
+			</finePrint>
+			<finePrint>
+				<message selector="history-modifyText">
+					<model type="userInfo" selector="DISPLAYNAME" ref="pool.modifiedBy.UserId" />
+					<model type="date" ref="pool.modifiedBy.date" />
+				</message>
+			</finePrint>
+		</container>
+	</footer>
+
+</interface>

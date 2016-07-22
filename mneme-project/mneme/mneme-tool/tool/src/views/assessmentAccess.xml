@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2013, 2014 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<!--  title & header -->
+	<title>
+		<message selector="testAccess-title">
+			<model ref="assessment.title" type="text" missing="no-title" />
+		</message>
+	</title>
+
+	<header>
+		<message selector="testAccess-header">
+			<model type="icon" icon="/icons/access.png" />
+		</message>
+	</header>
+
+	<subHeader>
+		<container>
+			<text>
+				<message>
+					<model ref="assessment.title" type="text" missing="no-title" />
+				</message>
+			</text>
+		</container>
+	</subHeader>
+
+	<container>
+
+		<!-- top nav bar -->
+		<navigationBar>
+			<container>
+				<navigation title="done" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation destination="DELETE" title="delete-title" description="delete-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/delete.png" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="confirm-delete" />
+					</confirm>
+				</navigation>
+			</container>
+		</navigationBar>
+
+		<section>
+			<container>
+
+				<selection orientation="DROPDOWN" height="5" title="users">
+					<singleSelect>
+						<decision type="true" reversed="TRUE" />
+					</singleSelect>
+					<model ref="access.users" />
+					<selectionModel name="user" model="assessment.submitUsers">
+						<valueMessage>
+							<message model="user.id" />
+						</valueMessage>
+						<displayMessage>
+							<message selector="list-user-display">
+								<model ref="user.sortName" />
+								<model ref="user.eid" />
+							</message>
+						</displayMessage>
+					</selectionModel>
+					<included>
+						<hasValueDecision reversed="TRUE" model="fixed_user" />
+					</included>
+				</selection>
+				<text>
+					<message selector="for-user">
+						<model type="userInfo" ref="fixed_user" selector="SORTNAME" disambiguate="TRUE" />
+					</message>
+					<included>
+						<hasValueDecision model="fixed_user" />
+					</included>
+				</text>
+				<dateEdit title="open-date">
+					<model ref="access.openDate" type="date" />
+				</dateEdit>
+				<selection>
+				  <selectionChoices>
+					<selectionChoice>
+					  <displayMessage>
+						<message selector="hide-until-open" />
+					  </displayMessage>
+					  <valueMessage>
+						<message template="true" />
+					  </valueMessage>
+				   </selectionChoice>
+				 </selectionChoices>
+				 <model ref="access.hideUntilOpen" />
+				</selection>
+				<dateEdit title="due-date" late="TRUE">
+					<model ref="access.dueDate" type="date" />
+				</dateEdit>
+				<dateEdit title="accept-until" late="TRUE">
+					<model ref="access.acceptUntilDate" type="date" />
+				</dateEdit>
+				<selection title="timeLimit">
+					<model ref="access.hasTimeLimit" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="no-time-limit" />
+							</displayMessage>
+							<valueMessage>
+								<message template="false" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="time-limit" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+							<container>
+								<durationEdit>
+									<model ref="access.timeLimit" type="duration" />
+								</durationEdit>
+								<toggle target="instructions" title="instructions" style="LINK" />
+							</container>
+						</selectionChoice>
+					</selectionChoices>
+					<included>
+						<decision model="assessment.hasTimeLimit" />
+					</included>
+				</selection>
+				<!-- timed instructions overlay -->
+				<overlay id="instructions">
+					<container>
+						<text selector="timed-instructions" />
+						<gap />
+					</container>
+				</overlay>
+				<selection title="allowTries">
+					<included>
+						<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+					</included>				
+					<model ref="access.hasTriesLimit" />
+					<selectionChoices>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="no-tries" />
+							</displayMessage>
+							<valueMessage>
+								<message template="false" />
+							</valueMessage>
+						</selectionChoice>
+						<selectionChoice>
+							<displayMessage>
+								<message selector="tries" />
+							</displayMessage>
+							<valueMessage>
+								<message template="true" />
+							</valueMessage>
+							<container>
+								<countEdit>
+									<model ref="access.tries" type="count" />
+									<minValue>
+										<model type="constant" value="1" />
+									</minValue>
+								</countEdit>
+							</container>
+						</selectionChoice>
+					</selectionChoices>
+				</selection>
+				<textEdit cols="16">
+					<included>
+						<compareDecision model="assessment.type" constant="offline" reversed="TRUE" />
+					</included>
+					<title>
+						<message selector="password">
+							<model type="icon" icon="/icons/password.png" />
+						</message>
+					</title>
+					<model type="text" ref="access.passwordValue" />
+				</textEdit>
+
+			</container>
+		</section>
+
+		<!-- navigation -->
+		<navigationBar>
+			<container>
+				<navigation title="done" accessKey="done-access" description="done-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+				<divider />
+				<navigation destination="DELETE" title="delete-title" description="delete-description" style="BUTTON" submit="TRUE">
+					<icon icon="/icons/delete.png" style="LEFT" />
+					<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+						<message selector="confirm-delete" />
+					</confirm>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+
+	<footer>
+		<container>
+			<finePrint selector="id-display" model="access.id" />
+		</container>
+	</footer>
+
+</interface>

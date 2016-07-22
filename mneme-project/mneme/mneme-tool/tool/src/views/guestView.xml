@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface autoComplete="FALSE">
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme">
+			<included>
+				<hasValueDecision model="maintainer" />
+			</included>
+		</alias>
+	</modeContainer>
+
+	<!-- title & header-->
+	<title>
+		<message selector="assessment-preview-title">
+			<model ref="assessment.title" type="text" />
+		</message>
+	</title>
+	<header>
+		<message selector="assessment-preview-header">
+			<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+			<model ref="assessment.title" type="text" />
+		</message>
+	</header>
+
+	<container>
+
+		<!-- repeat the nav up top w/o access key-->
+		<navigationBar>
+			<container>
+				<navigation title="return" description="return-description" style="BUTTON">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+		<!-- test title, description and comments -->
+		<section>
+			<title>
+				<message selector="assessment-preview-assessment-title">
+					<model type="icon" icon="/icons/test.png" />
+					<model ref="assessment.title" type="text" />
+					<model type="html" ref="assessment" delegate="SubmissionScore" tool="sakai.mneme" />
+					<selectors>
+						<selector selector="assessment-preview-assessment-title-no-points">
+							<decision reversed="TRUE" model="assessment.hasPoints" />
+						</selector>
+					</selectors>
+				</message>
+			</title>
+			<container>
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="assessment.presentation.text" />
+					</message>
+				</text>
+				<attachments title="attachments" model="assessment.presentation.attachments">
+					<included>
+						<hasValueDecision model="assessment.presentation.attachments" />
+					</included>
+				</attachments>
+			</container>
+		</section>
+
+		<!-- iterating section for each answer -->
+		<section>
+			<iterator name="question">
+				<model ref="assessment.parts.questions" />
+			</iterator>
+
+			<!-- part title -->
+			<title>
+				<message selector="assessment-preview-part-title">
+					<model type="icon" icon="/icons/section.png" />
+					<model type="text" ref="question.part.ordering.position" />
+					<model type="text" ref="question.part.assessment.parts.size" />
+					<model type="text" ref="question.part.title" />
+					<selectors>
+						<selector selector="assessment-preview-part-title-no-title">
+							<hasValueDecision reversed="TRUE" model="question.part.title" />
+						</selector>
+					</selectors>
+				</message>
+				<included>
+					<decision model="question.partOrdering.isFirst" />
+					<decision model="question.part.assessment.parts.showPresentation" />
+				</included>
+			</title>
+
+			<container>
+
+				<!-- part presentation -->
+				<text>
+					<message>
+						<model type="html" dirty="TRUE" ref="question.part.presentation.text" />
+					</message>
+					<included>
+						<decision model="question.partOrdering.isFirst" />
+						<decision model="question.part.assessment.parts.showPresentation" />
+					</included>
+				</text>
+				<attachments title="attachments" model="question.part.presentation.attachments">
+					<included>
+						<hasValueDecision model="question.part.presentation.attachments" />
+						<decision model="question.partOrdering.isFirst" />
+						<decision model="question.part.assessment.parts.showPresentation" />
+					</included>
+				</attachments>
+
+				<section>
+
+					<!-- question header -->
+					<title highlighted="TRUE">
+						<message>
+							<model type="html" ref="question" delegate="FormatQuestionTitle" tool="sakai.mneme" />
+						</message>
+					</title>
+
+					<container>
+
+						<!-- Question specific delivery -->
+						<modelComponent model="question.typeSpecificQuestion.viewDeliveryUi" />
+
+						<!-- reason -->
+						<section>
+							<container>
+								<text>
+									<title>
+										<message selector="assessment-preview-reason-header">
+											<model type="icon" icon="/icons/reason.png" />
+										</message>
+									</title>
+									<message selector="assessment-preview-reason" />
+								</text>
+							</container>
+							<included>
+								<decision model="question.explainReason" />
+							</included>
+						</section>
+
+						<!-- hints -->
+						<section collapsed="TRUE" treatment="inlay" maxHeight="400">
+							<title plain="TRUE">
+								<message selector="show-hints">
+									<model type="icon" icon="/icons/hints.png" />
+								</message>
+							</title>
+							<container>
+								<text>
+									<message>
+										<model type="html" dirty="TRUE" ref="question.hints" />
+									</message>
+								</text>
+							</container>
+							<included>
+								<decision model="question.part.assessment.showHints" />
+								<hasValueDecision model="question.hints" />
+							</included>
+						</section>
+
+					</container>
+				</section>
+			</container>
+		</section>
+
+		<!-- nav bar -->
+		<navigationBar id="nav">
+			<container>
+				<navigation title="return" accessKey="return-access" description="return-description" style="BUTTON">
+					<icon icon="/icons/return.png" style="LEFT" />
+					<destination template="{0}">
+						<model ref="return" />
+					</destination>
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>

@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- !DOCTYPE interface SYSTEM "http://source.sakaiproject.org/ambrosia/ambrosia.dtd" -->
+
+<!--
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Etudes, Inc.
+ * 
+ * Portions completed before September 1, 2008
+ * Copyright (c) 2007, 2008 The Regents of the University of Michigan & Foothill College, ETUDES Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+
+<interface>
+
+	<title>
+		<message selector="tests-title" />
+	</title>
+
+	<!--mode bar-->
+	<modeContainer>
+		<alias to="ToolModeFragment" toolId="sakai.mneme" />
+	</modeContainer>
+
+	<header>
+		<message selector="tests-header">
+			<model type="icon" icon="/icons/folder_page.png" />
+		</message>
+	</header>
+
+	<container>
+
+		<instructions selector="instructions" />
+		
+		<!-- the list of assessments -->
+		<entityList style="FLAT">
+			<iterator name="assessment">
+				<model ref="assessments" indexRef="id" />
+			</iterator>
+			<emptyTitle>
+				<message selector="no-assessments" />
+			</emptyTitle>
+			<columns>
+				<column pixels="16">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="live-alt">
+							<icon icon="/icons/grade_student.png" style="LEFT" />
+							<destination template="/grade_assessment/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" reversed="TRUE" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<orDecision>
+									<decision reversed="TRUE" model="assessment.hasPoints" />
+									<decision reversed="TRUE" model="assessment.hasUnscoredSubmissions" />
+								</orDecision>
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="unscored-alt">
+							<icon icon="/icons/grade.png" style="LEFT" />
+							<destination template="/grade_assessment/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" reversed="TRUE" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<decision model="assessment.hasPoints" />
+								<decision model="assessment.hasUnscoredSubmissions" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="live-alt">
+							<icon icon="/icons/grade_student.png" style="LEFT" />
+							<destination template="/assessment_stats/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<decision model="assessment.frozen" />
+								<orDecision>
+									<decision reversed="TRUE" model="assessment.hasPoints" />
+									<decision reversed="TRUE" model="assessment.hasUnscoredSubmissions" />
+								</orDecision>
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="unscored-alt">
+							<icon icon="/icons/grade.png" style="LEFT" />
+							<destination template="/assessment_stats/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<decision model="assessment.hasPoints" />
+								<decision model="assessment.hasUnscoredSubmissions" />
+								<decision model="assessment.frozen" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="live-alt">
+							<icon icon="/icons/grade_student.png" style="LEFT" />
+							<destination template="/freeze/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<decision model="assessment.frozen" reversed = "TRUE" />
+								<orDecision>
+									<decision reversed="TRUE" model="assessment.hasPoints" />
+									<decision reversed="TRUE" model="assessment.hasUnscoredSubmissions" />
+								</orDecision>
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="unscored-alt">
+							<icon icon="/icons/grade.png" style="LEFT" />
+							<destination template="/freeze/0A/{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.published" />
+								<decision model="assessment.isValid" />
+								<decision model="assessment.isLive" />
+								<decision model="assessment.hasPoints" />
+								<decision model="assessment.hasUnscoredSubmissions" />
+								<decision model="assessment.frozen" reversed = "TRUE" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="invalid-alt">
+							<icon icon="/icons/warning.png" style="LEFT" />
+							<destination template="/assessment_invalid/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<decision reversed="TRUE" model="assessment.isValid" />
+							</included>
+						</navigation>
+					</navigations>
+					<container>
+						<warning icon="/icons/grade_student.png">
+							<message selector="live-unpublished">
+								<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+							</message>
+							<included>
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.isValid" />
+								<decision reversed="TRUE" model="assessment.published" />
+								<decision model="assessment.isLive" />
+							</included>
+						</warning>
+						<warning icon="/icons/grade_student.png">
+							<message selector="live-no-grading">
+								<model type="enum" messageRoot="assessment-type-" ref="assessment.type" />
+							</message>
+							<included>
+								<decision model="assessment.isValid" />
+								<decision model="assessment.formalCourseEval" />
+								<decision model="assessment.isLive" />
+							</included>
+						</warning>
+					</container>
+				</column>
+				<selectionColumn multiple="TRUE" pixels="16">
+					<value>
+						<model type="text" ref="assessment.id" />
+					</value>
+					<model ref="ids.values" />
+					<entityActions>
+						<navigation destination="ADD" title="add-test" style="LINK" submit="TRUE">
+							<icon icon="/icons/document_add.png" style="LEFT" />
+						</navigation>
+						<navigation destination="DELETE" title="delete-tests" style="LINK" submit="TRUE" selectRequirement="SOME"
+							selectRequirementMessage="delete-failed-requirements">
+							<icon icon="/icons/delete.png" style="LEFT" />
+							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+								<message selector="confirm-delete">
+									<model type="icon" icon="/icons/grade_student.png" />
+								</message>
+							</confirm>
+						</navigation>
+						<navigation destination="PUBLISH" title="publish-tests" style="LINK" submit="TRUE" selectRequirement="SOME"
+							selectRequirementMessage="publish-failed-requirements">
+							<icon icon="/icons/publish.png" style="LEFT" />
+							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif">
+								<message selector="confirm-publish" />
+							</confirm>
+						</navigation>
+						<navigation destination="UNPUBLISH" title="unpublish-tests" style="LINK" submit="TRUE" selectRequirement="SOME"
+							selectRequirementMessage="unpublish-failed-requirements">
+							<icon icon="/icons/forbidden.png" style="LEFT" />
+							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-unpublish" />
+						</navigation>
+						<navigation destination="ARCHIVE" title="archive-tests" style="LINK" submit="TRUE" selectRequirement="SOME"
+							selectRequirementMessage="archive-failed-requirements">
+							<icon icon="/icons/make_inactive.png" style="LEFT" />
+							<confirm decision="TRUE" cancelSelector="cancel" cancelIcon="/icons/cancel.gif" selector="confirm-archive" />
+						</navigation>
+						<navigation title="restore-tests" style="LINK" submit="TRUE">
+							<icon icon="/icons/restore.png" style="LEFT" />
+							<destination template="/assessments_restore/{0}{1}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+						</navigation>
+						<navigation title="import-title" style="LINK" submit="TRUE">
+							<icon icon="/icons/import_assessment.png" style="LEFT" />
+							<destination template="/assessment_import/assessments/{0}{1}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+						</navigation>	
+						<navigation title="export-title" selectRequirement="SOME" selectRequirementMessage="export-failed-requirements" style="LINK"
+							disabled="FALSE" submit="TRUE">
+							<icon icon="/icons/import_export.png" style="LEFT" />
+							<destination template="/assessment_export/{0}">
+								<model ref="assessment.id" />															
+							</destination>							
+						</navigation>	
+						<navigation title="multi-assmt-title" style="LINK" submit="TRUE" selectRequirement="SOME"
+							selectRequirementMessage="multiple-failed-requirements">
+							<icon icon="/icons/gear-edit.png" style="LEFT" />
+							<destination template="/assmt_settings_choice">
+							</destination>
+						</navigation>
+					</entityActions>
+					<entityIncluded>
+						<orDecision>
+							<decision model="assessment.formalCourseEval" reversed="TRUE "/>
+							<decision model="allowFCE" />
+						</orDecision>
+					</entityIncluded>
+				</selectionColumn>
+				<column pixels="16" centered="TRUE">
+					<title>
+						<message selector="published" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="3" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/assessments/3A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/assessments/3D" />
+						</desc>
+					</sort>
+					<navigations>
+						<navigation style="LINK" description="published-description" disabled="TRUE">
+							<icon icon="/icons/publish.png" style="LEFT" />
+							<included>
+								<decision model="assessment.published" />
+								<decision model="assessment.hiddenTillOpen" reversed="TRUE"/>
+							</included>
+						</navigation>
+						<navigation style="LINK" description="invisible-description" disabled="TRUE">
+							<icon icon="/icons/invisible.png" style="LEFT" />
+							<included>
+								<decision model="assessment.published" />
+								<decision model="assessment.hiddenTillOpen" />
+							</included>
+						</navigation>
+						<navigation style="LINK" description="unpublished-description" disabled="TRUE">
+							<icon icon="/icons/forbidden.png" style="LEFT" />
+							<included>
+								<decision reversed="TRUE" model="assessment.published" />
+							</included>
+						</navigation>
+					</navigations>
+				</column>
+				<modelColumn pixels="16" centered="TRUE">
+					<title>
+						<message selector="assessment-type" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="4" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/assessments/4A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/assessments/4D" />
+						</desc>
+					</sort>
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="assessment-view-test">
+							<icon icon="/icons/test_view.png" style="LEFT" />
+							<destination template="/assessment_preview/{0}/assessments/{1}{2}">
+								<model ref="assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="test" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-view-survey">
+							<icon icon="/icons/survey_view.png" style="LEFT" />
+							<destination template="/assessment_preview/{0}/assessments/{1}{2}">
+								<model ref="assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-view-fce">
+							<icon icon="/icons/fce_view.png" style="LEFT" />
+							<destination template="/assessment_preview/{0}/assessments/{1}{2}">
+								<model ref="assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="survey" />
+								<decision model="assessment.formalCourseEval" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-view-assignment">
+							<icon icon="/icons/assignment_view.png" style="LEFT" />
+							<destination template="/assessment_preview/{0}/assessments/{1}{2}">
+								<model ref="assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="assignment" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="assessment-view-offline">
+							<icon icon="/icons/offline_view.png" style="LEFT" />
+							<destination template="/assessment_preview/{0}/assessments/{1}{2}">
+								<model ref="assessment.id" />
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+							</destination>
+							<included>
+								<compareDecision model="assessment.type" constant="offline" />
+							</included>
+						</navigation>
+					</navigations>
+				</modelColumn>
+				<column>
+					<title>
+						<message selector="assessment-title" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="2" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/assessments/2A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/assessments/2D" />
+						</desc>
+					</sort>
+					<container>
+						<navigation style="LINK" submit="TRUE" wrap="TRUE">
+							<title>
+								<message>
+									<model type="text" ref="assessment.title" missing="no-title" />
+								</message>
+							</title>
+							<destination template="/assessment_edit/{2}/assessments/{0}{1}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<disabled>
+								<decision model="assessment.formalCourseEval"/>
+								<decision reversed="TRUE" model="allowFCE" />
+							</disabled>
+						</navigation>
+					</container>
+				</column>
+				<modelColumn pixels="16" centered="TRUE">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="item-closed" disabled="TRUE">
+							<icon icon="/icons/cancel.gif" style="LEFT" />
+							<included>
+								<decision model="assessment.published" />
+								<decision model="assessment.dates.isClosed" />
+							</included>
+						</navigation>
+					</navigations>
+				</modelColumn>
+				<column em="8">
+					<title>
+						<message selector="assessment-odate" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="1" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/assessments/1A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/assessments/1D" />
+						</desc>
+					</sort>
+					<container>
+						<dateEdit>
+							<model ref="assessment.dates.openDate" type="date" />
+							<readOnly>
+								<decision model="assessment.formalCourseEval" />
+								<decision model="assessment.isLocked" />
+								<decision model="allowFCE" reversed="TRUE" />
+							</readOnly>
+						</dateEdit>
+					</container>
+				</column>
+				<column em="8">
+					<title>
+						<message selector="assessment-ddate" />
+					</title>
+					<sort submit="TRUE">
+						<active>
+							<compareDecision model="sort_column" constant="0" />
+						</active>
+						<direction>
+							<compareDecision model="sort_direction" constant="A" />
+						</direction>
+						<asc icon="/icons/sortascending.gif">
+							<message selector="asc" />
+							<destination template="/assessments/0A" />
+						</asc>
+						<desc icon="/icons/sortdescending.gif">
+							<message selector="desc" />
+							<destination template="/assessments/0D" />
+						</desc>
+					</sort>
+					<container>
+						<dateEdit late="TRUE">
+							<model ref="assessment.dates.dueDate" type="date" />
+							<readOnly>
+								<orDecision>
+									<decision model="assessment.frozen" />
+									<andDecision>
+										<decision model="assessment.formalCourseEval" />
+										<decision model="assessment.isLocked" />
+										<decision model="allowFCE" reversed="TRUE" />
+									</andDecision>
+								</orDecision>
+							</readOnly>
+						</dateEdit>
+					</container>
+				</column>
+				<column em="8">
+					<title>
+						<message selector="assessment-adate" />
+					</title>
+					<container>
+						<dateEdit late="TRUE">
+							<model ref="assessment.dates.acceptUntilDate" type="date" />
+							<readOnly>
+								<decision model="assessment.frozen" />
+							</readOnly>
+						</dateEdit>
+					</container>
+					<entityIncluded>
+						<decision reversed="TRUE" model="assessment.formalCourseEval" />
+					</entityIncluded>
+				</column>
+				<column pixels="16">
+					<entityIncluded>
+						<decision reversed="TRUE" model="assessment.formalCourseEval" />
+					</entityIncluded>
+					<container>
+						<warning icon="/icons/warning.png">
+							<message selector="access-review-invalid" />
+							<included>
+							  <andDecision>
+								<decision reversed="TRUE" model="assessment.specialAccess.isValid" />
+								<decision reversed="TRUE" model="assessment.review.isValid" />
+							  </andDecision>	
+							</included>
+						</warning>
+						<warning icon="/icons/warning.png">
+							<message selector="access-invalid" />
+							<included>
+							  <andDecision>
+								<decision reversed="TRUE" model="assessment.specialAccess.isValid" />
+								<decision model="assessment.review.isValid" />
+							  </andDecision>	
+							</included>
+						</warning>
+						<warning icon="/icons/warning.png">
+							<message selector="review-invalid" />
+							<included>
+							  <andDecision>
+								<decision model="assessment.specialAccess.isValid" />
+								<decision reversed="TRUE" model="assessment.review.isValid" />
+							  </andDecision>	
+							</included>
+						</warning>
+					</container>
+				</column>
+				<column centered="TRUE" pixels="16" wrap="FALSE">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="options-description">
+							<icon icon="/icons/gear-edit.png" style="LEFT" />
+							<destination template="/assessment_settings/{2}/assessments/{0}{1}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<orDecision>
+									<decision model="assessment.formalCourseEval" reversed="TRUE "/>
+									<decision model="allowFCE" />
+								</orDecision>
+							</included>
+						</navigation>
+					</navigations>
+				</column>
+				<column centered="TRUE" pixels="16" wrap="FALSE">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="special-access-view">
+							<icon icon="/icons/access_view.png" style="LEFT" />
+							<destination template="/assessment_special/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision reversed="TRUE" model="assessment.frozen" />
+								<decision model="assessment.specialAccess.isDefined" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="special-access-add">
+							<icon icon="/icons/access_add.png" style="LEFT" />
+							<destination template="/assessment_special/{0}{1}/{2}">
+								<model ref="sort_column" />
+								<model ref="sort_direction" />
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision reversed="TRUE" model="assessment.frozen" />
+								<decision reversed="TRUE" model="assessment.specialAccess.isDefined" />
+							</included>
+						</navigation>
+						<navigation style="LINK" submit="TRUE" description="special-access-locked" disabled="TRUE" >
+							<icon icon="/icons/access_locked.png" style="LEFT" />
+							<included>
+								<decision reversed="TRUE" model="assessment.formalCourseEval" />
+								<decision model="assessment.frozen" />
+							</included>
+						</navigation>
+					</navigations>
+				</column>
+				<column centered="TRUE" pixels="16" wrap="FALSE">
+					<navigations>
+						<navigation style="LINK" submit="TRUE" description="duplicate">
+							<icon icon="/icons/page_copy.png" style="LEFT" />
+							<destination template="DUPLICATE:{0}">
+								<model ref="assessment.id" />
+							</destination>
+							<included>
+								<orDecision>
+									<decision model="assessment.formalCourseEval" reversed="TRUE "/>
+									<decision model="allowFCE" />
+								</orDecision>
+							</included>
+						</navigation>
+					</navigations>
+				</column>
+				<column centered="TRUE" pixels="16" wrap="FALSE">
+					<navigations>
+						<navigation style="LINK" submit="TRIGGER" description="print">
+							<icon icon="/icons/printer.png" style="LEFT" />
+							<destination template="openWindow('/portal/tool/{0}/assessment_print/{1}','PrintWindow','toolbar=no,scrollbars=yes,resizable=yes,menubar=no,status=no,directories=no,location=no,width=600,height=400');">
+								<model ref="toolId" />
+								<model ref="assessment.id" />
+							</destination>
+						</navigation>
+					</navigations>
+				</column>
+			</columns>
+		</entityList>
+
+		<!-- navigations -->
+		<navigationBar id="nav">
+			<container>
+				<divider />
+				<navigation title="save" accessKey="save-access" description="save-description" style="BUTTON" submit="TRUE">
+					<destination template="/assessments/{0}{1}">
+						<model ref="sort_column" />
+						<model ref="sort_direction" />
+					</destination>
+
+					<icon icon="/icons/save.png" style="LEFT" />
+				</navigation>
+			</container>
+		</navigationBar>
+
+	</container>
+</interface>
