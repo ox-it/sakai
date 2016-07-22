@@ -9790,12 +9790,27 @@ public class AssignmentAction extends PagedResourceActionII
         Map opts = new HashMap();
         
         opts.put("submit_papers_to", assign.getSubmitReviewRepo());
+
+        /* TII only has three settings for resubmissions:
+         * 1) Generate reports immediately (resubmissions are not allowed)
+         * 2) Generate reports immediately (resubmissions are allowed until due date)
+         * 3) Generate reports on due date (resubmissions are allowed until due date)
+         * 
+         * Due to this combined with the fact that TII will refuse manually allowed resubmissions, we should default to always 
+         * allowing resubmissions on the TII side. Sakai/Assignments will act as the 'gaurd' against invalid resubmissions.
+         * 
+         * So in effect, the only setting of consequence here is to either generate the reports immediately or on the due date.
+         */
         String originalityReportVal = assign.getGenerateOriginalityReport();
-        if(originalityReportVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY) && state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null){
-        	opts.put("report_gen_speed", NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_RESUB);
-        } else {
-        	opts.put("report_gen_speed", originalityReportVal);
+        if (originalityReportVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY))
+        {
+            opts.put("report_gen_speed", NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_RESUB);
         }
+        else
+        {
+            opts.put("report_gen_speed", NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE);
+        }
+
         opts.put("institution_check", assign.isCheckInstitution() ? "1" : "0");
         opts.put("internet_check", assign.isCheckInternet() ? "1" : "0");
         opts.put("journal_check", assign.isCheckPublications() ? "1" : "0");
