@@ -576,6 +576,8 @@ public class ModifyItemProducer implements ViewComponentProducer, ViewParamsRepo
             UICommand.make(form, "save-item-action", UIMessage.make("modifyitem.save.button"), saveBinding);
         }
         
+        UICommand.make( form, "cancel-button", UIMessage.make( "general.cancel.button" ) );
+        
     }
 
 

@@ -1,25 +1,29 @@
 /**
- * $Id$
- * $URL$
- * BaseTestEvalLogic.java - evaluation - Feb 6, 2008 9:59:41 AM - azeckoski
- **************************************************************************
- * Copyright (c) 2008 Centre for Applied Research in Educational Technologies, University of Cambridge
- * Licensed under the Educational Community License version 1.0
- * 
- * A copy of the Educational Community License has been included in this 
- * distribution and is available at: http://www.opensource.org/licenses/ecl1.php
+ * Copyright 2005 Sakai Foundation Licensed under the
+ * Educational Community License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
  *
- * Aaron Zeckoski (azeckoski@gmail.com) (aaronz@vt.edu) (aaron@caret.cam.ac.uk)
+ * http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  */
-
 package org.sakaiproject.evaluation.logic;
 
+import org.junit.Assert;
+import org.junit.Before;
 import org.sakaiproject.evaluation.dao.EvaluationDao;
 import org.sakaiproject.evaluation.model.EvalEvaluation;
 import org.sakaiproject.evaluation.test.EvalTestDataLoad;
 import org.sakaiproject.evaluation.test.PreloadTestDataImpl;
 import org.sakaiproject.evaluation.test.mocks.MockEvalExternalLogic;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 
 
 /**
@@ -31,22 +35,20 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  * 
  * @author Aaron Zeckoski (aaron@caret.cam.ac.uk)
  */
-public abstract class BaseTestEvalLogic extends AbstractTransactionalSpringContextTests {
+@DirtiesContext
+@ContextConfiguration(locations={
+		"/hibernate-test.xml",
+		"classpath:org/sakaiproject/evaluation/spring-hibernate.xml",
+		"classpath:org/sakaiproject/evaluation/logic-support.xml"})
+public abstract class BaseTestEvalLogic extends AbstractTransactionalJUnit4SpringContextTests {
 
    protected EvaluationDao evaluationDao;
    protected EvalCommonLogic commonLogic;
    protected MockEvalExternalLogic externalLogic;
    protected EvalTestDataLoad etdl;
 
-   protected String[] getConfigLocations() {
-      // point to the needed spring config files, must be on the classpath
-      // (add component/src/webapp/WEB-INF to the build path in Eclipse),
-      // they also need to be referenced in the project.xml file
-      return new String[] {"hibernate-test.xml", "spring-hibernate.xml", "logic-support.xml"};
-   }
-
-   // run this before each test starts
-   protected void onSetUpBeforeTransaction() throws Exception {
+   @Before
+   public void onSetUpBeforeTransaction() throws Exception {
 
       // load the spring created dao class bean from the Spring Application Context
       evaluationDao = (EvaluationDao) applicationContext.getBean("org.sakaiproject.evaluation.dao.EvaluationDao");
@@ -65,7 +67,7 @@ public abstract class BaseTestEvalLogic extends AbstractTransactionalSpringConte
       }
 
       // check the preloaded test data
-      assertTrue("Error preloading test data", evaluationDao.countAll(EvalEvaluation.class) > 0);
+      Assert.assertTrue("Error preloading test data", evaluationDao.countAll(EvalEvaluation.class) > 0);
 
       PreloadTestDataImpl ptd = (PreloadTestDataImpl) applicationContext.getBean("org.sakaiproject.evaluation.test.PreloadTestData");
       if (ptd == null) {
@@ -79,11 +81,4 @@ public abstract class BaseTestEvalLogic extends AbstractTransactionalSpringConte
       }
 
    }
-
-   // run this before each test starts and as part of the transaction
-   protected void onSetUpInTransaction() {
-      // preload additional data if desired
-
-   }
-
 }

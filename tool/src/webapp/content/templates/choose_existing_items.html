@@ -1,14 +1,33 @@
+<!--
+
+    Copyright 2005 Sakai Foundation Licensed under the
+    Educational Community License, Version 2.0 (the "License"); you may
+    not use this file except in compliance with the License. You may
+    obtain a copy of the License at
+
+    http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an "AS IS"
+    BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<title rsf:id="msg=items.existing.page.title">Items - Choose Items</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter"	type="text/css" rel="stylesheet" media="all" />
-		<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
-		<script type="text/javascript" rsf:id="scr=portal-matter" language="JavaScript" src="/library/js/headscripts.js"></script>
-		<link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all" />
-	</head>
+<head>
+	<title rsf:id="msg=items.existing.page.title">Items - Choose Items</title>
+    <!-- standard on all pages -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+    <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+    <script src="/library/js/headscripts.js" rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript"></script>
+    <!-- end standard on all pages -->
+    <link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link rsf:id="local_css_include" href="local_css_file.css" type="text/css" rel="stylesheet" media="all" />
+</head>
 	
 	<body>
 		<div class="portletBody">
@@ -21,7 +40,7 @@
 				<li><a rsf:id="modify-template-link" href="template_modify.html">Template</a></li>
 				<!--// gsilver: this link goes to the dashboard -->
 				<li><a rsf:id="modify-items-link" href="modify_items.html">Items</a></li>
-				<li rsf:id="msg=items.choose.items" class="lastCrumb">Choose Items</li>
+				<li rsf:id="msg=items.choose.items" class="lastCrumbNoFloat">Choose Items</li>
 			</ul>
 		</div>
 		
@@ -37,7 +56,7 @@
 			</div>	
 			<div class="searchNav">
 					<span rsf:id="search-current" class="highlight">Current Search:</span>
-					<span rsf:id="search-current-value" class="instruction">Search Text</span>
+					<span rsf:id="search-current-value" class="instructionText">Search Text</span>
 					<form rsf:id="search-form" action="choose_existing_items.html" method="get">
 						<input rsf:id="search-box" type="text" size="25" maxlength="100" />
 						<input rsf:id="search-command" type="submit" value="Search" />
@@ -53,7 +72,7 @@
                 <a rsf:id="cancel-items" href="template_modify.html" class="makeButton" id="cancel-items" style="display:inline;float:none" accesskey="x">Cancel</a>
             </p>
 
-			<table class="listHier lines nolines" summary="Column 1 has checkboxes used to select items, Column 2 has information about items" cellpadding="0" cellspacing="0">
+		<table class="evalsysTable" summary="Column 1 has checkboxes used to select items, Column 2 has information about items">
 				<caption rsf:id="msg=item.list.summary" class="skip">Selectable items. Column 1 has checkboxes used to select items, Column 2 has information about items</caption>
 				<thead class="skip">
 					<tr>
@@ -71,7 +90,7 @@
 								<span rsf:id="item-text">Item Text (the text entered for the item itself will appear here, it is possibly quite long</span>
 							</label>
 							</h5>
-							<div rsf:id="item-scale" class="instruction">Item Scale (the title of the scale and the points in parens)</div>
+							<div rsf:id="item-scale" class="instructionText">Item Scale (the title of the scale and the points in parens)</div>
 
 						</td>
 					</tr>
@@ -85,7 +104,7 @@
 									<span rsf:id="item-text">Item Text (the text entered for the item itself will appear here, it is possibly quite long</span>
 								</label>
 							</h5>
-							<div rsf:id="item-scale" class="instruction">Item Scale (the title of the scale and the points in parens)</div>
+							<div rsf:id="item-scale" class="instructionText">Item Scale (the title of the scale and the points in parens)</div>
 						</td>
 					</tr>
 				</tbody>
@@ -93,7 +112,7 @@
 			
 			<p>
 				<input rsf:id="insert-items-command" type="submit" value="Insert Items"  class="active" accesskey="s" />
-                <div rsf:id="no-items" />
+                <span rsf:id="no-items"></span>
 				<a rsf:id="cancel-items-bottom" href="template_modify.html" class="makeButton"  id="cancel-items" style="display:inline;float:none" accesskey="x">Cancel</a>
 			</p>
 			

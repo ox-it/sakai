@@ -1,3 +1,17 @@
+/*
+ * Copyright 2005 Sakai Foundation Licensed under the
+ * Educational Community License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 // Eval Template Modify JS for Server Ajax transactions
 // @author lovemore.nalube@uct.ac.za
 
@@ -9,14 +23,14 @@ var evalTemplateData = (function() {
         evalTemplateUtils.debug.group("Starting Fn submitFCKform", [form, textarea, target, btn]);
         evalTemplateUtils.debug.time("submitFCKform");
         var img = new Image(),
-                templateItemId = $(form).find('input[@name*=templateItemId]').attr('value'),
+                //templateItemId = $(form).find('input[name*=templateItemId]').attr('value'),
                 formAsArray = $(form).formToArray(),
                 fckEditor = null,
                 fckEditorValue = null,
                 isFCKEditor = textarea !== false,
                 isBlockChild = $.facebox.settings.elementToUpdate === 'block';
         img.src = $.facebox.settings.loadingImage;
-        evalTemplateUtils.debug.info("Saving item %i", templateItemId);
+        //evalTemplateUtils.debug.info("Saving item %i", templateItemId);
         if (isFCKEditor) {
             try {
                 if (typeof CKEDITOR !== "undefined" && textarea !== null) {
@@ -34,13 +48,8 @@ var evalTemplateData = (function() {
             }
             //Validate text
             if (ckEditorValue === null || ckEditorValue.length === 0) {
-            	if (fckEditor.Name == "item-text") {
-            		alert( evalTemplateUtils.messageLocator("general.blank.required.field.user.message",
-                           evalTemplateUtils.messageLocator('modifyitem.item.text.header')));
-            	} else {
-            		alert( evalTemplateUtils.messageLocator("general.blank.required.field.user.message",
-    					   evalTemplateUtils.messageLocator('modifytemplatetitledesc.title.header')));
-            	}
+                alert( evalTemplateUtils.messageLocator("general.blank.required.field.user.message",
+                                       evalTemplateUtils.messageLocator('modifytemplatetitledesc.title.header')));
                 return false;
             }
 
@@ -191,7 +200,7 @@ var evalTemplateData = (function() {
 					if ($('form').length > 0) {
 						var newRow = $('form tr:eq(1)').clone();
 						newRow.find('td:eq(0) span:eq(0)').html($("title", this).text());
-						var q = 'td:eq(0) span:eq(1) a[@href$='+newRow.attr("rowId")+']';
+						var q = 'td:eq(0) span:eq(1) a[href$='+newRow.attr("rowId")+']';
 						alert(newRow.find(q).attr('href').substring(newRow.find(q).attr('href').lastIndexOf('/') + 1));
 						newRow.find(q).attr('href',newRow.find(q).attr('href').replace(newRow.attr("rowId"),id));
 						newRow.attr("rowId", id);

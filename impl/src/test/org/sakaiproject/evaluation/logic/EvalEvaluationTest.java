@@ -1,23 +1,23 @@
 /**
- * $Id: EvalEvaluationTest.java 1000 Jun 9, 2010 11:33:12 AM azeckoski $
- * $URL: https://source.sakaiproject.org/contrib $
- * EvalEvaluationTest.java - evaluation - Jun 9, 2010 11:33:12 AM - azeckoski
- **************************************************************************
- * Copyright (c) 2008 Aaron Zeckoski
- * Licensed under the Apache License, Version 2.0
- * 
- * A copy of the Apache License has been included in this 
- * distribution and is available at: http://www.apache.org/licenses/LICENSE-2.0.txt
+ * Copyright 2005 Sakai Foundation Licensed under the
+ * Educational Community License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
  *
- * Aaron Zeckoski (azeckoski @ gmail.com) (aaronz @ vt.edu) (aaron @ caret.cam.ac.uk)
+ * http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
  */
-
 package org.sakaiproject.evaluation.logic;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.sakaiproject.evaluation.logic.model.EvalReminderStatus;
 import org.sakaiproject.evaluation.model.EvalEvaluation;
-
-import junit.framework.TestCase;
 
 
 /**
@@ -25,36 +25,37 @@ import junit.framework.TestCase;
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class EvalEvaluationTest extends TestCase {
+public class EvalEvaluationTest {
 
     /**
      * Test method for {@link org.sakaiproject.evaluation.model.EvalEvaluation#getReminderStatus()}.
      */
+	@Test
     public void testReminderStatus() {
         EvalReminderStatus ers = null;
 
         ers = new EvalReminderStatus("50:5:abcde12345");
-        assertNotNull(ers);
-        assertEquals(50, ers.totalNum);
-        assertEquals(5, ers.currentNum);
-        assertEquals("abcde12345", ers.currentEvalGroupId);
+        Assert.assertNotNull(ers);
+        Assert.assertEquals(50, ers.totalNum);
+        Assert.assertEquals(5, ers.currentNum);
+        Assert.assertEquals("abcde12345", ers.currentEvalGroupId);
 
         EvalEvaluation eval = new EvalEvaluation();
         ers = eval.getCurrentReminderStatus();
-        assertNull(ers);
+        Assert.assertNull(ers);
 
         eval.setReminderStatus(null);
         ers = eval.getCurrentReminderStatus();
-        assertNull(ers);
-        assertNull(eval.getReminderStatus());
+        Assert.assertNull(ers);
+        Assert.assertNull(eval.getReminderStatus());
 
         eval.setReminderStatus("50:5:abcde12345");
         ers = eval.getCurrentReminderStatus();
-        assertNotNull(ers);
-        assertEquals(50, ers.totalNum);
-        assertEquals(5, ers.currentNum);
-        assertEquals("abcde12345", ers.currentEvalGroupId);
-        assertEquals("50:5:abcde12345", eval.getReminderStatus());
+        Assert.assertNotNull(ers);
+        Assert.assertEquals(50, ers.totalNum);
+        Assert.assertEquals(5, ers.currentNum);
+        Assert.assertEquals("abcde12345", ers.currentEvalGroupId);
+        Assert.assertEquals("50:5:abcde12345", eval.getReminderStatus());
     }
 
 }

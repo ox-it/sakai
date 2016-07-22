@@ -1,35 +1,59 @@
+<!--
+
+    Copyright 2005 Sakai Foundation Licensed under the
+    Educational Community License, Version 2.0 (the "License"); you may
+    not use this file except in compliance with the License. You may
+    obtain a copy of the License at
+
+    http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an "AS IS"
+    BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
 <!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-        <title rsf:id="msg=assigneval.page.title">Assign Evaluation to groups</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
-		<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
-		<script type="text/javascript" rsf:id="scr=portal-matter" language="JavaScript" src="/library/js/headscripts.js"></script>
-		<script type="text/javascript" language="JavaScript" src="../js/jquery/jquery.js"></script>
-        <script type="text/javascript" language="JavaScript" src="../js/rsf.js"></script>
-        <script type="text/javascript" language="JavaScript" src="../js/evalUtils.js"></script>
-	    <script rsf:id="JS-facebox" type="text/javascript" src="../js/facebox/facebox.js"></script>
-	    <script rsf:id="JS-facebox-assign" type="text/javascript" src="../js/eval.assign.facebox.js"></script>
-	    <script rsf:id="JS-assign" type="text/javascript" src="../js/eval.assign.js"></script>
-	    <link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all"/>
-	    <link href="../js/facebox/facebox.css" type="text/css" rel="stylesheet" media="all"/> 
-	</head>
+<head>
+    <title rsf:id="msg=assigneval.page.title">Assign Evaluation to groups</title>
+    <!-- standard on all pages -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+    <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+    <script src="/library/js/headscripts.js" rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript"></script>
+    <!-- end standard on all pages -->
+
+	<script type="text/javascript" language="JavaScript" src="../js/jquery/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" language="JavaScript" src="../js/rsf.js"></script>
+    <script type="text/javascript" language="JavaScript" src="../js/evalUtils.js"></script>
+    <script rsf:id="JS-facebox" type="text/javascript" src="../js/facebox/facebox.js"></script>
+    <script rsf:id="JS-facebox-assign" type="text/javascript" src="../js/eval.assign.facebox.js"></script>
+    <script rsf:id="JS-assign" type="text/javascript" src="../js/eval.assign.js"></script>
+
+    <link href="../js/facebox/facebox.css" type="text/css" rel="stylesheet" media="all"/> 
+    <link href="../css/evaluation_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link rsf:id="local_css_include" href="local_css_file.css" type="text/css" rel="stylesheet" media="all" />
+</head>
 	
 	<body>
 		<div class="portletBody">
 			
-			<div rsf:id="navIntraTool:" class="navIntraTool"/>			
+			<div rsf:id="navIntraTool:" class="navIntraTool"/>
             <div>
                 <ul class="breadCrumb">
                 <!-- first link in the bcrumb does not seem to be looking in the message.properties for a value -->
-                <li><a rsf:id="summary-link" href="summary.html">Evaluations dashboard</a></li><li rsf:id="eval-start-text">Add Evaluation</li><li><a rsf:id="eval-settings-link" href="evaluation_settings.html">Evaluation Settings</a></li><li class="lastCrumb" rsf:id="msg=assigneval.page.title">Assign Evaluation</li>                 
+                    <li><a rsf:id="summary-link" href="summary.html">Evaluations dashboard</a></li>
+                    <li rsf:id="eval-start-text">Add Evaluation</li>
+                    <li><a rsf:id="eval-settings-link" href="evaluation_settings.html">Evaluation Settings</a></li>
+                    <li class="lastCrumbNoFloat" rsf:id="msg=assigneval.page.title">Assign Evaluation</li>
                 </ul>
             </div>
 			
 			<div rsf:id="message-for:*" class="alertMessage">
-				<ul style="margin:0px;">
+				<ul>
 					<li>Message for user here</li>
 				</ul>
 			</div>
@@ -49,8 +73,8 @@
 					<p>
 						<input rsf:id="use-hierarchynodes-checkbox" id="use-hierarchynodes-checkbox" type="checkbox" />
 						<span>
-							<img src="/sakai-evaluation-tool/content/images/collapsed.png" rsf:id="show-button" id="" />
-							<img src="/sakai-evaluation-tool/content/images/uncollapsed.png" style="display:none" rsf:id="hide-button" id="" />
+							<img src="../images/collapsed.png" rsf:id="show-button" id="" />
+							<img src="../images/uncollapsed.png" style="display:none" rsf:id="hide-button" id="" />
 						</span>
 						<span rsf:id="msg=assigneval.page.hier.title">Assign to Hierarchy Nodes</span>
 					</p>
@@ -63,18 +87,18 @@
 				<div rsf:id="evalgroups-area:">
 					<p>
 						<span>
-							<img src="/sakai-evaluation-tool/content/images/collapsed.png" rsf:id="show-button" id="" />
-							<img src="/sakai-evaluation-tool/content/images/uncollapsed.png" style="display:none" rsf:id="hide-button" id="" />
+							<img src="../images/collapsed.png" rsf:id="show-button" id="" />
+							<img src="../images/uncollapsed.png" style="display:none" rsf:id="hide-button" id="" />
 						</span>
 						<span rsf:id="msg=assigneval.page.groups.title">Assign to Evaluation Groups</span>
 					</p>
 					<div rsf:id="evalgroups-assignment-area" id="evalgroups-assignment-area">
-						<p class="instruction"  rsf:id="assign-eval-instructions">You are allowed to assign this evaluation (eval title) to the groups listed below.</p> 
-						<p class="elementAlertFront instruction" rsf:id="assign-eval-instructions-group-notpublished">
+						<p class="instructionText"  rsf:id="assign-eval-instructions">You are allowed to assign this evaluation (eval title) to the groups listed below.</p> 
+						<p class="elementAlertFront instructionText" rsf:id="assign-eval-instructions-group-notpublished">
 						This denotes a site that are currently unpublished. Make sure you publish it otherwise students will not be notified via email or given access to complete this evaluation.</p>
 						
 						<div rsf:id="siteCheckboxes"/>
-						<table border="0" cellspacing="0" cellpadding="3" style="width:90%" class="listHier lines nolines" >
+						<table style="width:90%" class="evalsysTable" >
 							<thead>
 								<tr>
 									<th class="attach" >
@@ -97,7 +121,7 @@
 										<label rsf:id="groupTitle" for="evalGroupId">group title</label>
 									</td>
 									<td>
-			                        	<span rsf:id="select-no" class="instruction">You cannot assign to this site, it has no member to take the evaluation.</span>
+			                        	<span rsf:id="select-no" class="instructionText">You cannot assign to this site, it has no member to take the evaluation.</span>
 			                        	<a rsf:id="select-instructors" href="#" title="Select Instructors"  rel="assignInstructorSelector">Select Instructors (5/5)</a>
 			                            <a rsf:id="select-tas" href="#" title="Select TAs" rel="assignTaSelector" style="margin-left:30px">Select TAs (5/12)</a>
 			                        </td>
@@ -113,14 +137,14 @@
 				<!-- or you have no previous adhoc groups.                   -->
 					<p>
 						<span>
-							<img src="/sakai-evaluation-tool/content/images/collapsed.png" rsf:id="show-button" id="" />
-							<img src="/sakai-evaluation-tool/content/images/uncollapsed.png" style="display:none" rsf:id="hide-button" id="" />
+							<img src="../images/collapsed.png" rsf:id="show-button" id="" />
+							<img src="../images/uncollapsed.png" style="display:none" rsf:id="hide-button" id="" />
 						</span>
 						<span rsf:id="msg=assigneval.page.adhocgroups.title">Assign to an adhoc group.</span>
 					</p>
 					<div rsf:id="adhocgroups-assignment-area" id="adhocgroups-assignment-area">
 						<a rsf:id="new-adhocgroup-link" href="#">Create a new Adhoc Group</a>
-						<table rsf:id="adhoc-groups-table" border="0" cellspacing="0" cellpadding="3" style="width:90%" class="listHier lines nolines" >
+						<table rsf:id="adhoc-groups-table" style="width:90%" class="evalsysTable" >
 							<thead>
 								<tr>
 									<th class="attach" >

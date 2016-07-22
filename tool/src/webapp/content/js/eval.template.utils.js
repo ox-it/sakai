@@ -1,9 +1,24 @@
+/*
+ * Copyright 2005 Sakai Foundation Licensed under the
+ * Educational Community License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License. You may
+ * obtain a copy of the License at
+ *
+ * http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an "AS IS"
+ * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 // Eval Template Modify JS for Utilities
 // @author lovemore.nalube@uct.ac.za
 
 var evalTemplateUtils = (function() {
 
     //Configurable private variables
+    //Switch this to true to see debug messages
     var canDebug = false,
             canDebugLevels = "info,debug,warn,error", //Comma delimitated set of the debug levels to show. Select from info,debug,warn,error
             entityTemplateItemURL = "/direct/eval-templateitem/:ID:.xml",
@@ -91,28 +106,28 @@ var evalTemplateUtils = (function() {
             // Debugging. Acts on Firebug console methods described at http://getfirebug.com/console.html
             if (canDebug && typeof console !== "undefined") {
                 if (typeof console.info !== "undefined" && canDebugLevels.search(/info/i) !== -1) {
-                    evalTemplateUtils.debug.info = console.info;
+                    evalTemplateUtils.debug.info = console.info.bind(console);
                 }
                 if (typeof console.debug !== "undefined" && canDebugLevels.search(/debug/i) !== -1) {
-                    evalTemplateUtils.debug.debug = console.debug;
+                    evalTemplateUtils.debug.debug = console.debug.bind(console);
                 }
                 if (typeof console.warn !== "undefined" && canDebugLevels.search(/warn/i) !== -1) {
-                    evalTemplateUtils.debug.warn = console.warn;
+                    evalTemplateUtils.debug.warn = console.warn.bind(console);
                 }
                 if (typeof console.error !== "undefined" && canDebugLevels.search(/error/i) !== -1) {
-                    evalTemplateUtils.debug.error = console.error;
+                    evalTemplateUtils.debug.error = console.error.bind(console);
                 }
                 if (typeof console.group !== "undefined") {
-                    evalTemplateUtils.debug.group = console.group;
+                    evalTemplateUtils.debug.group = console.group.bind(console);
                 }
                 if (typeof console.groupEnd !== "undefined") {
-                    evalTemplateUtils.debug.groupEnd = console.groupEnd;
+                    evalTemplateUtils.debug.groupEnd = console.groupEnd.bind(console);
                 }
                 if (typeof console.time !== "undefined") {
-                    evalTemplateUtils.debug.time = console.time;
+                    evalTemplateUtils.debug.time = console.time.bind(console);
                 }
                 if (typeof console.timeEnd !== "undefined") {
-                    evalTemplateUtils.debug.timeEnd = console.timeEnd;
+                    evalTemplateUtils.debug.timeEnd = console.timeEnd.bind(console);
                 }
             }
             //browser check
@@ -131,7 +146,10 @@ var evalTemplateUtils = (function() {
                 choose_expert_page: "choose_expert_category",
                 eb_save_order: "/direct/eval-templateitem/template-items-reorder",
                 eb_block_edit: "/direct/eval-templateitem/modify-block-items",
-                preview_item_page: "preview_item"
+                preview_item_page: "preview_item",
+                modify_expert_item_page: "modify_expert_item",
+                preview_expert_item_page: "preview_expert_items",
+                remove_expert_item_page: "remove_expert_item"
             },
         getPageType: function(url){
             evalTemplateUtils.debug.group("Getting the page type/name");
@@ -140,7 +158,8 @@ var evalTemplateUtils = (function() {
                     regExp = null;
             pagesLoadedByFBwithJs = [ evalTemplateUtils.pages.modify_item_page, evalTemplateUtils.pages.choose_expert_page,
                 evalTemplateUtils.pages.modify_template_page, evalTemplateUtils.pages.modify_block_page,
-                evalTemplateUtils.pages.choose_existing_page, evalTemplateUtils.pages.preview_item_page];
+                evalTemplateUtils.pages.choose_existing_page, evalTemplateUtils.pages.preview_item_page,
+                evalTemplateUtils.pages.modify_expert_item_page, evalTemplateUtils.pages.preview_expert_item_page, evalTemplateUtils.pages.remove_expert_item_page];
             evalTemplateUtils.debug.debug("Pages supported are %s", pagesLoadedByFBwithJs.toString());
             for ( i in pagesLoadedByFBwithJs){
                 if ( typeof pageType == "undefined" ){
