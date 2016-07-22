@@ -36,7 +36,7 @@
 	<name>etudes-mneme-base</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-mneme-base</artifactId>
-	<version>pom</version>
+	<version>2.1.37-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 

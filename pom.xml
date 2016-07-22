@@ -25,10 +25,10 @@
 	</modules>
 
 	<properties>
-		<etudes.util.version>1.0.25</etudes.util.version>
-		<lticontact.version>1.2</lticontact.version>
-		<ambrosia.version>2.1.35</ambrosia.version>
-		<mneme.version>2.1.36</mneme.version>
+		<etudes.util.version>1.0.26-SNAPSHOT</etudes.util.version>
+		<lticontact.version>1.3-SNAPSHOT</lticontact.version>
+		<ambrosia.version>2.1.36-SNAPSHOT</ambrosia.version>
+		<mneme.version>2.1.37-SNAPSHOT</mneme.version>
 	</properties>
 	
 	<dependencyManagement>

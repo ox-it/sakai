@@ -36,7 +36,7 @@
 	<name>etudes-ambrosia-base</name>
 	<groupId>org.etudes</groupId>
 	<artifactId>etudes-ambrosia-base</artifactId>
-	<version>pom</version>
+	<version>2.1.36-SNAPSHOT</version>
 
 	<packaging>pom</packaging>
 

@@ -29,7 +29,7 @@
 	<parent>
 		<artifactId>etudes-mneme-base</artifactId>
 		<groupId>org.etudes</groupId>
-		<version>pom</version>
+		<version>2.1.37-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 
