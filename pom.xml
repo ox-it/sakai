@@ -131,6 +131,7 @@
                 <module>current-load</module>
                 <module>external-groups</module>
                 <module>evaluations</module>
+                <module>mneme-project</module>
                 <module>oxam</module>
                 <module>oxford-url-shortener</module>
                 <module>proxy</module>
