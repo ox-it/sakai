@@ -1,17 +1,54 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+
+    Copyright 2005 Sakai Foundation Licensed under the
+    Educational Community License, Version 2.0 (the "License"); you may
+    not use this file except in compliance with the License. You may
+    obtain a copy of the License at
+
+    http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an "AS IS"
+    BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Add Item Control Renderer:</title>
-	<!-- this JS needed to make the pulldown work correctly -->
-	<script rsf:id="scr=contribute-script" type="text/javascript" language="JavaScript" src="../content/js/evalUtils.js"></script>
+	<title>Hierarchy Control Renderer:</title>
+    <!-- this JS needed to make the pulldown work correctly - ../content/js/evalUtils.js -->
 </head>
 <body>
 
 <div rsf:id="hierarchy_table_treeview:">
+	    <script type="text/javascript">
+    	function clickHierarchyNode(link){
+    		link.href='#';
+    		document.forms[0].action='';
+			document.forms[0].method='get';
+			$("input[type='hidden'][name='selectedHierarchyNodeIDs']").remove();
+			$("input[type='hidden'][name='selectedGroupIDs']").remove();
+			$("input[name='hierarchyNodeSelectHolder-selection']").attr("name","selectedHierarchyNodeIDs")
+			$("input[name='evalGroupSelectHolder-selection']").attr("name","selectedGroupIDs")
+    		document.getElementById('nodeClicked').value=link.getAttribute("nodeId");
+    		document.forms[0].submit();
+    	}
+    	function clickHierarchyCheckbox(checkbox){
+    		var parentClass = "parentNode" + checkbox.getAttribute("nodeId");
+    		if(checkbox.checked){
+    			$("." + parentClass).attr('disabled', 'disabled');
+    		}else{
+    			$("." + parentClass).removeAttr('disabled');
+    		}
+    	}
+    </script>
 	<div rsf:id="selectColumnCheckboxes"/>
-    <table border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines" summary="placeholder summary">
+	<input id="nodeClicked" name="nodeClicked" type="hidden"/>
+    <table class="evalsysTable">
         <thead>
             <tr>
                 <th rsf:id="node-metadata-header" style="display: none"></th>
@@ -28,28 +65,26 @@
                     <input id="node-id-input" rsf:id="node-id-input" type="hidden" value="TheNodeID" />
                     <input id="parent-id-input" rsf:id="parent-id-input" type="hidden" value="TheParentID" />
                 </td>
-                <td rsf:id="row-data" style="text-indent:0em" colspan="4"><!-- used for displaying long text data, not rendered for normal nodes --></td>
+                <td rsf:id="row-data" class="noTextIndent" colspan="4"><!-- used for displaying long text data, not rendered for normal nodes --></td>
                 <td rsf:id="node-select-cell" width="10%">
                     <input rsf:id="select-checkbox" class="evalgroupselect" type="checkbox" />
                 </td>
                 <td rsf:id="node-name" style="text-indent:0em" > - Institution Level</td>
                 <td rsf:id="nodes-cell">
                     <span rsf:id="number-children">3</span>
-                    &nbsp;
-                    <a rsf:id="add-child-link" href="" style="font-size: 0.9em;">Add</a>
-                    <a rsf:id="modify-node-link" href="" style="font-size: 0.9em;">Modify</a>
+                    <a rsf:id="add-child-link" href="">Add</a>
+                    <a rsf:id="modify-node-link" href="">Modify</a>
                     <form rsf:id="remove-node-form">
                         <input type="submit" rsf:id="remove-node-button" value="Remove"
-                            style="font-size:0.9em;height:2.1em;margin:0px;padding:0px;" />
+                            style="height:2.1em;margin:0px;padding:0px;" />
                     </form>
                 </td>
                 <td rsf:id="groups-cell">
                     <span rsf:id="assign-group-count">67</span>
-                    &nbsp;
-                    <a rsf:id="assign-groups-link" href="" style="font-size: 0.9em;">Assign Groups</a>
+                    <a rsf:id="assign-groups-link" href="">Assign Groups</a>
                 </td>
                 <td rsf:id="users-cell">
-                    <a rsf:id="assign-users-link" href="" style="font-size: 0.9em;">Assign Users</a>
+                    <a rsf:id="assign-users-link" href="">Assign Users</a>
                 </td>
             </tr>
         </tbody>

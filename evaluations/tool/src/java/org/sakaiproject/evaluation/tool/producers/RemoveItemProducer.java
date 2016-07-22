@@ -70,19 +70,12 @@ public class RemoveItemProducer implements ViewComponentProducer, ViewParamsRepo
         this.itemRenderer = itemRenderer;
     }
 
-    private NavBarRenderer navBarRenderer;
-    public void setNavBarRenderer(NavBarRenderer navBarRenderer) {
-		this.navBarRenderer = navBarRenderer;
-	}
-    
     /* (non-Javadoc)
      * @see uk.org.ponder.rsf.view.ComponentProducer#fillComponents(uk.org.ponder.rsf.components.UIContainer, uk.org.ponder.rsf.viewstate.ViewParameters, uk.org.ponder.rsf.view.ComponentChecker)
      */
     public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 
         UIMessage.make(tofill, "page-title", "removeitem.page.title");
-
-        navBarRenderer.makeNavBar(tofill, NavBarRenderer.NAV_ELEMENT, this.getViewID());
 
         // get templateItem to preview from VPs
         ItemViewParameters itemViewParams = (ItemViewParameters) viewparams;
@@ -161,6 +154,8 @@ public class RemoveItemProducer implements ViewComponentProducer, ViewParamsRepo
                     UIMessage.make("removeitem.remove.item.button"), beanBinding + actionBinding);
             deleteCommand.parameters.add(new UIELBinding(beanBinding + "itemId", item.getId()));
         }
+        
+        UICommand.make( form, "cancel-button", UIMessage.make( "general.cancel.button" ) );
 
     }
 

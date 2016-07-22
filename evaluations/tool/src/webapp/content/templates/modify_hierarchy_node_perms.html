@@ -39,20 +39,20 @@
       <h3 rsf:id="msg=modifynodeperm.page.title">Hierarchy Node Perms</h3>
 
       <div rsf:id="message-for:*" class="alertMessage">
-         <ul style="margin:0px;">
+         <ul>
             <li>Message for user here</li>
          </ul>
       </div>
 
       <div rsf:id="node-info" style="font-size:1.1em;">Node title (nodeId)</div>
-      <p class="instruction" rsf:id="msg=modifynodeperm.instructions">
+      <p class="instructionText" rsf:id="msg=modifynodeperm.instructions">
       	Page Instructions: Enter usernames or emails in the box and then select the permissions to apply to the users
       </p>
 
-      <form rsf:id="perms-form" method="post">
+      <form rsf:id="perms-form" method="post" class="inlineBlockForm">
         <div>
             <p>Click the <b>X</b> by a user name to remove their permissions from this node</p>
-            <table width="95%">
+            <table class="evalsysTable">
               <thead>
                   <th rsf:id="msg=modifynodeperm.members.name.header" width="20%">User Name</th>
                   <th rsf:id="permission-header:" width="10%">Perm Name</th>
