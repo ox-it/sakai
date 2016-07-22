@@ -47,6 +47,7 @@ public abstract class QuestionStorageMysql extends QuestionStorageSql implements
 		if (autoDdl)
 		{
 			this.sqlService.ddl(this.getClass().getClassLoader(), "mneme_question");
+			this.sqlService.ddl(this.getClass().getClassLoader(), "mneme_question_title");
 		}
 
 		M_log.info("init()");
