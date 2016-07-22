@@ -118,6 +118,9 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	/** Messages bundle name. */
 	protected String bundle = null;
 
+	/** Certificate bundle name. */
+	protected String certificateBundle = null;
+
 	/** The checker thread. */
 	protected Thread checkerThread = null;
 
@@ -439,7 +442,7 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		Float requiredPercentage = assessment.getPassMark();
 		
 		// Locale sensitive stuff: messages + date / number formatters:
-		ResourceLoader rl = new ResourceLoader(submission.getUserId(), getBundle());
+		ResourceLoader rl = new ResourceLoader(submission.getUserId(), certificateBundle);
 		DateFormat df = DateFormat.getDateInstance(DateFormat.LONG, rl.getLocale());
 		NumberFormat nf = NumberFormat.getPercentInstance(rl.getLocale());
 		nf.setMinimumFractionDigits(1);
@@ -2321,6 +2324,18 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 	public void setBundle(String name)
 	{
 		this.bundle = name;
+	}
+
+	/**
+	 * Set the certificate message bundle.
+	 *
+	 *
+	 * @param certificateBundle
+	 *        The name of the message bundle.
+     */
+	public void setCertificateBundle(String certificateBundle)
+	{
+		this.certificateBundle = certificateBundle;
 	}
 
 	/**
@@ -4687,7 +4702,4 @@ public class SubmissionServiceImpl implements SubmissionService, Runnable
 		return emailService;
 	}
 
-	public String getBundle() {
-		return bundle;
-	}
 }
