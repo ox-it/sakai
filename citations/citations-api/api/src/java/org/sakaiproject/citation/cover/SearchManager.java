@@ -118,14 +118,14 @@ public class SearchManager
     }
 
     
-    public static String getExternalSearchWindowName(String resourceId)
+    public static String getExternalSearchWindowName()
     {
         org.sakaiproject.citation.api.SearchManager instance = getInstance();
         if (instance ==null)
         {
            return null;
         }
-        return instance.getExternalSearchWindowName(resourceId);
+        return instance.getExternalSearchWindowName();
     }
 
     

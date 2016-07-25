@@ -1866,7 +1866,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			context.put("externalSearch", Boolean.TRUE);
 			context.put("externalSearchUrl", getConfigurationService().getExternalSearchUrl());
 
-			String windowName = getSearchManager().getExternalSearchWindowName(contentService.getUuid(resourceId));
+			String windowName = getSearchManager().getExternalSearchWindowName();
 			context.put("externalSearchWindowName", windowName);
 
 		}
@@ -2629,7 +2629,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			context.put("externalSearch", Boolean.TRUE);
 			context.put("externalSearchUrl", getConfigurationService().getExternalSearchUrl());
 
-			String windowName = getSearchManager().getExternalSearchWindowName(contentService.getUuid(resourceId));
+			String windowName = getSearchManager().getExternalSearchWindowName();
 			context.put("externalSearchWindowName", windowName);
 		}
 		
