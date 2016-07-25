@@ -72,7 +72,36 @@
 				</label>
 				<input type="text" size="40" class="citationFields" id="displayName" name="displayName" value="$xilator.escapeHtml("$!resourceTitle")" />
 			</p>
-            <p class="shorttext">
+			<p class="shorttext">
+				<label for="displayName">
+					$tlang.getString("resource.course.name")
+				</label>
+				<input type="text" size="40" id="courseName" name="courseName" value="$xilator.escapeHtml("$!resourceCourseName")" />
+			</p>
+			<p class="shorttext">
+			    <label for="department">
+					$tlang.getString("resource.dept.name")
+				</label>
+				<input type="text" size="40" id="department" name="department" value="$xilator.escapeHtml("$!resourceDepartment")" />
+			</p>
+			<p class="shorttext">
+				<label for="paper">
+					$tlang.getString("resource.paper")
+				</label>
+				<input type="text" size="40" id="paper" name="paper" value="$xilator.escapeHtml("$!resourceCoreOptionalPaper")" />
+			</p>
+			<p class="shorttext">
+				<label for="year">
+					$tlang.getString("resource.acad.year")
+				</label>
+				<input type="text" size="40" id="year" name="year" value="$xilator.escapeHtml("$!resourceAcademicYear")" />
+			</p>
+			<p class="shorttext">
+				<label for="term">
+					$tlang.getString("resource.term")
+				</label>
+				<input type="text" size="40" id="term" name="term" value="$xilator.escapeHtml("$!resourceTerm")" />
+			</p>
                 <label for="notify">
                     $tlang.getString("resource.gen.email1")
                 </label>
