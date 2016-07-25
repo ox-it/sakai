@@ -110,9 +110,7 @@
 		#if ($externalSearch )
 			<li>
 			  <span class="searchTargetLink">
-				<a name="ExternalSearch" id="ExternalSearch"  title="$tlang.getString("action.external.search")" href="#"/>
-					$tlang.getString("action.external.search")
-				</a>
+				<input name="ExternalSearch" id="ExternalSearch" type="button"  title="$tlang.getString("action.external.search")" value="$tlang.getString("action.external.search")" class="active"/>
 				<span class="searchUrl" style="display:none;">$externalSearchUrl</span>
 				<span class="popupTitle" style="display:none;">$tlang.getString("action.external.search")</span>
 				<span class="popupName" style="display:none;">$externalSearchWindowName</span>
