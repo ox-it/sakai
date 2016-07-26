@@ -20,7 +20,7 @@
 			<p class="shorttext">
 		#end
 			<label for="content$i">$tlang.getString("label.version")</label>
-			<input type="file" name="content" id="content" />
+			<input type="file" name="content" id="upload-content" />
 		</p>
 		
 		<table class="itemSummary" border="0" style="clear:both;margin-left:1em">
@@ -80,7 +80,7 @@
 		#end
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doReplace" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.upl")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doReplace" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.upl")" accesskey="s" />
 			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span id="submitnotifxxx"  class="messageProgress"  style="visibility:hidden">$tlang.getString("processmessage.save.file")</span>
 		</p>
@@ -90,17 +90,40 @@
 </div>
 <script type="text/javascript">
 	<!--
+
+	function onClickSaveChanges() {
+		document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doReplace" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';
+		if(submitform('addContentForm') != false) {
+			javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');
+		}
+	}
+
 	function submitform(id)
 	{
 		var theForm = document.getElementById(id);
 		if(theForm && theForm.onsubmit)
 		{
-			theForm.onsubmit();
+			if(theForm.onsubmit() == false)
+			{
+				// we should break execution if onsubmit fails
+				return false;
+			}
 		}
 		if(theForm && theForm.submit)
 		{
+			showNotif('submitnotifxxx','saveChanges','addContentForm');
 			theForm.submit();
 		}
 	}
+
+	function confirmFileNamesMatch() { // called from form.onsubmit()
+		var originalFileName = document.getElementById('itemName').innerHTML.replace(/^\s+|\s+$/g, ''); // trims whitespace
+		var newFileName = document.getElementById('upload-content').value.match(/[^\/\\]+$/); // removes directory path
+
+		if(newFileName && newFileName != originalFileName) {
+			return confirm("$tlang.getString("alert.replace.differentFile")");
+		}
+	}
+
 	-->
 </script>
