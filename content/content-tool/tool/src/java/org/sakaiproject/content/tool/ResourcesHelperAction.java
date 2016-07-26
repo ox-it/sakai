@@ -2084,56 +2084,32 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					}
 				}
 
+				String collectionId;
 				if (collection!=null)
 				{
 					//get the resourceId by using collectionName and uploadFileName
 					resourceId = collectionName +"/"+ uploadFileName;
-					try{
-						//check if resource in collection exists
-						ContentHostingService.getResource(resourceId);
-						//if user has chosen to overwrite existing resource save the new copy
-						if(overwrite != null && overwrite.equals("true")){
-							resource = ContentHostingService.editResource(resourceId);
-						}
-						//if no overwrite then create a new resource in the collection
-						else{
-							resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-						}
-					}
-					//if this is a new resource add to the collection.
-					catch(IdUnusedException idUnusedException) {
-						logger.debug("Adding resource "+uploadFileName+" in collection "+collection.getId());
-						resource = ContentHostingService.addResource(collection.getId(), Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-					}
+					collectionId = collectionName;
 				}
 				else
 				{
-					//Method getUniqueFileName was added to change external name of uploaded resources if they exist already in the collection, just the same way that their internal id.
-					//However, that is not the way Resources tool works. Internal id is changed but external name is the same for every copy of the same file.
-					//So I disable this method call, though it can be enabled again if desired.
-					
 					//String resourceName = getUniqueFileName(uploadFileName, resourceGroup);
 					resourceId = resourceGroup + uploadFileName;
-					try{
-						//check if resource exists
-						ContentHostingService.getResource(resourceId);
-						//if it does and overwrite is true save the latest copy
-						if(overwrite != null && overwrite.equals("true")){
-							resource = ContentHostingService.editResource(resourceId);
-						}
-						// if no overwrite then simply create a new resource
-						else{
-							resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension),5);
-						}
+					collectionId = resourceGroup;
+				}
+				try{
+					//if user has chosen to overwrite existing resource save the new copy
+					if(overwrite != null && overwrite.equals("true")){
+						resource = ContentHostingService.editResource(resourceId);
 					}
-					// if new resource then save
-					catch(IdUnusedException idUnusedException) {
-						logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
-						resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension),5);
-					}
-					
-					logger.debug("Adding resource "+uploadFileName+" in current folder ("+resourceGroup+")");
-					resource = ContentHostingService.addResource(resourceGroup, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				}
+				catch(IdUnusedException idUnusedException) {
+				}
+
+				// If not overwriting or doesn't exist
+				if (resource == null) {
+					logger.debug("Adding resource "+ resourceId);
+					resource = ContentHostingService.addResource(collectionId, Validator.escapeResourceName(basename),Validator.escapeResourceName(extension), ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				}
 
 				if (resource != null)
