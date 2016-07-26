@@ -643,7 +643,7 @@ $(document).ready(function() {
 			$('#forumSummaryEditId').val(itemId);
 			var height = row.find(".forumSummaryWidgetHeight").text().replace(/'/g,"");
 			$('#forum-summary-height').val(height);
-			var number = row.find("#numberOfMessages").val();
+			var number = row.find(".numberOfConversations").text();
 			$("#forumNumberDropdown-selection").val(number);
 			$('.edit-col').addClass('edit-colHidden');
 			$(this).closest('li').addClass('editInProgress');

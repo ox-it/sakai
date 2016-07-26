@@ -639,7 +639,8 @@ padding: 10px 15px 0 15px
 }
 .forumSummaryLink{
  text-decoration: none;
- color: #444
+ color: #444;
+ margin-left: 5px;
 }
 .forumSummaryDate{
  font-size:12px;

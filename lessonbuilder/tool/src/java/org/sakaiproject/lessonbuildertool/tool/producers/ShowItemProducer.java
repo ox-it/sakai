@@ -351,9 +351,20 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    // this isn't a security issue, since source is /access/lessonbuilder, and
 	    // that will be checked. THat's not the case when the URL is directly present.
 	    // in that case we have to get it from the item.
-	    String source = params.getSource();
-	    if (item != null && item.getAttribute("multimediaUrl") != null)
-		source = item.getAttribute("multimediaUrl");
+		//check if item is of type Forum_Summary
+		String source;
+		if(item != null && item.getType() == SimplePageItem.FORUM_SUMMARY){
+			//get messageId, topicId and forumId from the parameters for the source url
+			source = myUrl()+ "/portal/tool/" + simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID)
+					+"/discussionForum/message/dfViewThreadDirect.jsf?&messageId=" + params.getMessageId()
+					+ "&topicId=" + params.getTopicId() + "&forumId=" + params.getForumId();
+		}
+		else if (item != null && item.getAttribute("multimediaUrl") != null) {
+			source = item.getAttribute("multimediaUrl");
+		}
+		else{
+			source = params.getSource();
+		}
 	    UIComponent iframe = UILink.make(tofill, "iframe1", source);
 	    if (item != null && item.getType() == SimplePageItem.BLTI) {
 		String height = item.getHeight();
