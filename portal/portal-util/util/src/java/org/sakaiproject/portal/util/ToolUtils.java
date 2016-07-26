@@ -294,6 +294,8 @@ public class ToolUtils
 	public static String getPageUrlForTool(HttpServletRequest req, Site site, ToolConfiguration pageTool)
 	{
 		if ( req == null ) req = getRequestFromThreadLocal();
+		//do null check for site
+		if (site == null) return null;
 		SitePage thePage = pageTool.getContainingPage();
 		if ( thePage == null ) return null;
 		return getPageUrl(req, site, thePage);
