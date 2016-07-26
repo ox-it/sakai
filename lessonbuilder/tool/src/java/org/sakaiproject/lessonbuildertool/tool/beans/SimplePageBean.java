@@ -8074,7 +8074,7 @@ public class SimplePageBean {
 		String status = "success";
 		String divHeight = "height:" + forumSummaryHeight +"px;";
 		//saving numberOfconversations, used later on edit screen.
-		String html = "<div align=\"left\" style='"+divHeight+"' class=\"forum-summary-div\"><input type=\"hidden\" id=\"numberOfConversations\" value='"+forumSummaryDropDown+"'></div>";
+		String html = "<div align=\"left\" style='"+divHeight+"' class=\"forum-summary-div\"></div>";
 		if (canEditPage()) {
 			SimplePageItem item;
 			// itemid -1 means we're adding a new item to the page,
@@ -8087,6 +8087,7 @@ public class SimplePageBean {
 			item.setHtml(html);
 			//setting forum height variable value in the attribute
 			item.setAttribute("height", forumSummaryHeight);
+			item.setAttribute("numberOfConversations", forumSummaryDropDown);
 			item.setPrerequisite(this.prerequisite);
 			setItemGroups(item, selectedGroups);
 			update(item);
