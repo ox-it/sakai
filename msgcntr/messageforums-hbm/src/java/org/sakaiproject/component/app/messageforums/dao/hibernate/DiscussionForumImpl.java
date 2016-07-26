@@ -39,6 +39,7 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
     private ActorPermissions actorPermissions;
     private int areaindex;
     private Boolean autoMarkThreadsRead;
+    private Boolean markupFree;
     
     public int getAreaindex() {
         try {
@@ -116,12 +117,12 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
 
 	@Override
 	public boolean getMarkupFree() {
-		return false;
+		return markupFree;
 	}
 
 	@Override
 	public void setMarkupFree(boolean markupFree) {
-
+		this.markupFree = markupFree;
 	}
 
 }

@@ -144,7 +144,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private SessionManager sessionManager;
 
     private ServerConfigurationService serverConfigurationService;
-    private Boolean DEFAULT_AUTO_MARK_READ = false; 
+    private Boolean DEFAULT_AUTO_MARK_READ = false;
+    private Boolean DEFATUL_MARKUP_FREE = false;
 
     private MessageForumsTypeManager typeManager;
 
@@ -773,6 +774,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setModerated(Boolean.FALSE);
         forum.setPostFirst(Boolean.FALSE);
         forum.setAutoMarkThreadsRead(DEFAULT_AUTO_MARK_READ);
+        forum.setMarkupFree(DEFATUL_MARKUP_FREE);
         LOG.debug("createDiscussionForum executed");
         return forum;
     }

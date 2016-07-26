@@ -196,6 +196,12 @@
 						id="postFirst">
 					</h:selectBooleanCheckbox> <h:outputLabel for="postFirst" value="#{msgs.cdfm_postFirst}" />
 				</p>
+				<p class="checkbox">
+					<h:selectBooleanCheckbox
+							title="markupFree" value="#{ForumTool.selectedForum.markupFree}"
+							id="markupFree">
+					</h:selectBooleanCheckbox> <h:outputLabel for="markupFree" value="#{msgs.cdfm_markup_free}" />
+				</p>
 
 			<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h2>
 			

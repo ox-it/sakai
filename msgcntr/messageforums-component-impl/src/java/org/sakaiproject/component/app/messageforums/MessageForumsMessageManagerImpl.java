@@ -1379,7 +1379,16 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
               throw new LockedException("Message could not be saved [messageId: " + (isNew ? "new" : message.getId().toString()) + "]");
           }
         }
-        
+
+        boolean markupFree = false;
+        BaseForum forum = message.getTopic().getBaseForum();
+        if (forum instanceof DiscussionForum) {
+            DiscussionForum dForum = (DiscussionForum)forum;
+            markupFree = dForum.getMarkupFree();
+        }
+        if (markupFree) {
+            message.setBody(messageParsingService.parse(message.getBody()));
+        }
         message.setModified(new Date());
         if(getCurrentUser()!=null){
         message.setModifiedBy(getCurrentUser());
