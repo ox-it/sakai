@@ -72,6 +72,17 @@
 				</label>
 				<input type="text" size="40" class="citationFields" id="displayName" name="displayName" value="$xilator.escapeHtml("$!resourceTitle")" />
 			</p>
+            <p class="shorttext">
+                <label for="managingLibrary">
+					$tlang.getString("resource.manag.lib")
+                </label>
+                <select name="managingLibrary" id="managingLibrary" class="citationFields">
+                    <option value="-1">Please select</option>
+					#foreach($managingLib in $managingLibraries)
+                        <option value="$managingLib.id">$managingLib.name</option>
+					#end
+                </select> (recommended - set this field to help students see their most relevant availability)
+            </p>
 			<p class="shorttext">
 				<label for="displayName">
 					$tlang.getString("resource.course.name")
@@ -105,6 +116,7 @@
                 <label for="notify">
                     $tlang.getString("resource.gen.email1")
                 </label>
+                <input type="text" size="40" class="citationFields" id="courseName" name="courseName" value="$xilator.escapeHtml("$!resourceCourseName")" />
                 <select name="notify" id="notify" class="citationFields">
                     <option value="r">$tlang.getString("resource.gen.email2")</option>
                     <option value="o">$tlang.getString("resource.gen.email3")</option>
