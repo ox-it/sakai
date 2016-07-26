@@ -57,7 +57,6 @@ import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.TimeZone;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -153,7 +152,6 @@ import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -202,10 +200,10 @@ public class AssignmentAction extends PagedResourceActionII
 	private static Boolean allowLTIReviewService = false;
 	private static Boolean isDirectAccess = false;
 	private static final int contentreviewSiteYears = ServerConfigurationService.getInt("contentreview.site.years", 0);//TII value = 6
-	private static final int contentreviewSiteMin = ServerConfigurationService.getInt("contentreview.site.min", 0);//TII value = 2
-	private static final int contentreviewSiteMax = ServerConfigurationService.getInt("contentreview.site.max", 0);//TII value = 100
+	private static final int contentreviewSiteMin = ServerConfigurationService.getInt("contentreview.site.min", 0);//TII value = 5
+	private static final int contentreviewSiteMax = ServerConfigurationService.getInt("contentreview.site.max", 0);//TII value = 50
 	private static final int contentreviewAssignMin = ServerConfigurationService.getInt("contentreview.assign.min", 0);//TII value = 3
-	private static final int contentreviewAssignMax = ServerConfigurationService.getInt("contentreview.assign.max", 0);//TII value = 99
+	private static final int contentreviewAssignMax = ServerConfigurationService.getInt("contentreview.assign.max", 0);//TII value = 100
 	private static String reviewServiceName = "Review Service Default";
 	
 	/** Is the review service available? */
@@ -7481,10 +7479,10 @@ public class AssignmentAction extends PagedResourceActionII
 				} else {
 					state.removeAttribute(NEW_ASSIGNMENT_INSTRUCTOR_FIELDS);
 				}
-				if (state.getAttribute(NEW_ASSIGNMENT_SHORT_TITLE) != null){
+				if (StringUtils.isBlank( title ) || (contentreviewAssignMin > 0 && title.length() < contentreviewAssignMin)){
 					addAlert(state, rb.getFormattedMessage("review.assignchars", new Object[]{reviewServiceName, contentreviewAssignMin}));
 				}
-				if (state.getAttribute(NEW_ASSIGNMENT_LONG_TITLE) != null){
+				if (StringUtils.isNotBlank( title ) && contentreviewAssignMax > 0 && title.length() > contentreviewAssignMax){
 					addAlert(state, rb.getFormattedMessage("review.assigncharslong", new Object[]{reviewServiceName, contentreviewAssignMax}));
 				}
 				if (state.getAttribute(NEW_ASSIGNMENT_INSTRUCTOR_FIELDS) != null){
@@ -10392,7 +10390,8 @@ public class AssignmentAction extends PagedResourceActionII
 				if(allowReviewService && allowLTIReviewService && a.getContent().getAllowReviewService()){
 					if (contentreviewAssignMin > 0 && a.getTitle().length() < contentreviewAssignMin){
 						addAlert(state, rb.getFormattedMessage("review.assignchars", new Object[]{reviewServiceName, contentreviewAssignMin}));
-					} else if (contentreviewAssignMax > 0 && a.getTitle().length() > contentreviewAssignMax){
+					}
+					if (contentreviewAssignMax > 0 && a.getTitle().length() > contentreviewAssignMax){
 						addAlert(state, rb.getFormattedMessage("review.assigncharslong", new Object[]{reviewServiceName, contentreviewAssignMax}));
 					}
 					User user = (User) state.getAttribute(STATE_USER);
@@ -10404,7 +10403,8 @@ public class AssignmentAction extends PagedResourceActionII
 						st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
 						if (contentreviewSiteMin > 0 && st.getTitle().length() < contentreviewSiteMin){
 							addAlert(state, rb.getFormattedMessage("review.sitechars", new Object[]{reviewServiceName, contentreviewSiteMin}));
-						} else if (contentreviewSiteMax > 0 && st.getTitle().length() > contentreviewSiteMax){
+						}
+						if (contentreviewSiteMax > 0 && st.getTitle().length() > contentreviewSiteMax){
 							addAlert(state, rb.getFormattedMessage("review.sitecharslong", new Object[]{reviewServiceName, contentreviewSiteMax}));
 						}
 						if(contentreviewSiteYears > 0){
