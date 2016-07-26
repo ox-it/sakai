@@ -921,6 +921,9 @@ public class AssignmentAction extends PagedResourceActionII
 	/** Sakai.property for enable/disable anonymous grading */
 	private static final String SAK_PROP_ENABLE_ANON_GRADING = "assignment.anon.grading.enabled";
 
+	private static final String SAK_PROP_ENABLE_GRADEMARK = "turnitin.grademark.integration.enabled";
+	private static final boolean SAK_PROP_ENABLE_GRADEMARK_DEFAULT = true;
+
 	// SAK-29314
 	private boolean nextUngraded = false;
 	private boolean prevUngraded = false;
@@ -1611,9 +1614,7 @@ public class AssignmentAction extends PagedResourceActionII
 				String ltiLink = contentReviewService.getLTIAccess(currentAssignmentReference, contextString);
 				M_log.debug("ltiLink " + ltiLink);
 				context.put("ltiLink", ltiLink);
-				int factor = AssignmentService.getScaleFactor();
-				int dec = (int)Math.log10(factor);
-				int maxPointsInt = assignment.getContent().getMaxGradePoint() / dec;
+				int maxPointsInt = assignment.getContent().getMaxGradePoint() / AssignmentService.getScaleFactor();
 				context.put("maxPointsInt", maxPointsInt);
 				if(isDirectAccess && Boolean.valueOf(AssignmentService.canSubmit(contextString, assignment))){
 					M_log.debug("Allowing submission directly from TII");
@@ -2327,9 +2328,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String ltiLink = contentReviewService.getLTIAccess(assignment.getId(), contextString);
 			M_log.debug("ltiLink " + ltiLink);
 			context.put("ltiLink", ltiLink);
-			int factor = AssignmentService.getScaleFactor();
-			int dec = (int)Math.log10(factor);
-			int maxPointsInt = assignment.getContent().getMaxGradePoint() / dec;
+			int maxPointsInt = assignment.getContent().getMaxGradePoint() / AssignmentService.getScaleFactor();
 			context.put("maxPointsInt", maxPointsInt);
 		}
 		
@@ -2707,7 +2706,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET", ServerConfigurationService.getBoolean("turnitin.option.internet_check", true));
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB", ServerConfigurationService.getBoolean("turnitin.option.journal_check", true));
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION", ServerConfigurationService.getBoolean("turnitin.option.institution_check", false));
-		
+
+		context.put( "show_NEW_ASSIGNMENT_REVIEW_SERVICE_GRADEMARK_ENABLED", ServerConfigurationService.getBoolean( SAK_PROP_ENABLE_GRADEMARK, SAK_PROP_ENABLE_GRADEMARK_DEFAULT ) );
+
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN) == null) ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.s_paper_check.default", ServerConfigurationService.getBoolean("turnitin.option.s_paper_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN));
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET", state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET) == null ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.internet_check.default", ServerConfigurationService.getBoolean("turnitin.option.internet_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET));
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB", state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB) == null ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.journal_check.default", ServerConfigurationService.getBoolean("turnitin.option.journal_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB));
@@ -3671,9 +3672,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String ltiLink = contentReviewService.getLTIAccess(assignmentId, contextString);
 			M_log.debug("ltiLink " + ltiLink);
 			context.put("ltiLink", ltiLink);
-			int factor = AssignmentService.getScaleFactor();
-			int dec = (int)Math.log10(factor);
-			int maxPointsInt = a.getContent().getMaxGradePoint() / dec;
+			int maxPointsInt = a.getContent().getMaxGradePoint() / AssignmentService.getScaleFactor();
 			context.put("maxPointsInt", maxPointsInt);
 		}
 		
@@ -4431,9 +4430,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String ltiLink = contentReviewService.getLTIAccess(assignmentRef, contextString);
 			M_log.debug("ltiLink " + ltiLink);
 			context.put("ltiLink", ltiLink);
-			int factor = AssignmentService.getScaleFactor();
-			int dec = (int)Math.log10(factor);
-			int maxPointsInt = assignmentContent.getMaxGradePoint() / dec;
+			int maxPointsInt = assignmentContent.getMaxGradePoint() / AssignmentService.getScaleFactor();
 			context.put("maxPointsInt", maxPointsInt);
 			if(isDirectAccess){
 				M_log.debug("Allowing submission directly from TII");
@@ -9847,11 +9844,6 @@ public class AssignmentAction extends PagedResourceActionII
         opts.put("title", assign.getTitle());
         opts.put("instructions", assign.getInstructions());
         opts.put("assignmentContentId", assign.getReference());
-
-        int factor = AssignmentService.getScaleFactor();
-        int dec = (int)Math.log10(factor);
-        int maxPoints = assign.getMaxGradePoint() / dec;
-        opts.put("points", maxPoints);
 
         if(assign.getAttachments() != null && assign.getAttachments().size() > 0){
         	List<String> attachments = new ArrayList<String>();
