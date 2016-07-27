@@ -2647,9 +2647,9 @@ public class BaseSearchManager implements SearchManager, Observer
     	return buf.toString();
     }
 
-    public String getExternalSearchWindowName(String resourceId)
+    public String getExternalSearchWindowName()
     {
-        String serverUrl = serverConfigurationService.getServerUrl() + Entity.SEPARATOR + SERVLET_NAME + Entity.SEPARATOR + resourceId;
+        String serverUrl = serverConfigurationService.getServerUrl() + Entity.SEPARATOR + SERVLET_NAME + Entity.SEPARATOR;
         try {
             String encodedUrl = URLEncoder.encode(serverUrl, "UTF-8");
             return WINDOW_PREFIX + encodedUrl;
