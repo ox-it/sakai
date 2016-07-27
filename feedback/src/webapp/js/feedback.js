@@ -84,7 +84,7 @@
                     $('#feedback-technical-setup-instruction').show();
                 }
 
-                if (feedback.supplementaryInfo.length == 0) {
+                if (feedback.supplementaryInfo.length > 0) {
                     $('#feedback-supplementary-info').show();
                 }
 
