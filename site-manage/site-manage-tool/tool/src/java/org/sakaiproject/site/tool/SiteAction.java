@@ -10522,7 +10522,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private String transferSiteResource(String oSiteId, String nSiteId, String siteAttribute) {
 
 		SecurityService.pushAdvisor(SECURITY_ADVISOR_ALLOW_ALL);
-		String rv = "";
+		String rv = siteAttribute;
 
 		try {
 
