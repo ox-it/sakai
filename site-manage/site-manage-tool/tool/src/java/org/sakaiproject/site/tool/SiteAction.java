@@ -5593,7 +5593,7 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 		}
 		if (canChooseAdminSite(data, state)) {
-			state.setAttribute(STATE_TEMPLATE_INDEX, "65");
+			state.setAttribute(STATE_TEMPLATE_INDEX, "64");
 		} else {
 			doSite_selectAdmin(state, params);
 		}
@@ -8782,7 +8782,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		} else if (SITE_MODE_HELPER.equalsIgnoreCase((String) state.getAttribute(STATE_SITE_MODE))) {
 			state.setAttribute(STATE_TEMPLATE_INDEX, "1");
 			if (canChooseAdminSite(data, state)) {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "65");
+				state.setAttribute(STATE_TEMPLATE_INDEX, "64");
 			} else {
 				doSite_selectAdmin(state, data.getParameters());
 			}
@@ -10414,7 +10414,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 			break;
-		case 63:
+		case 64:
 			if (forward) {
 				doSite_selectAdmin(state, params);
 			}
@@ -10427,7 +10427,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					state.setAttribute(STATE_ADMIN_REALM, adminSite);
 				}
 				if (state.getAttribute(STATE_ADMIN_REALM) != null) {
-					state.setAttribute(STATE_TEMPLATE_INDEX, "1");
+					state.setAttribute(STATE_TEMPLATE_INDEX, "29");
 				} else {
 					// Error Message
 					addAlert(state, rb.getString("java.noadminsite"));
