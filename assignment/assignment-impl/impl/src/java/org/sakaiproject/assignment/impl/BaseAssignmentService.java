@@ -77,7 +77,6 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -109,6 +108,7 @@ import java.util.zip.ZipOutputStream;
 
 //Export to excel
 import java.text.DecimalFormat;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 
 /**
@@ -6326,62 +6326,89 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				if (SessionManager.getCurrentSessionUserId() == null)
 				{
 					M_log.debug("user not logged in");
-					try{
-						if ("s".equals(ref.getSubType()))
+					if ("s".equals(ref.getSubType()))
+					{
+						if( !ref.getId().contains( ":" ) )
+						{
+							M_log.debug( "No content review item specified" );
+							return;
+						}
+
+						SecurityAdvisor yesMan = (String userID, String function, String reference) -> SecurityAdvice.ALLOWED;
+
+						try
 						{
 							M_log.debug("getting submission");
 							//TODO should we check the assignment settings?
-							Session newsession = SessionManager.startSession();
-							newsession.setActive();
-							SessionManager.setCurrentSession(newsession);
-							newsession.setUserId("admin");
-							newsession.setUserEid("admin");
-							if (newsession == null){
-								M_log.debug("startSession() failed.");
-							} else {
-								M_log.debug(newsession.getId());
-							}
-							if(!ref.getId().contains(":")){
-								M_log.debug("No content review item specified");
-								return;
-							}
+							securityService.pushAdvisor( yesMan );
+
 							String[] ids = ref.getId().split(":");
 							String submissionId = ids[0];
 							String criId = ids[1];
+							int contentID = 0;
+							try { contentID = Integer.parseInt( ids[2] ); }
+							catch( NumberFormatException ex ) { M_log.debug( "Invalid content ID UUID hash; ", ex ); }
+
 							AssignmentSubmission s = getSubmission(submissionId);
 							ContentReviewItem cri = contentReviewService.getItemById(criId);
-							M_log.debug("cri " + criId + " - content " + cri.getContentId());
-							ContentResource cr = m_contentHostingService.getResource(cri.getContentId());
-							if(s == null || cr == null || cri == null){
-								M_log.warn("Could not get submission, content or contentreviewitem " + ref.getId());
-								return;
-							} else {
+
+							if( s == null || cri == null )
+							{
+								M_log.warn("Could not get submission, or contentreviewitem " + ref.getId());
+							}
+							else
+							{
+								if( contentID != cri.getContentId().hashCode() )
+								{
+									M_log.warn( "Content ID UUID hash mismatch! Abort serving submission file." );
+									return;
+								}
+
+								M_log.debug("cri " + criId + " - content " + cri.getContentId());
 								M_log.debug("submission url " + s.getUrl());
-								if (s.getSubmittedAttachments().isEmpty())
+
+								ContentResource cr = m_contentHostingService.getResource(cri.getContentId());
+								if( cr == null )
+								{
+									M_log.warn( "Could not get content " + ref.getId() );
+								}
+								else if( s.getSubmittedAttachments().isEmpty() )
+								{
 									M_log.debug(this + " getReviewScore No attachments submitted.");
-								else {
-									if(cri.isUrlAccessed()){
-										M_log.warn("Trying to access an url already accessed, submission id " + s.getId());
-										return;
+								}
+								else
+								{
+									// If the URL has not yet been accessed, or it has been accessed but the status is one of the following,
+									// conditionally allow the request for the file again
+									if( !cri.isUrlAccessed() || (cri.isUrlAccessed() && (ContentReviewItem.NOT_SUBMITTED_CODE.equals( cri.getStatus() )
+																							|| ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE.equals( cri.getStatus() )
+																							|| ContentReviewItem.SUBMISSION_ERROR_RETRY_CODE.equals( cri.getStatus() ))) )
+									{
+										handleAccessResource( req, res, cr );
+
+										if( !contentReviewService.updateItemAccess( cr.getId() ) )
+										{
+											M_log.error( "Could not update cr item access status" );
+										}
 									}
 
-									handleAccessResource(req, res, cr);
-									
-									boolean itemUpdated = contentReviewService.updateItemAccess(cr.getId());
-									if(!itemUpdated){
-										M_log.error("Could not update cr item access status");
+									// Otherwise, log that someone is trying to access this (already used) URL and do not serve up the file
+									else
+									{
+										M_log.warn( "Trying to access a URL which has already been accessed; submission ID=" + s.getId() );
 									}
-										
-									//TODO close sakai session
 								}
 							}
 						}
-						// else fail the request, user not logged in yet.
-					}
-					catch (Throwable t)
-					{
-						M_log.warn(" HandleAccess: caught exception " + t.toString() + " and rethrow it!");
-						throw new EntityNotDefinedException(ref.getReference());
+						catch (IdUnusedException | PermissionException | TypeException t)
+						{
+							M_log.warn("HandleAccess: caught exception " + t.toString() + " rethrowing it");
+							throw new EntityNotDefinedException(ref.getReference());
+						}
+						finally
+						{
+							securityService.popAdvisor(yesMan);
+						}
 					}
 				}
 				else
