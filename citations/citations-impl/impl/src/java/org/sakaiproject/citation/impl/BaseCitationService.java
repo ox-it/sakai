@@ -3202,6 +3202,7 @@ public abstract class BaseCitationService implements CitationService
 				this.m_citations = new Hashtable<String, Citation>();
 			}
 			this.m_citations.clear();
+			this.m_nestedCitationCollectionOrders.clear();
 			if(this.m_order == null)
 			{
 				this.m_order = new TreeSet<String>(this.m_comparator);

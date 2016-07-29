@@ -1009,6 +1009,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, rb.getString("nested.section.title.text"));
 			getCitationService().saveSection(citationCollectionOrder);
 			message = rb.getString("resource.updated");
+			state.setAttribute(STATE_CITATION_COLLECTION, null);
 		}
 		catch (Exception e){
 			message = e.getMessage();
@@ -1033,6 +1034,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			CitationCollectionOrder citationCollectionOrder = new CitationCollectionOrder(collection.getId(), locationId, sectionType, addSectionHTML);
 			getCitationService().saveSubsection(citationCollectionOrder);
 			message = rb.getString("resource.updated");
+			state.setAttribute(STATE_CITATION_COLLECTION, null);
 		}
 		catch (Exception e){
 			message = e.getMessage();
