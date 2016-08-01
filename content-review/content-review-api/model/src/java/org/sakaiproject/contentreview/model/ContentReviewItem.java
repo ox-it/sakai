@@ -298,11 +298,23 @@ public class ContentReviewItem {
 	public boolean isUrlAccessed(){
 		return urlAccessed;
 	}
-	
+
+	/**
+	 * NB: If this is a new content review item, this value will be inserted; but any changes will not be updated. To update this, see ContentReviewService.updateItemAccess(String contentId).
+	 * Rationale: Hibernate updates every attribute on the object; some content-review services (Ahem: Turnitin) use asynchronous callbacks to update this attribute. So a race condition is possible:
+	 * 1) ProcessQueue job retrieves ContentReviewItem from the db
+	 * 2) Submits to remote CRS
+	 * 3) Asynchronous callback from remote CRS; sets UrlAccessed to true, persists this ContentReviewItem in the db
+	 *    -Note this is a separate thread; working on a separate ContentReviewItem instance
+	 * 4) ProcessQueue job continues, marking the original ContentReviewItem's status to indicate that the call to TII was successful
+	 *    -*The UrlAccessed property is still false on this instance; so it gets set to false again in the db, even though the URL has been accessed*
+	 * Solution: set the UrlAccessed property in the ContentReviewItem.hbm.xml to insert="true" update="false"
+	 *    -the externalId will be inserted as false when first persisting the object, but ignored when updating the object except when using, say, an hql query
+	 */
 	public void setUrlAccessed(boolean urlAccessed) {
 		this.urlAccessed = urlAccessed;
 	}
-
+		
 	public String getSubmissionId() {
 		return submissionId;
 	}
@@ -310,15 +322,19 @@ public class ContentReviewItem {
 	public void setSubmissionId(String submissionId) {
 		this.submissionId = submissionId;
 	}
+	
 	public boolean isResubmission(){
 		return resubmission;
 	}
+	
 	public void setResubmission(boolean resubmission) {
 		this.resubmission = resubmission;
 	}
+	
 	public String getExternalGrade(){
 		return externalGrade;
 	}
+	
 	public void setExternalGrade(String externalGrade) {
 		this.externalGrade = externalGrade;
 	}

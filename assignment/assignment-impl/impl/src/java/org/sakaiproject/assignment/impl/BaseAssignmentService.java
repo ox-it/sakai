@@ -111,6 +111,7 @@ import java.util.zip.ZipOutputStream;
 
 //Export to excel
 import java.text.DecimalFormat;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 
 /**
@@ -173,9 +174,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public void setContentCopy(ContentCopy contentCopy) {
 	this.contentCopy = contentCopy;
 	}
-	
+
 	protected ContentReviewSiteAdvisor contentReviewSiteAdvisor;
-	public void setContentReviewService(ContentReviewSiteAdvisor contentReviewSiteAdvisor) {
+	public void setContentReviewSiteAdvisor(ContentReviewSiteAdvisor contentReviewSiteAdvisor) {
 		this.contentReviewSiteAdvisor = contentReviewSiteAdvisor;
 	}
 	
@@ -2036,6 +2037,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				
 				ResourcePropertiesEdit pEdit = (BaseResourcePropertiesEdit) retVal.getPropertiesEdit();
 				pEdit.addAll(existingContent.getProperties());
+				pEdit.removeProperty("lti_id");
 				addLiveProperties(pEdit);
 			}
 		}
@@ -6398,6 +6400,90 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						M_log.warn(" HandleAccess: caught exception " + t.toString() + " and rethrow it!");
 						throw new EntityNotDefinedException(ref.getReference());
 					}
+					if ("s".equals(ref.getSubType()))
+					{
+						if( !ref.getId().contains( ":" ) )
+						{
+							M_log.debug( "No content review item specified" );
+							return;
+						}
+
+						SecurityAdvisor yesMan = (String userID, String function, String reference) -> SecurityAdvice.ALLOWED;
+
+						try
+						{
+							M_log.debug("getting submission");
+							//TODO should we check the assignment settings?
+							securityService.pushAdvisor( yesMan );
+
+							String[] ids = ref.getId().split(":");
+							String submissionId = ids[0];
+							String criId = ids[1];
+							int contentID = 0;
+							try { contentID = Integer.parseInt( ids[2] ); }
+							catch( NumberFormatException ex ) { M_log.debug( "Invalid content ID UUID hash; ", ex ); }
+
+							AssignmentSubmission s = getSubmission(submissionId);
+							ContentReviewItem cri = contentReviewService.getItemById(criId);
+
+							if( s == null || cri == null )
+							{
+								M_log.warn("Could not get submission, or contentreviewitem " + ref.getId());
+							}
+							else
+							{
+								if( contentID != cri.getContentId().hashCode() )
+								{
+									M_log.warn( "Content ID UUID hash mismatch! Abort serving submission file." );
+									return;
+								}
+
+								M_log.debug("cri " + criId + " - content " + cri.getContentId());
+								M_log.debug("submission url " + s.getUrl());
+
+								ContentResource cr = m_contentHostingService.getResource(cri.getContentId());
+								if( cr == null )
+								{
+									M_log.warn( "Could not get content " + ref.getId() );
+								}
+								else if( s.getSubmittedAttachments().isEmpty() )
+								{
+									M_log.debug(this + " getReviewScore No attachments submitted.");
+								}
+								else
+								{
+									// If the URL has not yet been accessed, or it has been accessed but the status is one of the following,
+									// conditionally allow the request for the file again
+									if( !cri.isUrlAccessed() || (cri.isUrlAccessed() && (ContentReviewItem.NOT_SUBMITTED_CODE.equals( cri.getStatus() )
+																							|| ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE.equals( cri.getStatus() )
+																							|| ContentReviewItem.SUBMISSION_ERROR_RETRY_CODE.equals( cri.getStatus() ))) )
+									{
+										handleAccessResource( req, res, cr );
+
+										if( !contentReviewService.updateItemAccess( cr.getId() ) )
+										{
+											M_log.error( "Could not update cr item access status" );
+										}
+									}
+
+									// Otherwise, log that someone is trying to access this (already used) URL and do not serve up the file
+									else
+									{
+										M_log.warn( "Trying to access a URL which has already been accessed; submission ID=" + s.getId() );
+									}
+								}
+							}
+						}
+						catch (IdUnusedException | PermissionException | TypeException t)
+						{
+							M_log.warn("HandleAccess: caught exception " + t.toString() + " rethrowing it");
+							throw new EntityNotDefinedException(ref.getReference());
+						}
+						finally
+						{
+							securityService.popAdvisor(yesMan);
+						}
+					}
 				}
 				else
 				{
@@ -10180,6 +10266,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			this.m_allowAnyFile = m_allowAnyFile;
 		}
 
+
+		/**
+		 * Does this Assignment allow students to view the external grades?
+		 *
+		 * @param allow -
+		 *        true if the Assignment allows students to view the external grades, false otherwise
+		 */
+		public void setAllowStudentViewExternalGrade(boolean allow) {
+			m_allowStudentViewExternalGrade = allow;
+		}
+
 	}// BaseAssignmentContent
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -11192,7 +11289,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			return reviewResults;
 		}
-		
+
+
 		/**
 		 * constructor
 		 */

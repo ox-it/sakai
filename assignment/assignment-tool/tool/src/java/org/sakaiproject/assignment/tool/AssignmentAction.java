@@ -153,7 +153,6 @@ import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -202,10 +201,10 @@ public class AssignmentAction extends PagedResourceActionII
 	private static Boolean allowLTIReviewService = false;
 	private static Boolean isDirectAccess = false;
 	private static final int contentreviewSiteYears = ServerConfigurationService.getInt("contentreview.site.years", 0);//TII value = 6
-	private static final int contentreviewSiteMin = ServerConfigurationService.getInt("contentreview.site.min", 0);//TII value = 2
-	private static final int contentreviewSiteMax = ServerConfigurationService.getInt("contentreview.site.max", 0);//TII value = 100
+	private static final int contentreviewSiteMin = ServerConfigurationService.getInt("contentreview.site.min", 0);//TII value = 5
+	private static final int contentreviewSiteMax = ServerConfigurationService.getInt("contentreview.site.max", 0);//TII value = 50
 	private static final int contentreviewAssignMin = ServerConfigurationService.getInt("contentreview.assign.min", 0);//TII value = 3
-	private static final int contentreviewAssignMax = ServerConfigurationService.getInt("contentreview.assign.max", 0);//TII value = 99
+	private static final int contentreviewAssignMax = ServerConfigurationService.getInt("contentreview.assign.max", 0);//TII value = 100
 	private static String reviewServiceName = "Review Service Default";
 	
 	/** Is the review service available? */
@@ -247,8 +246,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES = "exclude_smallmatches";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE = "exclude_type";
 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_VALUE = "exclude_value";
-	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE = "allow_any_file";
-
+ 	private static final String NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE = "allow_any_file";
 
 	/** Peer Review Attachments **/
 	private static final String PEER_ATTACHMENTS = "peer_attachments";
@@ -922,6 +920,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** Sakai.property for enable/disable anonymous grading */
 	private static final String SAK_PROP_ENABLE_ANON_GRADING = "assignment.anon.grading.enabled";
+
+	private static final String SAK_PROP_ENABLE_GRADEMARK = "turnitin.grademark.integration.enabled";
+	private static final boolean SAK_PROP_ENABLE_GRADEMARK_DEFAULT = true;
 
 	// SAK-29314
 	private boolean nextUngraded = false;
@@ -1616,9 +1617,7 @@ public class AssignmentAction extends PagedResourceActionII
 				String ltiLink = contentReviewService.getLTIAccess(currentAssignmentReference, contextString);
 				M_log.debug("ltiLink " + ltiLink);
 				context.put("ltiLink", ltiLink);
-				int factor = AssignmentService.getScaleFactor();
-				int dec = (int)Math.log10(factor);
-				int maxPointsInt = assignment.getContent().getMaxGradePoint() / dec;
+				int maxPointsInt = assignment.getContent().getMaxGradePoint() / AssignmentService.getScaleFactor();
 				context.put("maxPointsInt", maxPointsInt);
 				if(isDirectAccess && Boolean.valueOf(AssignmentService.canSubmit(contextString, assignment))){
 					M_log.debug("Allowing submission directly from TII");
@@ -2332,9 +2331,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String ltiLink = contentReviewService.getLTIAccess(assignment.getId(), contextString);
 			M_log.debug("ltiLink " + ltiLink);
 			context.put("ltiLink", ltiLink);
-			int factor = AssignmentService.getScaleFactor();
-			int dec = (int)Math.log10(factor);
-			int maxPointsInt = assignment.getContent().getMaxGradePoint() / dec;
+			int maxPointsInt = assignment.getContent().getMaxGradePoint() / AssignmentService.getScaleFactor();
 			context.put("maxPointsInt", maxPointsInt);
 		}
 		
@@ -2712,7 +2709,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET", ServerConfigurationService.getBoolean("turnitin.option.internet_check", true));
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB", ServerConfigurationService.getBoolean("turnitin.option.journal_check", true));
 		context.put("show_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION", ServerConfigurationService.getBoolean("turnitin.option.institution_check", false));
-		
+
+		context.put( "show_NEW_ASSIGNMENT_REVIEW_SERVICE_GRADEMARK_ENABLED", ServerConfigurationService.getBoolean( SAK_PROP_ENABLE_GRADEMARK, SAK_PROP_ENABLE_GRADEMARK_DEFAULT ) );
+
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN", (state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN) == null) ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.s_paper_check.default", ServerConfigurationService.getBoolean("turnitin.option.s_paper_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_TURNITIN));
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET", state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET) == null ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.internet_check.default", ServerConfigurationService.getBoolean("turnitin.option.internet_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INTERNET));
 		context.put("value_NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB", state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB) == null ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.option.journal_check.default", ServerConfigurationService.getBoolean("turnitin.option.journal_check", true) ? true : false)) : state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_PUB));
@@ -3676,9 +3675,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String ltiLink = contentReviewService.getLTIAccess(assignmentId, contextString);
 			M_log.debug("ltiLink " + ltiLink);
 			context.put("ltiLink", ltiLink);
-			int factor = AssignmentService.getScaleFactor();
-			int dec = (int)Math.log10(factor);
-			int maxPointsInt = a.getContent().getMaxGradePoint() / dec;
+			int maxPointsInt = a.getContent().getMaxGradePoint() / AssignmentService.getScaleFactor();
 			context.put("maxPointsInt", maxPointsInt);
 		}
 		
@@ -4436,9 +4433,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String ltiLink = contentReviewService.getLTIAccess(assignmentRef, contextString);
 			M_log.debug("ltiLink " + ltiLink);
 			context.put("ltiLink", ltiLink);
-			int factor = AssignmentService.getScaleFactor();
-			int dec = (int)Math.log10(factor);
-			int maxPointsInt = assignmentContent.getMaxGradePoint() / dec;
+			int maxPointsInt = assignmentContent.getMaxGradePoint() / AssignmentService.getScaleFactor();
 			context.put("maxPointsInt", maxPointsInt);
 			if(isDirectAccess){
 				M_log.debug("Allowing submission directly from TII");
@@ -6932,7 +6927,10 @@ public class AssignmentAction extends PagedResourceActionII
 		String resourceId = StringUtils.substring(sb_resourceId.toString(), 0, maxChars) + fileExtension;
 
 		ResourcePropertiesEdit inlineProps = m_contentHostingService.newResourceProperties();
-		inlineProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, rb.getString("submission.inline"));
+		String fileName = rb.getString("submission.inline");
+		if (!fileName.endsWith(".html"))
+		    fileName = fileName + ".html";
+		inlineProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fileName);
 		inlineProps.addProperty(ResourceProperties.PROP_DESCRIPTION, resourceId);
 		inlineProps.addProperty(AssignmentSubmission.PROP_INLINE_SUBMISSION, "true");
 
@@ -7477,10 +7475,10 @@ public class AssignmentAction extends PagedResourceActionII
 				} else {
 					state.removeAttribute(NEW_ASSIGNMENT_INSTRUCTOR_FIELDS);
 				}
-				if (state.getAttribute(NEW_ASSIGNMENT_SHORT_TITLE) != null){
+				if (StringUtils.isBlank( title ) || (contentreviewAssignMin > 0 && title.length() < contentreviewAssignMin)){
 					addAlert(state, rb.getFormattedMessage("review.assignchars", new Object[]{reviewServiceName, contentreviewAssignMin}));
 				}
-				if (state.getAttribute(NEW_ASSIGNMENT_LONG_TITLE) != null){
+				if (StringUtils.isNotBlank( title ) && contentreviewAssignMax > 0 && title.length() > contentreviewAssignMax){
 					addAlert(state, rb.getFormattedMessage("review.assigncharslong", new Object[]{reviewServiceName, contentreviewAssignMax}));
 				}
 				if (state.getAttribute(NEW_ASSIGNMENT_INSTRUCTOR_FIELDS) != null){
@@ -7802,6 +7800,12 @@ public class AssignmentAction extends PagedResourceActionII
 			resetAllowResubmitParams(state);
 		}
 		
+		//set whether students can view the review service grades
+		r = params.getString(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW_EXTERNAL_GRADE);
+		if (r == null) b = Boolean.FALSE.toString();
+		else b = Boolean.TRUE.toString();
+		state.setAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW_EXTERNAL_GRADE, b);
+
 		// assignment notification option
 		String notiOption = params.getString(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS);
 		if (notiOption != null)
@@ -9788,12 +9792,27 @@ public class AssignmentAction extends PagedResourceActionII
         Map opts = new HashMap();
         
         opts.put("submit_papers_to", assign.getSubmitReviewRepo());
+
+        /* TII only has three settings for resubmissions:
+         * 1) Generate reports immediately (resubmissions are not allowed)
+         * 2) Generate reports immediately (resubmissions are allowed until due date)
+         * 3) Generate reports on due date (resubmissions are allowed until due date)
+         * 
+         * Due to this combined with the fact that TII will refuse manually allowed resubmissions, we should default to always 
+         * allowing resubmissions on the TII side. Sakai/Assignments will act as the 'gaurd' against invalid resubmissions.
+         * 
+         * So in effect, the only setting of consequence here is to either generate the reports immediately or on the due date.
+         */
         String originalityReportVal = assign.getGenerateOriginalityReport();
-        if(originalityReportVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY) && state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null){
-        	opts.put("report_gen_speed", NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_RESUB);
-        } else {
-        	opts.put("report_gen_speed", originalityReportVal);
+        if (originalityReportVal.equals(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY))
+        {
+            opts.put("report_gen_speed", NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY_RESUB);
         }
+        else
+        {
+            opts.put("report_gen_speed", NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE);
+        }
+
         opts.put("institution_check", assign.isCheckInstitution() ? "1" : "0");
         opts.put("internet_check", assign.isCheckInternet() ? "1" : "0");
         opts.put("journal_check", assign.isCheckPublications() ? "1" : "0");
@@ -9814,25 +9833,19 @@ public class AssignmentAction extends PagedResourceActionII
         	opts.put("exclude_type", Integer.toString(assign.getExcludeType()));
         	opts.put("exclude_value", Integer.toString(assign.getExcludeValue()));
         }
-
+ 
         if(closeTime.getTime() > dueTime.getTime()){
 			opts.put("late_accept_flag", "1");
         } else {
 			opts.put("late_accept_flag", "0");
         }
-        
+
         SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
         dform.applyPattern("yyyy-MM-dd HH:mm:ss");
-        opts.put("dtstart", dform.format(openTime.getTime()));
-        opts.put("dtdue", dform.format(dueTime.getTime()));
-        //opts.put("dtpost", dform.format(closeTime.getTime()));
-        //opts.put("dtpost", dform.format(closeTime.getTime()));       
-        TimeZone tz = TimeZone.getTimeZone("UTC");
-        dform.setTimeZone(tz);
-        dform.applyPattern("yyyy-MM-dd'T'HH:mm");
-        opts.put("isostart", dform.format(openTime.getTime()));
-        opts.put("isodue", dform.format(dueTime.getTime()));
-        opts.put("points", assign.getMaxGradePoint());
+        opts.put("dtstart", dform.format(openTime.getTime()));  // old Turnitin Sakai API integration
+        opts.put("dtdue", dform.format(dueTime.getTime()));  // old Turnitin Sakai API integration
+        opts.put("timestampOpen", openTime.getTime());  // new Turnitin LTI integration
+        opts.put("timestampDue", dueTime.getTime());  // new Turnitin LTI integration
         opts.put("title", assign.getTitle());
         opts.put("instructions", assign.getInstructions());
         opts.put("assignmentContentId", assign.getReference());
@@ -9856,10 +9869,8 @@ public class AssignmentAction extends PagedResourceActionII
             M_log.error(e);
 			String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
 			String[] args = new String[]{contentReviewService.getServiceName(), uiService, e.toString()};
-            state.setAttribute("alertMessage", rb.getFormattedMessage("content_review.error.createAssignment", args));
-	        String technicalEmail = ServerConfigurationService.getString("mail.support", null);
-	        String alertMessage = rb.getFormattedMessage("content_review.error.createAssignment", new Object[]{technicalEmail});
-	        state.setAttribute("alertMessage", alertMessage);
+			//state.setAttribute("alertMessage", rb.getFormattedMessage("content_review.error.createAssignment", args));
+			state.setAttribute("alertMessageCR", rb.getFormattedMessage("content_review.error.createAssignment", args));
         }
 		return false;
     }
@@ -10391,7 +10402,8 @@ public class AssignmentAction extends PagedResourceActionII
 				if(allowReviewService && allowLTIReviewService && a.getContent().getAllowReviewService()){
 					if (contentreviewAssignMin > 0 && a.getTitle().length() < contentreviewAssignMin){
 						addAlert(state, rb.getFormattedMessage("review.assignchars", new Object[]{reviewServiceName, contentreviewAssignMin}));
-					} else if (contentreviewAssignMax > 0 && a.getTitle().length() > contentreviewAssignMax){
+					}
+					if (contentreviewAssignMax > 0 && a.getTitle().length() > contentreviewAssignMax){
 						addAlert(state, rb.getFormattedMessage("review.assigncharslong", new Object[]{reviewServiceName, contentreviewAssignMax}));
 					}
 					User user = (User) state.getAttribute(STATE_USER);
@@ -10403,7 +10415,8 @@ public class AssignmentAction extends PagedResourceActionII
 						st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
 						if (contentreviewSiteMin > 0 && st.getTitle().length() < contentreviewSiteMin){
 							addAlert(state, rb.getFormattedMessage("review.sitechars", new Object[]{reviewServiceName, contentreviewSiteMin}));
-						} else if (contentreviewSiteMax > 0 && st.getTitle().length() > contentreviewSiteMax){
+						}
+						if (contentreviewSiteMax > 0 && st.getTitle().length() > contentreviewSiteMax){
 							addAlert(state, rb.getFormattedMessage("review.sitecharslong", new Object[]{reviewServiceName, contentreviewSiteMax}));
 						}
 						if(contentreviewSiteYears > 0){
@@ -11891,6 +11904,21 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 
 
+	/**
+	 * private method to remove assignment related LTI tool
+	 * @param state
+	 * @param aEdit
+	 */
+	private void removeLTITool(SessionState state, AssignmentEdit aEdit){
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		if (allowReviewService && aEdit.getContent().getAllowReviewService() && allowLTIReviewService){
+			//put the LTI assignment link in context
+			boolean removed = contentReviewService.deleteLTITool(aEdit.getReference(), contextString);
+			if(!removed){
+				M_log.warn("Could not delete associated LTI tool");
+			}
+		}
+	}
 
 	/**
 	 * read review grade information form and see if any grading information has been changed
@@ -17716,6 +17744,13 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 	
+	private ContentReviewSiteAdvisor contentReviewSiteAdvisor;
+	private void getContentReviewSiteAdvisor() {
+		if (contentReviewSiteAdvisor == null)
+		{
+			contentReviewSiteAdvisor = (ContentReviewSiteAdvisor) ComponentManager.get(ContentReviewSiteAdvisor.class.getName());
+		}
+	}
 	/**
 	 * build the options
 	 */

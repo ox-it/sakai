@@ -518,10 +518,10 @@
 										#if($allowReviewService && $assignment.getContent().AllowReviewService && $submission.isExternalGradeDifferent())
 											#set($reviewResultsExt=$submission.ContentReviewResults)
 											#if ($reviewResultsExt.size() == 1)
-												#foreach ($reviewResultExt in $reviewResultsExt)
-													#if ($reviewResultExt.getExternalGrade())
+												#foreach ($reviewResult in $reviewResultsExt)
+													#if ($reviewResult.getExternalGrade())
 														<span style="font-style:italic !important" class="instruction">
-															($tlang.getString("gen.gra.ext") $reviewResultExt.getExternalGrade())
+															($tlang.getString("gen.gra.ext") $reviewResult.getExternalGrade() / $maxPointsInt)
 														</span>
 													#end
 												#end

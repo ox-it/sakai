@@ -648,9 +648,6 @@ $(document).ready(function(){
 									<i alt="$reviewIndicator" title="$reviewIndicator" class="fa fa-certificate reviewStyle"></i>
 									<em>
 										$plagiarismNote
-										#if ($plagiarismFileTypes)
-											$plagiarismFileTypes
-										#end
 									</em>
 								</p>
 							#end
@@ -716,18 +713,7 @@ $(document).ready(function(){
 						#end
 					</p>
 				#end	
-				#if (($submissionType == 2) || ($submissionType == 5))
-					#if ($plagiarismNote)
-						<p>
-							<i alt="$reviewIndicator" title="$reviewIndicator" class="fa fa-certificate reviewStyle"></i>
-							<em>
-								$plagiarismNote
-								#if ($plagiarismFileTypes)
-									$plagiarismFileTypes
-								#end
-							</em>
-						</p>
-					#end
+				#if (($submissionType == 2) || ($submissionType == 5)) 
 					#if ($unsubmittableInline && ""!="$!value_submission_text")
 						<div class="assignmentUnsubmittable">
 							<h3>$tlang.getString("gen.orisub")</h3>
@@ -747,7 +733,18 @@ $(document).ready(function(){
 						#else
 							$tlang.getString("gen.att")
 						#end
-					</h3>	
+					</h3>
+					#if ($assignment.getContent().getAllowReviewService())
+						<p class="instruction"><img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" /> $reviewIndicator</p>
+						#if (!$assignment.getContent().isAllowAnyFile())
+							<ul>
+								$tlang.getString("content_review.studentNote")
+								#if ($plagiarismFileTypes)
+									<li>$plagiarismFileTypes</li>
+								#end
+							</ul>
+						#end
+					#end
 					#if ($size == 0)
 						<p class="instruction">
                                                     #if ($submissionType == 5)

@@ -372,6 +372,7 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		return null;
 	}
 
+
 	public int getReviewScore(String contentId, String assignmentRef, String userId) throws QueueException,
                         ReportException, Exception {
 		ContentReviewService provider = getSelectedProvider();
@@ -429,7 +430,7 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		return false;
 	}
 
-	public String getExternalGradeForContentId(String contentId){
+	public String getExternalGradeForContentId(String contentId) {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
 			return provider.getExternalGradeForContentId(contentId);
