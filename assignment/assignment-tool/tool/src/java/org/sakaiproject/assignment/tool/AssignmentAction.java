@@ -10703,22 +10703,6 @@ public class AssignmentAction extends PagedResourceActionII
 	} // doDelete_Assignment
 
 	/**
-	 * private method to remove assignment related LTI tool
-	 * @param state
-	 * @param aEdit
-	 */
-	private void removeLTITool(SessionState state, AssignmentEdit aEdit){
-		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-		if (allowReviewService && aEdit.getContent().getAllowReviewService() && allowLTIReviewService){
-			//put the LTI assignment link in context
-			boolean removed = contentReviewService.deleteLTITool(aEdit.getReference(), contextString);
-			if(!removed){
-				M_log.warn("Could not delete associated LTI tool");
-			}
-		}
-	}
-
-	/**
 	 * private function to remove assignment related announcement
 	 * @param state
 	 * @param pEdit
@@ -17148,14 +17132,6 @@ public class AssignmentAction extends PagedResourceActionII
 		if (contentReviewService == null)
 		{
 			contentReviewService = (ContentReviewService) ComponentManager.get(ContentReviewService.class.getName());
-		}
-	}
-	
-	private ContentReviewSiteAdvisor contentReviewSiteAdvisor;
-	private void getContentReviewSiteAdvisor() {
-		if (contentReviewSiteAdvisor == null)
-		{
-			contentReviewSiteAdvisor = (ContentReviewSiteAdvisor) ComponentManager.get(ContentReviewSiteAdvisor.class.getName());
 		}
 	}
 	

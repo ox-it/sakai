@@ -138,21 +138,6 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		
 	}
 
-	@Override
-	public String getLegacyReviewReportStudent(String contentId) throws QueueException, ReportException {
-		ContentReviewService provider = getSelectedProvider();
-		if (provider != null)
-			return provider.getLegacyReviewReportStudent(contentId);
-		return null;
-	}
-
-	@Override
-	public String getLegacyReviewReportInstructor(String contentId) throws QueueException, ReportException {
-		ContentReviewService provider = getSelectedProvider();
-		if (provider != null)
-			return provider.getLegacyReviewReportInstructor(contentId);
-		return null;
-	}
 	public List<ContentReviewItem> getAllContentReviewItems(String arg0,
 			String arg1) throws QueueException, SubmissionException,
 			ReportException {
@@ -341,16 +326,6 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
 			provider.queueContent(userId,siteId,assignmentReference,content,submissionId,isResubmission);
-	}
-
-	@Override
-	public void queueContent(String userId, String siteId, String taskId, String contentId, String submissionId) throws QueueException {
-
-	}
-
-	@Override
-	public void queueResubContent(String userId, String siteId, String taskId, String contentId, String submissionId) throws QueueException {
-
 	}
 
 	public void removeFromQueue(String arg0) {
