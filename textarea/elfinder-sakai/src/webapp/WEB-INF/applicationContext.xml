@@ -15,6 +15,7 @@
 				<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
 				<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
 				<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+				<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
 				<property name="securityChecker">
 					<bean class="org.sakaiproject.elfinder.impl.SakaiFsSecurityChecker"/>
 				</property>
