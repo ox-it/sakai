@@ -189,7 +189,7 @@
                     #foreach ( $site in $subSites.children )
 
                         <li>
-                            <a class="Mrphs-toolsNav__menuitem--link" href="${site.url}" title="${site.title}" role="menuitem">
+                            <a class="Mrphs-toolsNav__menuitem--link #if(!${site.isPublished})is-invisible#end" href="${site.url}" title="${site.title}" role="menuitem">
 								<span class="Mrphs-toolsNav__menuitem--icon ${site.iconClass}"></span>
                                 <span class="Mrphs-toolsNav__menuitem--title">${site.titleTruncated}</span>
                             </a>
