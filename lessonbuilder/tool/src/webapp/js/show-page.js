@@ -193,8 +193,8 @@ $(document).ready(function() {
 		});
 		$('#add-twitter-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
@@ -633,7 +633,6 @@ $(document).ready(function() {
 		//		return true;
 			$("#add-forum-summary-dialog").dialog("option", "width", outerWidth-10);
 			$("#add-announcements-dialog").dialog("option", "width", outerWidth-10);
-			$("#add-twitter-dialog").dialog("option", "width", outerWidth-10);
 		//	});
 
 		$(".edit-forum-summary").click(function(){
@@ -1364,6 +1363,7 @@ $(document).ready(function() {
 		});
 		//when edit twitter link is clicked twitterDialog is opened
 		$(".edit-twitter").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			var row = $(this).parent().parent().parent();
 			var itemId = row.find(".twitter-id").text();
@@ -1382,11 +1382,8 @@ $(document).ready(function() {
 			$("#twitter-add-item").attr("value", msg("simplepage.edit"));
 			//make delete twitter link visible
 			$("#twitter-delete-span").show();
-			var position = row.position();
-			$("#add-twitter-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$('#add-twitter-dialog').dialog('open');
-			checksize($("#add-twitter-dialog"));
+			setupdialog($("#add-twitter-dialog"));
 			return false;
 		});
 		$("#question-editgroups").click(function(){
@@ -2043,18 +2040,16 @@ $(document).ready(function() {
 
 
 		$('.twitter-link').click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
-			var position =  $(this).position();
 			$('#twitter-error-container').hide();
 			$("#twitterEditId").val("-1");
 			$("#twitter-username").val("");
 			$("#widget-height").val("");
 			$('#numberDropdown-selection').val("5");
-			$("#add-twitter-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$('#add-twitter-dialog').dialog('open');
-			checksize($('#add-twitter-dialog'));
+			setupdialog($('#add-twitter-dialog'));
 			return false;
 		});
 		$('body').bind('dialogopen', function(event) {

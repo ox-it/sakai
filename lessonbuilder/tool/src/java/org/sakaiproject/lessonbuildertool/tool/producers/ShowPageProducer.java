@@ -218,6 +218,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static final String DEFAULT_WIDTH = "640px";
     // almost ISO. Full ISO isn't available until Java 7. this uses -0400 where ISO uses -04:00
 	SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	public static final String TWITTER_WIDGET_ID = "lessonbuilder.twitter.widget.id";
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -2953,21 +2954,31 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 				} else if(i.getType() == SimplePageItem.TWITTER) {
 					UIOutput.make(tableRow, "twitterSpan");
+					String itemGroupString = null;
+					String itemGroupTitles = null;
 					if (canSeeAll) {
-						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-						String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null)
+							itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
 						if (itemGroupTitles != null) {
 							itemGroupTitles = "[" + itemGroupTitles + "]";
 						}
-						UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+						if (canEditPage)
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
+						if (itemGroupTitles != null)
+							UIOutput.make(tableRow, "twitter-groups-titles", itemGroupTitles);
 					}
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
-						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 						//Getting variables from attributes of this  twitter page item
 						String tweetLimit = i.getAttribute("numberOfTweets") != null ? i.getAttribute("numberOfTweets") : "5";
 						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
 						String username = i.getAttribute("username") != null ? i.getAttribute("username") : "";
 
+						String href  = "https://twitter.com/" + StringUtils.trim(username);
+						String divHeight = "height:" + height + "px;";
+						//Note: widget id used is from uni's twitter account
+						String html = "<div align=\"left\" style='"+divHeight+"' class=\"twitter-div\"><a class=\"twitter-timeline\" href= '" +href+ "' data-widget-id='" +ServerConfigurationService.getString(TWITTER_WIDGET_ID)+ "'  data-tweet-limit='" +tweetLimit +"' data-dnt=\"true\" data-screen-name='" +username+"'>Tweets by @'" +username+"'</a></div>";
+						UIVerbatim.make(tableRow, "content", html);
 						UIOutput.make(tableRow, "username", username);
 						UIOutput.make(tableRow, "tweetLimit", tweetLimit);
 						UIOutput.make(tableRow, "twitter-height", height);
@@ -2977,13 +2988,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 					}
 					if (canEditPage) {
-						GeneralViewParameters eParams = new GeneralViewParameters();
-						eParams.setSendingPage(currentPage.getPageId());
-						String viewId = EditPageProducer.VIEW_ID;
-						eParams.setItemId(i.getId());
-						eParams.viewID = viewId;
 						UIOutput.make(tableRow, "twitter-td");
-						UILink.make(tableRow, "edit-twitter", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.twitter")));
+						UILink.make(tableRow, "edit-twitter", (String) null, "");
 					}
 				}else {
 					// remaining type must be a block of HTML
@@ -3649,9 +3655,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-student-content"), eParams).
 			decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.student-descrip")));
 
-			//Adding 'Embed twitter feed' component
+			//Adding 'Embed twitter timeline' component
 			UIOutput.make(tofill, "twitter-li");
 			UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
+			twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
 		    // in case we're on an old system without current BLTI
 		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			Collection<BltiTool> bltiTools = simplePageBean.getBltiTools();
