@@ -1119,14 +1119,9 @@ public class UiNavigation extends UiComponent implements Navigation
 						+ "','cancel_"
 						+ id
 						+ "()');return false;\" "
-						+ ((this.confirmCancelIcon != null) ? "style=\"padding-left:2em; background: #2a94c0 url('"
-								+ context.getUrl(this.confirmCancelIcon) + "') .2em no-repeat;\"" : "") + "/></td>");
+						+ "/></td>");
 				secondary.print("<td style=\"padding:1em\" align=\"right\"><input type=\"button\" value=\"" + title
 						+ "\" onclick=\"hideConfirm('confirm_" + id + "','act_" + id + "();');return false;\"");
-				if (selectedIcon != null)
-				{
-					secondary.print(" style=\"padding-left:2em; background: #2a94c0 url('" + context.getUrl(selectedIcon) + "') .2em no-repeat;\"");
-				}
 				secondary.println("/></td>");
 				secondary.println("</tr></table></div>");
 			}
@@ -1147,8 +1142,7 @@ public class UiNavigation extends UiComponent implements Navigation
 						+ id
 						+ "','');return false;\" "
 						// TODO: do we need confirm cancel? -ggolden
-						+ ((this.requirementsOkIcon != null) ? "style=\"padding-left:2em; background: #2a94c0 url('"
-								+ context.getUrl(this.requirementsOkIcon) + "') .2em no-repeat;\"" : "") + "/></td>");
+						+ "/></td>");
 				secondary.println("</tr></table></div>");
 
 				// validation function
@@ -1269,11 +1263,7 @@ public class UiNavigation extends UiComponent implements Navigation
 						+ "title=\""
 						+ description
 						+ "\" "
-						+ (((selectedIcon != null) && (this.iconStyle == IconStyle.left)) ? "style=\"padding-left:2em; background: #2a94c0 url('"
-								+ context.getUrl(selectedIcon) + "') .2em no-repeat;\"" : "")
-						+ (((selectedIcon != null) && (this.iconStyle == IconStyle.right)) ? "style=\"padding-left:.4em; padding-right:2em; background: #2a94c0 url('"
-								+ context.getUrl(selectedIcon) + "') right no-repeat;\""
-								: "") + "/>");
+						+ "/>");
 
 				if (title.equals("Save")) response.println("<input type=\"hidden\" id=\"saveVal\" name=\"saveVal\" value=\""+id+"\">");
 				if (title.equals("Done") && hideval != null) 

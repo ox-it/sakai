@@ -256,12 +256,7 @@ public class UiToggle extends UiComponent implements Toggle
 								+ "();return false;\" "
 								+ ((accessKey == null) ? "" : "accesskey=\"" + accessKey.charAt(0) + "\" ")
 								+ ((description == null) ? "" : "title=\"" + description + "\" ")
-								+ (((this.icon != null) && (this.iconStyle == Navigation.IconStyle.left)) ? "style=\"padding-left:2em; background: #2a94c0 url('"
-										+ context.getUrl(this.icon) + "') .2em no-repeat;\""
-										: "")
-								+ (((this.icon != null) && (this.iconStyle == Navigation.IconStyle.right)) ? "style=\"padding-left:.4em; padding-right:2em; background: #2a94c0 url('"
-										+ context.getUrl(this.icon) + "') right no-repeat;\""
-										: "") + "/>");
+								+ "/>");
 
 				break;
 			}
