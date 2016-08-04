@@ -46,6 +46,13 @@ $button-color-background-secondary-color: #2a94c0;
     border-bottom: 1px solid $breadcrumbs-hover-color;
 }
 
+/* Override the Sakai cookie link text colour.*/
+#cookie-notice {
+    a {
+        color: lighten($orig-primary-color, 35%);
+    }
+}
+
 /* Change the default calendar colour. */
 $calendar-event-background-color: darken(#F8F8F8, 45%);
 
