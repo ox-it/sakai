@@ -762,6 +762,50 @@ function rewriteVideoEmbeds() {
 
 }
 
+// Fix for mixed content blocked in Firefox and IE, includes youtube refs and link hrefs
+function fixMixedContentReferences() {
+    rewriteVideoEmbeds();
+    fixLinksForMixedContent();
+
+    // IE fix
+    var location = document.location.origin || window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port: '');
+
+    if (location.match('https?://staging2?.weblearn.ox.ac.uk')) {
+        fixLinksForStaging();
+    }
+}
+
+// Adjusts links to account for blocked mixed content by changing old WebLearn addresses and opening http:// in new windows.
+// Only makes adjustments when in an iframe since the top window can be altered with impunity.
+function fixLinksForMixedContent() {
+    if (window.top != window.self) {
+        // I am in an iframe
+
+        var links = window.self.document.getElementsByTagName('a');
+
+        for(var i = 0; i < links.length; ++i) {
+            rewriteWebLearnHref(links[i]);
+            addTargetBlank(links[i]);
+        }
+    }
+}
+
+// This should only be called if we are in the staging environment. It replaces WebLearn urls with local ones.
+function fixLinksForStaging() {
+
+    var links = window.self.document.getElementsByTagName('a');
+
+    for(var i = 0; i < links.length; ++i) {
+        var link = links[i];
+        if(link.href.match("^https?://weblearn.ox.ac.uk/|^https?://beta.weblearn.ox.ac.uk/")) {
+            link.href = link.href.replace("http://weblearn.ox.ac.uk/", "/");
+            link.href = link.href.replace("https://weblearn.ox.ac.uk/", "/");
+            link.href = link.href.replace("http://beta.weblearn.ox.ac.uk/", "/");
+            link.href = link.href.replace("https://beta.weblearn.ox.ac.uk/", "/");
+        }
+    }
+}
+
 // rewrites old weblearn links to the new address, called from forceLinksInNewWindow(),
 // this could have its own entry in sakai.properties.
 function rewriteWebLearnHref(link) {
