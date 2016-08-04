@@ -2613,5 +2613,13 @@ public abstract class DiscussionForumManagerImpl extends HibernateDaoSupport imp
 	public void setMemoryService(MemoryService memoryService) {
 		this.memoryService = memoryService;
 	}
-       
+
+	public List getRecentDiscussionForumThreadsByTopicIds(List<Long> topicIds, int numberOfMessages)
+	{
+		if (LOG.isDebugEnabled())
+		{
+			LOG.debug("getRecentDiscussionForumMessagesByContext( Size of list is " + topicIds.size() + ")");
+		}
+		return messageManager.getRecentDiscussionForumThreadsByTopicIds(topicIds, numberOfMessages);
+	}
 }
