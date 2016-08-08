@@ -1394,6 +1394,21 @@ padding:1px;
 .edit-col span {
 color: #666;
 }
+.calendar-div{
+width: 550px;
+}
+
+.eventAttachmentList{
+display: inline-table;
+}
+
+eventAttachmentItem{
+list-style-type: none;
+}
+.fc-event{
+cursor: pointer;
+margin-bottom: 6px; /*to add space between two events*/
+}
 
 /* position relative with no args does nothing, but editsection's position absolute needs it as a refernce */
 .column {
