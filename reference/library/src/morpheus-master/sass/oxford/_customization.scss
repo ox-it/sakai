@@ -109,6 +109,12 @@ $calendar-event-background-color: darken(#F8F8F8, 45%);
 
 /* Extra icon mappings specific to WL. */
 @if $skin-with-icons {
+    /* This selector is required as the course sign-up icon doesn't start with 'icon-sakai-'. */
+    [class*=" icon-course-signup"]{
+        @extend .fa-lg;
+        @extend .fa;
+    }
+    .icon-course-signup {                    @extend .fa-graduation-cap;}
     .icon-sakai-rsf-evaluation{              @extend .fa-commenting;}
     .icon-sakai-oauth {                      @extend .fa-key;}
     .icon-sakai-sub-site {                   @extend .fa-sitemap;}
