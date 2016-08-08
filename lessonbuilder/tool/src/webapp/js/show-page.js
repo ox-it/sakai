@@ -186,8 +186,8 @@ $(document).ready(function() {
 		});
 		$('#add-forum-summary-dialog').dialog({
 			autoOpen: false,
-			width: 700,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
@@ -660,18 +660,18 @@ $(document).ready(function() {
 		//		    return false;
 		//		}
 		//		return true;
-			$("#add-forum-summary-dialog").dialog("option", "width", outerWidth-10);
 			$("#add-announcements-dialog").dialog("option", "width", outerWidth-10);
 		//	});
 
 		$(".edit-forum-summary").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			var row = $(this).closest('li');
 			var itemId = row.find(".forumSummaryId").text();
 			$('#forumSummaryEditId').val(itemId);
 			var height = row.find(".forumSummaryWidgetHeight").text().replace(/'/g,"");
 			$('#forum-summary-height').val(height);
-			var number = row.find("#numberOfMessages").val();
+			var number = row.find(".numberOfConversations").text();
 			$("#forumNumberDropdown-selection").val(number);
 			$('.edit-col').addClass('edit-colHidden');
 			$(this).closest('li').addClass('editInProgress');
@@ -680,11 +680,8 @@ $(document).ready(function() {
 			$("#forum-summary-add-item").attr("value", msg("simplepage.edit"));
 			//display delete link
 			$("#forum-summary-delete-span").show();
-			var position = row.position();
-			$("#add-forum-summary-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$('#add-forum-summary-dialog').dialog('open');
-			checksize($("#add-forum-summary-dialog"));
+			setupdialog($("#add-forum-summary-dialog"));
 			return false;
 		});
 		$(".edit-youtube").click(function(){
@@ -1190,17 +1187,15 @@ $(document).ready(function() {
 		});
 		
 		$('.forum-summary-link').click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
-			var position =  $(this).position();
 			$("#forum-summary-error-container").hide();
 			$("#forumSummaryEditId").val("-1");
 			$("#forum-summary-height").val("");
 			$("#forumNumberDropdown-selection").val("5");
-			$("#add-forum-summary-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$("#add-forum-summary-dialog").dialog("open");
-			checksize($("#add-forum-summary-dialog"));
+			setupdialog($("#add-forum-summary-dialog"));
 			return false;
 		});
 		$('.question-link').click(function(){

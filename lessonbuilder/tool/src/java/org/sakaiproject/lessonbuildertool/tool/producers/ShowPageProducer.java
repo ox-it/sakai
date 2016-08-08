@@ -2930,14 +2930,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 				} else if(i.getType() == SimplePageItem.FORUM_SUMMARY){
 					UIOutput.make(tableRow, "forumSummarySpan");
+					String itemGroupString = null;
+					String itemGroupTitles = null;
 					if (canSeeAll) {
-							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-							String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
-							if (itemGroupTitles != null) {
-									itemGroupTitles = "[" + itemGroupTitles + "]";
-								}
-							UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null)
+							itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
 						}
+						if (canEditPage)
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
+						if (itemGroupTitles != null)
+							UIOutput.make(tableRow, "forum-summary-groups-titles", itemGroupTitles);
+					}
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
 						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 						//get widget height from the item attribute
@@ -2946,15 +2952,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "forum-summary-widget-height", height);
 						//setting forums-messages url to get all recent messages for the site
 						UIOutput.make(tableRow, "forum-summary-site-url", myUrl() + "/direct/forums/messages/" + simplePageBean.getCurrentSiteId());
-						//setting this variable to redirect user to the particular message in the forums tool
-						UIOutput.make(tableRow, "forum-summary-view-url", myUrl() + "/portal/directtool/" + simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID));
+						//setting the url such that request goes to ShowItemProducer to display forum conversations inside Lessons tool
+						UIOutput.make(tableRow, "forum-summary-view-url", myUrl() + "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool/" + placement.getId()
+								+"/" + ShowItemProducer.VIEW_ID + "?itemId=" +i.getId()+"&sendingPage="+currentPage.getPageId());
+						//get numberOfConversations for the widget
+						String numberOfConversations = i.getAttribute("numberOfConversations") != null ? i.getAttribute("numberOfConversations") : "" ;
+						UIOutput.make(tableRow, "numberOfConversations", numberOfConversations);
 					}else {
 						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
 						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 					}
 					if (canEditPage) {
 						UIOutput.make(tableRow, "forum-summary-td");
-						UILink.make(tableRow, "edit-forum-summary", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.forum-summary")));
+						UILink.make(tableRow, "edit-forum-summary", (String) null, "");
 					}
 				} else if(i.getType() == SimplePageItem.TWITTER) {
 					UIOutput.make(tableRow, "twitterSpan");
@@ -3680,6 +3690,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    //Adding 'Embed forum conversations' component
 		    UIOutput.make(tofill, "forum-summary-li");
 		    UILink forumSummaryLink = UIInternalLink.makeURL(tofill, "forum-summary-link", "#");
+			forumSummaryLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.forum-summary-descrip")));
 
 		    UIOutput.make(tofill, "forum-li");
 		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum-descrip", currentPage, "simplepage.forum.tooltip");
@@ -3925,7 +3936,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private void createForumSummaryDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-forum-summary-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.forumSummaryLinkText")));
 		UIForm form = UIForm.make(tofill, "add-forum-summary-form");
-		makeCsrf(form, "csrf22");
+		makeCsrf(form, "csrf24");
 		//check if site has forum tool added?if not then display info and return
 		if (simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID) == null) {
 			UIOutput.make(tofill, "forum-summary-error-div");
