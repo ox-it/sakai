@@ -13,8 +13,8 @@ public class CitationContentChangeHandler extends ContentChangeHandlerImpl {
     protected CitationService citationService;
 
     public CitationContentChangeHandler(){
-        this.entityManager = (EntityManager) ComponentManager.get(EntityManager.class);
-        this.citationService = (CitationService) ComponentManager.get(CitationService.class);
+        this.entityManager = ComponentManager.get(EntityManager.class);
+        this.citationService = ComponentManager.get(CitationService.class);
 
     }
     @Override

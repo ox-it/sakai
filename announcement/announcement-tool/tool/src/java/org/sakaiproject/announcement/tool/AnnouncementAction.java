@@ -292,7 +292,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	 * current user having to be a member.
 	 * @param channelReference The entity reference of the channel in another site.
 	 * @return A security advisor that allows the current user access to that content.
-     */
+	 */
 	SecurityAdvisor getChannelAdvisor(final String channelReference)
 	{
 		if (serverConfigurationService.getBoolean("announcement.merge.visibility.strict", false))
