@@ -28,10 +28,9 @@
   }
   .Mrphs-quickLinksNav__subnav{
     font-family: $header-font-family;
-    font-weight: $header-font-weight;
     list-style: none;
     padding: 0 0 0 0;
-    background-color: $toolTabBGColor;
+    background-color: $tool-menu-background-color;
     text-align: left;
     margin: 0.18em 0 0 0.9em;
     @extend .userNav__subnav;
@@ -45,7 +44,7 @@
       position: absolute;
       pointer-events: none;
       border-color: rgba(255, 255, 255, 0);
-      border-bottom-color: $toolTabBGColor;
+      border-bottom-color: $tool-menu-background-color;
       border-width: 7px;
       margin-left: -7px;
       outline: 0;
