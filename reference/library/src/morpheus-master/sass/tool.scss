@@ -1,3 +1,4 @@
+// Override anything in the Sakai defaults defined with !default
 @import "defaults";
 
 @import "base/bootstrap-defaults";
@@ -52,5 +53,6 @@
 @import "modules/tutorial/base";
 @import "modules/profile-popup/base";
 
-@import "oxford/customization";
+// This overrides some definitions in the standard definitions
+@import "oxford/overrides";
 

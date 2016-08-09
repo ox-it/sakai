@@ -1,0 +1,60 @@
+@import "font-awesome";
+@import "base/extendables";
+
+/* Use the original Sakai blue when hovering. */
+.#{$namespace}loginNav a:hover{
+    color: lighten($orig-primary-color, 35%);
+}
+
+/* Override the hover styles as background is now dark. */
+.#{$namespace}breadCrumbs--title:hover{
+    color: $breadcrumbs-hover-color;
+    border-bottom: 1px solid $breadcrumbs-hover-color;
+}
+
+/* Change the default calendar colour. */
+$calendar-event-background-color: darken(#F8F8F8, 45%);
+
+/* Revert back to Sakai pale blue colour for headings. */
+.instruction{
+    @include bs-callout($orig-primary-color, lighten($orig-primary-color, 45%));
+}
+.bs-callout-primary, .bs-callout-info, .messageInformation, .messageInstruction, .messageProgress {
+    @include bs-callout($orig-primary-color, lighten($orig-primary-color, 45%));
+}
+
+/* Change the separator colour as the banner is now dark. */
+.#{$namespace}hierarchy--separator, .#{$namespace}hierarchy--siteNameSeparator{
+    color: $breadcrumbs-color;
+}
+
+/* Tweek of the margins necessary for our logo to be centred. */
+.#{$namespace}mainHeader .#{$namespace}headerLogo .#{$namespace}headerLogo--institution{
+    margin-top: 0.5em;
+    @media #{$phone}{
+        margin: 0.6em 0 0 0.2em;
+    }
+}
+
+/* Prevent capitalization of the tool name in the breadcrumb bar. */
+.#{$namespace}siteHierarchy a.#{$namespace}hierarchy--toolName {
+    text-transform: none;
+}
+
+/* Extra icon mappings specific to WL. */
+@if $skin-with-icons {
+    .icon-sakai-oauth {                      @extend .fa-key;}
+    .icon-sakai-sub-site {                   @extend .fa-sitemap;}
+    .icon-sakai-redirect {                   @extend .fa-link;}
+    .icon-sakai-hierarchy-new-site {         @extend .fa-plus;}
+    .icon-sakai-hierarchy-bring-site {       @extend .fa-arrow-left;}
+    .icon-sakai-hierarchy-delete-site {      @extend .fa-remove;}
+    .icon-sakai-hierarchy-move-site {        @extend .fa-scissors;}
+    .icon-sakai-hierarchy-paste-site {       @extend .fa-paste;}
+    .icon-sakai-hierarchy-replace-site {     @extend .fa-copy;}
+    .icon-sakai-hierarchy-redirect-site {    @extend .fa-link;}
+    .icon-sakai-oxam-search-simple{          @extend .fa-search;}
+    .icon-sakai-oxam-search-adv{             @extend .fa-mortar-board;}
+    .icon-sakai-oxam-browse{                 @extend .fa-binoculars;}
+    .icon-sakai-oxam-admin{                  @extend .fa-gears;}
+}
