@@ -1,4 +1,5 @@
 /* Global namespace */
+@import "customization";
 
 $namespace : "Mrphs-";
 $skin-name : "morpheus-default"; // This is used for bootstrap font behaviour.
@@ -164,7 +165,5 @@ $col2of2-width: 48% !default;
 /* Footer */
 $footer-background: transparent !default;
 $footer-color: $background-color-secondary !default;
-
-@import "customization"; //it is created on-the-fly by maven.
 
 @import url(#{$font-family-url});
