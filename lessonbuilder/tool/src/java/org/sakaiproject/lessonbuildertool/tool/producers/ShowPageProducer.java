@@ -2732,13 +2732,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 				}else if(i.getType() == SimplePageItem.ANNOUNCEMENTS){
 					UIOutput.make(tableRow, "announcementsSpan");
+					String itemGroupString = null;
+					String itemGroupTitles = null;
 					if (canSeeAll) {
-						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-						String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null)
+							itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
 						if (itemGroupTitles != null) {
 							itemGroupTitles = "[" + itemGroupTitles + "]";
 						}
-						UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+						if (canEditPage)
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
+						if (itemGroupTitles != null)
+							UIOutput.make(tableRow, "announcements-groups-titles", itemGroupTitles);
 					}
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
 						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
@@ -2750,13 +2756,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "announcements-site-url", myUrl() + "/direct/announcement/site/" + simplePageBean.getCurrentSiteId());
 						//setting this variable to redirect user to the particular announcement
 						UIOutput.make(tableRow, "announcements-view-url", myUrl() + "/portal/directtool/" + simplePageBean.getCurrentTool(simplePageBean.ANNOUNCEMENTS_TOOL_ID) + "?itemReference=/announcement/msg/" + simplePageBean.getCurrentSiteId() + "/main/");
+						//get numberOfAnnouncements for the widget
+						String numberOfAnnouncements = i.getAttribute("numberOfAnnouncements") != null ? i.getAttribute("numberOfAnnouncements") : "";
+						UIOutput.make(tableRow, "numberOfAnnouncements", numberOfAnnouncements);
 					}else{
 						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
 						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 					}
 					if (canEditPage) {
 						UIOutput.make(tableRow, "announcements-td");
-						UILink.make(tableRow, "edit-announcements", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.announcements")));
+						UILink.make(tableRow, "edit-announcements", (String) null, "");
 					}
 				}else if(i.getType() == SimplePageItem.QUESTION) {
 				 	String itemGroupString = null;
@@ -3673,6 +3682,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    //Adding 'Embed Announcements' component
 		    UIOutput.make(tofill, "announcements-li");
 		    UILink announcementsLink = UIInternalLink.makeURL(tofill, "announcements-link", "#");
+		    announcementsLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.announcements-descrip")));
 		    UIOutput.make(tofill, "assignment-li");
 		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment-descrip", currentPage, "simplepage.assignment");
 
