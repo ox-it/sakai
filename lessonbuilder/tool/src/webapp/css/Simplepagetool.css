@@ -612,6 +612,9 @@ padding: 10px 0px 10px 15px;
 font-size: 1.2em;
 letter-spacing: normal
 }
+.announcementLink{
+margin-left: 5px;
+}
 .itemDiv {
 padding: 10px 15px 0 15px
 }
