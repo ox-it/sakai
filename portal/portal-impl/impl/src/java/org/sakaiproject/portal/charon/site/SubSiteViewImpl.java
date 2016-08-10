@@ -48,6 +48,8 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 	private final List<Neighbour> neighbours;
 	// The parent sites.
 	private List<Site> pSites;
+	// Joinable sites
+	private List<Site> openSites;
 
 	/**
 	 * @param siteHelper
@@ -67,6 +69,10 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 				serverConfigurationService, preferencesService);
 		neighbours = siteNeighbourhoodService.getNeighboursAtNode(request, session, nodeId, false);
 		pSites = siteNeighbourhoodService.getParentsAtNode(request, session, nodeId, false);
+		if(session.getUserId() != null){
+			openSites = siteService.getSites(SiteService.SelectionType.JOINABLE,
+						null, null, null, SiteService.SortType.TITLE_ASC, null);
+		}
 	}
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.portal.api.SiteView#getRenderContextObject()
@@ -75,7 +81,7 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 	{
 		Map object = new HashMap();
 
-		if (!neighbours.isEmpty()) {
+		if (neighbours != null && !neighbours.isEmpty()) {
 			List children = neighbours.stream().map(
 					neighbour -> neighbour.getSite().map(site -> convertSite(site, request))
 							.orElse(neighbour.getRedirect().map(redirect -> convertRedirect(redirect, request))
@@ -84,9 +90,22 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 			object.put("children", children);
 		}
 
-		List p = pSites.stream().map(parent -> convertSite(parent, request)).collect(Collectors.toList());
-		if (!p.isEmpty()) {
-			object.put("parents", p);
+		if(serverConfigurationService.getBoolean("portal.showJoinableAsSubsites", false)){
+			if(openSites != null && !openSites.isEmpty() && !siteService.isGlobalJoinExcludedFromPublicListEnabled()){
+				List joinable = openSites.stream().filter(
+					open -> siteService.isAllowedToJoin(open.getId())
+				).map(
+					open -> convertSite(open, request)
+				).collect(Collectors.toList());
+				object.put("joinable", joinable);
+			}
+		}
+
+		if(pSites != null && !neighbours.isEmpty()){
+			List p = pSites.stream().map(parent -> convertSite(parent, request)).collect(Collectors.toList());
+			if (!p.isEmpty()) {
+				object.put("parents", p);
+			}
 		}
 		return object;
 	}
@@ -94,7 +113,8 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 	@Override
 	public boolean isEmpty() {
 		return (neighbours == null || neighbours.isEmpty())
-				&& (pSites == null || pSites.isEmpty());
+				&& (pSites == null || pSites.isEmpty())
+				&& (openSites == null || openSites.isEmpty());
 	}
 
 	private Map convertSite(Site site, HttpServletRequest req) {
