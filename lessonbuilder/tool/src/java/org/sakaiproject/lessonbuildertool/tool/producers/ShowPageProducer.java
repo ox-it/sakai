@@ -218,6 +218,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static final String DEFAULT_WIDTH = "640px";
     // almost ISO. Full ISO isn't available until Java 7. this uses -0400 where ISO uses -04:00
 	SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	public static final String TWITTER_WIDGET_ID = "lessonbuilder.twitter.widget.id";
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -457,6 +458,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		String addBefore = params.getAddBefore();
 		if (params.addTool == GeneralViewParameters.COMMENTS) {
 			simplePageBean.addCommentsSection(addBefore);
+		}else if(params.addTool == GeneralViewParameters.CALENDAR){
+			simplePageBean.addCalendar();
 		}else if(params.addTool == GeneralViewParameters.STUDENT_CONTENT) {
 			simplePageBean.addStudentContentSection(addBefore);
 		}else if(params.addTool == GeneralViewParameters.STUDENT_PAGE) {
@@ -1193,7 +1196,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT
 						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL
 						|| i.getType() == SimplePageItem.BREAK || i.getType() == SimplePageItem.TWITTER
-						|| i.getType() == SimplePageItem.ANNOUNCEMENTS || i.getType() == SimplePageItem.FORUM_SUMMARY);
+						|| i.getType() == SimplePageItem.ANNOUNCEMENTS || i.getType() == SimplePageItem.FORUM_SUMMARY
+						|| i.getType() == SimplePageItem.CALENDAR);
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
@@ -1227,6 +1231,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.FORUM_SUMMARY: itemClassName = "forumSummary"; break;
 				case SimplePageItem.ANNOUNCEMENTS: itemClassName = "announcementsType"; break;
 				case SimplePageItem.TWITTER: itemClassName = "twitter"; break;
+				case SimplePageItem.CALENDAR: itemClassName = "calendar"; break;
 				}
 
 				// inline LTI. Our code calls all BLTI items listItem, but the inline version really isn't
@@ -2926,14 +2931,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 				} else if(i.getType() == SimplePageItem.FORUM_SUMMARY){
 					UIOutput.make(tableRow, "forumSummarySpan");
+					String itemGroupString = null;
+					String itemGroupTitles = null;
 					if (canSeeAll) {
-							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-							String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
-							if (itemGroupTitles != null) {
-									itemGroupTitles = "[" + itemGroupTitles + "]";
-								}
-							UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null)
+							itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
 						}
+						if (canEditPage)
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
+						if (itemGroupTitles != null)
+							UIOutput.make(tableRow, "forum-summary-groups-titles", itemGroupTitles);
+					}
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
 						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 						//get widget height from the item attribute
@@ -2942,33 +2953,47 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "forum-summary-widget-height", height);
 						//setting forums-messages url to get all recent messages for the site
 						UIOutput.make(tableRow, "forum-summary-site-url", myUrl() + "/direct/forums/messages/" + simplePageBean.getCurrentSiteId());
-						//setting this variable to redirect user to the particular message in the forums tool
-						UIOutput.make(tableRow, "forum-summary-view-url", myUrl() + "/portal/directtool/" + simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID));
+						//setting the url such that request goes to ShowItemProducer to display forum conversations inside Lessons tool
+						UIOutput.make(tableRow, "forum-summary-view-url", myUrl() + "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool/" + placement.getId()
+								+"/" + ShowItemProducer.VIEW_ID + "?itemId=" +i.getId()+"&sendingPage="+currentPage.getPageId());
+						//get numberOfConversations for the widget
+						String numberOfConversations = i.getAttribute("numberOfConversations") != null ? i.getAttribute("numberOfConversations") : "" ;
+						UIOutput.make(tableRow, "numberOfConversations", numberOfConversations);
 					}else {
 						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
 						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 					}
 					if (canEditPage) {
 						UIOutput.make(tableRow, "forum-summary-td");
-						UILink.make(tableRow, "edit-forum-summary", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.forum-summary")));
+						UILink.make(tableRow, "edit-forum-summary", (String) null, "");
 					}
 				} else if(i.getType() == SimplePageItem.TWITTER) {
 					UIOutput.make(tableRow, "twitterSpan");
+					String itemGroupString = null;
+					String itemGroupTitles = null;
 					if (canSeeAll) {
-						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-						String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null)
+							itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
 						if (itemGroupTitles != null) {
 							itemGroupTitles = "[" + itemGroupTitles + "]";
 						}
-						UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+						if (canEditPage)
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
+						if (itemGroupTitles != null)
+							UIOutput.make(tableRow, "twitter-groups-titles", itemGroupTitles);
 					}
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
-						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 						//Getting variables from attributes of this  twitter page item
 						String tweetLimit = i.getAttribute("numberOfTweets") != null ? i.getAttribute("numberOfTweets") : "5";
 						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
 						String username = i.getAttribute("username") != null ? i.getAttribute("username") : "";
 
+						String href  = "https://twitter.com/" + StringUtils.trim(username);
+						String divHeight = "height:" + height + "px;";
+						//Note: widget id used is from uni's twitter account
+						String html = "<div align=\"left\" style='"+divHeight+"' class=\"twitter-div\"><a class=\"twitter-timeline\" href= '" +href+ "' data-widget-id='" +ServerConfigurationService.getString(TWITTER_WIDGET_ID)+ "'  data-tweet-limit='" +tweetLimit +"' data-dnt=\"true\" data-screen-name='" +username+"'>Tweets by @'" +username+"'</a></div>";
+						UIVerbatim.make(tableRow, "content", html);
 						UIOutput.make(tableRow, "username", username);
 						UIOutput.make(tableRow, "tweetLimit", tweetLimit);
 						UIOutput.make(tableRow, "twitter-height", height);
@@ -2978,13 +3003,41 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 					}
 					if (canEditPage) {
-						GeneralViewParameters eParams = new GeneralViewParameters();
-						eParams.setSendingPage(currentPage.getPageId());
-						String viewId = EditPageProducer.VIEW_ID;
-						eParams.setItemId(i.getId());
-						eParams.viewID = viewId;
 						UIOutput.make(tableRow, "twitter-td");
-						UILink.make(tableRow, "edit-twitter", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.twitter")));
+						UILink.make(tableRow, "edit-twitter", (String) null, "");
+					}
+				}else if(i.getType() == SimplePageItem.CALENDAR){
+					UIOutput.make(tableRow, "calendarSpan");
+					String itemGroupString = null;
+					String itemGroupTitles = null;
+					if (canSeeAll) {
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null)
+							itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						}
+						if (canEditPage)
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
+						if (itemGroupTitles != null)
+							UIOutput.make(tableRow, "calendar-groups-titles", itemGroupTitles);
+					}
+					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						//Create html for calendar widget
+						String html = "<div class=\"calendar-div\"></div>";
+						UIVerbatim.make(tableRow, "content", html);
+						//set url to get events for the calendar
+						UIOutput.make(tableRow, "site-events-url", myUrl() + "/direct/calendar/site/" + simplePageBean.getCurrentSiteId());
+						//set calendar tool url for more info of calendar event
+						UIOutput.make(tableRow, "event-tool-url", myUrl() + "/portal/directtool/" + simplePageBean.getCurrentTool(simplePageBean.CALENDAR_TOOL_ID) + "?eventReference=");
+					}else {
+						UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						unavailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+					}
+					if (canEditPage) {
+						UIOutput.make(tableRow, "calendar-td");
+						UIOutput.make(tableRow, "calendar-item-id", String.valueOf(i.getId()));
+						UILink.make(tableRow, "edit-calendar", (String) null, "");
 					}
 				}else {
 					// remaining type must be a block of HTML
@@ -3624,12 +3677,21 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "assignment-li");
 		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment-descrip", currentPage, "simplepage.assignment");
 
+		    //If Calendar tool is present in the site, add an option to configure calendar in Lessons
+		    if(simplePageBean.getCurrentTool(simplePageBean.CALENDAR_TOOL_ID) != null){
+		        GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
+		        eParams.addTool = GeneralViewParameters.CALENDAR;
+		        UIOutput.make(tofill, "calendar-li");
+		        UILink calendarLink = UIInternalLink.make(tofill, "calendar-link", messageLocator.getMessage("simplepage.calendarLinkText"), eParams);
+		        calendarLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
+		    }
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
 		    //Adding 'Embed forum conversations' component
 		    UIOutput.make(tofill, "forum-summary-li");
 		    UILink forumSummaryLink = UIInternalLink.makeURL(tofill, "forum-summary-link", "#");
+			forumSummaryLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.forum-summary-descrip")));
 
 		    UIOutput.make(tofill, "forum-li");
 		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum-descrip", currentPage, "simplepage.forum.tooltip");
@@ -3650,9 +3712,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-student-content"), eParams).
 			decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.student-descrip")));
 
-			//Adding 'Embed twitter feed' component
+			//Adding 'Embed twitter timeline' component
 			UIOutput.make(tofill, "twitter-li");
 			UILink twitterLink = UIInternalLink.makeURL(tofill, "add-twitter", "#");
+			twitterLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.twitter-descrip")));
 		    // in case we're on an old system without current BLTI
 		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			Collection<BltiTool> bltiTools = simplePageBean.getBltiTools();
@@ -3874,7 +3937,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private void createForumSummaryDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-forum-summary-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.forumSummaryLinkText")));
 		UIForm form = UIForm.make(tofill, "add-forum-summary-form");
-		makeCsrf(form, "csrf22");
+		makeCsrf(form, "csrf24");
 		//check if site has forum tool added?if not then display info and return
 		if (simplePageBean.getCurrentTool(simplePageBean.FORUMS_TOOL_ID) == null) {
 			UIOutput.make(tofill, "forum-summary-error-div");

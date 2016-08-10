@@ -186,15 +186,15 @@ $(document).ready(function() {
 		});
 		$('#add-forum-summary-dialog').dialog({
 			autoOpen: false,
-			width: 700,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
 		$('#add-twitter-dialog').dialog({
 			autoOpen: false,
-			width: 600,
-			modal: false,
+			width: modalDialogWidth(),
+			modal: true,
 			resizable: false,
 			draggable: false
 		});
@@ -368,6 +368,35 @@ $(document).ready(function() {
 			return false;
 		});
 
+		$(".edit-calendar").click(function(){
+			oldloc = $(this);
+			closeDropdowns();
+			var row = $(this).closest('li');
+			$("#change-assignment-p").hide();
+			$("#change-quiz-p").hide();
+			$("#change-forum-p").hide();
+			$("#change-resource-p").hide();
+			$("#change-resource-version-p").hide();
+			$("#change-blti-p").hide();
+			$("#change-page-p").hide();
+			$("#pagestuff").hide();
+			$("#newwindowstuff").hide();
+			$("#formatstuff").hide();
+			$("#edit-height").hide();
+			$("#prereqstuff").hide();
+			$("#editgroups").hide();
+			$("#resource-group-inherited").hide();
+			$("#assignment-points").hide();
+			$("#assignment-points-label").hide();
+			$("#edit-item").hide();
+			$("#name").val("Calendar");
+			$("#description").val($("#calendar-descrip").text());
+			$("#item-id").val(row.find(".calendar-item-id").text());
+			$("#edit-item-error-container").hide();
+			$("#edit-item-dialog").dialog('open');
+			setupdialog($("#edit-item-dialog"));
+			return false;
+		});
 		$("#releaseDiv input").change(function(){
 			$("#page-releasedate").prop('checked', true);
 		    });
@@ -631,19 +660,18 @@ $(document).ready(function() {
 		//		    return false;
 		//		}
 		//		return true;
-			$("#add-forum-summary-dialog").dialog("option", "width", outerWidth-10);
 			$("#add-announcements-dialog").dialog("option", "width", outerWidth-10);
-			$("#add-twitter-dialog").dialog("option", "width", outerWidth-10);
 		//	});
 
 		$(".edit-forum-summary").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			var row = $(this).closest('li');
 			var itemId = row.find(".forumSummaryId").text();
 			$('#forumSummaryEditId').val(itemId);
 			var height = row.find(".forumSummaryWidgetHeight").text().replace(/'/g,"");
 			$('#forum-summary-height').val(height);
-			var number = row.find("#numberOfMessages").val();
+			var number = row.find(".numberOfConversations").text();
 			$("#forumNumberDropdown-selection").val(number);
 			$('.edit-col').addClass('edit-colHidden');
 			$(this).closest('li').addClass('editInProgress');
@@ -652,11 +680,8 @@ $(document).ready(function() {
 			$("#forum-summary-add-item").attr("value", msg("simplepage.edit"));
 			//display delete link
 			$("#forum-summary-delete-span").show();
-			var position = row.position();
-			$("#add-forum-summary-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$('#add-forum-summary-dialog').dialog('open');
-			checksize($("#add-forum-summary-dialog"));
+			setupdialog($("#add-forum-summary-dialog"));
 			return false;
 		});
 		$(".edit-youtube").click(function(){
@@ -1162,17 +1187,15 @@ $(document).ready(function() {
 		});
 		
 		$('.forum-summary-link').click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
-			var position =  $(this).position();
 			$("#forum-summary-error-container").hide();
 			$("#forumSummaryEditId").val("-1");
 			$("#forum-summary-height").val("");
 			$("#forumNumberDropdown-selection").val("5");
-			$("#add-forum-summary-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$("#add-forum-summary-dialog").dialog("open");
-			checksize($("#add-forum-summary-dialog"));
+			setupdialog($("#add-forum-summary-dialog"));
 			return false;
 		});
 		$('.question-link').click(function(){
@@ -1364,6 +1387,7 @@ $(document).ready(function() {
 		});
 		//when edit twitter link is clicked twitterDialog is opened
 		$(".edit-twitter").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			var row = $(this).parent().parent().parent();
 			var itemId = row.find(".twitter-id").text();
@@ -1382,11 +1406,8 @@ $(document).ready(function() {
 			$("#twitter-add-item").attr("value", msg("simplepage.edit"));
 			//make delete twitter link visible
 			$("#twitter-delete-span").show();
-			var position = row.position();
-			$("#add-twitter-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$('#add-twitter-dialog').dialog('open');
-			checksize($("#add-twitter-dialog"));
+			setupdialog($("#add-twitter-dialog"));
 			return false;
 		});
 		$("#question-editgroups").click(function(){
@@ -2043,18 +2064,16 @@ $(document).ready(function() {
 
 
 		$('.twitter-link').click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
-			var position =  $(this).position();
 			$('#twitter-error-container').hide();
 			$("#twitterEditId").val("-1");
 			$("#twitter-username").val("");
 			$("#widget-height").val("");
 			$('#numberDropdown-selection').val("5");
-			$("#add-twitter-dialog").dialog("option", "position", [position.left, position.top]);
-			oldloc = $(this);
 			$('#add-twitter-dialog').dialog('open');
-			checksize($('#add-twitter-dialog'));
+			setupdialog($('#add-twitter-dialog'));
 			return false;
 		});
 		$('body').bind('dialogopen', function(event) {

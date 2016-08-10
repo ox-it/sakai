@@ -12,6 +12,13 @@
     border-bottom: 1px solid $breadcrumbs-hover-color;
 }
 
+/* Override the Sakai cookie link text colour.*/
+#cookie-notice {
+    a {
+        color: lighten($orig-primary-color, 35%);
+    }
+}
+
 /* Change the default calendar colour. */
 $calendar-event-background-color: darken(#F8F8F8, 45%);
 
@@ -41,8 +48,40 @@ $calendar-event-background-color: darken(#F8F8F8, 45%);
     text-transform: none;
 }
 
+/* WL only has project sites, not course sites so modify display
+   so that we have two columns in the sites pop-up, not just one. */
+#otherSitesCategorWrap .moresites-right-col {
+    width: 100%;
+    .fav-sites-term:first-child {
+        float: left;
+        margin-right: 1em;
+    }
+    .fav-sites-term:nth-child(2) {
+        display: inline-block;
+        width: 49%;
+        margin-top: 0;
+        .favorites-term-header {
+            margin-top: 0;
+        }
+    }
+    .fav-sites-term:nth-child(3) {
+        display: inline-block;
+        .favorites-term-header{
+            margin-top: 0;
+            margin-bottom: 0.4em;
+        }
+    }
+}
+
 /* Extra icon mappings specific to WL. */
 @if $skin-with-icons {
+    /* This selector is required as the course sign-up icon doesn't start with 'icon-sakai-'. */
+    [class*=" icon-course-signup"]{
+        @extend .fa-lg;
+        @extend .fa;
+    }
+    .icon-course-signup {                    @extend .fa-graduation-cap;}
+    .icon-sakai-rsf-evaluation{              @extend .fa-commenting;}
     .icon-sakai-oauth {                      @extend .fa-key;}
     .icon-sakai-sub-site {                   @extend .fa-sitemap;}
     .icon-sakai-redirect {                   @extend .fa-link;}

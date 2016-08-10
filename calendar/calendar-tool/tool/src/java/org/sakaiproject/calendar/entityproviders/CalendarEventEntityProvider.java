@@ -1,16 +1,17 @@
 package org.sakaiproject.calendar.entityproviders;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import lombok.Setter;
+import java.io.IOException;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -26,10 +27,16 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.TimeService;
+
+import lombok.Setter;
+import org.sakaiproject.util.CalendarUtil;
 
 /**
  * The sakai entity used to access calendar events.
- * 
+ *
  * @author Denny
  */
 public class CalendarEventEntityProvider extends AbstractEntityProvider
@@ -37,6 +44,18 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 		ActionsExecutable, Outputable, Sampleable {
 
 	String ENTITY_PREFIX = "calendar";
+	Properties config = new Properties();
+	Map<String, String> eventImageMap = Collections.emptyMap();
+	private static Log log = LogFactory.getLog(CalendarEventEntityProvider.class);
+
+	public void init(){
+		try {
+			config.load(getClass().getResourceAsStream("/org/sakaiproject/calendar/tool/calendar.config"));
+		} catch (IOException e) {
+			//config file is missing
+			log.warn("Calendar.config file is missing for CalendarEventEntityProvider.class : " + e.getMessage());
+		}
+	}
 
 	/**
 	 * Calendar service.
@@ -51,10 +70,12 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	private SiteService siteService;
 
 	/**
-	 * Reference to the developer helper service.
+	 * Time service.
 	 */
 	@Setter
-	private DeveloperHelperService developerHelperService;
+	private transient TimeService timeService;
+	@Setter
+	private EntityManager entityManager;
 
 	/**
 	 * @return prefix
@@ -83,9 +104,8 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 
 	/**
 	 * Checks if an entity exists.
-	 * 
-	 * @param id
-	 *            id
+	 *
+	 * @param id id
 	 * @return if entity exists
 	 */
 	public boolean entityExists(final String id) {
@@ -94,95 +114,67 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 
 	/**
 	 * site/siteId
+	 *
+	 * Optional firstDate and lastDate query params in ISO-8601 date format, YYYY-MM-DD
 	 */
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
-	public List<CalendarEventSummary> getCalendarEventsForSite(EntityView view) {
-		List<CalendarEventSummary> r = new ArrayList<CalendarEventSummary>();
+	public List<CalendarEventDetails> getCalendarEventsForSite(final EntityView view, final Map<String, Object> params) {
+
+		final List<CalendarEventDetails> rv = new ArrayList<CalendarEventDetails>();
 
 		// get siteId
-		String siteId = view.getPathSegment(2);
+		final String siteId = view.getPathSegment(2);
 
 		// check siteId supplied
 		if (StringUtils.isBlank(siteId)) {
 			throw new IllegalArgumentException(
-					"siteId must be set in order to get the news feeds for a site, via the URL /news/site/siteId");
+					"siteId must be set in order to get the calendar feeds for a site, via the URL /calendar/site/siteId");
 		}
 
-		// user being logged in and having access to the site is handled in the
-		// API
-		Calendar cal;
-		try {
-			cal = calendarService.getCalendar(String.format(
-					"/calendar/calendar/%s/main", siteId));
+		eventImageMap = new CalendarUtil().getEventImageMap(config);
 
-			for (Object o : cal.getEvents(null, null)) {
-				CalendarEvent event = (CalendarEvent) o;
+		// optional timerange
+		final TimeRange range = buildTimeRangeFromRequest(params);
 
-				r.add(new CalendarEventSummary(event));
-			}
-
-			return r;
-		} catch (IdUnusedException e) {
-			throw new EntityNotFoundException("Invalid siteId: " + siteId,
-					siteId);
-		} catch (PermissionException e) {
-			throw new EntityNotFoundException("No access to site: " + siteId,
-					siteId);
+		//check if request is for merged calendars, used by lessons widget
+		if(params.containsKey("merged") && (params.get("merged")).equals("true")){
+			//get all events from the merged calendars
+			rv.addAll(getMergedCalendarEventsForSite(siteId, range));
 		}
+		else{
+			// user being logged in and having access to the site is handled in the API
+			rv.addAll(getEventsForSite(siteId, range));
+		}
+		return rv;
 	}
 
 	/**
 	 * my
+	 *
+	 * Optional firstDate and lastDate query params in ISO-8601 date format, YYYY-MM-DD
 	 */
 	@EntityCustomAction(action = "my", viewKey = EntityView.VIEW_LIST)
 	public List<CalendarEventSummary> getMyCalendarEventsForAllSite(
-			EntityView view, Map<String, Object> params) {
-		List<CalendarEventSummary> rv = new ArrayList<CalendarEventSummary>();
+			final EntityView view, final Map<String, Object> params) {
+		final List<CalendarEventSummary> rv = new ArrayList<CalendarEventSummary>();
+
+		// optional timerange
+		final TimeRange range = buildTimeRangeFromRequest(params);
 
 		// add events form my workspace
-		Calendar cal;
-		try {
-			cal = calendarService.getCalendar(String.format(
-					"/calendar/calendar/~%s/main",
-					developerHelperService.getCurrentUserId()));
-
-			for (Object o : cal.getEvents(null, null)) {
-				CalendarEvent event = (CalendarEvent) o;
-
-				rv.add(new CalendarEventSummary(event));
-			}
-		} catch (IdUnusedException e) {
-			// should not happened
-		} catch (PermissionException e) {
-			// should not happened
-		}
+		final String siteId = "~" + this.developerHelperService.getCurrentUserId();
+		rv.addAll(getEventsForSite(siteId, range));
 
 		// get list of all sites
-		List<Site> sites = siteService.getSites(
+		final List<Site> sites = this.siteService.getSites(
 				SiteService.SelectionType.ACCESS, null, null, null,
 				SiteService.SortType.TITLE_ASC, null);
 		// no need to check user can access this site, as the get sites only
 		// returned accessible sites
 
 		// get all assignments from each site
-		for (Site site : sites) {
-			String siteId = site.getId();
-
-			try {
-				cal = calendarService.getCalendar(String.format(
-						"/calendar/calendar/%s/main", siteId));
-
-				for (Object o : cal.getEvents(null, null)) {
-					CalendarEvent event = (CalendarEvent) o;
-
-					rv.add(new CalendarEventSummary(event));
-				}
-			} catch (IdUnusedException e) {
-				// should not happened
-			} catch (PermissionException e) {
-				// should not happened
-			}
-
+		for (final Site site : sites) {
+			rv.addAll(getEventsForSite(site.getId(), range));
 		}
 		return rv;
 	}
@@ -191,32 +183,141 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	 * event/siteId/eventId
 	 */
 	@EntityCustomAction(action = "event", viewKey = EntityView.VIEW_LIST)
-	public CalendarEventDetails getCalendarEventDetails(EntityView view) {
+	public CalendarEventDetails getCalendarEventDetails(final EntityView view) {
 		// get siteId
-		String siteId = view.getPathSegment(2);
-		String eventId = view.getPathSegment(3);
+		final String siteId = view.getPathSegment(2);
+		final String eventId = view.getPathSegment(3);
 
 		// check siteId supplied
 		if (StringUtils.isBlank(siteId)) {
 			throw new IllegalArgumentException(
-					"siteId must be set in order to get the news feeds for a site, via the URL /news/site/siteId");
+					"siteId must be set in order to get the calendar feeds for a site, via the URL /calendar/site/siteId");
 		}
 
 		// user being logged in and having access to the site is handled in the
 		// API
 		Calendar cal;
 		try {
-			cal = calendarService.getCalendar(String.format(
+			cal = this.calendarService.getCalendar(String.format(
 					"/calendar/calendar/%s/main", siteId));
 
-			return new CalendarEventDetails(cal.getEvent(eventId));
-		} catch (IdUnusedException e) {
+			final CalendarEvent event = cal.getEvent(eventId);
+			final CalendarEventDetails rval = new CalendarEventDetails(event);
+			rval.setSiteId(siteId);
+			return rval;
+		} catch (final IdUnusedException e) {
 			throw new EntityNotFoundException("Invalid siteId: " + siteId,
 					siteId);
-		} catch (PermissionException e) {
+		} catch (final PermissionException e) {
 			throw new EntityNotFoundException("No access to site: " + siteId,
 					siteId);
 		}
+	}
+
+	/**
+	 * Helper to get the events for a site
+	 *
+	 * @param siteId siteId. If myworkspace, should already have the ~ prepended.
+	 * @param range {@link TimeRange} to filter by. Must be null if not sending one.
+	 * @return
+	 */
+	private List<CalendarEventDetails> getEventsForSite(final String siteId, final TimeRange range) {
+
+		final List<CalendarEventDetails> rval = new ArrayList<CalendarEventDetails>();
+
+		try {
+			final Calendar cal = this.calendarService.getCalendar(String.format(
+					"/calendar/calendar/%s/main", siteId));
+
+			for (final Object o : cal.getEvents(range, null)) {
+				final CalendarEvent event = (CalendarEvent) o;
+
+				final CalendarEventDetails eventDetails = new CalendarEventDetails(event);
+				eventDetails.setEventImage(eventImageMap.get(event.getType()));
+				eventDetails.setSiteId(siteId);
+				rval.add(eventDetails);
+			}
+		} catch (final IdUnusedException e) {
+			// may not have a calendar, skip it
+		} catch (final PermissionException e) {
+			// may not have access, skip it
+		}
+
+		return rval;
+	}
+
+	/**
+	 * Build a {@link TimeRange} from the supplied request parameters. If the parameters are supplied but invalid, an
+	 * {@link IllegalArgumentException} will be thrown.
+	 *
+	 * @param params the request params
+	 * @return {@link TimeRange} if valid or null if not
+	 */
+	private TimeRange buildTimeRangeFromRequest(final Map<String, Object> params) {
+
+		// OPTIONAL params
+		String firstDate = null;
+		String lastDate = null;
+		if (params.containsKey("firstDate")) {
+			firstDate = (String) params.get("firstDate");
+		}
+		if (params.containsKey("lastDate")) {
+			lastDate = (String) params.get("lastDate");
+		}
+
+		// check date params are correct (length is ok)
+		if (StringUtils.isNotBlank(firstDate) && StringUtils.length(firstDate) != 10) {
+			throw new IllegalArgumentException(
+					"firstDate must be in the format yyyy-MM-dd");
+		}
+		if (StringUtils.isNotBlank(lastDate) && StringUtils.length(lastDate) != 10) {
+			throw new IllegalArgumentException(
+					"lastDate must be in the format yyyy-MM-dd");
+		}
+
+		// if we have dates, create a range for filtering
+		// these need to be converted to Time and then a TimeRange created. This is what the CalendarService uses to filter :(
+		// note that our firstDate is always the beginning of the day and the lastDate is always the end
+		// this is to ensure we get full days
+		TimeRange range = null;
+		if (StringUtils.isNotBlank(firstDate) && StringUtils.isNotBlank(lastDate)) {
+			final Time start = this.timeService.newTimeLocal(
+					Integer.valueOf(StringUtils.substring(firstDate, 0, 4)),
+					Integer.valueOf(StringUtils.substring(firstDate, 5, 7)),
+					Integer.valueOf(StringUtils.substring(firstDate, 8, 10)),
+					0, 0, 0, 0);
+
+			final Time end = this.timeService.newTimeLocal(
+					Integer.valueOf(StringUtils.substring(lastDate, 0, 4)),
+					Integer.valueOf(StringUtils.substring(lastDate, 5, 7)),
+					Integer.valueOf(StringUtils.substring(lastDate, 8, 10)),
+					23, 59, 59, 999);
+
+			range = this.timeService.newTimeRange(start, end, true, true);
+		}
+		return range;
+	}
+
+	/**
+	 * get events for all the internal merged calendars for a given site
+	 * @param siteId
+	 * @param range
+	 * @return
+	 */
+	private List<CalendarEventDetails> getMergedCalendarEventsForSite(final String siteId, final TimeRange range) {
+		List<CalendarEventDetails> mergeCal = new ArrayList<CalendarEventDetails>();
+		CalendarEventVector calendarEventVector = calendarService.getEvents(calendarService.getCalendarReferences(siteId), range);
+		for (Object o : calendarEventVector) {
+			CalendarEvent event = (CalendarEvent) o;
+
+			CalendarEventDetails eventDetails = new CalendarEventDetails(event);
+			eventDetails.setEventImage(eventImageMap.get(event.getType()));
+			//as event can be from different site , find sitId for the event
+			Reference reference = entityManager.newReference(event.getCalendarReference());
+			eventDetails.setSiteId(reference.getContext());
+			mergeCal.add(eventDetails);
+		}
+		return mergeCal;
 	}
 
 }
