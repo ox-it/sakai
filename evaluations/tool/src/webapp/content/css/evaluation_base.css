@@ -2214,3 +2214,7 @@ li.exportIndividual {
 .cke_chrome {
     min-width: 100% !important;
 }
+}
+.label{
+	color:#000;
+}
