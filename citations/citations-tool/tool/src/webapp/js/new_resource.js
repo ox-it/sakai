@@ -596,6 +596,9 @@ citations_new_resource.init = function() {
 		citations_new_resource.processClick(successObj);
 		return false;
 	});
+	$('#ExportCitation').on('click', function() {
+		window.location.assign($('#exportUrlAll').val());
+	});
 	$('.Cancel').on('click', function(eventObject) {
 		if(needToSaveAnyChanges()) {
 			var successObj = {
