@@ -146,6 +146,21 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		assertEquals("9780471783794", citation.getCitationProperty("isnIdentifier", false));
 	}
 
+	public void testParseSampleReview() {
+		HttpServletRequest req = createRequest(SampleSoloApiURLs.REVIEW);
+		ContextObject co = service.parse(req);
+		Citation citation = service.convert(co);
+		assertEquals("Children of the Queen's Revels: A Jacobean Theatre Repertory", citation.getCitationProperty("title", false));
+		assertEquals("Theatre Research International", citation.getCitationProperty("sourceTitle", false));
+		assertEquals("PRICE, VICTORIA E", citation.getCitationProperty("creator", false));
+		assertEquals("200707", citation.getCitationProperty("date", false));
+		assertEquals("32", citation.getCitationProperty("volume", false));
+		assertEquals("2", citation.getCitationProperty("issue", false));
+		assertEquals("225", citation.getCitationProperty("startPage", false));
+		assertEquals("0307-8833", citation.getCitationProperty("isnIdentifier", false));
+		assertEquals("10.1017/S0307883306002653", citation.getCitationProperty("doi", false));
+	}
+
 	public Citation convert(ContextObject ContextObjectObject) {
 		Citation citation = service.convert(ContextObjectObject);
 		assertNotNull(citation);
