@@ -1,11 +1,14 @@
 package org.sakaiproject.portal.impl;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.sun.corba.se.spi.activation.Server;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -19,13 +22,18 @@ import org.sakaiproject.portal.api.Neighbour;
 import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbour;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
+import org.sakaiproject.portal.api.cover.PortalService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Web;
 
+import static org.sakaiproject.hierarchy.api.PortalHierarchyService.SEPARATOR;
+
 public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodService
 {
+	// Find everything apart from trailing seperators
+	private Pattern trimTailingSeparators = Pattern.compile("("+ SEPARATOR+ ".*?)"+ SEPARATOR+ "+");
 	
 	private static final String CACHE_KEY = HierarchySiteNeighbourhoodService.class+ "cache";
 
@@ -34,6 +42,8 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 	private SiteNeighbourhoodService proxy;
 	
 	private PortalHierarchyService portalHierarchyService;
+
+	private ServerConfigurationService serverConfigurationService;
 
 	@Override
 	public List<Site> getSitesAtNode(HttpServletRequest request, Session session, String nodeId,
@@ -173,6 +183,12 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 			if (node instanceof PortalNodeRedirect) {
 				return ((PortalNodeRedirect)node).getUrl();
 			}
+			// If we have trailing seperators pull them off
+			Matcher matcher = trimTailingSeparators.matcher(siteId);
+			if (matcher.matches()) {
+				// This is a relative URL that the container will make absolute
+				return serverConfigurationService.getString("portalPath")+ "/"+ "site"+ "/"+ matcher.group(1);
+			}
 		}
 		return null;
 	}
@@ -185,6 +201,10 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 	public void setPortalHierarchyService(PortalHierarchyService portalHierarchyService)
 	{
 		this.portalHierarchyService = portalHierarchyService;
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
 	}
 
 	/**
