@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<!-- Use the chained advisor -->
+	<bean id="org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor"
+		  class="org.sakaiproject.contentreview.impl.advisors.ChainedPropertyAdvisor">
+		<property name="advisors">
+			<list>
+				<bean class="org.sakaiproject.contentreview.impl.advisors.SitePropertyAdvisor">
+					<property name="siteProperty">
+						<value>useContentReviewService</value>
+					</property>
+					<property name="siteLTIProperty">
+						<value>useContentReviewLTIService</value>
+					</property>
+					<property name="siteDirectSubmissionProperty">
+						<value>useContentReviewDirectSubmission</value>
+					</property>
+				</bean>
+				<bean class="org.sakaiproject.contentreview.impl.advisors.GlobalPropertyAdvisor">
+					<property name="tiiProperty">
+						<value>assignment.useContentReview</value>
+					</property>
+					<property name="tiiLTIProperty">
+						<value>assignment.useContentReviewLTI</value>
+					</property>
+					<property name="tiiDirectSubmissionProperty">
+						<value>assignment.useContentReviewDirect</value>
+					</property>
+					<property name="serverConfigurationService"
+							  ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+				</bean>
+			</list>
+		</property>
+	</bean>
+</beans>
