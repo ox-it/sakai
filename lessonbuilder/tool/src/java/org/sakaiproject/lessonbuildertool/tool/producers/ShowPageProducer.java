@@ -1234,7 +1234,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.CALENDAR: itemClassName = "calendar"; break;
 				}
 
-				if (listItem){
+				// inline LTI. Our code calls all BLTI items listItem, but the inline version really isn't
+				boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
+
+				if (listItem && !isInline){
 				    itemClassName = itemClassName + " listType";
 				}
 				if (canEditPage) {
@@ -1280,8 +1283,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							notDone = true;
 						}
 					}
-
-					boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
 
 					UIOutput linktd = UIOutput.make(tableRow, "item-td");
 					
@@ -2572,7 +2573,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
  
 							// Never visited page
 							if(entry == null) {
-							    UIOutput.make(row, "newPageImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-page")));
+							    UIOutput.make(row, "newPageImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-content-page")));
 							} else
 							    UIOutput.make(row, "newPageImgT");
 
@@ -4048,7 +4049,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		UILink link = UIInternalLink.make(form, "mm-choose", messageLocator.getMessage("simplepage.choose_existing_or"), fileparams);
 
-		UIBoundBoolean.make(form, "mm-prerequisite", "#{simplePageBean.prerequisite}", false);
+		if (currentPage.getOwner() == null) {
+		    UIOutput.make(form, "mm-prerequisite-section");
+		    UIBoundBoolean.make(form, "mm-prerequisite", "#{simplePageBean.prerequisite}", false);
+		}
 		UIBoundBoolean.make(form, "mm-file-replace", "#{simplePageBean.replacefile}", false);
 
 		UICommand.make(form, "mm-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addMultimedia}");
@@ -4236,7 +4240,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "description2-label", messageLocator.getMessage("simplepage.description_label"));
 		UIInput.make(form, "description2", "#{simplePageBean.description}");
 
-		UIBoundBoolean.make(form, "multi-prerequisite", "#{simplePageBean.prerequisite}",false);
+		if (currentPage.getOwner() == null) {
+		    UIOutput.make(form, "multi-prerequisite-section");
+		    UIBoundBoolean.make(form, "multi-prerequisite", "#{simplePageBean.prerequisite}",false);
+		}
 
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
 		fileparams.setSender(currentPage.getPageId());

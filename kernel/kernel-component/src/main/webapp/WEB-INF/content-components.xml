@@ -136,6 +136,8 @@
         <property name="mimeTypes"> <list/>              </property>
 	</bean>
 
+	<bean id="org.sakaiproject.content.api.ContentChangeHandler" class="org.sakaiproject.content.api.ContentChangeHandlerImpl" />
+
 	<bean id="lockManagerHibernateMappings"
 			class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="mappingResources">
@@ -269,7 +271,6 @@
 	</bean>
 
     <bean id="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" class="org.sakaiproject.content.impl.ContentCopyInterceptorRegistryImpl" />
-    <bean id="org.sakaiproject.content.api.ContentChangeHandler" class="org.sakaiproject.content.api.ContentChangeHandlerImpl" />
     <bean id="org.sakaiproject.content.impl.ContentCopySiteIdInterceptor" class="org.sakaiproject.content.impl.ContentCopySiteIdInterceptor" init-method="init">
         <property name="interceptorRegistry" ref="org.sakaiproject.content.api.ContentCopyInterceptorRegistry" />
     </bean>

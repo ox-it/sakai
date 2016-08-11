@@ -202,9 +202,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	/** A Storage object for persistent storage. */
 	protected Storage m_storage = null;
 
-	/** A Cache for this service - ContentResource and ContentCollection keyed by reference. */
-	protected Cache m_cache = null;
-
 	/**
 	 * The quota for content resource body bytes (in Kbytes) for any hierarchy in the /user/ or /group/ areas, or 0 if quotas are not enforced.
 	 */
@@ -525,26 +522,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		this.userDirectoryService = userDirectoryService;
 	}
 
-	/** Configuration: cache, or not. */
-	protected boolean m_caching = false;
-
-	/**
-	 * Configuration: cache, or not. 
-	 * 
-	 * @param value
-	 *        True/false
-	 */
-	public void setCaching(String value)
-	{
-		try
-		{
-			m_caching = Boolean.valueOf(value).booleanValue();
-		}
-		catch (Exception t)
-		{
-		}
-	}
-
 	/** Configuration: Do we protect attachments in sites with the site AuthZGroup. */
 	protected boolean m_siteAttachments = true; // Default to true for Sakai 2.5 and later
 
@@ -857,15 +834,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 			M_log.info("Loaded Storage as "+m_storage+" for "+this);
 
-			// make the cache
-			if (m_caching)
-			{
-				m_cache = m_memoryService
-				.newCache(
-						"org.sakaiproject.content.api.ContentHostingService.cache",
-						this, getAccessPoint(true));
-			}
-
 			// register a transient notification for resources
 			NotificationEdit edit = m_notificationService.addTransientNotification();
 
@@ -957,11 +925,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			m_storage.close();
 		}
 		m_storage = null;
-
-		if ((m_caching) && (m_cache != null))
-		{
-			m_cache.close();
-		}
 
 		M_log.info("destroy()");
 

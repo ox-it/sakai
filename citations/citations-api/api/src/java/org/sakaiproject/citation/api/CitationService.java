@@ -187,16 +187,15 @@ public interface CitationService extends EntityProducer
 	public void removeCollection(CitationCollection edit);
 
 	/**
-	 * This method copies a CitationCollection and all Citations it contains.
-	 * @param reference A reference to the CitationCollection to copy.
-	 */
-	public void copyCitationCollection(Reference reference);
-
-	/**
-     * 
+     *
      * @param citation
      */
     public void save(Citation citation);
+	/**
+	 * This method copies a collection and all the citations it contains.
+	 * @param reference The reference of the content resource to copy
+	 */
+	public void copyCitationCollection(Reference reference);
 
 	/**
      * 

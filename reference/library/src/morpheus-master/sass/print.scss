@@ -6,7 +6,7 @@
 @import "modules/tool/menu";
 @import "modules/navigation/breadCrumbs";
 
-@import "oxford/customization";
+@import "oxford/overrides";
 
 a[href]:after {
 	content: none !important;

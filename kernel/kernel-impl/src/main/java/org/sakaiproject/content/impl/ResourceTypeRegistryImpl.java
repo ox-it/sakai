@@ -33,6 +33,8 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.javax.Filter;
