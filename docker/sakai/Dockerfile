@@ -16,7 +16,8 @@ COPY tomcat/lib /opt/tomcat/sakai-lib/
 COPY tomcat/webapps /opt/tomcat/webapps/
 
 # We don't copy local.properties for production
-COPY override krb5.conf log4j.properties placeholder.properties sakai.quartz.properties sakai-jaas.conf /opt/tomcat/sakai/
+COPY krb5.conf log4j.properties placeholder.properties sakai.quartz.properties sakai-jaas.conf /opt/tomcat/sakai/
+COPY override /opt/tomcat/sakai/override
 
 # Up the memory for production
 ENV CATALINA_OPTS_MEMORY -Xms2g -Xmx3g
