@@ -13,6 +13,9 @@
 			<ref
 				bean="org.sakaiproject.hierarchy.api.PortalHierarchyService" />
 		</property>
+		<property name="serverConfigurationService">
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+		</property>
 	</bean>
 	
 	<bean id="org.sakaiproject.portal.impl.HierarchySiteAliasProvider"
