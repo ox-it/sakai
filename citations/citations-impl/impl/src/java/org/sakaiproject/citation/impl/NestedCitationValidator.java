@@ -60,7 +60,7 @@ public class NestedCitationValidator implements CitationValidator {
 	public boolean isValid(List<CitationCollectionOrder> citationCollectionOrders) {
 
 		for (CitationCollectionOrder h1Section : citationCollectionOrders) {
-			if (hasNullCitationIdAndSectionType(h1Section) || !Arrays.asList(NESTED_CITATION_LIST.TOP_LEVEL.getAllowableTypes()).contains(
+			if (!Arrays.asList(NESTED_CITATION_LIST.TOP_LEVEL.getAllowableTypes()).contains(
 					h1Section.getSectiontype())){
 				return false;
 			}
