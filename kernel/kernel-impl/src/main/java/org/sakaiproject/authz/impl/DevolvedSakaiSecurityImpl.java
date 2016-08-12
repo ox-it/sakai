@@ -229,7 +229,7 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 	}
 
 
-	protected boolean checkAuthzGroups(String userId, String function, String entityRef, Collection azgs)
+	protected boolean checkAuthzGroups(String userId, String function, String entityRef, Collection<String> azgs)
 	{
 
 		// get this entity's AuthzGroups if needed
@@ -241,25 +241,62 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 			azgs = ref.getAuthzGroups(userId);
 		}
 
-		Collection<String> expandedAzgs = new HashSet<>();
-		for (String ref: (Collection<String>)azgs) {
-			// If we're in roleswap don't use adminsites as we just want to be a role in the current site.
-			if (ref.startsWith(SiteService.REFERENCE_ROOT) && getUserEffectiveRole(ref) != null) {
-				expandedAzgs = azgs;
-				break;
+		String siteRef = null;
+		String roleswap = null;
+
+		// Actual code in DbAuthzGroupService will not roleswap if there's a user site ref in the list and
+		// it is acceptable. However we can't tell that without doing a database access, so be conservative
+		// and cache it separately as a role swap
+		// This code does not handle delegated access
+		if (azgs != null && userId != null && userId.equals(sessionManager().getCurrentSessionUserId())) {
+			// These checks for roleswap assume there is at most one of each type of site in the realms collection,
+			// i.e. one ordinary site and one user site
+			for (String azg: azgs) {
+				if (azg.startsWith(SiteService.REFERENCE_ROOT + Entity.SEPARATOR)) {  // Starts with /site/
+					if (userId.equals(siteService().getSiteUserId(azg))) {
+						; // reference to a user site
+					} else {
+						siteRef = azg; // set this variable for potential use later
+					}
+				}
 			}
-			String adminRealm = getAdminRealm(ref);
+
+			Reference ref = entityManager().newReference(siteRef);
+			if (SiteService.GROUP_SUBTYPE.equals(ref.getSubType())) {
+				String containerSiteRef = siteService().siteReference(ref.getContainer());
+				roleswap = getUserEffectiveRole(containerSiteRef);
+				if (roleswap != null) {
+					siteRef = containerSiteRef;
+				}
+			} else {
+				roleswap = getUserEffectiveRole(siteRef);
+			}
+		}
+
+		Collection<String> expandedAzgs = new HashSet<>();
+		for (String azg: azgs) {
+			String adminRealm = getAdminRealm(azg);
 			if (adminRealm != null) {
 				if (log.isDebugEnabled()) {
-					log.debug("Adding admin realm: " + adminRealm + " for: " + ref);
+					log.debug("Adding admin realm: " + adminRealm + " for: " + azg);
 				}
 				expandedAzgs.add(adminRealm);
 			}
-			expandedAzgs.add(ref);
+			expandedAzgs.add(azg);
 		}
+		// check the cache
+		String command = makeCacheKey(userId, roleswap, function, entityRef, false);
+
+		if (m_callCache != null)
+		{
+			final Boolean value = getFromCache(command, false);
+			if(value != null) return value.booleanValue();
+		}
+
 
 		boolean rv = authzGroupService().isAllowed(userId, function, expandedAzgs);
 
+		addToCache(command, rv, false);
 		return rv;
 	}
 
