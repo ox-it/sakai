@@ -89,8 +89,12 @@ public class NestedCitationValidatorTest extends BaseCitationServiceSupport {
 
 		List<CitationCollectionOrder> citationCollectionOrders = new ArrayList<CitationCollectionOrder>();
 
-		CitationCollectionOrder citation = getNullCitationIdAndNullSectionType();
-		citationCollectionOrders.add(citation);
+		// h1 with invalid null h2
+		CitationCollectionOrder nullH2 = getNullCitationIdAndNullSectionType();
+		citationCollectionOrders.add(nullH2);
+		CitationCollectionOrder h1 = getH1();
+		h1.addChild(nullH2);
+		citationCollectionOrders.add(h1);
 
 		boolean isValid = citationValidator.isValid(citationCollectionOrders);
 		assertFalse(isValid);
