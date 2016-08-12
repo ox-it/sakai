@@ -219,6 +219,31 @@ a.print {
 .lastUpdated {
     float:right;
 }
+.banner {
+    float:left;
+    margin-top: 15px;
+    margin-left:15px;
+}
+.bannerLinks {
+    float:right;
+    margin-right:15px;
+    margin-top: 10px;
+}
+a.export {
+    color:#FFF;
+    padding-right:10px;
+}
+a[href]:hover{
+	color:#FFF;
+}
+a.print {
+    color:#FFF;
+    padding-right:10px;
+}
+.lastUpdated {
+    color:#FFF;
+    float:right;
+}
 .accordionArrow {
 	cursor: pointer;
 	float:left;
