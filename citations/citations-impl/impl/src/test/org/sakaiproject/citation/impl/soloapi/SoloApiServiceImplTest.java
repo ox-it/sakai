@@ -146,6 +146,22 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		assertEquals("9780471783794", citation.getCitationProperty("isnIdentifier", false));
 	}
 
+	public void testParseSampleText() {
+		HttpServletRequest req = createRequest(SampleSoloApiURLs.TEXT);
+		ContextObject co = service.parse(req);
+		Citation citation = service.convert(co);
+		assertEquals("Complete transcatheter closure of a patent arterial duct with subsequent haemolysis", citation.getCitationProperty("title", false));
+		assertEquals("Cardiology in the Young", citation.getCitationProperty("sourceTitle", false));
+		assertEquals("[Cace, Neven, Ahel, Vladimir, Bilic, Iva]", citation.getCitationProperty("creator", false).toString());
+		assertEquals("201008", citation.getCitationProperty("date", false));
+		assertEquals("20", citation.getCitationProperty("volume", false));
+		assertEquals("4", citation.getCitationProperty("issue", false));
+		assertEquals("462", citation.getCitationProperty("startPage", false));
+		assertEquals("464", citation.getCitationProperty("endPage", false));
+		assertEquals("1047-9511", citation.getCitationProperty("isnIdentifier", false));
+		assertEquals("10.1017/S1047951110000326", citation.getCitationProperty("doi", false));
+	}
+
 	public Citation convert(ContextObject ContextObjectObject) {
 		Citation citation = service.convert(ContextObjectObject);
 		assertNotNull(citation);
