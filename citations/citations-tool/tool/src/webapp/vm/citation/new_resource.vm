@@ -200,6 +200,15 @@
 			<span class="popupTitle" style="display:none;">$tlang.getString("resource.import.file")</span>
 		  </span>
 	  </li>
+	  <!-- Markup for Export/RIS -->
+	  #if( $!exportUrlAll )
+		  <li>
+			  <span class="searchTargetLink">
+				<input name="ExportCitation" id="ExportCitation" type="button" class="active" title="$tlang.getString("resource.export.file")" value="$tlang.getString("resource.export")"/>
+				<input id="exportUrlAll" type="hidden" value="$exportUrlAll" />
+			  </span>
+		  </li>
+	  #end
 	</ul>
 	<div class="act">
 		<div class="citationsDisplay"#if(! ($collectionSize || $collectionSize < 1) && ! ($nestedSectionsSize || $nestedSectionsSize < 1)) style="display:none;"#end>
