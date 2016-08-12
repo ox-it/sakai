@@ -91,6 +91,12 @@ To configure Sakai we have the following files, the order listed is the order th
  - security.properties In production this contains the passwords for the services we connect to (DB, Turnitin, etc)
 
 
+YourKit Profiling
+=================
+
+We include the profiling library in our build but by default we don't startup tomcat with this agent enabled. To start Sakai with profiling enabled change the command that is run from `/opt/tomcat/bin/catalina.sh run` to `/opt/tomcat/bin/startup_with_yjp.sh`
+The profiler isn't enabled for the first 100 seconds to give Sakai time to startup before slowing it down. By default it will listen on port 10001.
+
 Errors
 ======
 

@@ -18,6 +18,10 @@ COPY tomcat/webapps /opt/tomcat/webapps/
 # We don't copy local.properties for production
 COPY krb5.conf log4j.properties placeholder.properties sakai.quartz.properties sakai-jaas.conf /opt/tomcat/sakai/
 COPY override /opt/tomcat/sakai/override
+COPY libyjpagent.so /opt/yjp/bin/linux-x86-64/
+COPY startup_with_yjp.sh /opt/tomcat/bin/
+
+RUN chmod 755 /opt/tomcat/bin/startup_with_yjp.sh
 
 # Up the memory for production
 ENV CATALINA_OPTS_MEMORY -Xms2g -Xmx3g
