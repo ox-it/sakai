@@ -1381,13 +1381,16 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         }
 
         boolean markupFree = false;
-        BaseForum forum = message.getTopic().getBaseForum();
-        if (forum instanceof DiscussionForum) {
-            DiscussionForum dForum = (DiscussionForum)forum;
-            markupFree = dForum.getMarkupFree();
-        }
-        if (markupFree) {
-            message.setBody(messageParsingService.parse(message.getBody()));
+        Topic topic = message.getTopic();
+        if (topic != null) {
+            BaseForum forum = topic.getBaseForum();
+            if (forum instanceof DiscussionForum) {
+                DiscussionForum dForum = (DiscussionForum) forum;
+                markupFree = dForum.getMarkupFree();
+            }
+            if (markupFree) {
+                message.setBody(messageParsingService.parse(message.getBody()));
+            }
         }
         message.setModified(new Date());
         if(getCurrentUser()!=null){
