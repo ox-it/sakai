@@ -1295,6 +1295,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIBranchContainer linkdiv = null;
 					if (!isInline) {
 					    linkdiv = UIBranchContainer.make(tableRow, "link-div:");
+					}
+					if (!isInline && !"button".equals(i.getFormat())) {
 					    UIOutput itemicon = UIOutput.make(linkdiv,"item-icon");
 					    switch (i.getType()) {
 					    case SimplePageItem.FORUM:
@@ -3326,9 +3328,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					isbutton = true;
 					UIOutput span = UIOutput.make(container, ID + "-button-span");
 					ID = ID + "-button";
-					if (!i.isRequired()) {
-						span.decorate(new UIFreeAttributeDecorator("class", "navIntraTool buttonItem"));
-					}
 					isbutton = true;
 				}
 				
