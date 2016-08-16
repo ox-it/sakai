@@ -1,6 +1,8 @@
 package org.sakaiproject.elfinder.sakai.site;
 
 import cn.bluejoe.elfinder.service.FsItem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.elfinder.sakai.SiteVolumeFactory;
 import org.sakaiproject.elfinder.sakai.ReadOnlyFsVolume;
@@ -23,6 +25,8 @@ import java.util.Map;
  *
  */
 public class SiteFsVolume extends ReadOnlyFsVolume {
+
+    private final static Log log = LogFactory.getLog(SiteFsVolume.class);
 
     public String getSiteId() {
         return siteId;
@@ -134,9 +138,9 @@ public class SiteFsVolume extends ReadOnlyFsVolume {
                 }
             }
         } catch (PermissionException pe) {
-            throw new IllegalArgumentException("The current user doesn't have access to: "+ siteId);
+            log.debug("The current user doesn't have access to: "+ siteId);
         } catch (IdUnusedException iue) {
-            throw new IllegalArgumentException("There is no site with ID: "+ siteId);
+            log.debug("There is no site with ID: "+ siteId);
         }
         return children.toArray(new FsItem[0]);
     }
