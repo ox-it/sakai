@@ -110,6 +110,7 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 		if (prefix != null) siteUrlPrefix = siteUrlPrefix + prefix + "/";
 		map.put("url", siteUrlPrefix + siteHelper.getSiteEffectiveId(site));
 		map.put("iconClass", "icon-sakai-sub-site");
+		map.put("hidden", !site.isPublished());
 		return map;
 	}
 
@@ -122,6 +123,7 @@ public class SubSiteViewImpl extends AbstractSiteViewImpl
 		if (prefix != null) siteUrlPrefix = siteUrlPrefix + prefix + "/";
 		map.put("url", siteUrlPrefix + (redirect.getId() ));
 		map.put("iconClass", "icon-sakai-redirect");
+		map.put("hidden", redirect.isHidden());
 		return map;
 	}
 
