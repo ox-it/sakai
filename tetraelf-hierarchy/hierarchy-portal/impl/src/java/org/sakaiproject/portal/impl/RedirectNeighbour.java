@@ -40,6 +40,11 @@ public class RedirectNeighbour implements Neighbour {
                     return redirect.getTitle();
                 }
             }
+
+            @Override
+            public boolean isHidden() {
+                return redirect.isHidden();
+            }
         });
     }
 }

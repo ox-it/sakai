@@ -31,6 +31,13 @@ public interface Neighbour {
          */
         String getTitle();
 
+        /**
+         * Should this redirect be shown  to users. A hidden redirect still works for users they just
+         * don't know it exists until they access it.
+         * @return <code>true</code> if users shouldn't see the redirect.
+         */
+        boolean isHidden();
+
     }
 
 }
