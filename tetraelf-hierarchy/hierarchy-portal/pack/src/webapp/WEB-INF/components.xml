@@ -5,7 +5,7 @@
 <beans>
 
 	<bean id="org.sakaiproject.portal.api.SiteNeighbourhoodService"
-		class="org.sakaiproject.portal.impl.HierarchySiteNeighbourhoodService" >
+		class="org.sakaiproject.portal.impl.HierarchySiteNeighbourhoodService" init-method="init">
 		<property name="proxy">
 			<ref bean="org.sakaiproject.portal.service.SiteNeighbourhoodServiceImpl" />
 		</property>
@@ -15,6 +15,9 @@
 		</property>
 		<property name="serverConfigurationService">
 			<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+		</property>
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService"/>
 		</property>
 	</bean>
 	

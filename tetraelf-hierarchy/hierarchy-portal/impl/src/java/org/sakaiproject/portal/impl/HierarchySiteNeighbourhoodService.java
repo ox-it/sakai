@@ -24,6 +24,7 @@ import org.sakaiproject.portal.api.SiteNeighbour;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.cover.PortalService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Web;
@@ -39,11 +40,20 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 
 	private static Log log = LogFactory.getLog(HierarchySiteNeighbourhoodService.class);
 
+    private SiteService siteService;
+
 	private SiteNeighbourhoodService proxy;
 	
 	private PortalHierarchyService portalHierarchyService;
 
 	private ServerConfigurationService serverConfigurationService;
+
+	public void init() {
+		Objects.requireNonNull(siteService, "SiteService must be set.");
+		Objects.requireNonNull(proxy, "SiteNeighbourhoodService must be set.");
+		Objects.requireNonNull(portalHierarchyService, "PortalHierarchyService must be set.");
+		Objects.requireNonNull(serverConfigurationService, "ServerConfigurationService must be set.");
+	}
 
 	@Override
 	public List<Site> getSitesAtNode(HttpServletRequest request, Session session, String nodeId,
@@ -63,9 +73,13 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 				List<Neighbour> neighbours = new ArrayList<>();
 				for (PortalNode child: nodeChildren) {
 
-					if (child.canView() && child instanceof PortalNodeSite) {
+					if (child instanceof PortalNodeSite) {
 						PortalNodeSite siteNode = (PortalNodeSite) child;
-						neighbours.add(new SiteNeighbour(siteNode.getSite()));
+						boolean canJoin = siteNode.getSite().isJoinable() &&
+								siteService.isAllowedToJoin(siteNode.getSite().getId());
+						if (siteNode.canView() || canJoin) {
+							neighbours.add(new SiteNeighbour(siteNode.getSite()));
+						}
 					}
 					if (child instanceof PortalNodeRedirect) {
 						PortalNodeRedirect redirect = (PortalNodeRedirect) child;
@@ -205,6 +219,10 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
 	}
 
 	/**
