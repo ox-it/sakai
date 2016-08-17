@@ -538,7 +538,10 @@ public class SiteHandler extends WorksiteHandler
 		
 		includeSiteNav(rcontext, req, session, siteId);
 
-		includeSiteBanner(rcontext, site);
+		if(ServerConfigurationService.getBoolean("include.site.banner", true)){
+			rcontext.put("includeSiteBanner", Boolean.TRUE);
+			includeSiteBanner(rcontext, site);
+		}
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
 					getUrlFragment());
