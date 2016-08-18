@@ -1388,7 +1388,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	@Override
-	public String getRedirect(String siteId) {
+	public Redirect getRedirect(String siteId) {
 		return siteNeighbourhoodService.getRedirect(siteId);
 	}
 

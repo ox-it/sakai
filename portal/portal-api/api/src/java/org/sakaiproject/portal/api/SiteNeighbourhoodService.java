@@ -76,7 +76,7 @@ public interface SiteNeighbourhoodService
 	/**
 	 * Looks up a redirect for a site ID contained in a URL.
 	 * @param siteId The string found in the URL that wasn't a site ID.
-	 * @return A URL to redirect to or <code>null</code> if none is found.
+	 * @return A Redirect object with url and appendPath info to or <code>null</code> if none is found.
      */
-	String getRedirect(String siteId);
+	Redirect getRedirect(String siteId);
 }

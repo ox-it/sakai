@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import com.sun.corba.se.spi.activation.Server;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,6 +23,7 @@ import org.sakaiproject.portal.api.Neighbour;
 import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbour;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
+import org.sakaiproject.portal.api.Redirect;
 import org.sakaiproject.portal.api.cover.PortalService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -191,17 +193,51 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 	}
 
 	@Override
-	public String getRedirect(String siteId) {
-		if (siteId != null) {
-			PortalNode node = portalHierarchyService.getNodeByUrl(siteId);
-			if (node instanceof PortalNodeRedirect) {
-				return ((PortalNodeRedirect)node).getUrl();
-			}
+	public Redirect getRedirect(String siteId) {
+		if (StringUtils.isNotBlank(siteId)) {
+			Redirect redirect = new Redirect();
 			// If we have trailing seperators pull them off
 			Matcher matcher = trimTailingSeparators.matcher(siteId);
 			if (matcher.matches()) {
 				// This is a relative URL that the container will make absolute
-				return serverConfigurationService.getString("portalPath")+ "/"+ "site"+ "/"+ matcher.group(1);
+				redirect.setUrl(serverConfigurationService.getString("portalPath")+ "/"+ "site"+ "/"+ matcher.group(1));
+				return redirect;
+			}
+			PortalNode node = null;
+			String trimmedPath = "";
+			int length = StringUtils.countMatches(siteId, PortalHierarchyService.SEPARATOR);
+			for(int i = length; i >= 1 ; i--){
+				node = portalHierarchyService.getNodeByUrl(siteId);
+				//if node null, check for the redirect of subsites
+				if(node == null){
+					//get the index of last occurrence of Separator in the path
+					int index = siteId.lastIndexOf(PortalHierarchyService.SEPARATOR);
+					if(index > 0){
+						String firstPart = siteId.substring(0, index);
+						String tempString = PortalHierarchyService.SEPARATOR + siteId.substring(index + 1);
+						//save the trimmed path if there is a subsite redirect
+						trimmedPath = (StringUtils.isBlank(trimmedPath)) ? tempString : (tempString + trimmedPath) ;
+						siteId = firstPart;
+					}
+				}
+				else{
+					//node found skip the loop
+					break;
+				}
+			}
+
+			if (node instanceof PortalNodeRedirect) {
+				String redirectUrl = ((PortalNodeRedirect)node).getUrl();
+				boolean appendPath = ((PortalNodeRedirect)node).isAppendPath();
+				redirect.setAppendPath(appendPath);
+				//check if it is a subsite redirect or not?
+				if(appendPath && StringUtils.isNotBlank(trimmedPath)){
+					redirect.setUrl(redirectUrl + trimmedPath);
+				}
+				else{
+					redirect.setUrl(redirectUrl);
+				}
+				return redirect;
 			}
 		}
 		return null;
