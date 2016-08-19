@@ -440,11 +440,11 @@ simplePageBean.folderPath
     </bean>
 
 	<alias alias="org.sakaiproject.lessonbuildertool.service.QuizEntity"
-		name="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+		name="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/>
 
 	<!--<alias alias="org.sakaiproject.lessonbuildertool.service.QuizEntity"-->
 		   <!--name="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/>-->
 
-	<!--<import resource="classpath:/opt-applicationContext.xml"/>-->
+	<import resource="classpath:/opt-applicationContext.xml"/>
 
  </beans>
