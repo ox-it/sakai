@@ -87,36 +87,36 @@
 				<label for="displayName">
 					$tlang.getString("resource.course.name")
 				</label>
-				<input type="text" size="40" id="courseName" name="courseName" value="$xilator.escapeHtml("$!resourceCourseName")" />
+				<input type="text" size="40" id="courseName" name="courseName" value="$xilator.escapeHtml("$!resourceCourseName")" class="citationFields" />
 			</p>
 			<p class="shorttext">
 			    <label for="department">
 					$tlang.getString("resource.dept.name")
 				</label>
-				<input type="text" size="40" id="department" name="department" value="$xilator.escapeHtml("$!resourceDepartment")" />
+				<input type="text" size="40" id="department" name="department" value="$xilator.escapeHtml("$!resourceDepartment")" class="citationFields"/>
 			</p>
 			<p class="shorttext">
 				<label for="paper">
 					$tlang.getString("resource.paper")
 				</label>
-				<input type="text" size="40" id="paper" name="paper" value="$xilator.escapeHtml("$!resourceCoreOptionalPaper")" />
+				<input type="text" size="40" id="paper" name="paper" value="$xilator.escapeHtml("$!resourceCoreOptionalPaper")" class="citationFields"/>
 			</p>
 			<p class="shorttext">
 				<label for="year">
 					$tlang.getString("resource.acad.year")
 				</label>
-				<input type="text" size="40" id="year" name="year" value="$xilator.escapeHtml("$!resourceAcademicYear")" />
+				<input type="text" size="40" id="year" name="year" value="$xilator.escapeHtml("$!resourceAcademicYear")" class="citationFields"/>
 			</p>
 			<p class="shorttext">
 				<label for="term">
 					$tlang.getString("resource.term")
 				</label>
-				<input type="text" size="40" id="term" name="term" value="$xilator.escapeHtml("$!resourceTerm")" />
+				<input type="text" size="40" id="term" name="term" value="$xilator.escapeHtml("$!resourceTerm")" class="citationFields"/>
 			</p>
+			<p class="shorttext">
                 <label for="notify">
                     $tlang.getString("resource.gen.email1")
                 </label>
-                <input type="text" size="40" class="citationFields" id="courseName" name="courseName" value="$xilator.escapeHtml("$!resourceCourseName")" />
                 <select name="notify" id="notify" class="citationFields">
                     <option value="r">$tlang.getString("resource.gen.email2")</option>
                     <option value="o">$tlang.getString("resource.gen.email3")</option>
