@@ -24,6 +24,9 @@ app:
    - ./startup_with_yjp.sh:/opt/tomcat/bin/startup_with_yjp.sh
   command: /opt/tomcat/bin/catalina.sh jpda run
   #command: /opt/tomcat/bin/startup_with_yjp.sh
+  # This is needed to allow jmap (heap dumps_) to work, otherwise it fails
+  security_opt:
+  - seccomp:unconfined
   environment:
    # In development this means we can read files without anything special
    SAKAI_USER: root
