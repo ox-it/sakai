@@ -25,5 +25,11 @@
         <deploy.target>common</deploy.target>
     </properties>
 
-    <dependencies />
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.sentry</groupId>
+            <artifactId>raven-sakai</artifactId>
+            <version>1.1</version>
+        </dependency>
+    </dependencies>
 </project>
