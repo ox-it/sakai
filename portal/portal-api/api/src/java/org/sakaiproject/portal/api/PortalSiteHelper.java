@@ -179,7 +179,7 @@ public interface PortalSiteHelper
 	/**
 	 * Checks if a siteId should be redirected somewhere else.
 	 * @param siteId The siteId that came from the URL.
-	 * @return Optionally the URL to redirect to otherwise <code>null</code>.
+	 * @return Optionally the Redirect object with url and appendPath info to otherwise <code>null</code>.
      */
-	String getRedirect(String siteId);
+	Redirect getRedirect(String siteId);
 }

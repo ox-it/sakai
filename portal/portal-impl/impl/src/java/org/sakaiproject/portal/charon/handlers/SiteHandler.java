@@ -38,6 +38,7 @@ import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.portal.api.Redirect;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -303,9 +304,19 @@ public class SiteHandler extends WorksiteHandler
 		catch (IdUnusedException e)
 		{
 			// Check if this should be redirecting somewhere else
-			String redirect = portal.getSiteHelper().getRedirect(siteId);
+			Redirect redirect = portal.getSiteHelper().getRedirect(siteId);
 			if (redirect != null) {
-				res.sendRedirect(redirect);
+				String url = redirect.getUrl();
+				//check if appendPath is true?if true, get tool/page info from request and add in the redirect url
+				if(redirect.isAppendPath() && parts.length >= 5){
+					String originalRequest = req.getRequestURI();
+					//Split request and get the tool info
+					String[] toolParts = originalRequest.split(parts[2]);
+					if(toolParts.length > 1){
+						url = url + toolParts[1];
+					}
+				}
+				res.sendRedirect(url);
 				return;
 			};
 		}

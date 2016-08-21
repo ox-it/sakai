@@ -653,7 +653,7 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	}
 
 	@Override
-	public String getRedirect(String siteId) {
+	public Redirect getRedirect(String siteId) {
 		// TODO could use aliases in the future
 		return null;
 	}
