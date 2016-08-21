@@ -1553,18 +1553,20 @@ public class AnnouncementAction extends PagedResourceActionII
 							Site siteDD = null;
 
 							try {
-								AnnouncementChannel annChannell= AnnouncementService.getAnnouncementChannel(channeIDD);
-								if (annChannell != null ) {	
+								AnnouncementChannel annChannell = AnnouncementService.getAnnouncementChannel(channeIDD);
+								if (annChannell != null) {
 									contextt = annChannell.getContext();
 								}
-								if (contextt != null) { 
+								if (contextt != null) {
 									siteDD = SiteService.getSite(contextt);
 								}
-								if ( siteDD!=null && siteDD.isPublished()) {
+								if (siteDD != null && siteDD.isPublished()) {
 									channelIdStrArray.add(channeIDD);
 								}
+							} catch (IdUnusedException iue) {
+								M_log.debug("Channel doesn't exist: "+ channeIDD, iue);
 							} catch(Exception e) {
-								M_log.warn(e.getMessage());
+								M_log.warn("Failed to load channel: "+channeIDD, e);
 							}
 						}
 						if (channelIdStrArray.size()>0) {
