@@ -2,11 +2,11 @@
 
 $(function() {
 	var buttons = []; // Array of jQuery buttons we've added.
-	var inputs = $("input[type=text][name^=channel-url]").each(function(){
+	var inputs = $("input[type=text][name^='javax\\.portlet-feed_url']").each(function(){
 		var urlInput = this;
 		// Find the title input related to this one.
 		// Need to escape the dot in the ID.
-		var titleId = "#"+ urlInput.id.replace(/channel-url/, "title").replace(/\./, "\\.");
+		var titleId = "#"+ urlInput.id.replace(/javax.portlet-feed_url/, "title").replace(/\./g, "\\.");
 		var titleInput = $(titleId).get(0);
 		var button = $("<input type='button' class='find-podcast' value='Browse Oxford Podcast Collection'>");
 		button.data("titleElm", titleInput);

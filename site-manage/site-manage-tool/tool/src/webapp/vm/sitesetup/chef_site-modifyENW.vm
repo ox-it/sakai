@@ -2,6 +2,17 @@
 ## modify Email Archive, and other multiple tools
 ##   - did some work on producing valid ids for inputs that would be good to validate 
 <div class="portletBody">
+## Used for the Oxford Podcast picker.
+#if ($rss)
+<script>var sourceUrl = '$rss';</script>
+<script src="/library/newspicker/js/jquery.defer.lib.js"></script>
+<script src="/library/newspicker/js/jqmodal.lib.js"></script>
+<script src="/library/newspicker/js/podcaster.js"></script>
+<script src="/library/newspicker/js/site-setup.js"></script>
+<link href="/library/newspicker/css/jqModal.css" rel="stylesheet" type="text/css" />
+<link href="/library/newspicker/css/test.css" rel="stylesheet" type="text/css" />
+<link href="/library/newspicker/css/picker.css" rel="stylesheet" type="text/css" />
+#end
 <script>includeLatestJQuery('chef_site-modifyENW.vm');</script>
 <script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />

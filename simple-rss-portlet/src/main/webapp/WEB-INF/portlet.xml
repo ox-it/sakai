@@ -51,5 +51,53 @@
       	</portlet-preferences>
 		
 	</portlet>
+
+	<portlet>
+
+		<!--  there are no editable settings in here -->
+
+		<description>Oxford Podcasts</description>
+		<portlet-name>oxford-podcasts</portlet-name>
+		<display-name>oxford-podcasts</display-name>
+		<portlet-class>au.edu.anu.portal.portlets.rss.SimpleRSSPortlet</portlet-class>
+
+		<expiration-cache>0</expiration-cache>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>VIEW</portlet-mode>
+			<portlet-mode>EDIT</portlet-mode>
+			<portlet-mode>CONFIG</portlet-mode>
+		</supports>
+		<supported-locale>en</supported-locale>
+		<portlet-info>
+			<title>Simple RSS Portlet</title>
+			<short-title>Simple RSS Portlet</short-title>
+			<keywords>rss, atom, feed</keywords>
+		</portlet-info>
+
+		<init-param>
+			<name>viewUrl</name>
+			<value>/pages/view.jsp</value>
+		</init-param>
+		<init-param>
+			<name>editUrl</name>
+			<value>/pages/edit.jsp</value>
+		</init-param>
+		<init-param>
+			<name>errorUrl</name>
+			<value>/pages/error.jsp</value>
+		</init-param>
+		<init-param>
+			<name>noContentUrl</name>
+			<value>/pages/nocontent.jsp</value>
+		</init-param>
+
+		<portlet-preferences>
+			<preferences-validator>
+				au.edu.anu.portal.portlets.rss.validator.SimpleRSSPreferencesValidator
+			</preferences-validator>
+		</portlet-preferences>
+
+	</portlet>
 	
 </portlet-app>

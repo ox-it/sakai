@@ -76,7 +76,8 @@ $calendar-event-background-color: darken(#F8F8F8, 45%);
 /* Extra icon mappings specific to WL. */
 @if $skin-with-icons {
     /* This selector is required as the course sign-up icon doesn't start with 'icon-sakai-'. */
-    [class*=" icon-course-signup"]{
+    [class*="icon-course-signup"],
+    [class*="icon-oxford-podcasts"]{
         @extend .fa-lg;
         @extend .fa;
     }
@@ -97,4 +98,5 @@ $calendar-event-background-color: darken(#F8F8F8, 45%);
     .icon-sakai-oxam-search-adv{             @extend .fa-mortar-board;}
     .icon-sakai-oxam-browse{                 @extend .fa-binoculars;}
     .icon-sakai-oxam-admin{                  @extend .fa-gears;}
+    .icon-oxford-podcasts {                  @extend .fa-volume-up;}
 }

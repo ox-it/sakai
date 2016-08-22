@@ -3080,12 +3080,9 @@ public class SiteAction extends PagedResourceActionII {
 			if (rssUrl != null) 
 			{
 				HttpServletRequest req = data.getRequest();
-				String headHtml = (String) req.getAttribute("sakai.html.head");
-				headHtml = headHtml==null?"":headHtml;
 				ProxyService proxyService = (ProxyService)ComponentManager.get(ProxyService.class.getName());
 				String proxyUrl = proxyService.getProxyURL(rssUrl) + "&filter=rssMedia(80,80)";
-				headHtml += SiteActionUtils.getPodcastPicker(proxyUrl);
-				req.setAttribute("sakai.html.head", headHtml);
+				context.put("rss", proxyUrl);
 			}
 			
 			context.put("maxToolTitleLength", MAX_TOOL_TITLE_LENGTH);
