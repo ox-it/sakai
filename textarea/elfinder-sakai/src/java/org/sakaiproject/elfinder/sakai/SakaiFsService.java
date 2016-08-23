@@ -179,7 +179,10 @@ public class SakaiFsService implements FsService {
 			if("!admin".equals(currentSiteId) || "~admin".equals(currentSiteId)){
 				continue;
 			}
-			volumes.add(getSiteVolume(currentSiteId));
+			// Only add sites user can access.
+			if (siteService.allowAccessSite(currentSiteId)) {
+				volumes.add(getSiteVolume(currentSiteId));
+			}
 		}
 		return volumes.toArray(new FsVolume[0]);
 	}
