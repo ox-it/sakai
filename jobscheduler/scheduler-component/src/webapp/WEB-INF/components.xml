@@ -232,8 +232,9 @@
         </property>
     </bean>
 
+    <!-- We only ever want one of these running at a time. -->
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AuthzGroupProviderSync"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
           init-method="init">
         <property name="beanId">
             <value>org.sakaiproject.component.app.scheduler.jobs.AuthzGroupProviderSync</value>

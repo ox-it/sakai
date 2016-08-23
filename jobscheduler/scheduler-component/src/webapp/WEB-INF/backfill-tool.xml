@@ -12,7 +12,7 @@
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.BackFillToolJob"
-          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
           init-method="init">
         <property name="beanId">
             <value>org.sakaiproject.component.app.scheduler.jobs.backfilltool.BackFillToolJob</value>
