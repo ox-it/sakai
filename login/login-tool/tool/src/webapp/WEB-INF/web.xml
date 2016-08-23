@@ -139,6 +139,16 @@
         <url-pattern>/twofactor/*</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>exception.jsp</servlet-name>
+        <url-pattern>/exception.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>missing.jsp</servlet-name>
+        <url-pattern>/missing.jsp</url-pattern>
+    </servlet-mapping>
+
      <servlet-mapping>
          <servlet-name>sakai.login</servlet-name>
          <url-pattern>/*</url-pattern>
