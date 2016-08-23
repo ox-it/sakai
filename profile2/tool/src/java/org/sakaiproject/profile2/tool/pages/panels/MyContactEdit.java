@@ -47,6 +47,7 @@ import org.sakaiproject.profile2.tool.components.ComponentVisualErrorBehaviour;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.components.PhoneNumberValidator;
+import org.sakaiproject.profile2.tool.components.EmailValidator;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class MyContactEdit extends Panel {
@@ -114,7 +115,7 @@ public class MyContactEdit extends Panel {
 		final TextField email = new TextField("email", new PropertyModel(userProfile, "email"));
 		email.setOutputMarkupId(true);
 		email.setMarkupId("emailinput");
-		email.add(EmailAddressValidator.getInstance());
+		email.add(new EmailValidator());
 		//readonly view
 		Label emailReadOnly = new Label("emailReadOnly", new PropertyModel(userProfile, "email"));
 		
@@ -279,7 +280,7 @@ public class MyContactEdit extends Panel {
 				//check which item didn't validate and update the class and feedback model for that component
 				if(!email.isValid()) {
 					email.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
-					emailFeedback.setDefaultModel(new ResourceModel("EmailAddressValidator"));
+					emailFeedback.setDefaultModel(new ResourceModel("EmailValidator"));
 					target.add(email);
 					target.add(emailFeedback);
 				}
