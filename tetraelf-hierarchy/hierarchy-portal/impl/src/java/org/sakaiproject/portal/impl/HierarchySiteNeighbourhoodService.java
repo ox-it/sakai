@@ -71,6 +71,7 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 		if( nodeId != null) {
 			PortalNode node = portalHierarchyService.getNodeByUrl(nodeId);
 			if (node instanceof PortalNodeSite) {
+				boolean seeHiddenRedirects = node.canModify();
 				List<PortalNode> nodeChildren = portalHierarchyService.getNodeChildren(node.getId());
 				List<Neighbour> neighbours = new ArrayList<>();
 				for (PortalNode child: nodeChildren) {
@@ -85,7 +86,9 @@ public class HierarchySiteNeighbourhoodService implements SiteNeighbourhoodServi
 					}
 					if (child instanceof PortalNodeRedirect) {
 						PortalNodeRedirect redirect = (PortalNodeRedirect) child;
-						neighbours.add(new RedirectNeighbour(redirect));
+						if (seeHiddenRedirects || !redirect.isHidden()) {
+							neighbours.add(new RedirectNeighbour(redirect));
+						}
 					}
 
 				}
