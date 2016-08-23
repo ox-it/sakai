@@ -274,15 +274,20 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 		}
 
 		Collection<String> expandedAzgs = new HashSet<>();
-		for (String azg: azgs) {
-			String adminRealm = getAdminRealm(azg);
-			if (adminRealm != null) {
-				if (log.isDebugEnabled()) {
-					log.debug("Adding admin realm: " + adminRealm + " for: " + azg);
+		if (roleswap == null ) {
+			// We only want to add the admin realms when not in roleswap
+			for (String azg : azgs) {
+				String adminRealm = getAdminRealm(azg);
+				if (adminRealm != null) {
+					if (log.isDebugEnabled()) {
+						log.debug("Adding admin realm: " + adminRealm + " for: " + azg);
+					}
+					expandedAzgs.add(adminRealm);
 				}
-				expandedAzgs.add(adminRealm);
+				expandedAzgs.add(azg);
 			}
-			expandedAzgs.add(azg);
+		} else {
+			expandedAzgs = azgs;
 		}
 		// check the cache
 		String command = makeCacheKey(userId, roleswap, function, entityRef, false);

@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiKernelTestBase;
@@ -36,13 +37,16 @@ public class DevolvedSakaiSecurityTest extends SakaiKernelTestBase {
 		
 		// Get the Service.
 		DevolvedSakaiSecurity security = (DevolvedSakaiSecurity)getService(SecurityService.class.getName());
-		
+		SecurityService securityService = getService(SecurityService.class);
+
 		SiteService siteService = (SiteService)getService(SiteService.class.getName());
 		
 		UserDirectoryService userService = (UserDirectoryService)getService(UserDirectoryService.class.getName());
 		
 		SessionManager sessionManager = (SessionManager)getService(SessionManager.class.getName());
-		
+
+		MemoryService memoryService = getService(MemoryService.class);
+
 		UserEdit user1 = userService.addUser("user1", "user1");
 		userService.commitEdit(user1);
 		UserEdit user2 = userService.addUser("user2", "user2");
@@ -53,8 +57,13 @@ public class DevolvedSakaiSecurityTest extends SakaiKernelTestBase {
 		session.setUserId("admin");
 		
 		Site site1 = siteService.addSite("site1", (String)null);
+        site1.setPublished(true);
 		Role adminRole = site1.addRole("admin");
 		adminRole.allowFunction("site.upd");
+		// So user can use role swap
+		adminRole.allowFunction(SiteService.SITE_ROLE_SWAP);
+		Role memberRole = site1.addRole("member");
+		memberRole.allowFunction("site.visit");
 		site1.addMember("user1", "admin", true, false);
 		siteService.save(site1);
 		
@@ -79,13 +88,19 @@ public class DevolvedSakaiSecurityTest extends SakaiKernelTestBase {
 		// Make people in site2 with the right permission be able to modify site one.
 		session.setUserId("user1");
 		security.setAdminRealm(site1.getReference(), site2.getReference());
-		
-		session.setUserId("user2");
 
-		// TODO Need to work on invalidation
-		// assertTrue(siteService.allowUpdateSite(site1.getId()));
-		
-		
-		
+        // TODO This should really invalidate correctly.
+        session.setUserId("admin");
+		memoryService.resetCachers();
+
+		session.setUserId("user2");
+		assertTrue(siteService.allowUpdateSite(site1.getId()));
+
+		// Roleswap works as expected, you don't get permissions from admin site.
+		assertTrue(securityService.setUserEffectiveRole(site1.getReference(), "member"));
+		assertTrue(siteService.allowAccessSite(site1.getId()));
+		assertFalse(siteService.allowUpdateSite(site1.getId()));
+
 	}
+
 }
