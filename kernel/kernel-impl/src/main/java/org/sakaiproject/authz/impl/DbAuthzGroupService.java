@@ -35,7 +35,9 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.impl.BaseSite;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
@@ -657,6 +659,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	        rv.put(userId, new MemberWithRoleId(member));
 	    }
 	    return rv;
+	}
+
+
+	@Override
+	public void refreshAuthzGroupInternal(AuthzGroup realm) {
+		try {
+			((DbStorage) m_storage).refreshAuthzGroupInternal(((BaseSite)realm).getAzg());
+		} catch (Throwable e) {
+			M_log.error("refreshAuthzGroupInternal() Problem refreshing azgroup: " + realm.getId(), e);
+		}
 	}
 
 	/**
@@ -2615,7 +2627,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 * 
 		 * @param realm the realm to be refreshed
 		 */
-		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
+		protected void refreshAuthzGroupInternal(AuthzGroup realm)
 		{
 			if ((realm == null) || (m_provider == null)) return;
 			if (M_log.isDebugEnabled()) M_log.debug("refreshAuthzGroupInternal() refreshing " + realm.getId());

@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -31,6 +32,7 @@ public class MappedGroupsResource {
 	private ExternalGroupManager externalGroupManager;
 	private GroupProvider groupProvider;
 	private SiteService siteService;
+	private AuthzGroupService authzGroupService;
 
 	public static final String SUSPENDED = "suspended";
 
@@ -38,6 +40,7 @@ public class MappedGroupsResource {
 		externalGroupManager = (ExternalGroupManager)resolver.getContext(ExternalGroupManager.class);
 		groupProvider = (GroupProvider)resolver.getContext(GroupProvider.class);
 		siteService = (SiteService)resolver.getContext(SiteService.class);
+		authzGroupService = (AuthzGroupService)resolver.getContext(AuthzGroupService.class);
 	}
 	
 
@@ -108,7 +111,8 @@ public class MappedGroupsResource {
 					log.debug("Set site : "+ site.getId()+ " provided id to: "+ providedId);
 				}
 				siteService.saveSiteMembership(site);
-				
+				authzGroupService.refreshAuthzGroupInternal(site);
+
 				return Response.ok().build();
 			} catch (Exception e) {
 				log.warn("Failed to add group.", e);

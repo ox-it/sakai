@@ -1743,7 +1743,7 @@ public class BaseSite implements Site
 	 * 
 	 * @return My azg.
 	 */
-	protected AuthzGroup getAzg()
+	public AuthzGroup getAzg()
 	{
 		if (m_azg == null)
 		{
