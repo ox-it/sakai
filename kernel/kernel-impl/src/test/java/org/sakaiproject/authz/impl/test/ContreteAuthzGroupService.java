@@ -1,5 +1,6 @@
 package org.sakaiproject.authz.impl.test;
 
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.impl.BaseAuthzGroupService;
@@ -67,4 +68,8 @@ public class ContreteAuthzGroupService extends BaseAuthzGroupService {
 		return null;
 	}
 
+	@Override
+	public void refreshAuthzGroupInternal(AuthzGroup realm) {
+		// TODO Auto-generated method stub
+	}
 }

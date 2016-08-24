@@ -290,6 +290,11 @@ public class MockAuthzGroupService implements AuthzGroupService {
         return null;
     }
 
+	@Override
+	public void refreshAuthzGroupInternal(AuthzGroup realm) {
+		// TODO Auto-generated method stub
+	}
+
 	public Set<String> getAdditionalRoles() {
 		// TODO Auto-generated method stub
 		return null;
