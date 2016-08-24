@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.site.api.Site;
 
 /**
  * <p>
@@ -543,4 +544,11 @@ public interface AuthzGroupService extends EntityProducer
      * @return String Set containing all maintain roles.
      */
     public Set<String> getMaintainRoles();
+
+    /**
+     * Update the realm with info from the provider
+     *
+     * @param realm the AuthzGroup to be refreshed
+     */
+    public void refreshAuthzGroupInternal(AuthzGroup realm);
 }
