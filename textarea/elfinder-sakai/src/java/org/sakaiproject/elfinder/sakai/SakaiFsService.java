@@ -165,7 +165,7 @@ public class SakaiFsService implements FsService {
 	}
 
 	public FsVolume[] getVolumes() {
-		List<Site> sites  = siteService.getSites(ACCESS, null, null, null, null, null);
+		List<Site> sites  = siteService.getUserSites();
 		// Add the user workspace as volume.
 		try {
 			String userId = userDirectoryService.getCurrentUser().getId();
@@ -179,10 +179,7 @@ public class SakaiFsService implements FsService {
 			if("!admin".equals(currentSiteId) || "~admin".equals(currentSiteId)){
 				continue;
 			}
-			// Only add sites user can access.
-			if (siteService.allowAccessSite(currentSiteId)) {
-				volumes.add(getSiteVolume(currentSiteId));
-			}
+			volumes.add(getSiteVolume(currentSiteId));
 		}
 		return volumes.toArray(new FsVolume[0]);
 	}
