@@ -82,6 +82,7 @@ $calendar-event-background-color: darken(#F8F8F8, 45%);
     }
     .icon-course-signup {                    @extend .fa-graduation-cap;}
     .icon-sakai-rsf-evaluation{              @extend .fa-commenting;}
+    .icon-sakai-mneme{                       @extend .fa-check-square-o;}
     .icon-sakai-oauth {                      @extend .fa-key;}
     .icon-sakai-sub-site {                   @extend .fa-sitemap;}
     .icon-sakai-redirect {                   @extend .fa-link;}
