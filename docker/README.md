@@ -65,6 +65,11 @@ docker-compose restart app
 ```
 If you wish to test out config changes they should go in `sakai/local.properties` but
 if you wish to include them in general builds they should get put in `sakai/placeholder.properties`
+If someone updates the image that is used in this build then you will need to pull down the newer one. This can be done with
+```
+docker-compose pull
+```
+which will check for a newer copy of the images used.
 
 
 Production

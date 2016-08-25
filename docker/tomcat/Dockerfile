@@ -5,7 +5,7 @@
 
 # Use the OpenJDK image
 # This builds on debian jessie
-FROM java:openjdk-8u66
+FROM oxit/java:jdk-8u74-01
 
 MAINTAINER Matthew Buckett <matthew.buckett@it.ox.ac.uk>
 
@@ -53,11 +53,21 @@ RUN chown sakai /opt/tomcat/logs /opt/tomcat/temp /opt/tomcat/work /opt/tomcat/s
   touch /opt/tomcat/sakai/sakai.properties && \
   chown sakai /opt/tomcat/sakai/sakai.properties
 
-# This sets the default locale and gets it to work correctly in Java
-ENV LANG en.UTF-8
+# Copy in the JCE unlimited strength policy files
+RUN curl -sLO --cookie 'oraclelicense=accept-securebackup-cookie;'  http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip && \
+  jar xf jce_policy-8.zip && \
+  cp UnlimitedJCEPolicyJDK8/*.jar $JAVA_HOME/jre/lib/security && \
+  rm -r jce_policy-8.zip UnlimitedJCEPolicyJDK8
 
-# TODO fix this
-#RUN /usr/sbin/locale-gen $LANG
+# Setup all the logging to use log4j
+# This needs to go in the lib folder
+RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.28/bin/extras/tomcat-juli-adapters.jar &&\
+  curl -s -o /opt/tomcat/bin/tomcat-juli.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.28/bin/extras/tomcat-juli.jar && \
+  rm /opt/tomcat/conf/logging.properties
+
+# This sets the default locale and gets it to work correctly in Java
+ENV LANG en_GB.UTF-8
+RUN /usr/sbin/locale-gen $LANG
 
 COPY ./entrypoint.sh /opt/scripts/entrypoint.sh
 
@@ -73,7 +83,7 @@ ENV CATALINA_OPTS \
 # If the component manager doesn't start shut down the JVM
 -Dsakai.component.shutdownonerror=true \
 # Force the locale
--Duser.language=en -Duser.country=US \
+-Duser.language=en -Duser.country=GB \
 # Set the properties for Sakai (sakai.home isn't necessary)
 -Dsakai.home=/opt/tomcat/sakai -Dsakai.security=/opt/tomcat/sakai \
 # Set the timezone as the docker container doesn't have this set
