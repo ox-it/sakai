@@ -2,7 +2,7 @@
 # It copies a build of Sakai ontop of the sakai tomcat
 #
 
-FROM oxit/sakai:11.x
+FROM oxit/tomcat-sakai:11.x
 
 # Sysdev need to have k5start inside the image so that we can access the afs mount point
 RUN \
