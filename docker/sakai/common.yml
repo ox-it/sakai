@@ -5,7 +5,7 @@
 #
 app:
   # If you want to test the production image swap the previous line with this one.
-  image: oxit/sakai:11.x
+  image: oxit/tomcat-sakai:11.x
 
   # Not too sure about this as there seem to be IO errors with using volumes like
   # this, eg corrupt files and missing files.
