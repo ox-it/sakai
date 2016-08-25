@@ -7,7 +7,7 @@ if [[ -n "${DB_ENV_MYSQL_DATABASE}" && -n "${DB_ENV_MYSQL_USER}" && -n "${DB_ENV
 	cat <<EOF  > /opt/tomcat/sakai/sakai.properties
 auto.ddl=true
 vendor@org.sakaiproject.db.api.SqlService=mysql
-driverClassName@javax.sql.BaseDataSource=org.mariadb.jdbc.Driver
+driverClassName@javax.sql.BaseDataSource=com.mysql.jdbc.Driver
 hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
 validationQuery@javax.sql.BaseDataSource=select 1 from DUAL
 testOnBorrow@javax.sql.BaseDataSource=false
@@ -16,8 +16,26 @@ url@javax.sql.BaseDataSource=jdbc:mysql://db:3306/${DB_ENV_MYSQL_DATABASE}?chara
 username@javax.sql.BaseDataSource=${DB_ENV_MYSQL_USER}
 password@javax.sql.BaseDataSource=${DB_ENV_MYSQL_PASSWORD}
 
+search.solr.server=http://solr:8983/solr/search
+ses.solr.server=http://solr:8983/solr/ses
 EOF
+	# Enable the jgroups connection
+	JGROUPS_USERNAME="${DB_ENV_MYSQL_USER}"
+	JGROUPS_PASSWORD="${DB_ENV_MYSQL_PASSWORD}"
+	JGROUPS_DRIVER="com.mysql.jdbc.Driver"
+	JGROUPS_URL="jdbc:mysql://db:3306/${DB_ENV_MYSQL_DATABASE}"
+	JGROUPS_ADDRESS="0.0.0.0"
 fi
+
+if [ -f "/opt/tomcat/webapps/library.war" ] ; then
+    # Filter out the existing property
+    sed -i '/portal.cdn.version/d' /opt/tomcat/sakai/sakai.properties
+    # Set the portal version based on the sha1 of the library.war
+    # we only use a few characters and we don't want very long URLs and the
+    # chance of a collision is very low
+    echo "portal.cdn.version=$(shasum /opt/tomcat/webapps/library.war | cut -c1-8)" >> /opt/tomcat/sakai/sakai.properties
+fi
+
 
 # This is needed so that when using mounted volumes we can reset the permissions
 # In productions this should never be needed
@@ -35,7 +53,8 @@ if [ -f /opt/tomcat/sakai/log4j.properties ] ; then
         ln -fs /opt/tomcat/sakai/log4j.properties /opt/tomcat/lib/log4j.properties
 fi
 
-# If we want to listen on a specific IP
+# Sysdev want to specify which interface to listen on, I don't want to for developers/jenkins
+# so we have a fallback
 if [ -z "${CATALINA_LISTEN}" ]; then
 	CATALINA_LISTEN="0.0.0.0"
 fi

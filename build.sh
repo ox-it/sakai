@@ -23,6 +23,6 @@ export MAVEN_OPTS
 
 rm -rf $(pwd)/docker/sakai/tomcat
 mvn clean install directory:directory-of sakai:deploy -Dlocal.service=$local_version -Dlocal.sakai=$local_sakai
-docker build -t oxit/weblearn:${local_version} docker/sakai
+docker build --pull -t oxit/weblearn:${local_version} docker/sakai
 docker push oxit/weblearn:${local_version}
 docker save  oxit/weblearn:${local_version}  | ssh linux.ox.ac.uk "cat > /afs/ox.ac.uk/vhost/weblearn.ox.ac.uk/werp/docker_images/sakai-${local_version}.tar"
