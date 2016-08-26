@@ -444,6 +444,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		SiteView siteView = siteHelper.getSitesView(SiteView.View.SUB_SITES_VIEW,req, session, siteId, nodeId);
 		if ( siteView.isEmpty() ) return;
 
+		// If auto-state-reset is turned on generate the "site-reset" url
+		if ("true".equalsIgnoreCase(ServerConfigurationService.getString(Portal.CONFIG_AUTO_RESET)))
+		{
+			prefix = prefix + "-reset";
+		}
 		siteView.setPrefix(prefix);
 		siteView.setToolContextPath(toolContextPath);
 		siteView.setResetTools(resetTools);

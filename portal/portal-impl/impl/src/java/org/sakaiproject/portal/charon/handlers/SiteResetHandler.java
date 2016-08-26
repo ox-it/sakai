@@ -24,8 +24,11 @@ package org.sakaiproject.portal.charon.handlers;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
+import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
@@ -64,6 +67,17 @@ public class SiteResetHandler extends BasePortalHandler
 				}
 				// Forget about the last page.
 				String siteId = parts[2];
+				//Check if lastPage attribute in session is present or not
+				if (session.getAttribute(Portal.ATTR_SITE_PAGE + siteId) == null)
+				{
+					//if not then look for alias of SiteId
+					String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
+					if (reference != null)
+					{
+						Reference ref = EntityManager.getInstance().newReference(reference);
+						siteId = ref.getId();
+					}
+				}
 				session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 				portalService.setResetState("true");
 				res.sendRedirect(siteUrl);
