@@ -1205,11 +1205,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	public SitePage lookupAliasToPage(String alias, Site site)
 	{
-		//Shortcut if we aren't using page aliases.
-		if (!lookForPageAliases)
-		{
-			return null;
-		}
 		SitePage page = null;
 		if (alias != null && alias.length() > 0)
 		{
