@@ -870,6 +870,10 @@ public class EvalTestDataLoad {
                 "Template user 4", "description", 
                 EvalConstants.SHARING_PRIVATE, NOT_EXPERT, "expert desc", 
                 null, LOCKED, false);
+        templateUser_4 = new EvalTemplate(MAINT_USER_ID_3, EvalConstants.TEMPLATE_TYPE_STANDARD, 
+               "Template user 4", "description", 
+                EvalConstants.SHARING_PRIVATE, NOT_EXPERT, "expert desc", 
+                null, LOCKED, false);
 
         evalsys_1007_templateUser01 = new EvalTemplate(EVALSYS_1007_USER_ID_01, EvalConstants.TEMPLATE_TYPE_STANDARD, 
                 "Template user", "description", 
@@ -1375,7 +1379,12 @@ public class EvalTestDataLoad {
                 evalsys_1007_templateUser01, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
                 UNLOCKED, EvalConstants.EVALUATION_AUTHCONTROL_AUTH_REQ, null, null);
         
-
+        evaluationPartial_noAuthNoGroups = new EvalEvaluation(EvalConstants.EVALUATION_TYPE_EVALUATION, MAINT_USER_ID_3, "evaluationInque_noAuthNoGroups", null, 
+                tomorrow, fourDaysFuture, null, null, false, null, false, null, 
+                EvalConstants.EVALUATION_STATE_PARTIAL, EvalConstants.SHARING_PUBLIC, EvalConstants.INSTRUCTOR_REQUIRED, new Integer(0), null, null, null, null,
+                templateUser_4, null, Boolean.TRUE, Boolean.FALSE, Boolean.FALSE,
+                UNLOCKED, EvalConstants.EVALUATION_AUTHCONTROL_NONE, null, null);
+        
         // email templates
         emailTemplate1 = new EvalEmailTemplate(ADMIN_USER_ID, EvalConstants.EMAIL_TEMPLATE_AVAILABLE, "Email Subject 1", "Email Template 1");
         evaluationNew.setAvailableEmailTemplate(emailTemplate1);
@@ -1422,6 +1431,7 @@ public class EvalTestDataLoad {
         dao.save(evaluationActive_viewIgnoreDates);
         dao.save(evaluationDue_viewIgnoreDates);
         dao.save(evaluationClosed_viewIgnoreDates);
+        dao.save(evaluationPartial_noAuthNoGroups);
 
         // evalGroupId assignments
         assign1 = new EvalAssignGroup( MAINT_USER_ID, SITE1_REF, EvalConstants.GROUP_TYPE_SITE, 

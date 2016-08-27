@@ -83,7 +83,7 @@ public class EvalAuthoringServiceImplTest extends BaseTestEvalLogic {
       // check the full count of preloaded items
       Assert.assertEquals(18, evaluationDao.countAll(EvalItemGroup.class) );
 
-      Assert.assertEquals(12, evaluationDao.countAll(EvalTemplate.class) );
+      Assert.assertEquals(11, evaluationDao.countAll(EvalTemplate.class) );
       List<EvalTemplate> templates1 = evaluationDao.findAll(EvalTemplate.class);
       Assert.assertEquals(12, templates1.size());
    }

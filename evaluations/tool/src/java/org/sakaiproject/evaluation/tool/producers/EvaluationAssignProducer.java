@@ -277,11 +277,11 @@ public class EvaluationAssignProducer implements ViewComponentProducer, ViewPara
         		evalGroups.add(evalGroup);
         	}
         }
-        
+               
         for (EvalGroup evalGroup : beEvalGroups) {
             if (! evalGroups.contains(evalGroup)
             		&& !EvalConstants.GROUP_TYPE_ADHOC.equals(evalGroup.type)) {
-                evalGroups.add(evalGroup);
+            		evalGroups.add(evalGroup);
             }
         }
 
@@ -572,8 +572,12 @@ public class EvaluationAssignProducer implements ViewComponentProducer, ViewPara
             // can check for now.
             UIMessage assignErrorDiv = UIMessage.make(tofill, "nogroups-error", "assigneval.invalid.selection");
 
+            boolean anonymousAllowed = false;
+            if (EvalConstants.EVALUATION_AUTHCONTROL_NONE.equals(evaluation.getAuthControl())) {
+            	anonymousAllowed = true;
+            }
             UIInitBlock.make(tofill, "initJavaScript", "EvalSystem.initEvalAssignValidation",
-                    new Object[] {form.getFullID(), assignErrorDiv.getFullID(), assignButton.getFullID()});
+                    new Object[] {form.getFullID(), assignErrorDiv.getFullID(), assignButton.getFullID(), anonymousAllowed});
         }
         
     }
