@@ -55,15 +55,15 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
 /**
- * 
+ *
  */
 public class CitationListAccessServlet implements HttpAccess
 {
 	public static final String LIST_TEMPLATE = "/vm/citationList.vm";
-	
+
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("citations");
-	
+
 	/** Our logger. */
 	private static Log m_log = LogFactory.getLog(CitationListAccessServlet.class);
 
@@ -79,7 +79,7 @@ public class CitationListAccessServlet implements HttpAccess
 	 * The access is for the referenced entity.<br />
 	 * Use the response object to send the headers, length, content type, and bytes of the response in whatever manner needed.<br />
 	 * Make the response ONLY if it is permitted and exists and otherwise valid. Use the exceptions for any error handling.
-	 * 
+	 *
 	 * @param req
 	 *        The request object.
 	 * @param res
@@ -107,7 +107,7 @@ public class CitationListAccessServlet implements HttpAccess
 			handleExportRequest(req, res, ref,
 					org.sakaiproject.citation.api.CitationService.RIS_FORMAT,
 					subtype);
-			
+
 		}
 		else if(org.sakaiproject.citation.api.CitationService.REF_TYPE_VIEW_LIST.equals(subtype))
 		{
@@ -117,16 +117,16 @@ public class CitationListAccessServlet implements HttpAccess
 		{
 			throw new EntityNotDefinedException(ref.getReference());
 		}
-		
+
 		// SAK-22299. Build a pseudo content hosting event so that sitestats picks it up in its special resource area.
 		Event e = EventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ, "/content" + ref.getId(), false);
 		EventTrackingService.post(e);
 
 	}	// handleAccess
-	
+
 	protected void handleExportRequest(HttpServletRequest req, HttpServletResponse res,
-			Reference ref, String format, String subtype) 
-			throws EntityNotDefinedException, EntityAccessOverloadException, EntityPermissionException 
+	                                   Reference ref, String format, String subtype)
+			throws EntityNotDefinedException, EntityAccessOverloadException, EntityPermissionException
 	{
 		SessionManager sessionManager = ComponentManager.get(SessionManager.class);
 		org.sakaiproject.content.api.ContentHostingService contentHostingService = ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
@@ -139,13 +139,13 @@ public class CitationListAccessServlet implements HttpAccess
 				user = req.getUserPrincipal().getName();
 			}
 			throw new EntityPermissionException(user, ContentHostingService.EVENT_RESOURCE_READ, ref.getReference());
-		}			
-		
+		}
+
 		String fileName = req.getParameter("resourceDisplayName");
 		if(fileName == null || fileName.trim().equals("")) {
 			fileName = rb.getString("export.default.filename");
 		}
-		
+
 		if(org.sakaiproject.citation.api.CitationService.RIS_FORMAT.equals(format))
 		{
 			String citationCollectionId = null;
@@ -169,21 +169,21 @@ public class CitationListAccessServlet implements HttpAccess
 
 			List<String> citationIds = new java.util.ArrayList<String>();
 			CitationCollection collection = null;
-			try 
+			try
 			{
 				collection = CitationService.getCollection(citationCollectionId);
-			} 
-			catch (IdUnusedException e) 
+			}
+			catch (IdUnusedException e)
 			{
 				throw new EntityNotDefinedException(ref.getReference());
 			}
-			
+
 			// decide whether to export selected or entire list
 			if( org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS_SEL.equals(subtype) )
 			{
 				// export selected
 				String[] paramCitationIds = req.getParameterValues("citationId");
-				
+
 				if( paramCitationIds == null || paramCitationIds.length < 1 )
 				{
 					// none selected - do not continue
@@ -196,16 +196,16 @@ public class CitationListAccessServlet implements HttpAccess
 					return;
 				}
 				citationIds.addAll(Arrays.asList(paramCitationIds));
-				
+
 				fileName = rb.getFormattedMessage("export.filename.selected.ris", fileName);
 			}
 			else
 			{
 				// export all
-				
+
 				// iterate through ids
 				List<Citation> citations = collection.getCitations();
-				
+
 				if( citations == null || citations.size() < 1 )
 				{
 					// no citations to export - do not continue 
@@ -214,28 +214,28 @@ public class CitationListAccessServlet implements HttpAccess
 					} catch (IOException e) {
 						m_log.warn("export-all request received for empty citation collection. citationCollectionId: " + citationCollectionId);
 					}
-					
+
 					return;
 				}
-				
+
 				for( Citation citation : citations )
 				{
 					citationIds.add( citation.getId() );
 				}
 				fileName = rb.getFormattedMessage("export.filename.all.ris", fileName);
 			}
-						
+
 			// We need to write to a temporary stream for better speed, plus
 			// so we can get a byte count. Internet Explorer has problems
 			// if we don't make the setContentLength() call.
 			StringBuilder buffer = new StringBuilder(4096);
 			// StringBuilder contentType = new StringBuilder();
 
-			try 
+			try
 			{
 				collection.exportRis(buffer, citationIds);
-			} 
-			catch (IOException e) 
+			}
+			catch (IOException e)
 			{
 				throw new EntityAccessOverloadException(ref.getReference());
 			}
@@ -281,40 +281,40 @@ public class CitationListAccessServlet implements HttpAccess
 			}
 
 		}
-		
+
 	}	// handleExportRequest
 
-	protected void handleViewRequest(HttpServletRequest req, HttpServletResponse res, Reference ref) 
+	protected void handleViewRequest(HttpServletRequest req, HttpServletResponse res, Reference ref)
 			throws EntityPermissionException, EntityAccessOverloadException, EntityNotDefinedException
 	{
-        try
-        {
-        	// We get the resource as this checks permissions and throws exceptions if the user doesn't have access
-    		ContentResource resource = ContentHostingService.getResource(ref.getId());
-    		
-    		if (!CitationService.CITATION_LIST_ID.equals(resource.getResourceType())) {
-    			// Don't do anything unless it's a citation list
-    			throw new EntityNotDefinedException("Couldn't find citation list");
-    		}
-    		
-    		if (resource.getContentLength() > 1024) {
-    			// Only convert small byte arrays to string.
-    			throw new EntityAccessOverloadException(ref.getId());
-    		}
-    		
-    		ResourceProperties properties = resource.getProperties();
-   
-    		String title = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-    		String introduction = properties.getProperty( org.sakaiproject.citation.api.CitationService.PROP_INTRODUCTION );
-    		
-     		String citationCollectionId = new String( resource.getContent() );
-	        org.sakaiproject.citation.api.CitationService citationService = (org.sakaiproject.citation.api.CitationService) ComponentManager.get(org.sakaiproject.citation.api.CitationService.class);
-	        CitationCollection collection = citationService.getUnnestedCitationCollection(citationCollectionId);
-	        CitationCollection fullCollection = CitationService.getCollection(citationCollectionId);
+		try
+		{
+			// We get the resource as this checks permissions and throws exceptions if the user doesn't have access
+			ContentResource resource = ContentHostingService.getResource(ref.getId());
 
-    		res.setContentType("text/html; charset=UTF-8");
-    		PrintWriter out = res.getWriter();
-    		out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+			if (!CitationService.CITATION_LIST_ID.equals(resource.getResourceType())) {
+				// Don't do anything unless it's a citation list
+				throw new EntityNotDefinedException("Couldn't find citation list");
+			}
+
+			if (resource.getContentLength() > 1024) {
+				// Only convert small byte arrays to string.
+				throw new EntityAccessOverloadException(ref.getId());
+			}
+
+			ResourceProperties properties = resource.getProperties();
+
+			String title = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			String introduction = properties.getProperty( org.sakaiproject.citation.api.CitationService.PROP_INTRODUCTION );
+
+			String citationCollectionId = new String( resource.getContent() );
+			org.sakaiproject.citation.api.CitationService citationService = (org.sakaiproject.citation.api.CitationService) ComponentManager.get(org.sakaiproject.citation.api.CitationService.class);
+			CitationCollection collection = citationService.getUnnestedCitationCollection(citationCollectionId);
+			CitationCollection fullCollection = CitationService.getCollection(citationCollectionId);
+
+			res.setContentType("text/html; charset=UTF-8");
+			PrintWriter out = res.getWriter();
+			out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
 					+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n"
 					+ "<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
 					+ "<title>"
@@ -323,87 +323,89 @@ public class CitationListAccessServlet implements HttpAccess
 					+ "</title>\n"
 					+ "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<link href=\"/library/skin/" + ServerConfigurationService.getString("skin.default") + "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
-				    + "<link href=\"/library/font-awesome/font-awesome-4.4.0/css/font-awesome.min.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
+					+ "<link href=\"/library/font-awesome/font-awesome-4.4.0/css/font-awesome.min.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<link href=\"/sakai-citations-tool/css/citations.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 					+ "<script type=\"text/javascript\" src=\"/library/webjars/jquery/1.11.3/jquery.min.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/citationscript.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/view_nested_citations.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/jquery.googlebooks.thumbnails.js\"></script>\n"
-				    + "<script type=\"text/javascript\" src=\"/library/juice/juice.js\"></script>\n"
-				    + "<script type=\"text/javascript\" src=\"/library/juice/juice-weblearn.js\"></script>\n"
-    				+ "</head>\n<body>" );
+					+ "<script type=\"text/javascript\" src=\"/library/juice/juice.js\"></script>\n"
+					+ "<script type=\"text/javascript\" src=\"/library/juice/juice-weblearn.js\"></script>\n"
+					+ "</head>\n<body>" );
 
-    		List<Citation> citations = collection.getCitations();
-    		String contentCollectionId = resource.getContainingCollection().getId();
+			List<Citation> citations = collection.getCitations();
+			String contentCollectionId = resource.getContainingCollection().getId();
 
 
-    		String exportParams =  "?resourceDisplayName=" + resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "&resourceId=" + resource.getId();
-    		String exportUrlAll = fullCollection.getUrl(org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS_ALL) + exportParams;
-    		String displayDate = null;
-    		try {
+			String exportParams =  "?resourceDisplayName=" + resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "&resourceId=" + resource.getId();
+			String exportUrlAll = fullCollection.getUrl(org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS_ALL) + exportParams;
+			String displayDate = null;
+			try {
     			displayDate = new SimpleDateFormat("dd/MM/yyyy", rb.getLocale()).format(properties.getDateProperty(ResourceProperties.PROP_MODIFIED_DATE));
-    		} catch (EntityPropertyNotDefinedException e) {
-    			m_log.warn("CitationListAccessServlet.handleViewRequest() : Property name requested is not defined - for contentCollectionId" + contentCollectionId);
-    		} catch (EntityPropertyTypeException e) {
-    			m_log.warn("CitationListAccessServlet.handleViewRequest() : Named property found does not match the type of access requested - for contentCollectionId" + contentCollectionId);
-    		}
+			} catch (EntityPropertyNotDefinedException e) {
+				m_log.warn("CitationListAccessServlet.handleViewRequest() : Property name requested is not defined - for contentCollectionId" + contentCollectionId);
+			} catch (EntityPropertyTypeException e) {
+				m_log.warn("CitationListAccessServlet.handleViewRequest() : Named property found does not match the type of access requested - for contentCollectionId" + contentCollectionId);
+			}
 
-		out.println("<div class=\"portletBody\">\n\t<div class=\"listWidth citationList\">");
-		boolean isPrintView = req.getParameter("printView")!=null;
-		out.println("\t<div style=\"width: 100%; height: 90px; line-height: 90px; background-color:" +
+			out.println("<div class=\"portletBody\">\n\t<div class=\"listWidth citationList\">");
+			out.println("\t<div style=\"float:left; width: 100%; height: 90px; background-color:" +
 					ServerConfigurationService.getString("official.institution.background.colour") +"; \">" +
-					"<div class=\"banner\"><h1 style=\" margin-left:15px; color:" + ServerConfigurationService.getString("official.institution.text.colour") + ";\">" +
-					Validator.escapeHtml(title) + "</h1></div> " +
-					"<div class=\"bannerLinks\">"  +
-					(!isPrintView ? "<a class=\"export\" href=" + exportUrlAll + ">Export</a>"  + "<a class=\"print\" target=\"_blank\" href=" + req.getRequestURL() + "?printView" + ">Print</a>"  : "") +
-					"<div class=\"lastUpdated\">Last updated: " +  displayDate + "</div>" + "</div>" + "</div>");
-    		out.println("<div style=\"clear:both;\"></div>");
-    		if( introduction != null && !introduction.trim().equals("") )
-    		{
-    			out.println("\t<div class='descriptionView'>" + introduction + "</div>");
-    		}
+					"<div class=\"banner\">" +
+					"<h1 style=\" margin-left:15px; color:" + ServerConfigurationService.getString("official.institution.text.colour") + ";\">" +
+					Validator.escapeHtml(title) + "</h1></div>" +
+					"<div class=\"bannerLinks\">" +
+					"<a class=\"export\" href=\"" + exportUrlAll + "\">Export</a>" +
+					"<a class=\"print\" target=\"_blank\" href=\"" + req.getRequestURL() + "?printView" + "\">Print</a>" +
+					"<div class=\"lastUpdated\">Last updated: " +  displayDate + "</div>" +
+					"</div></div>");
+			out.println("<div style=\"clear:both;\"></div>");
+			if( introduction != null && !introduction.trim().equals("") )
+			{
+				out.println("\t<div class='descriptionView'>" + introduction + "</div>");
+			}
 
-    		// nested sections
-    		displayNestedSections(title, citationCollectionId, citationService, collection, fullCollection, out, contentCollectionId);
+			// nested sections
+			displayNestedSections(title, citationCollectionId, citationService, collection, fullCollection, out, contentCollectionId);
 
 			// unnested citations
-    		displayCitations(out, citations, collection, false, citationCollectionId, title, contentCollectionId);
+			displayCitations(out, citations, collection, false, citationCollectionId, title, contentCollectionId);
 
-    		// logos
-    		String[] logos = ServerConfigurationService.getStrings("citations.logo");
-    		String logoHTML = "";
-    		if (logos != null){
-    			logoHTML = "<div class='logos'>";
-    			for (String logo : logos) {
-    				logoHTML = logoHTML + "<img src='" + logo + "' width='100' height='100'>";
-    			}
-    			logoHTML = logoHTML + "</div>";
-    			out.println(logoHTML);
-    		}
+			// logos
+			String[] logos = ServerConfigurationService.getStrings("citations.logo");
+			String logoHTML = "";
+			if (logos != null){
+				logoHTML = "<div class='logos'>";
+				for (String logo : logos) {
+					logoHTML = logoHTML + "<img src='" + logo + "' width='100' height='100'>";
+				}
+				logoHTML = logoHTML + "</div>";
+				out.println(logoHTML);
+			}
 
-    		if( citations.size() > 0 )
-    		{
-        		out.println("</div></div>");
-        		out.println("</body></html>");
-    		}
-        }
-        catch (IOException e)
-        {
-        	throw new EntityAccessOverloadException(ref.getReference());
-        }
-        catch (ServerOverloadException e)
-        {
-        	throw new EntityAccessOverloadException(ref.getReference());
-        }
-        catch (IdUnusedException e)
-        {
-        	throw new EntityNotDefinedException(ref.getReference());
-        } catch (PermissionException e) {
-        	throw new EntityPermissionException(e.getUser(), ContentHostingService.EVENT_RESOURCE_READ, ref.getReference());
-        } catch (TypeException e) {
-        	// This doesn't seem right but it's probably the best fit.
-        	throw new EntityNotDefinedException(ref.getReference());
-        }
+			if( citations.size() > 0 )
+			{
+				out.println("</div></div>");
+				out.println("</body></html>");
+			}
+		}
+		catch (IOException e)
+		{
+			throw new EntityAccessOverloadException(ref.getReference());
+		}
+		catch (ServerOverloadException e)
+		{
+			throw new EntityAccessOverloadException(ref.getReference());
+		}
+		catch (IdUnusedException e)
+		{
+			throw new EntityNotDefinedException(ref.getReference());
+		} catch (PermissionException e) {
+			throw new EntityPermissionException(e.getUser(), ContentHostingService.EVENT_RESOURCE_READ, ref.getReference());
+		} catch (TypeException e) {
+			// This doesn't seem right but it's probably the best fit.
+			throw new EntityNotDefinedException(ref.getReference());
+		}
 	}
 
 	private void displayCitations(PrintWriter out, List<Citation> citations, CitationCollection collection, boolean isNested, String citationCollectionId, String title, String contentCollectionId) {
@@ -519,19 +521,16 @@ public class CitationListAccessServlet implements HttpAccess
 			out.println("\t\t\t</table></div></div>");
 
 			// rhs links
-			out.println("\t\t\t<div>");
-			if( citation.hasCustomUrls() || citation.getCitationProperty("otherIds") instanceof Vector){
-				out.println("\t\t\t<div class=\"itemAction links\" style=\"width:20%\">");
-			}
+			out.println("\t\t\t<div class=\"itemAction links\" style=\"width:20%\">");
 			if( citation.hasCustomUrls() )
 			{
 				try {
 					String urlId = (String) citation.getCustomUrlIds().get(0);
 					out.println("\t\t\t\t<div class=\"e-avail\"><a href=\"" + Validator.escapeHtml(citation.getCustomUrl( urlId )) + "\" target=\"_blank\">"
-					+ rb.getString( "e.avail.link.view" ) + "</a></div>");
-					} catch (IdUnusedException e) {
+							+ rb.getString( "e.avail.link.view" ) + "</a></div>");
+				} catch (IdUnusedException e) {
 					// no need to blow up the page if we can't find the e-availability url for one citation on it
-					}
+				}
 				out.println("\t\t\t\t |");
 				List<String> customUrlIds = citation.getCustomUrlIds();
 				for( String urlId : customUrlIds )
@@ -560,16 +559,13 @@ public class CitationListAccessServlet implements HttpAccess
 				String soloLink = null;
 				if (citation.getCitationProperty("otherIds") instanceof Vector) {
 					soloLink = (String) ((Vector) citation.getCitationProperty("otherIds")).get(0);
-					}
+				}
 				else if (citation.getCitationProperty("otherIds") instanceof String) {
 					soloLink = (String) citation.getCitationProperty("otherIds");
 				}
 				if (soloLink!=null) {
 					out.println("\t\t\t\t<a href=\"" + soloLink + "\" target=\"_blank\">" + "Find it" + " on SOLO" + "</a>");
 				}
-			}
-			if( citation.hasCustomUrls() || citation.getCitationProperty("otherIds") instanceof Vector){
-				out.println("\t\t\t</div>");
 			}
 			// TODO This doesn't need any Inline HTTP Transport.
 			out.println("\t\t\t\t<span class=\"Z3988\" title=\""+ citation.getOpenurlParameters().substring(1).replace("&", "&amp;")+ "\"></span>");
@@ -585,9 +581,6 @@ public class CitationListAccessServlet implements HttpAccess
 			out.println("\t\t<div id=\"details_" + escapedId + "\" class=\"citationDetails\" style=\"display: none;\">");
 			out.println("\t\t\t<table class=\"listHier lines nolines\" cellpadding=\"0\" cellspacing=\"0\">");
 
-			out.println("\t\t<div class=\"availabilityHeader\"></div>");
-
-			out.println("\t\t</td>");
 			fields = schema.getFields();
 			fieldIt = fields.iterator();
 
@@ -688,7 +681,7 @@ public class CitationListAccessServlet implements HttpAccess
 				out.println("<li id = '" + linkId + "' class='h1Editor accordionH1 " + (nestedSection.getChildren().size() > 0 ? " hasSections" : "") + "' data-sectiontype='" + nestedSection.getSectiontype() + "'>" +
 						"<div id='" + linkClick +"' style='width:100%; float:left; '><div id='" + toggleImgDiv + "'>" +
 						(nestedSection.getChildren().size() > 0 ? "<img border='0' width='16' height='16' align='top' alt='Citation View' " +
-						"src='/library/image/sakai/white-arrow-right.gif' class='toggleIcon accordionArrow' id='" + toggleImg + "'>" : "") + "</div>" +
+								"src='/library/image/sakai/white-arrow-right.gif' class='toggleIcon accordionArrow' id='" + toggleImg + "'>" : "") + "</div>" +
 						"<div id = '" + editorDivId + "' class='editor accordionDiv'>" +
 						(nestedSection.getValue()!=null ? nestedSection.getValue() : "") + (citationNo!=0 ? " (" + citationNo + " citations)" : "") + "</div></div>");
 
@@ -698,23 +691,15 @@ public class CitationListAccessServlet implements HttpAccess
 					for (CitationCollectionOrder h2Section : nestedSection.getChildren()) {
 						editorDivId = "sectionInlineEditor" + h2Section.getLocation();
 						linkId = "link" + h2Section.getLocation();
-						linkClick = "linkClick" + h2Section.getLocation();
-						toggleImgDiv = "toggleImgDiv" + h2Section.getLocation();
-						toggleImg = "toggleImg" + h2Section.getLocation();
 						addSubsectionId = "addSubsection" + h2Section.getLocation();
 
 
 						if (h2Section.getSectiontype().toString().equals("HEADING2")){
 
-							out.println("<li id = '" + linkId + "' class='h2Section " +
-									(h2Section.getChildren().size() > 0 ? " hasSections" : "") + "' data-location='"
-									+ h2Section.getLocation() + "' data-sectiontype='" +
+							out.println("<li id = '" + linkId + "' class='h2Section' data-location='" + h2Section.getLocation() + "' data-sectiontype='" +
 									h2Section.getSectiontype() + "' style='background: #cef none repeat scroll 0 0;'>" +
-									"<div id='" + linkClick +"' style='width:100%;'><div id='" + toggleImgDiv + "'>" +
-									(h2Section.getChildren().size() > 0 ? "<img border='0' width='16' height='16' align='top' alt='Citation View' " +
-											"src='/library/image/sakai/collapse.gif' class='toggleIcon accordionArrow' id='" + toggleImg + "'>" : "") + "</div>" +
 									"<div id = '" + editorDivId + "' class='editor h2Editor' style='min-height:30px; padding:5px;'>" +
-									(h2Section.getValue()!=null ? h2Section.getValue() : "") + "</div></div>");
+									(h2Section.getValue()!=null ? h2Section.getValue() : "") + "</div>");
 
 							// h3 sections
 							if (h2Section.getChildren().size() > 0) {
@@ -722,22 +707,15 @@ public class CitationListAccessServlet implements HttpAccess
 								for (CitationCollectionOrder h3Section : h2Section.getChildren()) {
 									editorDivId = "sectionInlineEditor" + h3Section.getLocation();
 									linkId = "link" + h3Section.getLocation();
-									linkClick = "linkClick" + h3Section.getLocation();
-									toggleImgDiv = "toggleImgDiv" + h3Section.getLocation();
-									toggleImg = "toggleImg" + h3Section.getLocation();
 									addSubsectionId = "addSubsection" + h3Section.getLocation();
 
 									if (h3Section.getSectiontype().toString().equals("HEADING3")){
 
-										out.println("<li id = '" + linkId + "' class='h3Section " +
-												(h3Section.getChildren().size() > 0 ? " hasSections" : "") + " ' data-location='" + h3Section.getLocation() + "' data-sectiontype='" +
+										out.println("<li id = '" + linkId + "' class='h3Section' data-location='" + h3Section.getLocation() + "' data-sectiontype='" +
 												h3Section.getSectiontype() + "'>" +
-												"<div id='" + linkClick +"' style='width:100%;'><div id='" + toggleImgDiv + "'>" +
-												(h3Section.getChildren().size() > 0 ? "<img border='0' width='16' height='16' align='top' alt='Citation View' " +
-														"src='/library/image/sakai/collapse.gif' class='toggleIcon accordionArrow' id='" + toggleImg + "'>" : "") + "</div>" +
 												"<div style='' id = '" + editorDivId + "' class='editor h3Editor' " +
 												"style='padding-left:20px; '>" +
-												"<div style=''>" + (h3Section.getValue()!=null ? h3Section.getValue() : "") + "</div></div></div>");
+												"<div style=''>" + (h3Section.getValue()!=null ? h3Section.getValue() : "") + "</div></div>");
 
 										//  nested citations
 										if (h3Section.getChildren().size() > 0) {
