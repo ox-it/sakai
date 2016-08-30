@@ -1493,7 +1493,7 @@ a.less {
 
 .fake-fieldset .legend {
   left: 0.5em;
-  top: -15px;
+  top: -20px;
   background: white;
   position: absolute;
   font-weight: bold;
@@ -2217,4 +2217,8 @@ li.exportIndividual {
 }
 .label{
 	color:#000;
+	padding:0;
+}
+.firstItem{
+	margin-left: .6em;
 }
