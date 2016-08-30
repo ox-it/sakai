@@ -11,10 +11,13 @@
     	<form id="Mrphs-xlogin" method="post" action="${action}" #if (${notify}) class="with-errors" #end>
             <h1>${loginRequired}</h1>
             <aside class="logo"></aside>
-        	#if (${notify})
-        		<div class="alertMessage" role="alert">${notify}</div>
-        	#end
-    		<fieldset>	
+			#if (${ssoWording})
+                    <div class="xloginMessage">${ssoWording}&nbsp;<a href="${loginContainerUrl}">${ssoLinkText}</a></div>
+			#end
+			#if (${notify})
+                <div class="alertMessage" role="alert">${notify}</div>
+			#end
+    		<fieldset>
     			<label for="eid">${loginEidWording}</label>
     			<input name="eid" id="eid" value="${eid}" type="text" size="15"/>
     			<label for="pw">${loginPwWording}</label>
