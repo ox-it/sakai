@@ -150,22 +150,18 @@
 }
 
 #feedback-content-problem h3, #feedback-no-panels h3 {
-    background: url('/library/image/silk/page_white_error.png') no-repeat scroll left top transparent;
     padding-left: 20px;
 }
 
 #feedback-ask-help h3 {
-    background: url('/library/image/silk/user_comment.png') no-repeat scroll left top transparent;
     padding-left: 20px;
 }
 
 #feedback-tech-problem h3 {
-    background: url('/library/image/silk/bug.png') no-repeat scroll left top transparent;
     padding-left: 20px;
 }
 
 #feedback-improvement h3 {
-    background: url('/library/image/silk/lightbulb.png') no-repeat scroll left top transparent;
     padding-left: 20px;
 }
 
