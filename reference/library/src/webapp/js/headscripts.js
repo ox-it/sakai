@@ -744,7 +744,7 @@ function forceLinksInNewWindow() {
 // this could have its own entry in sakai.properties.
 function rewriteVideoEmbeds() {
     var embeds = document.getElementsByTagName('embed');
-    for(var i = 0; i < embeds.length; i) {
+    for(var i = 0; i < embeds.length; ++i) {
         var embed = embeds[i];
         if(embed.src && embed.src.match("^http://youtube.com|^http://www.youtube.com|^http://player.vimeo.com")) {
             var clone = embed.cloneNode();
