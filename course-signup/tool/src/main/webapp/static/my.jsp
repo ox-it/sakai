@@ -226,7 +226,7 @@
 																								this,
 																								false),
 																				Signup.signup
-																						.formatNotes(this.notes),
+																						.formatNotes(this.notes, this.specialReq),
 																				this.status,
 																				actions,
 																				this.status ]);

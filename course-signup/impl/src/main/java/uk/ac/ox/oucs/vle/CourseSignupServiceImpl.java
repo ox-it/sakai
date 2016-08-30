@@ -715,7 +715,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 	 * Signup by Student
 	 */
 	public CourseSignup signup(String courseId, Set<String> componentIds, String supervisorEmail,
-			String message) throws IllegalStateException, IllegalArgumentException {
+			String message, String specialReq) throws IllegalStateException, IllegalArgumentException {
 
 		CourseGroupDAO groupDao = dao.findCourseGroupById(courseId);
 		if (groupDao == null) {
@@ -785,6 +785,7 @@ public class CourseSignupServiceImpl implements CourseSignupService {
 		}
 		signupDao.setAmended(getNow());
 		signupDao.setMessage(message);
+		signupDao.setSpecialReq(specialReq);
 		Department department = findPracDepartment(user.getPrimaryOrgUnit());
 		if (null != department) {
 			signupDao.setDepartment(department.getPracCode());

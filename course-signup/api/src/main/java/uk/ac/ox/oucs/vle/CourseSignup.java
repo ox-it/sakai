@@ -46,10 +46,16 @@ public interface CourseSignup {
 	
 	/**
 	 * 
-	 * @return Text supporting signup
+	 * @return String of student comments
 	 */
 	public String getNotes();
-	
+
+    /**
+	 *
+	 *  @return String of student requirements
+	 */
+	public String getSpecialReq();
+
 	/**
 	 * 
 	 * @return Status of signup

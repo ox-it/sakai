@@ -34,7 +34,7 @@
         	<input type="hidden" name="components" value="${componentId}"/>
         {/for}
         <input type="hidden" name="courseId" value="${courseId}"/>
-        <table>
+        <table style="width:100%">
         	{if courseApproval}
             <tr>
                 <th>
@@ -48,19 +48,37 @@
             </tr>
             {/if}
             <tr>
-                <th>
-                    <label for="supervisor-note">
-                        Please enter your reason/s for enrolling for module
-                    </label>
-                </th>
-                <td>
+                <fieldset>
+                    <th>
+                        <label for="supervisor-note" class="signup-reason">
+                            Please enter your reason/s for enrolling for module
+                        </label>
+                    </th>
+                    <td>
 <${textarea} name="message" id="supervisor-note" cols="40" rows="8">Reason for requesting to attend this module:
  
 Other comments: </${textarea}>
-                </td>
+                    </td>
+                </fieldset>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
+                <fieldset>
+                    <th>
+                        <label for="special-requirements"  class="signup-reason">
+                            Please tell us any information we need to know in order to ensure that you are able to attend and participate fully in the module
+                        </label>
+                    </th>
+                    <td>
+<${textarea} name="specialReq" id="special-requirements" cols="40" rows="8"></${textarea}>
+                    </td>
+            </fieldset>
             </tr>
         </table>
+        <br>
         <p>Note that your place is not guaranteed until you receive a confirmation email</p>
+        <br>
         <input type="submit" value="Confirm Signup"/>
         <input type="submit" class="cancel" value="Cancel"/>
     </form>

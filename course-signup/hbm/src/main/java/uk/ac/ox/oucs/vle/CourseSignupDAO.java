@@ -45,6 +45,7 @@ public class CourseSignupDAO  implements java.io.Serializable {
     private String department;
     private CourseGroupDAO group;
     private String message;
+    private String specialReq;
 
     public CourseSignupDAO() {
     }
@@ -123,6 +124,12 @@ public class CourseSignupDAO  implements java.io.Serializable {
 		this.message = message;
 	}
 
+    public String getSpecialReq() {
+        return specialReq;
+    }
+    public void setSpecialReq(String specialReq) {
+        this.specialReq = specialReq;
+    }
 
 }
 

@@ -65,6 +65,10 @@ public class CourseSignupImpl implements CourseSignup {
 		return dao.getMessage();
 	}
 
+	public String getSpecialReq() {
+        return dao.getSpecialReq();
+	}
+
 	public Status getStatus() {
 		return dao.getStatus();
 	}
