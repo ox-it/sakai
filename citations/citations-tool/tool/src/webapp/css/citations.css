@@ -84,6 +84,19 @@ table.lines tr:nth-child(odd), .citationDetails table.lines tr{
 	background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
 	background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
 }
+
+table.oxfaleph_summary thead th {
+	color: #fff;
+	background:#872434;
+}
+table.oxfaleph_summary tr:nth-child(odd){
+	color: #000;
+	background:#eebfc6;
+}
+table.oxfaleph_summary tr:nth-child(even){
+	color: #000;
+	background:#f9e7ea;
+}
 .googleBookCover {
 	width:64px; height:93px;
 }
@@ -97,6 +110,9 @@ table.lines tr:nth-child(odd), .citationDetails table.lines tr{
 }
 .titleDiv {
 	width:50%
+}
+.daia_summary{
+	width:100%;
 }
 /*drag and drop*/
 body.dragging, body.dragging * {
@@ -171,7 +187,7 @@ ol.vertical li.placeholder::before {
 	background: #FFF none repeat scroll 0 0;
 }
 .h1Editor {
-	background-color: #002147; color:#FFF; padding: 5px; min-height:30px;
+	background-color: #002147; color:#FFF; padding: 5px; min-height:50px;
 }
 .h2Editor {
 	color:#000; padding: 5px; min-height:20px;
