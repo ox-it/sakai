@@ -5665,10 +5665,11 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(STATE_ADMIN_REALM, adminSite);
 		}
 		if (state.getAttribute(STATE_ADMIN_REALM) != null) {
-			
+			Collection<Site> templateSites = getTemplateSites();
+
 			List siteTypes = (List) state.getAttribute(STATE_SITE_TYPES);
 			if (siteTypes != null) {
-				if (siteTypes.size() == 1) {
+				if (siteTypes.size() == 1 && templateSites.isEmpty()) {
 					String siteType = (String) siteTypes.get(0);
 					if (!SiteTypeUtil.isCourseSite(siteType)) {
 						// if only one site type is allowed and the type isn't
@@ -12670,8 +12671,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private void setTemplateListForContext(Context context, SessionState state)
 	{
-		List<Site> templateSites = new ArrayList<Site>();
+		Collection<Site> templateSites = getTemplateSites();
 	
+		context.put("templateSites",templateSites);
+		context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
+
+	} // setTemplateListForContext
+
+	private Collection<Site> getTemplateSites() {
+		Collection<Site> templateSites = new ArrayList<Site>();
+
 		boolean allowedForTemplateSites = true;
 		
 		// system wide setting for disable site creation based on template sites
@@ -12703,17 +12712,25 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			templateCriteria.put("template", "true");
 			
 			templateSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, templateCriteria, SortType.TITLE_ASC, null);
+			// Look for templates based on property.
+			String[] siteTemplates = siteTemplates = StringUtil.split(ServerConfigurationService.getString("site.templates", "template"), ",");
+			for (String siteId: siteTemplates) {
+				try {
+					Site site = SiteService.getSite(siteId);
+					templateSites.add(site);
+				} catch (IdUnusedException iue) {
+					M_log.info(this + ".setTemplateListForContext: cannot find site with id " + siteId);
 		}
-		
+			}
+		}
+
 		// If no templates could be found, stick an empty list in the context
 		if(templateSites == null || templateSites.size() <= 0)
 			templateSites = new ArrayList();
-
-                //SAK25400 sort templates by type
-                context.put("templateSites",sortTemplateSitesByType(templateSites));
-		context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
-		
-	} // setTemplateListForContext
+		else
+			templateSites = sortTemplateSitesByType(templateSites);
+		return templateSites;
+	}
 	
 	/**
 	 * %%% legacy properties, to be cleaned up
