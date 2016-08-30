@@ -735,12 +735,15 @@ var Signup = function(){
 			 * Formats a notes string so we only display the first bit of it and then display a tooltip for the rest.
 			 * @param {Object} notes
 			 */
-			"formatNotes": function(notes){
-				if (notes && notes.length > 50) {
-					return '<span class="signup-notes">' + Text.toHtml(notes.substr(0, 45)) + '... <span class="more">[more]<span class="full">' + Text.toHtml(notes) + '</span></span></span>'
+			"formatNotes": function(notes, specialReq){
+				if (specialReq) {
+					return '<span class="signup-notes"><p class="alert">' + Text.toHtml(specialReq) + '</p>... <span class="more">[more]<span class="full">' + Text.toHtml(notes) + '</span></span></span>';
+				}
+				else if (notes) {
+					return '<span class="signup-notes">' + Text.toHtml(notes.substr(0, 45)) + '... <span class="more">[more]<span class="full">' + Text.toHtml(notes) + '</span></span></span>';
 				}
 				else {
-					return Text.toHtml(notes);
+					return "";
 				}
 			},
 			/**
