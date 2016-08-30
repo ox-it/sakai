@@ -457,6 +457,7 @@ public class SetupEvalBean {
 	 * before adding the new ones
 	 */
 	public String completeConfirmAction() {
+		System.out.println("SetupEvalBean.completeConfirmAction()");
 		if (evaluationId == null) {
 			throw new IllegalArgumentException(
 					"evaluationId and emailTemplateId cannot be null");
