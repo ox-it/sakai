@@ -50,7 +50,7 @@ $PBJQ(document).ready( function(){
     if($PBJQ(".Mrphs-hierarchy--parent-sites").length>0){
       margin -= $PBJQ(".Mrphs-hierarchy--parent-sites").outerHeight(true);
     }
-    $PBJQ(".Mrphs-siteHierarchyAlign").css("margin-top", margin +"px")
+    $PBJQ(".Mrphs-siteHierarchyAlign").css("margin-top", margin/2 +"px")
   }
   if( $PBJQ('.Mrphs-hierarchy--parent-sites').length > 0 && $PBJQ(window).width() <= 800 ){
     $PBJQ('#content').css( 'margin-top', ( parseInt( $PBJQ('#content').css('margin-top').replace('px', '') ) +  $PBJQ('.Mrphs-hierarchy--parent-sites').outerHeight(true) ) + 'px' );
