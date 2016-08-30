@@ -6,6 +6,11 @@
     color: lighten($orig-primary-color, 35%);
 }
 
+##{$namespace}xlogin .xloginMessage{
+    padding: 0.9em;
+    text-align: center;
+}
+
 /* Override the hover styles as background is now dark. */
 .#{$namespace}breadCrumbs--title:hover{
     color: $breadcrumbs-hover-color;
