@@ -95,6 +95,7 @@
 		<property name="created" type="timestamp" />
 		<property name="amended" type="timestamp" />
 		<property name="message" type="string" length="4000"/>
+		<property name="specialReq" type="string" length="4000"/>
 		<set name="components" lazy="true" table="course_component_signup"
 			inverse="true">
 			<key column="signup" />

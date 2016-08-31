@@ -37,8 +37,9 @@ table th {
     color: red;
 }
 
-.alert {
-    color: red;
+.signup-reason {
+    width: 300px;
+    display: inline-block;
 }
 
 .loader {

@@ -116,10 +116,11 @@ public class SignupResource {
 	public Response signup(@FormParam("courseId") String courseId,
 	                       @FormParam("components")Set<String> components,
 	                       @FormParam("email")String email,
-	                       @FormParam("message")String message) {
+	                       @FormParam("message")String message,
+	                       @FormParam("specialReq")String specialReq){
 		checkAuthenticated();
 		try {
-			CourseSignup entity = courseService.signup(courseId, components, email, message);
+			CourseSignup entity = courseService.signup(courseId, components, email, message, specialReq);
 			ResponseBuilder builder = Response.status(Response.Status.CREATED);
 			builder.entity(entity);
 			return builder.build();

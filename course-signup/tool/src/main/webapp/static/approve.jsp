@@ -147,7 +147,7 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 		                            			closes = this.closes;
 		                            });
 		                            var actions = Signup.signup.formatActions(Signup.signup.getActions(this.status, this.id, closes, true));
-		                            data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes), this.status, "" ]);
+									data.push([this.id, (this.created) ? this.created : "", Signup.user.render(this.user, this.group, this.components), course, Signup.supervisor.render(this.supervisor, this, isAdmin), Signup.signup.formatNotes(this.notes, this.specialReq), this.status, "" ]);
 		                            
 		                        });
 		                        fnCallback({

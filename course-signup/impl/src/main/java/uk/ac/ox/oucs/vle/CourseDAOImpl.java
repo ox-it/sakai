@@ -460,7 +460,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<CourseSignupDAO> findSignupPending(final String userId) {
 		return getHibernateTemplate().execute((HibernateCallback<List<CourseSignupDAO>>) session -> {
 			Query query = session.createSQLQuery(
-					"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.courseGroupMuid, cs.department " +
+					"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.courseGroupMuid, cs.department, cs.specialReq " +
 					"from course_signup cs " +
 					"left join course_group_administrator ca on cs.courseGroupMuid = ca.courseGroupMuid " +
 					"inner join course_component_signup cp on cs.id = cp.signup " +
@@ -476,7 +476,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<CourseSignupDAO> findSignupStillPendingOrAccepted(final Integer period) {
 		return getHibernateTemplate().execute((HibernateCallback<List<CourseSignupDAO>>) session -> {
 			Query query = session.createSQLQuery(
-					"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.courseGroupMuid, cs.department " +
+					"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.courseGroupMuid, cs.department, cs.specialReq " +
 					"from course_signup cs " +
 					"left join course_group_administrator ca on cs.courseGroupMuid = ca.courseGroupMuid " +
 					"inner join course_component_signup cp on cs.id = cp.signup " +
@@ -495,7 +495,7 @@ public class CourseDAOImpl extends HibernateDaoSupport implements CourseDAO {
 	public List<CourseSignupDAO> findSignupApproval(final String userId) {
 		return getHibernateTemplate().execute((HibernateCallback<List<CourseSignupDAO>>) session -> {
 			Query query = session.createSQLQuery(
-					"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.courseGroupMuid, cs.department " +
+					"select distinct cs.id, cs.userId, cs.status, cs.created, cs.amended, cs.message, cs.supervisorId, cs.courseGroupMuid, cs.department, cs.specialReq " +
 					"from course_signup cs " +
 					"left join course_group_administrator ca on cs.courseGroupMuid = ca.courseGroupMuid " +
 					"inner join course_component_signup cp on cs.id = cp.signup " +

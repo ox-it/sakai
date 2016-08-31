@@ -95,7 +95,7 @@ public class AttendanceWriter {
 					attendee.addContent(sst);
 					
 					Element ssr = new Element("reason");
-					ssr.setText(signup.getNotes());
+					ssr.setText(signup.getNotes() + " " + signup.getSpecialReq());
 					attendee.addContent(ssr);
 			
 					students.addContent(attendee);
