@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.sakaiproject.user.api.UserEdit;
 
-public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
+public class OakLdapAttributeMapper extends SimpleLdapCandidateAttributeMapper {
 
 	private String alternativeEmail;
 	
@@ -20,6 +20,10 @@ public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
 		} else {
 			return super.getFindUserByEmailFilter(emailAddr);
 		}
+	}
+
+	public void init() {
+		super.init();
 	}
 
     public void mapUserDataOntoUserEdit( LdapUserData userData,

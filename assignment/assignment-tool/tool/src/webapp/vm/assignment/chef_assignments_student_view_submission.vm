@@ -487,6 +487,12 @@ $(document).ready(function(){
 				<h3>$tlang.getString("gen.submission")</h3> 
 		#end	
 
+		#if ($!isAdditionalNotesEnabled && !$assignment.isGroup() && $!candidateDetailProvider.getAdditionalNotes($!userDirectoryService.getUser($submission.submitterId), $site))
+			<p class="instruction">
+				$tlang.getString("assignment.additional.notes.students.explanation")
+			</p>
+		#end
+
 		## show special instruction if this is for an non-electronic submission type of assignment
 		#if ($!nonElectronicType)
 			<p class="instruction">
