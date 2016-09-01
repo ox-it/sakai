@@ -2124,7 +2124,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				if (state.getAttribute(SITE_DUPLICATED) != null) {
 						String flashNotifMsg = "<a title=\""+state.getAttribute(SITE_DUPLICATED_NAME) +"\" href=\""+state.getAttribute(STATE_DUPE_SITE_URL)+"\" target=\"_top\">"+state.getAttribute(SITE_DUPLICATED_NAME)+"</a>";
-						addFlashNotif(state, rb.getString("sitdup.dupsit") + " " + flashNotifMsg + " " + rb.getString("sitdup.hasbeedup"));
+						addFlashNotif(state, rb.getString("sitdup.dupsit") + " " + flashNotifMsg + " " + rb.getString("sitdup.hasbeedup") + " " +rb.getString("sitdup.bring"));
 					}
 				state.removeAttribute(SITE_DUPLICATED);
 				state.removeAttribute(SITE_DUPLICATED_NAME);
