@@ -736,8 +736,10 @@ var Signup = function(){
 				}).join(" / ");
 			},
 			/**
-			 * Formats a notes string so we only display the first bit of it and then display a tooltip for the rest.
+			 * Formats a String so that if any special requirements have been added they are displayed first in red and other comments in a tooltip.
+			 * If there are no special requirements but there are notes then the first bit of the notes are displayed and the rest in a tooltip.
 			 * @param {Object} notes
+			 * @param {Object} specialReq
 			 */
 			"formatNotes": function(notes, specialReq){
 				if (specialReq) {
