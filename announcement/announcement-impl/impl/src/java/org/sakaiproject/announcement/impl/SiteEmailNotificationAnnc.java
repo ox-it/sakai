@@ -511,7 +511,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 			title = site.getTitle();
 			url = site.getUrl(); // Might have a better URL.
 		}
-		catch (Exception ignore)
+		catch (Exception exception)
 		{
 			M_log.warn("Failed to load site: "+ siteId+ " for: "+ event.getResource());
 		}
