@@ -999,7 +999,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			return PRE_ASSIGN_ATTENDEE_PAGE_URL;
 		}
 
-		String attendeeUserId = getUserIdForEidOrEmail(attendeeEidOrEmail.trim());
+		String attendeeUserId = getUserIdForDisplayIdOrEidOrEmail(attendeeEidOrEmail.trim());
 		if(StringUtils.isBlank(attendeeEidOrEmail)){
 			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + attendeeEidOrEmail);
 			return PRE_ASSIGN_ATTENDEE_PAGE_URL;
