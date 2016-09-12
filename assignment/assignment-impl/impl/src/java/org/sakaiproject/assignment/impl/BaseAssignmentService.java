@@ -12869,9 +12869,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					id = candidateDetailProvider.getCandidateID(UserDirectoryService.getUser(this.getSubmitterId()), site).orElse(this.getId().substring(27));
 				}
 			} catch(IdUnusedException e){
-				M_log.debug("Site not found " + this.getAssignment().getContext() + " : " + e.getMessage());
+				M_log.warn("Site not found " + this.getAssignment().getContext(), e);
 			} catch(UserNotDefinedException e){
-				M_log.debug("User not found " + this.getSubmitterId() + " : " + e.getMessage());
+				M_log.warn("User not found " + this.getSubmitterId(), e);
 			}
 			return id + " (" + rb.getString("grading.anonymous.title") + ")";
 	}

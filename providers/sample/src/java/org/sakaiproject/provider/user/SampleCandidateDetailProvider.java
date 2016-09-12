@@ -39,7 +39,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.CandidateDetailProvider;
-import org.sakaiproject.user.detail.ValueEncryptionService;
+import org.sakaiproject.user.detail.ValueEncryptionUtilities;
 
 /**
  * <p>
@@ -128,10 +128,10 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 			if(user != null) {
 				//check if additional notes is enabled (system-wide or site-based)
 				if(isAdditionalNotesEnabled(site)) {
-					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)) && StringUtils.isNotBlank(ValueEncryptionService.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)))) {
+					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)) && StringUtils.isNotBlank(ValueEncryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)))) {
 						M_log.debug("Using user candidateID property for user " + user.getId());
 						//this property is encrypted, so we need to decrypt it
-						return Optional.ofNullable(ValueEncryptionService.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)));
+						return Optional.ofNullable(ValueEncryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)));
 					} else {
 						int hashInt = user.getId().hashCode();
 						if(hashInt % 10 == 4){
@@ -165,8 +165,8 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 						List<String> ret = new ArrayList<String>();
 						for(String s : user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO)) {
 							//this property is encrypted, so we need to decrypt it
-							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(ValueEncryptionService.decrypt(s))){
-								ret.add(ValueEncryptionService.decrypt(s));
+							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(ValueEncryptionUtilities.decrypt(s))){
+								ret.add(ValueEncryptionUtilities.decrypt(s));
 							}
 						}
 						return Optional.ofNullable(ret);

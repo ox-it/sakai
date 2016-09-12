@@ -1538,6 +1538,7 @@ public class AssignmentAction extends PagedResourceActionII
             if (submitter == null) {
                 submitter = user;
             }
+            context.put("submitter", submitter);
             s = getSubmission(assignment.getReference(), submitter, "build_student_view_submission_context", state);
 			List currentAttachments = (List) state.getAttribute(ATTACHMENTS);
 
@@ -1685,16 +1686,8 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("student",student);
 			}
 		}
-
-		try {
-			Site st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-			context.put("isAdditionalNotesEnabled", candidateDetailProvider.isAdditionalNotesEnabled(st));
-			context.put("candidateDetailProvider", candidateDetailProvider);
-			context.put("site", st);
-		} catch (IdUnusedException iue) {
-			M_log.warn(this + ":build_student_view_submission_context: Site not found!" + iue.getMessage());
-			context.put("isAdditionalNotesEnabled", false);
-		}
+		
+		addAdditionalNotesToContext(context, state);
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_SUBMISSION;
@@ -4237,15 +4230,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("sort_submitReview", SORTED_GRADE_SUBMISSION_CONTENTREVIEW);
 		context.put("userDirectoryService", UserDirectoryService.getInstance());
 
-	    try {
-	        Site st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));	        
-	        context.put("isAdditionalNotesEnabled", candidateDetailProvider.isAdditionalNotesEnabled(st));
-	        context.put("candidateDetailProvider", candidateDetailProvider);
-	        context.put("site", st);
-	    } catch (IdUnusedException iue) {
-	        M_log.warn(this + ":build_instructor_grade_assignment_context: Site not found!" + iue.getMessage());
-	        context.put("isAdditionalNotesEnabled", false);
-	    }
+		addAdditionalNotesToContext(context, state);
 
 		String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 		Assignment assignment = getAssignment(assignmentRef, "build_instructor_grade_assignment_context", state);
@@ -4496,9 +4481,8 @@ public class AssignmentAction extends PagedResourceActionII
 		Site sst = null;
 		try {
 			sst = SiteService.getSite(contextString);
-			context.put("isAdditionalNotesEnabled", candidateDetailProvider.isAdditionalNotesEnabled(sst));
-			context.put("candidateDetailProvider", candidateDetailProvider);
-			context.put("site", sst);
+			
+			addAdditionalNotesToContext(context, state);
 		
 			Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(Boolean.FALSE.toString(), "all", null, aRef, contextString);
 			for (User u : submitters.keySet())
@@ -4528,13 +4512,13 @@ public class AssignmentAction extends PagedResourceActionII
 			catch (Exception e)
 			{
 				// log exception during sorting for helping debugging
-				M_log.warn(this + ":build_show_students_additional_information_context sort=" + sort + " ascending=" + ascending + " " + e.getStackTrace());
+				M_log.warn(this + ":build_show_students_additional_information_context sort=" + sort + " ascending=" + ascending, e);
 			}
 	
 			state.setAttribute(USER_NOTES, returnResources);
 			context.put("userNotes", state.getAttribute(USER_NOTES));
 		} catch (IdUnusedException iue) {
-			M_log.warn(this + ":build_instructor_grade_assignment_context: Site not found!" + iue.getMessage());
+			M_log.warn(this + ":build_show_students_additional_information_context: Site not found!" + iue.getMessage());
 			context.put("isAdditionalNotesEnabled", false);
 		}
 		 
@@ -18163,6 +18147,18 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 		}
+	}
+	
+	private void addAdditionalNotesToContext(Context context, SessionState state){
+		try {
+			Site st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+			context.put("isAdditionalNotesEnabled", candidateDetailProvider.isAdditionalNotesEnabled(st));
+			context.put("candidateDetailProvider", candidateDetailProvider);
+			context.put("site", st);
+		} catch (IdUnusedException iue) {
+			M_log.warn(this + ":addAdditionalNotesToContext: Site not found!" + iue.getMessage());
+			context.put("isAdditionalNotesEnabled", false);
+		} 
 	}
 
 }	

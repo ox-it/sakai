@@ -35,7 +35,7 @@ import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserFactory;
 import org.sakaiproject.user.api.UsersShareEmailUDP;
-import org.sakaiproject.user.detail.ValueEncryptionService;
+import org.sakaiproject.user.detail.ValueEncryptionUtilities;
 
 /**
  * <p>
@@ -247,39 +247,39 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		else
 		{
 			if(edit.getEid().equals("student0001")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt("user1encrypted"));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt("Additional notes encrypted"));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("user1encrypted"));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt("Additional notes encrypted"));
 			}
 			if(edit.getEid().equals("student0002")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt("2notes"));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt("Additional notes encrypted student0002"));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt("Additional notes encrypted again"));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("2notes"));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt("Additional notes encrypted student0002"));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt("Additional notes encrypted again"));
 			}
 			if(edit.getEid().equals("student0003")){
-				edit.getProperties().addPropertyToList(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt("id1of2"));
-				edit.getProperties().addPropertyToList(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt("id2of2"));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt("Additional notes encrypted again2"));
+				edit.getProperties().addPropertyToList(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("id1of2"));
+				edit.getProperties().addPropertyToList(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("id2of2"));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt("Additional notes encrypted again2"));
 			}
 			if(edit.getEid().equals("student0004")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt(null));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt(null));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt(null));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(null));
 			}
 			if(edit.getEid().equals("student0005")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt(""));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt(""));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt(""));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(""));
 			}
 			if(edit.getEid().equals("student0006")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt(" "));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt(" "));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt(" "));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(" "));
 			}
 			if(edit.getEid().equals("student0007")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt("student0007"));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("student0007"));
 				String reallyLongString = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,"+
 					"abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,"+
 					"abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,"+
 					"abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,"+
 					"abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,up_until_1000_char";
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt(reallyLongString));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(reallyLongString));
 			}
 			edit.setFirstName(info.firstName);
 			edit.setLastName(info.lastName);

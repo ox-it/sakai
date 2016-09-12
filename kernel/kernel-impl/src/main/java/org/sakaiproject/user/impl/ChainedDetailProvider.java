@@ -1,5 +1,6 @@
 package org.sakaiproject.user.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,13 +15,19 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 	public void setProviders(List<CandidateDetailProvider> providers) {
 		this.providers = providers;
 	}
+	
+	public List<CandidateDetailProvider> getProviders() {
+		if(providers == null)
+			providers = new ArrayList<CandidateDetailProvider>();
+		return providers;
+	}
 
 	public Optional<String> getCandidateID(User user, Site site) {
 		if(site == null) {
 			M_log.error("getCandidateID: Null site.");
 			return Optional.empty();
 		}
-		for(CandidateDetailProvider provider : providers) {
+		for(CandidateDetailProvider provider : getProviders()) {
 			String candidateID = provider.getCandidateID(user, site).orElse("");
 			if(StringUtils.isNotBlank(candidateID)){
 				return Optional.ofNullable(candidateID);
@@ -30,7 +37,7 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 	}
 
 	public boolean useInstitutionalAnonymousId(Site site) {
-		for(CandidateDetailProvider provider : providers) {
+		for(CandidateDetailProvider provider : getProviders()) {
 			if(provider.useInstitutionalAnonymousId(site)){
 				return true;
 			}
@@ -43,7 +50,7 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 			M_log.error("getAdditionalNotes: Null site.");
 			return Optional.empty();
 		}
-		for(CandidateDetailProvider provider : providers) {
+		for(CandidateDetailProvider provider : getProviders()) {
 			Optional<List<String>> notes = provider.getAdditionalNotes(user, site);
 			if(notes.isPresent()){
 				return notes;
@@ -53,7 +60,7 @@ public class ChainedDetailProvider implements CandidateDetailProvider {
 	}
 
 	public boolean isAdditionalNotesEnabled(Site site) {
-		for(CandidateDetailProvider provider : providers) {
+		for(CandidateDetailProvider provider : getProviders()) {
 			if(provider.isAdditionalNotesEnabled(site)){
 				return true;
 			}

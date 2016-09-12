@@ -20,13 +20,13 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 /**
  * This class provides encryption/decryption services. Service is thread safe.
  */
-public class ValueEncryptionService {
+public class ValueEncryptionUtilities {
 	
 	private final static String CIPHER_INSTANCE = "AES/CBC/PKCS5Padding";
 	private final static String SECRET_KEYFACTORY = "PBKDF2WithHmacSHA256";
 	private final static String SECRET_KEYSPEC = "AES";
 
-	private static Log M_log = LogFactory.getLog(ValueEncryptionService.class);
+	private static Log M_log = LogFactory.getLog(ValueEncryptionUtilities.class);
 
 	private static SecureRandom random = new SecureRandom();
 	private static Base64.Encoder encoder = Base64.getEncoder();
@@ -36,7 +36,7 @@ public class ValueEncryptionService {
 	private static String key;
 	private static String getKey() {
 		if(key == null) {
-			key = ServerConfigurationService.getString("CandidateDetailsProviderUtils.key", "aaeeiioouu12345#");
+			key = ServerConfigurationService.getString("ValueEncryptionUtilities.key", "aaeeiioouu12345#");
 		}
 		return key;
 	}

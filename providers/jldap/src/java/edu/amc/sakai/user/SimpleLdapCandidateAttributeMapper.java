@@ -37,10 +37,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.detail.ValueEncryptionService;
+import org.sakaiproject.user.detail.ValueEncryptionUtilities;
 
 
 /**
@@ -137,7 +136,7 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 			Object o_prop = userData.getProperties().get(AttributeMappingConstants.CANDIDATE_ID_ATTR_MAPPING_KEY);
 			if(o_prop != null) {
 				if(o_prop instanceof String) {
-					userEdit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt((String)o_prop));
+					userEdit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt((String)o_prop));
 				} else if(o_prop instanceof List) {					
 					Set<String> propertySet = new HashSet<String>();
 					//remove duplicate values
@@ -147,7 +146,7 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 					//add candidate ID, if there is only one value
 					if(propertySet.size() == 1) {
 						for(String value : propertySet) {
-							userEdit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionService.encrypt(value));
+							userEdit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt(value));
 						}
 					}
 				}
@@ -157,7 +156,7 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 			o_prop = userData.getProperties().get(AttributeMappingConstants.ADDITIONAL_INFO_ATTR_MAPPING_KEY);
 			if(o_prop != null) {
 				if(o_prop instanceof String) {
-					userEdit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt((String)o_prop));
+					userEdit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt((String)o_prop));
 				} else if(o_prop instanceof List) {
 					List<String> propertyList = new ArrayList<String>();
 					//remove duplicate values (maintain order)
@@ -166,7 +165,7 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 							propertyList.add(value);
 					}
 					for(String value : propertyList) {
-						userEdit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionService.encrypt(value));
+						userEdit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(value));
 					}
 				}
 				userData.getProperties().remove(AttributeMappingConstants.ADDITIONAL_INFO_ATTR_MAPPING_KEY);

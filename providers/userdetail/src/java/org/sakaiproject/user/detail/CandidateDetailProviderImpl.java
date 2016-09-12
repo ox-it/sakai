@@ -43,9 +43,9 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 			if(user != null) {
 				//check if we should use the institutional anonymous id (system-wide or site-based)
 				if(useInstitutionalAnonymousId(site)) {
-					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)) && StringUtils.isNotBlank(ValueEncryptionService.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)))) {
+					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)) && StringUtils.isNotBlank(ValueEncryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)))) {
 						//this property is encrypted, so we need to decrypt it
-						return Optional.ofNullable(ValueEncryptionService.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)));
+						return Optional.ofNullable(ValueEncryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)));
 					}
 				}
 			}
@@ -71,8 +71,8 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 						List<String> ret = new ArrayList<String>();
 						for(String s : user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO)) {
 							//this property is encrypted, so we need to decrypt it
-							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(ValueEncryptionService.decrypt(s))){
-								ret.add(ValueEncryptionService.decrypt(s));
+							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(ValueEncryptionUtilities.decrypt(s))){
+								ret.add(ValueEncryptionUtilities.decrypt(s));
 							}
 						}
 						//return Optional.ofNullable(user.getProperties().getProperty(USER_PROP_ADDITIONAL_INFO));
