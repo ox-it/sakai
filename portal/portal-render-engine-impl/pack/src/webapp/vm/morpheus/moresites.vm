@@ -55,15 +55,12 @@
                             #end
 							
                             <div class="fav-title #if (${site.isMyWorkspace}) fav-title-myworkspace #end">
-                            	<a href="${site.siteUrl}"
+                            	<a href="${site.siteUrl}" title="${site.siteUrl}">
                                     #if (${site.isMyWorkspace})
-                                        title="${rloader.sit_mywor}">
                                         <i class="fa fa-home icon-sakai"></i><span class="fullTitle">${rloader.sit_mywor}</span>
                                     #elseif ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
-                                        title="${site.shortDescription}">
                                         <span class="fullTitle">${site.shortDescription}</span>
                                     #else
-                                        title="${site.siteTitle}">
                                         <span class="fullTitle">${site.siteTitle}</span>
                                     #end
                                 </a>
