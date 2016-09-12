@@ -2964,9 +2964,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "forum-summary-groups-titles", itemGroupTitles);
 					}
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
-						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 						//get widget height from the item attribute
 						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						String divHeight = "height:" + height +"px;";
+						//create html for forum-summary widget
+						String html = "<div align=\"left\" style='"+divHeight+"' class=\"forum-summary-div\"></div>";
+						UIVerbatim.make(tableRow, "content", html);
 						UIOutput.make(tableRow, "forum-summary-id", String.valueOf(i.getId()));
 						UIOutput.make(tableRow, "forum-summary-widget-height", height);
 						//setting forums-messages url to get all recent messages for the site
@@ -3962,6 +3965,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 		UIInput.make(form, "forumSummaryEditId", "#{simplePageBean.itemId}");
+		UIInput.make(form, "forumSummary-addBefore", "#{simplePageBean.addBefore}");
 		UIInput.make(form, "forum-summary-height", "#{simplePageBean.forumSummaryHeight}");
 		UIOutput.make(form, "forum-summary-height-label", messageLocator.getMessage("simplepage.forum-summary.height_label"));
 		String[] options = {"5", "10", "15", "20", "30", "50"};

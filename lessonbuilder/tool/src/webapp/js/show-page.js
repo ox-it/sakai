@@ -1210,6 +1210,7 @@ $(document).ready(function() {
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
 			$("#forum-summary-error-container").hide();
+			$("#forumSummary-addBefore").val(addAboveItem);
 			$("#forumSummaryEditId").val("-1");
 			$("#forum-summary-height").val("");
 			$("#forumNumberDropdown-selection").val("5");
