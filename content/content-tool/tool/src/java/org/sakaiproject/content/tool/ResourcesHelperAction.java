@@ -2098,7 +2098,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					collectionId = resourceGroup;
 				}
 				try{
-					//if user has chosen to overwrite existing resource save the new copy
+					//if user has chosen to overwrite existing resource and has correct permissions, save the new copy
+					ContentHostingService.getResource(resourceId);
 					if(overwrite != null && overwrite.equals("true")){
 						resource = ContentHostingService.editResource(resourceId);
 					}
