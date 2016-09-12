@@ -91,6 +91,7 @@ public class FolderPickerProducer implements ViewComponentProducer, NavigationCa
             }
             //get site entity-id
             UIInput.make(form, "folder-path", "#{simplePageBean.folderPath}", contentHostingService.getSiteCollection(simplePageBean.getCurrentSiteId()));
+            UIInput.make(form, "add-before", "#{simplePageBean.addBefore}", ((GeneralViewParameters) viewparams).getAddBefore());
             UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
             UICommand.make(form, "submit", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.folderPickerSubmit}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
             UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel_message"), "#{simplePageBean.cancel}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.cancel_message")));
