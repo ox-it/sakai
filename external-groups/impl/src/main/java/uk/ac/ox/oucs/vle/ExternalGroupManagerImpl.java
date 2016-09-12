@@ -471,7 +471,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 						}
 					}
 					catch (ParseException e){
-						log.info("Failed to parse member: "+ member);
+						log.debug("Ignoring non-parsable member: "+ member+ " in group: "+ externalId);
 					}
 				}
 			}
