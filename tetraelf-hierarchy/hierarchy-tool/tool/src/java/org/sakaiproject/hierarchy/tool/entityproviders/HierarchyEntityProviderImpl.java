@@ -45,7 +45,7 @@ public class HierarchyEntityProviderImpl extends AbstractEntityProvider
 	private transient PortalHierarchyService portalHierarchyService;
 
 	/**
-	 * /portal-hierarchy/site.json?portalpath=/path(e.g. /sitename/name)
+	 * /portal-hierarchy/site.json?portalpath=/path(e.g. /sitename/name or :sitename:path)
 	 */
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
 	public HierarchySiteSummary getDetailsForSite(EntityView view, Map<String, Object> params){
@@ -57,7 +57,7 @@ public class HierarchyEntityProviderImpl extends AbstractEntityProvider
 			throw new IllegalArgumentException("portal path must be set in order to get the site details");
 		}
 		HierarchySiteSummary hierarchySiteSummary = null;
-		PortalNode portalNode = portalHierarchyService.getNode(portalPath);
+		PortalNode portalNode = portalHierarchyService.getNodeByUrl(portalPath);
 
 		//Check if the portalNode is of type PortalNodeSite
 		if(portalNode instanceof PortalNodeSite){
