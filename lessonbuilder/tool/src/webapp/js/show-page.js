@@ -430,6 +430,7 @@ $(document).ready(function() {
 			$('li').removeClass('editInProgress');
 			var position =  $(this).position();
 			$("#announcements-error-container").hide();
+			$("#announcements-addBefore").val(addAboveItem);
 			$("#announcementsEditId").val("-1");
 			$("#announcements-height").val("");
 			$("#announcementsNumberDropdown-selection").val("5");

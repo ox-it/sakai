@@ -438,7 +438,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    make them subjectively the same darkness.
 */
 /* default */
-.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .checklistDiv, .column .forumSummaryHeaderDiv {
+.column .commentDiv, .column .studentContentTable, .column .questionDiv .contentCol, .column .checklistDiv, .column .forumSummaryHeaderDiv, .column .announcementsHeaderDiv {
   background-color: #b3ecff;
 }
 .column a[href]{
@@ -448,7 +448,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    background-color: #f0f0f0;
    border-color: #222;
 }
-.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .checklistDiv, .colgray .forumSummaryHeaderDiv {
+.colgray .commentDiv, .colgray .studentContentTable, .colgray .questionDiv .contentCol, .colgray .checklistDiv, .colgray .forumSummaryHeaderDiv, .colgray .announcementsHeaderDiv {
   background-color: #b8b8b8;
 }
 .colgray a[href]{
@@ -459,7 +459,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #600;
    color: #4660000;
 }
-.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .checklistDiv, .colred .forumSummaryHeaderDiv {
+.colred .commentDiv, .colred .studentContentTable, .colred .questionDiv .contentCol, .colred .checklistDiv, .colred .forumSummaryHeaderDiv, .colred announcementsHeaderDiv {
   background-color: #ffb3b3;
 }
 .colred a[href], .colred h3.author {
@@ -471,7 +471,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #004;
    color: #004;
 }
-.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .checklistDiv, .colblue .forumSummaryHeaderDiv {
+.colblue .commentDiv, .colblue .studentContentTable, .colblue .questionDiv .contentCol, .colblue .checklistDiv, .colblue .forumSummaryHeaderDiv, .colblue announcementsHeaderDiv {
   background-color: #b3d9ff;
   background-color: #99e7ff;
 }
@@ -483,7 +483,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #030;
    color: #030;
 }
-.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .checklistDiv, .colgreen .forumSummaryHeaderDiv,{
+.colgreen .commentDiv, .colgreen .studentContentTable, .colgreen .questionDiv .contentCol, .colgreen .checklistDiv, .colgreen .forumSummaryHeaderDiv, .colgreen .announcementsHeaderDiv{
   background-color: #9fc;
 }
 .colgreen a[href] {
@@ -494,7 +494,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    border-color: #840;
    color: #4b2600;
 }
-.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .checklistDiv, colyellow .forumSummaryHeaderDiv {
+.colyellow .commentDiv, .colyellow .studentContentTable, .colyellow .questionDiv .contentCol, .colyellow .checklistDiv, colyellow .forumSummaryHeaderDiv, .colyellow .announcementsHeaderDiv {
   background-color:  #ffd480
 }
 .colyellow a[href],.colyellow h3.author {
@@ -613,32 +613,36 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
    margin-top: 10px;
 }
 
+.announcements-div, .announcementsType .textbox, .announcementsType .right-col {
+ width: 100%;
+}
 .announcements-div{
- border: 1px solid #ccc;
- float: left;
- margin: 30px 10px 30px 0;
- overflow-y: scroll;
- text-align: left;
- background-color: #fff;
- width: 550px;
+ margin-top: 10px;
  }
 .announcementsHeaderDiv{
-position: relative;
-width: 100.0%;
-max-height: 240.0px;
-vertical-align: top;
-overflow: hidden;
-background-color: #eee;
-}
+ position: relative;
+ width: 100.0%;
+ vertical-align: top;
+ overflow: hidden;
+ -moz-border-radius: 10px 10px 0px 0px;
+ -webkit-border-radius: 10px 10px 0px 0px;
+ border-radius: 10px 10px 0px 0px;
+ }
 .announcementSummaryHeader{
-font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
-border-bottom:1px solid #ccc;
-padding: 10px 0px 10px 15px;
-font-size: 1.2em;
-letter-spacing: normal
+ padding: 0px 0px 10px 15px;
+ font-size: 1.2em;
+ letter-spacing: normal
 }
 .announcementLink{
 margin-left: 5px;
+}
+.announcementList {
+ -moz-border-radius: 0px 0px 10px 10px;
+ -webkit-border-radius: 0px 0px 10px 10px;
+ border-radius: 0px 0px 10px 10px;
+ border: solid #999 1px;
+ border-top-style: none;
+ padding-bottom:15px;
 }
 .itemDiv {
 padding: 10px 15px 0 15px

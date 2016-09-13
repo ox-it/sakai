@@ -2753,9 +2753,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "announcements-groups-titles", itemGroupTitles);
 					}
 					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
-						UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 						//get widget height from the item attribute
 						String height = i.getAttribute("height") != null ? i.getAttribute("height") : "" ;
+						//create html for announcements widget
+						String divHeight = "height:" + height +"px;";
+						String html = "<div align=\"left\" style='"+divHeight+"' class=\"announcements-div\"></div>";
+						UIVerbatim.make(tableRow, "content", html);
 						UIOutput.make(tableRow, "announcements-id", String.valueOf(i.getId()));
 						UIOutput.make(tableRow, "announcements-widget-height", height);
 						//setting announcements url to get all announcements for the site
@@ -3807,6 +3810,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 		UIInput.make(form, "announcementsEditId", "#{simplePageBean.itemId}");
+		UIInput.make(form, "announcements-addBefore", "#{simplePageBean.addBefore}");
 		UIInput.make(form, "announcements-height", "#{simplePageBean.announcementsHeight}");
 		UIOutput.make(form, "announcements-height-label", messageLocator.getMessage("simplepage.announcements.height_label"));
 		String[] options = {"5","10","15","20","30","50"};
