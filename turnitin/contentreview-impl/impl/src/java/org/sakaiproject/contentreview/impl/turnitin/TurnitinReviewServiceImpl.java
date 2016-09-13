@@ -1070,7 +1070,6 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
                         scrubSpecialCharacters(ent.getClass().getMethod("getTitle").invoke(ent).toString());
 				log.debug("Got reflected assignemment title from entity " + title);
 				togo = URLDecoder.decode(title,"UTF-8");
-				togo=togo.replaceAll("\\W+","");
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -1409,6 +1408,7 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
 		}else{
 			getAssignmentTitle(taskId);
 		}
+		taskTitle = taskTitle.replaceAll("\\W+","");
 		log.debug("Creating assignment for site: " + siteId + ", task: " + taskId +" tasktitle: " + taskTitle);
 
 		SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
