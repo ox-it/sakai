@@ -1060,14 +1060,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    }
 		}
 
-		//Check in the property file if prev and next buttons are suppressed
-		boolean disablePrevNextLink = ServerConfigurationService.getBoolean("lessons.surpress.top.prevAndNextButtons",false);
-		if(!disablePrevNextLink){
-			// see if there's a next item in sequence.
-			simplePageBean.addPrevLink(tofill, pageItem);
-			simplePageBean.addNextLink(tofill, pageItem);
-		}
-
+		// see if there's a next item in sequence.
+		simplePageBean.addPrevLink(tofill, pageItem);
+		simplePageBean.addNextLink(tofill, pageItem);
 
 		// swfObject is not currently used
 		boolean shownSwfObject = false;
