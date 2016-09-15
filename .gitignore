@@ -14,3 +14,8 @@ sakai-demo.zip
 .metadata
 .DS_Store
 *nb-configuration.xml
+docker/sakai/webauth-keytab
+docker/sakai/ssl-private.key
+docker/sakai/ssl-public.crt
+docker/sakai/ssl-chain.crt
+docker/sakai/sakai-keytab
