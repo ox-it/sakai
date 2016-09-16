@@ -36,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.cheftool.VmServlet;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
@@ -127,6 +128,7 @@ public class AccessServlet extends VmServlet
 	protected EntityManager entityManager;
 	protected ActiveToolManager activeToolManager;
 	protected SessionManager sessionManager;
+	protected TwoFactorAuthentication twoFactorAuthentication;
 
 	/** init thread - so we don't wait in the actual init() call */
 	public class AccessServletInit extends Thread
@@ -168,6 +170,7 @@ public class AccessServlet extends VmServlet
 		entityManager = ComponentManager.get(EntityManager.class);
 		activeToolManager = ComponentManager.get(ActiveToolManager.class);
 		sessionManager = ComponentManager.get(SessionManager.class);
+		twoFactorAuthentication = ComponentManager.get(TwoFactorAuthentication.class);
 	}
 
 	/**
@@ -371,15 +374,22 @@ public class AccessServlet extends VmServlet
 		{
 			// the end user does not have permission - offer a login if there is no user id yet established
 			// if not permitted, and the user is the anon user, let them login
-			if (sessionManager.getCurrentSessionUserId() == null)
-			{
+			if (sessionManager.getCurrentSessionUserId() == null) {
+
 				try {
 					doLogin(req, res, origPath, LoginRoute.NONE);
 				} catch ( IOException ioex ) {}
-				return;
-			}
+				//return;
 
-			// otherwise reject the request
+			} else if (twoFactorAuthentication.isTwoFactorRequired(ref.getReference())
+					&& !twoFactorAuthentication.hasTwoFactor())     {
+
+				try {
+					doLogin(req, res, origPath, LoginRoute.TWOFACTOR);
+				} catch (IOException e1) {
+				}
+
+			}
 			M_log.debug("dispatch(): ref: " + ref.getReference(), e);
 			sendError(res, HttpServletResponse.SC_FORBIDDEN);
 		}
@@ -496,9 +506,21 @@ public class AccessServlet extends VmServlet
 		}
 
 		// map the request to the helper, leaving the path after ".../options" for the helper
-		ActiveTool tool = activeToolManager.getActiveTool("sakai.login");
+		ActiveTool tool = null;
 		String context = req.getContextPath() + req.getServletPath() + "/login";
-		tool.help(req, res, context, "/login");
+		String loginPath = "";
+
+		if (LoginRoute.TWOFACTOR.equals(route)) {
+			tool = activeToolManager.getActiveTool("sakai.twofactor");
+			loginPath = "/2flogin";
+
+		} else {
+			tool = activeToolManager.getActiveTool("sakai.login");
+			loginPath = "/relogin";
+
+		}
+		tool.help(req, res, context, loginPath);
+
 	}
 
 	/**
