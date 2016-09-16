@@ -1,5 +1,5 @@
 #!/bin/sh
-#
+
 # Short build script.
 
 # If any command fails abort the build
