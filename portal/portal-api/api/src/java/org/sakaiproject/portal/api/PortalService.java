@@ -22,6 +22,7 @@
 package org.sakaiproject.portal.api;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -269,11 +270,7 @@ public interface PortalService
 	 * @return
 	 */
 	SiteNeighbourhoodService getSiteNeighbourhoodService();
-   
-	/* optional portal links for portal header (SAK-22912)
-	 */
-	String getPortalLinks();
-	
+
 	/**
 	 * Bean setter for Content Hosting dependency.
 	 * @param contentHostingService
@@ -324,5 +321,15 @@ public interface PortalService
 	 * @return the skin prefix. Will return empty string if no prefix is set. 
 	 */
 	public String getSkinPrefix();
+
+	/**
+	 * @return the related links title for display in the top navigation bar. Will return empty string if no title is set.
+	 */
+	public String getRelatedLinksTitle(String siteId);
+
+	/**
+	 * @return the related links for display in the top navigation bar. Will return and empty List if no related links are set.
+	 */
+	public List<Map> getRelatedLinks(String siteSkin);
 
 }
