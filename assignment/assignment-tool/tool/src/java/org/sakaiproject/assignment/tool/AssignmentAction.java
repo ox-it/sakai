@@ -21,7 +21,6 @@
 package org.sakaiproject.assignment.tool;
 
 import au.com.bytecode.opencsv.CSVReader;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -171,6 +170,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -486,6 +486,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String GRADE_SUBMISSION_DONE = "grade_submission_done";
 	private static final String GRADE_SUBMISSION_SUBMIT = "grade_submission_submit";
 	
+	private static final String GRADE_SUBMISSION_SHOW_STUDENT_DETAILS = "grade_showStudentDetails";
+	
 	/** ******************* instructor's export assignment ***************************** */
 	private static final String EXPORT_ASSIGNMENT_REF = "export_assignment_ref";
 
@@ -753,6 +755,9 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String TEMPLATE_INSTRUCTOR_UPLOAD_ALL = "_instructor_uploadAll";
 	/** The student view to edit reviews **/
 	private static final String TEMPLATE_STUDENT_REVIEW_EDIT = "_student_review_edit";
+	
+	/** The instructor view to list users details **/
+	private static final String TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_DETAILS = "_instructor_view_students_details";
 
 	/** The options page */
 	private static final String TEMPLATE_OPTIONS = "_options";
@@ -787,6 +792,9 @@ public class AssignmentAction extends PagedResourceActionII
 	/** the user and submission list for list of submissions page */
 	private static final String USER_SUBMISSIONS = "user_submissions";
 	
+	/** the user and submission list for list of adittional info page */
+	private static final String USER_NOTES = "user_notes";
+
 	/** the items for storing the comments and grades for peer assessment **/
 	private static final String PEER_ASSESSMENT_ITEMS = "peer_assessment_items";
 	
@@ -852,6 +860,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private SecurityService m_securityService = null;
 
 	private AuthzGroupService authzGroupService = null;
+	
+	private CandidateDetailProvider candidateDetailProvider = null;
 	
 	/********************** Supplement item ************************/
 	private AssignmentSupplementItemService m_assignmentSupplementItemService = null;
@@ -1528,6 +1538,7 @@ public class AssignmentAction extends PagedResourceActionII
             if (submitter == null) {
                 submitter = user;
             }
+            context.put("submitter", submitter);
             s = getSubmission(assignment.getReference(), submitter, "build_student_view_submission_context", state);
 			List currentAttachments = (List) state.getAttribute(ATTACHMENTS);
 
@@ -1675,6 +1686,9 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("student",student);
 			}
 		}
+		
+		addAdditionalNotesToContext(context, state);
+
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_SUBMISSION;
 
@@ -4191,6 +4205,18 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_grade_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
+
+		boolean showStudentDetails = (Boolean)state.getAttribute(GRADE_SUBMISSION_SHOW_STUDENT_DETAILS);
+
+		if(showStudentDetails) {
+			build_show_students_additional_information_context(context, state);
+
+			state.setAttribute(GRADE_SUBMISSION_SHOW_STUDENT_DETAILS, Boolean.valueOf(false));
+
+			String template = (String) getContext(data).get("template");
+			return template + TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_DETAILS;
+		}
+
 		context.put("user", state.getAttribute(STATE_USER));
 
 		// sorting related fields
@@ -4203,6 +4229,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("sort_submitReleased", SORTED_GRADE_SUBMISSION_BY_RELEASED);
 		context.put("sort_submitReview", SORTED_GRADE_SUBMISSION_CONTENTREVIEW);
 		context.put("userDirectoryService", UserDirectoryService.getInstance());
+
+		addAdditionalNotesToContext(context, state);
 
 		String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 		Assignment assignment = getAssignment(assignmentRef, "build_instructor_grade_assignment_context", state);
@@ -4444,6 +4472,58 @@ public class AssignmentAction extends PagedResourceActionII
 		return template + TEMPLATE_INSTRUCTOR_GRADE_ASSIGNMENT;
 
 	} // build_instructor_grade_assignment_context
+
+	protected void build_show_students_additional_information_context(Context context, SessionState state){
+
+		List<SubmitterSubmission> returnResources = new ArrayList();
+		String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		Site sst = null;
+		try {
+			sst = SiteService.getSite(contextString);
+			
+			addAdditionalNotesToContext(context, state);
+		
+			Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(Boolean.FALSE.toString(), "all", null, aRef, contextString);
+			for (User u : submitters.keySet())
+			{
+				if(!candidateDetailProvider.getAdditionalNotes(u, sst).isPresent()){
+					M_log.debug("Skipping user with no additional notes " + u.getEid());
+					continue;
+				}
+	
+				AssignmentSubmission sub = submitters.get(u);
+				SubmitterSubmission us = new SubmitterSubmission(u, sub);
+				returnResources.add(us);
+			}
+	
+			String ascending = "true";
+			String sort = "sorted_grade_submission_by_lastname";
+			String anon = (String) state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
+			context.put("value_CheckAnonymousGrading", anon);
+			AssignmentComparator ac = new AssignmentComparator(state, sort, ascending);
+			if(Boolean.valueOf(anon)){
+				ac.setAnon(Boolean.valueOf(anon));
+			}
+			try
+			{
+				Collections.sort(returnResources, ac);
+			}
+			catch (Exception e)
+			{
+				// log exception during sorting for helping debugging
+				M_log.warn(this + ":build_show_students_additional_information_context sort=" + sort + " ascending=" + ascending, e);
+			}
+	
+			state.setAttribute(USER_NOTES, returnResources);
+			context.put("userNotes", state.getAttribute(USER_NOTES));
+		} catch (IdUnusedException iue) {
+			M_log.warn(this + ":build_show_students_additional_information_context: Site not found!" + iue.getMessage());
+			context.put("isAdditionalNotesEnabled", false);
+		}
+		 
+
+	} // build_show_students_additional_information_context
 
 	/**
 	 * make sure the state variable VIEW_SUBMISSION_LIST_OPTION is not null
@@ -11232,6 +11312,7 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(EXPORT_ASSIGNMENT_ID, a.getId());
 			state.setAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG, Boolean.valueOf(false));
 			state.setAttribute(GRADE_SUBMISSION_EXPAND_FLAG, Boolean.valueOf(true));
+			state.setAttribute(GRADE_SUBMISSION_SHOW_STUDENT_DETAILS, params.getBoolean(GRADE_SUBMISSION_SHOW_STUDENT_DETAILS));
 			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
 			
 			// initialize the resubmission params
@@ -12513,6 +12594,10 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (authzGroupService == null) {
 			authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		}
+		
+		if (candidateDetailProvider == null) {
+			candidateDetailProvider = ComponentManager.get(CandidateDetailProvider.class);
 		}
 		
 
@@ -18062,6 +18147,18 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 		}
+	}
+	
+	private void addAdditionalNotesToContext(Context context, SessionState state){
+		try {
+			Site st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+			context.put("isAdditionalNotesEnabled", candidateDetailProvider.isAdditionalNotesEnabled(st));
+			context.put("candidateDetailProvider", candidateDetailProvider);
+			context.put("site", st);
+		} catch (IdUnusedException iue) {
+			M_log.warn(this + ":addAdditionalNotesToContext: Site not found!" + iue.getMessage());
+			context.put("isAdditionalNotesEnabled", false);
+		} 
 	}
 
 }	
