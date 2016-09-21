@@ -65,7 +65,7 @@ public class SubPathHandler implements PathHandler{
 				if ((root.equals(ExternalGroupManagerImpl.COURSES) && !name.startsWith(ExternalGroupManagerImpl.CN_GRADUATE) && !name.startsWith(ExternalGroupManagerImpl.CN_TRANSFERRED)
 				   && (name.contains("current") || name.startsWith(ExternalGroupManagerImpl.CN_GRADUAND)) && !name.matches("cn=\\d{4}-current,ou=y.*"))
 						|| (root.equals(ExternalGroupManagerImpl.UNITS)
-						&& (name.startsWith(ExternalGroupManagerImpl.ALL) || name.startsWith(ExternalGroupManagerImpl.ITSS) || name.startsWith(ExternalGroupManagerImpl.STAFF) || name.startsWith(ExternalGroupManagerImpl.STUDENTS) || name.startsWith(ExternalGroupManagerImpl.POSTGRADS)))) {
+						&& (name.startsWith(ExternalGroupManagerImpl.ALL) || name.startsWith(ExternalGroupManagerImpl.ITSS) || name.startsWith(ExternalGroupManagerImpl.STAFF) || name.startsWith(ExternalGroupManagerImpl.STUDENTS) || name.startsWith(ExternalGroupManagerImpl.POSTGRADS) || name.startsWith(ExternalGroupManagerImpl.UNDERGRADS)))) {
 					nodes.add(new ExternalGroupNodeImpl(pathPrefix + name, displayName, new ExternalGroupImpl(result.getDN(), displayName, groupManager, groupManager.userDirectoryService)));
 				}
 			}
