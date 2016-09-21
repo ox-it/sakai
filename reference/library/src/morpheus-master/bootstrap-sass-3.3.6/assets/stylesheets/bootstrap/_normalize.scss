@@ -414,11 +414,15 @@ optgroup {
 //
 
 table {
-  border-collapse: collapse;
-  border-spacing: 0;
+  @media #{$phone}{
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
 }
 
 td,
 th {
-  padding: 0;
+  @media #{$phone}{
+    padding: 0;
+  }
 }
