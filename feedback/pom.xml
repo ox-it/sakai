@@ -155,6 +155,7 @@
                                         <template>home</template>
                                         <template>technical</template>
                                         <template>toolbar</template>
+                                        <template>helpdesk</template>
                                     </templates>
                                 </configuration>
                             </execution>
@@ -191,6 +192,7 @@
                                 <template>home</template>
                                 <template>technical</template>
                                 <template>toolbar</template>
+                                <template>helpdesk</template>
                             </templates>
                         </configuration>
                     </execution>
