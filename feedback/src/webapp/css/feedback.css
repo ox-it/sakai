@@ -24,7 +24,7 @@
 #feedback-siteupdaters-wrapper {
     display: none;
 }
-#feedback-sender-address {
+#feedback-sender-address, #feedback-sender-address-label {
     display: none;
 }
 #feedback-supplementary-info {

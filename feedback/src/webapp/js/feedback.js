@@ -138,6 +138,7 @@
                 if (!loggedIn) {
                     // Not logged in, show the sender email box.
                     $('#feedback-sender-address').show();
+                    $('#feedback-sender-address-label').show();
 
                     feedback.setUpRecaptcha();
                 }
@@ -155,6 +156,7 @@
                 if (!loggedIn) {
                     // Not logged in, show the sender email box.
                     $('#feedback-sender-address').show();
+                    $('#feedback-sender-address-label').show();
 
                     feedback.setUpRecaptcha();
                 }
