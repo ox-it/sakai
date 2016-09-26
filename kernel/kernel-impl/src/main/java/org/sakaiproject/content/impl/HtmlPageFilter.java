@@ -145,7 +145,7 @@ public class HtmlPageFilter implements ContentFilter {
         
 		final String footer = MessageFormat.format(footerTemplate, fixMixedContent);
 
-		return new WrappedContentResource(content, header.toString(), footerTemplate, detectHtml);
+		return new WrappedContentResource(content, header.toString(), footer, detectHtml);
 	}
 
 	private String getTitle(final ContentResource content) {
