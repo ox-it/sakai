@@ -52,6 +52,11 @@ body.#{$namespace}toolMenu-collapsed{
 						}
 					}
 				}
+                .#{$namespace}toolsNav__menuitem--icon{
+                  @if $tool-menu-icon-on-left {
+                    margin: 0 0.5em 0 0;
+                  }
+                }
 				.#{$namespace}toolsNav__menuitem--title{
 					display: none;
 				}
@@ -221,9 +226,8 @@ nav#subSites{
 			.#{$namespace}toolsNav__menuitem--icon{
 				@if $tool-menu-icon-on-left {
 					display: inline-block;
-					text-align: left;
-					min-width: 19px;
-					margin: 0 0.1em 0 0.1em;
+					width: 20%;
+                    height: 100%;
 				} @else {
 					margin: 0 0.25em 0 0;
 				}
@@ -259,10 +263,9 @@ nav#subSites{
 				}
 				.#{$namespace}toolsNav__menuitem--title{
 					@if $tool-menu-icon-on-left {
-						display: inline-block;
-						text-align: left;
-						vertical-align: middle;
-						max-width: $tool-menu-width - 0.5em;
+                        display: inline-block;
+						width: 75%;
+                        vertical-align: middle;
 					} @else {
 						display: block;
 						max-width: 100%;
