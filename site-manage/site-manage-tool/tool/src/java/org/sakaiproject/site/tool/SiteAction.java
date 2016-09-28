@@ -333,7 +333,8 @@ public class SiteAction extends PagedResourceActionII {
 			"-uploadArchive",
 			"-siteInfo-changeAdmin", // 63
 			"-selectAdmin", // 64
-			"-selectAdmin" // 65
+			"-selectAdmin", // 65
+			"-exportMemberList" // 66
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -4548,7 +4549,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("participantList", prepPage(state));
 		}
 		
-		return (String)getContext(data).get("template") + TEMPLATE[64];
+		return (String)getContext(data).get("template") + TEMPLATE[66];
 	}
 
 	/**
