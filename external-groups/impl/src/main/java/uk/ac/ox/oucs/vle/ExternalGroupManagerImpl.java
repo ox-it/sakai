@@ -84,6 +84,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	public static final String POSTGRADS = "cn=pg,";
 
+	public static final String UNDERGRADS = "cn=ug,";
+
 	public static final String CN_GRADUAND = "cn=graduand";
 
 	public static final String CN_GRADUATE = "cn=graduate";
