@@ -139,11 +139,7 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb;
 import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VERB;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.scoringservice.api.ScoringAgent;
@@ -930,6 +926,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** Sakai.property for enable/disable anonymous grading */
 	private static final String SAK_PROP_ENABLE_ANON_GRADING = "assignment.anon.grading.enabled";
+
+	/** Site property for forcing anonymous grading in a site */
+	private static final String SAK_PROP_FORCE_ANON_GRADING = "assignment.anon.grading.forced";
 
 	private static final String SAK_PROP_ENABLE_GRADEMARK = "turnitin.grademark.integration.enabled";
 	private static final boolean SAK_PROP_ENABLE_GRADEMARK_DEFAULT = true;
@@ -2530,6 +2529,14 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// Anon grading enabled/disabled
 		context.put( "enableAnonGrading", ServerConfigurationService.getBoolean( SAK_PROP_ENABLE_ANON_GRADING, false ) );
+		boolean forceAnonGrading = false;
+		try {
+			Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+			forceAnonGrading = site.getProperties().getBooleanProperty(SAK_PROP_FORCE_ANON_GRADING);
+		} catch (EntityPropertyTypeException | EntityPropertyNotDefinedException | SakaiException se) {
+			M_log.debug("Failed to find if anonymous grading is forced.");
+		}
+		context.put( "forceAnonGrading", forceAnonGrading);
 		
 		// is the assignment an new assignment
 		String assignmentId = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);
@@ -4487,7 +4494,7 @@ public class AssignmentAction extends PagedResourceActionII
 			Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(Boolean.FALSE.toString(), "all", null, aRef, contextString);
 			for (User u : submitters.keySet())
 			{
-				if(!candidateDetailProvider.getAdditionalNotes(u, sst).isPresent()){
+				if(candidateDetailProvider != null && !candidateDetailProvider.getAdditionalNotes(u, sst).isPresent()){
 					M_log.debug("Skipping user with no additional notes " + u.getEid());
 					continue;
 				}
@@ -18152,7 +18159,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private void addAdditionalNotesToContext(Context context, SessionState state){
 		try {
 			Site st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-			context.put("isAdditionalNotesEnabled", candidateDetailProvider.isAdditionalNotesEnabled(st));
+			context.put("isAdditionalNotesEnabled", candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st));
 			context.put("candidateDetailProvider", candidateDetailProvider);
 			context.put("site", st);
 		} catch (IdUnusedException iue) {

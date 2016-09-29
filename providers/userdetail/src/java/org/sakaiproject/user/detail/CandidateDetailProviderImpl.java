@@ -31,11 +31,13 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	private ServerConfigurationService serverConfigurationService;
 	private SiteService siteService;
 	private ToolManager toolManager;
+	private ValueEncryptionUtilities encryptionUtilities;
 	
 	public void init() {
 		Objects.requireNonNull(siteService, "SiteService must be set");
 		Objects.requireNonNull(toolManager, "ToolManager must be set");
 		Objects.requireNonNull(serverConfigurationService, "ServerConfigurationService must be set");
+		Objects.requireNonNull(encryptionUtilities, "ValueEncryptionUtilities must be set");
 	}
 	
 	public Optional<String> getCandidateID(User user, Site site) {
@@ -43,9 +45,12 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 			if(user != null) {
 				//check if we should use the institutional anonymous id (system-wide or site-based)
 				if(useInstitutionalAnonymousId(site)) {
-					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)) && StringUtils.isNotBlank(ValueEncryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)))) {
+					if(StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID))) {
+						String decrypt = encryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID));
 						//this property is encrypted, so we need to decrypt it
-						return Optional.ofNullable(ValueEncryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_CANDIDATE_ID)));
+                        if (StringUtils.isNotBlank(decrypt)) {
+							return Optional.ofNullable(decrypt);
+						}
 					}
 				}
 			}
@@ -57,7 +62,8 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	
 	public boolean useInstitutionalAnonymousId(Site site) {
 		try {
-			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID))));
+			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID, false) ||
+			(site != null && site.getProperties().getBooleanProperty(SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID)));
 		} catch(Exception ignore) {}
 		return false;
 	}
@@ -67,15 +73,15 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 			if(user != null) {
 				//check if additional notes is enabled (system-wide or site-based)
 				if(isAdditionalNotesEnabled(site)) {
-					if(user.getProperties() != null && user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO) != null) {
-						List<String> ret = new ArrayList<String>();
+					if(user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO) != null) {
+						List<String> ret = new ArrayList<>();
 						for(String s : user.getProperties().getPropertyList(USER_PROP_ADDITIONAL_INFO)) {
 							//this property is encrypted, so we need to decrypt it
-							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(ValueEncryptionUtilities.decrypt(s))){
-								ret.add(ValueEncryptionUtilities.decrypt(s));
+							String decrypt = encryptionUtilities.decrypt(s);
+							if(StringUtils.isNotBlank(s) && StringUtils.isNotBlank(decrypt)){
+								ret.add(decrypt);
 							}
 						}
-						//return Optional.ofNullable(user.getProperties().getProperty(USER_PROP_ADDITIONAL_INFO));
 						return Optional.ofNullable(ret);
 					}
 				}
@@ -88,7 +94,8 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	
 	public boolean isAdditionalNotesEnabled(Site site) {
 		try {
-			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION, false) || (site != null && Boolean.parseBoolean(site.getProperties().getProperty(SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION))));
+			return (serverConfigurationService.getBoolean(SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION, false) ||
+			(site != null && site.getProperties().getBooleanProperty(SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION)));
 		} catch(Exception ignore) {}
 		return false;
 	}
@@ -104,5 +111,9 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
+	}
+
+	public void setValueEncryptionUtilities(ValueEncryptionUtilities encryptionUtilities) {
+		this.encryptionUtilities = encryptionUtilities;
 	}
 }

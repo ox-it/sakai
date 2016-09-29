@@ -77,6 +77,12 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		m_courseStudents = Integer.parseInt(count);
 	}
 
+	protected ValueEncryptionUtilities encryptionUtilities;
+
+	public void setValueEncryptionUtilities(ValueEncryptionUtilities encryptionUtilities) {
+		this.encryptionUtilities = encryptionUtilities;
+	}
+
 	/***************************************************************************
 	 * Init and Destroy
 	 **************************************************************************/
@@ -247,39 +253,39 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		else
 		{
 			if(edit.getEid().equals("student0001")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("user1encrypted"));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt("Additional notes encrypted"));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, encryptionUtilities.encrypt("user1encrypted", 0));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryptionUtilities.encrypt("Additional notes encrypted", 0));
 			}
 			if(edit.getEid().equals("student0002")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("2notes"));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt("Additional notes encrypted student0002"));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt("Additional notes encrypted again"));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, encryptionUtilities.encrypt("2notes", 20));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryptionUtilities.encrypt("Additional notes encrypted student0002", 60));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryptionUtilities.encrypt("Additional notes encrypted again", 60));
 			}
 			if(edit.getEid().equals("student0003")){
-				edit.getProperties().addPropertyToList(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("id1of2"));
-				edit.getProperties().addPropertyToList(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("id2of2"));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt("Additional notes encrypted again2"));
+				edit.getProperties().addPropertyToList(USER_PROP_CANDIDATE_ID, encryptionUtilities.encrypt("id1of2", 0));
+				edit.getProperties().addPropertyToList(USER_PROP_CANDIDATE_ID, encryptionUtilities.encrypt("id2of2", 0));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryptionUtilities.encrypt("Additional notes encrypted again2", 0));
 			}
 			if(edit.getEid().equals("student0004")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt(null));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(null));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, encryptionUtilities.encrypt(null, 0));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryptionUtilities.encrypt(null, 0));
 			}
 			if(edit.getEid().equals("student0005")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt(""));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(""));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, encryptionUtilities.encrypt("", 0));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryptionUtilities.encrypt("", 0));
 			}
 			if(edit.getEid().equals("student0006")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt(" "));
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(" "));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, encryptionUtilities.encrypt(" ", 0));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryptionUtilities.encrypt(" ", 0));
 			}
 			if(edit.getEid().equals("student0007")){
-				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, ValueEncryptionUtilities.encrypt("student0007"));
+				edit.getProperties().addProperty(USER_PROP_CANDIDATE_ID, encryptionUtilities.encrypt("student0007", 0));
 				String reallyLongString = "abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,"+
 					"abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,"+
 					"abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,"+
 					"abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,"+
 					"abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmnopqrstuvwxyz1234567890,up_until_1000_char";
-				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, ValueEncryptionUtilities.encrypt(reallyLongString));
+				edit.getProperties().addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryptionUtilities.encrypt(reallyLongString, 0));
 			}
 			edit.setFirstName(info.firstName);
 			edit.setLastName(info.lastName);
@@ -405,7 +411,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 */
 	public String getDisplayId(User user)
 	{
-		return user.getEid();
+		return "display-"+user.getEid();
 	}
 
 	/**

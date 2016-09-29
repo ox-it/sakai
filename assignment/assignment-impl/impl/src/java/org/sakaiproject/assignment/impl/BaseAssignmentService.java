@@ -5616,7 +5616,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		Site st = null;
 		try{
 			st = SiteService.getSite(siteId);
-			isAdditionalNotesEnabled = candidateDetailProvider.isAdditionalNotesEnabled(st);
+			isAdditionalNotesEnabled = candidateDetailProvider != null && candidateDetailProvider.isAdditionalNotesEnabled(st);
 		} catch(IdUnusedException e){
 			M_log.warn("zipSubmissions: Could not find site " + siteId + " - isAdditionalNotesEnabled set to false");
 		}
@@ -5847,7 +5847,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								}
 							} // if
 
-							if(isAdditionalNotesEnabled){
+							if(isAdditionalNotesEnabled && candidateDetailProvider != null){
 								List<String> notes = candidateDetailProvider.getAdditionalNotes(u, st).orElse(new ArrayList<String>());
 								if(!notes.isEmpty()){
 									String noteList = "<ul>";
@@ -12865,13 +12865,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String id = this.getId().substring(27);
 			try {
 				Site site = SiteService.getSite( this.getAssignment().getContext() );
-				if(candidateDetailProvider.useInstitutionalAnonymousId(site)) {
+				if(candidateDetailProvider != null && candidateDetailProvider.useInstitutionalAnonymousId(site)) {
 					id = candidateDetailProvider.getCandidateID(UserDirectoryService.getUser(this.getSubmitterId()), site).orElse(this.getId().substring(27));
 				}
 			} catch(IdUnusedException e){
 				M_log.warn("Site not found " + this.getAssignment().getContext(), e);
 			} catch(UserNotDefinedException e){
-				M_log.warn("User not found " + this.getSubmitterId(), e);
+				// This is expected as users may get deleted.
+				M_log.debug("User not found " + this.getSubmitterId(), e);
 			}
 			return id + " (" + rb.getString("grading.anonymous.title") + ")";
 	}
