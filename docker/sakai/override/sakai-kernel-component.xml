@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+    <!-- Make sure that properties are set on the site type. -->
+    <bean class="org.sakaiproject.site.impl.SitePropertyEnforcer" init-method="init" destroy-method="destroy">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="type" value="submission"/>
+        <property name="required">
+            <util:map>
+                <!-- Make sure that all assignments are anonymous -->
+                <entry key="assignment.anon.grading.forced" value="true"/>
+                <!-- Use the institutional ID instead of the random one -->
+                <entry key="useInstitutionalAnonymousID" value="true"/>
+                <!-- Display additional information about candidates -->
+                <entry key="displayAdditionalInformation" value="true"/>
+            </util:map>
+        </property>
+
+    </bean>
+
+</beans>
