@@ -166,6 +166,7 @@
 	<import resource="external-group-beans.xml"/>
 	<import resource="course-signup-beans.xml"/>
 	<import resource="hibernate-hbms.xml"/>
+	<import resource="candidate-details.xml"/>
 
 <!--	Uncomment and configure to use the Kerberos Provider.
 
@@ -204,6 +205,17 @@
 		</property>
 		<property name="nextProvider">
 			<ref bean="org.sakaiproject.provider.user.ThreadCheckUserDirectoryProvider" />
+		</property>
+	</bean>
+
+	<bean id="org.sakaiproject.user.detail.ValueEncryptionUtilities"
+		class="org.sakaiproject.user.detail.ValueEncryptionUtilities" init-method="init">
+        <property name="key">
+			<bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+					   factory-method="getString">
+			<constructor-arg value="ValueEncryptionUtilities.key" />
+			<constructor-arg value="none" />
+		</bean>
 		</property>
 	</bean>
 

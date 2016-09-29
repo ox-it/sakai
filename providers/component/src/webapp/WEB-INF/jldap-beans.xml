@@ -235,6 +235,11 @@
 	<bean id="edu.amc.sakai.user.LdapAttributeMapper"
 			class="edu.amc.sakai.user.OakLdapAttributeMapper"
 			init-method="init">
+
+		<property name="encryption" ref="org.sakaiproject.user.detail.ValueEncryptionUtilities"/>
+		<!-- If the values found are larger than these they won't be loaded. -->
+		<property name="additionalInfoLength" value="2"/>
+		<property name="candidateIdLength" value="10"/>
 			
 		<!-- A typical set of attribute mappings. Keys are logical
 		names expected by the application. Values are physical LDAP
@@ -260,6 +265,10 @@
 				<entry key="units"><value>ou</value></entry>
 				<entry key="oakOSSCourse"><value>oakOSSCourse</value></entry>
 				<entry key="eduPersonPrimaryOrgUnitDN"><value>eduPersonPrimaryOrgUnitDN</value></entry>
+
+				<!-- These are just sample ones for now. -->
+				<entry key="candidateID"><value>oakSITSCandidateNumber</value></entry>
+				<entry key="additionalInfo"><value>oakSITSRoomFacilityCode</value></entry>
 			</map>
 		</property>
 		<!--

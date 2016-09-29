@@ -1,12 +1,11 @@
 package edu.amc.sakai.user;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.sakaiproject.user.api.UserEdit;
 
-public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
+public class OakLdapAttributeMapper extends SimpleLdapCandidateAttributeMapper {
 
 	private String alternativeEmail;
 	
@@ -22,9 +21,14 @@ public class OakLdapAttributeMapper extends SimpleLdapAttributeMapper {
 		}
 	}
 
+	public void init() {
+		super.init();
+	}
+
     public void mapUserDataOntoUserEdit( LdapUserData userData,
         UserEdit userEdit ) {
-        super.mapUserDataOntoUserEdit( userData, userEdit );
+
+		super.mapUserDataOntoUserEdit( userData, userEdit );
         // Override value set in superclass:
         userEdit.setFirstName(firstName(userData));
         String displayId = userEdit.getProperties().getProperty(JLDAPDirectoryProvider.DISPLAY_ID_PROPERTY);
