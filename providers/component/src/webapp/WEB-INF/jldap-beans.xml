@@ -255,15 +255,14 @@
 				<entry key="firstName"><value>displayName</value></entry> 
 				<entry key="lastName"><value>sn</value></entry>
 				<entry key="email"><value>mail</value></entry>
-				<entry key="groupMembership"><value>none</value></entry>
 				<entry key="givenName"><value>givenName</value></entry>
 				<entry key="displayId"><value>oakPrimaryPrincipal</value></entry>
 				<!-- Gets set as a user property -->
 				<entry key="oakStatus"><value>oakStatus</value></entry>
-				<entry key="oakOSSID"><value>oakOSSID</value></entry>
+				<entry key="oakSITSID"><value>oakSITSID</value></entry>
 				<!-- Gets the units a person is part of. This is for course signup -->
 				<entry key="units"><value>ou</value></entry>
-				<entry key="oakOSSCourse"><value>oakOSSCourse</value></entry>
+				<entry key="oakSITSCourse"><value>oakSITSCourse</value></entry>
 				<entry key="eduPersonPrimaryOrgUnitDN"><value>eduPersonPrimaryOrgUnitDN</value></entry>
 
 				<!-- These are just sample ones for now. -->

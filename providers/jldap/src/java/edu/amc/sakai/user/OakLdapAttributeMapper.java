@@ -54,11 +54,11 @@ public class OakLdapAttributeMapper extends SimpleLdapCandidateAttributeMapper {
     }
     
     /**
-     * oakOSSCourse: oakGN=4,oakGN=byYearOfStudy,oakGN=ugrad,oakGN=005640,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk
+     * oakSITSCourse: oakGN=4,oakGN=byYearOfStudy,oakGN=ugrad,oakGN=005640,cn=courses,dc=oak,dc=ox,dc=ac,dc=uk
      */
     private String yearOfStudy( LdapUserData ud ) {
     	
-    	Object ob = ud.getProperties().get("oakOSSCourse");
+    	Object ob = ud.getProperties().get("oakSITSCourse");
     	if (null != ob) {
     		if (ob instanceof Collection) {
     			for (Object o : (Collection)ob) {

@@ -350,7 +350,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				sakaiUser.getFirstName(), sakaiUser.getLastName(), sakaiUser.getDisplayName(), 
 				sakaiUser.getEmail(),
 				sakaiUser.getDisplayId(),
-				sakaiUser.getProperties().getProperty("oakOSSID"), 
+				sakaiUser.getProperties().getProperty("oakSITSID"),
 				sakaiUser.getProperties().getProperty("yearOfStudy"), 
 				sakaiUser.getProperties().getProperty("oakStatus"),
 				sakaiUser.getProperties().getProperty("primaryOrgUnit"),
