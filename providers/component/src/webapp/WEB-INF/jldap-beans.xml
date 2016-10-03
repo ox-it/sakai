@@ -255,7 +255,6 @@
 				<entry key="firstName"><value>displayName</value></entry> 
 				<entry key="lastName"><value>sn</value></entry>
 				<entry key="email"><value>mail</value></entry>
-				<entry key="groupMembership"><value>none</value></entry>
 				<entry key="givenName"><value>givenName</value></entry>
 				<entry key="displayId"><value>oakPrimaryPrincipal</value></entry>
 				<!-- Gets set as a user property -->
