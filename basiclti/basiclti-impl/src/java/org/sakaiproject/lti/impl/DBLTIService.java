@@ -466,7 +466,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
         String concatSearch = ("mysql".equals(m_sql.getVendor())) ?  "CONCAT_WS('', lti_content.launch, lti_tools.launch)" : "(lti_content.launch || lti_tools.launch)";
         String extraSelect = "SAKAI_SITE.TITLE AS SITE_TITLE, ssp1.VALUE AS SITE_CONTACT_NAME, ssp2.VALUE AS SITE_CONTACT_EMAIL, lti_tools.launch as URL, "+concatSearch+" AS searchURL";
-        String joinClause = "JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
+        String joinClause = "LEFT JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
         		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp1 ON (lti_content.SITE_ID = ssp1.SITE_ID AND ssp1.name = 'contact-name')"
         		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp2 ON (lti_content.SITE_ID = ssp2.SITE_ID AND ssp2.name = 'contact-email')"
         		+ " JOIN lti_tools ON (lti_content.tool_id = lti_tools.id)";
@@ -501,7 +501,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 *      java.lang.String, boolean)
 	 */
 	public int countContentsDao(String search, String siteId, boolean isAdminRole) {
-        String joinClause = "JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
+        String joinClause = "LEFT JOIN SAKAI_SITE ON lti_content.SITE_ID = SAKAI_SITE.SITE_ID"
         		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp1 ON (lti_content.SITE_ID = ssp1.SITE_ID AND ssp1.name = 'contact-name')"
         		+ " LEFT JOIN SAKAI_SITE_PROPERTY ssp2 ON (lti_content.SITE_ID = ssp2.SITE_ID AND ssp2.name = 'contact-email')"
         		+ " JOIN lti_tools ON (lti_content.tool_id = lti_tools.id)";
