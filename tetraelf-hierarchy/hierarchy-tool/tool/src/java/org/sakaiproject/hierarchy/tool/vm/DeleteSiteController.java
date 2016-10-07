@@ -10,6 +10,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -74,7 +75,11 @@ public class DeleteSiteController {
 			portalHierarchyService.deleteNode(node.getId());
 			// Do we want to remove the site?
 			if (command.isDeleteSite() && node instanceof PortalNodeSite) {
-				siteService.removeSite(((PortalNodeSite) node).getSite());
+				Site site = ((PortalNodeSite) node).getSite();
+				// We should never delete the missing site.
+				if (! portalHierarchyService.getMissingSiteId().equals(site.getId())) {
+					siteService.removeSite(site);
+				}
 			}
 
 			model.put("siteUrl", parentUrl);
@@ -110,7 +115,8 @@ public class DeleteSiteController {
 		canDelete = portalHierarchyService.canDeleteNode(current.getId());
 		boolean isSiteNode = current instanceof PortalNodeSite;
 		String siteId = ((PortalNodeSite) current).getSite().getId();
-		canDeleteSite = isSiteNode && siteService.allowRemoveSite(siteId);
+		boolean isMissingSite = portalHierarchyService.getMissingSiteId().equals(siteId);
+		canDeleteSite = isSiteNode && siteService.allowRemoveSite(siteId) && !isMissingSite;
 		isSiteUsedAgain = isSiteNode
 				&& portalHierarchyService.getNodesWithSite(siteId).size() > 1;
 		data.put("hasChildren", hasChildren);

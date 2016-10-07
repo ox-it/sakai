@@ -27,7 +27,8 @@
 	<p class="instructions">
 		<label for="deleteSite">#springMessage("delete.site")</label>
 		#springBind("command.deleteSite")
-		<input type="checkbox" id="${status.expression}" name="${status.expression}">
+		<input type="checkbox" id="${status.expression}" name="${status.expression}" #if(!${canDeleteSite})disabled#end>
+		#if(!${canDeleteSite})<span class="alertMessageInline">#springMessage("delete.cannot")</span>#end
 		<br/>
 	</p>
 	#end

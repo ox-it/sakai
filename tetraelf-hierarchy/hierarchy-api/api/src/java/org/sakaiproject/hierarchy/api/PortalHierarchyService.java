@@ -161,7 +161,13 @@ public interface PortalHierarchyService {
 	 * @throws PermissionException If you don't have permission to move the node.
 	 */
 	void moveNode(String id, String newParent) throws PermissionException;
-	
+
+	/**
+	 * Gets the ID of the missing site that is used when the actual site couldn't be found.
+	 * @return The site ID of the missing site.
+	 */
+	String getMissingSiteId();
+
 	/**
 	 * Change the located at a node.
 	 * @param id The ID of the node to update.
