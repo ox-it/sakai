@@ -1,4 +1,4 @@
-##{$namespace}xlogin{
+#Mrphs-xlogin{
 	
 	position: fixed;
 	top: calc(50% - 15em);
@@ -90,6 +90,23 @@
 	@include transition(opacity 0.25s linear 0s);
 	&.loaded{
 		opacity: 1;
+	}
+}
+
+#Mrphs-choice{
+	@extend #Mrphs-xlogin;
+	.msg{
+		padding: 0.6em;
+		font-size: 1.4em;
+		font-weight: 700;
+		color: $primary-color;
+		text-align: center;
+	}
+
+	.link{
+		width: 48%;
+		display: inline-block;
+		text-align: center;
 	}
 }
 
