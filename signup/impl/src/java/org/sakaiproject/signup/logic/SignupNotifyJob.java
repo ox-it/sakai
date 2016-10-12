@@ -138,9 +138,11 @@ public class SignupNotifyJob implements Job {
 									String userId = att.getAttendeeUserId();
 									String siteId = att.getSignupSiteId();
 									User user = null;
+									User organizer = null;
 									try {
 										user = userDirectoryService.getUser(userId);
-										AutoReminderEmail email = new AutoReminderEmail(user, tsItem, sm, siteId, getSakaiFacade());
+										organizer = userDirectoryService.getUser(sm.getCreatorUserId());
+										AutoReminderEmail email = new AutoReminderEmail(user, organizer, tsItem, sm, siteId, getSakaiFacade());
 										sendEmail(user, email);
 										totalEmails++;
 										//eventTracking?

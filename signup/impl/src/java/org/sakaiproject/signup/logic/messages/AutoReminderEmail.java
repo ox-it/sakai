@@ -42,6 +42,8 @@ public class AutoReminderEmail extends SignupEmailBase {
 
 	private final User attendee;
 
+	private final User organizer;
+
 	private final SignupTimeslot item;
 
 	private String emailReturnSiteId;
@@ -50,9 +52,11 @@ public class AutoReminderEmail extends SignupEmailBase {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param attendee
 	 *            an User, who joins in the event/meeting
+	 * @param organizer
+	 *            an User, who organized the event/meeting
 	 * @param item
 	 *            a SignupTrackingItem object
 	 * @param meeting
@@ -60,9 +64,10 @@ public class AutoReminderEmail extends SignupEmailBase {
 	 * @param sakaiFacade
 	 *            a SakaiFacade object
 	 */
-	public AutoReminderEmail(User attendee, SignupTimeslot item, SignupMeeting meeting, String attendeeSiteId,
+	public AutoReminderEmail(User attendee, User organizer, SignupTimeslot item, SignupMeeting meeting, String attendeeSiteId,
 			SakaiFacade sakaiFacade) {
 		this.attendee = attendee;
+		this.organizer = organizer;
 		this.item = item;
 		this.meeting = meeting;
 		this.setSakaiFacade(sakaiFacade);
@@ -81,6 +86,7 @@ public class AutoReminderEmail extends SignupEmailBase {
 		rv.add("Subject: " + getSubject());
 		rv.add("From: " + getFromAddress());
 		rv.add("To: " + attendee.getEmail());
+		rv.add("Reply-To: " + organizer.getEmail());
 
 		return rv;
 	}

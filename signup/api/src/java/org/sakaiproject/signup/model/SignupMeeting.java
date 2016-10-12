@@ -173,6 +173,14 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes {
 	public int getNoOfTimeSlots() {
 		return (signupTimeSlots == null) ? 0 : signupTimeSlots.size();
 	}
+	/**
+	 * This method obtains the user id of the creator of the event/meeting
+	 *
+	 * @return the user id of the creator
+	 */
+	public String getCreatorUserId() {
+		return creatorUserId;
+	}
 
 	
 	/**
