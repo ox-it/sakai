@@ -35,3 +35,6 @@ $button-color-background-secondary-color: #2a94c0;
 $tool-menu-icon-on-left: true;
 $tool-menu-width: 12em;
 $tool-menu-width-collapsed: 3.75em;
+
+/* The calendar colour variable is modified again in the Sass calendar module. */
+$calendar-event-background-color: lighten($orig-primary-color, 5%);
