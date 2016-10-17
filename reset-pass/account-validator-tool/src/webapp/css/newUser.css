@@ -15,14 +15,14 @@ p, h1, form, button {
 
 /* ----------- Activate Form ----------- */
 .activateForm {
-	border: 1px solid #DDDDDD;
+	border: 2px solid #DDDDDD;
 	margin: 0 auto;
 	padding: 1em;
 }
 
 .activateLegend
 {
-	margin-left: 2em;
+	padding: 0 0.5em;
 }
 
 
@@ -150,20 +150,10 @@ p, h1, form, button {
     margin: 0 0 6px 1em;
 }
 
-.stylized .terms {
-	/*float: left;*/
-	padding: 5px;
-	border: 1px solid transparent; /* Stop layout jumping when isn't checked. */
-}
-
-.stylized .terms label {
-	width: auto;
-	float: none;
-	display: inline;
-}
-
-.terms input, .terms label
-{
+.stylized .terms input {
+	float: left;
+	margin-left: 1em;
+	margin-bottom: 1em;
 	vertical-align: middle;
 }
 
@@ -187,7 +177,7 @@ p, h1, form, button {
 	word-break:break-all;
 }
 
-.inputDiv
+.inputDiv, .required
 {
 	height: 2.5em;
 }
