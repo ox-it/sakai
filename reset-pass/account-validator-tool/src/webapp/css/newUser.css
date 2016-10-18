@@ -35,16 +35,33 @@ p, h1, form, button {
 	width:50em;
 }
 
-.stylized .logo h3{
-	margin: 2.2em 0em 0em 2.2em;
+.stylized .topheading {
+    text-align: center;
+    margin-bottom: 12px;
 }
+
 .stylized .logo {
-	height: 90px;
-	background: url(../images/x-login-logo.png) no-repeat;
-	float: left;
-	width: 100%;
-	background-position-x: 160px;
-	background-position-y: 11px;
+    background: #002147 url(../images/x-login-logo.png) no-repeat center center;
+    width: 100%;
+    height: 64px;
+    margin: 0 auto;
+    overflow: hidden;
+@include border-radius( 0px );
+}
+
+/*.stylized .logo {*/
+    /*height: 90px;*/
+    /*width: 250px;*/
+    /*background: url(../images/x-login-logo.png) no-repeat;*/
+    /*display: inline-block;*/
+    /*background-position-x: 170px;*/
+    /*background-position-y: 11px;*/
+/*}*/
+
+.stylized .logo h3 {
+    position: relative;
+    top: 18px;
+    left: 220px;
 }
 
 /* ----------- stylized ----------- */
@@ -92,17 +109,24 @@ p, h1, form, button {
     margin-right: 1em;
 }
 
+.sites {
+    text-align: center;
+    padding: 1em;
+    font-size: 16px;
+}
+
 .siteList
 {
 	display: block;
 	text-align:left;
-	margin: 0.5em auto;
-	width:50%;
+	font-size: x-large;
+	margin: auto;
+	width:20%;
 }
 
-.siteList li
+.siteList li span
 {
-	list-style: disc inside none;
+	font-size: initial;
 }
 
 .inputDiv label
