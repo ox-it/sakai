@@ -78,6 +78,13 @@ $calendar-event-background-color: darken(#F8F8F8, 45%);
     }
 }
 
+/* Collapse the table cell borders so that ajoining cells don't have a double border .*/
+.#{$namespace}sakai-schedule {
+  table.calendar {
+    border-collapse: collapse;
+  }
+}
+
 /* Extra icon mappings specific to WL. */
 @if $skin-with-icons {
     /* This selector is required as the course sign-up icon doesn't start with 'icon-sakai-'. */
