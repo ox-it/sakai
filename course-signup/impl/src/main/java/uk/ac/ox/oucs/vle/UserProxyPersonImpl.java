@@ -53,6 +53,11 @@ public class UserProxyPersonImpl implements Person {
     }
 
     @Override
+    public String getEid() {
+        return userProxy.getEid();
+    }
+
+    @Override
     public String getOssId() {
         return userProxy.getOssId();
     }

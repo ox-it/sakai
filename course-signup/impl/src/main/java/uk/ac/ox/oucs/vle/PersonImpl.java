@@ -37,11 +37,12 @@ public class PersonImpl implements Person {
 	private String degreeProgram;
 	private String type;
 	private String departmentName;
+	private String eid;
 
 	public PersonImpl(String id, String firstName, String lastName, String displayName, 
 			String email, List<String> units, 
 			String webauthId, String ossId, String yearOfStudy, 
-			String degreeProgram, String departmentName, String type) {
+			String degreeProgram, String departmentName, String type, String eid) {
 		this.id = id;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -54,6 +55,7 @@ public class PersonImpl implements Person {
 		this.degreeProgram = degreeProgram;
 		this.departmentName = departmentName;
 		this.type = type;
+		this.eid = eid;
 	}
 	
 	public String getId() {
@@ -96,4 +98,10 @@ public class PersonImpl implements Person {
 	public String getType() {
 		return type;
 	}
+
+	@Override
+	public String getEid() {
+		return eid;
+	}
+
 }

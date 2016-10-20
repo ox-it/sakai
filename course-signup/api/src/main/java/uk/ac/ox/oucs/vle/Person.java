@@ -43,6 +43,8 @@ public interface Person {
 	public List<String> getUnits();
 	
 	public String getWebauthId();
+
+	public String getEid();
 	
 	public String getOssId();
 	

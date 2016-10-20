@@ -77,7 +77,11 @@ public class AttendanceWriter {
 					Element sid = new Element("webauth_id");
 					sid.setText(person.getWebauthId());
 					attendee.addContent(sid);
-			
+
+					Element userId = new Element("user_id");
+					userId.setText(person.getEid());
+					attendee.addContent(userId);
+
 					Element sod = new Element("ossid");
 					if (null == person.getOssId()) {
 						sod.setText("null");
