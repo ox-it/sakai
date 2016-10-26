@@ -1020,8 +1020,13 @@ public abstract class BaseCitationService implements CitationService
 			{
 				throw new IdUnusedException(id);
 			}
-
-  	  urlBuffer = new StringBuilder(wrapper.getUrl());
+	  //Since empty url is allowed for non-electronic citation, check for null?
+	  if(wrapper.getUrl() != null){
+		  urlBuffer = new StringBuilder(wrapper.getUrl());
+	  }
+	  else{
+		  urlBuffer = new StringBuilder();
+	  }
 
   	  if (wrapper.addPrefix())
   	  {
