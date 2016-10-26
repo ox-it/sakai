@@ -51,6 +51,8 @@ public class DeleteControllerTest {
 	private SiteService siteService;
 
 	private Site site;
+	private PortalNodeSite node;
+	private PortalNodeSite root;
 
 	@Before
 	public void setUp() {
@@ -64,24 +66,28 @@ public class DeleteControllerTest {
 		when(site.getTitle()).thenReturn("Site Title");
 		when(site.getShortDescription()).thenReturn("Short Description");
 
-		PortalNodeSite node = mock(PortalNodeSite.class);
+
+
+		node = mock(PortalNodeSite.class);
 		when(node.getId()).thenReturn("id");
 		when(node.getName()).thenReturn("name");
 		when(node.getPath()).thenReturn("/name");
 		when(node.getSite()).thenReturn(site);
 
-		PortalNodeSite root = mock(PortalNodeSite.class);
+
+		root = mock(PortalNodeSite.class);
 		when(root.getId()).thenReturn("root");
 		when(root.getName()).thenReturn("rootName");
 		when(root.getPath()).thenReturn("/");
 
-		when(portalHierarchyService.getCurrentPortalNode()).thenReturn(node);
 		when(portalHierarchyService.getNodesFromRoot("id")).thenReturn(
-				Arrays.asList(new PortalNodeSite[] { root, node }));
+				Arrays.asList(new PortalNodeSite[] {root, node}));
+		when(portalHierarchyService.getMissingSiteId()).thenReturn("!hierarchy.missing");
 	}
 
 	@Test
 	public void testDeleteForm() throws ServletException, IOException {
+		when(portalHierarchyService.getCurrentPortalNode()).thenReturn(node);
 		MockHttpServletRequest request = UnitTestUtilities.newRequest("GET", "/delete");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		servlet.service(request, response);
@@ -91,6 +97,7 @@ public class DeleteControllerTest {
 
 	@Test
 	public void testDeleteSubmit() throws ServletException, IOException, IllegalStateException, PermissionException, IdUnusedException {
+		when(portalHierarchyService.getCurrentPortalNode()).thenReturn(node);
 		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/remove/site");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		servlet.service(request, response);
@@ -102,6 +109,7 @@ public class DeleteControllerTest {
 	@Test
 	public void testDeleteSubmitAndRemove() throws ServletException, IOException, IllegalStateException,
 			PermissionException, IdUnusedException {
+		when(portalHierarchyService.getCurrentPortalNode()).thenReturn(node);
 		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/remove/site");
 		request.setParameter("deleteSite", "true");
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -109,5 +117,35 @@ public class DeleteControllerTest {
 
 		verify(portalHierarchyService).deleteNode("id");
 		verify(siteService).removeSite(site);
+	}
+
+	@Test
+	public void testDeleteMissingSubmit() throws ServletException, IOException, IllegalStateException,
+			PermissionException, IdUnusedException {
+
+		Site missingSite = mock(Site.class);
+		when(missingSite.getId()).thenReturn("!hierarchy.missing");
+		when(missingSite.getTitle()).thenReturn("Missing Site");
+		when(missingSite.getShortDescription()).thenReturn("Short Description");
+
+		PortalNodeSite missing = mock(PortalNodeSite.class);
+		when(missing.getId()).thenReturn("missing");
+		when(missing.getName()).thenReturn("Missing");
+		when(missing.getPath()).thenReturn("/missing");
+		when(missing.getSite()).thenReturn(missingSite);
+
+		when(portalHierarchyService.getCurrentPortalNode()).thenReturn(missing);
+		when(portalHierarchyService.getNodesFromRoot("missing")).thenReturn(
+				Arrays.asList(new PortalNodeSite[] { root, missing}));
+
+		MockHttpServletRequest request = UnitTestUtilities.newRequest("POST", "/remove/site");
+		request.setParameter("deleteSite", "true");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		servlet.service(request, response);
+
+		verify(portalHierarchyService).deleteNode("missing");
+		// This is the important check, when removing a site that has the missing site loaded never allow
+		// the missing site to be removed
+		verify(siteService, never()).removeSite(missingSite);
 	}
 }

@@ -87,6 +87,11 @@ public class PortalHierarchyServiceImpl implements PortalHierarchyService {
 	 */
 	private String missingSiteId;
 
+	@Override
+	public String getMissingSiteId() {
+		return missingSiteId;
+	}
+
 	private boolean autoDDL;
 
 	public void changeSite(String id, String newSiteId) throws PermissionException {
