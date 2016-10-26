@@ -583,8 +583,10 @@ public class SiteHandler extends WorksiteHandler
 		if (userId != null) {
 			String quickLinksTitle = portalService.getQuickLinksTitle(siteId);
 			List<Map> quickLinks = portalService.getQuickLinks(siteId);
-			rcontext.put("quickLinksInfo", quickLinksTitle);
-			rcontext.put("quickLinks", quickLinks);
+			if (CollectionUtils.isNotEmpty(quickLinks)) {
+				rcontext.put("quickLinksInfo", quickLinksTitle);
+				rcontext.put("quickLinks", quickLinks);
+			}
 		}
 		doSendResponse(rcontext, res, null);
 
