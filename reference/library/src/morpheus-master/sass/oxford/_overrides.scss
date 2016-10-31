@@ -24,9 +24,6 @@
     }
 }
 
-/* Change the default calendar colour. */
-$calendar-event-background-color: darken(#F8F8F8, 45%);
-
 /* Revert back to Sakai pale blue colour for headings. */
 .instruction{
     @include bs-callout($orig-primary-color, lighten($orig-primary-color, 45%));
@@ -80,9 +77,15 @@ $calendar-event-background-color: darken(#F8F8F8, 45%);
 
 /* Collapse the table cell borders so that ajoining cells don't have a double border .*/
 .#{$namespace}sakai-schedule {
-  table.calendar {
-    border-collapse: collapse;
-  }
+    table.calendar {
+        border-collapse: collapse;
+
+        /* Use the Oxford blue for calendar events. */
+        .event, .bgActivity, .borderGrayBackground, .borderGrayTodayBgCenter,
+        .borderOnlyLeftDay, .borderTodayWithActivity, .borderTopLeft, .borderWhiteYear {
+            background-color: $primary-color;
+        }
+    }
 }
 
 /* Extra icon mappings specific to WL. */
