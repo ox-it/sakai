@@ -149,7 +149,7 @@
                 <li class="Mrphs-toolsNav__menuitem--subsite">
                     <a id="toggleSubsitesLink" class="Mrphs-toolsNav__menuitem--link" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
                         <span class="Mrphs-toolsNav__menuitem--icon icon-sakai-subsites-list"> </span>
-                        <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsites}</span>
+                        <span class="Mrphs-toolsNav__menuitem--title">${rloader.subsitesTitle}</span>
                     </a>
                 </li>
 
@@ -191,7 +191,7 @@
                         <li>
                             <a class="Mrphs-toolsNav__menuitem--link #if(${site.hidden})is-invisible#end" href="${site.url}" title="${site.title}" role="menuitem">
 								<span class="Mrphs-toolsNav__menuitem--icon ${site.iconClass}"></span>
-                                <span class="Mrphs-toolsNav__menuitem--title">${site.titleTruncated}</span>
+                                <span class="Mrphs-toolsNav__menuitem--title">${site.title}</span>
                             </a>
                         </li>
 
