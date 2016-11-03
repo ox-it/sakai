@@ -654,6 +654,10 @@
 
         addAccordionFunctionality(true);
 
+        $('input[id^=toggle]').each(function( ) {
+           $(this).prop("disabled", false);
+        });
+
         $('.unnestedList').each(function( ) {
             $(this).show();
         });
