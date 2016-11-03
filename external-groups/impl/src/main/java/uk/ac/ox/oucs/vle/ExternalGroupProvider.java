@@ -160,9 +160,9 @@ public class ExternalGroupProvider implements GroupProvider, DisplayGroupProvide
 		}
 
 		String externalGroupId = externalGroupManager.findExternalGroupId(providerId);
-		if (externalGroupId.contains("ou=programme,ou=course") && externalGroupId.contains("current")){
+		if (externalGroupId.contains("ou=programme,ou=course") && (externalGroupId.contains("current") || externalGroupId.contains("graduand"))){
 			for (String key : providerIdToExternalGroupId.keySet()) {
-				if (externalGroupId.replace("current", "suspended").equals(providerIdToExternalGroupId.get(key))){
+				if (externalGroupId.replace("current", "suspended").replace("graduand", "suspended").equals(providerIdToExternalGroupId.get(key))){
 					return key;
 				}
 			}

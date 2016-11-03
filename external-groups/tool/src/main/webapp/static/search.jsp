@@ -91,7 +91,7 @@
 			jQuery(".suspended_membership").hide();
 			if (groupId.indexOf("ou=course")!=-1){
 				jQuery(".suspended_membership").show();
-				loadSuspendedGroupAjax = jQuery.getJSON(path+ "group/"+ group.id.replace("current", "suspended")+ "/members", {}, function(data, textStatus) {
+				loadSuspendedGroupAjax = jQuery.getJSON(path+ "group/"+ group.id.replace("current", "suspended").replace("graduand", "suspended")+ "/members", {}, function(data, textStatus) {
 					// loading members.
 					if (textStatus == "success") {
 						var htmlResult = TrimPath.processDOMTemplate("suspended_membership_jst", {"suspended_members": data});

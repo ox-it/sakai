@@ -79,7 +79,7 @@ public class MappedGroupsResource {
 				String suspGroup;
 				String newSuspId = null;
 				if (group.contains("ou=programme,ou=course") && !role.equals(SUSPENDED)){
-					suspGroup = group.replaceFirst("current,ou=", SUSPENDED + ",ou=");
+					suspGroup = group.replaceFirst("current,ou=", SUSPENDED + ",ou=").replaceFirst("graduand,ou=", SUSPENDED + ",ou=");
 					newSuspId = externalGroupManager.addMappedGroup(suspGroup,SUSPENDED);
 				}
 
