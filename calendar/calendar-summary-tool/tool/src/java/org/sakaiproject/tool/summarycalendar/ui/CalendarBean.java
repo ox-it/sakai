@@ -118,7 +118,7 @@ public class CalendarBean {
 	private CalendarEventVector						calendarEventVector		= null;
 	private String									siteId					= null;
 
-	private Map	<String, String>									eventImageMap			= new HashMap<String, String>();
+	private Map	<String, String>					eventIconMap			= new HashMap<String, String>();
 	
 	private long									lastModifiedPrefs		= 0l;
 	private Map										priorityColorsMap		= null;
@@ -814,28 +814,27 @@ public class CalendarBean {
 		}
 	}
 
-	// tbd: this needs to used gif files defined in calendar-tool/tool/src/config/.../calendar.config
-	public synchronized Map<String, String> getEventImageMap() {
-		if(eventImageMap == null || eventImageMap.size() == 0){
-			eventImageMap = new HashMap<String, String>();
-			eventImageMap.put("Academic Calendar", imgLocation + "academic_calendar.gif");
-			eventImageMap.put("Activity", imgLocation + "activity.gif");
-			eventImageMap.put("Cancellation", imgLocation + "cancelled.gif");
-			eventImageMap.put("Class section - Discussion", imgLocation + "class_dis.gif");
-			eventImageMap.put("Class section - Lab", imgLocation + "class_lab.gif");
-			eventImageMap.put("Class section - Lecture", imgLocation + "class_lec.gif");
-			eventImageMap.put("Class section - Small Group", imgLocation + "class_sma.gif");
-			eventImageMap.put("Class session", imgLocation + "class_session.gif");
-			eventImageMap.put("Computer Session", imgLocation + "computersession.gif");
-			eventImageMap.put("Deadline", imgLocation + "deadline.gif");
-			eventImageMap.put("Exam", imgLocation + "exam.gif");
-			eventImageMap.put("Meeting", imgLocation + "meeting.gif");
-			eventImageMap.put("Multidisciplinary Conference", imgLocation + "multi-conference.gif");
-			eventImageMap.put("Quiz", imgLocation + "quiz.gif");
-			eventImageMap.put("Special event", imgLocation + "special_event.gif");
-			eventImageMap.put("Web Assignment", imgLocation + "webassignment.gif");
+	public synchronized Map<String, String> getEventIconMap() {
+		if(eventIconMap == null || eventIconMap.size() == 0){
+			eventIconMap = new HashMap<String, String>();
+			eventIconMap.put("Academic Calendar", "<i class=\"icon icon-calendar-academic-calendar\"></i>");
+			eventIconMap.put("Activity", "<i class=\"icon icon-calendar-activity\"></i>");
+			eventIconMap.put("Cancellation", "<i class=\"icon icon-calendar-cancellation\"></i>");
+			eventIconMap.put("Class section - Discussion", "<i class=\"icon icon-calendar-class-section-discussion\"></i>");
+			eventIconMap.put("Class section - Lab", "<i class=\"icon icon-calendar-class-section-lab\"></i>");
+			eventIconMap.put("Class section - Lecture", "<i class=\"icon icon-calendar-class-section-lecture\"></i>");
+			eventIconMap.put("Class section - Small Group", "<i class=\"icon icon-calendar-class-section-small-group\"></i>");
+			eventIconMap.put("Class session", "<i class=\"icon icon-calendar-class-session\"></i>");
+			eventIconMap.put("Computer Session", "<i class=\"icon icon-calendar-computer-session\"></i>");
+			eventIconMap.put("Deadline", "<i class=\"icon icon-calendar-deadline\"></i>");
+			eventIconMap.put("Exam", "<i class=\"icon icon-calendar-exam\"></i>");
+			eventIconMap.put("Meeting", "<i class=\"icon icon-calendar-meeting\"></i>");
+			eventIconMap.put("Multidisciplinary Conference", "<i class=\"icon icon-calendar-multidisciplinary-conference\"></i>");
+			eventIconMap.put("Quiz", "<i class=\"icon icon-calendar-quiz\"></i>");
+			eventIconMap.put("Special event", "<i class=\"icon icon-calendar-special-event\"></i>");
+			eventIconMap.put("Web Assignment", "<i class=\"icon icon-calendar-web-assignment\"></i>");
 		}
-		return eventImageMap;
+		return eventIconMap;
 	}
 	
 	public String getImgLocation() {
