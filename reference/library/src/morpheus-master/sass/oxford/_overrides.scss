@@ -57,6 +57,16 @@
     .fav-sites-term:first-child {
         float: left;
         margin-right: 1em;
+        .favorites-term-header {
+            /* The header is PROJECTS, we don't want to show this
+               so shift off screen. */
+            text-indent: -100%;
+            white-space: nowrap;
+            overflow: hidden;
+            @media #{$phone}{
+                display: none;
+            }
+        }
     }
     .fav-sites-term:nth-child(2) {
         display: inline-block;
