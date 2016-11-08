@@ -12,12 +12,6 @@
 
                 <li><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
 
-                #if ($allowAddSite)
-
-                    <li><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
-
-                #end ## END of IF ($allowAddSite)
-
             #end ## END of IF (${tabsSites.worksiteToolUrl})
 
             #if (${tabsSites.prefsToolUrl})
