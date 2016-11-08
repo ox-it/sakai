@@ -5,10 +5,11 @@ body{
 		&.toolsNav--displayed{
 			#toolMenuWrap{
 				width: 100%;
-				top: 6.3em;
+				top: 3.4em;
 				left: 0px;
+				position: absolute;
 				box-shadow: 0px 0em 1em rgba(0,0,0,0.5);
-				height:95%;
+				height:100%;
 				&:after {
 					bottom: 100%;
 					left: 25%;
