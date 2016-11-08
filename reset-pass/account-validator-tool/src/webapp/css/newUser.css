@@ -208,7 +208,7 @@ p, h1, form, button {
 
 .validationMsgContainer
 {
-	margin-left: 21em;
+	margin-left: 20em;
 	width: 20em;
 }
 
@@ -266,7 +266,7 @@ form p
     display: block;
     vertical-align: top;
     line-height: 1.4em;
-	margin: 0 0 0 24px;
+	margin: 30px 0 5px 40px;
 	padding: 0 0 0 20px;
 	text-align: left;
 }
