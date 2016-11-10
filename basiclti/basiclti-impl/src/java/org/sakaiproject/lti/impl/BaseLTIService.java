@@ -510,6 +510,7 @@ public abstract class BaseLTIService implements LTIService {
 		return getTools( "lti_tools."+LTIService.LTI_PL_LAUNCH+" = 1 OR ( " +
 			"( lti_tools."+LTIService.LTI_PL_LINKSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_FILEITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_FILEITEM+" = 0 ) and " + 
+			"( lti_tools."+LTIService.LTI_PL_IMPORTITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" IS NULL OR lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 0 ) and " + 
 			"( lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 0 ) " +
 			" ) ", null, 0, 0, siteId);
@@ -526,6 +527,11 @@ public abstract class BaseLTIService implements LTIService {
 	}
 
 	@Override
+        public List<Map<String, Object>> getToolsImportItem(String siteId) {
+		return getTools("lti_tools."+LTIService.LTI_PL_IMPORTITEM+" = 1",null,0,0, siteId);
+	}
+
+    @Override
     public List<Map<String, Object>> getToolsContentEditor(String siteId) {
 		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1",null,0,0, siteId);
 	}

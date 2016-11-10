@@ -412,6 +412,11 @@ public interface LTIService extends LTISubstitutionsFilter {
 
     List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin);
 
+	/**
+	 * Get a list of tools that can return an imported Common Cartridge
+	 */
+	public List<Map<String, Object>> getToolsImportItem(String siteId);
+
 
     // --- Content
 
