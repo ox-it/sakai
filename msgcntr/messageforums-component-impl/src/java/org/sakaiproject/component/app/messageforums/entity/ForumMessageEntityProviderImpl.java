@@ -987,6 +987,12 @@ public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvide
 	public void setAuthoredBy(String authoredBy) {
 		this.authoredBy = authoredBy;
 	}
+	public String getProfileImageURL() {
+		return profileImageURL;
+	}
+	public void setProfileImageURL(String profileImageURL) {
+		this.profileImageURL = profileImageURL;
+	}
 	public int getIndentIndex() {
 		return indentIndex;
 	}
