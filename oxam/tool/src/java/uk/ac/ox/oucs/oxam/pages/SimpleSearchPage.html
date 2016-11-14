@@ -10,9 +10,14 @@
 		width: 30%;
 		margin-right: 2em;
 	}
+	/* Only one column for mobile sized screen so use full width.*/
+	@media (max-width: 800px){
+		.sidebar {
+			width: 100%;
+		}
+	}
 	.content {
 		display: inline-block;
-		width: 65%;
 	}
 	input {
 		margin: 1em 0.2em;
