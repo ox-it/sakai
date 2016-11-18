@@ -207,7 +207,6 @@ DefaultView,NavigationCaseReporter {
 		/*UIMessage.make(deleteForm, "poll-question-title","poll_question_title");
 		UIMessage.make(deleteForm, "poll-open-title", "poll_open_title");
 		UIMessage.make(deleteForm, "poll-close-title", "poll_close_title");*/
-		UIMessage.make(deleteForm, "poll-mobile-info", "poll_mobile_title");
 		UIMessage.make(deleteForm, "poll-result-title", "poll_result_title");
 		UIMessage.make(deleteForm, "poll-remove-title", "poll_remove_title");
 		
@@ -248,11 +247,6 @@ DefaultView,NavigationCaseReporter {
 				else
 					UIOutput.make(pollrow,"poll-text",poll.getText());
 			}
-
-			//mobile info
-			UILink mobileLink =  UILink.make(pollrow, "poll-mobile");
-			mobileLink.decorate(new UIFreeAttributeDecorator("rel", poll.getPollId().toString()));
-			mobileLink.decorate(new UITooltipDecorator(messageLocator.getMessage("action_view_mobile")));
 
 			if (pollListManager.isAllowedViewResults(poll, externalLogic.getCurrentUserId())) {
 				UIInternalLink resultsLink =  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
