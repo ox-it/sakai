@@ -39,6 +39,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.cover.DevolvedSakaiSecurity;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.tsugi.basiclti.BasicLTIUtil;
 import org.tsugi.basiclti.BasicLTIConstants;
 import org.tsugi.lti2.LTI2Config;
@@ -462,6 +467,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				{
 					M_log.error("error getting url for site " + siteId);
 				}
+
+				try {
+					Site site = SiteService.getSite(siteId);
+					String adminRealm = DevolvedSakaiSecurity.getAdminRealm(site.getReference());
+					if (adminRealm != null){
+						String attribution = getAdminReferenceName(adminRealm).replaceAll(" Admin Site", "");
+						content.put("ATTRIBUTION", attribution);
+					}
+				} catch (IdUnusedException e) {
+					M_log.error("error getting admin site for site " + siteId);
+				}
 				
 				//get LTI url based on site id and tool id
 				content.put("tool_url", "/access/basiclti/site/"+siteId+"/content:"+content.get(LTIService.LTI_ID));
@@ -523,6 +539,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("menu", menu);
 		
 		return "lti_tool_site";
+	}
+
+	private String getAdminReferenceName(String refString) {
+		Reference ref = EntityManager.newReference(refString);
+		Entity entity = ref.getEntity();
+		if (entity instanceof Site) {
+			Site site = (Site)entity;
+			return site.getTitle();
+		}
+		return "";
 	}
 	
 	public String buildToolSystemPanelContext(VelocityPortlet portlet, Context context, 
