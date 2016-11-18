@@ -829,6 +829,10 @@ label.blockItemLabel:hover {
   width: 16px;
 }
 
+.itemListEval img {
+  max-width: none;
+}
+
 .blockItemHeaderHilite {
   color: #0099cc;
 }
