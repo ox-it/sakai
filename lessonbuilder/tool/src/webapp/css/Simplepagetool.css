@@ -337,8 +337,11 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     -moz-border-radius: 7px;
     border-radius: 7px;
     border: 1px solid #222;
-    display:inline-block;
     vertical-align: top;
+}
+
+div.Mrphs-portalWrapper .column {
+    display:inline-block;
 }
 
 /* only up to 4 cols has been tuned */
@@ -1385,7 +1388,7 @@ div[role="dialog"] {
     background: url(../images/reload_h.gif) center left no-repeat
 }
 
-.right-col {
+div.Mrphs-portalWrapper .right-col {
  display: inline-block;
 }
 
