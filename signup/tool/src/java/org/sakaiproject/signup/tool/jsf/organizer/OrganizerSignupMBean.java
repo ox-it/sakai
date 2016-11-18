@@ -1241,7 +1241,12 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	 * @return a list of SignupSite objects.
 	 */
 	public List<SignupSite> getPublishedSignupSites() {
-		return getMeetingWrapper().getMeeting().getSignupSites();
+		try {
+			return getMeetingWrapper().getMeeting().getSignupSites();
+		} catch (NullPointerException npe) {
+			logger.error("NullPointerException in getPublishedSignupSites(). currentSiteId = " + currentSiteId() + ", currentUserId = " + currentUserId() + npe.getMessage());
+		}
+		return null;
 	}
 
 	/* proxy method */
