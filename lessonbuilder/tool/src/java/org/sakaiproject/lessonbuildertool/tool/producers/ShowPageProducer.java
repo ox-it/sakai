@@ -3981,6 +3981,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(tofill, "add-twitter-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.twitter")));
 		UIForm form = UIForm.make(tofill, "add-twitter-form");
 		makeCsrf(form, "csrf13");
+		UIInput.make(form, "twitter-addBefore", "#{simplePageBean.addBefore}");
 		UIInput.make(form, "twitterEditId", "#{simplePageBean.itemId}");
 		UIInput.make(form, "twitter-username", "#{simplePageBean.twitterUsername}");
 		UIOutput.make(form, "twitter-username-label", messageLocator.getMessage("simplepage.twitter-username"));
