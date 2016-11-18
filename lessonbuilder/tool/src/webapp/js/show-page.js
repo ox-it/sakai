@@ -1414,6 +1414,7 @@ $(document).ready(function() {
 			var row = $(this).parent().parent().parent();
 			var itemId = row.find(".twitter-id").text();
 			$("#twitterEditId").val(itemId);
+			$("#twitter-addBefore").val(addAboveItem);
 			var username = row.find(".username").text().replace(/'/g,"");
 			$("#twitter-username").val(username);
 			//remove single quotes from the string
@@ -2091,6 +2092,7 @@ $(document).ready(function() {
 			$('li').removeClass('editInProgress');
 			$('#twitter-error-container').hide();
 			$("#twitterEditId").val("-1");
+			$("#twitter-addBefore").val(addAboveItem);
 			$("#twitter-username").val("");
 			$("#widget-height").val("");
 			$('#numberDropdown-selection').val("5");
