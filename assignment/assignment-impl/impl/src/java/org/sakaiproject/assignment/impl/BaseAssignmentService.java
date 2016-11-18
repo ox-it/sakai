@@ -32,6 +32,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.assignment.impl.sort.AnonymousSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.AssignmentSubmissionComparator;
 import org.sakaiproject.assignment.impl.sort.UserComparator;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -5024,8 +5025,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				if (allowGradeSubmission(aRef))
 				{
 					AssignmentContent content = a.getContent();
-					zipSubmissions(aRef, a.getTitle(), content.getTypeOfGradeString(), content.getTypeOfSubmission(), 
-							new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator()), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted, a.getContext());
+					SortedIterator sortedIterator;
+					if (assignmentUsesAnonymousGrading(a))
+					{
+						sortedIterator = new SortedIterator(submissions.iterator(), new AnonymousSubmissionComparator());
+					} else {
+						sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator());
+					}
+					zipSubmissions(aRef, a.getTitle(), content.getTypeOfGradeString(), content.getTypeOfSubmission(),
+							sortedIterator, out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted, a.getContext());
 	
 					if (exceptionMessage.length() > 0)
 					{
