@@ -148,6 +148,20 @@ evalsys.instrumentBlockItem = function(){
         $(this).find('.actualHeader').each(function(){
             headerCol.push($(this).text());
         });
+
+        /*
+         Fix tool tips for Rating Scale items without an N/A value
+         */
+        var foundNA = false;
+        jQuery.each(headerCol, function(i,value) {
+            if (value == 'Not applicable') {
+                foundNA = true;
+            }
+        });
+        if (!foundNA) {
+            headerCol.push("");
+        }
+
         /*
          add to the headerCol the header string values for the NA choice if present
          */
