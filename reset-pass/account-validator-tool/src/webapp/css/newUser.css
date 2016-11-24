@@ -85,7 +85,7 @@ p, h1, form, button {
 .stylized div.instruction {
 	display:block;
 	margin:0 auto;
-	text-align:center;
+	line-height: 200%;
 }
 
 .stylized ul.instruction {
@@ -109,24 +109,11 @@ p, h1, form, button {
     margin-right: 1em;
 }
 
-.sites {
-    text-align: center;
-    padding: 1em;
-    font-size: 16px;
-}
-
 .siteList
 {
 	display: block;
 	text-align:left;
-	font-size: x-large;
 	margin: auto;
-	width:20%;
-}
-
-.siteList li span
-{
-	font-size: initial;
 }
 
 .inputDiv label
