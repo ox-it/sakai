@@ -589,6 +589,7 @@ body.is-logged-out{
 }
 
 #linkNav{
+	@include display-flex(flex);
 	ul{
 		@include display-flex(flex);
 		@include flex-wrap( wrap );
