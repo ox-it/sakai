@@ -1783,7 +1783,6 @@ table.tablesorter th.header.headerSortDown {
 }
 .evaluation .item.text .content textarea {
   width: 90%;
-  min-width: 600px;
   padding: 0;
   margin: 0;
   margin-left: 40px;
