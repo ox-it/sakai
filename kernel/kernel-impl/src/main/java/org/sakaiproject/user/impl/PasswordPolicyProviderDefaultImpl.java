@@ -25,6 +25,7 @@ import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.ArrayUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.PasswordPolicyProvider;
@@ -172,6 +173,7 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
         characterSets += isCharacterSetPresentInPassword(CHARS_UPPER, password);
         characterSets += isCharacterSetPresentInPassword(CHARS_DIGIT, password);
         characterSets += isCharacterSetPresentInPassword(CHARS_SPECIAL, password);
+        characterSets += isOtherCharacterTypePresentInPassword(password);
 
         // Calculate and verify the password strength
         int strength = password.length() * characterSets;
@@ -209,6 +211,23 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
         return 0;
     }
 
+    /**
+     * Determine if any other characters are present in the given password string
+     * for example letters with accents, Chinese or Arabic characters.
+     *
+     * @param password
+     *            the password to be searched
+     * @return 1 if there is a character not in the other types of character set, 0 otherwise
+     */
+    private int isOtherCharacterTypePresentInPassword(String password) {
+        char[] allCharacterSets = ArrayUtils.addAll(ArrayUtils.addAll(ArrayUtils.addAll(CHARS_LOWER, CHARS_UPPER), CHARS_DIGIT), CHARS_SPECIAL);
+        for (int i = 0; i < password.length(); i++) {
+            if (!ArrayUtils.contains(allCharacterSets, password.charAt(i))) {
+                return 1; // SHORT CIRCUIT
+            }
+        }
+        return 0;
+    }
 
     private ServerConfigurationService serverConfigurationService;
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
