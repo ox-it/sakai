@@ -347,7 +347,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!gateway-810', '!gateway-800', '!gateway', '
 
 -- Create the !user site to be used as the template for a new user's site.
 
-INSERT INTO SAKAI_SITE VALUES('!user', 'My Workspace', null, null, 'My Workspace Site', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
+INSERT INTO SAKAI_SITE VALUES('!user', 'My Home', null, null, 'My Home Site', null, null, null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
 INSERT INTO SAKAI_SITE_PAGE VALUES('!user-100', '!user', 'Home', '1', 1, '0' );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!user', '!user-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-110', '!user-100', '!user', 'sakai.motd', 1, 'Message of the Day', '0,0' );
