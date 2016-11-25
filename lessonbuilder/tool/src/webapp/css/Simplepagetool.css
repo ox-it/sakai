@@ -1450,7 +1450,7 @@ padding:1px;
 color: #666;
 }
 .calendar-div{
-width: 550px;
+max-width: 550px;
 }
 
 .eventAttachmentList{
