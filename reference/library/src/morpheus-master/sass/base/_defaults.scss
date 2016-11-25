@@ -176,6 +176,10 @@ img {
 	height: auto;
 }
 
+video, embed, object, iframe {
+	max-width: 100%;
+}
+
 legend{
 	padding: 0.5em 0 0.1em 0;
 	margin-bottom: 0;
