@@ -26,4 +26,29 @@
             lazy-init="false" >
      </bean>
 
+    <bean class="org.sakaiproject.authz.impl.DepartmentSiteAdvisor"
+          init-method="init" destroy-method="destroy">
+        <property name="devolvedSakaiSecurity" ref="org.sakaiproject.authz.api.DevolvedSakaiSecurity"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="siteProperty">
+            <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                <property name="targetObject">
+                    <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+                </property>
+                <property name="targetMethod">
+                    <value>getString</value>
+                </property>
+                <property name="arguments">
+                    <list>
+                        <value>basiclti.tool.site.attribution.key</value>
+                        <!-- The default value probably won't be any use but it allows startup -->
+                        <value>department</value>
+                    </list>
+                </property>
+            </bean>
+        </property>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
+
 </beans>

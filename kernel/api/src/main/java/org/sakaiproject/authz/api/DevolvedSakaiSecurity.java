@@ -64,5 +64,6 @@ public interface DevolvedSakaiSecurity {
 	public boolean canUseAdminRealm(String entityRef);
 	
 	public boolean canRemoveAdminRealm(String entityRef);
-	
+
+	public String getAdminSiteType();
 }

@@ -195,10 +195,11 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 		return sites;
 	}
 	
-	public void removeAdminRealm(String adminRealm) throws PermissionException {
-		Reference ref = getSiteReference(adminRealm);
-		if (canRemoveAdminRealm(adminRealm)) {
-			dao().delete(adminRealm);
+	public void removeAdminRealm(String entityRef) throws PermissionException {
+		Reference ref = getSiteReference(entityRef);
+		if (canRemoveAdminRealm(entityRef)) {
+			dao().delete(entityRef);
+			eventTrackingService().post(eventTrackingService().newEvent(ADMIN_REALM_CHANGE, entityRef, true));
 		} else {
 			throw new PermissionException(null,null,null);
 		}
