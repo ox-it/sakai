@@ -310,7 +310,10 @@ Sakai ~ itemAction
 	font-size: .8em;
 	white-space: nowrap;
 }
-
+.ambrosiaIcon
+{
+    max-width: none;
+}
 .ambrosiaNavNormal
 {
 	white-space: nowrap;

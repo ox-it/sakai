@@ -1208,7 +1208,7 @@ public class UiNavigation extends UiComponent implements Navigation
 					if (selectedIcon != null)
 					{
 						response.print("<img style=\"vertical-align:text-bottom; border-style: none;\" src=\"" + context.getUrl(selectedIcon) + "\" "
-								+ "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
+								+ "class=\"ambrosiaIcon\" title=\"" + description + "\" " + "alt=\"" + description + "\" />");
 					}
 
 					if (!disabled) response.print("</a>");
@@ -1220,7 +1220,7 @@ public class UiNavigation extends UiComponent implements Navigation
 					{
 						if (!disabled) response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
 						response.print("<img style=\"vertical-align:text-bottom; padding-right:0.3em; border-style: none;\" src=\""
-								+ context.getUrl(selectedIcon) + "\" " + "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
+								+ context.getUrl(selectedIcon) + "\" " + "class=\"ambrosiaIcon\" title=\"" + description + "\" " + "alt=\"" + description + "\" />");
 						if (!disabled) response.print("</a>");
 					}
 
@@ -1234,7 +1234,7 @@ public class UiNavigation extends UiComponent implements Navigation
 					{
 						if (!disabled) response.print("<a href=\"#\" onclick=\"act_" + id + "();return false;\">");
 						response.print("<img style=\"vertical-align:text-bottom; padding-left:0.3em; border-style: none;\" src=\""
-								+ context.getUrl(selectedIcon) + "\" " + "title=\"" + description + "\" " + "alt=\"" + description + "\" />");
+								+ context.getUrl(selectedIcon) + "\" " + "class=\"ambrosiaIcon\" title=\"" + description + "\" " + "alt=\"" + description + "\" />");
 						if (!disabled) response.print("</a>");
 					}
 				}
