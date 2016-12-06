@@ -3,9 +3,8 @@
 	background: linear-gradient( to right, $header-gradient-a, $header-gradient-b, $header-gradient-c, $header-gradient-d);
 	box-shadow: inset 0px -1px 5px rgba(0,0,0,0.1);
 	min-height: $hierarchy-size;
-	float: left;
-	width: 100%;
 	background-size: contain;
+	overflow: auto;
 
 	h1{
 		color: $background-color;
@@ -32,7 +31,7 @@
 
 	/* Show the breadcrumbs on multiple rows (when there are parent sites), and use hover animations */
 	@media #{$nonPhone}{
-		min-height: initial;
+		min-height: $hierarchy-size;
 		padding: 0.75em 0 0.75em 1em;
 
 		.#{$namespace}hierarchy--siteName a, .#{$namespace}hierarchy--1 a{
