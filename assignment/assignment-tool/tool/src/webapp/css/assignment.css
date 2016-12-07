@@ -21,7 +21,9 @@
 .toggleAnchor:hover,	.toggleAnchorOpen:hover{
     border:1px solid #9cf;
 }
-
+.attachmentsIcon{
+    max-width: none;
+}
 .toggleAnchorOpen{
     border:1px solid #cef;
     background:#cef !important;
