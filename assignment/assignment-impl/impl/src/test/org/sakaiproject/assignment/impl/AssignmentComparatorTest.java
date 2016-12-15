@@ -47,8 +47,6 @@ public class AssignmentComparatorTest extends TestCase {
 
 	private static final Logger log = LoggerFactory.getLogger(AssignmentComparatorTest.class);
 	
-	private BaseAssignmentService.AssignmentComparator sortNameComparator;
-	private BaseAssignmentService.AssignmentComparator submitterNameComparator;
 	private Comparator<String> sortNameComparator;
 	private Comparator<AssignmentSubmission> submitterNameComparator;
 	private AssignmentSubmission assignmentSubmission1, assignmentSubmission2, assignmentSubmission3, assignmentSubmission4;
