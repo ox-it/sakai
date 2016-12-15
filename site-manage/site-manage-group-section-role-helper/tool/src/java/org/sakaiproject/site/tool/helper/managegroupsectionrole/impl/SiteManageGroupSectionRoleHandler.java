@@ -21,14 +21,15 @@ import lombok.Setter;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.DisplayGroupProvider;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -71,7 +72,7 @@ public class SiteManageGroupSectionRoleHandler {
 	private static final String REQ_ATTR_GROUPFILE = "groupfile";
 
     /** Our log (commons). */
-	private static final Log M_log = LogFactory.getLog(SiteManageGroupSectionRoleHandler.class);
+	private static final Logger M_log = LoggerFactory.getLogger(SiteManageGroupSectionRoleHandler.class);
 	
 	private List<Member> groupMembers;
     private final GroupComparator groupComparator = new GroupComparator();
@@ -155,7 +156,7 @@ public class SiteManageGroupSectionRoleHandler {
     	this.messages = new TargettedMessageList();
     }
 	
-	private final org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager.get(org.sakaiproject.authz.api.GroupProvider.class);
+	private final GroupProvider groupProvider = ComponentManager.get(GroupProvider.class);
 	
 	// the group title
 	private String id;
@@ -421,7 +422,7 @@ public class SiteManageGroupSectionRoleHandler {
         return rv;
     }
     
-    public boolean isUserFromProvider(String userEId, String userId, Group g, List<String> rosterIds, List<String> roleIds)
+    public boolean isUserFromProvider(String userEId, String userId, Group g, List<String> rosterIds, Collection<String> roleIds)
     {
     	boolean rv = false;
     	
@@ -443,17 +444,17 @@ public class SiteManageGroupSectionRoleHandler {
     	}
     	
     	// check role next
-    	if (!rv && roleIds != null)
-    	{
-    		for (int i = 0; !rv && i < roleIds.size(); i++)
-	    	{
-    			String roleId = roleIds.get(i);
-		    	if (g.getUserRole(userId).getId().equals(roleId))
-		    	{
-		    		rv =  true;
-		    	}
-	    	}
-    	}
+		if (!rv && roleIds != null)
+		{
+			for (String roleId : roleIds)
+			{
+				if (g.getUserRole(userId).getId().equals(roleId))
+				{
+					rv =  true;
+					break;
+				}
+			}
+		}
     	
     	return rv;
     }
@@ -490,9 +491,9 @@ public class SiteManageGroupSectionRoleHandler {
                 siteId = sessionManager.getCurrentToolSession()
                         .getAttribute(HELPER_ID + ".siteId").toString();
             }
-            catch (java.lang.NullPointerException npe) {
+            catch (NullPointerException npe) {
                 // Site ID wasn't set in the helper call!!
-                M_log.warn( npe );
+                M_log.warn(npe.getMessage());
             }
             
             if (siteId == null) {
@@ -506,7 +507,7 @@ public class SiteManageGroupSectionRoleHandler {
             
             } catch (IdUnusedException e) {
                 // The siteId we were given was bogus
-                M_log.warn( e );
+                M_log.warn(e.getMessage());
             }
         }
         title = "";
@@ -600,7 +601,7 @@ public class SiteManageGroupSectionRoleHandler {
 
         } 
         catch (IdUnusedException | PermissionException e) {
-            M_log.warn( e );
+            M_log.warn(e.getMessage());
         }
 
         return "";
@@ -769,7 +770,7 @@ public class SiteManageGroupSectionRoleHandler {
 					s = s.replaceAll("-_p_-", ".");
 				}
 				// set provider id
-				group.setProviderGroupId(getProviderString(selectedRosters));
+				group.setProviderGroupId(groupProvider.packId(selectedRosters.toArray(new String[selectedRosters.size()])));
 			}
 			else
 			{
@@ -779,7 +780,7 @@ public class SiteManageGroupSectionRoleHandler {
 			if (!selectedRoles.isEmpty())
 			{
 				// pack the role provider id and add to property
-    			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, getProviderString(selectedRoles));
+    			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, SiteGroupHelper.pack(selectedRoles));
 			}
 			else
 			{
@@ -850,7 +851,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch (Exception e)
                 {
-                    M_log.error( e );
+                    M_log.error(e.getMessage());
                 }
             }
 	    	return "confirm";
@@ -1256,15 +1257,6 @@ public class SiteManageGroupSectionRoleHandler {
 			oTitle = oTitle.substring(0, SiteConstants.SITE_GROUP_TITLE_LIMIT);
 		}
 		return oTitle.trim();
-	}
-
-	/**
-	 * Return a single string representing the provider id list
-	 * @param idsList
-	 */
-	private String getProviderString(List<String> idsList)
-	{
-		return SiteGroupHelper.pack(idsList);
 	}
 
     /**
@@ -1806,7 +1798,7 @@ public class SiteManageGroupSectionRoleHandler {
         }
         catch( IdUnusedException | PermissionException ex )
         {
-            M_log.error( ex );
+            M_log.error(ex.getMessage());
         }
     }
 

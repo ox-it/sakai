@@ -31,8 +31,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigurationListener.BlockingConfigItem;
 import org.sakaiproject.component.locales.SakaiLocales;
@@ -57,7 +57,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     private static final String SOURCE_GET_STRINGS = "getStrings";
 
     /** Our log (commons). */
-    private static Log M_log = LogFactory.getLog(BasicConfigurationService.class);
+    private static Logger M_log = LoggerFactory.getLogger(BasicConfigurationService.class);
 
     /**
      * The delegate that handles all the configuration for tools.

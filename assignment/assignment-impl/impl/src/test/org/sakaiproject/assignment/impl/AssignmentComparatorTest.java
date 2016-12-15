@@ -24,6 +24,8 @@ package org.sakaiproject.assignment.impl;
 import junit.framework.TestCase;
 
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -43,6 +45,10 @@ import java.util.Comparator;
 @PrepareForTest(UserDirectoryService.class)
 public class AssignmentComparatorTest extends TestCase {
 
+	private static final Logger log = LoggerFactory.getLogger(AssignmentComparatorTest.class);
+	
+	private BaseAssignmentService.AssignmentComparator sortNameComparator;
+	private BaseAssignmentService.AssignmentComparator submitterNameComparator;
 	private Comparator<String> sortNameComparator;
 	private Comparator<AssignmentSubmission> submitterNameComparator;
 	private AssignmentSubmission assignmentSubmission1, assignmentSubmission2, assignmentSubmission3, assignmentSubmission4;

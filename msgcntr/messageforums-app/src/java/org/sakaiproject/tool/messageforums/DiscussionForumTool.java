@@ -62,8 +62,33 @@ import net.sf.json.JsonConfig;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sakaiproject.api.app.messageforums.AnonymousManager;
+import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.BaseForum;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
+import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+import org.sakaiproject.api.app.messageforums.EmailNotification;
+import org.sakaiproject.api.app.messageforums.EmailNotificationManager;
+import org.sakaiproject.api.app.messageforums.MembershipManager;
+import org.sakaiproject.api.app.messageforums.Message;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.OpenForum;
+import org.sakaiproject.api.app.messageforums.PermissionLevel;
+import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
+import org.sakaiproject.api.app.messageforums.PermissionsMask;
+import org.sakaiproject.api.app.messageforums.Rank;
+import org.sakaiproject.api.app.messageforums.RankImage;
+import org.sakaiproject.api.app.messageforums.RankManager;
+import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
+import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UserPreferencesManager;
 import org.sakaiproject.api.app.messageforums.*;
 import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
@@ -131,7 +156,7 @@ import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureExcep
  */
 public class DiscussionForumTool
 {
-  private static final Log LOG = LogFactory.getLog(DiscussionForumTool.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DiscussionForumTool.class);
 
   /**
    * List individual forum details
@@ -4233,14 +4258,14 @@ public class DiscussionForumTool
 	    try{
 	    	messageId = Long.valueOf(messageIdStr);
 	    }catch (NumberFormatException e) {
-	    	LOG.error(e);
+	    	LOG.error(e.getMessage());
 	    	setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
 	    	return gotoMain();
 		}
 	    try{
 	    	topicId = Long.valueOf(topicIdStr);
 	    }catch (NumberFormatException e) {
-	    	LOG.error(e);
+	    	LOG.error(e.getMessage());
 	    	setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
 	    	return gotoMain();
 		}
@@ -4467,7 +4492,8 @@ public class DiscussionForumTool
 		  GradeDefinition gradeDef = gradebookService.getGradeDefinitionForStudentForItem(gradebookUid, assign.getId(), studentId);
 
 		  if (gradeDef.getGrade() != null) {
-		      gbItemScore = gradeDef.getGrade();
+		      String decSeparator = FormattedText.getDecimalSeparator();
+		      gbItemScore = StringUtils.replace(gradeDef.getGrade(), (",".equals(decSeparator)?".":","), decSeparator);
 		  }
 
 		  if (gradeDef.getGradeComment() != null) {
@@ -6551,9 +6577,7 @@ public class DiscussionForumTool
     		lrss.registerStatement(getStatementForGrade(studentUid, lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), 
     				gradeAsDouble), "msgcntr");
     	} catch (Exception e) {
-    		if (LOG.isDebugEnabled()) {
-    			LOG.debug(e);
-    		}
+            LOG.debug(e.getMessage());
     	}
     }
     
@@ -8362,7 +8386,7 @@ public class DiscussionForumTool
 			url = developerHelperService.getToolViewURL("sakai.forums", path, params, context);
 			LOG.debug("url: " + url);
 		}catch (Exception e) {
-			LOG.warn(e);
+			LOG.warn(e.getMessage());
 		}
 		return url;
 	}

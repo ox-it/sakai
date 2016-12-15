@@ -32,8 +32,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log; 
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger; 
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.TwoFactorAuthentication;
@@ -87,7 +87,7 @@ public class AccessServlet extends VmServlet
 	};
 	
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(AccessServlet.class);
+	private static Logger M_log = LoggerFactory.getLogger(AccessServlet.class);
 
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("access");

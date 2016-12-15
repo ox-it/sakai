@@ -37,6 +37,10 @@ public class SiteConstants {
 	
 	public static final String SORTED_BY_DISPLAY_ID = "display_id";
 
+
+	/**
+	 * This stores the list of roles that a group should have as participants from the containing sites.
+	 */
 	public static final String GROUP_PROP_ROLE_PROVIDERID = "group_prop_role_providerid";
 	
 	public static final int SITE_GROUP_TITLE_LIMIT = 99;

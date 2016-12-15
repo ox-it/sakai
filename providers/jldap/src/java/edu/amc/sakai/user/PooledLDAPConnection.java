@@ -24,9 +24,9 @@ package edu.amc.sakai.user;
 import java.util.Date;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.novell.ldap.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Extension of standard <code>LDAPConnection</code> that attempts to return
@@ -38,7 +38,7 @@ import org.apache.commons.logging.LogFactory;
 public class PooledLDAPConnection extends LDAPConnection {
 
 	/** Class-specific logger */
-	private static Log log = LogFactory.getLog(PooledLDAPConnection.class);
+	private static Logger log = LoggerFactory.getLogger(PooledLDAPConnection.class);
 	
 	/** is this pooled connection currently active (i.e. used) */
 	private boolean active = false;

@@ -1,34 +1,29 @@
 package org.sakaiproject.component.app.messageforums.entity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrItem;
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.api.app.messageforums.entity.SynopticMsgcntrItemEntityProvider;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.*;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 public class SynopticMsgcntrItemEntityProviderImpl 
 implements SynopticMsgcntrItemEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable, RequestStorable, RESTful, RequestAware{
 
 	private SynopticMsgcntrManager synopticMsgcntrManager;
-	private static final Log LOG = LogFactory.getLog(SynopticMsgcntrItemEntityProviderImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(SynopticMsgcntrItemEntityProviderImpl.class);
 
     private RequestStorage requestStorage;
     public void setRequestStorage(RequestStorage requestStorage) {

@@ -1,18 +1,6 @@
 package org.sakaiproject.component.app.messageforums;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -22,9 +10,14 @@ import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.AnonymousMapping;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AnonymousMappingImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * @see org.sakaiproject.api.app.messageforums.AnonymousManager
@@ -32,7 +25,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class AnonymousManagerImpl extends HibernateDaoSupport implements AnonymousManager
 {
-	private static final Log LOG = LogFactory.getLog(AnonymousManagerImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AnonymousManagerImpl.class);
 
 	// Padding used to enforce that anonIDs are always 6 characters
 	private final String ANON_ID_PADDING = "000000";

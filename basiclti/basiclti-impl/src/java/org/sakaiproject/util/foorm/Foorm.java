@@ -81,7 +81,7 @@ public class Foorm {
 			} else if (kv.length == 1 && i < positional.length) {
 				op.setProperty(positional[i++], kv[0]);
 			} else {
-				// TODO : Log something here
+				// TODO : Logger something here
 			}
 		}
 		return op;
@@ -230,7 +230,7 @@ public class Foorm {
 			((java.util.Map) row).put(key, value);
 		}
 		if (row instanceof java.sql.ResultSet) {
-			// TODO: Log message
+			// TODO: Logger message
 		}
 	}
 

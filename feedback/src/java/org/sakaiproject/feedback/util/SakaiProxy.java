@@ -25,9 +25,9 @@ import java.util.*;
 import java.text.MessageFormat;
 
 import org.apache.commons.fileupload.FileItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.mail.util.ByteArrayDataSource;
 
@@ -54,7 +54,7 @@ public class SakaiProxy {
 
     public static final int ATTACH_MAX_DEFAULT = 10;
 
-	private static final Log logger = LogFactory.getLog(SakaiProxy.class);
+	private static final Logger logger = LoggerFactory.getLogger(SakaiProxy.class);
 
     private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.feedback");
 

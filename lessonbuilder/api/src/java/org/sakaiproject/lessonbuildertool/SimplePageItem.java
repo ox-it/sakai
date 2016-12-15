@@ -48,6 +48,7 @@ public interface SimplePageItem {
     public static final int PEEREVAL = 13;
     public static final int CALENDAR = 19;
     public static final int BREAK = 14;
+    public static final int CHECKLIST = 15;
     public static final int TWITTER = 18;
     //new SimplePageItem type added to display latest announcements in Lessons
     public static final int ANNOUNCEMENTS = 16;
@@ -57,8 +58,16 @@ public interface SimplePageItem {
     // sakaiId used for an item copied from another site with no real content
 	public static final String DUMMY = "/dummy";
 
+    // item indent JSON attribute stored as {"indentLevel":"5"} where 5 times 4 is the number of left margin in em.
+    public static final String INDENT = "indentLevel";
 
-    /* WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. 
+    // custom css class for simple page item stored as {"customCssClass":"customclass1"} where customclass1 is defined by the user
+    public static final String CUSTOMCSSCLASS = "customCssClass";
+
+    // name of nameHidden JSON attribute
+    public static final String NAMEHIDDEN = "namehidden";
+
+    /* WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING.
        If you change this, make very sure you change the archive and restore code in LessonBuilderEntityProducer
        and the copy code here.  Also copyItem in SimplePageBean.
        WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. */

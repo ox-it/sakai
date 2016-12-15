@@ -20,8 +20,16 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.site;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -45,8 +53,11 @@ import java.util.*;
  * @author ieb
  * @author Colin Hebert
  */
-public class SiteContentProducer implements EntityContentProducer {
-	private static final Log logger = LogFactory.getLog(SiteContentProducer.class);
+public class SiteContentProducer implements EntityContentProducer
+{
+
+	private static final Logger log = LoggerFactory.getLogger(SiteContentProducer.class);
+
 	private EntityManager entityManager;
 	private Collection<String> addEvents;
 	private Collection<String> removeEvents;
@@ -89,10 +100,52 @@ public class SiteContentProducer implements EntityContentProducer {
 				if (logger.isDebugEnabled())
 					logger.debug("Unexpected exception", ex);
 			}
+			catch (Exception ex)
+			{
+				log.debug(ex.getMessage());
+			}
 		}
 		return false;
 	}
 
+	private Reference getReference(String reference)
+	{
+		try
+		{
+			Reference r = entityManager.newReference(reference);
+			if (log.isDebugEnabled())
+			{
+				log.debug("Site.getReference" + reference + ":" + r);
+			}
+			return r;
+		}
+		catch (Exception ex)
+		{
+			log.debug(ex.getMessage());
+		}
+		return null;
+	}
+
+	private EntityProducer getProducer(Reference ref)
+	{
+		try
+		{
+			return ref.getEntityProducer();
+		}
+		catch (Exception ex)
+		{
+			log.debug(ex.getMessage());
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getAction(org.sakaiproject.event.api.Event)
+	 */
+	public Integer getAction(Event event)
+	{
 	@Override
 	public Integer getAction(Event event) {
 		String evt = event.getEvent();

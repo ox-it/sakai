@@ -25,9 +25,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.novell.ldap.*;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.PoolableObjectFactory;
 
 /**
@@ -42,7 +42,7 @@ import org.apache.commons.pool.PoolableObjectFactory;
 public class PooledLDAPConnectionFactory implements PoolableObjectFactory {
 
 	/** Class-specific logger */
-	private static Log log = LogFactory.getLog(PooledLDAPConnectionFactory.class);
+	private static Logger log = LoggerFactory.getLogger(PooledLDAPConnectionFactory.class);
 	
 	/** the controlling connection manager */
 	private LdapConnectionManager connectionManager;

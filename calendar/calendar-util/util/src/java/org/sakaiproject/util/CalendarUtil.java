@@ -33,8 +33,8 @@ import java.util.HashMap;
 import java.util.Enumeration;
 
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
@@ -45,7 +45,7 @@ import org.joda.time.format.DateTimeFormatterBuilder;
 public class CalendarUtil
 {	
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(CalendarUtil.class);
+	private static Logger M_log = LoggerFactory.getLogger(CalendarUtil.class);
 	
 	/** The calendar object this is based upon. */
 	Calendar m_calendar = null;

@@ -46,8 +46,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.ArrayUtils;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
@@ -159,7 +159,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRefMigrator, HardDeleteAware
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseContentService.class);
+	private static Logger M_log = LoggerFactory.getLogger(BaseContentService.class);
 
 	protected static final long END_OF_TIME = 8000L * 365L * 24L * 60L * 60L * 1000L;
 	protected static final long START_OF_TIME = 365L * 24L * 60L * 60L * 1000L;
@@ -4598,6 +4598,24 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			newResource.setAvailability(deleResource.isHidden(), deleResource.getReleaseDate(),deleResource.getRetractDate());
 			newResource.setContent(m_storage.streamDeletedResourceBody(deleResource));
 			try {
+				// If you're storing the file in DB this breaks as it removes the restored file.
+				removeDeletedResource(deleResource);
+				// close the edit object
+				((BaseResourceEdit) deleResource).closeEdit();
+			} catch (PermissionException pe) {
+				M_log.error("restoreResource: access to resource not permitted" + id, pe);
+				try
+				{
+					removeResource(newResource.getId());
+				}
+				catch(Exception e1)
+				{
+					// ignore -- no need to remove the resource if it doesn't exist
+					M_log.debug("Unable to remove partially completed resource: " + deleResource.getId() + "\n" + e1);
+				}
+				throw pe;
+			}
+			try {
 				addProperties(newResource.getPropertiesEdit(), deleResource.getProperties());
 				commitResource(newResource, NotificationService.NOTI_NONE);
 
@@ -4625,24 +4643,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					M_log.debug("Unable to remove partially completed resource: " + newResource.getId() + "\n" + e1);
 				}
 				throw e;
-			}
-			try {
-				// If you're storing the file in DB this breaks as it removes the restored file.
-				removeDeletedResource(deleResource);
-				// close the edit object
-				((BaseResourceEdit) deleResource).closeEdit();
-			} catch (PermissionException pe) {
-				M_log.error("restoreResource: access to resource not permitted" + id, pe);
-				try
-				{
-					removeResource(newResource.getId());
-				}
-				catch(Exception e1)
-				{
-					// ignore -- no need to remove the resource if it doesn't exist
-					M_log.debug("Unable to remove partially completed resource: " + deleResource.getId() + "\n" + e1);
-				}
-				throw pe;
 			}
 		} catch (IdUnusedException iue) {
 			M_log.error("restoreResource: cannot locate deleted resource " + id, iue);
@@ -7377,7 +7377,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			catch (EntityPropertyTypeException e)
 			{
-				// Log this and assume it's not a collection
+				// Logger this and assume it's not a collection
 				M_log.warn("EntityPropertyTypeException: PROP_IS_COLLECTION not boolean for " + ref.getReference());
 			}
 			if (isCollection)
@@ -8702,7 +8702,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch(EntityPropertyTypeException epte)
 		{
-			M_log.error(epte);
+			M_log.error(epte.getMessage(), epte);
 		}
 
 		// setup the event
@@ -12188,7 +12188,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					}
 					catch (UnsupportedEncodingException e)
 					{
-						M_log.error(e);
+						M_log.error(e.getMessage(), e);
 					}
 					
 					m_body = new byte[(int) m_contentLength];
@@ -12330,7 +12330,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 									}
 									catch (UnsupportedEncodingException e)
 									{
-										M_log.error(e);
+										M_log.error(e.getMessage(), e);
 									}
 									m_body = new byte[(int) m_contentLength];
 									System.arraycopy(decoded, 0, m_body, 0, (int) m_contentLength);
@@ -12734,7 +12734,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (UnsupportedEncodingException e)
 				{
-					M_log.error(e);
+					M_log.error(e.getMessage(), e);
 				}
 				resource.setAttribute("body", enc);
 			}

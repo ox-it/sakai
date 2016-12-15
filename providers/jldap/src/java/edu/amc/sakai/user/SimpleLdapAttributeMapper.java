@@ -37,8 +37,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.UserEdit;
 
@@ -61,7 +61,7 @@ import static java.util.Map.*;
 public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	
 	/** Class-specific logger */
-	private static Log M_log = LogFactory.getLog(SimpleLdapAttributeMapper.class);
+	private static Logger M_log = LoggerFactory.getLogger(SimpleLdapAttributeMapper.class);
 	
 	/**
 	 * User entry attribute mappings. Keys are logical attr names,

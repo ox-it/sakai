@@ -1,14 +1,5 @@
 package org.sakaiproject.authz.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.sakaiproject.authz.api.DevolvedAdminDao;
 import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.cover.FunctionManager;
@@ -24,6 +15,10 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.user.api.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Oxford version of Sakai security.
@@ -36,8 +31,8 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 	
 	final public static String ADMIN_REALM_CHANGE = "site.admin.change";
 	
-	private static Log log = LogFactoryImpl
-			.getLog(DevolvedSakaiSecurityImpl.class);
+	private static Logger log = LoggerFactory
+			.getLogger(DevolvedSakaiSecurityImpl.class);
 	
 	private String adminSiteType;
 	

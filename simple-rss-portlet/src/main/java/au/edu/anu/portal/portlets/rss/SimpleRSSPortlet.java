@@ -34,13 +34,12 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.ValidatorException;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.extern.apachecommons.CommonsLog;
 
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import au.edu.anu.portal.portlets.rss.model.Attachment;
 import au.edu.anu.portal.portlets.rss.utils.Constants;
@@ -60,7 +59,7 @@ import org.sakaiproject.memory.api.MemoryService;
  * @author Steve Swinsburg (steve.swinsburg@anu.edu.au)
  *
  */
-@CommonsLog
+@Slf4j
 public class SimpleRSSPortlet extends GenericPortlet{
 
 	// pages
@@ -231,7 +230,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		} catch (ReadOnlyException e) {
 			success = false;
 			response.setRenderParameter("errorMessage", Messages.getString("error.form.readonly.error"));
-			log.error(e);
+			log.error(e.getMessage());
 		}
 		
 		//validate and save
@@ -250,12 +249,12 @@ public class SimpleRSSPortlet extends GenericPortlet{
 				if(!feedUrlIsLocked) {
 					response.setRenderParameter("feedUrl", feedUrl);
 				}
-				log.error(e);
+				log.error(e.getMessage());
 			} catch (IOException e) {
 				response.setRenderParameter("errorMessage", Messages.getString("error.form.save.error"));
-				log.error(e);
+				log.error(e.getMessage());
 			} catch (PortletModeException e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 		

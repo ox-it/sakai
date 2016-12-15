@@ -6,9 +6,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -45,7 +45,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class ForumsEntityProviderImpl extends AbstractEntityProvider implements Outputable, AutoRegisterEntityProvider, ActionsExecutable, Describeable {
 	
-	private static final Log LOG = LogFactory.getLog(ForumsEntityProviderImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ForumsEntityProviderImpl.class);
 
 	public final static String ENTITY_PREFIX = "forums";
 	public static int DEFAULT_NUM_MESSAGES = 3;

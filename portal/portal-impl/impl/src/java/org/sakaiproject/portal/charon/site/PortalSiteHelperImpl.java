@@ -37,8 +37,8 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -96,7 +96,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	// Alias prefix for page aliases. Use Entity.SEPARATOR as IDs shouldn't contain it.
 	private static final String PAGE_ALIAS = Entity.SEPARATOR+ "pagealias"+ Entity.SEPARATOR;
 
-	public static final Log log = LogFactory.getLog(PortalSiteHelper.class);
+	private static final Logger log = LoggerFactory.getLogger(PortalSiteHelper.class);
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
@@ -923,7 +923,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		ppp = toolManager.getCurrentPlacement();
 		if (ppp == null)
 		{
-			System.out.println("WARNING portal-temporary placement not set - null");
+			log.warn("portal-temporary placement not set - null");
 		}
 		else
 		{
@@ -934,7 +934,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			}
 			else
 			{
-				System.out.println("WARNING portal-temporary placement mismatch site="
+				log.warn("portal-temporary placement mismatch site="
 						+ site.getId() + " context=" + cont);
 			}
 		}

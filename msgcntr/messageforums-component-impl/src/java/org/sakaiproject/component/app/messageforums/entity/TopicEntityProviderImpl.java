@@ -1,30 +1,7 @@
 package org.sakaiproject.component.app.messageforums.entity;
 
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.PrivateForum;
-import org.sakaiproject.api.app.messageforums.PrivateTopic;
-import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.entity.DecoratedAttachment;
-import org.sakaiproject.api.app.messageforums.entity.DecoratedForumInfo;
-import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
-import org.sakaiproject.api.app.messageforums.entity.ForumMessageEntityProvider;
-import org.sakaiproject.api.app.messageforums.entity.TopicEntityProvider;
+import org.sakaiproject.api.app.messageforums.*;
+import org.sakaiproject.api.app.messageforums.entity.*;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
@@ -33,17 +10,11 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.CollectionResolvable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.*;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
@@ -54,6 +25,11 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.text.DateFormat;
+import java.util.*;
 
 public class TopicEntityProviderImpl implements TopicEntityProvider,
 AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, RequestAware, ActionsExecutable {
@@ -64,7 +40,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	private MessageForumsTypeManager typeManager;
 	private PrivateMessageManager privateMessageManager;
 	private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.api.app.messagecenter.bundle.Messages");
-	private static final Log LOG = LogFactory.getLog(TopicEntityProviderImpl.class);
+	private static final Logger LOG = LoggerFactory.getLogger(TopicEntityProviderImpl.class);
 	public static final String PVTMSG_MODE_DRAFT = "Drafts";
 
 	private EntityBrokerManager entityBrokerManager;

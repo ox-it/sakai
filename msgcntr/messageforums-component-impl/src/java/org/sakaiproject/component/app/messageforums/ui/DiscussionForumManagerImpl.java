@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.api.app.messageforums.ActorPermissions;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
@@ -95,8 +95,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public abstract class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     DiscussionForumManager {
   private static final String MC_DEFAULT = "mc.default.";
-  private static final Log LOG = LogFactory
-      .getLog(DiscussionForumManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DiscussionForumManagerImpl.class);
   private AreaManager areaManager;
   private MessageForumsForumManager forumManager;
   private MessageForumsMessageManager messageManager;
@@ -2594,7 +2593,7 @@ public abstract class DiscussionForumManagerImpl extends HibernateDaoSupport imp
 	private boolean getIsNewResponse(DiscussionTopic topic, DiscussionForum forum) {
 		Area area = forum.getArea();
 		String contextId = area.getContextId();
-		return uiPermissionsManager().isNewResponse(topic, forum, contextId);
+		return uiPermissionsManager().isNewResponse(topic, forum);
 	}
 
 	/**
@@ -2603,7 +2602,7 @@ public abstract class DiscussionForumManagerImpl extends HibernateDaoSupport imp
 	private boolean getIsNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum) {
 		Area area = forum.getArea();
 		String contextId = area.getContextId();
-		return uiPermissionsManager().isNewResponseToResponse(topic, forum, contextId);
+		return uiPermissionsManager().isNewResponseToResponse(topic, forum);
 	}
 
 	public MemoryService getMemoryService() {

@@ -197,7 +197,6 @@ public class ToolUtils
 		if ( req == null ) req = getRequestFromThreadLocal();
 		if ( effectiveSiteId == null ) effectiveSiteId = site.getId();
 		if ( pageAlias == null ) pageAlias = page.getId();
-
 		// The normal URL
 
 		String pageUrl = Web.returnUrl(req, join("/", portalPrefix, Web.escapeUrl(effectiveSiteId), "page", Web.escapeUrl(pageAlias)));

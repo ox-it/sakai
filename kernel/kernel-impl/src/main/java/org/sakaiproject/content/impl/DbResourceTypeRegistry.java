@@ -21,24 +21,24 @@
 
 package org.sakaiproject.content.impl;
 
+import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.SiteSpecificResourceType;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.content.api.SiteSpecificResourceType;
-import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-
 public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl 
 {
 	/** Our logger. */
-	protected static final Log M_log = LogFactory.getLog(DbResourceTypeRegistry.class);
+	protected static final Logger M_log = LoggerFactory.getLogger(DbResourceTypeRegistry.class);
 
 	/** Configuration: to run the ddl on init or not. */
 	protected boolean m_autoDdl = false;

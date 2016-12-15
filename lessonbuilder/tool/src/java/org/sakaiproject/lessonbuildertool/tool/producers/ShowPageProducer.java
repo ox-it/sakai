@@ -32,43 +32,10 @@
 
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
-import java.util.Calendar;
-import java.text.SimpleDateFormat;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -77,71 +44,40 @@ import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageComment;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
-import org.sakaiproject.lessonbuildertool.SimplePageQuestionAnswer;
-import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
-import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseTotals;
-import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
-import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.lessonbuildertool.*;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.BltiInterface;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
-import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.evolvers.SakaiFCKTextEvolver;
-import org.sakaiproject.lessonbuildertool.tool.view.CommentsGradingPaneViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.view.CommentsViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.view.QuestionGradingPaneViewParameters;
-import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
-import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
-import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.lessonbuildertool.tool.view.*;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.portal.util.CSSUtils;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.builtin.UVBProducer;
-import uk.org.ponder.rsf.components.UIBoundBoolean;
-import uk.org.ponder.rsf.components.UIBoundString;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UICommand;
-import uk.org.ponder.rsf.components.UIComponent;
-import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIELBinding;
-import uk.org.ponder.rsf.components.UIForm;
-import uk.org.ponder.rsf.components.UIInitBlock;
-import uk.org.ponder.rsf.components.UIInput;
-import uk.org.ponder.rsf.components.UIInternalLink;
-import uk.org.ponder.rsf.components.UILink;
-import uk.org.ponder.rsf.components.UIOutput;
-import uk.org.ponder.rsf.components.UISelect;
-import uk.org.ponder.rsf.components.UISelectChoice;
-import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.*;
 import uk.org.ponder.rsf.components.decorators.UIDisabledDecorator;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UIStyleDecorator;
@@ -156,7 +92,20 @@ import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
-import org.apache.commons.lang.StringEscapeUtils;
+
+import javax.crypto.Cipher;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * This produces the primary view of the page. It also handles the editing of
@@ -165,7 +114,7 @@ import org.apache.commons.lang.StringEscapeUtils;
  * @author Eric Jeney <jeney@rutgers.edu>
  */
 public class ShowPageProducer implements ViewComponentProducer, DefaultView, NavigationCaseReporter, ViewParamsReporter {
-	private static Log log = LogFactory.getLog(ShowPageProducer.class);
+	private static Logger log = LoggerFactory.getLogger(ShowPageProducer.class);
 
 	String reqStar = "<span class=\"reqStar\">*</span>";
 	
@@ -228,27 +177,44 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static Cache urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
         String browserString = ""; // set by checkIEVersion;
     	public static int majorVersion = getMajorVersion();
+        public static String fullVersion = getFullVersion();
 
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
 	public static int getMajorVersion() {
 
-	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2.6");
+	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "11");
 
 	    int major = 2;
 
-	    if (sakaiVersion != null) {
-		String []parts = sakaiVersion.split("\\.");
+		String majorString = "";
+
+		// use - as separator to handle -SNAPSHOT, etc.
+		String [] parts = sakaiVersion.split("[-.]");
 		if (parts.length >= 1) {
-		    try {
-			major = Integer.parseInt(parts[0]);
-		    } catch (Exception e) {
-		    };
+		    majorString = parts[0];
 		}
-	    }
+
+		try {
+			major = Integer.parseInt(majorString);
+		} catch (NumberFormatException nfe) {
+			log.error(
+				"Failed to parse Sakai version number. This may impact which versions of dependencies are loaded.");
+		}
 
 	    return major;
 
+	}
+
+	public static String getFullVersion() {
+
+	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "12");
+
+	    int i = sakaiVersion.indexOf("-"); // for -snapshot
+	    if (i >= 0)
+		sakaiVersion = sakaiVersion.substring(0, i);
+	    
+	    return sakaiVersion;
 	}
 
 	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
@@ -390,6 +356,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIOutput.make(tofill, "datepicker").decorate(new UIFreeAttributeDecorator("src", 
 		  (majorVersion >= 10 ? "/library" : "/lessonbuilder-tool") + "/js/lang-datepicker/lang-datepicker.js" + PortalUtils.getCDNQuery()));
+
+		UIOutput.make(tofill, "portletBody").decorate(new UIFreeAttributeDecorator("sakaimajor", Integer.toString(majorVersion)))
+		    .decorate(new UIFreeAttributeDecorator("sakaiversion", fullVersion));
 
 		boolean iframeJavascriptDone = false;
 		
@@ -1123,6 +1092,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			int cols = 0;
 			int colnum = 0;
 
+			UIBranchContainer sectionWrapper = null;
 			UIBranchContainer sectionContainer = null;
 			UIBranchContainer columnContainer = null;
 			UIBranchContainer tableContainer = null;
@@ -1137,14 +1107,42 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (first || i.getType() == SimplePageItem.BREAK) {
 				    boolean sectionbreak = false;
 				    if (first || "section".equals(i.getFormat())) {
-					sectionContainer = UIBranchContainer.make(container, "section:");
+					sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
+					boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
+					boolean defaultClosed = i.getAttribute("defaultClosed") != null && (!"0".equals(i.getAttribute("defaultClosed")));
+					UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader");
+
+					// only do this is there's an actual section break. Implicit ones don't have an item to hold the title
+					String headerText = "";
+					if ("section".equals(i.getFormat()) && i.getName() != null) {
+					    headerText = i.getName();
+					}
+					UIOutput.make(sectionWrapper, "sectionHeaderText", headerText);
+					UIOutput collapsedIcon = UIOutput.make(sectionWrapper, "sectionCollapsedIcon");
+					sectionHeader.decorate(new UIStyleDecorator(headerText.equals("")? "skip" : ""));
+					sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
+					boolean needIcon = false;
+					if (collapsible) {
+						sectionHeader.decorate(new UIStyleDecorator("collapsibleSectionHeader"));
+						sectionHeader.decorate(new UIFreeAttributeDecorator("aria-controls", sectionContainer.getFullID()));
+						sectionHeader.decorate(new UIFreeAttributeDecorator("aria-expanded", (defaultClosed?"false":"true")));
+						sectionContainer.decorate(new UIStyleDecorator("collapsible"));
+						if (defaultClosed ) {
+							sectionHeader.decorate(new UIStyleDecorator("closedSectionHeader"));
+							sectionContainer.decorate(new UIStyleDecorator("defaultClosed"));
+							needIcon = true;
+						} else {
+							sectionHeader.decorate(new UIStyleDecorator("openSectionHeader"));
+						}
+					}
+					if (!needIcon)
+					    collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
 					cols = colCount(itemList, i.getId());
 					sectionbreak = true;
 					colnum = 0;
 				    } else if ("colunn".equals(i.getFormat()))
 					colnum++;
 				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");				    
-
 				    tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
 				    Integer width = new Integer(i.getAttribute("colwidth") == null ? "1" : i.getAttribute("colwidth"));
 				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
@@ -1198,7 +1196,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL
 						|| i.getType() == SimplePageItem.BREAK || i.getType() == SimplePageItem.TWITTER
 						|| i.getType() == SimplePageItem.ANNOUNCEMENTS || i.getType() == SimplePageItem.FORUM_SUMMARY
-						|| i.getType() == SimplePageItem.CALENDAR);
+						|| i.getType() == SimplePageItem.CALENDAR
+						|| i.getType() == SimplePageItem.CHECKLIST
+						|| i.getType() == SimplePageItem.BREAK);
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
@@ -1229,6 +1229,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.QUESTION: itemClassName = "question"; break;
 				case SimplePageItem.BLTI: itemClassName = "bltiType"; break;
 				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
+				case SimplePageItem.CHECKLIST: itemClassName = "checklistType"; break;
 				case SimplePageItem.FORUM_SUMMARY: itemClassName = "forumSummary"; break;
 				case SimplePageItem.ANNOUNCEMENTS: itemClassName = "announcementsType"; break;
 				case SimplePageItem.TWITTER: itemClassName = "twitter"; break;
@@ -1297,7 +1298,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (!isInline) {
 					    linkdiv = UIBranchContainer.make(tableRow, "link-div:");
 					}
-					if (!isInline && !"button".equals(i.getFormat())) {
+					if (!isInline && !navButton && !"button".equals(i.getFormat())) {
 					    UIOutput itemicon = UIOutput.make(linkdiv,"item-icon");
 					    switch (i.getType()) {
 					    case SimplePageItem.FORUM:
@@ -1330,7 +1331,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    if (j >= 0)
 							s = s.substring(j+1);
 						    mimeType = ContentTypeImageService.getContentType(s);
-						    // System.out.println("type " + s + ">" + mimeType);
+						    // log.info("type " + s + ">" + mimeType);
 						}
 
 						String src = null;
@@ -1403,6 +1404,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    }
 					}
 
+					styleItem(tableRow, linktd, contentCol, i, "indentLevel", "custom-css-class");
+
 					// note that a lot of the info here is used by the
 					// javascript that prepares
 					// the jQuery dialogs
@@ -1410,7 +1413,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					boolean entityDeleted = false;
 					boolean notPublished = false;
 					if (canEditPage) {
-						UIOutput.make(tableRow, "edit-td");
+						UIOutput.make(tableRow, "edit-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.generic").replace("{}", i.getName())));
 						UILink.make(tableRow, "edit-link", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.generic").replace("{}", i.getName())));
 
 						// the following information is displayed using <INPUT
@@ -1519,6 +1522,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "page-button", Boolean.toString("button".equals(i.getFormat())));
 							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							UIOutput.make(tableRow, "item-groups", itemGroupString);
+							SimplePage sPage = simplePageBean.getPage(Long.parseLong(i.getSakaiId()));
+							Date rDate = sPage.getReleaseDate();
+							String rDateString = "";
+							if(rDate != null)
+								rDateString = rDate.toString();
+							UIOutput.make(tableRow, "subpagereleasedate", rDateString);
 						} else if (i.getType() == SimplePageItem.RESOURCE) {
 						        try {
 							    itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
@@ -1595,7 +1604,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    }
 						}
 
-						String releaseString = simplePageBean.getReleaseString(i);
+						String releaseString = simplePageBean.getReleaseString(i, M_locale);
 						if (itemGroupString != null || releaseString != null || entityDeleted || notPublished) {
 							if (itemGroupString != null)
 							    itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString, i);
@@ -1723,8 +1732,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					if (mmDisplayType == null && simplePageBean.isImageType(i)) {
 						// a wide default for images would produce completely wrong effect
-						if (widthSt != null && !widthSt.equals("")) 
-						width = new Length(widthSt);
+					    	if (widthSt != null && !widthSt.equals("")) 
+						    width = new Length(widthSt);
 					} else if (widthSt == null || widthSt.equals("")) {
 						width = new Length(DEFAULT_WIDTH);
 					} else {
@@ -1786,7 +1795,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "current-item-id4", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq3", String.valueOf(i.isPrerequisite()));
 							UIVerbatim.make(tableRow, "item-path3", getItemPath(i));
-							UIOutput.make(tableRow, "editimage-td");
+							UIOutput.make(tableRow, "editimage-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 							UILink.make(tableRow, "image-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
@@ -1841,7 +1850,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "current-item-id5", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq4", String.valueOf(i.isPrerequisite()));
 							UIVerbatim.make(tableRow, "item-path4", getItemPath(i));
-							UIOutput.make(tableRow, "youtube-td");
+							UIOutput.make(tableRow, "youtube-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.youtube")));
 							UILink.make(tableRow, "youtube-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.youtube")));
 						}
 
@@ -2091,7 +2100,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "prerequisite", (i.isPrerequisite()) ? "true" : "false");
 							UIOutput.make(tableRow, "current-item-id6", Long.toString(i.getId()));
 							UIVerbatim.make(tableRow, "item-path5", getItemPath(i));
-							UIOutput.make(tableRow, "movie-td");
+							UIOutput.make(tableRow, "movie-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 							UILink.make(tableRow, "edit-movie", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
@@ -2160,7 +2169,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "embedtype", mmDisplayType);
 							UIOutput.make(tableRow, "current-item-id3", Long.toString(i.getId()));
 							UIVerbatim.make(tableRow, "item-path2", getItemPath(i));
-							UIOutput.make(tableRow, "editmm-td");
+							UIOutput.make(tableRow, "editmm-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 							UILink.make(tableRow, "iframe-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
@@ -2234,7 +2243,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-comments")));
 							}
 
-							UIOutput.make(tableRow, "comments-td");
+							UIOutput.make(tableRow, "comments-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.comments")));
 						
 							if (i.getSequence() > 0) {
 							    UILink.make(tableRow, "edit-comments", (String)null, "")
@@ -2380,7 +2389,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								evalTargets.add(new Target(m.getUserId()));
 							    }
 							} catch (Exception e) {
-							    System.out.println("unable to get members of group " + group);
+							    log.info("unable to get members of group " + group);
 							}
 							// no need to sort for other alternative, when there's only one
 							Collections.sort(evalTargets, new Comparator<Target>() {
@@ -2657,7 +2666,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-content")));
 							}
 							
-							UIOutput.make(tableRow, "student-td");
+							UIOutput.make(tableRow, "student-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.student")));
 							UILink.make(tableRow, "edit-student", (String)null, "")
 									.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.student")));
 							
@@ -2713,7 +2722,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								
 								dateStr = isoDateFormat.format(peerevalcal.getTime());
 								
-								//System.out.println("Setting date to " + dateStr + " and time to " + timeStr);
+								//log.info("Setting date to " + dateStr + " and time to " + timeStr);
 								
 								UIOutput.make(tableRow, "peer-eval-due-date", dateStr);
 								UIOutput.make(tableRow, "peer-eval-allow-self", i.getAttribute("rubricAllowSelfGrade"));
@@ -2902,7 +2911,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 					
 					if(canEditPage) {
-						UIOutput.make(tableRow, "question-td");
+						UIOutput.make(tableRow, "question-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.question")));
 						
 						// always show grading panel. Currently this is the only way to get feedback
 						if( !cameFromGradingPane) {
@@ -2946,6 +2955,88 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "questionShowPoll", String.valueOf(i.getAttribute("questionShowPoll")));
 						}
 					}
+				} else if (i.getType() == SimplePageItem.CHECKLIST) {
+					UIOutput checklistItemContainer = UIOutput.make(tableRow, "checklistItemContainer");
+
+					UIOutput checklistDiv = UIOutput.make(tableRow, "checklistDiv");
+
+					styleItem(tableRow, checklistItemContainer, checklistDiv, i, null, null);
+
+					UIOutput checklistTitle = UIOutput.make(tableRow, "checklistTitle", i.getName());
+
+					if(Boolean.valueOf(i.getAttribute(SimplePageItem.NAMEHIDDEN))) {
+						if(canEditPage) {
+							checklistTitle.setValue("( " + i.getName() + " )");
+							checklistTitle.decorate(new UIStyleDecorator("hiddenTitle"));
+						} else {
+							checklistTitle.decorate(new UIStyleDecorator("noDisplay"));
+						}
+					}
+
+					UIOutput.make(tableRow, "checklistDescription", i.getDescription());
+
+					List<SimpleChecklistItem> checklistItems = simplePageToolDao.findChecklistItems(i);
+
+					UIOutput.make(tableRow, "checklistItemDiv");
+					UIForm checklistForm = UIForm.make(tableRow, "checklistItemForm");
+
+					UIInput.make(checklistForm, "checklistId", "#{simplePageBean.itemId}", String.valueOf(i.getId()));
+
+					ArrayList<String> values = new ArrayList<String>();
+					ArrayList<String> initValues = new ArrayList<String>();
+
+					for (SimpleChecklistItem checklistItem : checklistItems) {
+						values.add(String.valueOf(checklistItem.getId()));
+
+						boolean isDone = simplePageToolDao.isChecklistItemChecked(i.getId(), checklistItem.getId(), simplePageBean.getCurrentUserId());
+
+						if (isDone) {
+							initValues.add(String.valueOf(checklistItem.getId()));
+						} else {
+							initValues.add("");
+						}
+					}
+
+					UIOutput.make(checklistForm, "checklistItemsDiv");
+					if(!checklistItems.isEmpty()) {
+						UISelect select = UISelect.makeMultiple(checklistForm, "checklist-span", values.toArray(new String[1]), "#{simplePageBean.selectedChecklistItems}", initValues.toArray(new String[1]));
+
+						int index = 0;
+						for (SimpleChecklistItem checklistItem : checklistItems) {
+							UIBranchContainer row = UIBranchContainer.make(checklistForm, "select-checklistitem-list:");
+							UISelectChoice.make(row, "select-checklistitem", select.getFullID(), index).decorate(new UIStyleDecorator("checklist-checkbox"));
+
+							UIOutput.make(row, "select-checklistitem-name", checklistItem.getName()).decorate(new UIStyleDecorator("checklist-checkbox-label"));
+							index++;
+						}
+					}
+
+					if (canEditPage) {
+
+						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+						if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						}
+
+						UIOutput.make(tableRow, "item-groups-titles-checklist", itemGroupTitles);
+
+						UIOutput.make(tableRow, "editchecklist-td").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-checklist").replace("{}", i.getName())));
+
+						GeneralViewParameters eParams = new GeneralViewParameters();
+						eParams.setSendingPage(currentPage.getPageId());
+						eParams.setItemId(i.getId());
+						eParams.viewID = ChecklistProducer.VIEW_ID;
+						UIInternalLink.make(tableRow, "edit-checklist", (String)null, eParams).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-checklist").replace("{}", i.getName())));
+
+						GeneralViewParameters gvp = new GeneralViewParameters();
+						gvp.setSendingPage(currentPage.getPageId());
+						gvp.setItemId(i.getId());
+						gvp.viewID = ChecklistProgressProducer.VIEW_ID;
+						UIInternalLink.make(tableRow, "edit-checklistProgress", (String)null, gvp).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.view-checklist").replace("{}", i.getName())));
+					}
+
+					makeSaveChecklistForm(tofill);
 				} else if(i.getType() == SimplePageItem.FORUM_SUMMARY){
 					UIOutput.make(tableRow, "forumSummarySpan");
 					String itemGroupString = null;
@@ -3242,7 +3333,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		sessionParam = DatatypeConverter.printHexBinary(sessionBytes);
 		return sessionParam;
 	    } catch (Exception e) {
-		System.out.println("unable to generate encrypted session id " + e);
+		log.info("unable to generate encrypted session id " + e);
 		return null;
 	    }
 	}
@@ -3290,27 +3381,25 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (i.getType() == SimplePageItem.RESOURCE && i.isSameWindow()) {
 					GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 					params.setSendingPage(currentPage.getPageId());
-					if (i.getAttribute("multimediaUrl") != null) // resource where we've stored the URL ourselves
-					    params.setSource(i.getAttribute("multimediaUrl"));
-					if (lessonBuilderAccessService.needsCopyright(i.getSakaiId()))
-					    params.setSource("/access/require?ref=" + URLEncoder.encode("/content" + i.getSakaiId()) + "&url=" + URLEncoder.encode(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()).substring(7)));
-					else
-					    params.setSource(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
 					params.setItemId(i.getId());
 					UILink link = UIInternalLink.make(container, "link", params);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 					
 				}
 				else {
-				    if (i.getAttribute("multimediaUrl") != null) // resource where we've stored the URL ourselves
-					URL = i.getAttribute("multimediaUrl");
-				    else
+				    // run this through /access/lessonbuilder so we can track it even if the user uses the context menu
+				    // We could do this only for the notDone case, but I think it could cause trouble for power users
+				    // if the url isn't always consistent.
+				    if (i.getAttribute("multimediaUrl") != null) { // resource where we've stored the URL ourselves
+					URL = "/access/lessonbuilder/item/" + i.getId() + "/";
+				    } else {
 					URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
+				    }
 				    UILink link = UILink.make(container, ID, URL);
 				    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
 				    if (notDone)
 					link.decorate(new UIFreeAttributeDecorator("onclick", 
-										   "setTimeout(function(){window.location.reload(true)},3000); return true"));
+										   "afterLink($(this)," + i.getId() + ") ; return true"));
 				}
 			}
 
@@ -3378,7 +3467,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				params.setSendingPage(currentPage.getPageId());
-				params.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				params.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", params);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3404,7 +3492,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
-				view.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				view.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -3427,7 +3514,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
-				view.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
+				UILink link = UIInternalLink.make(container, "link", view);
+				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
+			} else {
+				if (i.isPrerequisite()) {
+					simplePageBean.checkItemPermissions(i, false);
+				}
+				fake = true; // need to set this in case it's available for missing entity
+			}
+		} else if (i.getType() == SimplePageItem.CHECKLIST) {
+			if (available) {
+				if (i.isPrerequisite()) {
+					simplePageBean.checkItemPermissions(i, true);
+				}
+				GeneralViewParameters view = new GeneralViewParameters(ChecklistProducer.VIEW_ID);
+				view.setSendingPage(currentPage.getPageId());
+				view.setItemId(i.getId());
 				UILink link = UIInternalLink.make(container, "link", view);
 				link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
@@ -3467,7 +3569,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
-				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 				UIComponent link = UIInternalLink.make(container, "link", view)
 				    .decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			} else {
@@ -3522,6 +3623,27 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		link.decorate(new UIStyleDecorator("disabled"));
 		link.decorate(new UIFreeAttributeDecorator("style", "color:#999 !important"));
 		link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
+	}
+
+	private void styleItem(UIContainer row, UIComponent container, UIComponent component, SimplePageItem i, String indent, String customClass) {
+	    // Indent level - default to 0 if not previously set
+	    String indentLevel = i.getAttribute(SimplePageItem.INDENT)==null?"0":i.getAttribute(SimplePageItem.INDENT);
+	    // Indent number in em is 4 times the level of indent
+
+	    if (!"0".equals(indentLevel))
+		container.decorate(new UIFreeAttributeDecorator("x-indent", indentLevel));
+	    if (indent != null)
+		UIOutput.make(row, indent, indentLevel);
+
+	    // Custom css class(es)
+	    String customCssClass = i.getAttribute(SimplePageItem.CUSTOMCSSCLASS);
+	    if (customCssClass != null && !customCssClass.equals("")) {
+		component.decorate(new UIStyleDecorator(customCssClass));
+	    }
+	    if (customClass != null) {
+		UIOutput.make(row, customClass, customCssClass);
+	    }
+
 	}
 
 	// show is if it was disabled but don't actually
@@ -3714,6 +3836,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "forum-li");
 		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum-descrip", currentPage, "simplepage.forum.tooltip");
 
+		    UIOutput.make(tofill, "checklist-li");
+		    createToolBarLink(ChecklistProducer.VIEW_ID, tofill, "add-checklist", "simplepage.checklist", currentPage, "simplepage.checklist");
+
 		    UIOutput.make(tofill, "question-li");
 		    UIComponent questionlink = UIInternalLink.makeURL(tofill, "question-link", "#");
 		    questionlink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.question-descrip")));
@@ -3848,6 +3973,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	private void createEditItemDialog(UIContainer tofill, SimplePage currentPage, SimplePageItem pageItem) {
+		String currentToolTitle = simplePageBean.getPageTitle();
+		String returnFromEditString = messageLocator.getMessage("simplepage.return_from_edit").replace("{}",currentToolTitle);  
+  
 		UIOutput.make(tofill, "edit-item-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edititem_header")));
 
 		UIForm form = UIForm.make(tofill, "edit-form");
@@ -3896,20 +4024,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
-		params.setItemId(pageItem.getId());
+		params.setId(Long.toString(pageItem.getId()));
 		params.setReturnView(VIEW_ID);
-		params.setTitle(messageLocator.getMessage("simplepage.return_from_edit"));
-		params.setSource("SRC");
+		params.setTitle(returnFromEditString);  
+		params.setSource("EDIT");
 		params.viewID = ShowItemProducer.VIEW_ID;
 		UIInternalLink.make(form, "edit-item-object", params);
 		UIOutput.make(form, "edit-item-text");
 
 		params = new GeneralViewParameters();
 		params.setSendingPage(currentPage.getPageId());
-		params.setItemId(pageItem.getId());
+		params.setId(Long.toString(pageItem.getId()));
 		params.setReturnView(VIEW_ID);
-		params.setTitle(messageLocator.getMessage("simplepage.return_from_edit"));
-		params.setSource("SRC");
+		params.setTitle(returnFromEditString);  
+		params.setSource("SETTINGS");
 		params.viewID = ShowItemProducer.VIEW_ID;
 		UIInternalLink.make(form, "edit-item-settings", params);
 		UIOutput.make(form, "edit-item-settings-text");
@@ -3942,6 +4070,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
 
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
+
+		UIBoundBoolean.make(form, "page-releasedate2", "#{simplePageBean.hasReleaseDate}", Boolean.FALSE);
+
+		String releaseDateString = "";
+		try {
+			releaseDateString = isoDateFormat.format(new Date());
+		} catch (Exception e) {
+			System.out.println(e + "bad format releasedate " + new Date());
+		}
+
+		UIOutput releaseForm2 = UIOutput.make(form, "releaseDate2:");
+		UIOutput.make(form, "sbReleaseDate", releaseDateString);
+		UIInput.make(form, "release_date2", "#{simplePageBean.releaseDate}" );
+
+		String indentOptions[] = {"0","1","2","3","4","5","6","7","8"};
+		UISelect.make(form, "indent-level", indentOptions, "#{simplePageBean.indentLevel}", indentOptions[0]);
+
+		// If current user is an admin show the css class input box
+		UIInput customCssClass = UIInput.make(form, "customCssClass", "#{simplePageBean.customCssClass}");
+		UIOutput.make(form, "custom-css-label", messageLocator.getMessage("simplepage.custom.css.class"));
 
 		// can't use site groups on user content, and don't want students to hack
 		// on groups for site content
@@ -4048,6 +4196,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		makeCsrf(form, "csrf9");
 
 		UIInput.make(form, "mm-name", "#{simplePageBean.name}");
+		UIInput.make(form, "mm-names", "#{simplePageBean.names}");
 		UIOutput.make(form, "mm-file-label", messageLocator.getMessage("simplepage.upload_label"));
 
 		UIOutput.make(form, "mm-url-label", messageLocator.getMessage("simplepage.addLink_label"));
@@ -4351,7 +4500,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			try {
 			    releaseDateString = isoDateFormat.format(releaseDate);
 			} catch (Exception e) {
-			    System.out.println(e + "bad format releasedate " + releaseDate);
+			    log.info(e + "bad format releasedate " + releaseDate);
 			}
 			}
 			
@@ -4881,6 +5030,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			printedGradingForm = true;
 		}
 	}
+
+	private boolean saveChecklistFormNeeded = false;
+	private void makeSaveChecklistForm(UIContainer tofill) {
+		// Ajax grading form so faculty can grade comments
+		if(!saveChecklistFormNeeded) {
+			UIForm saveChecklistForm = UIForm.make(tofill, "saveChecklistForm");
+			saveChecklistForm.viewparams = new SimpleViewParameters(UVBProducer.VIEW_ID);
+			UIInput checklistIdInput = UIInput.make(saveChecklistForm, "saveChecklistForm-checklistId", "checklistBean.checklistId");
+			UIInput checklistItemIdInput = UIInput.make(saveChecklistForm, "saveChecklistForm-checklistItemIdInput", "checklistBean.checklistItemId");
+			UIInput checklistItemDone = UIInput.make(saveChecklistForm, "saveChecklistForm-checklistItemDone", "checklistBean.checklistItemDone");
+			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			String sessionTokenString = null;
+			if (sessionToken != null)
+			    sessionTokenString = sessionToken.toString();
+			UIInput checklistCsrfInput = UIInput.make(saveChecklistForm, "saveChecklistForm-csrf", "checklistBean.csrfToken", sessionTokenString);
+
+			UIInitBlock.make(tofill, "saveChecklistForm-init", "checklistAjax.initSaveChecklistForm", new Object[] {checklistIdInput, checklistItemIdInput, checklistItemDone, checklistCsrfInput, "checklistBean.results"});
+			saveChecklistFormNeeded = true;
+		}
+	}
 	
 	private String getItemPath(SimplePageItem i)
 	{
@@ -4927,9 +5096,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	
 	private void makePeerRubric(UIContainer parent, SimplePageItem i, String[] peerReviewRsfIds, Map<Long,Integer> selectedCells, Map<Long, Map<Integer, Integer>> dataMap, boolean allowSubmit)
 	{
-		//System.out.println("makePeerRubric(): i.getAttributesString() " + i.getAttributeString());
-		//System.out.println("makePeerRubric(): i.getAttribute(\"rubricTitle\") " + i.getAttribute("rubricTitle"));
-		//System.out.println("makePeerRubric(): i.getJsonAttribute(\"rows\") " + i.getJsonAttribute("rows"));
+		//log.info("makePeerRubric(): i.getAttributesString() " + i.getAttributeString());
+		//log.info("makePeerRubric(): i.getAttribute(\"rubricTitle\") " + i.getAttribute("rubricTitle"));
+		//log.info("makePeerRubric(): i.getJsonAttribute(\"rows\") " + i.getJsonAttribute("rows"));
 		
 		if (peerReviewRsfIds[0] != null)
 		    UIOutput.make(parent, peerReviewRsfIds[0], String.valueOf(i.getAttribute("rubricTitle")));
@@ -4958,7 +5127,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				rows.add(new RubricRow(rowId, rowText));
 			}
 		}
-		//else{System.out.println("This rubric has no rows.");}
+		//else{log.info("This rubric has no rows.");}
 		
 		Collections.sort(rows);
 

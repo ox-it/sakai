@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.sakaiproject.sitestats</groupId>
     <artifactId>sitestats</artifactId>
-    <version>11-SNAPSHOT</version><!-- sitestats.version --> 
+    <version>11-SNAPSHOT</version><!-- sitestats.version -->
   </parent>
   
   <!-- Packaging -->
@@ -32,10 +32,6 @@
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
     </dependency>
   </dependencies>
   

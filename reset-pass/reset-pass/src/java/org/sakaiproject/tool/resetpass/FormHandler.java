@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -65,8 +65,9 @@ public class FormHandler {
 	public void setValidationLogic(ValidationLogic validationLogic) {
 		this.validationLogic = validationLogic;
 	}
-	
-	private static Log m_log  = LogFactory.getLog(FormHandler.class);
+
+
+	private static Logger m_log  = LoggerFactory.getLogger(FormHandler.class);
 
 	public String processAction() {
 		//siteManage.validateNewUsers = false use the classic method:

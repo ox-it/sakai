@@ -1,47 +1,29 @@
 package org.sakaiproject.component.app.messageforums.entity;
 
-import java.text.DateFormat;
-import java.util.*;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DiscussionForum;
-import org.sakaiproject.api.app.messageforums.DiscussionForumService;
-import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
-import org.sakaiproject.api.app.messageforums.MessageParsingService;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
-import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
-import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
-import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.*;
 import org.sakaiproject.api.app.messageforums.entity.ForumMessageEntityProvider;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.*;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+
+import java.text.DateFormat;
+import java.util.*;
 
 public class ForumMessageEntityProviderImpl implements ForumMessageEntityProvider,
     AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, RequestAware, ActionsExecutable {

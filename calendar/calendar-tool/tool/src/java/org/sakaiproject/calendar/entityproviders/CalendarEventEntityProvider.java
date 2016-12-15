@@ -1,8 +1,6 @@
 package org.sakaiproject.calendar.entityproviders;
 
-import java.io.IOException;
-import java.util.*;
-
+import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,13 +11,8 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.*;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
@@ -30,17 +23,19 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
-
-import lombok.Setter;
 import org.sakaiproject.util.CalendarUtil;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * The sakai entity used to access calendar events.
  *
  * @author Denny
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
 public class CalendarEventEntityProvider extends AbstractEntityProvider
-		implements AutoRegisterEntityProvider, Describeable, EntityProvider,
+		implements AutoRegisterEntityProvider, Describeable,
 		ActionsExecutable, Outputable, Sampleable {
 
 	String ENTITY_PREFIX = "calendar";
@@ -80,8 +75,9 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	/**
 	 * @return prefix
 	 */
+	@Override
 	public String getEntityPrefix() {
-		return ENTITY_PREFIX;
+		return this.ENTITY_PREFIX;
 	}
 
 	/**
@@ -94,10 +90,12 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	/**
 	 * @return formats
 	 */
+	@Override
 	public String[] getHandledOutputFormats() {
 		return new String[] { Formats.JSON, Formats.XML, Formats.HTML };
 	}
 
+	@Override
 	public Object getSampleEntity() {
 		return new CalendarEventSummary();
 	}
@@ -203,7 +201,6 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 
 			final CalendarEvent event = cal.getEvent(eventId);
 			final CalendarEventDetails rval = new CalendarEventDetails(event);
-			rval.setSiteId(siteId);
 			return rval;
 		} catch (final IdUnusedException e) {
 			throw new EntityNotFoundException("Invalid siteId: " + siteId,
@@ -233,8 +230,6 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 				final CalendarEvent event = (CalendarEvent) o;
 
 				final CalendarEventDetails eventDetails = new CalendarEventDetails(event);
-				eventDetails.setEventImage(eventImageMap.get(event.getType()));
-				eventDetails.setSiteId(siteId);
 				rval.add(eventDetails);
 			}
 		} catch (final IdUnusedException e) {
@@ -311,10 +306,8 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 			CalendarEvent event = (CalendarEvent) o;
 
 			CalendarEventDetails eventDetails = new CalendarEventDetails(event);
-			eventDetails.setEventImage(eventImageMap.get(event.getType()));
 			//as event can be from different site , find sitId for the event
 			Reference reference = entityManager.newReference(event.getCalendarReference());
-			eventDetails.setSiteId(reference.getContext());
 			mergeCal.add(eventDetails);
 		}
 		return mergeCal;

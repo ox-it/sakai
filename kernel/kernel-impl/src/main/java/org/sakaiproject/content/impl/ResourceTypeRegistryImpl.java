@@ -31,8 +31,14 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionPipe;
+import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.api.SiteSpecificResourceType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.*;
@@ -46,7 +52,7 @@ import org.sakaiproject.javax.Filter;
 public class ResourceTypeRegistryImpl implements ResourceTypeRegistry 
 {
 	/** Our logger. */
-	protected static final Log M_log = LogFactory.getLog(ResourceTypeRegistryImpl.class);
+	protected static final Logger M_log = LoggerFactory.getLogger(ResourceTypeRegistryImpl.class);
 
 	/** Map of ResourceType objects indexed by typeId */
 	protected Map<String, ResourceType> typeIndex = new HashMap<String, ResourceType>();

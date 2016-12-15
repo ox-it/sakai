@@ -20,42 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums.ui;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.LockMode;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.sakaiproject.api.app.messageforums.Area;
-import org.sakaiproject.api.app.messageforums.AreaManager;
-import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
-import org.sakaiproject.api.app.messageforums.DiscussionForumService;
-import org.sakaiproject.api.app.messageforums.Message;
-import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
-import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.PrivateForum;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
-import org.sakaiproject.api.app.messageforums.PrivateMessageRecipient;
-import org.sakaiproject.api.app.messageforums.PrivateTopic;
-import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
-import org.sakaiproject.api.app.messageforums.Topic;
-import org.sakaiproject.api.app.messageforums.UniqueArrayList;
+import org.hibernate.*;
+import org.sakaiproject.api.app.messageforums.*;
 import org.sakaiproject.api.app.messageforums.cover.SynopticMsgcntrManagerCover;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -78,16 +44,23 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     PrivateMessageManager
 {
 
-  private static final Log LOG = LogFactory
-      .getLog(PrivateMessageManagerImpl.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PrivateMessageManagerImpl.class);
 
   private static final String QUERY_AGGREGATE_COUNT = "findAggregatePvtMsgCntForUserInContext";  
   private static final String QUERY_MESSAGES_BY_USER_TYPE_AND_CONTEXT = "findPrvtMsgsByUserTypeContext";

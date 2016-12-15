@@ -30,8 +30,8 @@ import java.util.regex.Matcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.TwoFactorAuthentication;
@@ -87,7 +87,7 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final String INCLUDE_TABS = "include-tabs";
 
-	private static final Log log = LogFactory.getLog(SiteHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(SiteHandler.class);
 
 	private static final String URL_FRAGMENT = "site";
 
@@ -521,7 +521,7 @@ public class SiteHandler extends WorksiteHandler
 				StringBuffer queryUrl = req.getRequestURL();
 				String queryString = req.getQueryString();
 				if ( queryString != null ) queryUrl.append('?').append(queryString);
-				log.warn("It is tacky to return markup on a POST CTI="+commonToolId+" URL="+queryUrl);
+				log.debug("It is tacky to return markup on a POST CTI="+commonToolId+" URL="+queryUrl);
 			}
 			log.debug("BufferedResponse success");
 			rcontext.put("bufferedResponse", Boolean.TRUE);
@@ -1237,10 +1237,10 @@ public class SiteHandler extends WorksiteHandler
 			String bodyString = responseStr.substring(bodyStart + 1, bodyEnd);
 			if (tidAllow.indexOf(":debug:") >= 0)
 			{
-				System.out.println(" ---- Head --- ");
-				System.out.println(headString);
-				System.out.println(" ---- Body --- ");
-				System.out.println(bodyString);
+				log.info(" ---- Head --- ");
+				log.info(headString);
+				log.info(" ---- Body --- ");
+				log.info(bodyString);
 			}
 			m.put("responseHead", headString);
 			m.put("responseBody", bodyString);

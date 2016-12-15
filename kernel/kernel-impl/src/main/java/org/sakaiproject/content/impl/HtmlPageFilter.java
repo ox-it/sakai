@@ -141,6 +141,7 @@ public class HtmlPageFilter implements ContentFilter {
 				)
 			));
 		}
+		additionalScripts.append(serverConfigurationService.getString("portal.include.extrahead", ""));
 		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title, additionalScripts));
         
 		final String footer = MessageFormat.format(footerTemplate, fixMixedContent);

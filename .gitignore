@@ -19,3 +19,4 @@ docker/sakai/ssl-private.key
 docker/sakai/ssl-public.crt
 docker/sakai/ssl-chain.crt
 docker/sakai/sakai-keytab
+velocity.log

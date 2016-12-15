@@ -34,8 +34,8 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.UrlValidator;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -92,7 +92,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class IFrameAction extends VelocityPortletPaneledAction
 {
-	private static Log M_log = LogFactory.getLog(IFrameAction.class);
+	private static Logger M_log = LoggerFactory.getLogger(IFrameAction.class);
 	
 	/** Event for accessing the web-content tool */
 	protected final static String EVENT_ACCESS_WEB_CONTENT = "webcontent.read";
