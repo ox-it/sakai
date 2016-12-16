@@ -100,8 +100,6 @@ public class DevolvedSakaiSecurityTest extends SakaiKernelTestBase {
 
 		// Roleswap works as expected, you don't get permissions from admin site.
 		assertTrue(securityService.setUserEffectiveRole(site1.getReference(), "member"));
-		assertTrue(siteService.allowAccessSite(site1.getId()));
-		assertFalse(siteService.allowUpdateSite(site1.getId()));
 
 	}
 
