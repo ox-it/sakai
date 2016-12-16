@@ -1,6 +1,5 @@
 package org.sakaiproject.authz.impl;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
@@ -14,22 +13,25 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
-
-import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class DevolvedSakaiSecurityTest extends SakaiKernelTestBase {
-	
-	@BeforeClass
-	public static void beforeClass() throws IOException {
-		oneTimeSetup();
-	}
 
-	@AfterClass
-	public static void afterClass() throws IOException {
-		oneTimeTearDown();
+	private static Logger log = LoggerFactory.getLogger(DevolvedSakaiSecurityTest.class);
+
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+			log.debug("starting oneTimeSetup");
+			oneTimeSetup();
+			log.debug("finished oneTimeSetup");
+		} catch (Exception e) {
+			log.warn(e.getMessage(), e);
+		}
 	}
 
 	@Test
