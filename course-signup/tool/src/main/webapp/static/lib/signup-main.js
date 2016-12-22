@@ -402,12 +402,11 @@ var Signup = function(){
 					url: "/course-signup/static/signup.tpl",
 					dataType: "text",
 					success: function(data){
-						var position = Signup.util.dialogPosition();
 						signupDialog.dialog({
 							autoOpen: false,
 							modal: true,
 							stack: true,
-							position: position,
+							position: Signup.util.dialogPosition(),
 							width: 800, // Would be nice to get inner content width.
 							close: function(event, ui){
 								signupDialog.remove(); // Tidy up the DOM.
@@ -605,18 +604,12 @@ var Signup = function(){
 			/**
 			 * Creates a position object for a dialog.
 			 * The dialog is placed 5% down from the top of the page.
-			 * It also works within an iFrame (for Sakai).
+			 * Using the default dialog positioning doesn't seem to work.
 			 */
 			dialogPosition: function(){
 				var workingWindow = $(parent.window || window);
-				var position = ["center", workingWindow.scrollTop() + Math.round(workingWindow.height() * 0.05)];
-				if (window.name) { // If we're not running in a window created by Sakai.
-					var iframeOffset = $("#" + window.name, workingWindow.get(0).document).offset();
-					if (iframeOffset) { // If we are take account of the iframe location.
-						position[1] -= iframeOffset.top;
-					}
-				}
-				return position;	
+				var position = [20, Math.round(workingWindow.height() * 0.05)];
+				return position;
 			}
 		},
 		"signup": {
@@ -1073,12 +1066,11 @@ var Signup = function(){
 				"sTitle": "Student",
 				"sWidth": "20%"
 			}, {
-				"sTitle": "Module"
+				"sTitle": "Course"
 			}, {
 				"sTitle": "Supervisor"
 			}, {
 				"sTitle": "Notes",
-				"sWidth": "20%",
 				"sClass": "signup-notes"
 			}, {
 				"sTitle": "Status",

@@ -53,100 +53,100 @@
 	</script>
 </head>	
 <body>
-<div id="toolbar">
-    <ul class="navIntraTool actionToolBar">
-
-		<li><span>Home</span></li>
-		<li><span><a href="search.jsp">Search Courses</a></span></li>
-		<li><span><a href="index.jsp">Browse by Department</a></span></li>  
-		<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-		<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
-		<c:if test="${!externalUser}" >
-			<li><span><a href="my.jsp">My Courses</a></span></li>
-			<c:if test="${isPending}" >
-				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>	
-			</c:if>
-			<c:if test="${isApprover}" >
-				<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
-			</c:if>
-			<c:if test="${isAdministrator}" >
-				<li><span><a href="admin.jsp">Course Administration</a></span></li>
-			</c:if>
-			<c:if test="${isLecturer}">
-				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
-			</c:if>
-		</c:if>
-	</ul>
-</div>
- 
-<div class="wrapper" >   
+	<div class="portletBody container-fluid">
+		<div id="toolbar">
+			<ul class="navIntraTool actionToolBar">
 	
-<h2>Welcome to the Researcher Training information site.</h2>
-
-<p class="intro">There are a wealth of graduate and post-doc training opportunities across the University aimed at supporting you in your research and career development. You can browse, search and sign up for these opportunities using this site.</p>
-
-	<c:if test="${externalUser}" >
-	<p class="alert">If you are a member of the University of Oxford, then you should log in to make full use of this tool.</p>
-	</c:if>
-
-	<ul class="options" >
-
-		<li class="search" >
-			<a href="search.jsp">Search Courses</a>
-			<span class="info">Search for courses. you can <strong>sort</strong> and <strong>filter</strong> your results by department, skill category, research methods, current/previous courses, etc.</span>
-		</li>
+				<li><span class="current">Home</span></li>
+				<li><span><a href="search.jsp">Search Courses</a></span></li>
+				<li><span><a href="index.jsp">Browse by Department</a></span></li>  
+				<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+				<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
+				<c:if test="${!externalUser}" >
+					<li><span><a href="my.jsp">My Courses</a></span></li>
+					<c:if test="${isPending}" >
+						<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>	
+					</c:if>
+					<c:if test="${isApprover}" >
+						<li><span><a href="approve.jsp">Pending Confirmations</a></span></li>
+					</c:if>
+					<c:if test="${isAdministrator}" >
+						<li><span><a href="admin.jsp">Course Administration</a></span></li>
+					</c:if>
+					<c:if test="${isLecturer}">
+						<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
+					</c:if>
+				</c:if>
+			</ul>
+		</div>
+	 
+		<div class="wrapper" >   
+			
+			<h2>Welcome to the Researcher Training information site.</h2>
+			
+			<p class="intro">There are a wealth of graduate and post-doc training opportunities across the University aimed at supporting you in your research and career development. You can browse, search and sign up for these opportunities using this site.</p>
+			
+				<c:if test="${externalUser}" >
+				<p class="alert">If you are a member of the University of Oxford, then you should log in to make full use of this tool.</p>
+				</c:if>
 	
-		<li class="browse" >
-			<a href="index.jsp">Browse by Department</a> 
-			<span class="info">Browse for courses by division, department etc.</span>
-		</li>
-		<li class="calendar" >
-			<a href="calendar.jsp">Browse by Calendar</a> 
-			<span class="info">Browse for courses by course start date.</span>
-		</li>
-		<li class="vitae" >
-			<a href="vitae.jsp">Researcher Development</a>
-			<span class="info">Search for courses by Vitae domains.</span>
-		</li>
-		<c:if test="${!externalUser}" >
-			<li class="myModules" >
-				<a href="my.jsp">My Courses</a>
-				<span class="info">View courses you are currently signed up for.</span>
-			</li>
-		</c:if>
-	</ul>
-
-	<ul class="options admin" >
-
-		<c:if test="${!externalUser}" >
-			<c:if test="${isPending}" >
-				<li class="acceptances" >
-					<a href="pending.jsp">Pending Acceptances</a> 
-					<span class="info">View list of student sign-ups awaiting your approval.</span>
+			<ul class="options" >
+		
+				<li class="search">
+					<span class="searchImg"><a href="search.jsp">Search Courses</a></span>
+					<p class="info">Search for courses. you can <strong>sort</strong> and <strong>filter</strong> your results by department, skill category etc.</p>
 				</li>
-			</c:if>
-			<c:if test="${isApprover}" >
-				<li class="confirmations" >
-					<a href="approve.jsp">Pending Confirmations</a> 
-					<span class="info">View courses which are waiting for your confirmation.</span>
+				<li class="browse">
+					<span class="browseImg"><a href="index.jsp">Browse by Department</a></span> 
+					<p class="info">Browse for courses by division, department etc.</p>
 				</li>
-			</c:if>	
-			<c:if test="${isAdministrator}" >
-				<li class="admin">
-					<a href="admin.jsp">Course Administration</a>
-					<span class="info">Administer courses for which you are an administrator.</span>
+				<li class="calendar">
+					<span class="calImg"><a href="calendar.jsp">Browse by Calendar</a></span> 
+					<p class="info">Browse for courses by course start date.</p>
 				</li>
-			</c:if>
-			<c:if test="${isLecturer}" >
-				<li class="admin">
-					<a href="lecturer.jsp">Lecturers View</a> 
-					<span class="info">View courses which you are teaching.</span>
+				<li class="vitae">
+					<span class="vitaeImg"><a href="vitae.jsp">Researcher Development</a></span>
+					<p class="info">Search for courses by Vitae domains.</p>
 				</li>
-			</c:if>
-		</c:if>
-	</ul>
-
-</div>
+				<c:if test="${!externalUser}" >
+					<li class="myModules" >
+						<span class="myModImg"><a href="my.jsp">My Courses</a></span>
+						<p class="info">View courses you are currently signed up for.</p>
+					</li>
+				</c:if>
+			</ul>
+		
+			<ul class="options admin" >
+		
+				<c:if test="${!externalUser}" >
+					<c:if test="${isPending}" >
+						<li class="acceptances">
+							<span class="adminImg"><a href="pending.jsp">Pending Acceptances</a></span> 
+							<p class="info">View list of student sign-ups awaiting your approval.</p>
+						</li>
+					</c:if>
+					<c:if test="${isApprover}">
+						<li class="confirmations" >
+							<span class="adminImg"><a href="approve.jsp">Pending Confirmations</a></span> 
+							<p class="info">View courses which are waiting for your confirmation.</p>
+						</li>
+					</c:if>	
+					<c:if test="${isAdministrator}">
+						<li class="admin">
+							<span class="adminImg"><a href="admin.jsp">Course Administration</a></span>
+							<p class="info">Administer courses for which you are an administrator.</p>
+						</li>
+					</c:if>
+					<c:if test="${isLecturer}">
+						<li class="admin">
+							<span class="adminImg"><a href="lecturer.jsp">Lecturers View</a></span>
+							<p class="info">View courses which you are teaching.</p>
+						</li>
+					</c:if>
+				</c:if>
+			</ul>
+		</div>
+	</div>
  
 <br clear="all" />
 </body></html>

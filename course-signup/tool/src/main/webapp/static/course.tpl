@@ -144,14 +144,14 @@
 							{if !hide}
 								<tr>
 									<td colspan="3">
-										<h3>&nbsp;&nbsp;${part.type.name}</h3>
+										<h3>${part.type.name}</h3>
 									</td>
 								</tr>
 								{var oneOpen = false}
 								{for option in part.options}
 									<tr>
 										<td class="option-details">
-											<label for="option-${option.id}">
+											<label class="details" for="option-${option.id}">
 											{if option.teachingDetails}
 												${option.teachingDetails} for
 											{else}
@@ -182,7 +182,7 @@
 
 											<span class="location">
 											{if option.starts}
-												teaching starts on ${option.starts|dateFormat}
+												Teaching starts on ${option.starts|dateFormat}
 											{else}
 												{if option.startsText} 
 													teaching starts ${option.startsText}
@@ -204,7 +204,7 @@
 											{/if}
 
 											{if option.opens}
-												signup opens on ${option.opens|dateFormat}
+												Signup opens on ${option.opens|dateFormat}
 											{else}
 												{if option.opensText} 
 													signup opens ${option.opensText}
@@ -237,7 +237,7 @@
 											{if option.sessionData}
 												<ul>
 												{for session in option.sessionData}
-													<li>
+													<li class="session">
 													{if session.singleDay }
 														${session.start|dateFormat} ${session.start|timeFormat} to
 														${session.end|timeFormat} ${session.location}
@@ -245,6 +245,7 @@
 														${session.start|dateFormat} ${session.start|timeFormat} to
 														${session.end|dateFormat} ${session.end|timeFormat} ${session.location}
 													{/if}
+													</li>
 												{/for}
 												</ul>
 											{/if}

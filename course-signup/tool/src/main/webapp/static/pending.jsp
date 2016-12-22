@@ -96,36 +96,37 @@ if (UserDirectoryService.getAnonymousUser().equals(UserDirectoryService.getCurre
 
 </head>
 <body>
-	<div id="toolbar">
-		<ul class="navIntraTool actionToolBar">
-			<li><span><a href="home.jsp">Home</a></span></li>
-			<li><span><a href="search.jsp">Search Modules</a></span></li>
-			<li><span><a href="index.jsp">Browse by Department</a></span></li>
-			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
-			<li><span><a href="my.jsp">My Modules</a></span></li>
-			<li><span>Pending Acceptances</span></li>
-			<c:if test="${isApprover}">
-				<li><span><a href="approve.jsp">Pending
-							Confirmations</a></span></li>
-			</c:if>
-			<c:if test="${isAdministrator}">
-				<li><span><a href="admin.jsp">Module Administration</a></span></li>
-			</c:if>
-			<c:if test="${isLecturer}">
-				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
-			</c:if>
-		</ul>
+	<div class="portletBody container-fluid">
+		<div id="toolbar">
+			<ul class="navIntraTool actionToolBar">
+				<li><span><a href="home.jsp">Home</a></span></li>
+				<li><span><a href="search.jsp">Search Courses</a></span></li>
+				<li><span><a href="index.jsp">Browse by Department</a></span></li>
+				<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+				<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
+				<li><span><a href="my.jsp">My Courses</a></span></li>
+				<li><span class="current">Pending Acceptances</span></li>
+				<c:if test="${isApprover}">
+					<li><span><a href="approve.jsp">Pending
+								Confirmations</a></span></li>
+				</c:if>
+				<c:if test="${isAdministrator}">
+					<li><span><a href="admin.jsp">Course Administration</a></span></li>
+				</c:if>
+				<c:if test="${isLecturer}">
+					<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
+				</c:if>
+			</ul>
+		</div>
+		<div>
+			<h3>These students have signed up for a module that needs your
+				approval.</h3>
+		</div>
+		<div class="table-responsive">
+			<table id="pending-table" class="display">
+			</table>
+		</div>
+	
 	</div>
-	<div>
-		<p>These students have signed up for a module that needs your
-			approval.</p>
-	</div>
-	<div style="margin: 2%">
-		<table id="pending-table" class="display">
-		</table>
-	</div>
-
-
 </body>
 </html>

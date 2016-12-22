@@ -25,10 +25,6 @@ table th {
 
 /** Library Styles **/
 
-.location {
-    font-size: smaller;
-}
-
 .error, .errors {
     color: red;
 }
@@ -38,7 +34,7 @@ table th {
 }
 
 .signup-reason {
-    width: 300px;
+    max-width: 450px;
     display: inline-block;
 }
 
@@ -51,10 +47,6 @@ table th {
     background: white;
     overflow: auto;
     height: 300px;
-}
-
-.dataTables_wrapper {
-    margin: 2%;
 }
 
 .course-group { /* Used for formatting the summary of the signup. */
@@ -169,21 +161,10 @@ table th {
 
 /** Template layout Styles **/
 
-#parts table th {
-    padding: 0.5em;
-}
-
-#parts table td {
-    vertical-align: top;
-    /* Indent all but first line */
-    padding-left: 3em;
-    text-indent: -3em;
-}
-
 #browse {
-    width: 40%;
-	height: 800px;
+    width: 40%;  
     float: left;
+    margin-top: 0.75em;
     overflow-x: hidden;
     overflow-y: auto;
     /* overflow: auto; */
@@ -192,6 +173,15 @@ table th {
 #details {
     width: 59%;
     float: right;
+}
+
+@media screen and (max-width:800px)
+{
+    #browse, #details {
+        display: block;
+        float: none;
+        width: 100%;
+    }
 }
 
 /* Styling of the signup table */
@@ -214,8 +204,8 @@ table th {
 
 /* course-details (course.tpl) */
 
-div.courseDetail {
-    font-family: 'Trebuchet MS',Verdana,Geneva,Arial,Helvetica,sans-serif;
+div.courseDetail{
+    font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif;
 }
 
 div.courseDetail h1 h2 { 
@@ -252,6 +242,10 @@ div.courseDetail h2 {
     padding: 5px;
 }
 
+div.courseDetail #description{
+    padding-left: 0;
+}
+
 div.courseDetail table,
 div.courseDetail #summary div.noAuth,
 div.courseDetail a.login {
@@ -266,8 +260,14 @@ div.courseDetail a.login {
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
-	margin: 2px 2px;
-	padding: 5px 10px;
+}
+
+#signup table h3, .option-details{
+    padding-left: 5px;
+}
+
+#signup table .session{
+    margin-left: 25px;
 }
 
 #signup table, div.courseDetail a.login  {
@@ -316,38 +316,42 @@ ul.options li {
 	margin: 2px 2px;
 	min-height:124px;
 	padding: 2px 10px;
-	width: 200px;
+	width: 245px;
 }
 
 ul.options li a{
-    background: transparent url('/library/image/silk/tick.png') no-repeat top left;
-
 	clear: both;
-	display: block;
 	font-size: 1.2em;
 	font-weight: bold;
-	padding: 0px 0px 5px 20px;
+	padding: 0px 0px 5px 25px;
 }
 
-ul.options li.search a{
-    background-image:  url('/library/image/silk/magnifier.png') ;
+ul.options li.vitae a{
+    padding: 0px 0px 5px 20px;
 }
 
-ul.options li.browse a{
-    background-image:  url('/library/image/silk/text_columns.png') ;
+ul.options .searchImg{
+    background:  url('/library/image/silk/magnifier.png') no-repeat;
 }
 
-ul.options li.calendar a{
-    background-image:  url('/library/image/silk/calendar.png') ;
+ul.options .browseImg{
+    background:  url('/library/image/silk/text_columns.png') no-repeat;
 }
 
-ul.options li.myModules a{
-    background-image:  url('/library/image/silk/user.png') ;
+ul.options .calImg{
+    background:  url('/library/image/silk/calendar.png') no-repeat;
 }
 
+ul.options .vitaeImg{
+    background:  url('/library/image/silk/tick.png') no-repeat;
+}
 
-ul.options li.admin a{
-    background-image:  url('/library/image/silk/wrench.png') ;
+ul.options .myModImg{
+    background:  url('/library/image/silk/user.png') no-repeat;
+}
+
+ul.options.admin .adminImg{
+    background:  url('/library/image/silk/wrench.png') no-repeat;
 }
 
 ul.admin {
@@ -355,7 +359,17 @@ ul.admin {
 	padding-top: 1em;
 }
 
-/* Search Modules (search.jsp) */
+ul.options p.info{
+    padding-top: 5px;
+}
+
+/* Search Courses (search.jsp) */
+
+@media screen and (max-width: 500px) {
+    #search {
+        max-width: 300px;
+    }
+}
 
 div.course-item h3 .course-title {
 	color: #000;
@@ -480,6 +494,26 @@ div.calendarView a.action {
     list-style-type: none;
 }
 
+/* My courses page. */
+
+#signups {
+    margin-top: 0.75em;
+}
+
+#signups-table_wrapper, #course-details-table_wrapper, #pending-table_wrapper{
+    /* Horizontal scroll-bar added from class table-responsive so
+       we want the wrapper to be as wide as the minimum width. */
+    min-width: max-content;
+}
+
+.table-responsive{
+    clear: both;
+}
+/* Course admin page. */
+#course-list {
+    margin-top: 0.75em;
+}
+
 /* This is to stop the search page wrapping badly on narrow setups. Main content is 70% right is 26% */
 .left {
     padding-left: 1%;
@@ -490,5 +524,4 @@ div.calendarView a.action {
     padding-left: 1%;
     padding-right: 1%;
 }
-
 

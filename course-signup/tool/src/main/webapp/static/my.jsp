@@ -97,6 +97,7 @@
 						"bProcessing" : true,
 						"sAjaxSource" : url,
 						"bAutoWidth" : false,
+						"scrollX": true,
 						"aaSorting" : [ [ 1, "desc" ] ],
 						"aoColumns" : [
 								{
@@ -319,7 +320,6 @@
 								try {
 									var id = $(this).attr('href');
 									var workingWindow = parent.window || window;
-									var position = Signup.util.dialogPosition();
 									var height = Math.round($(workingWindow)
 											.height() * 0.9);
 									var width = Math
@@ -330,7 +330,6 @@
 													{
 														autoOpen : false,
 														stack : true,
-														position : position,
 														width : width,
 														height : "auto",
 														modal : true,
@@ -373,39 +372,40 @@
 
 </head>
 <body>
-	<div id="toolbar">
-		<ul class="navIntraTool actionToolBar">
-			<li><span><a href="home.jsp">Home</a></span></li>
-			<li><span><a href="search.jsp">Search Courses</a></span></li>
-			<li><span><a href="index.jsp">Browse by Department</a></span></li>
-			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
-			<li><span>My Courses</span></li>
-			<c:if test="${isPending}">
-				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-			</c:if>
-			<c:if test="${isApprover}">
-				<li><span><a href="approve.jsp">Pending
-							Confirmations</a></span></li>
-			</c:if>
-			<c:if test="${isAdministrator}">
-				<li><span><a href="admin.jsp">Course Administration</a></span></li>
-			</c:if>
-			<c:if test="${isLecturer}">
-				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
-			</c:if>
-		</ul>
+	<div class="portletBody container-fluid">
+		<div id="toolbar">
+			<ul class="navIntraTool actionToolBar">
+				<li><span><a href="home.jsp">Home</a></span></li>
+				<li><span><a href="search.jsp">Search Courses</a></span></li>
+				<li><span><a href="index.jsp">Browse by Department</a></span></li>
+				<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+				<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
+				<li><span class="current">My Courses</span></li>
+				<c:if test="${isPending}">
+					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+				</c:if>
+				<c:if test="${isApprover}">
+					<li><span><a href="approve.jsp">Pending
+								Confirmations</a></span></li>
+				</c:if>
+				<c:if test="${isAdministrator}">
+					<li><span><a href="admin.jsp">Course Administration</a></span></li>
+				</c:if>
+				<c:if test="${isLecturer}">
+					<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
+				</c:if>
+			</ul>
+		</div>
+	
+		<div id="notes">
+			<!-- Show the contents of my_modules.html -->
+		</div>
+	
+		<div id="signups" class="table-responsive">
+			<!-- Browse the areas which there are courses -->
+			<table id="signups-table" class="display">
+			</table>
+		</div>
 	</div>
-
-	<div id="notes">
-		<!-- Show the contents of my_modules.html -->
-	</div>
-
-	<div id="signups">
-		<!-- Browse the areas which there are courses -->
-		<table id="signups-table" class="display">
-		</table>
-	</div>
-
 </body>
 </html>

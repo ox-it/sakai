@@ -242,52 +242,54 @@
 
 </head>
 <body>
-	<div id="toolbar">
-		<ul class="navIntraTool actionToolBar">
-			<li><span><a href="home.jsp">Home</a></span></li>
-			<li><span><a href="search.jsp">Search Courses</a></span></li>
-			<li><span><a href="index.jsp">Browse by Department</a></span></li>
-			<li><span>Browse by Calendar</span></li>
-			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
-			<c:if test="${!externalUser}">
-				<li><span><a href="my.jsp">My Courses</a></span></li>
-				<c:if test="${isPending}">
-					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+	<div class="portletBody container-fluid">
+		<div id="toolbar">
+			<ul class="navIntraTool actionToolBar">
+				<li><span><a href="home.jsp">Home</a></span></li>
+				<li><span><a href="search.jsp">Search Courses</a></span></li>
+				<li><span><a href="index.jsp">Browse by Department</a></span></li>
+				<li><span class="current">Browse by Calendar</span></li>
+				<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
+				<c:if test="${!externalUser}">
+					<li><span><a href="my.jsp">My Courses</a></span></li>
+					<c:if test="${isPending}">
+						<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+					</c:if>
+					<c:if test="${isApprover}">
+						<li><span><a href="approve.jsp">Pending
+									Confirmations</a></span></li>
+					</c:if>
+					<c:if test="${isAdministrator}">
+						<li><span><a href="admin.jsp">Course Administration</a></span></li>
+					</c:if>
+					<c:if test="${isLecturer}">
+					<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
 				</c:if>
-				<c:if test="${isApprover}">
-					<li><span><a href="approve.jsp">Pending
-								Confirmations</a></span></li>
 				</c:if>
-				<c:if test="${isAdministrator}">
-					<li><span><a href="admin.jsp">Course Administration</a></span></li>
-				</c:if>
-				<c:if test="${isLecturer}">
-				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
-			</c:if>
-			</c:if>
-		</ul>
-	</div>
-
-
-	<div class="calendarView">
-		<div class="panel paging top">
-			<div class="leftGroup">
-				<a class="action" href="nodates.jsp">Courses without dates (including online courses)</a>
-			</div>
-
-			<form class="filter" action="#">
-				<label for="filterByProvider">Filter by Provider</label> <select
-					id="filterByProvider">
-					<option value="All providers" selected="selected">All
-						providers</option>
-				</select> <input class="filter-button" type="button" value="filter" />
-			</form>
-
-			<div class="clear"></div>
+			</ul>
 		</div>
-		<div class="tableCloth">
-			<table id="ses-calendar" class="display">
-			</table>
+	
+	
+		<div class="calendarView">
+			<div class="panel paging top">
+				<div class="leftGroup">
+					<a class="action" href="nodates.jsp">Courses without dates (including online courses)</a>
+				</div>
+	
+				<form class="filter" action="#">
+					<label for="filterByProvider">Filter by Provider</label> <select
+						id="filterByProvider">
+						<option value="All providers" selected="selected">All
+							providers</option>
+					</select> <input class="filter-button" type="button" value="filter" />
+				</form>
+	
+				<div class="clear"></div>
+			</div>
+			<div class="tableCloth">
+				<table id="ses-calendar" class="display">
+				</table>
+			</div>
 		</div>
 	</div>
 </body>
