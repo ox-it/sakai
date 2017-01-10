@@ -1,0 +1,3 @@
+[submodule "ezproxy"]
+	path = ezproxy
+	url = https://github.com/Western-OWL/EZProxy
