@@ -232,7 +232,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
-            ['Maximize', 'ShowBlocks']
+            ['Maximize', 'ShowBlocks'],
+            ['A11ychecker']
         ],
         toolbar: 'Full',
         resize_dir: 'both',
@@ -272,6 +273,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             CKEDITOR.plugins.addExternal('autosave',webJars+'autosave/8541f541d9985cfd0859c7d8eb6be404afe95a2d/', 'plugin.js');
             CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
             CKEDITOR.plugins.addExternal('fontawesome',basePath+'fontawesome/', 'plugin.js');
+            // Accessibility checker has a dependency on balloonpanel
+            CKEDITOR.plugins.addExternal('a11ychecker',basePath+'a11ychecker/', 'plugin.js');
+            CKEDITOR.plugins.addExternal('balloonpanel',basePath+'balloonpanel/', 'plugin.js');
             /*
                To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
                and to extraPlugins. This also needs extra stylesheets.
@@ -288,7 +292,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             //ckconfig.extraPlugins+="atd-ckeditor,";
             //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-            ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification";
+            ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification,a11ychecker";
 
             //SAK-29648
             ckconfig.contentsCss = [basePath+'/fontawesome/font-awesome/css/font-awesome.min.css'];
