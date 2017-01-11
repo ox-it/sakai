@@ -5,3 +5,6 @@
 	path = externals/turnitin
 	url = https://github.com/Western-OWL/turnitin
 	branch = owl
+[submodule "externals/owl-quartz-jobs"]
+	path = externals/owl-quartz-jobs
+	url = https://github.com/Western-OWL/OWL-Quartz-Jobs
