@@ -37,9 +37,100 @@
 
     <profiles>
         <profile>
-            <id>all</id>
+            <id>owl</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>master</module>
+                <module>access</module>
+                <module>alias</module>
+                <module>announcement</module>
+                <module>archive</module>
+                <module>assignment</module>
+                <module>authz</module>
+                <module>basiclti</module>
+                <module>calendar</module>
+                <module>chat</module>
+                <module>citations</module>
+                <module>cmprovider</module>
+                <module>common</module>
+                <module>config</module>
+                <module>cloud-content</module>
+                <module>content</module>
+                <module>content-review</module>
+                <module>courier</module>
+                <module>dav</module>
+                <module>delegatedaccess</module>
+                <module>deploy</module>
+                <module>edu-services</module>
+                <module>emailtemplateservice</module>
+                <module>entitybroker</module>
+                <module>external-calendaring-service</module>
+                <module>feedback</module>
+                <module>gradebook</module>
+                <module>gradebookng</module>
+                <module>help</module>
+                <module>hierarchy</module>
+                <module>jobscheduler</module>
+                <module>jsf</module>
+                <module>kernel</module>
+                <module>lessonbuilder</module>
+                <module>login</module>
+                <module>mailarchive</module>
+                <module>mailsender</module>
+                <module>memory</module>
+                <module>message</module>
+                <module>msgcntr</module>
+                <module>oauth</module>
+                <module>pasystem</module>
+                <module>podcasts</module>
+                <module>polls</module>
+                <module>portal</module>
+                <module>postem</module>
+                <module>presence</module>
+                <module>profile2</module>
+                <module>providers</module>
+                <module>reference</module>
+                <module>reset-pass</module>
+                <module>rights</module>
+                <module>roster2</module>
+                <module>rsf</module>
+                <module>rwiki</module>
+                <module>samigo</module>
+                <module>search</module>
+                <module>sections</module>
+                <module>shortenedurl</module>
+                <module>signup</module>
+                <module>simple-rss-portlet</module>
+                <module>site</module>
+                <module>site-manage</module>
+                <module>sitestats</module>
+                <module>syllabus</module>
+                <module>taggable</module>
+                <module>textarea</module>
+                <module>tool</module>
+                <module>user</module>
+                <module>userauditservice</module>
+                <module>usermembership</module>
+                <module>velocity</module>
+                <module>web</module>
+                <module>webservices</module>
+
+                <!-- OWL -->
+
+                <module>externals/certification</module>
+                <module>externals/ezproxy</module>
+                <module>externals/owl-quartz-jobs</module>
+                <module>externals/sakora-csv</module>
+                <module>externals/scorm</module>
+                <module>externals/turnitin/contentreview-impl</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>all</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <modules>
                 <module>master</module>
