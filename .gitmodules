@@ -16,3 +16,7 @@
 	path = externals/certification
 	url = https://github.com/Western-OWL/certification
 	branch = owl
+[submodule "externals/sakora-csv"]
+	path = externals/sakora-csv
+	url = https://github.com/Western-OWL/sakora-csv
+	branch = owl
