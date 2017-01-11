@@ -12,3 +12,7 @@
 	path = externals/scorm
 	url = https://github.com/Western-OWL/SCORM.2004.3ED.RTE
 	branch = owl
+[submodule "externals/certification"]
+	path = externals/certification
+	url = https://github.com/Western-OWL/certification
+	branch = owl
