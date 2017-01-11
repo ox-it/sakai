@@ -4,5 +4,4 @@
 [submodule "externals/turnitin"]
 	path = externals/turnitin
 	url = https://github.com/Western-OWL/turnitin
-[submodule "turnitin"]
 	branch = owl
