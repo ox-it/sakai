@@ -575,8 +575,9 @@
                     </button>
                   </div>
                   <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9 pull-right">
-                    <div class="pull-right">
+                    <div class="pull-right" id="paginationMessage">
   								    <span class="instructionx" style="margin-bottom:.3em;">$tlang.getString("viewing") $topMsgPos - $btmMsgPos $tlang.getString("of") $allMsgNumber $tlang.getString("items")</span>&nbsp;&nbsp;
+									<span id="pagination">
     									#if ("$pagesize" != "0")
     										#if ($goPPButton == "true")
      											<input type="button" name="List_first" id="List_first" value="|&lt;" title="$clang.getString("gen.first")" onclick=" document.getElementById('sakai_action').value='doList_first';document.getElementById('showForm').submit();" />
@@ -610,6 +611,7 @@
     											<input type="button" name="List_last" value="&gt;|" disabled="disabled" />
     										#end
     									#end
+									</span>
                     </div>
 								  </div>
                 </div>
@@ -759,7 +761,7 @@
 					#end ## foreach $root in $other_sites
 	
 				#else
-					<tr class="hidden-xs hidden-sm">
+					<tr>
 						<th colspan="10">
 						<h3>
 							<a href="#" onclick="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
