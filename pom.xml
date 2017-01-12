@@ -124,7 +124,7 @@
                 <module>externals/owl-quartz-jobs</module>
                 <module>externals/sakora-csv</module>
                 <module>externals/scorm</module>
-                <module>externals/turnitin/contentreview-impl</module>
+                <!--<module>externals/turnitin/contentreview-impl</module>-->
             </modules>
         </profile>
         <profile>
