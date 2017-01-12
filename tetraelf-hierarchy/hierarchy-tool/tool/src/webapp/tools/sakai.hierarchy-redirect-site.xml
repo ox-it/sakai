@@ -4,8 +4,8 @@
 
 	<tool
 			id="sakai.hierarchy-redirect-site"
-			title="Add Redirect"
-		description="Add a Redirect.">
+			title="Manage Redirects"
+		description="Add, delete or hide a redirect.">
 			
 		<category name="hierarchy" />
 		<configuration name="functions.require" value="portal.hierarchy.modify"/>
