@@ -1,6 +1,7 @@
 [submodule "externals/ezproxy"]
 	path = externals/ezproxy
 	url = https://github.com/Western-OWL/EZProxy
+	branch = owl
 [submodule "externals/turnitin"]
 	path = externals/turnitin
 	url = https://github.com/Western-OWL/turnitin
@@ -8,6 +9,7 @@
 [submodule "externals/owl-quartz-jobs"]
 	path = externals/owl-quartz-jobs
 	url = https://github.com/Western-OWL/OWL-Quartz-Jobs
+	branch = owl
 [submodule "externals/scorm"]
 	path = externals/scorm
 	url = https://github.com/Western-OWL/SCORM.2004.3ED.RTE
