@@ -36,6 +36,22 @@ if [ -f "/opt/tomcat/webapps/library.war" ] ; then
     echo "portal.cdn.version=$(shasum /opt/tomcat/webapps/library.war | cut -c1-8)" >> /opt/tomcat/sakai/sakai.properties
 fi
 
+# Setup the jGroups opts
+if [ -n "${JGROUPS_DRIVER}" ]; then
+    export CATALINA_OPTS="${CATALINA_OPTS} -Djgroups.jdbc.ping.driver=${JGROUPS_DRIVER}"
+fi
+if [ -n "${JGROUPS_URL}" ]; then
+    export CATALINA_OPTS="${CATALINA_OPTS} -Djgroups.jdbc.ping.url=${JGROUPS_URL}"
+fi
+if [ -n "${JGROUPS_USERNAME}" ]; then
+    export CATALINA_OPTS="${CATALINA_OPTS} -Djgroups.jdbc.ping.user=${JGROUPS_USERNAME}"
+fi
+if [ -n "${JGROUPS_PASSWORD}" ]; then
+    export CATALINA_OPTS="${CATALINA_OPTS} -Djgroups.jdbc.ping.pass=${JGROUPS_PASSWORD}"
+fi
+if [ -n "${JGROUPS_ADDRESS}" ]; then
+    export CATALINA_OPTS="${CATALINA_OPTS} -Djgroups.bind_addr=${JGROUPS_ADDRESS}"
+fi
 
 # This is needed so that when using mounted volumes we can reset the permissions
 # In productions this should never be needed
