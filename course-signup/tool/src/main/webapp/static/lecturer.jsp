@@ -104,7 +104,9 @@
 
 			// Table showing the components.
 			var html = '<h3 style="display:inline">' + name + '</h3>';
+			html += '<div class="table-responsive">';
 			html += '<table border="0" class="display" id="course-details-table"></table>';
+			html += '</div>';
 			$("#course-details").html(html);
 
 			var summary = $("#course-details-table")
@@ -243,7 +245,9 @@
 			html += '<option value="REJECTED">REJECTED</option>';
 			html += '<option value="WITHDRAWN">WITHDRAWN</option>';
 			html += '</select></span>';
+			html += '<div class="table-responsive">';
 			html += '<table border="0" class="display" id="signups-table"></table>';
+			html += '</div>';
 			$("#signups").html(html);
 		
 			// Load the signups.
@@ -368,73 +372,74 @@
 
 </head>
 <body>
-	<div id="toolbar">
-		<ul class="navIntraTool actionToolBar">
-			<li><span><a href="home.jsp">Home</a></span></li>
-			<li><span><a href="search.jsp">Search Courses</a></span></li>
-			<li><span><a href="index.jsp">Browse by Department</a></span></li>
-			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
-			<li><span><a href="my.jsp">My Courses</a></span></li>
-			<c:if test="${isPending}">
-				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-			</c:if>
-			<c:if test="${isApprover}">
-				<li><span><a href="approve.jsp">Pending
-							Confirmations</a></span></li>
-			</c:if>
-			<c:if test="${isAdministrator}">
-				<li><span><a href="admin.jsp">Course Administration</a></span></li>
-			</c:if>
-			<li><span>Lecturers View</span></li>
-		</ul>
-	</div>
-
-	<div id="course-list">
-		<!-- Browse the areas which there are courses -->
-	</div>
-	<div id="course-details" style="margin-top: 14px;"></div>
-	<!-- Show details of the course -->
-	<div id="signups"></div>
-
-
-	<!-- Hidden extra bits -->
-	<!-- Popup window for selecting components. -->
-	<div id="signup-add-components-win" class="jqmWindow"
-		style="display: none"></div>
-
-	<textarea id="signup-add-components-tpl" style="display: none" rows="0"
-		cols="0">
-	<h2>Users Found</h2>
-	<ul>
-	{for user in users}
-		<li>\${user.name} (\${user.email})</li>
-	{/for}
-	</ul>
-	<h2>Select Courses</h2>
+	<div class="portletBody container-fluid">
+		<div id="toolbar">
+			<ul class="navIntraTool actionToolBar">
+				<li><span><a href="home.jsp">Home</a></span></li>
+				<li><span><a href="search.jsp">Search Courses</a></span></li>
+				<li><span><a href="index.jsp">Browse by Department</a></span></li>
+				<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+				<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
+				<li><span><a href="my.jsp">My Courses</a></span></li>
+				<c:if test="${isPending}">
+					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+				</c:if>
+				<c:if test="${isApprover}">
+					<li><span><a href="approve.jsp">Pending
+								Confirmations</a></span></li>
+				</c:if>
+				<c:if test="${isAdministrator}">
+					<li><span><a href="admin.jsp">Course Administration</a></span></li>
+				</c:if>
+				<li><span class="current">Lecturers View</span></li>
+			</ul>
+		</div>
 	
-	<form id="signup-add-components">
-	<span class="errors"></span>
-	<ul>
-	{for component in components}
-		<li>
-			<input type="checkbox" name="\${component.id}"
-					id="option-\${component.id}" value="true">
-			<label for="component-\${component.id}">\${component.title} - \${component.teachingDetails} for \${component.sessions} sessions in \${component.when},
-					{if component.presenter}<a
-						href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
-					</label>
-                                <br />
-                                <span class="location">\${component.location}</span>
-		</li>
-	{/for}
-	</ul>
-		<input type="submit" value="Add">
-		<input type="button" class="cancel" value="Cancel">
-		<div id="create-signups-progress"></div>
-
-	</form>
-</textarea>
-
+		<div id="course-list">
+			<!-- Browse the areas which there are courses -->
+		</div>
+		<div id="course-details" style="margin-top: 14px;"></div>
+		<!-- Show details of the course -->
+		<div id="signups"></div>
+	
+	
+		<!-- Hidden extra bits -->
+		<!-- Popup window for selecting components. -->
+		<div id="signup-add-components-win" class="jqmWindow"
+			style="display: none"></div>
+	
+		<textarea id="signup-add-components-tpl" style="display: none" rows="0"
+			cols="0">
+		<h2>Users Found</h2>
+		<ul>
+		{for user in users}
+			<li>\${user.name} (\${user.email})</li>
+		{/for}
+		</ul>
+		<h2>Select Courses</h2>
+		
+		<form id="signup-add-components">
+		<span class="errors"></span>
+		<ul>
+		{for component in components}
+			<li>
+				<input type="checkbox" name="\${component.id}"
+						id="option-\${component.id}" value="true">
+				<label for="component-\${component.id}">\${component.title} - \${component.teachingDetails} for \${component.sessions} sessions in \${component.when},
+						{if component.presenter}<a
+							href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
+						</label>
+									<br />
+									<span class="location">\${component.location}</span>
+			</li>
+		{/for}
+		</ul>
+			<input type="submit" value="Add">
+			<input type="button" class="cancel" value="Cancel">
+			<div id="create-signups-progress"></div>
+	
+		</form>
+	</textarea>
+	</div>
 </body>
 </html>

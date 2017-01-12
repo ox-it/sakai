@@ -82,127 +82,128 @@
  
 </head>
 <body>
-
-	<div id="toolbar">
-		<ul class="navIntraTool actionToolBar">
-			<li><span><a href="home.jsp">Home</a></span></li>
-			<li><span>Search Modules</span></li>
-			<li><span><a href="index.jsp">Browse by Department</a></span></li>
-			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
-			<c:if test="${!externalUser}">
-				<li><span><a href="my.jsp">My Modules</a></span></li>
-				<c:if test="${isPending}">
-					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+	<div class="portletBody container-fluid">
+		<div id="toolbar">
+			<ul class="navIntraTool actionToolBar">
+				<li><span><a href="home.jsp">Home</a></span></li>
+				<li><span class="current">Search Courses</span></li>
+				<li><span><a href="index.jsp">Browse by Department</a></span></li>
+				<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+				<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
+				<c:if test="${!externalUser}">
+					<li><span><a href="my.jsp">My Courses</a></span></li>
+					<c:if test="${isPending}">
+						<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+					</c:if>
+					<c:if test="${isApprover}">
+						<li><span><a href="approve.jsp">Pending
+									Confirmations</a></span></li>
+					</c:if>
+					<c:if test="${isAdministrator}">
+						<li><span><a href="admin.jsp">Courses Administration</a></span></li>
+					</c:if>
+					<c:if test="${isLecturer}">
+					<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
 				</c:if>
-				<c:if test="${isApprover}">
-					<li><span><a href="approve.jsp">Pending
-								Confirmations</a></span></li>
 				</c:if>
-				<c:if test="${isAdministrator}">
-					<li><span><a href="admin.jsp">Module Administration</a></span></li>
-				</c:if>
-				<c:if test="${isLecturer}">
-				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
-			</c:if>
-			</c:if>
-		</ul>
-	</div>
-	
-	<div id="search_wrapper" class="simple_search" >
-	
-		<div class="left">
-	
-			<div class="error" id="leftError">
-			</div>
-			
-			<div class="current_selection">
-				<h2>Current Selection</h2>
-				<ul id="selection"></ul>
-
-				<ul class="pager"></ul>
-				<div class="pager-msg"></div>
-			</div>
-
-			<div id="result">
-				<div id="docs"></div>
-			</div>
-
-			<div class="current_selection">
-				<ul class="pager"></ul>
-				<div class="pager-msg"></div>
-			</div>
-			
+			</ul>
 		</div>
-
-		<div class="right">
-			<div class="error" id="rightError">
-			</div>
-			<div id="search">
-				<h2>Search</h2>
-				<div>
-				Search by course title or by skills category or leave the box blank to display all upcoming courses.
+		
+		<div id="search_wrapper" class="simple_search" >
+		
+			<div class="left">
+		
+				<div class="error" id="leftError">
 				</div>
-				<form class="search">
-					<input type="text" id="query" name="query" autocomplete="off" placeholder="e.g. reference management, career development, chemistry" >
-					<br />
-					<input type="submit" value="Search">
-				</form>
-				<!-- 
-				<div class="advanced_link">
-					<a class="advanced" href="#">Advanced Search</a>
-				</div>	
-				 -->
-			</div>
 				
-			<div class="facets" id="facets">
-				<h2>Department</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="provider_title"></div>
+				<div class="current_selection">
+					<h2>Current Selection</h2>
+					<ul id="selection"></ul>
+	
+					<ul class="pager"></ul>
+					<div class="pager-msg"></div>
 				</div>
-
-				<h2>Skills Category</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="course_subject_rdf"></div>
+	
+				<div id="result">
+					<div id="docs"></div>
 				</div>
-
-				<h2>Research Method</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="course_subject_rm"></div>
+	
+				<div class="current_selection">
+					<ul class="pager"></ul>
+					<div class="pager-msg"></div>
 				</div>
-
-				<h2>Delivery Method</h2>
-				<div class="facet-body-frame">
-					<div class="facet-body" id="course_delivery"></div>
-				</div>
-
-				<h2>RDF Domain</h2>
-				<div class="facet-body-frame">
-				    <div class="facet-body" id="course_subject_vitae_domain"></div>
-				</div>
-
-				<h2>RDF Sub-domain</h2>
-				<div class="facet-body-frame">
-				    <div class="facet-body" id="course_subject_vitae_subdomain"></div>
-				</div>
-
+				
 			</div>
-
-			<div>
-			    <h2>Show Only</h2>
-			    <div class="others">
-			        <div class="other">
-			            <input type="checkbox" id="show_old">
-			            <label for="show_old">Old Courses</label><br/>
-			        </div>
-			        <div class="other" id="show_new">
-			            <input type="checkbox" id="show_new_input">
-			            <label for="show_new_input">Recently Added Courses</label><br/>
-			        </div>
-			    </div>
+	
+			<div class="right">
+				<div class="error" id="rightError">
+				</div>
+				<div id="search">
+					<h2>Search</h2>
+					<div id="searchInstructions">
+					Search by course title or by skills category or leave the box blank to display all upcoming courses.
+					</div>
+					<form class="search">
+						<input type="text" id="query" name="query" autocomplete="off" placeholder="e.g. reference management, career development, chemistry" >
+						<br />
+						<input type="submit" value="Search">
+					</form>
+					<!-- 
+					<div class="advanced_link">
+						<a class="advanced" href="#">Advanced Search</a>
+					</div>	
+					 -->
+				</div>
+					
+				<div class="facets" id="facets">
+					<h2>Department</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="provider_title"></div>
+					</div>
+	
+					<h2>Skills Category</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="course_subject_rdf"></div>
+					</div>
+	
+					<h2>Research Method</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="course_subject_rm"></div>
+					</div>
+	
+					<h2>Delivery Method</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="course_delivery"></div>
+					</div>
+	
+					<h2>RDF Domain</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="course_subject_vitae_domain"></div>
+					</div>
+	
+					<h2>RDF Sub-domain</h2>
+					<div class="facet-body-frame">
+						<div class="facet-body" id="course_subject_vitae_subdomain"></div>
+					</div>
+	
+				</div>
+	
+				<div>
+					<h2>Show Only</h2>
+					<div class="others">
+						<div class="other">
+							<input type="checkbox" id="show_old">
+							<label for="show_old">Old Courses</label><br/>
+						</div>
+						<div class="other" id="show_new">
+							<input type="checkbox" id="show_new_input">
+							<label for="show_new_input">Recently Added Courses</label><br/>
+						</div>
+					</div>
+				</div>
 			</div>
+			<div class="clear"></div>
 		</div>
-		<div class="clear"></div>
-	</div> 
+	</div>
 </body>
 </html>

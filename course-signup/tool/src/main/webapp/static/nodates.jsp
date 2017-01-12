@@ -211,7 +211,6 @@
 					try {
 						var id = $(this).attr('href');
 						var workingWindow = parent.window || window;
-						var position = Signup.util.dialogPosition();
 						var height = Math
 								.round($(workingWindow).height() * 0.9);
 						var width = Math.round($(window).width() * 0.9);
@@ -220,7 +219,6 @@
 								{
 									autoOpen : false,
 									stack : true,
-									position : position,
 									width : width,
 									height : "auto",
 									modal : true,
@@ -254,12 +252,12 @@
 	<div id="toolbar">
 		<ul class="navIntraTool actionToolBar">
 			<li><span><a href="home.jsp">Home</a></span></li>
-			<li><span><a href="search.jsp">Search Modules</a></span></li>
+			<li><span><a href="search.jsp">Search Courses</a></span></li>
 			<li><span><a href="index.jsp">Browse by Department</a></span></li>
 			<li><span>Browse by Calendar</span></li>
 			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
 			<c:if test="${!externalUser}">
-				<li><span><a href="my.jsp">My Modules</a></span></li>
+				<li><span><a href="my.jsp">My Courses</a></span></li>
 				<c:if test="${isPending}">
 					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
 				</c:if>
@@ -268,7 +266,7 @@
 								Confirmations</a></span></li>
 				</c:if>
 				<c:if test="${isAdministrator}">
-					<li><span><a href="admin.jsp">Module Administration</a></span></li>
+					<li><span><a href="admin.jsp">Course Administration</a></span></li>
 				</c:if>
 				<c:if test="${isLecturer}">
 				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>

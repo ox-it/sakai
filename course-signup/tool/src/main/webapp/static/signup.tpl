@@ -36,45 +36,51 @@
         <input type="hidden" name="courseId" value="${courseId}"/>
         <table style="width:100%">
         	{if courseApproval}
-            <tr>
-                <th>
-                    <label for="supervisor-email">
-                        Your Supervisor's Email
-                    </label>
-                </th>
-                <td>
-                    <input type="text" class="valid-email" name="email" id="supervisor-email" size="40"/>
-                </td>
-            </tr>
+                <tr>
+                    <th>
+                        <label for="supervisor-email">
+                            Your Supervisor's Email
+                        </label>
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" class="valid-email" name="email" id="supervisor-email" size="40"/>
+                    </td>
+                </tr>
             {/if}
-            <tr>
-                <fieldset>
+            <fieldset>
+                <tr>
                     <th>
                         <label for="supervisor-note" class="signup-reason">
                             Please enter your reason/s for enrolling for module
                         </label>
                     </th>
+                </tr>
+                <tr>
                     <td>
-<${textarea} name="message" id="supervisor-note" cols="40" rows="8">Reason for requesting to attend this module:
+<${textarea} name="message" id="supervisor-note" cols="60" rows="8">Reason for requesting to attend this module:
  
 Other comments: </${textarea}>
                     </td>
-                </fieldset>
-            </tr>
+                </tr>
+            </fieldset>
             <tr>
             </tr>
-            <tr>
-                <fieldset>
+            <fieldset>
+                <tr>
                     <th>
                         <label for="special-requirements"  class="signup-reason">
                             Please tell us any information we need to know in order to ensure that you are able to attend and participate fully in the module
                         </label>
                     </th>
+                </tr>
+                <tr>
                     <td>
-<${textarea} name="specialReq" id="special-requirements" cols="40" rows="8"></${textarea}>
+<${textarea} name="specialReq" id="special-requirements" cols="60" rows="8"></${textarea}>
                     </td>
+                 </tr>
             </fieldset>
-            </tr>
         </table>
         <br>
         <p>Note that your place is not guaranteed until you receive a confirmation email</p>

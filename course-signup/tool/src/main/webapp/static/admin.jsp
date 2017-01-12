@@ -115,7 +115,9 @@
 				html += '<input class="show-hide-button" type="button" id="'+code+'" value="'+hideValue+'"/>';
 				html += '</span>';
 			}
+			html += '<div class="table-responsive">';
 			html += '<table border="0" class="display" id="course-details-table"></table>';
+			html += '</div>';
 			$("#course-details").html(html);
 
 			var summary = $("#course-details-table")
@@ -260,8 +262,10 @@
 			html += '<span style="float:right; padding-right:20px;">Teaching Start Filter <select class="signups-table-starts-filter" id="signups-table-starts-filter">';
 			html += '<option value="">All</option>';
 			html += '</select></span>';
+			html += '<div class="table-responsive">';
 			
 			html += '<table border="0" class="display" id="signups-table"></table>';
+			html += '</div>';
 			html += '<a href="#" id="signup-add">Add Oxford Signup</a>';
 			html += '<span style="padding-right:20px;" />';
 			html += '<a href="#" id="external-add">Add External Signup</a>';
@@ -287,13 +291,9 @@
 			})
 
 			var signupAddUser = $("#signup-add-user-win");
-			signupAddUser.resize(function(e) {
-				// Calculate size.
-			});
 			signupAddUser.jqm({
 				onShow : function(objs) {
 					$("body").css("overflow", "hidden"); // Doesn't seem to work on IE7
-					objs.w.css("height", 330);
 					objs.w.show();
 					$("input[name=supervisor]", signupAddUser).val("");
 					$("textarea", signupAddUser).val("");
@@ -310,13 +310,9 @@
 			signupAddUser.jqmAddClose("input.cancel");
 			
 			var signupAddExternal = $("#signup-add-external-win");
-			signupAddExternal.resize(function(e) {
-				// Calculate size.
-			});
 			signupAddExternal.jqm({
 				onShow : function(objs) {
 					$("body").css("overflow", "hidden"); // Doesn't seem to work on IE7
-					objs.w.css("height", 220);
 					objs.w.show();
 					$("input[name=supervisor]", signupAddExternal).val("");
 					$("textarea", signupAddExternal).val("");
@@ -338,19 +334,12 @@
 								// Reset the list of good users.
 								goodUsers = [];
 								signupAddUser.jqmShow();
-								// Need to resize to content.
-								var windowHeight = $(window).height();
-								var positionTop = signupAddUser[0].offsetTop;
-								if (windowHeight < signupAddUser.outerHeight()
-										+ positionTop) {
-									// Too big.
-									var newHeight = windowHeight
-											- (signupAddUser.outerHeight(false) - signupAddUser
-													.height()) - 2;
-									signupAddUser.height(newHeight);
-									signupAddUser.css("top", "1px"); // Move almost to the top.
-								}
-								;
+								// Centre in the middle of the screen.
+								signupAddUser.css("position", "fixed");
+								signupAddUser.css("height", "420px");
+								signupAddUser.css("width", "350px");
+								signupAddUser.css("margin-left", "-175px");
+								signupAddUser.css("top", "30%");
 							});
 
 			$(window)
@@ -386,6 +375,11 @@
 				signupAddExternal.jqmHide();
 				var dialog = $("#signup-add-components-win");
 				dialog.html(output);
+				dialog.css("width", "350px");
+				dialog.css("height", "300px");
+				dialog.css("position", "fixed");
+				dialog.css("margin-left", "-175px");
+				dialog.css("top", "30%");
 				dialog.jqm();
 				dialog.jqmAddClose("input.cancel");
 				dialog.jqmShow();
@@ -622,19 +616,11 @@
 						// Reset the list of good users.
 						goodUsers = [];
 						signupAddExternal.jqmShow();
-						// Need to resize to content.
-						var windowHeight = $(window).height();
-						var positionTop = signupAddExternal[0].offsetTop;
-						if (windowHeight < signupAddExternal.outerHeight()
-								+ positionTop) {
-							// Too big.
-							var newHeight = windowHeight
-									- (signupAddExternal.outerHeight(false) - signupAddExternal
-											.height()) - 2;
-							signupAddExternal.height(newHeight);
-							signupAddExternal.css("top", "1px"); // Move almost to the top.
-						}
-						;
+						signupAddExternal.css("position", "fixed");
+						signupAddExternal.css("height", "280px");
+						signupAddExternal.css("width", "350px");
+						signupAddExternal.css("margin-left", "-175px");
+						signupAddExternal.css("top", "30%");
 					});
 			
 			signupAddExternal
@@ -834,111 +820,112 @@
 
 </head>
 <body>
-	<div id="toolbar">
-		<ul class="navIntraTool actionToolBar">
-			<li><span><a href="home.jsp">Home</a></span></li>
-			<li><span><a href="search.jsp">Search Courses</a></span></li>
-			<li><span><a href="index.jsp">Browse by Department</a></span></li>
-			<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
-			<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
-			<li><span><a href="my.jsp">My Courses</a></span></li>
-			<c:if test="${isPending}">
-				<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
-			</c:if>
-			<c:if test="${isApprover}">
-				<li><span><a href="approve.jsp">Pending
-							Confirmations</a></span></li>
-			</c:if>
-			<li><span>Course Administration</span></li>
-			<c:if test="${isLecturer}">
-				<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
-			</c:if>
-		</ul>
-	</div>
-
-	<div id="course-list">
-		<!-- Browse the areas which there are courses -->
-	</div>
-	<div id="course-details" style="margin-top: 14px;"></div>
-	<!-- Show details of the course -->
-	<div id="signups"></div>
-
-
-	<!-- Hidden extra bits -->
-	<!-- Popup window for finding users.-->
-	<div id="signup-add-user-win" class="jqmWindow" style="display: none">
-		<h2>Find users</h2>
-		<form id="signup-add-user">
-			<p>
-				Enter the Supervisor email.<br /> <input type="text"
-					name="supervisor" id="add-supervisor" size="28" />
-			</p>
-			<p>
-				Enter one or more Oxford username or email addresses.<br />
-				<textarea name="users" id="add-users" cols="30" rows="8"></textarea>
-			</p>
-			<span class="errors"></span> <br> <input type="submit"
-				value="Find"> <input type="button" class="cancel"
-				value="Cancel"><br>
-			<div id="find-users-progress"></div>
-		</form>
-	</div>
+	<div class="portletBody container-fluid">
+		<div id="toolbar">
+			<ul class="navIntraTool actionToolBar">
+				<li><span><a href="home.jsp">Home</a></span></li>
+				<li><span><a href="search.jsp">Search Courses</a></span></li>
+				<li><span><a href="index.jsp">Browse by Department</a></span></li>
+				<li><span><a href="calendar.jsp">Browse by Calendar</a></span></li>
+				<li><span><a href="vitae.jsp">Researcher Development</a></span></li>
+				<li><span><a href="my.jsp">My Courses</a></span></li>
+				<c:if test="${isPending}">
+					<li><span><a href="pending.jsp">Pending Acceptances</a></span></li>
+				</c:if>
+				<c:if test="${isApprover}">
+					<li><span><a href="approve.jsp">Pending
+								Confirmations</a></span></li>
+				</c:if>
+				<li><span class="current">Course Administration</span></li>
+				<c:if test="${isLecturer}">
+					<li><span><a href="lecturer.jsp">Lecturer View</a></span></li>
+				</c:if>
+			</ul>
+		</div>
 	
-	<!-- Popup window for adding external users.-->
-	<div id="signup-add-external-win" class="jqmWindow" style="display: none">
-		<h2>Add New External Student</h2>
-		<form id="signup-add-external">
-			<span class="errors"></span> <br>
-			<p>
-				Enter the student name.<br /> 
-				<input type="text" name="studentName" id="student-name" size="60" />
-			</p>
-			<p>
-				Enter the student email addresses.<br />
-				<input type="text" name="studentEmail" id="student-email" size="60" />
-			</p>
-			<input type="submit" value="Select Components">
-			<input type="button" class="cancel" value="Cancel"><br>
-			<div id="find-users-progress"></div>
-		</form>
-	</div>
-
-	<!-- Popup window for selecting components. -->
-	<div id="signup-add-components-win" class="jqmWindow"
-		style="display: none"></div>
-
-	<textarea id="signup-add-components-tpl" style="display: none" rows="0"
-		cols="0">
-		<h2>Users Found</h2>
-		<ul>
-		{for user in users}
-			<li>\${user.name} (\${user.email})</li>
-		{/for}
-		</ul>
-		<h2>Select Courses</h2>
+		<div id="course-list">
+			<!-- Browse the areas which there are courses -->
+		</div>
+		<div id="course-details" style="margin-top: 14px;"></div>
+		<!-- Show details of the course -->
+		<div id="signups"></div>
 	
-		<form id="signup-add-components">
-			<span class="errors"></span>
+	
+		<!-- Hidden extra bits -->
+		<!-- Popup window for finding users.-->
+		<div id="signup-add-user-win" class="jqmWindow" style="display: none">
+			<h2>Find users</h2>
+			<form id="signup-add-user">
+				<p>
+					Enter the Supervisor email.<br /> <input type="text"
+						name="supervisor" id="add-supervisor" size="28" />
+				</p>
+				<p>
+					Enter one or more Oxford username or email addresses.<br />
+					<textarea name="users" id="add-users" cols="30" rows="8"></textarea>
+				</p>
+				<span class="errors"></span> <br> <input type="submit"
+					value="Find"> <input type="button" class="cancel"
+					value="Cancel"><br>
+				<div id="find-users-progress"></div>
+			</form>
+		</div>
+		
+		<!-- Popup window for adding external users.-->
+		<div id="signup-add-external-win" class="jqmWindow" style="display: none">
+			<h2>Add New External Student</h2>
+			<form id="signup-add-external">
+				<span class="errors"></span> <br>
+				<p>
+					Enter the student name.<br /> 
+					<input type="text" name="studentName" id="student-name" size="60" />
+				</p>
+				<p>
+					Enter the student email addresses.<br />
+					<input type="text" name="studentEmail" id="student-email" size="60" />
+				</p>
+				<input type="submit" value="Select Components">
+				<input type="button" class="cancel" value="Cancel"><br>
+				<div id="find-users-progress"></div>
+			</form>
+		</div>
+	
+		<!-- Popup window for selecting components. -->
+		<div id="signup-add-components-win" class="jqmWindow"
+			style="display: none"></div>
+	
+		<textarea id="signup-add-components-tpl" style="display: none" rows="0"
+			cols="0">
+			<h2>Users Found</h2>
 			<ul>
-			{for component in components}
-				<li>
-					<input type="checkbox" name="\${component.id}"
-						id="option-\${component.id}" value="true">
-					<label for="component-\${component.id}">\${component.title} - \${component.teachingDetails} for \${component.sessions} sessions in \${component.when},
-						{if component.presenter}<a
-							href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
-					</label>
-					<br />
-					<span class="location">\${component.location}</span>
-				</li>
+			{for user in users}
+				<li>\${user.name} (\${user.email})</li>
 			{/for}
 			</ul>
-			<input type="submit" value="Add">
-			<input type="button" class="cancel" value="Cancel">
-			<div id="create-signups-progress"></div>
-
-		</form>
-	</textarea>
-
+			<h2>Select Courses</h2>
+		
+			<form id="signup-add-components">
+				<span class="errors"></span>
+				<ul>
+				{for component in components}
+					<li>
+						<input type="checkbox" name="\${component.id}"
+							id="option-\${component.id}" value="true">
+						<label for="component-\${component.id}">\${component.title} - \${component.teachingDetails} for \${component.sessions} sessions in \${component.when},
+							{if component.presenter}<a
+								href="mailto:\${component.presenter.email}">\${component.presenter.name}</a>{/if}
+						</label>
+						<br />
+						<span class="location">\${component.location}</span>
+					</li>
+				{/for}
+				</ul>
+				<input type="submit" value="Add">
+				<input type="button" class="cancel" value="Cancel">
+				<div id="create-signups-progress"></div>
+	
+			</form>
+		</textarea>
+	</div>
 </body>
 </html>
