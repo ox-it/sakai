@@ -144,7 +144,7 @@
 		</li>
 	#end ## End for each key 
 
-            #if ( $subSites.children && $showSubsitesAsFlyout )
+            #if ( ($subSites.children || $subSites.joinable) && $showSubsitesAsFlyout )
 
                 <li class="Mrphs-toolsNav__menuitem--subsite">
                     <a id="toggleSubsitesLink" class="Mrphs-toolsNav__menuitem--link" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
@@ -181,7 +181,7 @@
         </ul>
     </nav>
 
-    #if ( $subSites.children )
+    #if ( $subSites.children || $subSites.joinable )
 
         <nav id="subSites" #if ($showSubsitesAsFlyout) class="is-hidden"#end>
                 <ul role="menu">
@@ -195,7 +195,18 @@
                             </a>
                         </li>
 
-                    #end ## END of FOREACH ( $site in $subSites )
+                    #end ## END of FOREACH ( $site in $subSites.children )
+
+                    #foreach ( $jsite in $subSites.joinable )
+
+                        <li>
+                            <a class="Mrphs-toolsNav__menuitem--link" href="${jsite.url}" title="${jsite.title} (${rloader.subsite})" role="menuitem">
+                                <span class="Mrphs-toolsNav__menuitem--icon ${jsite.iconClass}"></span>
+                                <span class="Mrphs-toolsNav__menuitem--title">${jsite.titleTruncated}</span>
+                            </a>
+                        </li>
+
+                    #end ## END of FOREACH ( $jsite in $subSites.joinable )
 
                 </ul>
         </nav>
