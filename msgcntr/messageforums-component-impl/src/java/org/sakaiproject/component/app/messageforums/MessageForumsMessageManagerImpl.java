@@ -2227,6 +2227,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 					tempMsg = (Message)results[0];
 					tempMsg.setTopic((Topic)results[1]);
 					tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
+					getHibernateTemplate().initialize(tempMsg.getAttachments());
 				}
 				resultSet.add(tempMsg);
 			}
