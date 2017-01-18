@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:wicket="http://wicket.apache.org"
+        xml:lang="en"
+        lang="en">
+<wicket:panel>
+    <div class="sort">
+        <form method="get">
+            <!-- This is to keep the existing parameters -->
+            <input type="hidden" wicket:id="hidden"/>
+            <label wicket:for="order"><wicket:message key="Order.label"></wicket:message>:</label>
+            <select wicket:id="order" onchange="this.form.submit()" name="order">
+                <option>date added</option>
+                <option>relevence</option>
+            </select>
+        </form>
+    </div>
+</wicket:panel>
+</html>

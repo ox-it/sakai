@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+  http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+  http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+  
+  <!-- Bean for when running outside of Sakai. -->
+  <bean id="sakaiProxy" class="uk.ac.ox.it.shoal.logic.DummySakaiProxy">
+    <property name="solrServer" ref="solrServer"/>
+  </bean>
+
+  <bean id="solrUrl" class="java.lang.String" factory-method="valueOf">
+    <constructor-arg value="http://localhost:8983/shoal/"/>
+  </bean>
+  
+</beans>
+  

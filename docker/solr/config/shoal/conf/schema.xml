@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="shoal" version="1.5">
+    <types>
+        <fieldType name="string" class="solr.StrField" sortMissingLast="true" />
+        <fieldType name="float" class="solr.TrieFloatField" precisionStep="0" positionIncrementGap="0"/>
+        <fieldType name="long" class="solr.TrieLongField" precisionStep="0" positionIncrementGap="0"/>
+        <fieldType name="date" class="solr.TrieDateField" precisionStep="0"/>
+        <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100">
+            <analyzer type="index">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+            <analyzer type="query">
+                <tokenizer class="solr.StandardTokenizerFactory"/>
+                <filter class="solr.LowerCaseFilterFactory"/>
+            </analyzer>
+        </fieldType>
+    </types>
+
+    <fields>
+        <field name="_version_" type="long" indexed="true" stored="true"/>
+        <field name="id" type="string" indexed="true" stored="true" required="true" />
+        <!-- LRMI name -->
+        <field name="title" type="text_general" indexed="true" stored="true" required="true"/>
+        <!-- LRMI description -->
+        <field name="description" type="text_general" indexed="true" stored="true" required="true"/>
+        <!-- LRMI about -->
+        <field name="subject" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+        <!-- LRMI alignmentType -->
+        <field name="level" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+        <!-- LRMI educationalUse -->
+        <field name="purpose" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+        <!-- LRMI interactivityType -->
+        <field name="interactivity" type="string" indexed="true" stored="true" required="false"/>
+        <!-- LRMI learningResourceType -->
+        <field name="type" type="string" indexed="true" stored="true" required="false" multiValued="true"/>
+
+        <field name="url" type="text_general" indexed="false" stored="true" required="true"/>
+
+        <!-- LRMI author -->
+        <field name="author" type="string" indexed="true" stored="true"/>
+        <!-- Unmapped -->
+        <field name="contact" type="string" indexed="true" stored="true"/>
+
+        <field name="added" type="date" indexed="true" stored="true"/>
+        <field name="updated" type="date" indexed="true" stored="true"/>
+        <field name="license" type="string" indexed="true" stored="true"/>
+        <field name="thumbnail" type="string" indexed="false" stored="true"/>
+        <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+    </fields>
+    <copyField source="title" dest="text"/>
+    <copyField source="description" dest="text"/>
+    <copyField source="subject" dest="text"/>
+    <copyField source="level" dest="text"/>
+    <copyField source="interactivity" dest="text"/>
+    <copyField source="type" dest="text"/>
+    <copyField source="author" dest="text"/>
+    <copyField source="contact" dest="text"/>
+    <copyField source="license" dest="text"/>
+
+    <uniqueKey>id</uniqueKey>
+    <defaultSearchField>text</defaultSearchField>
+    <solrQueryParser defaultOperator="AND"/>
+</schema>

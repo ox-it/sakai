@@ -1,0 +1,36 @@
+<wicket:panel xmlns="http://www.w3.org/1999/xhtml"
+			   xmlns:wicket="http://wicket.apache.org">
+	<div>
+		<form method="get" wicket:id="searchForm">
+			<input type="text" wicket:id="query" placeholder="search resources" title="search query"/>
+			<input wicket:id="search" type="submit" value="Search"/>
+			<input wicket:id="cancel" type="submit" value="Reset"/>
+		</form>
+	</div>
+	<div class="sidebar">
+		<div wicket:id="filtersBox" id="filters">
+			<h3>Applied Filters</h3>
+			<ul wicket:id="filters">
+				<li>
+					<span wicket:id="field">Paper</span> = 
+					<span wicket:id="value">A Paper</span> <a wicket:id="link">Remove</a>
+				</li>
+			</ul>
+		</div>
+		<div class="facet" wicket:id="author"></div>
+
+		<div class="facet" wicket:id="subject"></div>
+		<div class="facet" wicket:id="type"></div>
+
+		<div class="facet" wicket:id="purpose"></div>
+		<div class="facet" wicket:id="interactivity"></div>
+		<div class="facet" wicket:id="level"></div>
+
+	</div>
+
+	<div class="content">
+		<div class="sort" wicket:id="order"></div>
+		<div class="results" wicket:id="results"></div>
+	</div>
+	<div style="clear: both;"></div>
+</wicket:panel>

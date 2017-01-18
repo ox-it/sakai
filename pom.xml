@@ -139,6 +139,7 @@
                 <module>sirlouie</module>
                 <module>simple-signup-entityprovider</module>
                 <module>switch-server</module>
+                <module>shoal</module>
                 <module>termdates</module>
                 <module>tetraelf-hierarchy</module>
                 <module>turnitin/contentreview-impl</module>

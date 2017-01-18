@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:wicket="http://wicket.apache.org"
+        xml:lang="en"
+        lang="en">
+<head>
+    <wicket:head>
+        <style type="text/css">
+            @media (min-width: 768px) {
+                /* This is so that it aligns to the description when wrapping. */
+                .display img.inline {
+                    display: inline-block;
+                }
+            }
+            .display .back {
+                padding: 1em 0.5em;
+            }
+            .display .preview {
+                padding: 1em;
+            }
+        </style>
+    </wicket:head>
+</head>
+<body>
+<wicket:extend>
+    <div class="container display">
+        <div class="row">
+            <div class="col-sm-5 col-md-4 back">
+                <a href="javascript:history.go(-1)">[Go Back]</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-7 col-md-8 col-sm-offset-5 col-md-offset-4">
+                <h2 wicket:id="title" class="title">Title</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-5 col-md-4 text-right">
+                <img class="thumbnail inline" src="http://users.ox.ac.uk/~buckett/weblearn-guidance.png"
+                     wicket:id="thumbnail"/>
+            </div>
+
+            <div class="col-sm-7 col-md-8">
+                <div class="details">
+                    <div style="display: inline-block; vertical-align: top; width: 100%;">
+
+                        <div class="description" wicket:id="description">
+                            <p>Lorem ipsum dolor sit amet, ut aeque dictas feugiat duo, usu meliore interesset id. Viris
+                                doming mediocrem no est. Error fastidii nec at. Te mea nihil virtute. Vel tempor dicunt
+                                denique in, ad eam habeo indoctum.</p>
+
+                            <p>Te pro quot viris, est vero salutandi salutatus ut, bonorum interesset has te. Meliore
+                                definitiones cum an, aeterno expetenda ex eos, vitae labores vel ei. In pri mazim
+                                patrioque voluptatum. Pro cu eripuit alienum, cu dicunt perpetua electram
+                                eos. An augue error his, has illum discere patrioque no. Eum error facilisis persequeris
+                                id, falli ponderum evertitur at est, eu ius altera dolorem prodesset. Id ludus debitis
+                                delicatissimi mel, id nibh percipit cum.</p>
+                        </div>
+                    </div>
+                    <div class="preview text-right">
+                        <form wicket:id="preview" method="get">
+                            <input type="submit" value="Preview Content" wicket:message="value:page.preview"/>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-offset-2 col-sm-8">
+                <table class="table">
+                    <tbody>
+                    <tr wicket:id="metadata">
+                        <th wicket:id="label">Label</th>
+                        <td>
+                            <a href="#" wicket:id="link">Link</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</wicket:extend>
+</body>
+</html>
