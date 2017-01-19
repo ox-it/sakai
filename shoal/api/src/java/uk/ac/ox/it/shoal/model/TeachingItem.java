@@ -53,6 +53,10 @@ public interface TeachingItem {
 
     void setAdded(Instant added);
 
+    String getPermission();
+
+    void setPermission(String permission);
+
     String getThumbnail();
 
     void setThumbnail(String thumbnail);

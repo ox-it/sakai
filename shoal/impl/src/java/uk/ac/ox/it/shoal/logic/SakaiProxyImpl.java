@@ -190,6 +190,7 @@ public class SakaiProxyImpl implements SakaiProxy {
         } catch (NumberFormatException e) {
             // Do nothing
         }
+        teachingItem.setPermission(properties.getProperty(key("permission")));
         teachingItem.setThumbnail(properties.getProperty(key("thumbnail")));
         teachingItem.setLicense(properties.getProperty(key("license")));
         teachingItem.setUrl(properties.getProperty(key("url")));
@@ -227,6 +228,7 @@ public class SakaiProxyImpl implements SakaiProxy {
                 properties.addProperty(key("author"), model.getAuthor());
                 properties.addProperty(key("contact"), model.getContact());
                 properties.addProperty(key("added"), Long.toString(model.getAdded().toEpochMilli()));
+                properties.addProperty(key("permission"), model.getPermission());
                 properties.addProperty(key("thumbnail"), model.getThumbnail());
                 properties.addProperty(key("license"), model.getLicense());
                 properties.addProperty(key("url"), model.getUrl());

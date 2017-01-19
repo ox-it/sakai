@@ -45,6 +45,7 @@
         <field name="added" type="date" indexed="true" stored="true"/>
         <field name="updated" type="date" indexed="true" stored="true"/>
         <field name="license" type="string" indexed="true" stored="true"/>
+        <field name="permission" type="string" indexed="true" stored="true"/>
         <field name="thumbnail" type="string" indexed="false" stored="true"/>
         <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
     </fields>

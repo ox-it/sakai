@@ -121,6 +121,15 @@ public class ValidatedTeachingItem implements TeachingItem, Serializable {
         item.setAdded(added);
     }
 
+    @Size(min=10, max=1024)
+    public String getPermission() {
+        return item.getPermission();
+    }
+
+    public void setPermission(String permission) {
+        item.setPermission(permission);
+    }
+
     public String getThumbnail() {
         return item.getThumbnail();
     }

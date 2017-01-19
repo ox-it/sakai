@@ -80,6 +80,8 @@ public class DisplayPage extends SakaiPage {
             addIfNotNull(metadata, author);
             Metadata added = newMetadata(document, "added", null, "field.label.added");
             addIfNotNull(metadata, added);
+            Metadata permission = newMetadata(document, "permission", null, "field.label.permission");
+            addIfNotNull(metadata, permission);
 
             add(new ListView<Metadata>("metadata", metadata){
                 @Override

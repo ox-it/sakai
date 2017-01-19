@@ -129,6 +129,7 @@ public class Indexer implements Observer {
         doc.addField("author", teachingItem.getAuthor());
         doc.addField("contact", teachingItem.getContact());
         doc.addField("added", teachingItem.getAdded());
+        doc.addField("permission", teachingItem.getPermission());
         doc.addField("updated", Instant.now());
         doc.addField("license", teachingItem.getLicense());
         doc.addField("thumbnail", teachingItem.getThumbnail());

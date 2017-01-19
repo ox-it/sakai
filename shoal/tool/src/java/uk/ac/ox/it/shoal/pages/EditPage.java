@@ -135,6 +135,14 @@ public class EditPage extends SakaiPage {
         licenseGroup.add(license);
         licenseGroup.add(new ErrorBehaviour(license));
 
+        WebMarkupContainer permissionGroup = new WebMarkupContainer("permission-group");
+        TextArea<String> permission = new TextArea<>("permission");
+        permission.add(new PropertyValidator<>());
+        FormComponentLabel permissionLabel = new FormComponentLabel("permission-label", permission);
+        permissionGroup.add(permissionLabel);
+        permissionGroup.add(permission);
+        permissionGroup.add(new ErrorBehaviour(permission));
+
         // We don't want the thumbnail to update the normal mode so it has it's own.
         Model uploadModel = new Model();
         WebMarkupContainer thumbnailGroup = new WebMarkupContainer("thumbnail-group");
@@ -185,6 +193,7 @@ public class EditPage extends SakaiPage {
         form.add(authorGroup);
         form.add(contactGroup);
         form.add(licenseGroup);
+        form.add(permissionGroup);
         form.add(thumbnailGroup);
         form.add(submit);
 

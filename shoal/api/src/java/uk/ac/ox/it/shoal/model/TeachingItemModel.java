@@ -20,6 +20,7 @@ public class TeachingItemModel implements Serializable, TeachingItem {
     private String author;
     private String contact;
     private Instant added;
+    private String permission;
     private String thumbnail;
     private String license;
     private String url;
@@ -132,6 +133,16 @@ public class TeachingItemModel implements Serializable, TeachingItem {
     @Override
     public void setAdded(Instant added) {
         this.added = added;
+    }
+
+    @Override
+    public String getPermission() {
+        return permission;
+    }
+
+    @Override
+    public void setPermission(String permission) {
+        this.permission = permission;
     }
 
     @Override
