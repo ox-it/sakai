@@ -8,6 +8,7 @@ import org.apache.solr.client.solrj.util.ClientUtils;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.basic.MultiLineLabel;
@@ -88,12 +89,15 @@ public class DisplayPage extends SakaiPage {
                 protected void populateItem(ListItem<Metadata> item) {
                     Metadata objectMetadata = item.getModel().getObject();
                     item.add(new Label("label", new ResourceModel(objectMetadata.key)));
-                    RepeatingView links = new RepeatingView("link");
+                    RepeatingView links = new RepeatingView("span");
                     objectMetadata.links.forEach(v -> {
-                        BookmarkablePageLink<String> bookmark = new BookmarkablePageLink<>(links.newChildId(), SimpleSearchPage.class, v.pp);
+                        // This is so that we get some whitespace between links.
+                        WebMarkupContainer span = new WebMarkupContainer(links.newChildId());
+                        BookmarkablePageLink<String> bookmark = new BookmarkablePageLink<>("link", SimpleSearchPage.class, v.pp);
                         bookmark.setBody(new Model<>(v.label));
                         bookmark.setRenderBodyOnly(v.pp == null);
-                        links.add(bookmark);
+                        span.add(bookmark);
+                        links.add(span);
                     });
                     item.add(links);
                 }
