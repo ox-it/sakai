@@ -98,6 +98,16 @@
     }
 }
 
+/* Override the button colours for the Lessons tool checklist feature. */
+#addChecklistItemButton{
+    background-color: $primary-color;
+}
+
+#addChecklistItemButton:hover{
+    background-color: $primary-color;
+    background: url(/library/image/silk/add.png) no-repeat left 4px center, linear-gradient($button-color-background-color, $button-color-background-secondary-color) !important;
+}
+
 /* Extra icon mappings specific to WL. */
 @if $skin-with-icons {
     /* This selector is required as the course sign-up icon doesn't start with 'icon-sakai-'. */
