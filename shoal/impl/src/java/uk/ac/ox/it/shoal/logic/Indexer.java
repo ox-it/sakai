@@ -6,6 +6,9 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.common.SolrInputDocument;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -31,6 +34,7 @@ public class Indexer implements Observer {
     private EventTrackingService eventTrackingService;
     private ServerConfigurationService serverConfigurationService;
     private SiteService siteService;
+    private EntityManager entityManager;
     private SolrServer solrServer;
     private ValidatorFactory validatorFactory;
 
@@ -44,6 +48,10 @@ public class Indexer implements Observer {
 
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
+    }
+
+    public void setEntityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     public void setSolrServer(SolrServer solrServer) {
@@ -65,17 +73,16 @@ public class Indexer implements Observer {
             Event event = (Event)arg;
             // Have to fire this after it's been saved in the DB
             if (SiteService.SECURE_ADD_SITE.equals(event.getEvent()) ||
-                    SiteService.SECURE_UPDATE_SITE.equals(event.getEvent())){
-                try {
-                    Site site = siteService.getSite(event.getContext());
+                    SiteService.SECURE_UPDATE_SITE.equals(event.getEvent())) {
+                Entity entity = entityManager.newReference(event.getResource()).getEntity();
+                if (entity instanceof Site) {
+                    Site site = (Site) entity;
                     String siteType = serverConfigurationService.getString("shoal.site.type");
                     if (siteType == null || siteType.isEmpty() || siteType.equals(site.getType())) {
                         // Want to include this one.
                         TeachingItem teachingItem = SakaiProxyImpl.toTeachingItem(site);
                         addToIndex(teachingItem);
                     }
-                } catch (IdUnusedException e) {
-                    log.warn("Failed to find site that has just been saved: "+ event.getContext());
                 }
             }
         }

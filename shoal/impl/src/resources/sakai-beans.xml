@@ -30,6 +30,8 @@
                   ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="siteService"
                   ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="entityManager"
+                  ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="solrServer"
                   ref="uk.ac.ox.shoal.solr"/>
     </bean>
