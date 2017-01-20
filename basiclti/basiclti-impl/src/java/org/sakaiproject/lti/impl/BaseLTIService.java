@@ -21,10 +21,6 @@
 
 package org.sakaiproject.lti.impl;
 
-import java.util.UUID;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
@@ -47,8 +43,12 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 /**
  * <p>
@@ -358,7 +358,11 @@ public abstract class BaseLTIService implements LTIService {
 		if ( siteId == null ) {
 			throw new java.lang.RuntimeException("isAdmin() requires non-null siteId");
 		}
-		if (!ADMIN_SITE.equals(siteId) ) return false;
+		String[] adminSites = serverConfigurationService.getStrings("basiclti.admin.sites");
+		if (adminSites.length == 0) {
+			adminSites = new String[]{"!admin"};
+		}
+		if (!Arrays.asList(adminSites).contains(siteId)) return false;
 		return isMaintain(siteId);
 	}
 
