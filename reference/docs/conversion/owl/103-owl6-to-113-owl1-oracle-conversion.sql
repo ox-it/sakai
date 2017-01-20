@@ -518,7 +518,7 @@ CREATE TABLE sakai_feedback (
                 report_type varchar2(15) not null,
                 title varchar2(40) not null,
                 content varchar2(4000) not null,
-                CONSTRAINT cons_report_type CHECK (report_type IN ('content','technical', 'helpdesk')));
+                CONSTRAINT cons_report_type CHECK (report_type IN ('content','technical', 'helpdesk', 'suggestions', 'supplementala', 'supplementalb')));
 CREATE SEQUENCE sakai_feedback_seq START WITH 1 INCREMENT BY 1 nomaxvalue;
 INSERT INTO SAKAI_SITE VALUES('!contact-us', 'Contact Us', null, null, null, '', '', null, 1, 0, 0, '', 'admin', 'admin', sysdate, sysdate, 1, 0, 0, 0, null);
 INSERT INTO SAKAI_SITE_PAGE VALUES('!contact-us', '!contact-us', 'Contact Us', '0', 1, '0' );
