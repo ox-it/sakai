@@ -103,7 +103,6 @@ public class ValidatedTeachingItem implements TeachingItem, Serializable {
         item.setAuthor(author);
     }
 
-    @NotNull
     @Size(min=5, max=128)
     public String getContact() {
         return item.getContact();
