@@ -359,7 +359,7 @@ public abstract class BaseLTIService implements LTIService {
 			throw new java.lang.RuntimeException("isAdmin() requires non-null siteId");
 		}
 		String[] adminSites = serverConfigurationService.getStrings("basiclti.admin.sites");
-		if (adminSites.length == 0) {
+		if (adminSites == null || adminSites.length == 0) {
 			adminSites = new String[]{"!admin"};
 		}
 		if (!Arrays.asList(adminSites).contains(siteId)) return false;
