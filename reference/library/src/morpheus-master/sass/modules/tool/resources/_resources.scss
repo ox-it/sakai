@@ -203,4 +203,16 @@
 	.inactive .dropdown-menu a {
 		color:#000 !important;
 	}
+
+	#paginationMessage{
+		@media #{$phone}{
+			text-align: center;
+		}
+	}
+
+	#pagination{
+		@media #{$phone}{
+			display: block;
+		}
+	}
 }
