@@ -3943,7 +3943,7 @@ public class SiteAction extends PagedResourceActionII {
 			boolean canRemoveAdmin = DevolvedSakaiSecurity.canRemoveAdminRealm(site.getReference());
 			List adminSites = new ArrayList();
 			if (canRemoveAdmin) {
-				adminSites.add(new AdminRealm("unmanged", getAdminReferenceName(null)));
+				adminSites.add(new AdminRealm("unmanaged", getAdminReferenceName(null)));
 			}
 			List<Entity> adminRealms = DevolvedSakaiSecurity.getAvailableAdminRealms(site.getReference());
 			Collections.sort(adminRealms, devolvedAdminComparator);
