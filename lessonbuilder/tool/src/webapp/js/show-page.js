@@ -129,6 +129,61 @@ $(document).ready(function() {
 		}
 	});
 
+	$(".sectionHeader").on("click", function(){
+		var section = $(this).next("div.section");
+		if (section.hasClass("collapsible")) {
+			section.slideToggle();
+			$(this).toggleClass("closedSectionHeader");
+			$(this).toggleClass("openSectionHeader");
+		}
+	});
+
+	$("#collapsible").on("change", function(){
+		if(this.checked) {
+			$("#defaultClosedSpan").show();
+		} else {
+			$("#defaultClosed").prop('checked', false);
+			$("#defaultClosedSpan").hide();
+		}
+	});
+
+	$("#sectionTitle").keyup(function(){
+		if($("#sectionTitle").val()) {
+			$("#collapsible").removeProp('disabled');
+		} else {
+			$("#collapsible").prop('checked', false);
+			$("#collapsible").prop('disabled', true);
+			$("#defaultClosed").prop('checked', false);
+			$("#defaultClosedSpan").hide();
+		}
+	});
+
+	$("#expandAllSections").on("click", function(){
+		$(".sectionHeader").each(function(){
+			var section = $(this).next("div.section");
+			if (section.hasClass("collapsible")) {
+				section.slideDown();
+				$(this).removeClass("closedSectionHeader");
+				$(this).addClass("openSectionHeader");
+			}
+		});
+		$("#expandAllSections").hide();
+		$("#collapseAllSections").show();
+	});
+
+	$("#collapseAllSections").on("click", function(){
+		$(".sectionHeader").each(function(){
+			var section = $(this).next("div.section");
+			if (section.hasClass("collapsible")) {
+				section.slideUp();
+				$(this).addClass("closedSectionHeader");
+				$(this).removeClass("openSectionHeader");
+			}
+		});
+		$("#collapseAllSections").hide();
+		$("#expandAllSections").show();
+	});
+
 	// This is called in comments.js as well, however this may be faster.
 	//if(sakai.editor.editors.ckeditor==undefined) {
 //		$(".evolved-box :not(textarea)").hide();
@@ -2285,12 +2340,13 @@ $(document).ready(function() {
 		var tail_uls = addAboveLI.parent().nextAll();
 		var tail_cols = addAboveLI.parent().parent().nextAll();
 		var section = addAboveLI.parent().parent().parent();
+		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
 		var sectionId = "sectionid" + (nextid++);
 		section.prev('.sectionHeader').parent().after('<div><h3 class="sectionHeader skip"><span class="sectionHeaderText"></span><span class="sectionCollapsedIcon fa-bars" aria-hidden="true" style="display:none"></span><span class="toggleCollapse">' + msg('simplepage.clickToCollapse') + '</span><span aria-hidden="true" class="collapseIcon fa-toggle-up"></span></h3><div class="section"><div class="column"><div class="editsection"><span class="sectionedit"><h3 class="offscreen">' + msg('simplepage.break-here') + '</h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') + '" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></span><span class="sectionedit sectionedit2"><a href="/lessonbuilder-tool/templates/#" title="' + msg('simplepage.columnopen') + '" class="columnopen"><span aria-hidden="true" class="fa-columns fa-edit-icon sectioneditfont"></span></a></span></div><span class="sectionedit addbottom"><a href="#" title="Add new item at bottom of this column" class="add-bottom"><span aria-hidden="true" class="fa-plus fa-edit-icon plus-edit-icon"></span></a></span><ul border="0" role="list" style="z-index: 1;" class="indent mainList"><li class="breaksection" role="listitem"><span style="display:none" class="itemid">' + newitem + '</span></li></ul></div></div></div>');
 		// now go to new section
 		section = section.prev('.sectionHeader').parent().next().children(".section");
 
-		section.prev('.sectionHeader').on("click", function(){
+        section.prev('.sectionHeader').on("click", function(){
 			var section = $(this).next("div.section");
 			if (section.hasClass("collapsible")) {
 				section.slideToggle();
@@ -2357,7 +2413,7 @@ $(document).ready(function() {
 		var section = thisCol.parent();
 		var sectionHeader = section.prev('.sectionHeader');
 		// append rest of ul last one in prevous section
-		sectionHeader.parent().prev().find('ul.mainList').last().append(tail_lis);
+		sectionHeader.parent().prev().find('ul').last().append(tail_lis);
 		sectionHeader.parent().prev().find('.column').last().append(tail_uls);
 		sectionHeader.parent().prev().append(tail_cols);
 		// nothing should be left in current section. kill it
@@ -2419,6 +2475,19 @@ $(document).ready(function() {
 		} else {
 			$("#defaultClosedSpan").show();
 		}
+	    $('#sectionTitle').val(col.parent('.section').prev().find('.sectionHeaderText').text());
+		if(!$("#sectionTitle").val()) {
+			$("#collapsible").prop('checked', false);
+			$("#collapsible").prop("disabled", true);
+		} else {
+			$("#collapsible").prop("disabled", false);
+		}
+		if(!$("#collapsible").prop('checked')) {
+			$("#defaultClosed").prop('checked', false);
+			$("#defaultClosedSpan").hide();
+		} else {
+			$("#defaultClosedSpan").show();
+		}
 	    $('#column-dialog').dialog('open');
 	    return false;
 	}
@@ -2464,6 +2533,33 @@ $(document).ready(function() {
 		fixupColAttrs();
 		fixupHeights();
 		setSectionCollapsible(itemid, collapsible, sectionTitle, defaultClosed);
+		header.html(sectionTitle);
+		if (sectionTitle === '') {
+			header.addClass('skip');
+		} else {
+			header.removeClass('skip');
+		}
+		if (collapsible) {
+			section.addClass('collapsible');
+			header.addClass('collapsibleSectionHeader');
+			header.addClass('openSectionHeader');
+			header.removeClass('closedSectionHeader');
+		} else {
+			section.removeClass('collapsible');
+			header.removeClass('collapsibleSectionHeader');
+			header.removeClass('openSectionHeader');
+			header.removeClass('closedSectionHeader');
+		}
+		if (defaultClosed) {
+			section.addClass('defaultClosed');
+		} else {
+			section.removeClass('defaultClosed');
+		}
+		if($('.collapsibleSectionHeader').length) {
+			$('#expandCollapseButtons').show();
+		} else {
+			$('#expandCollapseButtons').hide();
+		}
 		header.find('.sectionHeaderText').text(sectionTitle);
 		if (sectionTitle === '') {
 			header.addClass('skip');
@@ -3559,6 +3655,9 @@ function doIndents() {
 	return;
     }
     $(".section").each(function(index) {
+		var visible = $(this).is(":visible");
+		// Unhide all to calculate correct heights
+		$(this).show();
 	    var max = 0;
 	    // reset to auto to cause recomputation. This is needed because
 	    // this gets called after contents of columns have changed.
@@ -3571,6 +3670,9 @@ function doIndents() {
 		    if (max > $(this).height())
 			$(this).height(max);
 		});
+		if (!visible) {
+			$(this).hide();
+		}
 	});
 };
 
