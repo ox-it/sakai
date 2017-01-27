@@ -39,17 +39,19 @@ public class DisplayPage extends SakaiPage {
     private SolrServer solr;
 
     public DisplayPage(final PageParameters pp) throws SolrServerException {
-        String id = pp.get("id").toString();
         setStatelessHint(true);
-        // TODO Need to cope with ID being empty.
+        String id = pp.get("id").toString();
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("No ID supplied.");
+        }
         SolrQuery params = new SolrQuery("id:"+ ClientUtils.escapeQueryChars(id));
         QueryResponse query = solr.query(params);
         SolrDocumentList results = query.getResults();
         if (results.isEmpty())  {
-            //TODO Handle this
+            throw new IllegalArgumentException("No document found.");
         } else {
             if (results.size() > 1) {
-                // TODO Warn about multiple matches
+                throw new IllegalStateException("Too many documents found.");
             }
             SolrDocument document = results.get(0);
             String title = document.getFieldValue("title").toString();
