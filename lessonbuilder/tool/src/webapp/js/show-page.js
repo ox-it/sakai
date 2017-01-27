@@ -118,6 +118,15 @@ $(document).ready(function() {
 		$(".twitter-timeline").contents().find("*").css("font-size","13px");
 	}, 1000);
 
+	$("input[type=checkbox].checklist-checkbox").on("change", function(){
+
+		$(this).next("span").addClass("savingChecklistItem");
+		$(this).parent().nextAll(".saveChecklistSaving").show();
+		$("#saveChecklistForm-checklistId").val($(this).closest(".checklistItemForm").find(".checklistId").val()).change();
+		$("#saveChecklistForm-checklistItemIdInput").val($(this).val()).change();
+		$("#saveChecklistForm-checklistItemDone").val($(this).is(':checked')).change();
+
+	});
 
 	//Only number allowed for announcements height
 	$("#announcements-height").keypress(function (e) {
