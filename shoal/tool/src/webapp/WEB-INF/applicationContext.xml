@@ -3,14 +3,9 @@
 
 <beans>
 
-	<!-- We need this file to satisfy Spring, but we don't need anything in it since we use Wicket's dependency injection -->
-     <!--<import resource="classpath:/standalone-beans.xml"/>-->
-<!--     <import resource="classpath:/oxam-beans.xml"/> -->
-         <import resource="classpath:/sakai-beans.xml"/>
-
-    
-<!--     <bean id="location" class="uk.ac.ox.it.oxam.logic.ServletLocation"/> -->
-
+    <!-- We need this file to satisfy Spring, but we don't need anything in it since we use Wicket's dependency injection -->
+    <!--<import resource="classpath:/standalone-beans.xml"/>-->
+    <import resource="classpath:/sakai-beans.xml"/>
 
     <!-- This should be identical to the one in the implmentation. -->
     <bean id="uk.ac.ox.shoal.solr" name="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
@@ -31,10 +26,10 @@
                 </property>
             </bean>
         </constructor-arg>
-		<!-- Time to establish the connection to Solr. -->
-		<property name="connectionTimeout" value="5000"/>
-		<!-- Once connection is established time to wait for results -->
-		<property name="soTimeout" value="5000"/>
+        <!-- Time to establish the connection to Solr. -->
+        <property name="connectionTimeout" value="5000"/>
+        <!-- Once connection is established time to wait for results -->
+        <property name="soTimeout" value="5000"/>
     </bean>
 
 </beans>

@@ -1,0 +1,8 @@
+select[multiple], textarea {
+    /* This stretches out the select2 boxes to a sensible size */
+    width: 75%;
+}
+select:not([multiple]) {
+    /* This stretches out the select2 boxes to a sensible size */
+    width: 25%;
+}

@@ -1,0 +1,12 @@
+@media (min-width: 768px) {
+    /* This is so that it aligns to the description when wrapping. */
+    .display img.inline {
+        display: inline-block;
+    }
+}
+.display .back {
+    padding: 1em 0.5em;
+}
+.display .preview {
+    padding: 1em;
+}
