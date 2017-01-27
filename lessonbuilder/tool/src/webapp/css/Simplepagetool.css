@@ -1548,6 +1548,52 @@ margin-bottom: 6px; /*to add space between two events*/
     margin-top: 6px;
 }
 
+.sectionHeader {
+    padding: .5em;
+}
+
+#expandCollapseButtons {
+    width: 100%;
+    text-align: right;
+}
+
+.defaultClosed {
+    display:none;
+}
+
+.collapsibleSectionHeader {
+    position: relative;
+}
+
+.collapsibleSectionHeader:after {
+    content: 'Click to expand/collapse';
+    position: absolute;
+    opacity: 0;
+    z-index: 1000000;
+    -webkit-transition: 0.3s ease;
+    -moz-transition: 0.3s ease;
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+    top: 100%;
+    left: 50%;
+    margin: -2px 0 0 -10px;
+}
+
+.collapsibleSectionHeader:hover {
+    cursor: pointer;
+    background-color: #eee;
+}
+
+.collapsibleSectionHeader:hover:after {
+    opacity: 1;
+    margin-top: 6px;
+}
+
 /* position relative with no args does nothing, but editsection's position absolute needs it as a refernce */
 .column {
    position:relative;

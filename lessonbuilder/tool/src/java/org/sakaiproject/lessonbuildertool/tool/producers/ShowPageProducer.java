@@ -1105,60 +1105,60 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			        // this will work whether first item is break or not. Might be a section
 			        // break or a normal item
 				if (first || i.getType() == SimplePageItem.BREAK) {
-				    boolean sectionbreak = false;
-				    if (first || "section".equals(i.getFormat())) {
-					sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
-					boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
-					boolean defaultClosed = i.getAttribute("defaultClosed") != null && (!"0".equals(i.getAttribute("defaultClosed")));
-					UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader");
+					boolean sectionbreak = false;
+					if (first || "section".equals(i.getFormat())) {
+						sectionWrapper = UIBranchContainer.make(container, "sectionWrapper:");
+						boolean collapsible = i.getAttribute("collapsible") != null && (!"0".equals(i.getAttribute("collapsible")));
+						boolean defaultClosed = i.getAttribute("defaultClosed") != null && (!"0".equals(i.getAttribute("defaultClosed")));
+						UIOutput sectionHeader = UIOutput.make(sectionWrapper, "sectionHeader");
 
-					// only do this is there's an actual section break. Implicit ones don't have an item to hold the title
-					String headerText = "";
-					if ("section".equals(i.getFormat()) && i.getName() != null) {
-					    headerText = i.getName();
-					}
-					UIOutput.make(sectionWrapper, "sectionHeaderText", headerText);
-					UIOutput collapsedIcon = UIOutput.make(sectionWrapper, "sectionCollapsedIcon");
-					sectionHeader.decorate(new UIStyleDecorator(headerText.equals("")? "skip" : ""));
-					sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
-					boolean needIcon = false;
-					if (collapsible) {
-						sectionHeader.decorate(new UIStyleDecorator("collapsibleSectionHeader"));
-						sectionHeader.decorate(new UIFreeAttributeDecorator("aria-controls", sectionContainer.getFullID()));
-						sectionHeader.decorate(new UIFreeAttributeDecorator("aria-expanded", (defaultClosed?"false":"true")));
-						sectionContainer.decorate(new UIStyleDecorator("collapsible"));
-						if (defaultClosed ) {
-							sectionHeader.decorate(new UIStyleDecorator("closedSectionHeader"));
-							sectionContainer.decorate(new UIStyleDecorator("defaultClosed"));
-							needIcon = true;
-						} else {
-							sectionHeader.decorate(new UIStyleDecorator("openSectionHeader"));
+						// only do this is there's an actual section break. Implicit ones don't have an item to hold the title
+						String headerText = "";
+						if ("section".equals(i.getFormat()) && i.getName() != null) {
+							headerText = i.getName();
 						}
-					}
-					if (!needIcon)
-					    collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
-					cols = colCount(itemList, i.getId());
-					sectionbreak = true;
-					colnum = 0;
-				    } else if ("colunn".equals(i.getFormat()))
-					colnum++;
-				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");				    
-				    tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
-				    Integer width = new Integer(i.getAttribute("colwidth") == null ? "1" : i.getAttribute("colwidth"));
-				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
-				    colnum += width; // number after this column
+						UIOutput.make(sectionWrapper, "sectionHeaderText", headerText);
+						UIOutput collapsedIcon = UIOutput.make(sectionWrapper, "sectionCollapsedIcon");
+						sectionHeader.decorate(new UIStyleDecorator(headerText.equals("")? "skip" : ""));
+						sectionContainer = UIBranchContainer.make(sectionWrapper, "section:");
+						boolean needIcon = false;
+						if (collapsible) {
+							sectionHeader.decorate(new UIStyleDecorator("collapsibleSectionHeader"));
+							sectionHeader.decorate(new UIFreeAttributeDecorator("aria-controls", sectionContainer.getFullID()));
+							sectionHeader.decorate(new UIFreeAttributeDecorator("aria-expanded", (defaultClosed?"false":"true")));
+							sectionContainer.decorate(new UIStyleDecorator("collapsible"));
+							if (defaultClosed ) {
+								sectionHeader.decorate(new UIStyleDecorator("closedSectionHeader"));
+								sectionContainer.decorate(new UIStyleDecorator("defaultClosed"));
+								needIcon = true;
+							} else {
+								sectionHeader.decorate(new UIStyleDecorator("openSectionHeader"));
+							}
+						}
+						if (!needIcon)
+							collapsedIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
+						cols = colCount(itemList, i.getId());
+						sectionbreak = true;
+						colnum = 0;
+					} else if ("colunn".equals(i.getFormat()))
+						colnum++;
+					columnContainer = UIBranchContainer.make(sectionContainer, "column:");
+					tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
+					Integer width = new Integer(i.getAttribute("colwidth") == null ? "1" : i.getAttribute("colwidth"));
+					Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
+					colnum += width; // number after this column
 
-				    String color = i.getAttribute("colcolor");
+					String color = i.getAttribute("colcolor");
 
-				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
-				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
+					columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
+					UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
 
-				    if (canEditPage) {
-				    UIComponent delIcon = UIOutput.make(columnContainer, "section-td");
-				    if (first)
-					delIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
+					if (canEditPage) {
+						UIComponent delIcon = UIOutput.make(columnContainer, "section-td");
+						if (first)
+							delIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
 
-				    UIOutput.make(columnContainer, "section2");
+						UIOutput.make(columnContainer, "section2");
 				    UIOutput.make(columnContainer, "section3").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.columnopen")));
 				    UIOutput.make(columnContainer, "addbottom");
 				    UIOutput.make(columnContainer, "addbottom2").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.add-item-column")));

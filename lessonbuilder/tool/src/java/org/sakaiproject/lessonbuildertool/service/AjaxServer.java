@@ -719,7 +719,7 @@ public class AjaxServer extends HttpServlet
 			return null;
 		}
 
-		if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
+        if (!lessonsAccess.canEditPage(siteId, page) || !checkCsrf(csrfToken)) {
 			log.error("Ajax setSectionCollapsible passed itemid " + itemId + " but user doesn't have permission");
 			return null;
 		}
