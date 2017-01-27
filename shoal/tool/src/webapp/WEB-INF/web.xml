@@ -46,23 +46,20 @@
     </context-param>
 
     <!--
+      - This is useful for running the tool outside of Sakai
+      -
     <servlet-mapping>
         <servlet-name>shoal.search</servlet-name>
         <url-pattern>/search/*</url-pattern>
     </servlet-mapping>
-    -->
-
-    <!--
     <servlet-mapping>
         <servlet-name>shoal.search</servlet-name>
         <url-pattern>/edit/*</url-pattern>
     </servlet-mapping>
+    <listener>
+       <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
     -->
-
-    <!-- Stanard Spring loader, for use outside Sakai -->
-    <!--<listener>-->
-    <!--<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>-->
-    <!--</listener>-->
     <listener>
         <listener-class>
             org.sakaiproject.util.SakaiContextLoaderListener
