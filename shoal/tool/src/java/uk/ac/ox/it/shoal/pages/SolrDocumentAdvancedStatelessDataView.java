@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.request.resource.UrlResourceReference;
 import uk.ac.ox.it.shoal.components.AdvancedIDataProvider;
@@ -32,8 +33,11 @@ class SolrDocumentAdvancedStatelessDataView extends AdvancedStatelessDataView<So
         item.add(link);
         link.add(new Label("title", document.getFieldValue("title").toString()));
 
-        String thumbnail = (String) document.getOrDefault("thumbnail", "http://users.ox.ac.uk/~buckett/placeholder.png");
-        ResourceReference icon = new UrlResourceReference(Url.parse(thumbnail));
+        ResourceReference icon = new PackageResourceReference(getClass(), "placeholder.png");
+        String url = (String) document.getFieldValue("thumbnail");
+        if (url != null) {
+            icon = new UrlResourceReference(Url.parse(url));
+        }
         Image image = new Image("thumbnail", icon);
         image.setSizes();
         item.add(image);

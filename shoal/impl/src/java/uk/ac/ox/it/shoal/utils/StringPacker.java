@@ -21,7 +21,7 @@ public class StringPacker {
         if (items == null) {
             return null;
         }
-        return items.stream().map(i -> i.replace(ESC, ESC+ESC).replace(SEP, ESC+SEP)).collect(Collectors.joining(SEP)) ;
+        return items.stream().map(i -> i.replace(ESC, ESC+ESC).replace(SEP, ESC+SEP)).collect(Collectors.joining(SEP));
     }
 
     public static Collection<String> unpack(String packed) {

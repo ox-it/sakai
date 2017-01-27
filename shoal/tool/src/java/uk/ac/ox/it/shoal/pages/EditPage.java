@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.Url;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.request.resource.UrlResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -151,11 +152,11 @@ public class EditPage extends SakaiPage {
         thumbnailGroup.add(thumbnailLabel);
         thumbnailGroup.add(thumbnail);
 
+        ResourceReference icon = new PackageResourceReference(getClass(), "placeholder.png");
         String url = model.getThumbnail();
-        if (url == null) {
-            url = "http://users.ox.ac.uk/~buckett/placeholder.png";
+        if (url != null) {
+            icon = new UrlResourceReference(Url.parse(url));
         }
-        ResourceReference icon = new UrlResourceReference(Url.parse(url));
         Image image = new Image("thumbnail-current", icon);
         thumbnailGroup.add(image);
 

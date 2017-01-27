@@ -21,6 +21,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.request.resource.PackageResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.request.resource.UrlResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -59,9 +60,12 @@ public class DisplayPage extends SakaiPage {
 
             add(new Label("title", title));
             String description = document.getFieldValue("description").toString();
-            String thumbnail = (String) document.getOrDefault("thumbnail", "http://users.ox.ac.uk/~buckett/placeholder.png");
             add(new MultiLineLabel("description", description));
-            ResourceReference icon = new UrlResourceReference(Url.parse(thumbnail));
+            ResourceReference icon = new PackageResourceReference(getClass(), "placeholder.png");
+            String iconUrl = (String) document.getFieldValue("thumbnail");
+            if (iconUrl != null) {
+                icon = new UrlResourceReference(Url.parse(iconUrl));
+            }
             Image image = new Image("thumbnail", icon);
             image.setSizes();
             add(image);

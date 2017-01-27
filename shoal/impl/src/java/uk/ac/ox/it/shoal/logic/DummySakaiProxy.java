@@ -19,101 +19,98 @@ import uk.ac.ox.it.shoal.model.TeachingItem;
 
 
 public class DummySakaiProxy implements SakaiProxy {
-	
-	private static final Log LOG = LogFactory.getLog(DummySakaiProxy.class);
-	
-	private Properties props;
 
-	private SolrServer solrServer;
+    private static final Log LOG = LogFactory.getLog(DummySakaiProxy.class);
 
-	public void setSolrServer(SolrServer solrServer) {
-		this.solrServer = solrServer;
-	}
+    private Properties props;
 
-	public DummySakaiProxy() throws IOException {
-//		String name = getClass().getSimpleName()+".properties";
-//		InputStream stream = getClass().getResourceAsStream(name);
-		props = new Properties();
-//		props.load(stream);
-	}
+    private SolrServer solrServer;
 
-	public String getCurrentSiteId() {
-		return "currentSiteId";
-	}
+    public void setSolrServer(SolrServer solrServer) {
+        this.solrServer = solrServer;
+    }
 
-	public String getCurrentUserId() {
-		return "currentUserId";
-	}
+    public DummySakaiProxy() throws IOException {
+        props = new Properties();
+    }
 
-	public String getCurrentUserDisplayName() {
-		return "Current User";
-	}
+    public String getCurrentSiteId() {
+        return "currentSiteId";
+    }
 
-	public boolean isSuperUser() {
-		return false;
-	}
+    public String getCurrentUserId() {
+        return "currentUserId";
+    }
 
-	public void postEvent(String event, String reference, boolean modify) {
-		LOG.info("Posted event: "+ event+ " reference: "+ reference+ " modify: "+ modify);
-	}
+    public String getCurrentUserDisplayName() {
+        return "Current User";
+    }
 
-	public String getSkinRepoProperty() {
-		return "skin";
-	}
+    public boolean isSuperUser() {
+        return false;
+    }
 
-	public String getToolSkinCSS(String skinRepo) {
-		return skinRepo+"";
-	}
+    public void postEvent(String event, String reference, boolean modify) {
+        LOG.info("Posted event: " + event + " reference: " + reference + " modify: " + modify);
+    }
 
-	public boolean getConfigParam(String param, boolean dflt) {
-		return Boolean.parseBoolean(props.getProperty(param, Boolean.toString(dflt)));
-	}
+    public String getSkinRepoProperty() {
+        return "skin";
+    }
 
-	public String getConfigParam(String param, String dflt) {
-		return props.getProperty(param, dflt);
-	}
+    public String getToolSkinCSS(String skinRepo) {
+        return skinRepo + "";
+    }
 
-	@Override
-	public TeachingItem getTeachingItem() {
-		return null;
-	}
+    public boolean getConfigParam(String param, boolean dflt) {
+        return Boolean.parseBoolean(props.getProperty(param, Boolean.toString(dflt)));
+    }
 
-	@Override
-	public void saveTeachingItem(TeachingItem model) {
-	    LOG.info("Adding new teaching item: "+model);
-	    model.setId(UUID.randomUUID().toString());
-	    model.setUrl("http://example.com");
-	    model.setAdded(Instant.now());
+    public String getConfigParam(String param, String dflt) {
+        return props.getProperty(param, dflt);
+    }
 
-		SolrInputDocument document = new SolrInputDocument();
-		document.setField("id", model.getId());
-		document.setField("title", model.getTitle());
-		document.setField("description", model.getDescription());
-		document.setField("subject", model.getSubject());
-		document.setField("level", model.getLevel());
-		document.setField("purpose", model.getPurpose());
-		document.setField("interactivity", model.getInteractivity());
-		document.setField("type", model.getType());
-		document.setField("url", model.getUrl());
-		document.setField("author", model.getAuthor());
-		document.setField("contact", model.getContact());
-		document.setField("added", Date.from(model.getAdded()));
-		document.setField("license", model.getLicense());
-		document.setField("thumbnail", model.getThumbnail());
-		try {
-			solrServer.add(document);
-			solrServer.commit();
-		} catch (SolrServerException | IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+    @Override
+    public TeachingItem getTeachingItem() {
+        return null;
+    }
 
-	@Override
-	public String saveThumbnail(InputStream inputStream) throws IOException {
-		Path image = Files.createTempFile("image", "thumbnail");
-		Files.copy(inputStream, image, StandardCopyOption.REPLACE_EXISTING);
-		// TODO should be injected, not hard coded.
+    @Override
+    public void saveTeachingItem(TeachingItem model) {
+        LOG.info("Adding new teaching item: " + model);
+        model.setId(UUID.randomUUID().toString());
+        model.setUrl("http://example.com");
+        model.setAdded(Instant.now());
+
+        SolrInputDocument document = new SolrInputDocument();
+        document.setField("id", model.getId());
+        document.setField("title", model.getTitle());
+        document.setField("description", model.getDescription());
+        document.setField("subject", model.getSubject());
+        document.setField("level", model.getLevel());
+        document.setField("purpose", model.getPurpose());
+        document.setField("interactivity", model.getInteractivity());
+        document.setField("type", model.getType());
+        document.setField("url", model.getUrl());
+        document.setField("author", model.getAuthor());
+        document.setField("contact", model.getContact());
+        document.setField("added", Date.from(model.getAdded()));
+        document.setField("license", model.getLicense());
+        document.setField("thumbnail", model.getThumbnail());
+        try {
+            solrServer.add(document);
+            solrServer.commit();
+        } catch (SolrServerException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String saveThumbnail(InputStream inputStream) throws IOException {
+        Path image = Files.createTempFile("image", "thumbnail");
+        Files.copy(inputStream, image, StandardCopyOption.REPLACE_EXISTING);
+        // Edit this if running outside Sakai
         String url = "/shoal-tool-1.0-SNAPSHOT/search/thumbnail/" + image.getFileName();
-		return url;
-	}
+        return url;
+    }
 }

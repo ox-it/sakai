@@ -66,18 +66,18 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 	private transient QueryResponse response;
 
 	private SolrProvider() {
-		order = DEFAULT_ORDER; 
+		order = DEFAULT_ORDER;
 	}
-	
+
 	public SolrProvider(SolrServer solr) {
 		this();
 		this.solr = solr;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param solr
-	 * @param query The escaped query. The caller must escape the query string as only it 
+	 * @param query The escaped query. The caller must escape the query string as only it
 	 * know which parts of the query should be escaped.
 	 * @param filters
 	 */
@@ -86,11 +86,11 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 		this.query = query;
 		setFilters(filters);
 	}
-	
+
 	public boolean hasQuery() {
 		return this.query != null;
 	}
-	
+
 	public void setQuery(String query) {
 		this.query = query;
 	}
