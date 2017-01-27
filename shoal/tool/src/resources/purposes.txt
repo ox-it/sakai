@@ -1,0 +1,21 @@
+Assessment: Formative
+Assessment: Peer assessment
+Assessment: Self-assessment
+Assessment: Summative
+Creative: Brainstorm/mindmap
+Creative: Problem-solving
+Evaluation (of materials by student)
+Experiential: Collaboration/Groupwork
+Experiential: Computer-based
+Experiential: Data collection
+Experiential: Field trip
+Experiential: Lab work
+Experiential: Original research
+Experiential: Play
+Experiential: Role play
+Experiential: Tutorial/Discussion/Debate
+Instruction: Demonstration
+Instruction: Listening
+Instruction: Reading
+Instruction: Watching
+Reflection

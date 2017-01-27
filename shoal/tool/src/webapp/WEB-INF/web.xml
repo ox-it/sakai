@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--suppress ServletWithoutMappingInspection -->
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="3.0">
+
+    <display-name>Shoal</display-name>
+
+    <servlet>
+        <servlet-name>shoal.search</servlet-name>
+        <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+        <!--<servlet-class>uk.ac.ox.it.shoal.ShoalReloadingWicketServlet</servlet-class>-->
+        <init-param>
+            <param-name>applicationClassName</param-name>
+            <param-value>uk.ac.ox.it.shoal.SearchApplication</param-value>
+        </init-param>
+        <init-param>
+            <!-- Needed as wicket can't detect the URL it's mounted on -->
+            <param-name>filterMappingUrlPattern</param-name>
+            <param-value>/*</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>shoal.edit</servlet-name>
+        <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+        <init-param>
+            <param-name>applicationClassName</param-name>
+            <param-value>uk.ac.ox.it.shoal.EditApplication</param-value>
+        </init-param>
+        <init-param>
+            <!-- Needed as wicket can't detect the URL it's mounted on -->
+            <param-name>filterMappingUrlPattern</param-name>
+            <param-value>/*</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!-- Deploy mode -->
+    <context-param>
+        <param-name>configuration</param-name>
+        <!--<param-value>development</param-value>-->
+        <param-value>deployment</param-value>
+    </context-param>
+
+    <!--
+      - This is useful for running the tool outside of Sakai
+      -
+    <servlet-mapping>
+        <servlet-name>shoal.search</servlet-name>
+        <url-pattern>/search/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>shoal.search</servlet-name>
+        <url-pattern>/edit/*</url-pattern>
+    </servlet-mapping>
+    <listener>
+       <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    -->
+    <listener>
+        <listener-class>
+            org.sakaiproject.util.SakaiContextLoaderListener
+        </listener-class>
+    </listener>
+
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+
+</web-app>

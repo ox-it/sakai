@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:wicket="http://wicket.apache.org"
+        xml:lang="en"
+        lang="en">
+    <wicket:panel>
+        <h3 wicket:id="title">Papers</h3>
+        <div wicket:id="results">
+            <ul class="first">
+                <li wicket:id="result"><a wicket:id="link" href="#"><span
+                        wicket:id="name">Facet Name</span></a><div class="count">(<span wicket:id="count">1</span>)</div>
+                </li>
+            </ul>
+            <div wicket:id="hidden">
+                <div class="control">+ More</div>
+                <div class="control start-hidden">- Less</div>
+                <ul class="more start-hidden">
+                    <li wicket:id="result"><a wicket:id="link" href="#"><span
+                            wicket:id="name">Facet Name</span></a> (<span wicket:id="count">1</span>)
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div wicket:id="too_many">
+            <ul>
+                <li>
+                    <wicket:message key="facet.too.many"/>
+                </li>
+            </ul>
+        </div>
+    </wicket:panel>
+</html>

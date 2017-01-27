@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <!-- We need this file to satisfy Spring, but we don't need anything in it since we use Wicket's dependency injection -->
+    <!--<import resource="classpath:/standalone-beans.xml"/>-->
+    <import resource="classpath:/sakai-beans.xml"/>
+
+    <!-- This should be identical to the one in the implmentation. -->
+    <bean id="uk.ac.ox.shoal.solr" name="solrServer" class="org.apache.solr.client.solrj.impl.HttpSolrServer">
+        <constructor-arg>
+            <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+                <property name="targetObject">
+                    <ref bean="uk.ac.ox.it.shoal.logic.SakaiProxyImpl"/>
+                </property>
+                <property name="targetMethod">
+                    <value>getConfigParam</value>
+                </property>
+                <property name="arguments">
+                    <list>
+                        <value>shoal.solr.url</value>
+                        <!-- The default value probably won't be any use but it allows startup -->
+                        <value>http://localhost:8080/shoal-solr/</value>
+                    </list>
+                </property>
+            </bean>
+        </constructor-arg>
+        <!-- Time to establish the connection to Solr. -->
+        <property name="connectionTimeout" value="5000"/>
+        <!-- Once connection is established time to wait for results -->
+        <property name="soTimeout" value="5000"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+  
+    <!-- This is the proxy for when we're running in Sakai. -->
+
+    <bean id="uk.ac.ox.it.shoal.logic.SakaiProxyImpl" class="uk.ac.ox.it.shoal.logic.SakaiProxyImpl"
+    init-method="init">
+        <property name="securityService"
+            ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager"
+            ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService"
+            ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="eventTrackingService"
+            ref="org.sakaiproject.event.api.EventTrackingService" />
+        <property name="serverConfigurationService"
+            ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+    </bean>
+
+    <bean id="uk.ac.ox.it.shoal.logic.Indexer" class="uk.ac.ox.it.shoal.logic.Indexer"
+          init-method="init">
+        <property name="eventTrackingService"
+                  ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="serverConfigurationService"
+                  ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService"
+                  ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="entityManager"
+                  ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="solrServer"
+                  ref="uk.ac.ox.shoal.solr"/>
+    </bean>
+
+    <bean id="uk.ac.ox.it.shoal.logic.IndexerJobWrapper"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId" value="uk.ac.ox.it.shoal.logic.IndexerJob" />
+        <property name="jobName" value="Shoal Reindex" />
+        <property name="schedulerManager"
+                  ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+    </bean>
+
+    <bean id="uk.ac.ox.it.shoal.logic.IndexerJob"
+          class="uk.ac.ox.it.shoal.logic.IndexerJob">
+        <property name="indexer" ref="uk.ac.ox.it.shoal.logic.Indexer"/>
+    </bean>
+
+</beans>

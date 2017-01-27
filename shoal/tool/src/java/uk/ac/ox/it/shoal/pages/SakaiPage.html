@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+ 
+<head>
+	<title><wicket:message key="page.title" /></title>
+	<style type="text/css">
+		/** This is because we want to override it with jQuery toggle() and bootstrap makes .hidden !important */
+		.start-hidden{display:none;}
+	</style>
+</head>     
+<body>
+	<div class="portletBody">
+		<wicket:enclosure child="link">
+		<ul class="navIntraTool actionToolbar" role="menu">
+			<li role="menuitem" wicket:id="link">
+				<span>
+					<a wicket:id="anchor">
+						<span wicket:id="label">Link Label</span>
+					</a>
+				</span>
+			</li>
+		</ul>
+		</wicket:enclosure>
+		
+
+		<wicket:child />
+	
+	</div>
+</body>
+</html>

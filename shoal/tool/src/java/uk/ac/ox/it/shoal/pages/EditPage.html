@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:wicket="http://wicket.apache.org"
+        xml:lang="en"
+        lang="en">
+<head>
+
+    <script src="//code.jquery.com/jquery.min.js"></script>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+    <wicket:head>
+        <wicket:link>
+            <link href="EditPage.css" type="text/css" rel="stylesheet"/>
+        </wicket:link>
+    </wicket:head>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-theme/0.1.0-beta.6/select2-bootstrap.css" type="text/css"/>
+
+</head>
+<body>
+<wicket:extend>
+    <div class="container display">
+        <div class="row">
+            <div class="col-sm-offset-2 col-sm-10">
+                <div wicket:id="feedback"></div>
+            </div>
+        </div>
+        <div class="row">
+            <form wicket:id="item" class="form-horizontal">
+                <div class="form-group" wicket:id="title-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="title-label">Title</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Title"
+                              wicket:message="title:title.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" wicket:id="title" size="48">
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="description-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="description-label">Description</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Description"
+                              wicket:message="title:description.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" wicket:id="description" rows="6"></textarea>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="subject-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="subject-label">Subject</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Subject"
+                              wicket:message="title:subject.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <select class="form-control" wicket:id="subject" multiple="multiple">
+                            <option>english</option>
+                            <option>french</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="interactivity-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="interactivity-label">Interactivity</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Interactivity"
+                              wicket:message="title:interactivity.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <select class="form-control" wicket:id="interactivity">
+                            <option>Active</option>
+                            <option>Mixed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="level-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="level-label">Level</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Level"
+                              wicket:message="title:level.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <select class="form-control" wicket:id="level" multiple="multiple">
+                            <option>Undergraduate</option>
+                            <option>Postgraduate</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="purpose-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="purpose-label">Purpose</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Purpose"
+                              wicket:message="title:purpose.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <select class="form-control" wicket:id="purpose" multiple="multiple">
+                            <option>Collaboration/Groupwork</option>
+                            <option>Blog/Wiki</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="type-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="type-label">Type</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Type"
+                              wicket:message="title:type.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <select class="form-control" wicket:id="type" multiple="multiple">
+                            <option>Audio</option>
+                            <option>Video</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="author-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="author-label">Author</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Author"
+                              wicket:message="title:author.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" wicket:id="author" size="48"/>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="contact-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="contact-label">Contact</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Contact"
+                              wicket:message="title:contact.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" wicket:id="contact" size="48"/>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="license-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="license-label">License</label>
+                        <span class="glyphicon glyphicon-question-sign" title="License"
+                              wicket:message="title:license.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <select class="form-control" wicket:id="license">
+                            <option>CC by SA</option>
+                            <option>CC by CC</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="permission-group">
+                    <div class="col-sm-2 control-label">
+                        <label wicket:id="permission-label">Permission</label>
+                        <span class="glyphicon glyphicon-question-sign" title="Permission"
+                              wicket:message="title:permission.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <textarea class="form-control" wicket:id="permission" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="form-group" wicket:id="thumbnail-group">
+                    <div class="col-sm-2 control-label">
+                    <label wicket:id="thumbnail-label">Thumbnail</label>
+                    <span class="glyphicon glyphicon-question-sign" title="Thumbnail" wicket:message="title:thumbnail.help"></span>
+                    </div>
+                    <div class="col-sm-10">
+                        <img class="thumbnail" src="somthing.jpg" wicket:id="thumbnail-current"/>
+                        <input type="file" class="form-control" wicket:id="thumbnail"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" wicket:id="save" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // This should be in the library
+        $(document).ready(function () {
+            $('select').select2({
+                theme: "bootstrap"
+            });
+        });
+    </script>
+</wicket:extend>
+</body>
+</html>

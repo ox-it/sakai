@@ -18,6 +18,8 @@ password@javax.sql.BaseDataSource=${DB_ENV_MYSQL_PASSWORD}
 
 search.solr.server=http://solr:8983/solr/search
 ses.solr.server=http://solr:8983/solr/ses
+shoal.solr.url=http://solr:8983/solr/shoal
+oxam.solr.url=http://solr:8983/solr/oxam
 EOF
 	# Enable the jgroups connection
 	JGROUPS_USERNAME="${DB_ENV_MYSQL_USER}"
