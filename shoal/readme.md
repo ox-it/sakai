@@ -25,7 +25,7 @@ shoal.site.type=repository
 
 It's also helpful to have the repository set type inherit all the tools from the project site type:
 ```
-projectSiteType=repository
+projectSiteType=repository,project
 projectSiteTargetType=project
 ```
 
