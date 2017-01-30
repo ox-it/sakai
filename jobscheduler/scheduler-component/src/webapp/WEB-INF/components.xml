@@ -338,6 +338,7 @@
     </bean>
 
     <import resource="backfill-tool.xml"/>
+    <import resource="event-trigger.xml"/>
 
     <!-- global quartz scheduler proxy bean -->
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.CourseSiteRemovalJob"
