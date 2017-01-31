@@ -31,13 +31,18 @@ public class EventTriggerJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         String siteType = context.getMergedJobDataMap().getString("type");
-        if (siteType == null) {
+        if (siteType == null || siteType.isEmpty()) {
             log.warn("You need to set a site type");
+            return;
+        }
+        String eventType = context.getMergedJobDataMap().getString("event");
+        if (eventType == null || eventType.isEmpty()) {
+            log.warn("You need to set a event type");
             return;
         }
 
         for (Site site: siteService.getSites(SiteService.SelectionType.ANY, siteType, null, null,SiteService.SortType.NONE, null)) {
-            Event event = eventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE, site.getReference(), true);
+            Event event = eventTrackingService.newEvent(eventType, site.getReference(), true);
             eventTrackingService.post(event);
         }
     }
