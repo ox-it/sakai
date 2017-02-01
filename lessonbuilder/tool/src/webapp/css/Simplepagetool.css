@@ -687,7 +687,7 @@ padding: 10px 15px 0 15px
  color:#000;
  font-weight: normal;
 }
-.forumSummaryList{
+.forumSummaryList, .announcementSummaryList{
  list-style: none;
  padding: 0 15px;
  font-family: 'Segoe UI', Segoe, Tahoma, Helvetica, Arial, sans-serif;
@@ -702,7 +702,7 @@ padding: 10px 15px 0 15px
     float:left;
 }
 
-.forumSummaryItem{
+.forumSummaryItem, .announcementSummaryItem{
  margin-bottom: 10px;
 }
 
