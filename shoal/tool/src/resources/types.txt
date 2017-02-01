@@ -1,15 +1,12 @@
-Audio
-Discussion
-Game
-Hands-on, interactive
+Text
 Image/Visual
-In-Person/Speaker
-Learning/Curriculum map
-Mixed (whole unit/course)
-Reference material (Print/Digital)
-Rubric/Scoring guide
-Syllabus
-Test/Quiz
-Unit
 Video
+Audio
+Interactive
+Immersive
+Discussion
 Wiki/Blog
+Test/Quiz
+Survey/Poll
+Marking guide/rubric
+Learning pathway

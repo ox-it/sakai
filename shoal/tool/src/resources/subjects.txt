@@ -2,18 +2,14 @@ african studies
 asian studies
 classical studies
 english studies
+european studies
 fine art
-european studies
-european studies
 history
-european studies
-european studies
 linguistics
 modern languages
 modern middle eastern studies
 music
 philosophy
-european studies
 theology and religious studies
 anatomy
 biochemistry
@@ -29,6 +25,7 @@ biology
 biophysical science
 chemistry
 computer science
+earth sciences
 general or integrated engineering
 geology
 materials science
