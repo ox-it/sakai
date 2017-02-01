@@ -85,6 +85,8 @@ public class DisplayPage extends SakaiPage {
             addIfNotNull(metadata, type);
             Metadata author = newMetadata(document, "author", "author", "field.label.author");
             addIfNotNull(metadata, author);
+            Metadata contact = newMetadata(document, "contact", "contact", "field.label.contact");
+            addIfNotNull(metadata, contact);
             Metadata added = newMetadata(document, "added", null, "field.label.added");
             addIfNotNull(metadata, added);
             Metadata permission = newMetadata(document, "permission", null, "field.label.permission");
