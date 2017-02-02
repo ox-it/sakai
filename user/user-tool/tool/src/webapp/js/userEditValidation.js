@@ -105,7 +105,7 @@ USER.verifyPasswordsMatch = function () {
         }
     }
     else {
-        USER.passwordsMatch = true;
+        return;
     }
 
     USER.validateForm();
