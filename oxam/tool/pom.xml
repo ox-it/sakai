@@ -228,6 +228,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludes>
+                        <!-- These tests aren't simple to fix but I wanted to re-enable all the other tests -->
                         <exclude>**/BulkImportTest</exclude>
                         <exclude>**/FullImportTest</exclude>
                         <exclude>**/YearImportTest</exclude>
