@@ -1,12 +1,18 @@
 package uk.ac.ox.oucs.oxam.dao;
 
 import org.junit.Test;
-import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
 import uk.ac.ox.oucs.oxam.model.ExamPaperFile;
 
-public class ExamPaperFileDaoImplTest extends AbstractTransactionalDataSourceSpringContextTests {
-	
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+@ContextConfiguration({ "classpath:/oxam-beans.xml", "classpath:/context.xml" })
+public class ExamPaperFileDaoImplTest extends AbstractTransactionalJUnit4SpringContextTests {
+
+	@Autowired
 	private ExamPaperFileDao dao;
 	
 	public void setDao(ExamPaperFileDao dao) {
@@ -14,10 +20,7 @@ public class ExamPaperFileDaoImplTest extends AbstractTransactionalDataSourceSpr
 	}
 	
 
-	protected String[] getConfigLocations() {
-		return new String[] { "classpath:/oxam-beans.xml", "classpath:/context.xml" };
-	}
-
+	@Test
 	public void testAllOperations() {
 	
 		ExamPaperFile examPaperFile = new ExamPaperFile();

@@ -119,10 +119,10 @@ public class ExamPaperDaoImpl extends BaseDao implements ExamPaperDao {
 		if (params.size() > 0) {
 			// We only use the joined count when we have something to search for.
 			stmt = getStatement("count.where")+  sql.getStmt();
-			return (Integer) namedParameterJdbcTemplate.queryForInt(stmt, params);
+			return (Integer) namedParameterJdbcTemplate.queryForObject(stmt, params, Integer.class);
 		} else {
 
-			return (Integer) getJdbcTemplate().queryForInt(stmt);
+			return (Integer) getJdbcTemplate().queryForObject(stmt, Integer.class);
 		}
 		
 	}

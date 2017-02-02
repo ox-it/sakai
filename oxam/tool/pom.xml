@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,7 +25,7 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
+
     <dependencies>
 
         <!-- project dependencies -->
@@ -35,11 +35,6 @@
         </dependency>
 
         <dependency>
-            <!-- This is so we can easily test the importer.
-                It means Eclipse doesn't flag up incorrect usage, but a command
-                line build maven build
-                should show any problems as it has proper classpath isolation
-                for different scopes. -->
             <groupId>uk.ac.ox.oucs.vle</groupId>
             <artifactId>oxam-impl</artifactId>
             <scope>test</scope>
@@ -108,7 +103,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.4</version>
         </dependency>
         <!-- For parsing Excel Files. -->
         <dependency>
@@ -134,21 +128,38 @@
         </dependency>
 
         <dependency>
-            <!-- This is so that we get autowiring during test. -->
             <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
+            <artifactId>spring-test</artifactId>
+            <version>${sakai.spring.version}</version>
             <scope>test</scope>
-            <version>2.5.6.SEC03</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
+            <artifactId>spring-tx</artifactId>
+            <version>${sakai.spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${sakai.spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${sakai.spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.derby</groupId>
+            <artifactId>derby</artifactId>
+            <version>10.8.1.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -159,7 +170,6 @@
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
-            <version>2.1_3</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -199,6 +209,33 @@
                 </includes>
             </resource>
         </resources>
-	</build>
+        <testResources>
+            <testResource>
+                <directory>src/test</directory>
+
+                <includes>
+                    <include>**/*.xlsx</include>
+                    <include>**/*.xml</include>
+                    <include>**/*.csv</include>
+                    <include>**/*.zip</include>
+                    <include>**/*.pdf</include>
+                </includes>
+            </testResource>
+        </testResources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/BulkImportTest</exclude>
+                        <exclude>**/FullImportTest</exclude>
+                        <exclude>**/YearImportTest</exclude>
+                    </excludes>
+
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

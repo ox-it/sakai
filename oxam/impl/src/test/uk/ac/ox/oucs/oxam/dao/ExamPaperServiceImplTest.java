@@ -1,30 +1,31 @@
 package uk.ac.ox.oucs.oxam.dao;
 
-import java.util.Map;
-
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.AbstractTransactionalDataSourceSpringContextTests;
-import org.springframework.test.annotation.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-
 import uk.ac.ox.oucs.oxam.logic.CategoryService;
 import uk.ac.ox.oucs.oxam.logic.ExamPaperService;
 import uk.ac.ox.oucs.oxam.logic.TermService;
-import uk.ac.ox.oucs.oxam.model.AcademicYear;
-import uk.ac.ox.oucs.oxam.model.Category;
-import uk.ac.ox.oucs.oxam.model.Exam;
-import uk.ac.ox.oucs.oxam.model.ExamPaper;
-import uk.ac.ox.oucs.oxam.model.Paper;
-import uk.ac.ox.oucs.oxam.model.Term;
+import uk.ac.ox.oucs.oxam.model.*;
 
-public class ExamPaperServiceImplTest extends AbstractTransactionalDataSourceSpringContextTests {
+import java.util.Map;
 
-	// Autowiring doesn't work as the proxy means it can't wire by type 
+import static org.junit.Assert.*;
+
+@ContextConfiguration({ "classpath:/oxam-beans.xml", "classpath:/context.xml" })
+public class ExamPaperServiceImplTest extends AbstractTransactionalJUnit4SpringContextTests {
+
+    @Autowired
 	private ExamPaperService service;
-	
+
+	@Autowired
 	private CategoryService categoryService;
-	
+
+	@Autowired
 	private TermService termService;
 	
 	public void setService(ExamPaperService service) {
@@ -39,10 +40,7 @@ public class ExamPaperServiceImplTest extends AbstractTransactionalDataSourceSpr
 		this.termService = termService;
 	}
 
-	protected String[] getConfigLocations() {
-		return new String[] { "classpath:/oxam-beans.xml", "classpath:/context.xml" };
-	}
-	
+	@Test
 	public void test() {
 		assertEquals(0, service.count(null,null,null,null));
 		ExamPaper examPaper = service.newExamPaper();
@@ -65,7 +63,8 @@ public class ExamPaperServiceImplTest extends AbstractTransactionalDataSourceSpr
 		examPaper.setExamTitle("Other Exam Title");
 		service.saveExamPaper(examPaper);
 	}
-	
+
+	@Test
 	public void testMissing() {
 		try {
 			service.getExamPaper(1);
@@ -75,6 +74,7 @@ public class ExamPaperServiceImplTest extends AbstractTransactionalDataSourceSpr
 		}
 	}
 
+	@Test
 	public void testGetExamCodes() {
 		newExam("ABC1", "My Exam Title", 2011);
 		newExam("ABC1", "Other Exam Title", 2010);
@@ -96,7 +96,8 @@ public class ExamPaperServiceImplTest extends AbstractTransactionalDataSourceSpr
 		examPaper.setYear(new AcademicYear(year));
 		service.saveExamPaper(examPaper);
 	}
-	
+
+	@Test
 	public void testGetPaperCodes() {
 		newPaper("PAP1", "Paper 1", 2000);
 		newPaper("PAP2", "Paper 2", 2000);
