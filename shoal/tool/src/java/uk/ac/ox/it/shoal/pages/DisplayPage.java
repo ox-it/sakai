@@ -14,6 +14,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.basic.MultiLineLabel;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.repeater.RepeatingView;
@@ -60,9 +61,10 @@ public class DisplayPage extends SakaiPage {
             form.add(new AttributeModifier("action", url));
             add(form);
 
-            add(new Label("title", title));
+            add(new ExternalLink("title-link", url, title));
             String description = document.getFieldValue("description").toString();
             add(new MultiLineLabel("description", description));
+            ExternalLink thumbnailLink = new ExternalLink("thumbnail-link", url);
             ResourceReference icon = new PackageResourceReference(getClass(), "placeholder.png");
             String iconUrl = (String) document.getFieldValue("thumbnail");
             if (iconUrl != null) {
@@ -70,7 +72,8 @@ public class DisplayPage extends SakaiPage {
             }
             Image image = new Image("thumbnail", icon);
             image.setSizes();
-            add(image);
+            thumbnailLink.add(image);
+            add(thumbnailLink);
 
             List<Metadata> metadata = new ArrayList<>();
             Metadata subject = newMetadata(document, "subject", "subject", "field.label.subject");
