@@ -1,21 +1,26 @@
 package uk.ac.ox.oucs.oxam.dao;
 
 import org.junit.Test;
-import org.springframework.test.AbstractDependencyInjectionSpringContextTests;
-
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractTransactionalJUnit4SpringContextTests;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.ac.ox.oucs.oxam.logic.TermServiceImpl;
 import uk.ac.ox.oucs.oxam.model.Term;
 
-public class TermServiceImplTest extends AbstractDependencyInjectionSpringContextTests {
-	
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:uk/ac/ox/oucs/oxam/dao/TermServiceImplTest-context.xml")
+public class TermServiceImplTest {
+
+    @Autowired
 	private TermServiceImpl termService;
 
 	public void setTermService(TermServiceImpl termService) {
 		this.termService = termService;
-	}
-
-	protected String[] getConfigLocations() {
-		return new String[] { "classpath:uk/ac/ox/oucs/oxam/dao/TermServiceImplTest-context.xml" };
 	}
 
 	@Test

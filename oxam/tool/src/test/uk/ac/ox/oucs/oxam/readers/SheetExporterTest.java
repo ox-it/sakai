@@ -18,7 +18,7 @@ public class SheetExporterTest {
 		});
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		SheetExporter exporter = new SheetExporter();
-		exporter.writeSheet(out, null, list);
+		exporter.writeSheet(out, SheetImporter.Format.CSV, list);
 		System.out.print(new String(out.toByteArray()));
 	}
 	
@@ -30,7 +30,7 @@ public class SheetExporterTest {
 		list.add(new WithGenerics<Nested>("three", new Nested("3")));
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		SheetExporter exporter = new SheetExporter();
-		exporter.writeSheet(out, null, list);
+		exporter.writeSheet(out, SheetImporter.Format.CSV, list);
 		System.out.print(new String(out.toByteArray()));
 	}
 
