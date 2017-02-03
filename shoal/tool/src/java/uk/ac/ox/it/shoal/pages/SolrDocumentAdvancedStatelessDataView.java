@@ -38,9 +38,11 @@ class SolrDocumentAdvancedStatelessDataView extends AdvancedStatelessDataView<So
         if (url != null) {
             icon = new UrlResourceReference(Url.parse(url));
         }
+        Link thumbnailLink = new BookmarkablePageLink<Void>("thumbnail-url", DisplayPage.class, new PageParameters().add("id", id));
         Image image = new Image("thumbnail", icon);
         image.setSizes();
-        item.add(image);
+        thumbnailLink.add(image);
+        item.add(thumbnailLink);
         // So we get <br>s and <p>
         MultiLineLabel description = new MultiLineLabel("description", document.getFieldValue("description").toString());
         item.add(description);
