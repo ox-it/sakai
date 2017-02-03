@@ -137,7 +137,6 @@ public class ValidatedTeachingItem implements TeachingItem, Serializable {
         item.setThumbnail(thumbnail);
     }
 
-    @NotNull
     public String getLicense() {
         return item.getLicense();
     }
