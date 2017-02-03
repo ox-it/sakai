@@ -127,15 +127,6 @@ public class EditPage extends SakaiPage {
         contactGroup.add(contact);
         contactGroup.add(new ErrorBehaviour(contact));
 
-        WebMarkupContainer licenseGroup = new WebMarkupContainer("license-group");
-        List<String> licenses = Arrays.asList("CC0", "BY", "BY-SA", "BY-NC", "BY-ND");
-        ListChoice<String> license = new NoDefaultListChoice<>("license", licenses);
-        license.add(new PropertyValidator<>());
-        FormComponentLabel licenseLabel = new FormComponentLabel("license-label", license);
-        licenseGroup.add(licenseLabel);
-        licenseGroup.add(license);
-        licenseGroup.add(new ErrorBehaviour(license));
-
         WebMarkupContainer permissionGroup = new WebMarkupContainer("permission-group");
         TextArea<String> permission = new TextArea<>("permission");
         permission.add(new PropertyValidator<>());
@@ -193,7 +184,6 @@ public class EditPage extends SakaiPage {
         form.add(typeGroup);
         form.add(authorGroup);
         form.add(contactGroup);
-        form.add(licenseGroup);
         form.add(permissionGroup);
         form.add(thumbnailGroup);
         form.add(submit);
