@@ -29,6 +29,12 @@
                     <property name="descriptionResourceKey" value="site.type"/>
                     <property name="defaultValue" value="project"/>
                 </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="true"/>
+                    <property name="labelResourceKey" value="event"/>
+                    <property name="descriptionResourceKey" value="event.type"/>
+                    <property name="defaultValue" value="site.upd"/>
+                </bean>
             </set>
         </property>
         <property name="schedulerManager">

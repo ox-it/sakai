@@ -133,7 +133,8 @@ public class DepartmentSiteAdvisor implements SiteAdvisor, Observer {
                 if (entity instanceof Site) {
                     Site managedSite = (Site) entity;
                     ResourcePropertiesEdit properties = managedSite.getPropertiesEdit();
-                    if (!properties.getProperty(siteProperty).equals(site.getTitle())) {
+                    String property = properties.getProperty(siteProperty);
+                    if (property == null || !property.equals(site.getTitle())) {
                         properties.addProperty(siteProperty, site.getTitle());
                         try {
                             siteService.save(managedSite);
