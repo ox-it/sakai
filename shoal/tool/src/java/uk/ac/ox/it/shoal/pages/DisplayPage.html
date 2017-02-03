@@ -21,13 +21,17 @@
         </div>
         <div class="row">
             <div class="col-sm-7 col-md-8 col-sm-offset-5 col-md-offset-4">
-                <h2 wicket:id="title" class="title">Title</h2>
+                <h2 class="title">
+                    <a href="#" wicket:id="title-link" target="_blank">Title</a>
+                </h2>
             </div>
         </div>
         <div class="row">
             <div class="col-sm-5 col-md-4 text-right">
-                <img class="thumbnail inline" src="placeholder.png"
-                     wicket:id="thumbnail"/>
+                <a href="#" wicket:id="thumbnail-link" target="_blank">
+                    <img class="thumbnail inline" src="placeholder.png"
+                         wicket:id="thumbnail"/>
+                </a>
             </div>
 
             <div class="col-sm-7 col-md-8">
@@ -48,8 +52,8 @@
                         </div>
                     </div>
                     <div class="preview text-right">
-                        <form wicket:id="preview" method="get">
-                            <input type="submit" value="Preview Content" wicket:message="value:page.preview"/>
+                        <form wicket:id="preview" method="get" target="_blank">
+                            <input type="submit" value="View Content" wicket:message="value:page.preview"/>
                         </form>
                     </div>
 
