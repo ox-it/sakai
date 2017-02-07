@@ -7,8 +7,11 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * Simple job to fire a site update on all sites of a particular type.
@@ -19,6 +22,7 @@ public class EventTriggerJob implements Job {
 
     private EventTrackingService eventTrackingService;
     private SiteService siteService;
+    private SessionManager sessionManager;
 
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
@@ -26,6 +30,10 @@ public class EventTriggerJob implements Job {
 
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
+    }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
     }
 
     @Override
@@ -41,9 +49,16 @@ public class EventTriggerJob implements Job {
             return;
         }
 
-        for (Site site: siteService.getSites(SiteService.SelectionType.ANY, siteType, null, null,SiteService.SortType.NONE, null)) {
-            Event event = eventTrackingService.newEvent(eventType, site.getReference(), true);
-            eventTrackingService.post(event);
+        Session currentSession = sessionManager.getCurrentSession();
+        try {
+            currentSession.setUserEid("admin");
+            currentSession.setUserId("admin");
+            for (Site site : siteService.getSites(SiteService.SelectionType.ANY, siteType, null, null, SiteService.SortType.NONE, null)) {
+                Event event = eventTrackingService.newEvent(eventType, site.getReference(), true);
+                eventTrackingService.post(event);
+            }
+        } finally {
+            currentSession.invalidate();
         }
     }
 }
