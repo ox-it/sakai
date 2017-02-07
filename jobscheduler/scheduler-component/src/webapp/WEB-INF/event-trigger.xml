@@ -8,6 +8,7 @@
           class="org.sakaiproject.component.app.scheduler.jobs.EventTriggerJob">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="sessionManager" ref="org.sakaiproject.session.api.SessionManager"/>
     </bean>
 
     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.BackFillToolJob"
