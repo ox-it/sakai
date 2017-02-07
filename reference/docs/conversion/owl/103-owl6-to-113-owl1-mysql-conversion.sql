@@ -833,7 +833,7 @@ ALTER TABLE lti_content MODIFY title VARCHAR(1024);
 ALTER TABLE lti_content MODIFY pagetitle VARCHAR(1024);
 ALTER TABLE lti_content MODIFY consumerkey VARCHAR(1024);
 ALTER TABLE lti_content MODIFY secret VARCHAR(1024);
---alter table lti_content modify custom varchar(65536);
+-- alter table lti_content modify custom varchar(65536);
 ALTER TABLE lti_content MODIFY xmlimport MEDIUMTEXT;
 ALTER TABLE lti_content MODIFY settings MEDIUMTEXT;
 ALTER TABLE lti_content MODIFY settings_ext MEDIUMTEXT;
@@ -842,7 +842,7 @@ ALTER TABLE lti_tools MODIFY title VARCHAR(1024);
 ALTER TABLE lti_tools MODIFY pagetitle VARCHAR(1024);
 ALTER TABLE lti_tools MODIFY consumerkey VARCHAR(1024);
 ALTER TABLE lti_tools MODIFY secret VARCHAR(1024);
---alter table lti_tools modify custom varchar(65536);
+-- alter table lti_tools modify custom varchar(65536);
 
 ALTER TABLE lti_deploy MODIFY reg_profile MEDIUMTEXT;
 ALTER TABLE lti_deploy MODIFY settings MEDIUMTEXT;
@@ -928,8 +928,8 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1575', 'sitePage.c
 -- END KNL-1424
 
 -- SAM-2709 Submission Email Notifications Hidden Inappropriately--
---ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD COLUMN INSTRUCTORNOTIFICATION integer;
---ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD COLUMN INSTRUCTORNOTIFICATION integer;
+-- ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD COLUMN INSTRUCTORNOTIFICATION integer;
+-- ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD COLUMN INSTRUCTORNOTIFICATION integer;
 
 INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL, ENTRY)
     VALUES(NULL, 1, 'instructorNotification_isInstructorEditable', 'true') ;
