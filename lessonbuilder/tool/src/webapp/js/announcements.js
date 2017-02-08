@@ -29,6 +29,7 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 					text_for_announcements += '<p>'+msg("simplepage.announcements-no-message")+'</p>';
 				}
 				else {
+					text_for_announcements += '<ul class="announcementSummaryList">';
 					$(data["announcement_collection"]).each(function(){
 						//create a new javascript Date object based on the timestamp
 						date = new Date(this["createdOn"]);
@@ -36,14 +37,15 @@ function showAnnouncements(url, tool_href, number, announcementsDiv){
 						var min = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
 						//using javascript's toLocaleDateString() to include user's locale and local time zone
 						date_time = hour +":"+min+ " " + date.toLocaleDateString();
-						text_for_announcements += '<div class="itemDiv">';
+						text_for_announcements += '<li class="itemDiv announcementSummaryItem">';
 						var href = tool_href + this["announcementId"]+"&sakai_action=doShowmetadata";
 						var entityTitle = this["entityTitle"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 						var createdByDisplayName = this["createdByDisplayName"].replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-						text_for_announcements += '<div class="itemTitle"><a href="'+href+'" target="_top">'+ entityTitle +'</a> by '+ createdByDisplayName +'</div>';
+						text_for_announcements += '<div><a href="'+href+'" target="_top">'+ entityTitle +'</a> by '+ createdByDisplayName +'</div>';
 						text_for_announcements += '<div class="itemDate">'+date_time+'</div>';
-						text_for_announcements += '</div>';
+						text_for_announcements += '</li>';
 					});
+					text_for_announcements += '</ul>';
 				}
 				announcementsDiv.html(text_for_announcements);
 			},
