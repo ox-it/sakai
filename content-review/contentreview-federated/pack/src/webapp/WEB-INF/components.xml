@@ -17,8 +17,8 @@
         </bean>
 
         <util:list id="contentReviewProviders">
-                <!--ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceTii"/>
-                <ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceVeriCite"/>
+                <ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceTii"/>
+                <!--<ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceVeriCite"/>
                 <ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceCompilatio"/>
                 <ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceUrkund"/>
                 -->

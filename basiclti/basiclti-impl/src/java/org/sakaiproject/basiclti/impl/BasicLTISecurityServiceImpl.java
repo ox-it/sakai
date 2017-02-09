@@ -333,7 +333,24 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					Map<String,Object> content = null;
 					Map<String,Object> tool = null;
 
-					String contentStr = refId.substring(8);
+					// see if a resource has been passed into the URL
+					String resourcePattern = ",resource:";
+					int resourcePatternIndex = refId.indexOf(resourcePattern);
+					String resource = null;
+					String contentStr = null;
+					if (resourcePatternIndex != -1)
+					{
+						// resource is passed in. resource = everything after the resourcePattern
+						resource = refId.substring(resourcePatternIndex + resourcePattern.length());
+						// contentStr = everything between "content:" and resourcePattern
+						contentStr = refId.substring(8, resourcePatternIndex);
+					}
+					else
+					{
+						// No resource passed in; just grab everything after "content:"
+						contentStr = refId.substring(8);
+					}
+					
 					Long contentKey = foorm.getLongKey(contentStr);
 					if ( contentKey >= 0 )
 					{
@@ -356,8 +373,18 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 								String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
 								if ( siteId != null && ! siteId.equals(ref.getContext()) ) 
 								{
-									tool = null;
+									logger.warn("SiteId is not context: " + siteId + " - " + ref.getContext());
+									String turnitinSite = ServerConfigurationService.getString("turnitin.lti.site", "!turnitin");
+									String turnitinReportsSite = ServerConfigurationService.getString("turnitin.ltireports.site", "!turnitin_reports");
+									if(!siteId.equals(turnitinSite) && !siteId.equals(turnitinReportsSite)){
+										tool = null;
+									}
 								}
+							}
+							
+							if (resource != null)
+							{
+								content.put(LTIService.LTI_LAUNCHSUFFIX, resource);
 							}
 						}
 

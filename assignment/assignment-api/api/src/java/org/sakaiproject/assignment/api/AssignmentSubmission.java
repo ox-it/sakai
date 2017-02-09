@@ -107,6 +107,13 @@ public interface AssignmentSubmission extends Entity
 	 * @return List of user ids
 	 */
 	public String getSubmitterIdString();
+	
+	/**
+	 * Returns the uuid of the user who made this submission on behalf of a group. If this submission is not
+	 * for a group, will return empty string
+	 * @return the id of the user who made the submission, or empty string if not a group submission
+	 */
+	public String getSubmittedForGroupByUserId();
 
 	/**
 	 * Get whether this is a final submission.
@@ -282,6 +289,18 @@ public interface AssignmentSubmission extends Entity
 	 * @return
 	 */
 	public String getReviewIconUrl();
+	
+	/**
+	 *  the color of the content review Icon associated with this submission
+	 * @return
+	 */
+	public String getReviewIconColor();
+	
+	/**
+	 *  indicates whether the external grade for this submission is different than the assignments one
+	 * @return
+	 */
+	public boolean isExternalGradeDifferent();
 
 	/**
 	 *

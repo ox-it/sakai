@@ -346,6 +346,9 @@
 					</a>
 				</p>
 				<div id="allowResubmissionPanelContent" style="display:none; overflow: hidden;">
+				#if ($allowReviewService && $assignment.getContent().AllowReviewService)
+					<div class="alertMessage">$tlang.getFormattedMessage("allowResubmission.review.warning", $reviewServiceName)</div>
+				#end
 				<p class="text-info">
 				#if ($assignment.isGroup())
 					$tlang.getString("allowResubmission.groups.instruction")
@@ -485,6 +488,9 @@
 									#end 
 								#end 
 							</a>
+							#if ($!misconfiguredReviewService)
+							<i alt="$crInvalidAsnConfig" title="$crInvalidAsnConfig" class="fa fa-exclamation-triangle errorStyle"></i>
+							#end
 						</td>
 					#end
 					<th id="gradereleased">
@@ -690,7 +696,11 @@
 							#if ($withGrade)
 								<td headers="grade">
 									#if($!submission)
-										$submission.getGradeDisplay($typeOfGrade)
+										#if($allowReviewService && $assignment.getContent().AllowReviewService && $submission.isExternalGradeDifferent())
+											<span onclick="alert('$tlang.getFormattedMessage('review.conflicting.popup', $reviewServiceName)')" class="conflicting-assignment-mark">$submission.getGradeDisplay($typeOfGrade)!</span>
+										#else
+											$submission.getGradeDisplay($typeOfGrade)										
+										#end
 									#end
 								</td>
 							#end	
@@ -710,11 +720,13 @@
 										<div>
 											#set ($props = $reviewResult.getContentResource().Properties)
 											<span class="reportIcon">
-											#if ($reviewResult.getReviewReport().equals("Error"))
-												<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+											#if ($!misconfiguredReviewService)
+												<i alt="$crInvalidAsnConfig" title="$crInvalidAsnConfig" class="fa fa-exclamation-triangle errorStyle"></i>
+											#elseif ($reviewResult.getReviewReport().equals("Error"))
+												<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-exclamation-triangle errorStyle"></i>
 											#else
-												<a href="$reviewResult.getReviewReport()" target="_blank">
-													<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+												<a href="$reviewResult.getReviewReport()" target="_blank" rel="noreferrer">
+													<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag flagStyle" style="color:$reviewResult.getReviewIconColor() !important"></i>
 												</a>
 											#end
 											</span>
@@ -722,6 +734,11 @@
 												$tlang.getString("submission.inline")
 											#else
 												$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+											#end
+											#if($reviewResult.getExternalGrade() && $assignment.getContent().AllowStudentViewExternalGrade)
+												<span style="font-style:italic !important">
+													($tlang.getString("gen.gra.ext") $reviewResult.getExternalGrade() / $maxPointsInt)
+												</span>
 											#end
 										</div>
 									#end
@@ -858,6 +875,20 @@
 				#end
 			</td>
 		</tr>
+		#if($allowReviewService && $assignment.getContent().AllowReviewService)
+			<tr> 
+				<th>
+					$tlang.getString("content.review")
+				</th>
+				<td>
+				#if($!ltiLink)
+					<a href="$ltiLink" title="$tlang.getString("content.review.inbox")" target="_blank">$reviewServiceName</a>
+				#else
+					$reviewServiceName
+				#end
+				</td>
+			</tr>
+		#end
 	</table>	
 	
 	#if ($assignmentContent.getInstructions().length()==0)

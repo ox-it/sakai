@@ -24,6 +24,7 @@ package org.sakaiproject.lti.impl;
 import java.util.UUID;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,10 @@ import org.sakaiproject.util.foorm.SakaiFoorm;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.lti.api.LTIRoleAdvisor;
+import org.sakaiproject.user.api.User;
+import org.tsugi.lti2.LTI2Vars;
 
 /**
  * <p>
@@ -60,6 +65,9 @@ public abstract class BaseLTIService implements LTIService {
 	/** Constants */
 	private final String ADMIN_SITE = "!admin";
 	public final String LAUNCH_PREFIX = "/access/basiclti/site/";
+	
+	/** Maps LTI Site Ids (as specified in External Tools) to their corresponding LTIRoleAdvisors */
+	private static final Map<String, LTIRoleAdvisor> roleAdvisors = new HashMap<>();
 
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
@@ -880,6 +888,54 @@ public abstract class BaseLTIService implements LTIService {
 			M_log.warn(this + " LTI content="+key+" placement="+tool.getId()+" could not remove page from site=" + siteStr);
 			return new String(rb.getFormattedMessage("error.link.placement.update", new Object[]{key.toString()}));
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void registerLTIRoleAdvisor(String ltiSiteId, LTIRoleAdvisor advisor)
+	{
+		roleAdvisors.put(ltiSiteId, advisor);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getLTIRole(String userId, String context, String ltiSiteId)
+	{
+		if (securityService.isSuperUser())
+		{
+			return LTI2Vars.MEMBERSHIP_ROLE_INSTRUCTOR+",Administrator,urn:lti:instrole:ims/lis/Administrator,urn:lti:sysrole:ims/lis/Administrator";
+		}
+		String role = null;
+
+		if (StringUtils.isEmpty(userId))
+		{
+			User user = m_userDirectoryService.getCurrentUser();
+			if (user == null)
+			{
+				// User is not authenticated; "Learner" is default behavior
+				return LTI2Vars.MEMBERSHIP_ROLE_LEARNER;
+			}
+			else
+			{
+				userId = user.getId();
+			}
+		}
+
+		// Consult the appropriate role advisor if one exists
+		LTIRoleAdvisor advisor = roleAdvisors.get(ltiSiteId);
+		if (advisor != null)
+		{
+			role = advisor.getLTIRole(userId, context, ltiSiteId);
+			if (!StringUtils.isEmpty(role))
+			{
+				return role;
+			}
+		}
+
+		// Default behavior: has site.upd -> instructor, else -> learner
+		return siteService.allowUpdateSite(context) ? LTI2Vars.MEMBERSHIP_ROLE_INSTRUCTOR : LTI2Vars.MEMBERSHIP_ROLE_LEARNER;
 	}
 
 	// The methods for deployment objects

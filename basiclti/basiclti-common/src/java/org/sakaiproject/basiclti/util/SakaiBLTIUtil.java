@@ -104,6 +104,8 @@ import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
 import net.oauth.signature.OAuthSignatureMethod;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Some Sakai Utility code for IMS Basic LTI
  * This is mostly code to support the Sakai conventions for 
@@ -446,9 +448,12 @@ public class SakaiBLTIUtil {
 		return theRole;
 	}
 
-	public static void addRoleInfo(Properties props, Properties lti2subst, String context, String roleMapProp)
+	public static void addRoleInfo(Properties props, Properties lti2subst, String context, String roleMapProp, String theRole)
 	{
-		String theRole = getRoleString(context);
+		if (StringUtils.isEmpty(theRole))
+		{
+			theRole = getRoleString(context);
+		}
 
 		setProperty(props,BasicLTIConstants.ROLES,theRole);
 		setProperty(lti2subst,LTI2Vars.MEMBERSHIP_ROLE,theRole);
@@ -456,22 +461,39 @@ public class SakaiBLTIUtil {
 		String realmId = SiteService.siteReference(context);
 		User user = null;
 		Map<String, String> roleMap = convertRoleMapPropToMap(roleMapProp);
-		try {
-			user = UserDirectoryService.getCurrentUser();
-			if ( user != null ) {
-				Role role = null;
-				String roleId = null;
-				AuthzGroup realm = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(realmId);
-				if ( realm != null ) role = realm.getUserRole(user.getId());
-				if ( role != null ) roleId = role.getId();
-				if ( roleId != null && roleId.length() > 0 ) setProperty(props, "ext_sakai_role", roleId);
-				if ( roleMap.containsKey(roleId) ) {
-					setProperty(props, BasicLTIConstants.ROLES, roleMap.get(roleId));
-					setProperty(lti2subst, LTI2Vars.MEMBERSHIP_ROLE, roleMap.get(roleId));
-				}
+		if (!roleMap.isEmpty())
+		{
+			try 
+			{
+				user = UserDirectoryService.getCurrentUser();
+				if ( user != null )
+				{
+					Role role = null;
+					String roleId = null;
+					AuthzGroup realm = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(realmId);
+					if ( realm != null )
+					{
+						role = realm.getUserRole(user.getId());
+					}
+					if ( role != null )
+					{
+						roleId = role.getId();
+					}
+					if ( roleId != null && roleId.length() > 0 )
+					{
+						setProperty(props, "ext_sakai_role", roleId);
+					}
+					if ( roleMap.containsKey(roleId) )
+					{
+						setProperty(props, BasicLTIConstants.ROLES, roleMap.get(roleId));
+						setProperty(lti2subst, LTI2Vars.MEMBERSHIP_ROLE, roleMap.get(roleId));
+					}
+ 				}
 			}
-		} catch (GroupNotDefinedException e) {
-			dPrint("SiteParticipantHelper.getExternalRealmId: site realm not found"+e.getMessage());
+			catch (GroupNotDefinedException e)
+			{
+				dPrint("SiteParticipantHelper.getExternalRealmId: site realm not found"+e.getMessage());
+			}
 		}
 
 		// Check if there are sections the user is part of (may be more than one)
@@ -516,7 +538,7 @@ public class SakaiBLTIUtil {
 		ToolConfiguration placement = SiteService.findTool(placementId);
 		Properties config = placement.getConfig();
 		String roleMapProp = toNull(getCorrectProperty(config, "rolemap", placement));
-		addRoleInfo(props, null, context, roleMapProp);
+		addRoleInfo(props, null, context, roleMapProp, "");
 		addSiteInfo(props, null, site);
 
 		// Add Placement Information
@@ -772,6 +794,12 @@ public class SakaiBLTIUtil {
 		String launch_url = (String) content.get(LTIService.LTI_LAUNCH);
 		if ( launch_url == null ) launch_url = (String) tool.get(LTIService.LTI_LAUNCH);
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.nolaunch" ,"This tool is not yet configured.")+"</p>" );
+		
+		String launchSuffix = (String)content.get(LTIService.LTI_LAUNCHSUFFIX);
+		if (launchSuffix != null)
+		{
+			launch_url = launch_url + launchSuffix;
+		}
 
 		String context = (String) content.get(LTIService.LTI_SITE_ID);
 		Site site = null;
@@ -851,7 +879,9 @@ public class SakaiBLTIUtil {
 		}
 		addGlobalData(site, ltiProps, lti2subst, rb);
 		addSiteInfo(ltiProps, lti2subst, site);
-		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
+		String siteId = (String)tool.get(LTIService.LTI_SITE_ID);
+		String role = ltiService.getLTIRole(null, context, siteId);
+		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"), role);
 		addUserInfo(ltiProps, lti2subst, tool);
 
 
@@ -1007,9 +1037,35 @@ public class SakaiBLTIUtil {
 				M_log.debug("Launching with SHA256 Signing");
 			}
 		}
+		
+		//substitute resource params
+		overrideResourceLinkIfCustomized(ltiProps, custom);
 
 		// System.out.println("LAUNCH TYPE "+ (isLTI1 ? "LTI 1" : "LTI 2") );
 		return postLaunchHTML(toolProps, ltiProps, rb);
+	}
+	
+	private static void overrideResourceLinkIfCustomized(Properties ltiProps, Properties custom)
+	{
+		copyProperty(ltiProps, custom, BasicLTIConstants.RESOURCE_LINK_ID);
+		copyProperty(ltiProps, custom, BasicLTIConstants.RESOURCE_LINK_TITLE);
+		copyProperty(ltiProps, custom, BasicLTIConstants.RESOURCE_LINK_DESCRIPTION);
+	}
+
+	/**
+	 * Copies a property from source propreties to destination properties
+	 * Will overwrite properties in the destination unless the source property is null
+	 * @param dest the Properties instance we're copying the value into
+	 * @param source the Properties instance we're copying the value from
+	 * @param key the key of the property we're copying
+	 */
+	private static void copyProperty(Properties dest, Properties source, String key)
+	{
+		String value = source.getProperty(key);
+		if (!StringUtils.isBlank(value))
+		{
+			dest.setProperty(key, value);
+		}
 	}
 
 	/**
@@ -1306,7 +1362,7 @@ public class SakaiBLTIUtil {
 
 		addGlobalData(site, ltiProps, lti2subst, rb);
 		addSiteInfo(ltiProps, lti2subst, site);
-		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
+		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"), "");
 
 		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
 		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));

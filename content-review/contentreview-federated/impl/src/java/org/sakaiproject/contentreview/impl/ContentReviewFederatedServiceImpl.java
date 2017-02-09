@@ -117,6 +117,14 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		this.serverConfigurationService = serverConfigurationService;
 	}
 	
+	public boolean allowMultipleAttachments()
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.allowMultipleAttachments();
+		return false;
+	}
+	
 	public boolean allowResubmission() {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
@@ -130,13 +138,23 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 			provider.checkForReports();	
 	}
 
-	public void createAssignment(String arg0, String arg1, Map arg2)
+	public void createAssignment(String arg0, String arg1, Map<String, Object> arg2)
 		throws SubmissionException, TransientSubmissionException {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
 			provider.createAssignment(arg0,arg1,arg2);
 		
 	}
+	
+	public void offerIndividualExtension(String siteId, String asnId, Map<String, Object> extraAsnOpts, Date extensionDate)
+		throws SubmissionException, TransientSubmissionException
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+		{
+			provider.offerIndividualExtension(siteId, asnId, extraAsnOpts, extensionDate);
+		}
+ 	}
 
 	public List<ContentReviewItem> getAllContentReviewItems(String arg0,
 			String arg1) throws QueueException, SubmissionException,
@@ -174,6 +192,13 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
 			return provider.getIconUrlforScore(score);
+		return null;
+	}
+	
+	public String getIconColorforScore(Long score) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getIconColorforScore(score);
 		return null;
 	}
 
@@ -267,6 +292,13 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 			return provider.isAcceptableContent(arg0);
 		return false;
 	}
+	
+	public boolean isAcceptableSize(ContentResource arg0) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.isAcceptableSize(arg0);
+		return false;
+	}
 
 	public Map<String, SortedSet<String>> getAcceptableExtensionsToMimeTypes()
 	{
@@ -294,6 +326,20 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 			return provider.isSiteAcceptable(arg0);
 		return false;
 	}
+	
+	public boolean isDirectAccess(Site arg0) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.isDirectAccess(arg0);
+		return false;
+	}
+	
+	public boolean isDirectAccess(Site arg0, Date asnCreationDate) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.isDirectAccess(arg0, asnCreationDate);
+		return false;
+	}
 
 	public void processQueue() {
 		ContentReviewService provider = getSelectedProvider();
@@ -301,10 +347,10 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 			provider.processQueue();
 	}
 
-	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content) throws QueueException{
+	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content, String submissionId, boolean isResubmission) throws QueueException{
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
-			provider.queueContent(userId,siteId,assignmentReference,content);
+			provider.queueContent(userId,siteId,assignmentReference,content,submissionId,isResubmission);
 	}
 
 	public void removeFromQueue(String arg0) {
@@ -332,6 +378,130 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
                 if (provider != null)
                         return provider.getReviewScore(contentId, assignmentRef, userId);
                 return 0;
+	}
+	
+	public String getLTIAccess(String taskId, String siteId){
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getLTIAccess(taskId, siteId);
+		return null;
+	}
+
+	public boolean deleteLTITool(String taskId, String siteId){
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.deleteLTITool(taskId, siteId);
+		return false;
+	}
+
+	public ContentReviewItem getItemById(String id){
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getItemById(id);
+		return null;
+	}
+
+	public ContentReviewItem getFirstItemByContentId(String contentId){
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getFirstItemByContentId(contentId);
+		return null;
+	}
+
+	public ContentReviewItem getFirstItemByExternalId(String externalId){
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getFirstItemByExternalId(externalId);
+		return null;
+	}
+
+	public boolean updateItemAccess(String contentId){
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.updateItemAccess(contentId);
+		return false;
+	}
+
+	public boolean updateExternalId(String contentId, String externalId)
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+		{
+			return provider.updateExternalId(contentId, externalId);
+		}
+		return false;
+	}
+
+	public boolean updateExternalGrade(String contentId, String score){
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.updateExternalGrade(contentId, score);
+		return false;
+	}
+
+	public String getExternalGradeForContentId(String contentId) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.getExternalGradeForContentId(contentId);
+		return null;
+	}
+	
+	@Override
+	public boolean saveOrUpdateActivityConfigEntry(String name, String value, String activityId, String toolId, int providerId, boolean overrideIfSet)
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+		{
+			return provider.saveOrUpdateActivityConfigEntry(name, value, activityId, toolId, providerId, overrideIfSet);
+		}
+
+		return false;
+	}
+
+	@Override
+	public String getActivityConfigValue(String name, String activityId, String toolId, int providerId)
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+		{
+			return provider.getActivityConfigValue(name, activityId, toolId, providerId);
+		}
+
+		return "";
+	}
+	
+	@Override
+	public void migrateLtiXml()
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+		{
+			provider.migrateLtiXml();
+		}
+	}
+
+	@Override
+	public String getLocalizedInvalidAsnConfigError()
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+		{
+			return provider.getLocalizedInvalidAsnConfigError();
+		}
+
+		return "";
+	}
+
+	@Override
+	public boolean validateActivityConfiguration(String toolId, String activityId)
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+		{
+			return provider.validateActivityConfiguration(toolId, activityId);
+		}
+
+		return false;
 	}
 
 }

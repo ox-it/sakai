@@ -676,6 +676,31 @@ public interface LTIService {
 	 * @return
 	 */
 	public String formInput(Object row, String[] fieldInfo);
+	
+	/**
+	 * Registers an LTIRoleAdvisor against the specified LTI Site Id (as specified in External Tools)
+	 * When the LTI tool with this Site ID is accessed, the advisor will be consulted to determine the user's role
+	 * Note: This is intended for deep integrations - the LTI Site ID doubles as an identifier for such integrations
+	 * @param ltiSiteId the Site ID of the LTI Tool as specified in External Tools
+	 * @param advisor an advisor with an appropriate implementation to determine the LTI role for the given LTI Site ID
+	 */
+	public void registerLTIRoleAdvisor(String ltiSiteId, LTIRoleAdvisor advisor);
+
+	/**
+	 * Consults the appropriate LTIRoleAdvisor to get a user's LTI role
+	 * However, admins will always get the admin role
+	 * @param userId the user whose LTI role we are retrieving. Passing null will resolve to the current session user
+	 * @param context the siteId of the site hosting this LTI instance
+	 * @param ltiSiteId the Site ID of the LTI tool as specified in External Tools
+	 * Note: This is intended for deep integrations - the LTI Site ID doubles as an identifier for such integrations
+	 * @return Admin / Instructor / Learner as appropriate
+	 *
+	 * Note: if no LTIRoleAdvisor is registered for this toolId, or if an advisor is registered but it returns null,
+	 * your role will be determined with this default behavior:
+	 * isSUperUser() - admin;
+	 * user has site.upd ? Instructor : Learner
+	 */
+	public String getLTIRole(String userId, String context, String ltiSiteId);
 
 	// For Instructors, this model is filtered down dynamically based on
 	// Tool settings
@@ -831,6 +856,7 @@ public interface LTIService {
 	static final String LTI_STATUS = 	"status";
 	static final String LTI_VISIBLE = 	"visible";
 	static final String LTI_LAUNCH = 	"launch";
+	static final String LTI_LAUNCHSUFFIX = "launch_suffix";
 	static final String LTI_ALLOWLAUNCH = 	"allowlaunch";
 	static final String LTI_CONSUMERKEY= 	"consumerkey";
 	static final String LTI_ALLOWCONSUMERKEY= 	"allowconsumerkey";
