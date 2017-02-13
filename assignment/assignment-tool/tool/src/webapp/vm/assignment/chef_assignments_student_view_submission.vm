@@ -311,7 +311,7 @@ $(document).ready(function(){
 											<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-exclamation-triangle errorStyle"></i>
 										#else
 											<a href="$reviewResult.getReviewReport()" target="_blank">
-												<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag reviewStyle" style="color:$reviewResult.getReviewIconColor()"></i>
+												<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag reviewStyle" style="color:$reviewResult.getReviewIconColor() !important"></i>
 											</a>
 										#end
 										</span>
