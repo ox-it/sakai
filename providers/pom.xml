@@ -22,6 +22,7 @@
     <module>kerberos</module>
     <module>openldap</module>
     <module>sample</module>
+	<module>destinyone</module>
   </modules>
 
 
@@ -67,6 +68,11 @@
         <artifactId>sakai-jldap-provider-mock</artifactId>
         <version>${project.version}</version>
 <!-- <scope>test</scope> removed to fix build - Chuck -->
+      </dependency>
+	  <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>destinyone-provider</artifactId>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
