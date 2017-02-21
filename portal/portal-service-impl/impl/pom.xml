@@ -37,10 +37,6 @@
             <artifactId>sakai-portal-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>castor</groupId>
-            <artifactId>castor</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-api</artifactId>
             <version>${project.version}</version>
