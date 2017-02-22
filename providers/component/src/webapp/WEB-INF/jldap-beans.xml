@@ -233,7 +233,7 @@
 		AttributeMappingConstants.DEFAULT_ATTR_MAPPINGS. -->
 		<property name="attributeMappings">
 			<map>
-				<entry key="aid"><value>krb5PrincipalName</value></entry>
+				<!--<entry key="aid"><value>krb5PrincipalName</value></entry>-->
 				<entry key="login"><value>LOGIN GOES HERE</value></entry>         
 				<entry key="firstName"><value>givenName</value></entry> 
 				<entry key="preferredFirstName"><value>preferredName</value></entry>
