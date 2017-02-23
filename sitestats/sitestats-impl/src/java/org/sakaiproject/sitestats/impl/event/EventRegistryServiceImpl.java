@@ -42,10 +42,11 @@ import java.util.*;
 
 public class EventRegistryServiceImpl implements EventRegistry, EventRegistryService, Observer {
 	/** Static fields */
-	private static Logger					LOG							= LoggerFactory.getLogger(EventRegistryServiceImpl.class);
+	private static Logger				LOG							= LoggerFactory.getLogger(EventRegistryServiceImpl.class);
 	private static final String			CACHENAME					= EventRegistryServiceImpl.class.getName();
 	private static final String			CACHENAME_EVENTREGISTRY		= "eventRegistry";
 	private static ResourceLoader		msgs						= new ResourceLoader("Messages");
+	private static final ResourceLoader	EVENT_MSGS					= new ResourceLoader("Events");
 
 	/** Event Registry members */
 	private Set<String>					toolEventIds				= null;
@@ -215,7 +216,14 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	 */
 	public String getToolName(String toolId) {
 		if(ReportManager.WHAT_EVENTS_ALLTOOLS.equals(toolId)) {
-			return msgs.getString("all");
+			return msgs.getString("prefs_useAllTools");
+		}else if(ReportManager.WHAT_EVENTS_ALLTOOLS_EXCLUDE_CONTENT_READ.equals(toolId)) {
+			String allToolExceptText = msgs.getString("de_allTools_excludeContentRead");
+			String contentReadMessage = EVENT_MSGS.getString("content.read");
+			allToolExceptText = allToolExceptText.replaceAll("\\$\\{contentReadEvent\\}", contentReadMessage);
+			return allToolExceptText;
+		}else if(StatsManager.PRESENCE_TOOLID.equals(toolId)) {
+			return msgs.getString("overview_title_visits");
 		}else{
 			String toolName;
 			try{

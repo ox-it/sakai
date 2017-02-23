@@ -30,6 +30,7 @@ public interface ReportManager {
 	public static final String	WHO_GROUPS					= "who-groups";
 	public static final String	WHO_ALL						= "who-all";
 	public static final String	WHO_NONE					= "who-none";
+	public static final String	NO_USERS_LOADED				= "who-no-users-loaded";
 	public static final String	WHEN_CUSTOM					= "when-custom";
 	public static final String	WHEN_LAST365DAYS			= "when-last365days";
 	public static final String	WHEN_LAST30DAYS				= "when-last30days";
@@ -49,6 +50,7 @@ public interface ReportManager {
 	public static final String	WHAT_EVENTS_BYTOOL			= "what-events-bytool";
 	public static final String	WHAT_EVENTS_ALLEVENTS		= "all";
 	public static final String	WHAT_EVENTS_ALLTOOLS		= "all";
+	public static final String	WHAT_EVENTS_ALLTOOLS_EXCLUDE_CONTENT_READ = "all-exclude-content-read";
 	public static final String	WHAT_EVENTS					= "what-events";
 	public static final String	WHAT_VISITS					= "what-visits";
 	public static final String	WHAT_PRESENCES				= "what-presences";

@@ -66,7 +66,47 @@
         <dependency>
             <groupId>org.sakaiproject.lessonbuilder</groupId>
             <artifactId>lessonbuilder-api</artifactId>
-      	</dependency>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.assignment</groupId>
+            <artifactId>sakai-assignment-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.samigo</groupId>
+          <artifactId>samigo-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>messageforums-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.polls</groupId>
+            <artifactId>polls-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.announcement</groupId>
+            <artifactId>sakai-announcement-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.message</groupId>
+            <artifactId>sakai-message-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.calendar</groupId>
+            <artifactId>sakai-calendar-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-syllabus-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-podcasts-api</artifactId>
+        </dependency>
 
         <!-- Spring & Hibernate -->
         <dependency>
@@ -174,7 +214,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <!-- Stuck at 4.4 https://jira.springsource.org/browse/SPR-5145 -->
-            <version>4.11</version>
         </dependency>
         <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId>
             <scope>test</scope> </dependency> -->

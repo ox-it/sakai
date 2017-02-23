@@ -338,6 +338,11 @@ table.formContainer  {
     border:1px solid #888888;
 }
 
+.act {
+    display: flex;
+    align-items: center;
+    padding: 0;
+}
 
 /** Summary Table */
 .summaryTable {
@@ -364,6 +369,10 @@ label.indnt1 {
 	margin: 0pt;
 }
 .additionalInfo {
+	display: -webkit-flex;
+	display: flex;
+	-webkit-align-items: center;
+	align-items: center;
 	color: #555555;
 	font-size: 85%;
 	font-weight: normal;
@@ -520,4 +529,82 @@ label.indnt1 {
   right: 5px;
   text-align: right;
   width: 49%;
+}
+
+/* User Activity */
+.userTrackingInputContainer {
+    display:flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+}
+#userEventFilters {
+    margin-right: 3em;
+}
+.userTrackingInputContainer .summaryHeader {
+    margin: 0.5em 0;
+}
+.userTrackingInputContainer label {
+    line-height: 2;
+    font-weight: bold;
+    color: #666;
+}
+.userTrackingDateFields > span {
+    display: flex;
+    align-items: center;
+}
+/*a.showEventDetails:link {
+    display: inline-block;
+    margin: 0;
+    padding: 0 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #eee;
+    line-height: 1.85;
+    text-decoration: none;
+}*/
+.eventDetailsList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.userTrackingResults td div, .eventDetailsList > li {
+    line-height: 2;
+}
+.eventDetailsKey {
+    color: #666;
+}
+.userTrackingResults .headers th:last-of-type {
+    width: 50%;
+}
+.userTrackingResults .navigation > tr:first-of-type {
+    padding-left: 0;
+}
+.userTrackingResults tr.navigation:hover {
+    background-color: transparent; /* to override table row hover from tool.css */
+}
+.userTrackingResults .navigatorContainer {
+    display: inline-block;
+}
+.userTrackingResults .navigatorLabel {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0.25em 0;
+    text-align: center;
+}
+.userTrackingResults .navigator {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 0.5em;
+}
+.userTrackingResults .navigator input[type="submit"] {
+    margin: 0;
+}
+.userTrackingResults .navigator select {
+    margin: 0 0.5em;
+}
+.userTrackingResults .navigator .wicket-ajax-indicator {
+    order: 6; /* have the indicators appear as the last element */
+    margin: 0 0.5em;
 }

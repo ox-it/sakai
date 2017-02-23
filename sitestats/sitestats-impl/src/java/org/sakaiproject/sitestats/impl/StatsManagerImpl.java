@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -120,6 +121,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private boolean						isEventContextSupported					= false;
 	private boolean						enableReportExport						= true;
 	private boolean						sortUsersByDisplayName					= false;
+	private boolean						displayDetailedEvents					= false;
 
 	/** Controller fields */
 	private boolean						showAnonymousAccessEvents				= true;
@@ -323,6 +325,15 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 
 	public boolean isEnableReportExport() {
 		return enableReportExport;
+	}
+
+	public void setDisplayDetailedEvents(boolean value) {
+		displayDetailedEvents = value;
+	}
+
+	@Override
+	public boolean isDisplayDetailedEvents() {
+		return displayDetailedEvents;
 	}
 
 	
@@ -539,7 +550,17 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 		return name;
 	}
-	
+
+	public Map.Entry<String, String> getUserDisplayInfo(String userId) {
+		try {
+			User user = M_uds.getUser(userId);
+			return new SimpleImmutableEntry<>(user.getDisplayId(), getUserNameForDisplay(user));
+		}catch (UserNotDefinedException e) {
+			String unknown = msgs.getString("user_unknown");
+			return new SimpleImmutableEntry<>(unknown, unknown);
+		}
+	}
+
 	public String getUserNameForDisplay(User user) {
 		if(isSortUsersByDisplayName()) {
 			return user.getDisplayName();

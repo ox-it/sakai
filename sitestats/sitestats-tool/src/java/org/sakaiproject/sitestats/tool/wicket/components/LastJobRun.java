@@ -73,6 +73,9 @@ public class LastJobRun extends Panel {
 			try{
 				Date d = statsUpdateManager.getEventDateFromLatestJobRun();
 				String dStr = Locator.getFacade().getTimeService().newTime(d.getTime()).toStringLocalFull();
+				if(Locator.getFacade().getDetailedEventsManager().userTrackingConvertUTC()) {
+					dStr += " UTC";
+				}
 				lastJobRunDate.setDefaultModel(new Model(dStr));
 			}catch(RuntimeException e) {
 				lastJobRunDate.setDefaultModel(new Model());

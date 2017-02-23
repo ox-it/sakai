@@ -39,8 +39,9 @@ public class MenuItem extends Panel {
 	private Label					menuLinkText;
 	private Label					menuItemLabel;
 
-	public MenuItem(String id, IModel itemText, Class itemPageClass, PageParameters pageParameters, boolean first) {
+	public MenuItem(String id, IModel itemText, Class itemPageClass, PageParameters pageParameters, boolean first, Class menusCurrentPageClass) {
 		super(id);
+		AttributeModifier currentPageStyling = new AttributeModifier("class", new Model("current"));
 
 		// link version
 		menuItemLinkHolder = new WebMarkupContainer("menuItemLinkHolder");
@@ -49,13 +50,23 @@ public class MenuItem extends Panel {
 		menuLinkText.setRenderBodyOnly(true);
 		menuItemLink.add(menuLinkText);
 		menuItemLinkHolder.add(menuItemLink);
+
+		//add current page styling
+		if(itemPageClass.equals(menusCurrentPageClass)) {
+			menuItemLinkHolder.add(currentPageStyling);
+		}
 		add(menuItemLinkHolder);
 
 		// span version
 		menuItemLabel = new Label("menuItemLabel", itemText);
 		menuItemLabel.setRenderBodyOnly(true);
+
+		//add current page styling
+		if(itemPageClass.equals(menusCurrentPageClass)) {
+			menuItemLabel.add(currentPageStyling);
+		}
 		add(menuItemLabel);
-		
+
 		if(first) {
 			add(new AttributeModifier("class", new Model("firstToolBarItem")));
 		}

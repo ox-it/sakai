@@ -404,4 +404,11 @@ public class FakeStatsManager implements StatsManager {
 		return false;
 	}
 
+	public Map.Entry<String, String> getUserDisplayInfo(String userId) {
+		return null;
+	}
+
+	public boolean isDisplayDetailedEvents() {
+		return false;
+	}
 }

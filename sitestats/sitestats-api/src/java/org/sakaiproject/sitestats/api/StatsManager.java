@@ -46,6 +46,7 @@ public interface StatsManager {
 	public final static String			LESSONS_EVENTID_PREFIX		= "lessonbuilder.";
 	public final static String			SITESTATS_TOOLID			= "sakai.sitestats";
 	public final static String			SITESTATS_ADMIN_TOOLID		= "sakai.sitestats.admin";
+	public final static String			PRESENCE_TOOLID				= "sakai.presence";
 	public final static String			LOG_APP						= "sitestats";
 	public final static String			LOG_OBJ_REPORTDEF			= "report";
 	public final static String			LOG_OBJ_PREFSDATA			= "prefs";
@@ -152,7 +153,10 @@ public interface StatsManager {
 	
 	/** Is user name sorted using User.getSortName()? Otherwise, User.getDisplayName() should be used. */
 	public boolean isSortUsersByDisplayName();
-	
+
+	/** Allow access to detailed events via the user interface */
+	public boolean isDisplayDetailedEvents();
+
 	// ################################################################
 	// Preferences
 	// ################################################################
@@ -511,6 +515,13 @@ public interface StatsManager {
 	 * @return The user display name
 	 */
 	public String getUserNameForDisplay(User user);
+
+	/**
+	 * Gets the display id (key) and display name (value) for the use with the given id
+	 * @param userId the user's id
+	 * @return immutable map entry where the key is the display id and the value is the display name
+	 */
+	public Map.Entry<String, String> getUserDisplayInfo(String userId);
 	
 	/**
 	 * Get users with at least one visit in site.

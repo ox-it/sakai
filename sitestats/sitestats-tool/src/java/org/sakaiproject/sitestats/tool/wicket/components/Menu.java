@@ -31,6 +31,7 @@ import org.sakaiproject.sitestats.tool.wicket.pages.AdminPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.PreferencesPage;
 import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
+import org.sakaiproject.sitestats.tool.wicket.pages.UserTrackingPage;
 
 
 /**
@@ -103,19 +104,26 @@ public class Menu extends Panel {
 			!AdminPage.class.equals(currentPageClass)		
 			&&
 			(Locator.getFacade().getStatsManager().isEnableSiteVisits() || Locator.getFacade().getStatsManager().isEnableSiteActivity());
-		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage.class, pageParameters, !siteDisplayVisible /*overviewVisible && !adminPageVisible*/);
+		MenuItem overview = new MenuItem("overview", new ResourceModel("menu_overview"), OverviewPage.class, pageParameters, !siteDisplayVisible /*overviewVisible && !adminPageVisible*/, currentPageClass);
 		overview.setVisible(overviewVisible);
 		add(overview);
 
 		// Reports
-		MenuItem reports = new MenuItem("reports", new ResourceModel("menu_reports"), ReportsPage.class, pageParameters, false);
+		MenuItem reports = new MenuItem("reports", new ResourceModel("menu_reports"), ReportsPage.class, pageParameters, false, currentPageClass);
 		if(!overviewVisible) {
 			reports.add(new AttributeModifier("class", new Model("firstToolBarItem")));
 		}
 		add(reports);
 
+		// User Tracking
+		MenuItem tracking = new MenuItem("tracking", new ResourceModel("menu_tracking"), UserTrackingPage.class, pageParameters, false, currentPageClass);
+		boolean displayUserTracking = siteId != null && Locator.getFacade().getStatsAuthz().canUserTrack(siteId)
+										&& Locator.getFacade().getStatsManager().isDisplayDetailedEvents();
+		tracking.setVisible(displayUserTracking);
+		add(tracking);
+
 		// Preferences
-		MenuItem preferences = new MenuItem("preferences", new ResourceModel("menu_prefs"), PreferencesPage.class, pageParameters, false);
+		MenuItem preferences = new MenuItem("preferences", new ResourceModel("menu_prefs"), PreferencesPage.class, pageParameters, false, currentPageClass);
 		add(preferences);
 		
 	}

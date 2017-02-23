@@ -74,6 +74,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public long								collectThreadUpdateInterval			= 4000L;
 	private boolean							collectAdminEvents					= false;
 	private boolean							collectEventsForSiteWithToolOnly	= true;
+	private boolean							collectDetailedEvents				= false;
 
 	/** Sakai services */
 	private StatsManager					M_sm;
@@ -102,6 +103,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, UserStat>					userStatMap				= Collections.synchronizedMap(new HashMap<String, UserStat>());
 
 	private Map<String, String>				lessonPageCreateEventMap		=  new HashMap<String, String>();
+	private List<DetailedEvent> detailedEvents = Collections.synchronizedList(new ArrayList<DetailedEvent>());
 
 	private boolean							initialized							= false;
 	
@@ -163,7 +165,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	public boolean isCollectEventsForSiteWithToolOnly(){
 		return collectEventsForSiteWithToolOnly;
 	}
-	
+
+	@Override
+	public void setCollectDetailedEvents(boolean value) {
+		collectDetailedEvents = value;
+	}
+
+	@Override
+	public boolean isCollectDetailedEvents() {
+		return collectDetailedEvents;
+	}
+
 	public void setStatsManager(StatsManager mng){
 		this.M_sm = mng;
 	}
@@ -574,10 +586,12 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			String eventId = e.getEvent();
 			String resourceRef = e.getResource();
+			String sessionId = e.getSessionId();
 			
-			if(userId == null || eventId == null || resourceRef == null)
+			if(userId == null || eventId == null || resourceRef == null || StringUtils.isBlank(sessionId)) {
 				return;
-			consolidateEvent(date, eventId, resourceRef, userId, siteId);
+			}
+			consolidateEvent(date, eventId, resourceRef, userId, siteId, sessionId);
 		} else if(getServerEvents().contains(e.getEvent()) && !isMyWorkspaceEvent(e)){
 			
 			//it's a server event
@@ -624,13 +638,20 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		//else LOG.debug("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 	}
 	
-	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId) {
+	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId, String sessionId) {
 		if(eventId == null)
 			return;
 
 		Date date = getTruncatedDate(dateTime);
 		// update		
 		if(isRegisteredEvent(eventId) && !StatsManager.SITEVISITEND_EVENTID.equals(eventId)){
+
+			long start = 0L;
+			boolean debug = LOG.isDebugEnabled();
+			if (debug) {
+				start = System.nanoTime();
+			}
+
 			// add to eventStatMap
 			String key = userId+siteId+eventId+date;
 			synchronized(eventStatMap){
@@ -645,7 +666,17 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				e1.setCount(e1.getCount() + 1);
 				eventStatMap.put(key, e1);
 			}
-			
+
+			if (collectDetailedEvents) {
+				DetailedEvent de = new DetailedEventImpl();
+				de.setEventDate(dateTime);
+				de.setEventId(eventId);
+				de.setUserId(userId);
+				de.setSiteId(siteId);
+				de.setEventRef(resourceRef);
+				detailedEvents.add(de);
+			}
+
 			if(!StatsManager.SITEVISIT_EVENTID.equals(eventId)){
 				// add to activityMap
 				String key2 = siteId+date+eventId;
@@ -661,7 +692,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					activityMap.put(key2, e2);
 				}
 			}
-		}	
+
+			if (debug) {
+				long elapsed = System.nanoTime() - start;
+				String onoff = collectDetailedEvents ? " with DE on" : " with DE off";
+				String output = "DE: consolidateEvent() took " + elapsed + " nanoseconds" + onoff;
+				LOG.debug(output);
+			}
+		}
 
 		if(eventId.startsWith(StatsManager.RESOURCE_EVENTID_PREFIX)){
 			// add to resourceStatMap
@@ -896,7 +934,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		if(eventStatMap.size() > 0 || resourceStatMap.size() > 0
 				|| activityMap.size() > 0 || uniqueVisitsMap.size() > 0 
 				|| visitsMap.size() > 0 || presencesMap.size() > 0
-				|| serverStatMap.size() > 0 || userStatMap.size() > 0) {
+				|| serverStatMap.size() > 0 || userStatMap.size() > 0 || detailedEvents.size() > 0) {
 			Object r = getHibernateTemplate().execute(new HibernateCallback() {			
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Transaction tx = null;
@@ -910,6 +948,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 								eventStatMap = Collections.synchronizedMap(new HashMap<String, EventStat>());
 							}
 							doUpdateEventStatObjects(session, tmp1);
+						}
+
+						if (detailedEvents.size() > 0) {
+							List<DetailedEvent> detailedEventsCopy;
+							synchronized(detailedEvents) {
+								detailedEventsCopy = detailedEvents;
+								detailedEvents = Collections.synchronizedList(new ArrayList<DetailedEvent>());
+							}
+
+							doSaveDetailedEvents(session, detailedEventsCopy);
 						}
 
 						// do: ResourceStat
@@ -1013,6 +1061,13 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 	private void doUpdateEventStatObjects(Session session, Collection<EventStat> o) {
 		if(o == null) return;
+
+		long start = 0L;
+		boolean debug = LOG.isDebugEnabled();
+		if (debug) {
+			start = System.nanoTime();
+		}
+
 		List<EventStat> objects = new ArrayList<EventStat>(o);
 		Collections.sort(objects);
 		Iterator<EventStat> i = objects.iterator();
@@ -1057,6 +1112,30 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
+		}
+
+		if (debug) {
+			long elapsed = System.nanoTime() - start;
+			LOG.debug("doUpdateEventStatObjects took " + elapsed + " nanoseconds for " + o.size() + " events");
+		}
+	}
+
+	private void doSaveDetailedEvents(Session session, List<DetailedEvent> events) {
+		long start = 0L;
+		boolean debug = LOG.isDebugEnabled();
+		if (debug) {
+			start = System.nanoTime();
+		}
+
+		for (DetailedEvent de : events) {
+			if (StringUtils.isNotBlank(de.getSiteId())) {
+				session.save(de);
+			}
+		}
+
+		if (debug) {
+			long elapsed = System.nanoTime() - start;
+			LOG.debug("DE: doSaveDetailedEvents took " + elapsed + " nanoseconds for " + events.size() + " events");
 		}
 	}
 

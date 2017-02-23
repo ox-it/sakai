@@ -1,0 +1,56 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.sourceforge.net/"
+      xml:lang="en"
+      lang="en">
+    <head><title></title></head>
+    <body>
+        <wicket:extend>
+
+            <!-- Menu -->
+            <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
+
+            <div style="width:100% !important" class="content">
+                <!-- Last Job run -->
+                <span wicket:id="lastJobRunContainer"><span wicket:id="lastJobRun"></span></span>
+
+                <!-- Page title -->
+                <h2>
+                    <wicket:message key="menu_tracking">[menu_tracking]</wicket:message>
+                </h2>
+
+                <!-- FORM -->
+                <form wicket:id="form">
+                    <div class="userTrackingInputContainer formContainer">
+                        <div id="userEventFilters">
+                            <h4 class="summaryHeader">Who?</h4>             <!-- OWLTODO: localize this string -->
+                            <label wicket:id="userFilterLabel"></label>
+                            <select wicket:id="userFilter"></select>
+                            <h4 class="summaryHeader">Which Events?</h4>    <!-- OWLTODO: localize this string -->
+                            <label wicket:id="eventFilterLabel"></label>
+                            <select wicket:id="eventFilter"></select>
+                        </div>
+
+                        <div id="dateRange">
+                            <h4 class="summaryHeader">When?</h4>
+                            <div class="dateLabelWithTimeZone">
+                                <label wicket:id="startDateLabel"></label> <span wicket:id="startTimeZone"></span>
+                            </div>
+                            <div wicket:id="startDate" class="userTrackingDateFields" />
+                            <div class="dateLabelWithTimeZone">
+                                <label wicket:id="endDateLabel"></label> <span wicket:id="endTimeZone"></span>
+                            </div>
+                            <div wicket:id="endDate" class="userTrackingDateFields" />
+                        </div>
+                    </div>
+                    <!-- BUTTONS -->
+                    <p class="act">
+                        <input type="submit" wicket:id="search" wicket:message="value:de_search" class="active"/>
+                    </p>
+                </form>
+
+                <!-- Results table -->
+                <div wicket:id="results" />
+            </div>
+        </wicket:extend>
+    </body>
+</html>

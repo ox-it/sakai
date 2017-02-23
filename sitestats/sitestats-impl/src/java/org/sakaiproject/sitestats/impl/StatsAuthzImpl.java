@@ -63,6 +63,8 @@ public class StatsAuthzImpl implements StatsAuthz {
 		// register functions
 		FunctionManager.registerFunction(PERMISSION_SITESTATS_VIEW);
 		FunctionManager.registerFunction(PERMISSION_SITESTATS_ADMIN_VIEW);
+		FunctionManager.registerFunction(PERMISSION_SITESTATS_USER_TRACKING_CAN_BE_TRACKED);
+		FunctionManager.registerFunction(PERMISSION_SITESTATS_USER_TRACKING_CAN_TRACK);
 	}
 
 	// ################################################################
@@ -71,13 +73,19 @@ public class StatsAuthzImpl implements StatsAuthz {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.Authz#isUserAbleToViewSiteStats(java.lang.String)
 	 */
+	@Override
 	public boolean isUserAbleToViewSiteStats(String siteId) {
-		return hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_VIEW);
+		return isUserAbleToViewSiteStatsForSiteRef(SiteService.siteReference(siteId));
+	}
+
+	private boolean isUserAbleToViewSiteStatsForSiteRef(String siteRef) {
+		return hasPermission(siteRef, PERMISSION_SITESTATS_VIEW);
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.impl.Authz#isUserAbleToViewSiteStatsAdmin(java.lang.String)
 	 */
+	@Override
 	public boolean isUserAbleToViewSiteStatsAdmin(String siteId) {
 		return hasPermission(SiteService.siteReference(siteId), PERMISSION_SITESTATS_ADMIN_VIEW);
 	}
@@ -85,6 +93,7 @@ public class StatsAuthzImpl implements StatsAuthz {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsAuthz#isSiteStatsPage()
 	 */
+	@Override
 	public boolean isSiteStatsPage() {
 		return StatsManager.SITESTATS_TOOLID.equals(M_tm.getCurrentTool().getId());
 	}
@@ -92,8 +101,40 @@ public class StatsAuthzImpl implements StatsAuthz {
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsAuthz#isSiteStatsAdminPage()
 	 */
+	@Override
 	public boolean isSiteStatsAdminPage() {
 		return StatsManager.SITESTATS_ADMIN_TOOLID.equals(M_tm.getCurrentTool().getId());
+	}
+
+	@Override
+	public boolean currentUserHasPermission(String siteId, String permission) {
+		if (M_secs.isSuperUser()) {
+			return true;
+		}
+
+		String siteRef = SiteService.siteReference(siteId);
+		return hasPermission(siteRef, permission);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.impl.Authz#canUserBeTracked(java.lang.String, java.lang.String)
+	 */
+	@Override
+	public boolean canUserBeTracked(String siteID, String userID) {
+		return userHasPermission(userID, SiteService.siteReference(siteID), PERMISSION_SITESTATS_USER_TRACKING_CAN_BE_TRACKED);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.sitestats.impl.Authz#canUserTrack(java.lang.String)
+	 */
+	@Override
+	public boolean canUserTrack(String siteID) {
+		if (M_secs.isSuperUser()) {
+			return true;
+		}
+
+		String siteRef = SiteService.siteReference(siteID);
+		return isUserAbleToViewSiteStatsForSiteRef(siteRef) && hasPermission(siteRef, PERMISSION_SITESTATS_USER_TRACKING_CAN_TRACK);
 	}
 
 	// ################################################################
@@ -101,5 +142,9 @@ public class StatsAuthzImpl implements StatsAuthz {
 	// ################################################################
 	private boolean hasPermission(String reference, String permission) {
 		return M_secs.unlock(permission, reference);
+	}
+
+	private boolean userHasPermission(String userID, String reference, String permission) {
+		return M_secs.unlock(userID, permission, reference);
 	}
 }

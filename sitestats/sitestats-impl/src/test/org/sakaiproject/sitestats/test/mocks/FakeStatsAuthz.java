@@ -38,4 +38,17 @@ public class FakeStatsAuthz implements StatsAuthz {
 		return true;
 	}
 
+	@Override
+	public boolean canUserBeTracked(String siteID, String userID) {
+		return true;
+	}
+
+	@Override
+	public boolean canUserTrack(String siteID) {
+		return true;
+	}
+
+	public boolean currentUserHasPermission(String siteId, String permission) {
+		return true;
+	}
 }

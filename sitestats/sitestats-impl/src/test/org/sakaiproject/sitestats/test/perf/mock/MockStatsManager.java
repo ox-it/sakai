@@ -474,14 +474,19 @@ public class MockStatsManager implements StatsManager {
 	@Override
 	public void logEvent(Object object, String logAction) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void logEvent(Object object, String logAction, String siteId,
 			boolean oncePerSession) {
 		// TODO Auto-generated method stub
-
 	}
 
+	public Map.Entry<String, String> getUserDisplayInfo(String userId) {
+		return null;
+	}
+
+	public boolean isDisplayDetailedEvents() {
+		return false;
+	}
 }

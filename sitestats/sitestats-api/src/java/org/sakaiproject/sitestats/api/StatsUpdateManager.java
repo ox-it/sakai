@@ -54,7 +54,9 @@ public interface StatsUpdateManager {
 	/** Collect events ONLY for sites with SiteStats tool? */
 	public boolean isCollectEventsForSiteWithToolOnly();
 	public void setCollectEventsForSiteWithToolOnly(boolean value);
-	
+
+	public boolean isCollectDetailedEvents();
+	public void setCollectDetailedEvents(boolean value);
 	
 	// -----------------------------------------------------------------------
 	// --- Event collecting/aggregation methods ------------------------------
