@@ -137,7 +137,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
         toolbar_Basic:
         [
-            ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList','BulletedList', 'Blockquote']
+            ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', 'SpellCheck', '-', 'NumberedList','BulletedList', 'Blockquote']
         ],
         toolbar_Full:
         [
@@ -145,7 +145,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             // Uncomment the next line and comment the following to enable the default spell checker.
             // Note that it uses spellchecker.net, displays ads and sends content to remote servers without additional setup.
             //['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SpellChecker', 'Scayt'],
-            ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print'],
+            ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print', 'SpellCheck'],
             ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],
             ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote','CreateDiv'],
             '/',
@@ -212,6 +212,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             //Autosave has a dependency on notification
             CKEDITOR.plugins.addExternal('autosave',webJars+'autosave/8541f541d9985cfd0859c7d8eb6be404afe95a2d/', 'plugin.js');
             CKEDITOR.plugins.addExternal('wordcount',webJars+'wordcount/4897cb23a9f2ca7fb6b792add4350fb9e2a1722c/', 'plugin.js');
+            CKEDITOR.plugins.addExternal('aspell',basePath+'aspell/', 'plugin.js');
             CKEDITOR.plugins.addExternal('notification',basePath+'notification/', 'plugin.js');
             CKEDITOR.plugins.addExternal('fontawesome',basePath+'fontawesome/', 'plugin.js');
             /*
@@ -229,8 +230,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             //ckconfig.atd_rpc='//localhost/proxy/spellcheck';
             //ckconfig.extraPlugins+="atd-ckeditor,";
             //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
+            ckconfig.contentsCss = basePath+'/aspell/aspell.css';
 
-            ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification";
+            ckconfig.extraPlugins+="aspell,image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification";
 
             //SAK-29648
             ckconfig.contentsCss = [basePath+'/fontawesome/font-awesome/css/font-awesome.min.css'];
