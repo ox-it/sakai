@@ -694,13 +694,14 @@ body.is-logged-out{
 
 			}
 			&.is-selected{
-				a{
+				a.link-container{
 					background: $sites-nav-menu-item-selected-background;
 					color: $sites-nav-menu-item-selected-color;
 					border-top: $sites-nav-menu-item-selected-border-top; /* to balance bottom border for vertical centering */
 					border-right: $sites-nav-menu-item-selected-border-right;
 					border-bottom: $sites-nav-menu-item-selected-border-bottom; /* to pre-allocate space for dropdown top border needed for illusion */
 					border-left: $sites-nav-menu-item-selected-border-left;
+					border-radius: 4px;
 				}
 				ul{
 					background: $sites-nav-menu-item-selected-background;

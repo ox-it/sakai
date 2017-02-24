@@ -58,7 +58,7 @@
 }
 
 .#{$namespace}pageColumns--single, .#{$namespace}footer{
-	margin: 0 1em 1em 1em;
+	margin: 0;
 	clear: both;
 	@media #{$phone}{
 		margin: 0 0 0 0;

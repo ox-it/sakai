@@ -24,6 +24,7 @@ $font-family-url: "//fonts.googleapis.com/css?family=Noto Sans:400,700" !default
 //Typography variables
 $font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif !default;
 $default-font-size: 14px !default;
+$smaller-font-size: 0.857em !default; // 12px
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $header-font-family: $font-family;
 $header-font-weight: 700 !default;										// 400 or 700 as you wish
@@ -65,12 +66,12 @@ $tool-sub-menu-current-hover-background-color: $background-color !default;
 $tool-nav-link-color: #666 !default;
 
 $main-content-background: $background-color !default;
-$top-header-background: $background-color-secondary !default;
-$sites-nav-background: $top-header-background !default;
+$top-header-background: $primary-color !default;
+$sites-nav-background: transparent !default;
 
-$breadcrumbs-color:			 $text-color !default;
-$breadcrumbs-tool-color:		 #185878 !default;
-$breadcrumbs-hover-color:		 #0F4461 !default;
+$breadcrumbs-color:			#717171 !default;
+$breadcrumbs-tool-color:	$breadcrumbs-color !default;
+$breadcrumbs-hover-color:	$primary-color !default;
 
 /* Link colors */
 $link-color: $primary-color !default;
@@ -116,20 +117,20 @@ $header-size : 50px !default;
 $topNav-text-color:                         #fff !default; /* used for links and text in the topNav */
 $topNav-text-alt-color:                     #ccc !default;
 
-$sites-nav-menu-item-background:            #666 !default;
+$sites-nav-menu-item-background:            transparent !default;
 $sites-nav-menu-item-color:                 #fff !default;
 $sites-nav-menu-item-color-hover:           $sites-nav-menu-item-color !default;
 $sites-nav-menu-item-border-top:            1px solid transparent !default; /* to pre-allocate space for dropdown top border needed for illusion */
 $sites-nav-menu-item-border-right:          none !default;
 $sites-nav-menu-item-border-bottom:         $sites-nav-menu-item-border-top !default; /* to pre-allocate space for dropdown top border needed for illusion */
 $sites-nav-menu-item-border-left:           none !default;
-$sites-nav-menu-item-selected-background:   $primary-color !default;
+$sites-nav-menu-item-selected-background:   transparent !default;
 $sites-nav-menu-item-selected-color:        #fff !default;
 $sites-nav-menu-item-selected-color-hover:  $sites-nav-menu-item-selected-color !default;
-$sites-nav-menu-item-selected-border-top:   $sites-nav-menu-item-border-top !default; /* to pre-allocate space for dropdown top border needed for illusion */
-$sites-nav-menu-item-selected-border-right: none !default;
+$sites-nav-menu-item-selected-border-top:   2px solid #fff !default; /* to pre-allocate space for dropdown top border needed for illusion */
+$sites-nav-menu-item-selected-border-right: $sites-nav-menu-item-selected-border-top !default;
 $sites-nav-menu-item-selected-border-bottom:$sites-nav-menu-item-selected-border-top !default; /* to pre-allocate space for dropdown top border needed for illusion */
-$sites-nav-menu-item-selected-border-left:  none !default;
+$sites-nav-menu-item-selected-border-left:  $sites-nav-menu-item-selected-border-top !default;
 $sites-nav-submenu-background:              $sites-nav-menu-item-background !default;
 $sites-nav-submenu-item-background:         $sites-nav-menu-item-background !default;
 $sites-nav-submenu-item-background-hover:   $sites-nav-menu-item-background !default;
@@ -143,13 +144,15 @@ $sites-nav-submenu-item-selected-color:     $sites-nav-menu-item-selected-color 
 $sites-nav-submenu-item-selected-border:    none !default;
 
 /* Tool Menu */
-$tool-menu-width: 7.5em !default;
+$tool-menu-width: 10em !default;
 
 /* Navigation Hierarchy */
 $hierarchy-size: 3.5em;
 
 /* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
 $measure: 960px !default;
+
+$standard-padding: 0.5em;
 
 /* Logo location */
 $logo: 'images/logo.png' !default;

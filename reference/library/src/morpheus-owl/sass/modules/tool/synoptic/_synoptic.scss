@@ -1,9 +1,16 @@
-.#{$namespace}sakai-synoptic-announcement, .#{$namespace}sakai-summary-calendar, .#{$namespace}sakai-synoptic-messagecenter, .#{$namespace}sakai-synoptic-chat{
+.#{$namespace}sakai-synoptic-announcement, .#{$namespace}sakai-summary-calendar, .#{$namespace}sakai-synoptic-messagecenter, .#{$namespace}sakai-synoptic-chat, .#{$namespace}sakai-motd, .#{$namespace}sakai-iframe-myworkspace
+{
+	margin-bottom: 1em;
+	border: 1px solid #ddd;
+	
 	iframe{
 		z-index: 0;
 	}
 }
-.#{$namespace}sakai-iframe-site{
+.#{$namespace}sakai-iframe-site
+{
+	border: 1px solid #ddd;
+	
 	.siteDescription{
 		margin: 2em 0 0 0;
 	}
