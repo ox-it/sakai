@@ -340,9 +340,8 @@ public class ErrorReporter
 				subject = subject + " " + rb.getString("bugreport.commentflag");
 			}
 
-			String from = "\""
-					+ ServerConfigurationService.getString("ui.service", "Sakai")
-					+ "\" <"+ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName()) + ">";
+			String fromAddress = ServerConfigurationService.getString("portal.error.email.from", "no-reply@" + ServerConfigurationService.getServerName());
+			String from = "\"" + ServerConfigurationService.getString("ui.service", "Sakai") + "\"<" + fromAddress + ">";
 
 			String problemDisplay = "";
 			
