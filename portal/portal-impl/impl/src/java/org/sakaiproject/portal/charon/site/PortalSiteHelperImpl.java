@@ -99,6 +99,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
+	// bjones86 - OWL-501 - force home tool to top of the list always
+	private static final String HOME_TOOL_TITLE = "home";
+
 	private static final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
 
 	private static final String PROP_MENU_CLASS = "sakai:menuClass";
@@ -1129,21 +1132,20 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 * @param site
 	 * @return
 	 */
+	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	public List getPermittedPagesInOrder(Site site)
 	{
 		// Get all of the pages
-		List pages = site.getOrderedPages();
+		List<SitePage> pages = site.getOrderedPages();
  		boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
 
-		List newPages = new ArrayList();
+		List<SitePage> newPages = new ArrayList<>();
 
-		for (Iterator i = pages.iterator(); i.hasNext();)
+		for( SitePage p : pages )
 		{
 			// check if current user has permission to see page
-			SitePage p = (SitePage) i.next();
-			List pTools = p.getTools();
-			Iterator iPt = pTools.iterator();
-
+			List<ToolConfiguration> pTools = p.getTools();
+			Iterator<ToolConfiguration> iPt = pTools.iterator();
 			boolean allowPage = false;
 			while (iPt.hasNext())
 			{
@@ -1162,7 +1164,25 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		{
 			newPages = pageFilter.filter(newPages, site);
 		}
-		return newPages;
+
+		// bjones86 - OWL-501 - force home to the top at all times
+		List<SitePage> newPagesCopy = new ArrayList<>( newPages );
+		for( SitePage page : newPages )
+		{
+			if( HOME_TOOL_TITLE.equalsIgnoreCase( page.getTitle() ) )
+			{
+				int index = newPages.indexOf( page );
+				if( index >= 0 )
+				{
+					newPagesCopy = new ArrayList<>( newPages.size() );
+					newPagesCopy.addAll( newPages.subList( 0, index) );
+					newPagesCopy.add( 0, (SitePage) newPages.get( index ) );
+					newPagesCopy.addAll( newPages.subList( index + 1, newPages.size() ) );
+				}
+			}
+		}
+
+		return newPagesCopy;
 	}
 
 	/**
