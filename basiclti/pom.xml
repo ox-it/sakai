@@ -43,7 +43,7 @@
             <properties>
 				<!-- This is inherited from the parent -->
 				<!--
-                <sakai.version>11-SNAPSHOT</sakai.version>
+                <sakai.version>11.3</sakai.version>
 				-->
                 <sakai.velocity.groupId>org.sakaiproject.velocity</sakai.velocity.groupId>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
