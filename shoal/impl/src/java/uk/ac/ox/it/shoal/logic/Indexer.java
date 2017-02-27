@@ -8,10 +8,8 @@ import org.apache.solr.common.SolrInputDocument;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import uk.ac.ox.it.shoal.model.TeachingItem;
@@ -81,7 +79,7 @@ public class Indexer implements Observer {
                     if (siteType == null || siteType.isEmpty() || siteType.equals(site.getType())) {
                         // Want to include this one.
                         TeachingItem teachingItem = SakaiProxyImpl.toTeachingItem(site);
-                        addToIndex(teachingItem);
+                        updateIndex(teachingItem);
                     }
                 }
             }
@@ -98,7 +96,7 @@ public class Indexer implements Observer {
             List<Site> sites = siteService.getSites(SiteService.SelectionType.ANY, siteType, null, null, SiteService.SortType.NONE, null);
             for (Site site: sites) {
                 TeachingItem item = SakaiProxyImpl.toTeachingItem(site);
-                addToIndex(item);
+                updateIndex(item);
             }
             log.info("Re-indexer looked at :"+ sites.size());
             solrServer.commit();
@@ -113,7 +111,7 @@ public class Indexer implements Observer {
      * Adds the item to the index, if it's not valid then it does nothing.
      * @param teachingItem The item to add.
      */
-    private void addToIndex(TeachingItem teachingItem) {
+    private void updateIndex(TeachingItem teachingItem) {
 
         ValidatedTeachingItem validatedTeachingItem = new ValidatedTeachingItem(teachingItem);
         Set<ConstraintViolation<ValidatedTeachingItem>> validate = validatorFactory.getValidator()
@@ -123,29 +121,38 @@ public class Indexer implements Observer {
             return;
         }
 
-        SolrInputDocument doc = new SolrInputDocument();
-        doc.addField("id", teachingItem.getId());
-        doc.addField("title", teachingItem.getTitle());
-        doc.addField("description", teachingItem.getDescription());
-        doc.addField("subject", teachingItem.getSubject());
-        doc.addField("level", teachingItem.getLevel());
-        doc.addField("purpose", teachingItem.getPurpose());
-        doc.addField("interactivity", teachingItem.getInteractivity());
-        doc.addField("type", teachingItem.getType());
-        doc.addField("url", teachingItem.getUrl());
-        doc.addField("author", teachingItem.getAuthor());
-        doc.addField("contact", teachingItem.getContact());
-        doc.addField("added", teachingItem.getAdded());
-        doc.addField("permission", teachingItem.getPermission());
-        doc.addField("updated", Instant.now());
-        doc.addField("license", teachingItem.getLicense());
-        doc.addField("thumbnail", teachingItem.getThumbnail());
+        if (teachingItem.isHidden()) {
+            try {
+                solrServer.deleteById(teachingItem.getId());
+                solrServer.commit();
+            } catch (SolrServerException | IOException e) {
+                log.warn("Problem removing item: "+ teachingItem.getId(), e);
+            }
+        } else {
+            SolrInputDocument doc = new SolrInputDocument();
+            doc.addField("id", teachingItem.getId());
+            doc.addField("title", teachingItem.getTitle());
+            doc.addField("description", teachingItem.getDescription());
+            doc.addField("subject", teachingItem.getSubject());
+            doc.addField("level", teachingItem.getLevel());
+            doc.addField("purpose", teachingItem.getPurpose());
+            doc.addField("interactivity", teachingItem.getInteractivity());
+            doc.addField("type", teachingItem.getType());
+            doc.addField("url", teachingItem.getUrl());
+            doc.addField("author", teachingItem.getAuthor());
+            doc.addField("contact", teachingItem.getContact());
+            doc.addField("added", teachingItem.getAdded());
+            doc.addField("permission", teachingItem.getPermission());
+            doc.addField("updated", Instant.now());
+            doc.addField("license", teachingItem.getLicense());
+            doc.addField("thumbnail", teachingItem.getThumbnail());
 
-        try {
-            solrServer.add(doc);
-            solrServer.commit();
-        } catch (SolrServerException | IOException e) {
-            log.warn("Problem adding "+ teachingItem.getId()+ " to solr.", e);
+            try {
+                solrServer.add(doc);
+                solrServer.commit();
+            } catch (SolrServerException | IOException e) {
+                log.warn("Problem adding " + teachingItem.getId() + " to solr.", e);
+            }
         }
 
     }

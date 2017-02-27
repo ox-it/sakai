@@ -24,6 +24,7 @@ public class TeachingItemModel implements Serializable, TeachingItem {
     private String thumbnail;
     private String license;
     private String url;
+    private boolean hidden;
 
     @Override
     public String getId() {
@@ -173,5 +174,15 @@ public class TeachingItemModel implements Serializable, TeachingItem {
     @Override
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    @Override
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    @Override
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 }

@@ -153,4 +153,12 @@ public class ValidatedTeachingItem implements TeachingItem, Serializable {
         item.setUrl(url);
     }
 
+    public boolean isHidden() {
+        return item.isHidden();
+    }
+
+    public void setHidden(boolean hidden) {
+        item.setHidden(hidden);
+    }
+
 }
