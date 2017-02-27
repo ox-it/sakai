@@ -7,7 +7,7 @@
     <parent>
         <artifactId>textarea-base</artifactId>
         <groupId>org.sakaiproject</groupId>
-        <version>11.3</version>
+        <version>11-SNAPSHOT</version>
     </parent>
 
     <groupId>org.sakaiproject</groupId>
@@ -42,6 +42,16 @@
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-hibernate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scorm</groupId>
+            <artifactId>scorm-api</artifactId>
+            <version>${sakai.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>

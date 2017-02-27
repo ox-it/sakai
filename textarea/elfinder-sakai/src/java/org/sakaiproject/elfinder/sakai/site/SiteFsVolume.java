@@ -9,6 +9,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +25,8 @@ import java.util.Map;
  *
  */
 public class SiteFsVolume extends ReadOnlyFsVolume {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SiteFsVolume.class);
 
     public String getSiteId() {
         return siteId;

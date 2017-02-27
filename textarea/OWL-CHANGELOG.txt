@@ -1,0 +1,2 @@
+2017.02.27:
+	- [OWL-2608] Created entity linking functionality for Scorm and EZProxy
