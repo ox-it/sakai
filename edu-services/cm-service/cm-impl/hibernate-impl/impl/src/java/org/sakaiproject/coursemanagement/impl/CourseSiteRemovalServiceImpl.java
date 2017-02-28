@@ -55,13 +55,15 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
    // class members
    private static final long ONE_DAY_IN_MS = 1000L * 60L * 60L * 24L;    // one day in ms = 1000ms/s · 60s/m · 60m/h · 24h/day
 
-   // batch sizes to silently unpublish sites
-   private static final long SILENT_UNPUBLISH_BATCH_SIZE = 1000;
-
    private static final String SAK_PROP_HANDLE_CROSSLISTING = "course_site_removal_service.handle.crosslisting";
    private static final String SAK_PROP_SILENT_UNPUBLISH = "course_site_removal_service.silently.unpublish";
    private static final boolean SAK_PROP_HANDLE_CROSSLISTING_DEFAULT = false;
    private static final boolean SAK_PROP_SILENT_UNPUBLISH_DEFAULT = false;
+
+   private final int NUM_SITE_IDS_TO_LOG = 1000;
+
+   // Used to append "Additional " after the first time we log (so we initialize to "" and set its value afterwards)
+   private String additional = "";
 
    // sakai services
    private AuthzGroupService authzGroupService;
@@ -256,6 +258,9 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
         List<String> siteIds = (List<String>) siteService.getSiteIds(publishedNonDeletedOnly, "course", null, propertyCriteria, propertyRestrictions,
                                                                      SortType.CREATED_ON_ASC, null, null);
 
+        // A heartbeat log; log something for every 1000 sites determined to be unpublished
+        List<String> siteIdsToLog = new ArrayList<>(Math.min(NUM_SITE_IDS_TO_LOG, siteIds.size()));
+
         /*
          * Two ways to unpublish a site:
          * 1) SiteService.save(Site site)
@@ -313,18 +318,31 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
                         numSitesRemoved++;
                     }
                 }
+
+                siteIdsToLog.add(siteId);
+                if (siteIdsToLog.size() == NUM_SITE_IDS_TO_LOG) {
+                    logProgress(siteIdsToLog, silentlyUnpublish);
+                    siteIdsToLog.clear();
+                }
             } catch(PermissionException | IdUnusedException ex) {
                 logger.error(ex.getMessage(), ex);
             }
         }
 
+        if (!siteIdsToLog.isEmpty()) {
+            logProgress(siteIdsToLog, silentlyUnpublish);
+        }
+
         if (silentlyUnpublish) {
+            logger.info("Unpublishing " + toUnpublish.size() + " sites.");
+
             // bulk unpublish
             siteService.silentlyUnpublish(toUnpublish);
 
             // Add site property on sites
             siteService.saveSitePropertyOnSites(toUnpublish.toArray(new String[toUnpublish.size()]), SITE_PROPERTY_COURSE_SITE_REMOVAL, "set");
             numSitesRemoved += toUnpublish.size();
+            logger.info(toUnpublish.size() + " sites unpublished.");
         }
 
         return numSitesRemoved;
@@ -364,5 +382,14 @@ public class CourseSiteRemovalServiceImpl extends HibernateDaoSupport implements
 
     private boolean isHandleCrosslistedTerms() {
         return serverConfigurationService.getBoolean("course_site_removal_service.handle.crosslisting", false);
+    }
+
+    private void logProgress(List<String> sitesToLog, boolean silentlyUnpublish) {
+
+        // When silentlyUnpublished is true, we find sites first, and the unpublishing is the final step
+        // Otherwise, we unpublish sites as we discover them
+        String logString = silentlyUnpublish ? " sites will be unpublished: " : " sites have been removed / unpublished: ";
+        logger.info(additional + sitesToLog.size() + logString + sitesToLog.toString());
+        additional = "Additional ";
     }
 }
