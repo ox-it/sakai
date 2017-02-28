@@ -134,9 +134,10 @@ public class CourseSiteRemovalJob implements StatefulJob {
    public void execute(JobExecutionContext context) throws JobExecutionException {
       synchronized (this) {
          logger.info("execute()");
+         String actionStr = CourseSiteRemovalService.Action.remove.equals(action) ? " course sites were removed." : " course sites were unpublished.";
 
          if (user == null) {
-            logger.error("The scheduled job to remove course sites can not be run with an invalid user.  No courses were removed.");
+            logger.error("The scheduled job to remove course sites can not be run with an invalid user.  No" + actionStr);
          } else {
             try {
                // switch the current user to the one specified to run the quartz job
@@ -144,9 +145,9 @@ public class CourseSiteRemovalJob implements StatefulJob {
                sakaiSesson.setUserId(user.getId());
 
                int numSitesRemoved = courseSiteRemovalService.removeCourseSites(action, numDaysAfterTermEnds);
-               logger.info(numSitesRemoved + " course sites were removed.");
+               logger.info(numSitesRemoved + actionStr);
             } catch (Exception ex) {
-               logger.error(ex.getMessage());
+               logger.error(ex.getMessage(), ex);
             }
          }
       }

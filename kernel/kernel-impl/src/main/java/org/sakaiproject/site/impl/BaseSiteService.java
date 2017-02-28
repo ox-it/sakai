@@ -1146,6 +1146,76 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return Arrays.asList(siteTypes);
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public void silentlyUnpublish(String siteId)
+	{
+		if (siteId == null)
+		{
+			throw new IllegalArgumentException("siteId cannot be null");
+		}
+
+		String currentUser = sessionManager().getCurrentSessionUserId();
+		Time lastModifiedTime = timeService().newTime();
+
+		// complete the edit
+		storage().unpublish(siteId, currentUser, lastModifiedTime);
+
+		String event = SECURE_UPDATE_SITE;
+		String siteReference = siteReference(siteId);
+		eventTrackingService().post(eventTrackingService().newEvent(event, siteReference, true));
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public void silentlyUnpublish(List<String> siteIds)
+	{
+		if (siteIds == null)
+		{
+			throw new IllegalArgumentException("siteIds cannot be null");
+		}
+
+		String currentUser = sessionManager().getCurrentSessionUserId();
+		Time lastModifiedTime = timeService().newTime();
+
+		// complete the edit
+		storage().unpublish(siteIds, currentUser, lastModifiedTime);
+
+		// track it
+		for (String siteId : siteIds)
+		{
+			String event = SECURE_UPDATE_SITE;
+			String siteReference = siteReference(siteId);
+			eventTrackingService().post(eventTrackingService().newEvent(event, siteReference, true));
+		}
+	}
+
+	/**
+	 * Saves a site property for the site with the specified ID using the specified name-value pair.
+	 * NB: inserts only; doesn't do any duplicate checking. Vulnerable to unique constraint violations
+	 * Use this only when making very minimal changes in performance critical tasks.
+	 */
+	@Override
+	public void saveSiteProperty(String siteId, String propertyName, String propertyValue)
+	{
+		storage().writeProperty(siteId, propertyName, propertyValue);
+	}
+
+	/**
+	 * Saves a site property for the sites with the specified IDs using the specified name-value pair in a single transaction.
+	 * NB: inserts only; doesn't do any duplicate checking. Vulnerable to unique constraint violations
+	 * Use this only when making very minimal changes in performance critical tasks.
+	 */
+	@Override
+	public void saveSitePropertyOnSites(String[] siteIds, String propertyName, String propertyValue)
+	{
+		storage().writeProperty(siteIds, propertyName, propertyValue);
+	}
+
 	private boolean isCourseSite(String siteId) {
 		boolean rv = false;
 		try {
@@ -1994,6 +2064,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			return (List<Site>) getSites( selectionType, null, null, null, sortType, null, requireDescription, userID );
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, Map<String, String> propertyRestrictions, SortType sort, PagingPosition page, String userId)
+	{
+		return storage().getSiteIds(type, ofType, criteria, propertyCriteria, propertyRestrictions, sort, page, userId);
 	}
 
 	/**
@@ -2887,6 +2965,47 @@ public abstract class BaseSiteService implements SiteService, Observer
 		public void saveInfo(String siteId, String description, String infoUrl);
 
 		/**
+		 * Unpublish the site by simply unsetting the PUBLISHED flag
+		 * @param siteId
+		 *        The ID of the site to unpublish
+		 * @param modifedBy
+		 *        User who is unpublishing the site (as a userID)
+		 * @param modifiedOn
+		 *        Time that the site is unpublished
+		 */
+		public void unpublish(String siteId, String modifiedBy, Time modifiedOn);
+
+		/**
+		 * Unpublish the sites by simply unsetting the PUBLISHED flag
+		 * @param siteIds
+		 *        The site to unpublish
+		 * @param modifedBy
+		 *        User who is unpublishing the site (as a userID)
+		 * @param modifiedOn
+		 *        Time that the site is unpublished
+		 */
+		public void unpublish(List<String> siteIds, String modifiedBy, Time modifiedOn);
+
+		/**
+		 * Writes site properties
+		 */
+		public void writeProperties(Entity r, ResourceProperties props);
+
+		/**
+		 * Saves a site property for the site with the specified ID using the specified name-value pair.
+		 * NB: Inserts only; doesn't do any duplicate checking. Vulnerable to unique constraint violations
+		 * Use this only when making very minimal changes in performance critical tasks.
+		 */
+		public void writeProperty(String siteId, String propertyName, String propertyValue);
+
+		/**
+		 * Saves a site property for the sites with the specified IDs using the specified name-value pair in a single transaction.
+		 * NB: inserts only; doesn't do any duplicate checking. Vulnerable to unique constraint violations
+		 * Use this only when making very minimal changes in performance critical tasks.
+		 */
+		public void writeProperty(String[] siteId, String propertyName, String propertyValue);
+
+		/**
 		 * Remove this site.
 		 * 
 		 * @param user
@@ -3010,6 +3129,32 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @return a List of the Site IDs for the sites matching the criteria.
 		 */
 		List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page);
+
+		/**
+		 * Get the Site IDs for all sites matching criteria.
+		 * This is useful when you only need the listing of site ids (for other operations) and do not need the actual Site objects.
+		 *
+		 * All parameters are the same as {@link #getSites(org.sakaiproject.site.api.SiteService.SelectionType, Object, String, Map, org.sakaiproject.site.api.SiteService.SortType, PagingPosition)}
+		 *
+		 * @param type
+		 *        The SelectionType specifying what sort of selection is intended.
+		 * @param ofType
+		 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
+		 * @param criteria
+		 *        Additional selection criteria: sites returned will match this string somewhere in their id, title, description, or skin.
+		 * @param propertyCriteria
+		 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
+		 * @param propertyRestrictions
+		 *        Similar to propertyCriteria, except matches will be excluded
+		 * @param sort
+		 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
+		 * @param page
+		 *        The PagePosition subset of items to return.
+		 * @param userId
+		 *        The returned sites will be those which can be accessed by the user with this internal ID
+		 * @return a List of the Site IDs for the sites matching the criteria.
+		 */
+		List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, Map<String, String> propertyRestrictions, SortType sort, PagingPosition page, String userId);
 
 		/**
 		 * Count the Site objets that meet specified criteria.

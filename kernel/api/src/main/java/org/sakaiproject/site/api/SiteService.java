@@ -226,23 +226,34 @@ public interface SiteService extends EntityProducer
 	 */
 	public class SelectionType
 	{
+		public enum PublishedFilter {ALL, PUBLISHED_ONLY, UNPUBLISHED_ONLY}
+
 		private final String m_id;
 
 		private final boolean m_ignoreSpecial;
 
 		private final boolean m_ignoreUser;
 
-		private final boolean m_ignoreUnpublished;
+		private final PublishedFilter m_publishedFilter;
 		
 		//always true, we always ignore unpublished sites
 		private final boolean m_ignoreSoftlyDeleted;
 
-		private SelectionType(String id, boolean ignoreSpecial, boolean ignoreUser, boolean ignoreUnpublished, boolean ignoreSoftlyDeleted)
+		public SelectionType(String id, boolean ignoreSpecial, boolean ignoreUser, boolean ignoreUnpublished, boolean ignoreSoftlyDeleted)
 		{
 			m_id = id;
 			m_ignoreSpecial = ignoreSpecial;
 			m_ignoreUser = ignoreUser;
-			m_ignoreUnpublished = ignoreUnpublished;
+			m_publishedFilter = ignoreUnpublished ? PublishedFilter.PUBLISHED_ONLY : PublishedFilter.ALL;
+			m_ignoreSoftlyDeleted =  ignoreSoftlyDeleted;
+		}
+
+		public SelectionType(String id, boolean ignoreSpecial, boolean ignoreUser, PublishedFilter publishedFilter, boolean ignoreSoftlyDeleted)
+		{
+			m_id = id;
+			m_ignoreSpecial = ignoreSpecial;
+			m_ignoreUser = ignoreUser;
+			m_publishedFilter = publishedFilter;
 			m_ignoreSoftlyDeleted =  ignoreSoftlyDeleted;
 		}
 
@@ -263,9 +274,14 @@ public interface SiteService extends EntityProducer
 
 		public boolean isIgnoreUnpublished()
 		{
-			return m_ignoreUnpublished;
+			return m_publishedFilter == PublishedFilter.PUBLISHED_ONLY;
 		}
-		
+
+		public PublishedFilter getPublishedFilter()
+		{
+			return m_publishedFilter;
+		}
+
 		public boolean isIgnoreSoftlyDeleted()
 		{
 			return m_ignoreSoftlyDeleted;
@@ -1100,6 +1116,33 @@ public interface SiteService extends EntityProducer
 	List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page);
 
 	/**
+	 * Get the Site IDs for all sites matching criteria.
+	 * This is useful when you only need the listing of site ids (for other operations) and do not need the actual Site objects.
+	 *
+	 *
+	 * All parameters are the same as {@link #getSites(org.sakaiproject.site.api.SiteService.SelectionType, Object, String, Map, org.sakaiproject.site.api.SiteService.SortType, PagingPosition)}
+	 *
+	 * @param type
+	 *        The SelectionType specifying what sort of selection is intended.
+	 * @param ofType
+	 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
+	 * @param criteria
+	 *        Additional selection criteria: sites returned will match this string somewhere in their id, title, description, or skin.
+	 * @param propertyCriteria
+	 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
+	 * @param propertyRestrictions
+	 *        Similar to propertyCriteria: returned siteIds will be filtered to exclude any site whose site properties match these key-value pairs
+	 * @param sort
+	 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
+	 * @param page
+	 *        The PagePosition subset of items to return.
+	 * @param userId
+	 *        Returned sites will be those which can be accessed by this user
+	 * @return a List of the Site IDs for the sites matching the criteria.
+	 */
+	List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, Map<String, String> propertyRestrictions, SortType sort, PagingPosition page, String userId);
+
+	/**
 	 * Get all sites that have been softly deleted
 	 * 
 	 * @return List of Sites or empty list if none.
@@ -1257,4 +1300,34 @@ public interface SiteService extends EntityProducer
 	 * @return the site or section title
 	 */
 	public String getUserSpecificSiteTitle( Site site, String userID );
+
+	/**
+	 * Unpublishes the specified site without touching authz groups and bypasses any SiteAdvisors / other observing services.
+	 * NB: use this only when making very minimal changes in performance critical tasks.
+	 * Only side effect is an event posted to EventTrackingService.
+	 * siteId cannot be null
+	 */
+	public void silentlyUnpublish(String siteId);
+
+	/**
+	 * Unpublishes the specified sites without touching authz groups and bypasses any SiteAdvisors / other observing services.
+	 * NB:  use this only when making very minimal changes in performance critical tasks.
+	 * Only side effect is events posted to EventTrackingService.
+	 * siteIds cannot be null
+	 */
+	public void silentlyUnpublish(List<String> siteIds);
+
+	/**
+	 * Saves a site property for the site with the specified ID using the specified name-value pair.
+	 * NB: inserts only; doesn't do any duplicate checking. Vulnerable to unique constraint violations
+	 * Use this only when making very minimal changes in performance critical tasks.
+	 */
+	public void saveSiteProperty(String siteId, String propertyName, String propertyValue);
+
+	/**
+	 * Saves a site property for the sites with the specified IDs using the specified name-value pair in a single transaction.
+	 * NB: inserts only; doesn't do any duplicate checking. Vulnerable to unique constraint violations
+	 * Use this only when making very minimal changes in performance critical tasks.
+	 */
+	public void saveSitePropertyOnSites(String[] siteIds, String propertyName, String propertyValue);
 } 

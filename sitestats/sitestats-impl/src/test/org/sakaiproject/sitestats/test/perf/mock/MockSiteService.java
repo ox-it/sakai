@@ -24,6 +24,11 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
+	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, Map<String, String> propertyRestrictions, SortType sort, PagingPosition page, String userId) {
+		return null;
+	}
+
+	@Override
 	public List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites )
 	{
 		return null;
@@ -33,6 +38,26 @@ public class MockSiteService implements SiteService {
 	public List<Site> getUserSites( boolean requireDescription, String userID, boolean includeUnpublishedSites )
 	{
 		return null;
+	}
+
+	@Override
+	public void saveSiteProperty(String siteId, String propertyName, String propertyValue) {
+
+	}
+
+	@Override
+	public void saveSitePropertyOnSites(String[] siteIds, String propertyName, String propertyValue) {
+
+	}
+
+	@Override
+	public void silentlyUnpublish(String siteId) {
+
+	}
+
+	@Override
+	public void silentlyUnpublish(List<String> siteIds) {
+		
 	}
 
 	@Override
