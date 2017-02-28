@@ -161,7 +161,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
      */
     public static final String UPDATE_SAME_SCORE_PROP = "gradebook.externalAssessments.updateSameScore";
 
-	public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
+	// Synchronized this method for OWL-739	--bbailla2
+	public synchronized void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 			final String title, final double points, final Date dueDate, final String externalServiceDescription)
             throws ConflictingAssignmentNameException, ConflictingExternalIdException, GradebookNotFoundException {
 
@@ -737,7 +738,8 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription, ungraded, null);
 	}
 	
-	public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points, 
+	// Synchronized this method for OWL-739	--bbailla2
+	public synchronized void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl, final String title, final Double points,
 		final Date dueDate, final String externalServiceDescription, final Boolean ungraded, final Long categoryId) 
 		throws GradebookNotFoundException, ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException
 	{
