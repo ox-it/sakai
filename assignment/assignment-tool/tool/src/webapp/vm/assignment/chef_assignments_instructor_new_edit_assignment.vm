@@ -458,8 +458,10 @@
 		#end
 
 		## group/section support
-                <h4>$!tlang.getString('access')</h4>
+                <h4>$!tlang.getString('accessSectionHeader')</h4>
                 #set( $class = "" )
+                #set($releaseToSiteMsg = [ $tlang.getString("displayto.site") ])
+                #set($releaseToGroupsMsg = [ $tlang.getString("displayto.selected") ])
                 #if( !$!groupsList )
                     #set( $class = "disabled" )
                 #end
@@ -478,9 +480,9 @@
                     <div id="messages">
                     #if( $!range == "groups" && $selectedGroupsNotFound )
                         #if( $!groupsList.size() > 0 )
-                            <div id="msgSelectedGroupsGoneOtherGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.selectedGroupsGoneOtherGroupsPresent" )</div>
+                            <div id="msgSelectedGroupsGoneOtherGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getFormattedMessage("settings.access.selectedGroupsGoneOtherGroupsPresent", $releaseToSiteMsg.toArray())</div>
                         #else
-                            <div id="msgSelectedGroupsGoneNoGroups" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.selectedGroupsGoneNoGroups" )</div>
+                            <div id="msgSelectedGroupsGoneNoGroups" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getFormattedMessage("settings.access.selectedGroupsGoneNoGroups", $releaseToSiteMsg.toArray())</div>
                         #end
                     #elseif( !$!groupsList )
                         <div id="msgNoGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.noGroupsPresent" )</div>
@@ -1326,7 +1328,7 @@
 						disabled="disabled"
 					#end
 					/>
-					$tlang.getString("group.issubmit")
+					$tlang.getFormattedMessage("group.issubmit", $releaseToGroupsMsg.toArray())
 				</label>
 			</div>
 		#end
