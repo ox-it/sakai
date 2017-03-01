@@ -21,7 +21,6 @@
 **********************************************************************************/
 package org.sakaiproject.component.gradebook;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,6 +47,7 @@ import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.LetterGradeMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
+import org.sakaiproject.tool.gradebook.OfficialRegistrarMapping;
 import org.sakaiproject.tool.gradebook.PassNotPassMapping;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -56,7 +56,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 	private static final Logger log = LoggerFactory.getLogger(GradebookFrameworkServiceImpl.class);
 
 	public static final String UID_OF_DEFAULT_GRADING_SCALE_PROPERTY = "uidOfDefaultGradingScale";
-	
+	public static final String OFFICIAL_REGISTRAR_SCALE_UID = "OfficialRegistrarMapping";  // --plukasew
+
 	public static final String PROP_COURSE_POINTS_DISPLAYED = "gradebook.coursepoints.displayed";
 	public static final String PROP_COURSE_GRADE_DISPLAYED = "gradebook.coursegrade.displayed";
 	public static final String PROP_ASSIGNMENTS_DISPLAYED = "gradebook.assignments.displayed";
@@ -159,7 +160,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
     	GradeMapping[] oldGradeMappings = {
     		new LetterGradeMapping(),
     		new LetterGradePlusMinusMapping(),
-    		new PassNotPassMapping()
+    		new PassNotPassMapping(),
+    		new OfficialRegistrarMapping()  // --plukasew
     	};
 
     	for (int i = 0; i < oldGradeMappings.length; i++) {
@@ -177,7 +179,9 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 			if (log.isInfoEnabled()) log.info("Added Grade Mapping " + gradingScale.getUid());
 			gradingScales.add(gradingScale);
 		}
-		setDefaultGradingScale("LetterGradePlusMinusMapping");
+
+		//setDefaultGradingScale("LetterGradePlusMinusMapping");
+		setDefaultGradingScale(OFFICIAL_REGISTRAR_SCALE_UID);  // --plukasew
 		session.flush();
 		return gradingScales;
 	}
