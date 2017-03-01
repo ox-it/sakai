@@ -8,6 +8,7 @@
 
 @if $skin-with-icons {
   [class*="icon-sakai--"] {
+    @extend .fa-fw;
     @extend .fa-lg;
     @extend .fa;
   }
