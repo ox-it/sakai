@@ -45,12 +45,12 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 
 		// Setup the default order to sort thing by.
 		List<Tuple<String,ORDER>> order = new ArrayList<>();
-		order.add(new Tuple<>("added", ORDER.desc));
+		order.add(new Tuple<>("score", ORDER.desc));
 		DEFAULT_ORDER = Collections.unmodifiableList(order);
 
 		// Setup order by.
 		orders = new ArrayList<>();
-		orders.add(new Tuple<>("added", ORDER.desc));
+		orders.add(new Tuple<>("updated", ORDER.desc));
 		orders.add(new Tuple<>("score", ORDER.desc));
 	}
 
@@ -101,7 +101,7 @@ public class SolrProvider implements AdvancedIDataProvider<SolrDocument>
 
 	public void setSort(List<Tuple<String,ORDER>> order) {
 		// Play it safe and take a copy.
-		this.order = new ArrayList<Tuple<String,ORDER>>(order);
+		this.order = new ArrayList<>(order);
 	}
 
 	public void setFilters(String[] filters) {
