@@ -29,12 +29,12 @@
   .icon-sakai--sakai-emailtemplateservice {                 @extend .fa-envelope; }
   .icon-sakai--sakai-feedback {                             @extend .fa-paper-plane-o; }
   .icon-sakai--sakai-forums {                               @extend .fa-comments; }
-  .icon-sakai--sakai-gradebook-tool {                       @extend .fa-book; }
-  .icon-sakai--sakai-gradebookng {                          @extend .fa-book; }
+  .icon-sakai--sakai-gradebook-tool {                       @extend .fa-table; }
+  .icon-sakai--sakai-gradebookng {                          @extend .fa-table; }
   .icon-sakai--sakai-help {                                 @extend .fa-question-circle; }
   .icon-sakai--sakai-iframe {                               @extend .fa-globe; }
   .icon-sakai--sakai-iframe-site {                          @extend .fa-list-ul; }
-  .icon-sakai--sakai-lessonbuildertool {                    @extend .fa-leanpub; }
+  .icon-sakai--sakai-lessonbuildertool {                    @extend .fa-book; }
   .icon-sakai--sakai-mailbox {                              @extend .fa-envelope-o; }
   .icon-sakai--sakai-mailtool {                             @extend .fa-envelope-o; }
   .icon-sakai--sakai-membership {                           @extend .fa-users; }
@@ -93,6 +93,12 @@
   .icon-sakai--pdf {                                        @extend .fa-file-pdf-o; }
   .icon-sakai--subsite {                                    @extend .fa-level-up; }
   .icon-sakai--subsites-list {                              @extend .fa-level-down; }
+
+  // OWL-specific icons
+  .icon-sakai--com-rsmart-certification {                   @extend .fa-trophy; }
+  .icon-sakai--sakai-ezproxy {                              @extend .fa-institution; }
+  .icon-sakai--sakai-scorm-tool {                           @extend .fa-puzzle-piece; }
+  .icon-sakai--sakai-researchguideslti {                    @extend .fa-globe; }
 
   // when we're showing the motd tool as "Welcome" on the gateway page, use a different icon.
   a.Mrphs-hierarchy-item.Mrphs-hierarchy--toolName[href*="!gateway"] .icon-sakai--sakai-motd,
