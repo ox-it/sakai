@@ -151,6 +151,14 @@ public class EditPage extends SakaiPage {
         Image image = new Image("thumbnail-current", icon);
         thumbnailGroup.add(image);
 
+        WebMarkupContainer hiddenGroup = new WebMarkupContainer("hidden-group");
+        CheckBox hidden = new CheckBox("hidden");
+        permission.add(new PropertyValidator<>());
+        FormComponentLabel hiddenLabel = new FormComponentLabel("hidden-label", hidden);
+        hiddenGroup.add(hiddenLabel);
+        hiddenGroup.add(hidden);
+        hiddenGroup.add(new ErrorBehaviour(hidden));
+
         Button submit = new Button("save");
 
         Form<TeachingItem> form = new Form<TeachingItem>("item") {
@@ -186,6 +194,7 @@ public class EditPage extends SakaiPage {
         form.add(contactGroup);
         form.add(permissionGroup);
         form.add(thumbnailGroup);
+        form.add(hiddenGroup);
         form.add(submit);
 
     }

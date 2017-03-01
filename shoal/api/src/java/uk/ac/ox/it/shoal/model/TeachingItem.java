@@ -68,4 +68,9 @@ public interface TeachingItem {
     String getUrl();
 
     void setUrl(String url);
+
+    boolean isHidden();
+
+    void setHidden(boolean hidden);
+
 }

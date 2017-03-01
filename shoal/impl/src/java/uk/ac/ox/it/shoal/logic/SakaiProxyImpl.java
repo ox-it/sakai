@@ -195,6 +195,9 @@ public class SakaiProxyImpl implements SakaiProxy {
         teachingItem.setThumbnail(properties.getProperty(key("thumbnail")));
         teachingItem.setLicense(properties.getProperty(key("license")));
         teachingItem.setUrl(properties.getProperty(key("url")));
+        // Default to false (not hidden)
+        String hidden = properties.getProperty(key("hidden"));
+        teachingItem.setHidden(Boolean.valueOf(hidden));
 
         return teachingItem;
     }
@@ -233,6 +236,7 @@ public class SakaiProxyImpl implements SakaiProxy {
                 properties.addProperty(key("thumbnail"), model.getThumbnail());
                 properties.addProperty(key("license"), model.getLicense());
                 properties.addProperty(key("url"), model.getUrl());
+                properties.addProperty(key("hidden"), Boolean.toString(model.isHidden()));
 
                 siteService.save(site);
 
