@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.Objects;
 
+import static org.sakaiproject.event.api.NotificationService.NOTI_NONE;
 import static uk.ac.ox.it.shoal.utils.StringPacker.pack;
 import static uk.ac.ox.it.shoal.utils.StringPacker.unpack;
 
@@ -266,7 +267,7 @@ public class SakaiProxyImpl implements SakaiProxy {
                 content.setContent(inputStream);
                 // The thumbnails should always be accessible.
                 content.setPublicAccess();
-                contentHostingService.commitResource(content);
+                contentHostingService.commitResource(content, NOTI_NONE);
                 return content.getUrl(true);
             } catch (IdUsedException | InconsistentException | ServerOverloadException e) {
                 // Shouldn't ever happen and should log this.
