@@ -3055,8 +3055,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
 		buffer.append(rb.getString("noti.site.url") + " <a href=\""+ siteUrl+ "\">" + siteUrl + "</a>"+ newline);
 		// notification text
-		String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null ) + "\">" + siteTitle + "</a>";
-		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle(), linkToToolInSite}));
+		String url = developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null );
+		String linkToToolInSite1 = "<a href=\"" + url + "\">" + siteTitle + "</a>";
+		String linkToToolInSite2 = "<a href=\"" + url + "\">" + url + "</a>";
+		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new Object[]{a.getTitle(), linkToToolInSite1, linkToToolInSite2}));
 		
 		return buffer.toString();
 	}
@@ -3086,12 +3088,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		    userId = s.getSubmitterIds().get(0);
 		}
 
-		String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null ) + "\">" + siteTitle + "</a>";
+		String url = developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null );
+		String linkToToolInSite1 = "<a href=\"" + url + "\">" + siteTitle + "</a>";
+		String linkToToolInSite2 = "<a href=\"" + url + "\">" + url + "</a>";
 		if (canSubmit(context,a,userId)) {
-		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), linkToToolInSite}));
+			buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new Object[]{a.getTitle(), linkToToolInSite1, linkToToolInSite2}));
 		}
 		else {
-		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.noresubmit.text", new String[]{a.getTitle(), linkToToolInSite}));
+			buffer.append(rb.getFormattedMessage("noti.releaseresubmission.noresubmit.text", new Object[]{a.getTitle(), linkToToolInSite1, linkToToolInSite2}));
 		}
 	 		
 	 	return buffer.toString();
