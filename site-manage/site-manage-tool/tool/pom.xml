@@ -134,7 +134,6 @@
             <groupId>jdom</groupId>
             <artifactId>jdom</artifactId>
         </dependency>
-
     	<dependency>
             <groupId>org.sakaiproject.common</groupId>
             <artifactId>sakai-privacy-api</artifactId>
