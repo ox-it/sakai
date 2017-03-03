@@ -282,7 +282,7 @@ public class SiteInfoToolServlet extends HttpServlet
 	{
 
 		List<String> providerCourseList = SiteParticipantHelper.getProviderCourseList(siteId);
-		Collection<Participant> participants = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList);
+		Collection<Participant> participants = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList, "", "");
 		
 		// Create Root Element
 		Element root = doc.createElement(PARTICIPANTS_NODE_NAME);

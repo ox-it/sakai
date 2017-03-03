@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<registration>
+
+    <tool id="sakai-site-manage-site-participant-helper"
+          title="Site Participant List Helper"
+          description="Site Participant List Helper">
+
+        <category name="sakai.helper" />
+        <configuration name="functions.require" value="site.upd" />
+
+    </tool>
+
+</registration>

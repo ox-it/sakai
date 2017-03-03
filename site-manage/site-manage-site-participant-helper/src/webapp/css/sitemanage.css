@@ -1,0 +1,143 @@
+table tr th.wicket_orderDown span {
+    background: transparent;
+    text-align: left;
+    margin-right: .2em;
+    vertical-align: middle;
+    background-position: right;
+    background-repeat:no-repeat;
+    background-image: url(/library/image/sakai/sortdescending.gif);
+    padding: 0.3em 1em !important;
+    min-width:75px;
+}
+
+table tr th.wicket_orderUp span {
+    background: transparent;
+    text-align: left;
+    margin-right: .2em;
+    vertical-align: middle;
+    background-position: right;
+    background-repeat:no-repeat;
+    background-image: url(/library/image/sakai/sortascending.gif);
+    padding: 0.3em 1em !important;
+    min-width:75px;
+}
+
+table tr th.wicket_orderNone span {
+    background: transparent;
+    text-align: left;
+    margin-right: .2em;
+    vertical-align: middle;
+    background-position: right;
+    background-repeat:no-repeat;
+    background-image: url(/library/image/sakai/checkoff.gif);
+    padding: 0.3em 1em !important;
+    min-width:75px;
+}
+
+.updateButton {
+    width:100%;
+    display:block;
+}
+
+.participantTable {
+    min-width: 100%;
+}
+
+.tableNavbar {
+    float:right;
+    margin-bottom:0.5em;
+    text-align:right;
+}
+
+.manageParticipantsPrintVersion {
+    display:block;
+    float:right;
+    margin-top:-1.5em;
+    text-decoration:none;
+}
+
+.participantListContainer {
+    margin-top:1em;
+}
+
+td .instruction {
+    display:inline-block;
+    position:relative;
+}
+
+.wicket-ajax-indicator {
+    display:inline-block;
+    position:absolute;
+    top:2px;
+}
+
+hr+div { /* div directly after hr */
+    position:relative;
+}
+
+table.lines tr.headers th {
+    text-align:left;
+}
+
+label.removeSelector {
+    display:inline-block;
+    width:50%;
+}
+
+.manageParticipantForm div.instruction {
+
+}
+
+.manageParticipantForm div.instruction em {
+    font-style:normal;
+}
+
+.manageParticipantForm .act {
+    padding:0;
+    line-height:22px;
+}
+
+.manageParticipantForm .act input {
+    margin-left:18px !important;
+}
+
+.manageParticipantForm .act input.active {
+    margin-right:2px;
+    margin-left:0 !important;
+}
+
+.manageParticipantForm .act span.wicket-ajax-indicator {
+    display:inline-block;
+    position:relative;
+    top:0;
+    width:16px;
+    height:16px;
+    margin:0 -16px 0 0;
+    vertical-align:middle;
+}
+
+/* bjones86 - OWL-686 */
+.manageParticipantForm .navigatorContainer {
+    display: table-cell;
+    float: right;
+    text-align: center;
+}
+
+.manageParticipantForm .filterContainer {
+    display: table-cell;
+    float: left;
+    margin-top: 11px;
+}
+
+.filterContainer .wicket-ajax-indicator {
+    top: 18px;
+    margin-left: 5px;
+}
+
+.navigatorContainer .tableNavbar {
+    margin-top: 7px;
+}
+
+.navigatorContainer .wicket-ajax-indicator {
+    right: 35px;
+}

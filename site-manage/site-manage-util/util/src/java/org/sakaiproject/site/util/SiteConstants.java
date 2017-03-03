@@ -39,7 +39,9 @@ public class SiteConstants {
 	 * This stores the list of roles that a group should have as participants from the containing sites.
 	 */
 	public static final String GROUP_PROP_ROLE_PROVIDERID = "group_prop_role_providerid";
-	
+
+	public static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+
 	public static final int SITE_GROUP_TITLE_LIMIT = 99;
 	
 	// system property variable to hide PageOrder tab for certain types of sites, e.g. if set to "course,project", the PageOrder tool tab will be hidden for all course sites and project sites. 
@@ -62,4 +64,14 @@ public class SiteConstants {
 	public final static String SITE_ACTIVE = "pubView";
 
 	public final static String SITE_INACTIVE = "inactive";
+
+	// bjones86 - OWL-164, OWL-590, OWL-676 - site type constants
+	public static final String SITE_TYPE_COURSE	 = "course";
+	public static final String SITE_TYPE_PROJECT = "project";
+
+	// bjones86 - OWL-686
+	public static final String PARTICIPANT_FILTER_TYPE_ALL = "[all]";
+	public static final String PARTICIPANT_FILTER_TYPE_SECTION = "[section]";
+	public static final String PARTICIPANT_FILTER_TYPE_GROUP = "[group]";
+	public static final String PARTICIPANT_FILTER_TYPE_ROLE = "[role]";
 }

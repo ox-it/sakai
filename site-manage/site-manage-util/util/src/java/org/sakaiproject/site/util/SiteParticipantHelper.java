@@ -13,6 +13,7 @@ import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -28,6 +29,9 @@ import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -66,12 +70,22 @@ public class SiteParticipantHelper {
 	
 	/**
 	 * Add participant from provider-defined enrollment set
-	 * @param participants
+	 *
+	 * bjones86 - OWL-686 - added role filter
+	 *
+	 * @param participantsMap
 	 * @param realm
 	 * @param providerCourseEid
 	 * @param enrollmentSet
+	 * @param sectionTitle
+	 * @param filterType
+	 *          the type of filter (group or role)
+	 * @param filterID
+	 *          the ID to filter on
+	 * @param groupMembership
 	 */
-	public static void addParticipantsFromEnrollmentSet(Map participantsMap, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet, String sectionTitle) {
+	public static void addParticipantsFromEnrollmentSet( Map participantsMap, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet, String sectionTitle,
+														String filterType, String filterID, Set<Member> groupMembership ) {
 		boolean refreshed = false;
 		
 		if (enrollmentSet != null)
@@ -158,7 +172,9 @@ public class SiteParticipantHelper {
 								participant.uniqname = userId;
 								participant.active = member.isActive();
 							}
-							participantsMap.put(userId, participant);
+
+							// bjones86 - OWL-686
+							conditionallyAddParticipantToMap( participantsMap, filterType, filterID, userId, participant, groupMembership );
 							}
 							catch (Exception ee)
 							{
@@ -174,7 +190,20 @@ public class SiteParticipantHelper {
 			}
 		}
 	}
-	
+
+	/**
+	 * Add participant from provider-defined enrollment set
+	 * @param participantsMap
+	 * @param realm
+	 * @param providerCourseEid
+	 * @param enrollmentSet
+	 * @param sectionTitle
+	 */
+	public static void addParticipantsFromEnrollmentSet(Map participantsMap, AuthzGroup realm, String providerCourseEid, EnrollmentSet enrollmentSet, String sectionTitle) {
+
+		addParticipantsFromEnrollmentSet( participantsMap, realm, providerCourseEid, enrollmentSet, sectionTitle, null, null, null );
+	}
+
 	/**
 	 * Collect all member users data in one call
 	 * 
@@ -206,12 +235,19 @@ public class SiteParticipantHelper {
 
 	/**
 	 * Add participant from provider-defined membership set
-	 * @param participants
+	 *
+	 * bjones86 - OWL-686 - added roleFilterID parameter
+	 *
+	 * @param participantsMap
 	 * @param realm
-	 * @param providerCourseEid
 	 * @param memberships
+	 * @param sectionTitle
+	 * @param filterType
+	 * @param filterID
+	 * @param groupMembership
 	 */
-	public static void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, Set memberships, String sectionTitle) {
+	public static void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, Set memberships, String sectionTitle,
+														String filterType, String filterID, Set<Member> groupMembership) {
 		boolean refreshed = false;
 		
 		if (memberships != null)
@@ -272,8 +308,9 @@ public class SiteParticipantHelper {
 							participant.uniqname = userId;
 							participant.active=member.isActive();
 						}
-						
-						participantsMap.put(userId, participant);
+
+						// bjones86 - OWL-686
+						conditionallyAddParticipantToMap( participantsMap, filterType, filterID, userId, participant, groupMembership );
 					}
 				} catch (UserNotDefinedException exception) {
 					// deal with missing user quietly without throwing a
@@ -283,13 +320,31 @@ public class SiteParticipantHelper {
 			}
 		}
 	}
-	
+
+	/**
+	 * Add participant from provider-defined membership set
+	 * @param participantsMap
+	 * @param realm
+	 * @param memberships
+	 * @param sectionTitle
+	 */
+	public static void addParticipantsFromMemberships(Map participantsMap, AuthzGroup realm, Set memberships, String sectionTitle) {
+
+		addParticipantsFromMemberships( participantsMap, realm, memberships, sectionTitle, null, null, null );
+	}
+
 	/**
 	 * add participant from member list defined in realm
+	 *
+	 * bjones86 - OWL-686 - added roleFilterID parameter
+	 *
 	 * @param participantsMap
 	 * @param grants
+	 * @param realmId
+	 * @param filterID
 	 */
-    	private static void addParticipantsFromMembers(Map<String, Participant> participantsMap, Set grants, String realmId) {
+	private static void addParticipantsFromMembers(Map<String, Participant> participantsMap, Set grants, String realmId,
+														String filterType, String filterID, Set<Member> groupMembership) {
 		// get all user info once
 		Map<String, User> eidToUserMap = getEidUserMapFromCollection(grants);
 		boolean refreshed = false;
@@ -337,7 +392,9 @@ public class SiteParticipantHelper {
 					participant.role = g.getRole()!=null?g.getRole().getId():"";
 					participant.removeable = true;
 					participant.active = g.isActive();
-					participantsMap.put(userId, participant);
+
+					// bjones86 - OWL-686
+					conditionallyAddParticipantToMap( participantsMap, filterType, filterID, userId, participant, groupMembership );
 				}
 			} catch (UserNotDefinedException e) {
 
@@ -355,6 +412,56 @@ public class SiteParticipantHelper {
 
 				if (M_log.isDebugEnabled()) {
 					M_log.debug("SiteParticipantHelper:addParticipantsFromMembers: user not defined "+ g.getUserEid());
+				}
+			}
+		}
+	}
+
+	/**
+	 * add participant from member list defined in realm
+	 * @param participantsMap
+	 * @param grants
+	 * @param realmId
+	 */
+	private static void addParticipantsFromMembers(Map<String, Participant> participantsMap, Set grants, String realmId) {
+
+		addParticipantsFromMembers( participantsMap, grants, realmId, null, null, null );
+	}
+
+	/**
+		* Conditionally add the provided Participant object to the participants map
+		* if the participant meets the given conditions (filter)
+		*
+		* @author bjones86 - OWL-686
+		* @param participantsMap
+		*			the map to add the participant to if it meets the conditions
+		* @param filterType
+		*			the conditional type of filter
+		* @param filterID
+		*			the conditional ID of the filter
+		* @param userID
+		*			the user ID of the participant
+		* @param participant
+		*			the Participant object representing the participant
+		* @param groupMembership
+		*			the list of group memberships to compare against for group filters
+		*/
+	private static void conditionallyAddParticipantToMap( Map<String, Participant> participantsMap, String filterType, String filterID, String userID,
+															Participant participant, Set<Member> groupMembership )
+	{
+		if( (SiteConstants.PARTICIPANT_FILTER_TYPE_ROLE.equals( filterType ) && participant.role.equals( filterID ))
+				|| SiteConstants.PARTICIPANT_FILTER_TYPE_ALL.equals( filterType ) || StringUtils.isEmpty( filterType )
+				|| SiteConstants.PARTICIPANT_FILTER_TYPE_SECTION.equals( filterType ) )
+		{
+			participantsMap.put( userID, participant );
+		}
+		else if( SiteConstants.PARTICIPANT_FILTER_TYPE_GROUP.equals( filterType ) )
+		{
+			for( Member m : groupMembership )
+			{
+				if( userID.equals( m.getUserId() ) )
+				{
+					participantsMap.put( userID, participant );
 				}
 			}
 		}
@@ -406,95 +513,169 @@ public class SiteParticipantHelper {
 		return rv;
 
 	} // getProviderCourseList
+
+	/**
+	 * Set the membership for the given group from the given site
+	 *
+	 * @author bjones86 - OWL-686
+	 *
+	 * @param siteID
+	 *          the ID of the site which contains the group in question
+	 * @param groupID
+	 *          the ID of the group to add participants from
+	 * @return
+	 *          the set of members for the given group in the given site
+	 */
+	public static Set<Member> setGroupMembership( String siteID, String groupID )
+	{
+		Set<Member> groupMembership = new HashSet<>();
+		try
+		{
+			// Get the site
+			Site site = SiteService.getSite( siteID );
+			if( site != null )
+			{
+				// Get the group from the site
+				Group group = site.getGroup( groupID );
+				if( group != null )
+				{
+					// Get the group's members
+					Set members = group.getMembers();
+					if( members != null )
+					{
+						groupMembership = members;
+					}
+				}
+			}
+		}
+		catch( IdUnusedException ex )
+		{
+			M_log.warn( "SiteParticipantHelper.addParticipantsFromGroupMembership: "+ ex.getMessage() + " siteID=" + siteID );
+		}
+
+		return groupMembership;
+	}
 	
-	public static Collection<Participant> prepareParticipants(String siteId, List<String> providerCourseList) {
+	// bjones86 - OWL-686 - modified to support section, group and role filters
+	public static Collection<Participant> prepareParticipants( String siteId, List<String> providerCourseList, String filterType, String filterID )
+	{
+		boolean isSectionFilter = false;
+		Map<String, Participant> participantsMap = new ConcurrentHashMap<>();
+		Set<Member> groupMembership = new HashSet<>();
+
+		// If the filter is for a group, get the membership for the group for comparison later
+		if( SiteConstants.PARTICIPANT_FILTER_TYPE_GROUP.equals( filterType ) )
+		{
+			groupMembership = setGroupMembership( siteId, filterID );
+		}
+
+		// Determine if the filter is for a particular section
+		else if( SiteConstants.PARTICIPANT_FILTER_TYPE_SECTION.equals( filterType ) )
+		{
+			isSectionFilter = true;
+		}
+
 		String realmId = SiteService.siteReference(siteId);
-		Map<String, Participant> participantsMap = new ConcurrentHashMap<String, Participant>();
-		try {
+		try
+		{
 			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 			realm.getProviderGroupId();
-			
-			// iterate through the provider list first
-			for (Iterator<String> i=providerCourseList.iterator(); i.hasNext();)
+
+			if( providerCourseList != null )
 			{
-				String providerCourseEid = (String) i.next();
-				try
+				for( String sectionEID : providerCourseList )
 				{
-					Section section = cms.getSection(providerCourseEid);
-					
-					if (section != null)
+					// Only retreive memberships for this section if there is no section filter set, OR
+					// if there is a section filter set AND the current section EID is that of the selected section filter
+					if( !isSectionFilter || (isSectionFilter && sectionEID.equals( filterID )) )
 					{
-						String sectionTitle = section.getTitle();
-					
-						// in case of Section eid
-						EnrollmentSet enrollmentSet = section.getEnrollmentSet();
-						addParticipantsFromEnrollmentSet(participantsMap, realm, providerCourseEid, enrollmentSet, sectionTitle);
-						
-						// Include official instructors of record for the enrollment set.
-						addOfficialInstructorOfRecord(participantsMap, realm, sectionTitle, enrollmentSet);
-						
-						// add memberships
-						Set memberships = cms.getSectionMemberships(providerCourseEid);
-						if (memberships != null && memberships.size() > 0)
+						try
 						{
-							addParticipantsFromMemberships(participantsMap, realm, memberships, sectionTitle);
-						}
-						
-						// now look or the not-included member from CourseOffering object
-						CourseOffering co = cms.getCourseOffering(section.getCourseOfferingEid());
-						if (co != null)
-						{
-							
-							Set<Membership> coMemberships = cms.getCourseOfferingMemberships(section.getCourseOfferingEid());
-							if (coMemberships != null && coMemberships.size() > 0)
+							Section section = cms.getSection( sectionEID );
+							if (section != null)
 							{
-								addParticipantsFromMemberships(participantsMap, realm, coMemberships, co.getTitle());
-							}
-							
-							// now look or the not-included member from CourseSet object
-							Set<String> cSetEids = co.getCourseSetEids();
-							if (cSetEids != null)
-							{
-								for(Iterator<String> cSetEidsIterator = cSetEids.iterator(); cSetEidsIterator.hasNext();)
+								String sectionTitle = section.getTitle();
+
+								// in case of Section eid
+								EnrollmentSet enrollmentSet = section.getEnrollmentSet();
+								addParticipantsFromEnrollmentSet( participantsMap, realm, sectionEID, enrollmentSet, sectionTitle, filterType, filterID, groupMembership );
+
+								// Include official instructors of record for the enrollment set.
+								addOfficialInstructorOfRecord( participantsMap, realm, sectionTitle, enrollmentSet, filterType, filterID, groupMembership );
+
+								// add memberships
+								Set memberships = cms.getSectionMemberships( sectionEID );
+								if( memberships != null && memberships.size() > 0 )
 								{
-									String cSetEid = cSetEidsIterator.next();
-									CourseSet cSet = cms.getCourseSet(cSetEid);
-									if (cSet != null)
+									addParticipantsFromMemberships( participantsMap, realm, memberships, sectionTitle, filterType, filterID, groupMembership );
+								}
+
+								// now look or the not-included member from CourseOffering object
+								CourseOffering co = cms.getCourseOffering( section.getCourseOfferingEid() );
+								if( co != null )
+								{
+									Set<Membership> coMemberships = cms.getCourseOfferingMemberships( section.getCourseOfferingEid() );
+									if( coMemberships != null && coMemberships.size() > 0 )
 									{
-										Set<Membership> cSetMemberships = cms.getCourseSetMemberships(cSetEid);
-										if (cSetMemberships != null && cSetMemberships.size() > 0)
+										addParticipantsFromMemberships( participantsMap, realm, coMemberships, co.getTitle(), filterType, filterID, groupMembership );
+									}
+
+									// now look or the not-included member from CourseSet object
+									Set<String> cSetEids = co.getCourseSetEids();
+									if( cSetEids != null )
+									{
+										for( String courseSetEID : cSetEids )
 										{
-											addParticipantsFromMemberships(participantsMap, realm, cSetMemberships, cSet.getTitle());
+											CourseSet cSet = cms.getCourseSet( courseSetEID );
+											if( cSet != null )
+											{
+												Set<Membership> cSetMemberships = cms.getCourseSetMemberships( courseSetEID );
+												if( cSetMemberships != null && cSetMemberships.size() > 0 )
+												{
+													addParticipantsFromMemberships( participantsMap, realm, cSetMemberships, cSet.getTitle(), filterType, filterID, groupMembership );
+												}
+											}
 										}
 									}
 								}
 							}
 						}
+						catch (IdNotFoundException e)
+						{
+								M_log.warn( "SiteParticipantHelper.prepareParticipants: "+ e.getMessage() + " sectionId=" + sectionEID );
+						}
 					}
-					
 				}
-				catch (IdNotFoundException e)
-				{
-					M_log.warn("SiteParticipantHelper.prepareParticipants: "+ e.getMessage() + " sectionId=" + providerCourseEid);
-				}
-			}
-			
-			// now for those not provided users
-			Set<Member> grants = realm.getMembers();
-			if (grants != null && !grants.isEmpty())
-			{
-				// add participant from member defined in realm
-				addParticipantsFromMembers(participantsMap, grants, realmId);
 			}
 
-		} catch (GroupNotDefinedException ee) {
-			M_log.warn("SiteParticipantHelper.prepareParticipants:  IdUnusedException " + realmId);
+			// Only get non-provided users if there is no section filter set
+			if( !isSectionFilter )
+			{
+				// now for those not provided users
+				Set<Member> grants = realm.getMembers();
+				if( grants != null && !grants.isEmpty() )
+				{
+					// add participant from member defined in realm
+					addParticipantsFromMembers( participantsMap, grants, realmId, filterType, filterID, groupMembership );
+				}
+			}
 		}
+		catch( GroupNotDefinedException ee )
+		{
+			M_log.warn( "SiteParticipantHelper.prepareParticipants:  IdUnusedException " + realmId );
+		}
+
 		return participantsMap.values();
 	}
 
-	private static void addOfficialInstructorOfRecord(Map<String, Participant> participantsMap, AuthzGroup realm, String sectionTitle, EnrollmentSet enrollmentSet) {
-		
+	public static Collection<Participant> prepareParticipants(String siteId, List<String> providerCourseList) {
+		return prepareParticipants( siteId, providerCourseList, null, null );
+	}
+
+	// bjones86 - OWL-686 - added roleFilterID parameter
+	private static void addOfficialInstructorOfRecord(Map<String, Participant> participantsMap, AuthzGroup realm, String sectionTitle, EnrollmentSet enrollmentSet,
+														String filterType, String filterID, Set<Member> groupMembership) {
+
 		if (enrollmentSet != null)
 		{
 			Set<String>instructorEids = cms.getInstructorsOfRecordIds(enrollmentSet.getEid());
@@ -536,7 +717,9 @@ public class SiteParticipantHelper {
 								participant.section = sectionTitle;
 								participant.uniqname = userId;
 							}
-							participantsMap.put(userId, participant);
+
+							// bjones86 - OWL-686
+							conditionallyAddParticipantToMap( participantsMap, filterType, filterID, userId, participant, groupMembership );
 						}
 					} catch (UserNotDefinedException exception) {
 						// deal with missing user quietly without throwing a
@@ -551,8 +734,7 @@ public class SiteParticipantHelper {
 	/**
 	 * Get a list of restricted roles, taking into account the current site type
 	 * 
-	 * @param siteType
-	 * 				the current site's type
+	 * @param siteType the current site's type
 	 * @return a list of restricted role IDs for the given site type
 	 */
 	public static Set<String> getRestrictedRoles( String siteType )
@@ -581,7 +763,7 @@ public class SiteParticipantHelper {
 	 * 				the current site's type
 	 * @return A list of 'allowed' role objects for the given site type
 	 */
-	public static List<Role> getAllowedRoles( String siteType, List<Role> allRolesForSiteType )
+	public static List<Role> getAllowedRoles( String siteType, Set<Role> allRolesForSiteType )
 	{
 		List<Role> retVal = new ArrayList<Role>();
 		if (siteType == null) {
@@ -614,13 +796,6 @@ public class SiteParticipantHelper {
         }
 		
 		return retVal;
-	}
-
-	public static List<Role> getAllowedRoles( String siteType, Set<Role> allRolesForSiteType )
-	{
-		List<Role> list = new ArrayList<Role>(allRolesForSiteType.size());
-		list.addAll(allRolesForSiteType);
-		return getAllowedRoles( siteType, list );
 	}
 	
 	public static String makeUserDisplayName( String userId ) 

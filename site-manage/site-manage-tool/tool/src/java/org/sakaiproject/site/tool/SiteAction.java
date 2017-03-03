@@ -1955,9 +1955,6 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_site-siteInfo-list.vm
 			 * 
 			 */
-			// put the link for downloading participant
-			putPrintParticipantLinkIntoContext(context, data, site);
-			
 			context.put("userDirectoryService", UserDirectoryService
 					.getInstance());
 			try {
@@ -1967,13 +1964,6 @@ public class SiteAction extends PagedResourceActionII {
 					state.setAttribute(STATE_SITE_TYPE, siteType);
 				}
 				
-				if (site.getProviderGroupId() != null) {
-					M_log.debug("site has provider");
-					context.put("hasProviderSet", Boolean.TRUE);
-				} else {
-					M_log.debug("site has no provider");
-					context.put("hasProviderSet", Boolean.FALSE);
-				}
 				boolean isMyWorkspace = false;
 				if (SiteService.isUserSite(site.getId())) {
 					if (SiteService.getSiteUserId(site.getId()).equals(
@@ -1983,7 +1973,6 @@ public class SiteAction extends PagedResourceActionII {
 								.getSiteUserId(site.getId()));
 					}
 				}
-				context.put("isMyWorkspace", Boolean.valueOf(isMyWorkspace));
 
 				String siteId = site.getId();
 				if (state.getAttribute(STATE_ICONS) != null) {
@@ -2036,15 +2025,31 @@ public class SiteAction extends PagedResourceActionII {
 
 				boolean allowUpdateGroupMembership = SiteService
 						.allowUpdateGroupMembership(siteId);
-				context.put("allowUpdateGroupMembership", Boolean
-						.valueOf(allowUpdateGroupMembership));
 
 				boolean allowUpdateSiteMembership = SiteService
 						.allowUpdateSiteMembership(siteId);
-				context.put("allowUpdateSiteMembership", Boolean
-						.valueOf(allowUpdateSiteMembership));
 
 				context.put("additionalAccess", getAdditionRoles(site));
+
+				// allow view roster?
+				boolean allowViewRoster = SiteService.allowViewRoster(siteId);
+				context.put("viewRoster", Boolean.valueOf(allowViewRoster));
+
+				// set participant list
+				if (allowUpdateSite || allowViewRoster || allowUpdateSiteMembership) {
+					sortedBy = (String) state.getAttribute(SORTED_BY);
+					sortedAsc = (String) state.getAttribute(SORTED_ASC);
+					if (sortedBy == null) {
+						state.setAttribute(SORTED_BY, SiteConstants.SORTED_BY_PARTICIPANT_NAME);
+						sortedBy = SiteConstants.SORTED_BY_PARTICIPANT_NAME;
+					}
+					if (sortedAsc == null) {
+						sortedAsc = Boolean.TRUE.toString();
+						state.setAttribute(SORTED_ASC, sortedAsc);
+					}
+
+					pagingInfoToContext(state, context);
+				}
 
 				Menu b = new MenuImpl(portlet, data, (String) state
 						.getAttribute(STATE_ACTION));
@@ -2093,7 +2098,18 @@ public class SiteAction extends PagedResourceActionII {
 									"doParticipantHelper"));
 						}
 						
-						// show the Edit Class Roster menu
+					}
+				}
+
+				// bjones86 - OWL-1980 - don't show 'Manage Participants' for a My Workspace site
+				if (allowViewRoster && notStealthOrHiddenTool("sakai-site-manage-site-participant-helper") && !isMyWorkspace) {
+					b.add(new MenuEntry(rb.getString("java.participantList"),"doParticipantListHelper"));
+				}
+
+				if (allowUpdateSiteMembership)
+				{
+					// show the Edit Class Roster menu
+					if (!isMyWorkspace) {
 						if (ServerConfigurationService.getBoolean("site.setup.allow.editRoster", true) && siteType != null && SiteTypeUtil.isCourseSite(siteType)) {
 							b.add(new MenuEntry(rb.getString("java.editc"),
 									"doMenu_siteInfo_editClass"));
@@ -2245,35 +2261,6 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				} else {
 					context.put("fromWSetup", Boolean.FALSE);
-				}
-				// allow view roster?
-				boolean allowViewRoster = SiteService.allowViewRoster(siteId);
-				if (allowViewRoster) {
-					context.put("viewRoster", Boolean.TRUE);
-				} else {
-					context.put("viewRoster", Boolean.FALSE);
-				}
-				// set participant list
-				if (allowUpdateSite || allowViewRoster
-						|| allowUpdateSiteMembership) {
-					Collection participantsCollection = getParticipantList(state);
-					sortedBy = (String) state.getAttribute(SORTED_BY);
-					sortedAsc = (String) state.getAttribute(SORTED_ASC);
-					if (sortedBy == null) {
-						state.setAttribute(SORTED_BY, SiteConstants.SORTED_BY_PARTICIPANT_NAME);
-						sortedBy = SiteConstants.SORTED_BY_PARTICIPANT_NAME;
-					}
-					if (sortedAsc == null) {
-						sortedAsc = Boolean.TRUE.toString();
-						state.setAttribute(SORTED_ASC, sortedAsc);
-					}
-					if (sortedBy != null)
-						context.put("currentSortedBy", sortedBy);
-					if (sortedAsc != null)
-						context.put("currentSortAsc", sortedAsc);
-					context.put("participantListSize", Integer.valueOf(participantsCollection.size()));
-					context.put("participantList", prepPage(state));
-					pagingInfoToContext(state, context);
 				}
 
 				context.put("include", Boolean.valueOf(site.isPubView()));
@@ -2454,30 +2441,6 @@ public class SiteAction extends PagedResourceActionII {
 				
 			} catch (Exception e) {
 				M_log.error(this + " buildContextForTemplate chef_site-siteInfo-list.vm ", e);
-			}
-
-			roles = getRoles(state);
-			context.put("roles", roles);
-			
-			// SAK-23257 - add the allowed roles to the context for UI rendering
-			context.put( VM_ALLOWED_ROLES_DROP_DOWN, SiteParticipantHelper.getAllowedRoles( site.getType(), roles ) );
-
-			// will have the choice to active/inactive user or not
-			String activeInactiveUser = ServerConfigurationService.getString(
-					"activeInactiveUser", Boolean.FALSE.toString());
-			if (activeInactiveUser.equalsIgnoreCase("true")) {
-				context.put("activeInactiveUser", Boolean.TRUE);
-			} else {
-				context.put("activeInactiveUser", Boolean.FALSE);
-			}
-			
-			// UVa add realm object to context so we can provide last modified time
-			realmId = SiteService.siteReference(site.getId());
-			try {
-				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
-				context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
-			} catch (GroupNotDefinedException e) {
-				M_log.warn(this + "  IdUnusedException " + realmId);
 			}
 
 			// SAK-22384 mathjax support
@@ -4301,7 +4264,15 @@ public class SiteAction extends PagedResourceActionII {
 		// launch the helper
 		startHelper(data.getRequest(), "sakai-site-manage-participant-helper");
 	}
-	
+
+	public void doParticipantListHelper(RunData data) {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		SessionManager.getCurrentToolSession().setAttribute(HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+
+		// launch the helper
+		startHelper(data.getRequest(), "sakai-site-manage-site-participant-helper");
+	}
+
 	/**
 	 * Launch the Manage Group helper Tool -- for adding, editing and deleting groups
 	 * 
@@ -8725,7 +8696,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						
 						// SAK-23257 - display an error message if the new role is in the restricted role list
 						String siteType = s.getType();
-						List<Role> allowedRoles = SiteParticipantHelper.getAllowedRoles( siteType, getRoles( state ) );
+						List<Role> allowedRoles = SiteParticipantHelper.getAllowedRoles( siteType, s.getRoles() );
 						for( String roleName : roles )
 						{
 							Role r = realmEdit.getRole( roleName );
@@ -10793,36 +10764,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.setAttribute(SITE_PROVIDER_COURSE_LIST, providerCourseList);
 		}
 
-		Collection participants = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList);
+		Collection participants = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList, "", "");
 		state.setAttribute(STATE_PARTICIPANT_LIST, participants);
 
 		return participants;
 
 	} // getParticipantList
-
-	/**
-	 * getRoles
-	 * 
-	 */
-	private List getRoles(SessionState state) {
-		List roles = new Vector();
-		String realmId = SiteService.siteReference((String) state
-				.getAttribute(STATE_SITE_INSTANCE_ID));
-		try {
-			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
-			// Filter the roles so we only display user roles
-			for (Role role: (Set<Role>)realm.getRoles()) {
-				if (authzGroupService.isRoleAssignable(role.getId())) {
-					roles.add(role);
-				}
-			}
-			Collections.sort(roles);
-		} catch (GroupNotDefinedException e) {
-			M_log.error( this + ".getRoles: IdUnusedException " + realmId, e);
-		}
-		return roles;
-
-	} // getRoles
 	
 	/**
 	 * getRoles
@@ -10856,7 +10803,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					restrictedRoles = SiteParticipantHelper.getRestrictedRoles(state.getAttribute(STATE_SITE_TYPE ).toString());
 				}
 				else {
-					allowedRoles = SiteParticipantHelper.getAllowedRoles(siteType, getRoles(state));
+					allowedRoles = SiteParticipantHelper.getAllowedRoles(siteType, realm.getRoles());
 				}
 				
 				for(Role role:realm.getRoles())
@@ -13003,39 +12950,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, toolSelected);
 
 	} // removeTool
-
-	/**
-	 * 
-	 * set selected participant role Hashtable
-	 */
-	private void setSelectedParticipantRoles(SessionState state) {
-		List selectedUserIds = (List) state
-				.getAttribute(STATE_SELECTED_USER_LIST);
-		List participantList = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
-		List selectedParticipantList = new Vector();
-
-		Hashtable selectedParticipantRoles = new Hashtable();
-
-		if (!selectedUserIds.isEmpty() && participantList != null) {
-			for (int i = 0; i < participantList.size(); i++) {
-				String id = "";
-				Object o = (Object) participantList.get(i);
-				if (o.getClass().equals(Participant.class)) {
-					// get participant roles
-					id = ((Participant) o).getUniqname();
-					selectedParticipantRoles.put(id, ((Participant) o)
-							.getRole());
-				}
-				if (selectedUserIds.contains(id)) {
-					selectedParticipantList.add(participantList.get(i));
-				}
-			}
-		}
-		state.setAttribute(STATE_SELECTED_PARTICIPANT_ROLES,
-				selectedParticipantRoles);
-		state.setAttribute(STATE_SELECTED_PARTICIPANTS, selectedParticipantList);
-
-	} // setSelectedParticipantRol3es
 
 	public class MyIcon {
 		protected String m_name = null;
@@ -15222,12 +15136,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			return false;
 		}
 		return true;
-	}
-	
-	private void putPrintParticipantLinkIntoContext(Context context, RunData data, Site site) {
-		// the status servlet reqest url
-		String url = Web.serverUrl(data.getRequest()) + "/sakai-site-manage-tool/tool/printparticipant/" + site.getId();
-		context.put("printParticipantUrl", url);
 	}
 	
 	/**

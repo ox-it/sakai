@@ -55,7 +55,6 @@ import org.sakaiproject.util.RequestFilter;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import au.com.bytecode.opencsv.CSVReader;
-import java.util.Arrays;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
@@ -524,7 +523,7 @@ public class SiteManageGroupSectionRoleHandler {
     		String siteId = site.getId();
 
     		List<String> providerCourseList = SiteParticipantHelper.getProviderCourseList(siteId);
-    		Collection<Participant> rvCopy = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList);
+    		Collection<Participant> rvCopy = SiteParticipantHelper.prepareParticipants(siteId, providerCourseList, "", "");
     		
     		// check with group attendents
     		if (group != null)
