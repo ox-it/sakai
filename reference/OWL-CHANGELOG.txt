@@ -1,3 +1,9 @@
+[2017.03.03]
+    - OWL-2613 Styled the instruction class to reduce its visual impact
+
+[2017.03.01]
+    - OWL-2617 Updated and added icons to some tools: Gradebook, Lessons, SCORM, Certification, EZProxy, Research Guides
+
 [2017.02.12]
     - OWL-2549 Created the morpheus-owl skin from morpheus-master and updated pom.xml to build the morpheus-owl skin instead
     - OWL-2549 Created morpheus-masterSnapshot as a reference point for comparing future changes to morpheus-master from Sakai
