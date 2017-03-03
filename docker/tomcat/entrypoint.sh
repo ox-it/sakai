@@ -26,7 +26,6 @@ EOF
 	JGROUPS_PASSWORD="${DB_ENV_MYSQL_PASSWORD}"
 	JGROUPS_DRIVER="com.mysql.jdbc.Driver"
 	JGROUPS_URL="jdbc:mysql://db:3306/${DB_ENV_MYSQL_DATABASE}"
-	JGROUPS_ADDRESS="0.0.0.0"
 fi
 
 if [ -f "/opt/tomcat/webapps/library.war" ] ; then
