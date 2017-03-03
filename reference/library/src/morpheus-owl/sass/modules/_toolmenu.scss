@@ -18,9 +18,9 @@ body.#{$namespace}toolMenu-collapsed{
 	}
 
 	#toolMenuWrap{
-		max-width: #{ $tool-menu-width / 2 };
-		min-width: #{ $tool-menu-width / 2 };
-		width: #{ $tool-menu-width / 2 };
+		max-width: $tool-menu-collapsed-width;
+		min-width: $tool-menu-collapsed-width;
+		width: $tool-menu-collapsed-width;
 	}
 	#toolMenu, ul#subSites{
 		.img_site_toolmenu{
@@ -35,13 +35,13 @@ body.#{$namespace}toolMenu-collapsed{
 							position: absolute;
 							display: block;
 							float: right;
-							margin: -2.1em 0em 0em 3.2em;
+							margin: -1.4em 0em 0em 0.7em;
 							background: $primary-color;
-							padding: 0.71em;
+							padding: 0.85em;
 							border-left: 3px solid $primary-color-shadow;
 							z-index: 10;
 							width: auto;
-							border-radius: 0 15px 15px 0;
+							border-radius: 0;
 							line-height: 100%;
 						}
 					}

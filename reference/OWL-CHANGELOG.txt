@@ -1,3 +1,3 @@
 [2017.02.12]
-        - OWL-2549 Created the morpheus-owl skin from morpheus-master and updated pom.xml to build the morpheus-owl skin instead
-        - OWL-2549 Created morpheus-masterSnapshot as a reference point for comparing future changes to morpheus-master from Sakai
+    - OWL-2549 Created the morpheus-owl skin from morpheus-master and updated pom.xml to build the morpheus-owl skin instead
+    - OWL-2549 Created morpheus-masterSnapshot as a reference point for comparing future changes to morpheus-master from Sakai

@@ -610,7 +610,7 @@ body.is-logged-out{
 				
 			&:not(.dropdown-is-visible) > a:hover, &:not(.dropdown-is-visible) > a:active /* hover for sites when tool quick-menu isn't open */
 			{
-				box-shadow: 0 0 10px 10px rgba(255, 255, 255, 0.1) inset;
+				box-shadow: 0 0 15px 15px rgba(255, 255, 255, 0.1) inset;
 				color: $sites-nav-menu-item-color-hover;
 			}
 			
