@@ -91,42 +91,43 @@ public class ImportQuestionsToAuthoring implements ActionListener
       boolean newSectionCreated = false;
 
         // SAM-2395 - sort based on question text
-      	// SAM-2437 - use an arrayList instead of treeset to allow duplicated title questions
-	      ArrayList<ItemFacade> sortedQuestions = new ArrayList<ItemFacade>();
+        // SAM-2437 - use an arrayList instead of treeset to allow duplicated title questions
+        ArrayList<ItemFacade> sortedQuestions = new ArrayList<ItemFacade>();
 
         // SAM-2395 - copy the questions into a sorted list
         for (Object itemID : destItems) {
           ItemFacade poolItemFacade = delegate.getItem(Long.valueOf((String) itemID), AgentFacade.getAgentString());
           ItemData clonedItem = delegate.cloneItem( poolItemFacade.getData() );
-        clonedItem.setItemId(Long.valueOf(0));
-        clonedItem.setItemIdString("0");
-        itemfacade = new ItemFacade(clonedItem);
+          clonedItem.setItemId(Long.valueOf(0));
+          clonedItem.setItemIdString("0");
+          itemfacade = new ItemFacade(clonedItem);
           sortedQuestions.add(itemfacade);
         }
 
         Collections.sort(sortedQuestions, new Comparator<ItemFacade>() {
-	        @Override
-	        public int compare(ItemFacade obj1, ItemFacade obj2) {
-	            return obj1.getText().compareTo(obj2.getText());
-	        }
-	    });
+            @Override
+            public int compare(ItemFacade obj1, ItemFacade obj2) {
+                return obj1.getText().compareTo(obj2.getText());
+            }
+        });
 
         // SAM-2395 - iterate over the sorted list
         Iterator iter = sortedQuestions.iterator();
+        List<ItemFacade> itemsToSave = new ArrayList<>(sortedQuestions.size());
         while (iter.hasNext()) {
         // path instead. so we will fix it here
-          itemfacade = (ItemFacade) iter.next();
+        itemfacade = (ItemFacade) iter.next();
         setRelativePathInAttachment(itemfacade.getItemAttachmentList());
-          if ("-1".equals(qpoolbean.getSelectedSection())) {
-        	  if (!newSectionCreated) {
-        		  // add a new section
-        		  section = assessdelegate.addSection(assessmentBean.getAssessmentId());
-        		  newSectionCreated = true;
-        	  }
-          }
-          else {
-        	  section = sectiondelegate.getSection(Long.valueOf(qpoolbean.getSelectedSection()), AgentFacade.getAgentString());
-          }
+        if ("-1".equals(qpoolbean.getSelectedSection())) {
+            if (!newSectionCreated) {
+                // add a new section
+                section = assessdelegate.addSection(assessmentBean.getAssessmentId());
+                newSectionCreated = true;
+            }
+        }
+        else {
+            section = sectiondelegate.getSection(Long.valueOf(qpoolbean.getSelectedSection()), AgentFacade.getAgentString());
+        }
 
         if (section!=null) {
           itemfacade.setSection(section);
@@ -136,7 +137,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
               } else {
                   // if adding to the end
                 if (section.getItemSet() != null) {
-                    itemfacade.setSequence(section.getItemSet().size() + 1);
+                    itemfacade.setSequence(section.getItemSet().size() + itempos + 1);
                 } else {
                     // this is a new part 
                     itemfacade.setSequence(1);
@@ -144,21 +145,33 @@ public class ImportQuestionsToAuthoring implements ActionListener
               }
           } else {
                 // if inserting or a question
-              ItemAddListener itemAddListener = new ItemAddListener();
+                ItemAddListener itemAddListener = new ItemAddListener();
                 int insertPosIntvalue = Integer.valueOf(itemauthor.getInsertPosition()) + itempos;
                 itemAddListener.shiftSequences(delegate, section, insertPosIntvalue);
                 itemfacade.setSequence(insertPosIntvalue + 1);
           }
 
-              delegate.saveItem(itemfacade);
-          // remove POOLID metadata if any,
-              delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.POOLID, AgentFacade.getAgentString());
-              delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID, AgentFacade.getAgentString());
-              delegate.addItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID,section.getSectionId().toString(), AgentFacade.getAgentString());
+        // OWL-1495 - Delete the PARTID and POOL meta data in the facade before saving to the DB
+        Iterator itMetaData = itemfacade.getItemMetaDataSet().iterator();
+        while (itMetaData.hasNext())
+        {
+            ItemMetaData metaData = (ItemMetaData) itMetaData.next();
+            String label = metaData.getLabel();
+            if (ItemMetaData.POOLID.equals(label) || ItemMetaData.PARTID.equals(label))
+            {
+                itMetaData.remove();
+            }
+        }
+
+        itemfacade.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
+
+        itemsToSave.add(itemfacade);
       }
 
             itempos++;   // for next item in the destItem.
           }
+
+      delegate.saveItems(itemsToSave);
 
       // reset InsertPosition
       itemauthor.setInsertPosition("");
