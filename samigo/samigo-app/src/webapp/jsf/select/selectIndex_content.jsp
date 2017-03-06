@@ -202,7 +202,7 @@ sorting actions for table:
       </f:facet>
 	
 	<h:outputText value="#{reviewable.assessmentTitle}" styleClass="currentSort"  rendered="#{reviewable.isRecordedAssessment}"  escape="false"/>
-	<h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.isRecordedAssessment && reviewable.feedback == 'show' && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified && select.warnUserOfModification}" styleClass="validate"/> 
+	<h:outputText value="#{selectIndexMessages.asterisk}" rendered="#{reviewable.isRecordedAssessment && !reviewable.isAssessmentRetractForEdit && reviewable.hasAssessmentBeenModified && select.warnUserOfModification}" styleClass="validate"/>
 	<h:outputText value="#{selectIndexMessages.asterisk_2}" rendered="#{reviewable.isRecordedAssessment && reviewable.isAssessmentRetractForEdit}" styleClass="validate" />
 	
    </h:column>
