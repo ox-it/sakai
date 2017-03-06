@@ -9,13 +9,11 @@ import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigation
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationLink;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.markup.html.navigation.paging.IPagingLabelProvider;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigation;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 
 public class SakaiPagingNavigator extends IndicatingAjaxPagingNavigator
 {
@@ -33,7 +31,7 @@ public class SakaiPagingNavigator extends IndicatingAjaxPagingNavigator
     @Override
     protected void onBeforeRender()
     {
-        if (get("first") == null)
+        if (get("rowNumberSelector") == null)
         {
             setDefaultModel(new CompoundPropertyModel(this));
 
@@ -41,10 +39,10 @@ public class SakaiPagingNavigator extends IndicatingAjaxPagingNavigator
             add(newRowNumberSelector(getPageable()));
 
             // Add additional page links
-            add(new SakaiResizingAjaxPagingNavigationLink("first", getPageable(), 0));
-            add(new SakaiResizingAjaxPagingNavigationIncrementLink("prev", getPageable(), -1));
-            add(new SakaiResizingAjaxPagingNavigationIncrementLink("next", getPageable(), 1));
-            add(new SakaiResizingAjaxPagingNavigationLink("last", getPageable(), -1));
+            replace(new SakaiResizingAjaxPagingNavigationLink("first", getPageable(), 0));
+            replace(new SakaiResizingAjaxPagingNavigationIncrementLink("prev", getPageable(), -1));
+            replace(new SakaiResizingAjaxPagingNavigationIncrementLink("next", getPageable(), 1));
+            replace(new SakaiResizingAjaxPagingNavigationLink("last", getPageable(), -1));
         }
 
         super.onBeforeRender();
@@ -64,29 +62,15 @@ public class SakaiPagingNavigator extends IndicatingAjaxPagingNavigator
             numPerPageOptions.add(optionPP);
         }
 
-        DropDownChoice rowNumberSelector = new DropDownChoice("rowNumberSelector", numPerPageOptions, new IChoiceRenderer()
-        {
-            @Override
-            public Object getDisplayValue(Object object)
-            {
-                return new StringResourceModel("numParticipantsLbl", getParent(), null, new Object[] {object}).getString();
-            }
-
-            @Override
-            public String getIdValue(Object object, int index)
-            {
-                return (String) object;
-            }
-        });
-
-        rowNumberSelector.add(new AjaxFormComponentUpdatingBehavior("onchange")
+        DropDownChoice rowNumberSelector = new DropDownChoice("rowNumberSelector", numPerPageOptions);
+        rowNumberSelector.add(new AjaxFormComponentUpdatingBehavior("change")
         {
             @Override
             protected void onUpdate(AjaxRequestTarget target)
             {
                 DataTable t = (DataTable) getPageable();
                 t.setCurrentPage(0);
-                target.addComponent(t);
+                target.add(t);
                 FrameResizer.appendMainFrameResizeJs(target);
             }
         });
@@ -106,7 +90,7 @@ public class SakaiPagingNavigator extends IndicatingAjaxPagingNavigator
             return "all"; // special case for selection to show all participants
         }
 
-        int pageSize = table.getRowsPerPage();
+        long pageSize = table.getItemsPerPage();
         return String.valueOf(pageSize);
     }
 
@@ -116,7 +100,7 @@ public class SakaiPagingNavigator extends IndicatingAjaxPagingNavigator
     {
         // OWL-693  --plukasew
         SakaiDataTable table = (SakaiDataTable) getPageable();
-        int pageSize;
+        long pageSize;
 
         try
         {
@@ -127,7 +111,7 @@ public class SakaiPagingNavigator extends IndicatingAjaxPagingNavigator
         {
             // "all" must have been selected
             table.setShowAll(true);
-            pageSize = table.getRowCount();
+            pageSize = table.getItemCount();
         }
 
         // OWL-1394  --plukasew
@@ -135,22 +119,31 @@ public class SakaiPagingNavigator extends IndicatingAjaxPagingNavigator
         // instead we will rely on table.isShowAll()
         if (pageSize > 0)
         {
-            table.setRowsPerPage(pageSize);
+            table.setItemsPerPage(pageSize);
         }
     }
 
     /**
      * Create a new PagingNavigation. May be subclassed to make use of specialized PagingNavigation.
-     * 
+     *
+     * @param id
      * @param pageable          the pageable component
      * @param labelProvider     The label provider for the link text.
      * 
      * @return the navigation object
      */
     @Override
-    protected PagingNavigation newNavigation(final IPageable pageable,final IPagingLabelProvider labelProvider)
+    protected PagingNavigation newNavigation(final String id, final IPageable pageable, final IPagingLabelProvider labelProvider)
     {
-        return new PagingNavigation("navigation", pageable, labelProvider);
+        return new PagingNavigation("navigation", pageable, labelProvider)
+        {
+            @Override
+            public boolean isVisible()
+            {
+                // Hide the numbered navigation bar, eg. 1 | 2 | 3, etc
+                return false;
+            }
+        };
     }
 
     /* ----------------- NESTED CLASSES --------------------------- */

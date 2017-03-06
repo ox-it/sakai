@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.IModel;
@@ -16,7 +17,7 @@ import org.sakaiproject.site.tool.helper.participantlist.service.ParticipantServ
  * 
  * @author mweston4, bjones86, plukasew
  */
-public class ParticipantsProvider extends SortableDataProvider<Participant>
+public class ParticipantsProvider extends SortableDataProvider<Participant, String>
 {
     // bjones86 - OWL-686
     private String filterType;
@@ -29,7 +30,7 @@ public class ParticipantsProvider extends SortableDataProvider<Participant>
 
     public ParticipantsProvider( String filterType, String filterID )
     {
-        setSort( "name", true );
+        setSort( "name", SortOrder.ASCENDING );
 
         this.filterType = filterType;
         this.filterID = filterID;
@@ -64,7 +65,7 @@ public class ParticipantsProvider extends SortableDataProvider<Participant>
     }
 
     @Override
-    public Iterator<? extends Participant> iterator( int first, int count )
+    public Iterator<? extends Participant> iterator( long first, long count )
     {
         // OWL-1367  --plukasew
         List<Participant> participants = pListCache;
@@ -112,11 +113,11 @@ public class ParticipantsProvider extends SortableDataProvider<Participant>
             }
         });
 
-        return participants.subList( first, Math.min( first + count, participants.size() ) ).iterator();
+        return participants.subList( (int) first, (int) Math.min( first + count, participants.size() ) ).iterator();
     }
 
     @Override
-    public int size()
+    public long size()
     {
         // OWL-1367  --plukasew
         pListCache = getParticipants();
@@ -126,6 +127,6 @@ public class ParticipantsProvider extends SortableDataProvider<Participant>
     @Override
     public IModel<Participant> model( Participant object )
     {
-        return Model.of( object );
+        return new Model( object );
     }
 }

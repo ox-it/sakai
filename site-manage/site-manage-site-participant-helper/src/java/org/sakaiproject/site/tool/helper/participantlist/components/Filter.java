@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
@@ -121,6 +122,23 @@ public class Filter extends Panel implements IAjaxIndicatorAware
                 KeyValueEntry kve = (KeyValueEntry) object;
                 return kve.getKey();
             }
+
+            @Override
+            public Object getObject( String idValue, IModel choices )
+            {
+                Object obj = null;
+                List<KeyValueEntry> list = (List<KeyValueEntry>) choices.getObject();
+                for( KeyValueEntry kve : list )
+                {
+                    if( kve.getKey().equals( idValue ) )
+                    {
+                        obj = kve;
+                        break;
+                    }
+                }
+
+                return obj;
+            }
         };
 
         // Add the label to the UI, create the drop down component
@@ -128,7 +146,7 @@ public class Filter extends Panel implements IAjaxIndicatorAware
         DropDownChoice filter = new DropDownChoice( "filter", new PropertyModel<>( this, "selectedEntry" ), options, choiceRenderer );
 
         // Add an AJAX onchange handler to the drop down
-        filter.add( new AjaxFormComponentUpdatingBehavior( "onchange" )
+        filter.add( new AjaxFormComponentUpdatingBehavior( "change" )
         {
             @Override
             protected void onUpdate( AjaxRequestTarget target )
@@ -188,14 +206,14 @@ public class Filter extends Panel implements IAjaxIndicatorAware
         // "all" was selected for it, so we have to update it
         if (table.isShowAll())
         {
-            int rowCount = table.getRowCount(); // this returns the new row count due to the modified provider, probably expensive but we need to know it to page correctly
+            long rowCount = table.getItemCount(); // this returns the new row count due to the modified provider, probably expensive but we need to know it to page correctly
             if (rowCount > 0)
             {
-                table.setRowsPerPage(rowCount);
+                table.setItemsPerPage(rowCount);
             }
         }
 
-        target.addComponent( table );
+        target.add( table );
         FrameResizer.appendMainFrameResizeJs( target );
     }
 
@@ -343,67 +361,67 @@ public class Filter extends Panel implements IAjaxIndicatorAware
             }
         }
     }
-}
-
-/**
- * Utility class to represent they key/value of a filter (drop down) option
- * @author bjones86
- */
-class KeyValueEntry implements Serializable
-{
-    private String key;
-    private String value;
 
     /**
-     * Default constructor
-     * @param key
-     *      the key of this filter option
-     * @param value 
-     *      the value of this filter option
+     * Utility class to represent they key/value of a filter (drop down) option
+     * @author bjones86
      */
-    public KeyValueEntry( String key, String value )
-    {
-        this.key = key;
-        this.value = value;
-    }
+   private class KeyValueEntry implements Serializable
+   {
+       private String key;
+       private String value;
 
-    /**
-     * Get the key for this filter option
-     * @return 
-     *      the key for this filter option
-     */
-    public String getKey()
-    {
-        return this.key;
-    }
+       /**
+        * Default constructor
+        * @param key
+        *      the key of this filter option
+        * @param value
+        *      the value of this filter option
+        */
+       public KeyValueEntry( String key, String value )
+       {
+           this.key = key;
+           this.value = value;
+       }
 
-    /**
-     * Get the value for this filter option
-     * @return 
-     *      the value for this filter option
-     */
-    public String getValue()
-    {
-        return this.value;
-    }
+       /**
+        * Get the key for this filter option
+        * @return
+        *      the key for this filter option
+        */
+       public String getKey()
+       {
+           return this.key;
+       }
 
-    /**
-     * Set the key for this filter option
-     * @param key 
-     *      the key to set for this filter option
-     */
-    public void setKey( String key )
-    {
-        this.key = key;
-    }
+       /**
+        * Get the value for this filter option
+        * @return
+        *      the value for this filter option
+        */
+       public String getValue()
+       {
+           return this.value;
+       }
 
-    /**
-     * Set the value for this filter option
-     * @param value
-     *      the value to set for this filter option
-     */
-    public void setValue( String value )
-    {
-        this.value = value;
-    }
+       /**
+        * Set the key for this filter option
+        * @param key
+        *      the key to set for this filter option
+        */
+       public void setKey( String key )
+       {
+           this.key = key;
+       }
+
+       /**
+        * Set the value for this filter option
+        * @param value
+        *      the value to set for this filter option
+        */
+       public void setValue( String value )
+       {
+           this.value = value;
+       }
+   }
 }

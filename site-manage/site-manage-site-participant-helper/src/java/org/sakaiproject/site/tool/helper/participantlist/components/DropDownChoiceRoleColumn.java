@@ -19,7 +19,7 @@ import org.sakaiproject.site.tool.helper.participantlist.service.ParticipantServ
  *
  * @author mweston4
  */
-public abstract class DropDownChoiceRoleColumn extends AbstractColumn<Participant>
+public abstract class DropDownChoiceRoleColumn extends AbstractColumn<Participant, String>
 {
     private final ParticipantService participantService;
 

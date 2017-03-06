@@ -1,13 +1,9 @@
 package org.sakaiproject.site.tool.helper.participantlist;
 
-import org.apache.wicket.Page;
-import org.apache.wicket.Request;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.Response;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebRequestCycle;
-import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 import org.sakaiproject.site.tool.helper.participantlist.pages.ParticipantListPage;
@@ -24,7 +20,7 @@ public class ParticipantListApplication extends WebApplication
     protected void init()
     {
         //Configure for Spring injection
-        addComponentInstantiationListener(new SpringComponentInjector(this));
+        getComponentInstantiationListeners().add(new SpringComponentInjector(this));
 
         //Don't throw an exception if we are missing a property, just fallback
         getResourceSettings().setThrowExceptionOnMissingResource(false);
@@ -32,34 +28,26 @@ public class ParticipantListApplication extends WebApplication
         //Remove the wicket specific tags from the generated markup
         getMarkupSettings().setStripWicketTags(true);
 
-        //Don't add any extra tags around a disabled link (default is <em></em>)
-        getMarkupSettings().setDefaultBeforeDisabledLink(null);
-        getMarkupSettings().setDefaultAfterDisabledLink(null);
-
         // On Wicket session timeout, redirect to main page
         getApplicationSettings().setPageExpiredErrorPage(ParticipantListPage.class);
         getApplicationSettings().setAccessDeniedPage(ParticipantListPage.class);
 
-        //to put this app into deployment mode, see web.xml
-    }
-
-    /**
-     *  Throw RuntimeExceptions so they are caught by the Sakai ErrorReportHandler(non-Javadoc)
-     *
-     * @return
-     * @see org.apache.wicket.protocol.http.WebApplication#newRequestCycle(org.apache.wicket.Request, org.apache.wicket.Response)
-     */
-    @Override
-    public RequestCycle newRequestCycle(Request request, Response response)
-    {
-        return new WebRequestCycle(this, (WebRequest)request, (WebResponse)response)
+        // Throw RuntimeExceptions so they are caught by the Sakai ErrorReportHandler
+        getRequestCycleListeners().add(new AbstractRequestCycleListener()
         {
             @Override
-            public Page onRuntimeException(Page page, RuntimeException e)
+            public IRequestHandler onException(RequestCycle cycle, Exception ex)
             {
-                throw e;
+                if (ex instanceof RuntimeException)
+                {
+                    throw (RuntimeException) ex;
+                }
+
+                return null;
             }
-        };
+        });
+
+        //to put this app into deployment mode, see web.xml
     }
 
     /**

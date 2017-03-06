@@ -25,12 +25,12 @@ public class SakaiDataTable extends AjaxFallbackDefaultDataTable
      * @param dataProvider  data provider
      * @param rowsPerPage   number of rows per page
      */
-    public SakaiDataTable( String id, final List<IColumn<Participant>> columns, ISortableDataProvider dataProvider, int rowsPerPage )
+    public SakaiDataTable( String id, final List<IColumn<Participant, String>> columns, ISortableDataProvider dataProvider, int rowsPerPage )
     {
         super(id, columns, dataProvider, rowsPerPage);
 
-        ((RepeatingView) this.get( "topToolbars" )).removeAll();
-        ((RepeatingView) this.get( "bottomToolbars" )).removeAll();
+        ((RepeatingView) get("topToolbars:toolbars")).removeAll();
+        ((RepeatingView) get("bottomToolbars:toolbars")).removeAll();
 
         ParticipantsProvider provider = (ParticipantsProvider) dataProvider;
 

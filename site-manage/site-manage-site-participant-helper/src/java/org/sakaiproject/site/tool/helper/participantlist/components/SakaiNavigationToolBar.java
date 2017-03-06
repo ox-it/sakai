@@ -28,7 +28,7 @@ public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 
         // Table cell
         WebMarkupContainer span = (WebMarkupContainer) get("span");
-        span.add(new AttributeModifier("colspan", true, new Model(String.valueOf(table.getColumns().length))));
+        span.add(new AttributeModifier("colspan", new Model(String.valueOf(table.getColumns().size()))));
 
         // bjones86 - OWL-686 - filter
         span.add( new Filter( "filter", filterType, filterID, table ) );

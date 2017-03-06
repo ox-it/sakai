@@ -7,10 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.wicket.AttributeModifier;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -26,7 +26,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.request.target.basic.RedirectRequestTarget;
+import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.tool.helper.participantlist.providers.ParticipantsProvider;
@@ -53,13 +53,13 @@ public class ParticipantListPanel extends Panel
         this.participantService = new ParticipantService();
 
         // Participant List Table
-        List<IColumn<Participant>> columns = new ArrayList<>();
+        List<IColumn<Participant, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(Model.of("Name"), "name", "name"));
         columns.add(new PropertyColumn<>(Model.of("Id"), "id", "id"));
 
         if (participantService.hasProviderSet())
         {
-            columns.add(new PropertyColumn<Participant>(Model.of("Enrolled In"), "courseSite", "courseSite")
+            columns.add(new PropertyColumn<Participant, String>(Model.of("Enrolled In"), "courseSite", "courseSite")
             {
                 @Override
                 public void populateItem(Item item, String componentId, IModel model)
@@ -69,10 +69,9 @@ public class ParticipantListPanel extends Panel
             });
         }
 
-        boolean isCourseSite = participantService.isCourseSite();
-        if (isCourseSite)
+        if (participantService.isCourseSite())
         {
-            columns.add(new PropertyColumn<Participant>(Model.of("Credits"), "credits", "credits")
+            columns.add(new PropertyColumn<Participant, String>(Model.of("Credits"), "credits", "credits")
             {
                 @Override
                 public void populateItem(Item item, String componentId, IModel model)
@@ -221,11 +220,11 @@ public class ParticipantListPanel extends Panel
             public void onSubmit(AjaxRequestTarget target, Form<?> form)
             {
                 updateParticipants(checkBoxGroup.getModelObject(), filterType, filterID);
-                target.addComponent(wmc);
+                target.add(wmc);
             }
         };
 
-        btnUpdate1.add(new SimpleAttributeModifier("value", new ResourceModel("updateParticipants").getObject()));
+        btnUpdate1.add(AttributeModifier.replace("value", new ResourceModel("updateParticipants").getObject()));
         btnUpdate1.add(new AttributeAppender("class", new Model<>("udpateButton"), " "));
         manageParticipantForm.add(btnUpdate1);
 
@@ -249,11 +248,11 @@ public class ParticipantListPanel extends Panel
             public void onSubmit(AjaxRequestTarget target, Form<?> form)
             {
                 updateParticipants(checkBoxGroup.getModelObject(), filterType, filterID);
-                target.addComponent(wmc);
+                target.add(wmc);
             }
         };
 
-        btnUpdate2.add(new SimpleAttributeModifier("value", new ResourceModel("updateParticipants").getObject()));
+        btnUpdate2.add(AttributeModifier.replace("value", new ResourceModel("updateParticipants").getObject()));
         btnUpdate2.add(new AttributeAppender("class", new Model<>("udpateButton"), " "));
         manageParticipantForm.add(btnUpdate2);
 
@@ -292,8 +291,8 @@ public class ParticipantListPanel extends Panel
         String redirectUrl = participantService.getResetToolUrl();
         if (!redirectUrl.isEmpty())
         {
-            RedirectRequestTarget rrt = new RedirectRequestTarget(redirectUrl);
-            getRequestCycle().setRequestTarget(rrt);
+            RedirectRequestHandler rrt = new RedirectRequestHandler(redirectUrl);
+            getRequestCycle().scheduleRequestHandlerAfterCurrent(rrt);
         }
     }
 

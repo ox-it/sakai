@@ -38,6 +38,12 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>sakai-site-manage-site-participant-helper</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>

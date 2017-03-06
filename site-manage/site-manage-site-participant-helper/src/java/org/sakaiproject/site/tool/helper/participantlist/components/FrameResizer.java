@@ -28,6 +28,6 @@ public class FrameResizer
     {
         String placementID = TOOL_MANAGER == null ? "" : TOOL_MANAGER.getCurrentPlacement().getId();
         String frameID = FRAME_ID_PREFIX + placementID.replaceAll( PLACEMENT_ID_SEP, FRAME_ID_SEP_SUB );
-        target.appendJavascript("setMainFrameHeightWithMax('" + frameID + "', " + FRAME_HEIGHT_UNLIMITED + ");");
+        target.appendJavaScript("setMainFrameHeightWithMax('" + frameID + "', " + FRAME_HEIGHT_UNLIMITED + ");");
     }
 }

@@ -1,6 +1,6 @@
 package org.sakaiproject.site.tool.helper.participantlist.model;
 
-import org.apache.wicket.IClusterable;
+import org.apache.wicket.util.io.IClusterable;
 
 /**
  *
@@ -128,11 +128,6 @@ public class Participant implements IClusterable
         }
 
         final Participant other = (Participant) obj;
-        if ((this.uniqName == null) ? (other.uniqName != null) : !this.uniqName.equals(other.uniqName))
-        {
-            return false;
-        }
-
-        return true;
+        return !((this.uniqName == null) ? (other.uniqName != null) : !this.uniqName.equals(other.uniqName));
     }
 }

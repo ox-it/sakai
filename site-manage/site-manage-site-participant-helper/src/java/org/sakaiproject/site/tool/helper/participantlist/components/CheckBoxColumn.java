@@ -16,7 +16,7 @@ import org.sakaiproject.site.tool.helper.participantlist.service.ParticipantServ
  *
  * @author mweston4
  */
-public class CheckBoxColumn extends AbstractColumn<Participant>
+public class CheckBoxColumn extends AbstractColumn<Participant, String>
 {
     private final ParticipantService participantService;
 

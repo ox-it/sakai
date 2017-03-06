@@ -1,7 +1,7 @@
 package org.sakaiproject.site.tool.helper.participantlist.components;
 
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.Loop;
+import org.apache.wicket.markup.html.list.LoopItem;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.ResourceModel;
@@ -28,7 +28,7 @@ public class RoleDescriptionPanel extends Panel
         int i = 0;
         for (Role role: participantService.getAllRoles())
         {
-            Loop.LoopItem loopItem = new Loop.LoopItem(i);
+            LoopItem loopItem = new LoopItem(i);
             i++;
 
             // OWL-936 - hide .auth and .anon from instructors  --bbailla2

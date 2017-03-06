@@ -17,7 +17,7 @@ import org.sakaiproject.site.tool.helper.participantlist.model.Participant;
  *
  * @author mweston4
  */
-public abstract class DropDownChoiceStatusColumn extends AbstractColumn<Participant>
+public abstract class DropDownChoiceStatusColumn extends AbstractColumn<Participant, String>
 {
     public DropDownChoiceStatusColumn(IModel<String> displayModel, String sortProperty)
     {

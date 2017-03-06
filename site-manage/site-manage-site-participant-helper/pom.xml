@@ -19,6 +19,10 @@
     <inceptionYear>2003</inceptionYear>
     <packaging>war</packaging>
 
+    <properties>
+        <manageParticipants.wicket.version>7.6.0</manageParticipants.wicket.version>
+    </properties>
+
     <dependencies>
 
         <!-- Sakai -->
@@ -70,17 +74,28 @@
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket</artifactId>
-            <version>1.4.17</version>
+            <version>${manageParticipants.wicket.version}</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-core</artifactId>
+            <version>${manageParticipants.wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-spring</artifactId>
-            <version>1.4.17</version>
+            <version>${manageParticipants.wicket.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.wicket</groupId>
             <artifactId>wicket-extensions</artifactId>
-            <version>1.4.17</version>
+            <version>${manageParticipants.wicket.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.wicket</groupId>
+            <artifactId>wicket-devutils</artifactId>
+            <version>${manageParticipants.wicket.version}</version>
         </dependency>
 
         <dependency>

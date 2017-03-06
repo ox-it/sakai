@@ -12,11 +12,11 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.wicket.RequestCycle;
+import org.apache.wicket.migrate.StringResourceModelMigration;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.protocol.http.RequestUtils;
+import org.apache.wicket.request.cycle.RequestCycle;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -409,7 +409,7 @@ public class ParticipantService implements Serializable
                             Role r = this.realm.getRole(roleName);
                             if(!getAllowedRoles().contains(r))
                             {
-                                StringResourceModel srm  = new StringResourceModel("role.permission.error", new Model(), roleName);
+                                StringResourceModel srm = StringResourceModelMigration.of("role.permission.error", new Model(), roleName);
                                 return srm.getObject();
                             }
                         }
@@ -510,7 +510,7 @@ public class ParticipantService implements Serializable
                         Role role = this.realm.getRole(roleName);
                         if (role != null && role.isAllowed("site.upd"))
                         {
-                            StringResourceModel srm = new StringResourceModel("role.permission.error", new Model(), roleName);
+                            StringResourceModel srm = StringResourceModelMigration.of("role.permission.error", new Model(), roleName);
                             return srm.getObject();
                         }
                     }
@@ -668,7 +668,7 @@ public class ParticipantService implements Serializable
 
         try
         {
-            URL currentURL = new URL(RequestUtils.toAbsolutePath(RequestCycle.get().getRequest().getRelativePathPrefixToContextRoot()));
+            URL currentURL = new URL( RequestCycle.get().getUrlRenderer().renderFullUrl( RequestCycle.get().getRequest().getUrl() ) );
             String protocol = currentURL.getProtocol();
             String authority = currentURL.getAuthority();
             if (StringUtils.isNotBlank(protocol) && StringUtils.isNotBlank(authority))

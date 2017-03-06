@@ -5,6 +5,12 @@
             <input type="submit" wicket:id="first" wicket:message="value:goToFirstParticipants"/>
             <input type="submit" wicket:id="prev" wicket:message="value:goToPreviousParticipants"/>
 
+            <span wicket:id="navigation">
+                <a wicket:id="pageLink" href="#">
+                    <span wicket:id="pageNumber"></span>
+                </a>
+            </span>
+
             <select wicket:id="rowNumberSelector"></select>
 
             <input type="submit" wicket:id="next" wicket:message="value:goToNextParticipants"/>

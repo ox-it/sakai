@@ -15,12 +15,11 @@ public class IndicatingAjaxFallbackToolBar extends AjaxFallbackHeadersToolbar
 {
     private static final long serialVersionUID = 1L;
 
-    public IndicatingAjaxFallbackToolBar(DataTable<?> table, ISortStateLocator stateLocator)
+    public IndicatingAjaxFallbackToolBar(DataTable<?, String> table, ISortStateLocator stateLocator)
     {
         super(table, stateLocator);
     }
 
-    @Override
     protected WebMarkupContainer newSortableHeader(final String borderId, final String property, final ISortStateLocator locator)
     {
         return new IndicatingAjaxFallbackOrderByBorder(borderId, property, locator)
@@ -29,7 +28,7 @@ public class IndicatingAjaxFallbackToolBar extends AjaxFallbackHeadersToolbar
             protected void onAjaxClick(AjaxRequestTarget target)
             {
                 MarkupContainer tableAndIndicatorContainer = getTable().getParent().getParent();
-                target.addComponent(tableAndIndicatorContainer);
+                target.add(tableAndIndicatorContainer);
             }
         };
     }
