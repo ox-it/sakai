@@ -50,6 +50,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.jsf.model.PhaseAware;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -193,6 +194,9 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
         String responseString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","response");
         String rationaleString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","rationale");
         String itemGradingCommentsString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","grader_comments");
+        // OWL-1883
+        String startTimeString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","start_time");
+        String submitTimeString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","submit_time");
         String responseCommentsString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","student_comments");
         
         List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, 
@@ -233,6 +237,14 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
         if (exportResponsesDataList != null) {
         	headerList.addAll((ArrayList) exportResponsesDataList.get(1));
         }
+
+        // OWL-1883
+  	  	if (ServerConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES, SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT))
+  	  	{
+  	  		headerList.add(startTimeString);
+  	  		headerList.add(submitTimeString);
+  	  	}
+
   	  	
   	    list.add(0,headerList);
   	  	

@@ -77,5 +77,14 @@ public class SamigoConstants {
     public static final		String		AUTHZ_TEMPLATE_CREATE								= "assessment.template.create";
     public static final		String		AUTHZ_TEMPLATE_EDIT_OWN								= "assessment.template.edit.own";
     public static final		String		AUTHZ_TEMPLATE_DELETE_OWN							= "assessment.template.delete.own";
-    
+
+    /*
+     * sakai.properties
+     */
+    public static final String SAK_PROP_EXPORT_INCLUDE_DATES = "samigo.export.includeDates";
+
+    /*
+     * sakai.property defaults
+     */
+    public static final boolean SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT = true;
 }

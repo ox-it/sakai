@@ -64,6 +64,7 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -153,6 +154,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	this.persistenceHelper = persistenceHelper;
   }
 
+  private ServerConfigurationService serverConfigurationService;
+  public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+	this.serverConfigurationService = serverConfigurationService;
+  }
 
   /**
    * 
@@ -2976,6 +2981,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  responseList.add(sectionScoreColumnStart++, partScore);
 					  }
 				  }
+			  }
+
+			  // OWLTODO: OWL-1883
+			  if (serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES, SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT))
+			  {
+				responseList.add(assessmentGradingData.getAttemptDate());
+				responseList.add(assessmentGradingData.getSubmittedDate());
 			  }
 
 			  dataList.add(responseList);
