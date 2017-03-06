@@ -192,7 +192,7 @@ $(document).ready(function(){
 
 <h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
   <h:panelGroup styleClass="col-md-6" layout="block">
-    <h:panelGroup styleClass="apply-grades" layout="block" rendered="#{totalScores.allSubmissions!='4'}">
+    <h:panelGroup styleClass="apply-grades" layout="block">
 	  <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
       </h:commandButton>

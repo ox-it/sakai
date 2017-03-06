@@ -46,15 +46,12 @@ import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
-import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
@@ -85,13 +82,23 @@ public class TotalScoreUpdateListener
   {
     log.debug("Total Score Update LISTENER.");
     TotalScoresBean bean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-    log.debug("Calling saveTotalScores.");
-    if (!saveTotalScores(bean))
+    if ("4".equals(bean.getAllSubmissions()) && ae != null && ae.getComponent() != null && "applyScoreButton".equals(ae.getComponent().getId()))
     {
-        throw new RuntimeException("failed to call saveTotalScores.");
+        // We're looking at average scores and we're applying a score to participants with no submission
+        log.debug("Calling saveTotalScoresAverage.");
+        if (!saveTotalScoresAverage(bean))
+        {
+            throw new RuntimeException("failed to call saveTotalScoresAverage.");
+        }
     }
- 
-
+    else
+    {
+        log.debug("Calling saveTotalScores.");
+        if (!saveTotalScores(bean))
+        {
+            throw new RuntimeException("failed to call saveTotalScores.");
+        }
+    }
   }
 
   private HashMap prepareAssessmentGradingHash(ArrayList assessmentGradingList){
@@ -283,6 +290,136 @@ public class TotalScoreUpdateListener
 
       return true;
   }
+
+  /**
+    * OWL-2069
+    * "Apply This Score" is the only action in the 'Average Submission' view of the total page.
+    * Ensure each user who hasn't yet submitted has one AssessmentGradingData object with the 'applyToUngraded' score
+    * @param bean TotalScoresBean bean
+    * @return true if successful or if the error message has been prepared within this method
+    */
+    private boolean saveTotalScoresAverage(TotalScoresBean bean)
+    {
+       // Get the grade to apply and ensure it is numeric
+       String applyToUngraded = bean.getApplyToUngraded().trim();
+       try
+       {
+           Double.valueOf(applyToUngraded);
+       }
+       catch (Exception e)
+       {
+           FacesContext context = FacesContext.getCurrentInstance();
+           String err2 = (String) ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "number_format_error_user_id_apply");
+           context.addMessage(null, new FacesMessage(err2));
+           return true;
+       }
+
+       // clear for future use
+       bean.setApplyToUngraded("");
+
+       // Find grade records in the DB that represent "No Submission"
+
+       // Get all AssessmentGradingData objects from the db. Students with multiple submissions have multiple records, some students have none
+       GradingService gradingService = new GradingService();
+       ArrayList<AssessmentGradingData> agl = bean.getAssessmentGradingList();
+       ArrayList<AssessmentGradingData> toUpdate = new ArrayList<>();                   // Grades that will need to be persisted
+       HashMap<String, AssessmentGradingData> usersToGradingData = new HashMap<>();     // Maps users to their "No Submission" AssignmentGradeData records
+
+       // Update all the "No Submission" objects' scores
+       for (AssessmentGradingData agd : agl)
+       {
+           if (AssessmentGradingData.NO_SUBMISSION.equals(agd.getStatus()))
+           {
+               agd.setTotalOverrideScore(Double.valueOf(applyToUngraded));
+               agd.setFinalScore(Double.valueOf(applyToUngraded));
+               toUpdate.add(agd);
+           }
+
+           // Populate the map regardless of the status. This will be used to find users who have no records
+           usersToGradingData.put(agd.getAgentId(), agd);
+       }
+
+       // Now create AssessmentGradingData objects for users who don't yet have one and are currently presented in bean
+       ArrayList<AgentResults> agents = bean.getAllAgentsDirect();
+       try
+       {
+           for (AgentResults ar : agents)
+           {
+               AssessmentGradingData agd = usersToGradingData.get(ar.getIdString());
+               if (agd == null)
+               {
+                   // User does not have a grade record, so create one
+                   AssessmentGradingData data = new AssessmentGradingData();
+                   BeanUtils.copyProperties(data, ar);  // copy bean properties over
+                   data.setAssessmentGradingId(null);   // copyProperties assigns a -1 to the gradingId (pk). Clear it with null so hibernate knows it's new
+                   data.setAgentId(ar.getIdString());   // agentId was "N/A" in ar, this was copied to data. The actual agentId is in ar.getIdString(), so copy this over
+                   data.setPublishedAssessmentId(bean.getPublishedAssessment().getPublishedAssessmentId());
+
+                   if ("-".equals(ar.getTotalAutoScore()))
+                   {
+                       data.setTotalAutoScore(0d);
+                   }
+                   else
+                   {
+                       data.setTotalAutoScore(Double.valueOf(ar.getTotalAutoScore()));
+                   }
+
+                   data.setTotalOverrideScore(Double.valueOf(applyToUngraded));
+                   data.setFinalScore(Double.valueOf(applyToUngraded));
+                   data.setIsLate(ar.getIsLate());
+                   data.setComments(ar.getComments());
+                   data.setGradedBy(AgentFacade.getAgentString());
+                   data.setGradedDate(new Date());
+                   toUpdate.add(data);
+                   usersToGradingData.put(ar.getIdString(), data);
+               }
+           }
+       }
+       catch (IllegalAccessException e)
+       {
+           log.error("IllegalAccessException: " + e);
+           return false;
+       }
+       catch (InvocationTargetException e)
+       {
+           log.error("InvocationTargetException: " + e);
+           return false;
+       }
+
+       // Persist the scores
+       try
+       {
+           gradingService.saveTotalScores(toUpdate, bean.getPublishedAssessment());
+           StringBuilder logString = new StringBuilder();
+           logString.append("gradedBy=");
+           logString.append(AgentFacade.getAgentString());
+           logString.append(", publishedAssessmentId=");
+           logString.append(bean.getPublishedAssessment().getPublishedAssessmentId());
+           EventTrackingService.post(EventTrackingService.newEvent("sam.total.score.update", "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString(), true));
+           log.debug("Saved total scores (average).");
+       }
+       catch (GradebookServiceException ge)
+       {
+           FacesContext context = FacesContext.getCurrentInstance();
+           String error = (String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "gradebook_exception_error");
+           context.addMessage(null, new FacesMessage(error));
+       }
+
+       // update bean for the presentation
+       for (AgentResults ar : agents)
+       {
+           // Only change the presentation of scores for users who have in fact been updated
+           String userId = ar.getIdString();
+           AssessmentGradingData agd = usersToGradingData.get(userId);
+           if (agd != null && toUpdate.contains(agd))
+           {
+               ar.setTotalOverrideScore(agd.getTotalOverrideScore() + "");
+               ar.setFinalScore(agd.getFinalScore() + "");
+           }
+       }
+
+       return true;
+    }
 
   private boolean needUpdate(AgentResults agentResults, HashMap map, StringBuilder newScoreString, TotalScoresBean bean) throws NumberFormatException{
     boolean update = true;
