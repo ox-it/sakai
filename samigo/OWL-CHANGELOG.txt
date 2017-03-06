@@ -1,5 +1,6 @@
 2017.03.06:
-	- [OWL-2583]: port OWL-1928: modificatoin asterisk missing from quiz title on student view
+	- [OWL-2583]: backport SAM-2908 (OWL-1973): restore remaining statistics links hidden by hasRandomDrawPart flag
+	- [OWL-2583]: port OWL-1928: modification asterisk missing from quiz title on student view
 	- [OWL-2373] samigo export's times column should appear further to the left in the spreadsheet
 	- [OWL-2583] port OWL-1883: add times to samigo exports
 	- [OWL-2583] port OWL-1495, OWL-2335: improved performance when copying questions from a question pool into a quiz
