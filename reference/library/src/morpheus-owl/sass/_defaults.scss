@@ -67,7 +67,7 @@ $tool-sub-menu-current-hover-background-color: $background-color !default;
 $tool-nav-link-color: #666 !default;
 
 $main-content-background: $background-color !default;
-$top-header-background: $primary-color !default;
+$top-header-background: #000 !default;
 $sites-nav-background: transparent !default;
 
 $breadcrumbs-color:			#717171 !default;
@@ -118,14 +118,14 @@ $header-size : 50px !default;
 $topNav-text-color:                         #fff !default; /* used for links and text in the topNav */
 $topNav-text-alt-color:                     #ccc !default;
 
-$sites-nav-menu-item-background:            #633F94 !default;
+$sites-nav-menu-item-background:            #444 !default; /* with purple bar background, use: #633F94 */
 $sites-nav-menu-item-color:                 #fff !default;
 $sites-nav-menu-item-color-hover:           $sites-nav-menu-item-color !default;
 $sites-nav-menu-item-border-top:            1px solid transparent !default; /* to pre-allocate space for dropdown top border needed for illusion */
 $sites-nav-menu-item-border-right:          none !default;
 $sites-nav-menu-item-border-bottom:         $sites-nav-menu-item-border-top !default; /* to pre-allocate space for dropdown top border needed for illusion */
 $sites-nav-menu-item-border-left:           none !default;
-$sites-nav-menu-item-selected-background:   #d21768 !default; /* #DA17AF */
+$sites-nav-menu-item-selected-background:   #4f2683 !default; /* #d21768, #da17af */
 $sites-nav-menu-item-selected-color:        #fff !default;
 $sites-nav-menu-item-selected-color-hover:  $sites-nav-menu-item-selected-color !default;
 $sites-nav-menu-item-selected-border-top:   1px solid transparent !default; /* 2px solid #fff */ /* to pre-allocate space for dropdown top border needed for illusion */
