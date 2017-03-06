@@ -1,3 +1,9 @@
+2017.03.06:
+	- [OWL-2569] mirror SAK-29583 in manage participants: duplicate paging/filtering on bottom of table
+	- [OWL-2240] implement CSRF protection in manage participants
+	- [OWL-1837] upgrade to Wicket 7.6.0
+2017.03.03:
+	- [OWL-2569] port manage participants to 11.3
 2017.01.23:
 	- [OWL-2571] port membership modifications to 11.3
 	- forked from https://github.com/sakaiproject/sakai/tree/11.3
