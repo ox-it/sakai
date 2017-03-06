@@ -41,7 +41,6 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
@@ -53,6 +52,9 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidCategoryException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
@@ -71,7 +73,9 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
     private GradebookService gradebookService;
     private EventTrackingService eventTrackingService;
-	
+    private ToolManager toolManager;
+    private SiteService siteService;
+
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
     }
@@ -82,6 +86,14 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
     public GradebookService getGradebookService() {
         return (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+    }
+
+    public void setToolManager(ToolManager toolManager) {
+        this.toolManager = toolManager;
+    }
+
+    public void setSiteService(SiteService siteService) {
+        this.siteService = siteService;
     }
 
 	private ConcurrentHashMap<String, ExternalAssignmentProvider> externalProviders =
@@ -360,7 +372,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
     				// Try to reduce data contention by only updating when a score
     				// has changed or property has been set forcing a db update every time.
-    				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+    				boolean alwaysUpdate = isUpdateSameScore();
 
     				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
     				String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
@@ -419,7 +431,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 				// Try to reduce data contention by only updating when a score
 				// has changed or property has been set forcing a db update every time.
-				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+				boolean alwaysUpdate = isUpdateSameScore();
 				
 				Double oldPointsEarned = agr.getPointsEarned();
 				Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
@@ -494,7 +506,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 					// Try to reduce data contention by only updating when a score
 					// has changed or property has been set forcing a db update every time.
-	                boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+	                boolean alwaysUpdate = isUpdateSameScore();
 					
 	                //TODO: for ungraded items, needs to set ungraded-grades later...
 					Double oldPointsEarned = agr.getPointsEarned();
@@ -883,7 +895,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 				// Try to reduce data contention by only updating when the
 				// score has actually changed or property has been set forcing a db update every time.
-				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+				boolean alwaysUpdate = isUpdateSameScore();
 
 				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
 				String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
@@ -894,7 +906,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 						setAssignmentScoreComment(gradebookUid, asn.getId(), studentUid, comment);
 					else
 						setAssignmentScoreComment(gradebookUid, asn.getId(), studentUid, null);
+					log.debug("updateExternalAssessmentComment: grade record saved");
 				}
+                else {
+					log.debug("Ignoring updateExternalAssessmentComment, since the new comment is the same as the old");
+				}
+
 				return null;
 			}
 		};
@@ -922,7 +939,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 				// Try to reduce data contention by only updating when the
 				// score has actually changed or property has been set forcing a db update every time.
-                boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+                boolean alwaysUpdate = isUpdateSameScore();
                 
 				//TODO: for ungraded items, needs to set ungraded-grades later...
 				Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
@@ -1009,4 +1026,28 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 		return categoryId;
 	}
 
+	/**
+	 * Determines whether to update a grade record when there have been no changes.
+	 * This is useful when we need to update only gb_grade_record_t's 'DATE_RECORDED' field for instance.
+	 * Generally uses the sakai.property 'gradebook.externalAssessments.updateSameScore', but a site property by the same name can override it.
+	 * That is to say, the site property is checked first, and if it is not present, the sakai.property is used.
+	 * Note: the site property we're checking is associated with ToolManager.getCurrentPlacement()
+	 */
+	private boolean isUpdateSameScore() {
+		String siteProperty = null;
+		try {
+			String siteId = toolManager.getCurrentPlacement().getContext();
+			Site site = siteService.getSite(siteId);
+			siteProperty = site.getProperties().getProperty(UPDATE_SAME_SCORE_PROP);
+		} catch (Exception e) {
+			// Can't access site property. Leave it set to null
+		}
+
+		// Site property override not set. Use setting in sakai.properties
+		if (siteProperty == null) {
+			return serverConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+		}
+
+		return Boolean.TRUE.toString().equals(siteProperty);
+	}
 }
