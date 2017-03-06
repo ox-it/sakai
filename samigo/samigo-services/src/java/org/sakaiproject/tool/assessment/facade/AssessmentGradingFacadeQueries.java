@@ -2536,6 +2536,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  }
 
 		  if (canBeExported) {
+
+			  // OWLTODO: OWL-1883, OWL-2373
+			  if (serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES, SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT))
+			  {
+				  responseList.add(assessmentGradingData.getAttemptDate());
+				  responseList.add(assessmentGradingData.getSubmittedDate());
+			  }
+
 			  int sectionScoreColumnStart = responseList.size();
 			  if (showPartAndTotalScoreSpreadsheetColumns) {
 				  Double finalScore = assessmentGradingData.getFinalScore();
@@ -2981,13 +2989,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  responseList.add(sectionScoreColumnStart++, partScore);
 					  }
 				  }
-			  }
-
-			  // OWLTODO: OWL-1883
-			  if (serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES, SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT))
-			  {
-				responseList.add(assessmentGradingData.getAttemptDate());
-				responseList.add(assessmentGradingData.getSubmittedDate());
 			  }
 
 			  dataList.add(responseList);

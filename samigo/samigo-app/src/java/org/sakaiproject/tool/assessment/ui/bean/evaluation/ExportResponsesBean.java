@@ -221,6 +221,13 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
   		  headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","num_submission"));
   	  	}
 
+  	  	// OWL-1883, OWL-2373
+  	  	if (ServerConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES, SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT))
+  	  	{
+  		  headerList.add(startTimeString);
+  		  headerList.add(submitTimeString);
+  	  	}
+
         PublishedAssessmentService pubService = new PublishedAssessmentService();
         if (showPartAndTotalScoreSpreadsheetColumns) {
 	  	  	int numberOfSections = pubService.getPublishedSectionCount(Long.valueOf(assessmentId)).intValue();
@@ -237,13 +244,6 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
         if (exportResponsesDataList != null) {
         	headerList.addAll((ArrayList) exportResponsesDataList.get(1));
         }
-
-        // OWL-1883
-  	  	if (ServerConfigurationService.getBoolean(SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES, SamigoConstants.SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT))
-  	  	{
-  	  		headerList.add(startTimeString);
-  	  		headerList.add(submitTimeString);
-  	  	}
 
   	  	
   	    list.add(0,headerList);

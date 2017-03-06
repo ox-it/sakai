@@ -1,4 +1,5 @@
 2017.03.06:
+	- [OWL-2373] samigo export's times column should appear further to the left in the spreadsheet
 	- [OWL-2583] port OWL-1883: add times to samigo exports
 	- [OWL-2583] port OWL-1495, OWL-2335: improved performance when copying questions from a question pool into a quiz
 	- [OWL-2583] port OWL-1493: improve the warning message for deleting a question pool
