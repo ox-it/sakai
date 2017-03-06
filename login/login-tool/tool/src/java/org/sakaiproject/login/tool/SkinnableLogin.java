@@ -449,8 +449,9 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		String skinRepo = serverConfigurationService.getString("skin.repo");
 		String uiService = serverConfigurationService.getString("ui.service", "Sakai");
 		String passwordResetUrl = getPasswordResetUrl();
-		String ssoWording = serverConfigurationService.getString("xlogin.sso", null);
-        String ssoLinkText = serverConfigurationService.getString("login.text", "Other Users Login");
+
+		String xloginChoice = serverConfigurationService.getString("xlogin.choice", null);
+		String containerText = serverConfigurationService.getString("login.text.title", "Container Login");
 		String loginContainerUrl = serverConfigurationService.getString("login.container.url");
 
 		String eidWording = rb.getString("userid");
@@ -459,9 +460,6 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		String loginWording = rb.getString("log.login");
 		String cancelWording = rb.getString("log.cancel");
 		String passwordResetWording = rb.getString("log.password.reset");
-		rcontext.put("loginContainerUrl", loginContainerUrl);
-		rcontext.put("ssoWording", ssoWording);
-		rcontext.put("ssoLinkText", ssoLinkText);
 
 		rcontext.put("action", response.encodeURL(Web.returnUrl(request, null)));
 		rcontext.put("pageSkinRepo", skinRepo);
@@ -476,6 +474,9 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("cancelWording", cancelWording);
 		rcontext.put("passwordResetUrl", passwordResetUrl);
 		rcontext.put("passwordResetWording", passwordResetWording);
+		rcontext.put("xloginChoice", xloginChoice);
+		rcontext.put("containerText", containerText);
+		rcontext.put("loginContainerUrl", loginContainerUrl);
 
 		String eid = StringEscapeUtils.escapeHtml(request.getParameter("eid"));
 		String pw = StringEscapeUtils.escapeHtml(request.getParameter("pw"));
