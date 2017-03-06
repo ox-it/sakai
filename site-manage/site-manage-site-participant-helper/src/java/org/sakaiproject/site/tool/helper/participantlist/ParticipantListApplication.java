@@ -1,9 +1,12 @@
 package org.sakaiproject.site.tool.helper.participantlist;
 
+import org.apache.wicket.core.request.mapper.CryptoMapper;
+import org.apache.wicket.core.util.crypt.KeyInSessionSunJceCryptFactory;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.IRequestMapper;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 import org.sakaiproject.site.tool.helper.participantlist.pages.ParticipantListPage;
@@ -46,6 +49,11 @@ public class ParticipantListApplication extends WebApplication
                 return null;
             }
         });
+
+        // Encrypt URLs. This immediately sets up a session (note that things like CSS now becomes bound to the session)
+        getSecuritySettings().setCryptFactory(new KeyInSessionSunJceCryptFactory()); // Different key per user
+        final IRequestMapper cryptoMapper = new CryptoMapper(getRootRequestMapper(), this);
+        setRootRequestMapper(cryptoMapper);
 
         //to put this app into deployment mode, see web.xml
     }
