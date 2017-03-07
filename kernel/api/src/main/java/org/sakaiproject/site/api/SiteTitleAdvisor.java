@@ -21,6 +21,8 @@
 
 package org.sakaiproject.site.api;
 
+import java.util.List;
+
 /**
  * SAK-29138 - Portal, user and site-manage tools will optionally (if an implementation is
  * present) use this to conditionally display the site or section title in the UI.
@@ -39,7 +41,8 @@ public interface SiteTitleAdvisor
 	 * 
 	 * @param site the site in question
 	 * @param userID the ID of the current user
+	 * @param siteProviders the providerIDs associated with this site; they will be queried if this parameter is null
 	 * @return the site or section title
 	 */
-	public String getUserSpecificSiteTitle( Site site, String userID );
+	public String getUserSpecificSiteTitle( Site site, String userID, List<String> siteProviders );
 }

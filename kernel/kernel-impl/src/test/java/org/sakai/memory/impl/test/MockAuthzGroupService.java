@@ -25,6 +25,11 @@ import org.w3c.dom.Element;
 
 public class MockAuthzGroupService implements AuthzGroupService {
 
+	public Map<String, List<String>> getProviderIDsForRealms(List<String> realmIDs)
+	{
+		return null;
+	}
+
 	public AuthzGroup addAuthzGroup(String id) throws GroupIdInvalidException,
 			GroupAlreadyDefinedException, AuthzPermissionException {
 		// TODO Auto-generated method stub

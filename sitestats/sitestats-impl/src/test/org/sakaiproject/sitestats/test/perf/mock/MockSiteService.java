@@ -566,4 +566,10 @@ public class MockSiteService implements SiteService {
 	{
 		return null;
 	}
+
+	@Override
+	public String getUserSpecificSiteTitle( Site site, String userId, List<String> siteProviders)
+	{
+		return null;
+	}
 }

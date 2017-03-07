@@ -42,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -125,6 +126,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
 		}
 		return toolManager;
+	}
+
+	private static AuthzGroupService getAuthzGroupService()
+	{
+		return (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
 	}
 
 	public void setToolManager(ToolManager toolManager) {
@@ -291,6 +297,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
                         }
                 }
 
+		// bjones86 - OWL-1551
+		Map<String, List<String>> realmProviderMap = getProviderIDsForSites(mySites);
+
 		// Determine the depths of the child sites if needed
 		for (Iterator i = mySites.iterator(); i.hasNext();)
 		{
@@ -320,7 +329,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId,
 					includeSummary, expandSite, resetTools, doPages, toolContextPath,
-					loggedIn);
+					loggedIn, realmProviderMap.get(s.getReference()));
 
 			// Add the Depth of the site
 			m.put("depth", cDepth);
@@ -347,16 +356,65 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
+	 * Get all provider IDs for the given site.
+	 *
+	 * @author bjones86 - OWL-1551
+	 *
+	 * @param site the site to retrieve all provider IDs
+	 * @return a List of Strings of provider IDs for the given site
+	 */
+	public static List<String> getProviderIDsForSite(Site site)
+	{
+		List<String> providers = new ArrayList<>();
+		if (site != null)
+		{
+			providers.addAll(getAuthzGroupService().getProviderIds(site.getReference()));
+			Collections.sort(providers);
+		}
+
+		return providers;
+	}
+
+	/**
+	 * Get all provider IDs for all sites given.
+	 * @author bjones86 - OWL-1551
+	 *
+	 * @param sites the list of sites to retrieve all provider IDs
+	 * @return a Map, where the key is the realm ID, and the value is a list of provider IDs for that site
+	 */
+	private static Map<String, List<String>> getProviderIDsForSites(List<Site> sites)
+	{
+		Map<String, List<String>> realmProviderMap = new HashMap<>();
+		if (!sites.isEmpty())
+		{
+			List<String> realmIDs = new ArrayList<>();
+			for (Site site : sites)
+			{
+				realmIDs.add(site.getReference());
+			}
+
+			realmProviderMap = getAuthzGroupService().getProviderIDsForRealms(realmIDs);
+		}
+
+		return realmProviderMap;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public String getUserSpecificSiteTitle( Site site, boolean escaped )
 	{
-		return getUserSpecificSiteTitle( site, true, escaped );
+		return getUserSpecificSiteTitle( site, true, escaped, null );
 	}
 
 	public String getUserSpecificSiteTitle( Site site, boolean truncated, boolean escaped )
 	{
-		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
+		return getUserSpecificSiteTitle(site, truncated, escaped, null);
+	}
+
+	public String getUserSpecificSiteTitle( Site site, boolean truncated, boolean escaped, List<String> siteProviders )
+	{
+		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId(), siteProviders );
 		if( truncated )
 		{
 			retVal = FormattedText.makeShortenedText( retVal, null, null, null );
@@ -376,12 +434,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#convertSiteToMap(javax.servlet.http.HttpServletRequest,
 	 *      org.sakaiproject.site.api.Site, java.lang.String, java.lang.String,
 	 *      java.lang.String, boolean, boolean, boolean, boolean,
-	 *      java.lang.String, boolean)
+	 *      java.lang.String, boolean, java.util.List<java.lang.String>)
 	 */
 	public Map convertSiteToMap(HttpServletRequest req, Site s, String prefix,
 			String currentSiteId, String myWorkspaceSiteId, boolean includeSummary,
 			boolean expandSite, boolean resetTools, boolean doPages,
-			String toolContextPath, boolean loggedIn)
+			String toolContextPath, boolean loggedIn, List<String> siteProviders)
 	{
 		if (s == null) return null;
 		Map<String, Object> m = new HashMap<>();
@@ -396,13 +454,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
-		
-		// SAK-29138
-		String siteTitleTruncated = getUserSpecificSiteTitle( s, true, true );
-		String siteTitleNotTruncated = getUserSpecificSiteTitle( s, false, true );
-		m.put( "siteTitleNotTruncated", siteTitleNotTruncated );
-		m.put( "siteTitle", siteTitleTruncated );
-		m.put( "fullTitle", siteTitleNotTruncated );
+
+		String currentUser = UserDirectoryService.getCurrentUser().getId();
+		String siteTitle = SiteService.getUserSpecificSiteTitle(s, currentUser, siteProviders);
+		m.put("siteTitle", siteTitle);
+		m.put("fullTitle", siteTitle);
 		
 		m.put("siteDescription", s.getHtmlDescription());
 
@@ -443,12 +499,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					// System.out.println("PWD["+i+"]="+site.getId()+"
 					// "+site.getTitle());
 					Map<String, Object> pm = new HashMap<>();
-					String siteTitleTruncatedBreadCrumb = getUserSpecificSiteTitle( site, true, true );
-					String siteTitleNotTruncatedBreadCrumb = getUserSpecificSiteTitle( site, false, true );
-					
-					pm.put("siteTitleNotTruncated", siteTitleNotTruncatedBreadCrumb );
-					pm.put("siteTitle", siteTitleTruncatedBreadCrumb );
-					pm.put("fullTitle", siteTitleNotTruncatedBreadCrumb );
+
+					List<String> providers = getProviderIDsForSite(site);
+					String title = SiteService.getUserSpecificSiteTitle(site, currentUser, providers);
+
+					pm.put("siteTitle", Web.escapeHtml(title));
 					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
 
 					l.add(pm);

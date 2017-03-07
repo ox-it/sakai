@@ -1302,6 +1302,14 @@ public interface SiteService extends EntityProducer
 	public String getUserSpecificSiteTitle( Site site, String userID );
 
 	/**
+	 * Similar to getUserSpecificSiteTitle(Site site, String userId), but consumes the specified siteProviders (for performance savings)
+	 *
+	 * @see getUserSpecificSiteTitle(Site site, String userId)
+	 * @param siteProviders the site providers corresponding to the specified site; if null, they will be looked up
+	 */
+	public String getUserSpecificSiteTitle( Site site, String userID, List<String> siteProviders );
+
+	/**
 	 * Unpublishes the specified site without touching authz groups and bypasses any SiteAdvisors / other observing services.
 	 * NB: use this only when making very minimal changes in performance critical tasks.
 	 * Only side effect is an event posted to EventTrackingService.
