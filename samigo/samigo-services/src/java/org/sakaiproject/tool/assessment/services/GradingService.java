@@ -26,7 +26,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -3338,12 +3337,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return list;
   }
   
-  public void autoSubmitAssessments() {
+  public int autoSubmitAssessments() {
 	  try {
-		  PersistenceService.getInstance().
+		  return PersistenceService.getInstance().
 		  getAssessmentGradingFacadeQueries().autoSubmitAssessments();
 	  } catch (Exception e) {
 		  log.error(e.getMessage(), e);
+		  return 1;
 	  }
   }
   
