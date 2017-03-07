@@ -1,3 +1,6 @@
+2017.03.07:
+	- [OWL-2583] port OWL-2251: grammar fix-up for 'allow only one response per column"
+	- [OWL-2583] port OWL-2212: minimize redundant update queries on sam_itemgrading_t
 2017.03.06:
 	- [OWL-2583] port OWL-2069: add the 'apply this score' option to the average score quiz submission page
 	- [OWL-2583] backport SAM-2908 (OWL-1973): restore remaining statistics links hidden by hasRandomDrawPart flag
