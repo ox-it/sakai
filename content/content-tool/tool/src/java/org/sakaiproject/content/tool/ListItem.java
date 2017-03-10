@@ -35,19 +35,15 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -87,7 +83,6 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
@@ -1596,34 +1591,6 @@ public class ListItem
 		this.notificationId = notificationId;
 	}
 
-	protected void captureCopyright(ParameterParser params, String index) 
-	{
-		// rights
-		String copyright = params.getString("copyright" + index);
-		if(copyright == null || copyright.trim().length() == 0)
-		{
-			// do nothing -- there must be no copyright dialog
-		}
-		else
-		{
-			this.copyrightInfo = copyright;
-			
-			String newcopyright = params.getString("newcopyright" + index);
-			
-			if(newcopyright == null || newcopyright.trim().length() == 0)
-			{
-				this.copyrightStatus = null;
-			}
-			else
-			{
-				this.copyrightStatus = newcopyright;
-			}
-			
-			boolean copyrightAlert = params.getBoolean("copyrightAlert" + index);
-			this.copyrightAlert = copyrightAlert;
-		}
-	}
-
 	protected void captureDescription(ParameterParser params, String index) 
 	{
 		// description
@@ -1653,7 +1620,10 @@ public class ListItem
 		captureCHHMountpoint(params, index);
 		captureDisplayName(params, index);
 		captureDescription(params, index);
-		captureCopyright(params, index);
+
+		// OWL-1517	--bbailla2
+		(new CopyrightDelegate()).captureCopyright(params, this);
+
 		captureAccess(params, index);
 		captureAvailability(params, index);
 		if (isAdmin) {
@@ -3448,36 +3418,6 @@ public class ListItem
 		}
 	}
 
-
-	protected void setCopyrightOnEntity(ResourcePropertiesEdit props) 
-	{
-		if(copyrightInfo == null || copyrightInfo.trim().length() == 0)
-		{
-			props.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
-		}
-		else
-		{
-			props.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyrightInfo);
-		}
-		if(copyrightStatus == null || copyrightStatus.trim().length() == 0)
-		{
-			props.removeProperty(ResourceProperties.PROP_COPYRIGHT);
-		}
-		else
-		{
-			props.addProperty (ResourceProperties.PROP_COPYRIGHT, copyrightStatus);
-		}
-		if (copyrightAlert)
-		{
-			props.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
-		}
-		else
-		{
-			props.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
-		}
-		
-	}
-
 	protected void setAccessOnEntity(GroupAwareEdit edit) 
 	{
 		try 
@@ -3556,7 +3496,10 @@ public class ListItem
 		setDisplayNameOnEntity(props);
 		setDescriptionOnEntity(props);
 		setConditionalReleaseOnEntity(props);
-		setCopyrightOnEntity(props);
+
+		// OWL-1517	--bbailla2
+		(new CopyrightDelegate()).setCopyrightOnEntity(props, this);
+
 		setHtmlFilterOnEntity(props);
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(props, edit);
@@ -3609,6 +3552,20 @@ public class ListItem
 	public void setCopyrightStatus(String copyrightStatus) 
 	{
 		this.copyrightStatus = copyrightStatus;
+	}
+
+	// OWL-1749 --plukasew
+	public boolean isCopyrightApplicable()
+	{
+		if (resourceType == null)
+		{
+			// return here to avoid possible false positive because if resourceType is null here,
+			// the call to getResourceTypeDef() will set it to type UPLOAD, which would return true
+			return false;
+		}
+
+		ResourceType rtype = getResourceTypeDef();
+		return rtype != null && rtype.hasRightsDialog();
 	}
 
 	public boolean isUserSite() 

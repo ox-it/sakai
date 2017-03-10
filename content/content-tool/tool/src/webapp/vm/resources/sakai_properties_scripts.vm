@@ -1,7 +1,7 @@
 ##<textarea id="debugger" rows="50" cols="100"></textarea>
 <script type="text/javascript">includeLatestJQuery('content_sakai_properties');</script>
 #javascript("/library/js/jquery/cookie/jquery.cookie.js")
-<script type="text/javascript">
+<script type="text/javascript" language="JavaScript">
 	<!--
 	var DOT = "$DOT";
 	var defaultMimeCategory = "$!model.mimeCategory";
@@ -28,7 +28,7 @@
 	  var selectElement = document.getElementById(selectId);
 	  var url = selectElement.options[selectElement.selectedIndex].title;
 	  if (!url) url = "$fairuseurl"; 
-	  if (url && url!="") window.open(url,"MoreInfoCopyrightWindow","scrollbars=yes,menubar=no,height=400,width=700,resizable=yes,toolbar=no,location=no,status=no");
+	  if (url && url!="") window.open(url,"MoreInfoCopyrightWindow","scrollbars=yes,menubar=no,height=400,width=1000,resizable=yes,toolbar=no,location=no,status=no");
 	  return false;
 	}
 	function hideOptionalProperties(index, metadataGroup)
@@ -157,7 +157,10 @@
 			{
 				tag.onchange = handleMimeCategoryChange;
 			}
-			else if(tag.id && tag.id.match(/^copyright${DOT}\d+$/))
+
+			## OWL-1517: added the 'all' to the regex
+			##else if(tag.id && (tag.id.match(/^copyright${DOT}\d+$/) || tag.id.match(/^copyright${DOT}all$/)))
+			else if(tag.id && tag.id.match(/^copyright$/))
 			{
 				tag.onchange = handleCopyrightChange;
 			}
@@ -268,15 +271,8 @@
 			var element = (typeof(evt.target) != 'undefined') ? evt.target : ((typeof(evt.srcElement) != 'undefined') ? evt.srcElement : null);
 			if(element)
 			{
-				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
-				element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
-				
-				var dot = element.id.lastIndexOf("$DOT");
-				if(dot >= 0)
-				{
-					var index = element.id.substr(dot + 1);
-					updateCopyright(index);
-				}
+				element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
+				updateCopyright();
 			}
 		}
 		return false;
@@ -483,6 +479,16 @@
 		{
 			debug_guy.value = fileInputDiv.innerHTML;
 		}
+
+		// bjones86 - OWL-1076/OWL-1077
+		updateCopyright();
+		var selectElement = document.getElementById("copyright");
+		if(selectElement && selectElement.value)
+		{
+			//set copyright to default
+			selectElement.selectedIndex = 0;
+		}
+
 		
 		resizeFrame('grow');
 		return false;
@@ -1096,14 +1102,14 @@
 			target_element.select();
 		}
 	}
-	function updateCopyright(index)
+	function updateCopyright()
 	{
-		var selectElement = document.getElementById("copyright${DOT}" + index );
+		var selectElement = document.getElementById("copyright");
 		if(selectElement && selectElement.value)
 		{
 			var selection = selectElement.selectedIndex;
 			var selectionValue = selectElement.options[selection].value;
-			var copyrightDiv = document.getElementById("copyright_status${DOT}" + index );
+			var copyrightDiv = document.getElementById("copyright_status");
 			if(copyrightDiv)
 			{
 				if(selectionValue == "${USE_THIS_COPYRIGHT}")
@@ -1591,7 +1597,7 @@
 		jQuery('#fileURLHolder').val(url);
 	}
 	
-	
+
 	attachEventHandlers();
 	
 #if($calendarcounter > 0)	

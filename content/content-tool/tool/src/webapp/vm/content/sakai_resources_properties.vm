@@ -4,6 +4,9 @@
 	<h3>
 		$tlang.getString("action.props") 
 	</h3>
+
+	## bjones86 - OWL-1076
+	<div class="alertMessage" style="display: none; clear: both;"></div>
 	
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
@@ -74,7 +77,7 @@
 		#end
 	
 		<p class="act">
-			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.update")" accesskey="s" />
+			<input type="button" class="active" id="finish_button" value="$tlang.getString("label.update")" accesskey="s" />
 			<input type="button" id="cancel_button" onclick="document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		
@@ -98,5 +101,24 @@
 #set($count = $count + 1)
 #end
 #end
+
+    var submitButton = document.querySelector("#finish_button");
+    submitButton.addEventListener("click", function()
+    {
+        var selectElement = document.getElementById('copyright');
+        if (selectElement.selectedIndex < 1)
+        {
+            // OWLTODO: internationalize this
+            $('.alertMessage').html('Alert: Please choose a valid copyright status. Your selected copyright status cannot be assigned.');
+            $('.alertMessage').show();
+        }
+        else
+        {
+            $('.alertMessage').hide();
+            document.getElementById('user_action').value='save';
+            submitButton.disabled = true;
+            submitform('$DETAILS_FORM_NAME');
+        }
+    });
 </script>
 

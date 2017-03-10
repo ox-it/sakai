@@ -22,7 +22,9 @@ package org.sakaiproject.content.copyright;
 import java.io.File;
 import java.net.URL;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,10 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 	static final Logger logger = LoggerFactory.getLogger(CopyrightManager.class);
 	
 	protected boolean active = true;
+
+	private static ResourceBundle rb = null;
+
+	private static Locale locale = null;
 	
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService m_serverConfigurationService = null;
@@ -45,7 +51,8 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 	public void setServerConfigurationService(ServerConfigurationService service) {
 		m_serverConfigurationService = service;
 	}
-	
+
+	@Override
 	public org.sakaiproject.content.copyright.api.CopyrightInfo getCopyrightInfo(Locale locale, String [] rights, URL serverURL){
 		String baseURL = getBaseURL(serverURL.getFile());
 		CopyrightInfo copyrightInfo = new CopyrightInfo();
@@ -54,7 +61,9 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 			active = false;
 			copyright_types = (rights == null)?new String[]{}:rights;
 		}
-		ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.content.copyright.copyright",locale);
+
+		CopyrightManager.locale = locale;
+		rb = ResourceBundle.getBundle("org.sakaiproject.content.copyright.copyright",locale);
 		String language = locale.getLanguage();
 		for (String copyrightType:copyright_types){
 			CopyrightItem item = new CopyrightItem();
@@ -74,7 +83,47 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 		}
 		return copyrightInfo;
 	}
-	
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public String getCopyrightString( String messageKey )
+	{
+		if( (rb == null && locale == null) || StringUtils.isBlank( messageKey ) )
+		{
+			return "";
+		}
+
+		String copyright = "";
+		try
+		{
+			if( rb == null && locale != null )
+			{
+				rb = ResourceBundle.getBundle( "org.sakaiproject.content.copyright.copyright", locale );
+			}
+
+			copyright = rb.getString( messageKey );
+		}
+		catch (MissingResourceException | ClassCastException ex)
+		{
+			// no copyright bundle or no message found for key, log and continue, will return empty string, OR
+			// object found for key was not a string, log and continue, will return empty string
+			logger.warn(ex.getMessage(), ex);
+		}
+
+		return copyright;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public void setLocale( Locale locale )
+	{
+		CopyrightManager.locale = locale;
+	}
+
 	public String getUseThisCopyright(String [] rights) {
 		if (active) {
 			return CopyrightManager.USE_THIS_COPYRIGHT;
@@ -90,10 +139,9 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 	private String getBaseURL(String serverURL) {
 		return serverURL.substring(0,serverURL.indexOf("WEB-INF"))+"..";
 	}
-	
+
 	private boolean existsFile(String file,String baseURL) {
 		File f = new File(baseURL+file);
 		return f.exists();
 	}
-	
 }

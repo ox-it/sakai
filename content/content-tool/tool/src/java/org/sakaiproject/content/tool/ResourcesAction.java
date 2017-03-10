@@ -414,7 +414,15 @@ public class ResourcesAction
     private static ResourceLoader rrb = new ResourceLoader("right");
     /** Resource bundle using current language locale */
     private static ResourceLoader metaLang = new ResourceLoader("metadata");
-	
+
+	// bjones86 - OWL-1076/OWL-1077
+	private static final String MSG_KEY_PLEASE_SELECT_COPYRIGHT = "custom.copyright.pleaseSelect";
+	private static final String MSG_KEY_PLEASE_SELECT_ERROR_COPYRIGHT = "custom.copyright.pleaseSelect.error";
+
+	// bjones86 - OWL-1637
+	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
+			ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
+
 	/** Shared messages */
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.sharedI18n.SharedProperties";
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.sharedI18n.bundle.shared";
@@ -958,8 +966,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		//context.put ("collectionPath", cPath);
 		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
 		context.put("navRoot", navRoot);
-		
+
+		// bjones86 - OWL-1076/OWL-1077
 		ListItem item = new ListItem(entityId);
+		//item.metadataGroupsIntoContext(context);
 		context.put("item", item);
 
 
@@ -995,6 +1005,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
+
+		// bjones86 OWL-1076/OWL-1077
+		copyrightChoicesIntoContext(state, context);
 
 		if (item.isUrl())
 		{
@@ -1069,7 +1082,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			context.put("newcopyrightinput", rrb.getString("newcopyrightinput"));
 			
-			org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager) ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
 			org.sakaiproject.content.copyright.api.CopyrightInfo copyrightInfo = copyrightManager.getCopyrightInfo(new ResourceLoader().getLocale(),rrb.getStrings("copyrighttype"),ResourcesAction.class.getResource("ResourcesAction.class"));
 			List<org.sakaiproject.content.copyright.api.CopyrightItem> copyrightTypes = copyrightInfo.getItems();
 
@@ -6160,8 +6172,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		logger.debug(this + ".doCompleteCreateWizard()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		
-		ListItem item = (ListItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
-		
 		// get the parameter-parser
 		ParameterParser params = data.getParameters();
 		
@@ -6194,7 +6204,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		if("save".equals(user_action))
 		{
-
+			ListItem item = (ListItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
 			item.captureProperties(params, ListItem.DOT + "0");
 			if (item.numberFieldIsInvalid) {
 				addAlert(state, rb.getString("conditions.invalid.condition.argument"));
@@ -6232,7 +6242,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				addAlert(state, trb.getString("alert.youchoosegroup")); 
 				return;
 			}
-			
+
 			String collectionId = (String) state.getAttribute(STATE_CREATE_WIZARD_COLLECTION_ID);
 			try 
 			{
@@ -6353,7 +6363,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				
 				List<String> alerts = item.checkRequiredProperties();
-				
+
+				// OWL-1730/OWL-1749
+				// consider making this part of item.checkRequiredProperties()
+				if( item.isCopyrightApplicable() && rb.getString( MSG_KEY_PLEASE_SELECT_COPYRIGHT ).equals( copyrightManager.getCopyrightString( item.copyrightInfo ) ) )
+				{
+					alerts.add(rb.getString(MSG_KEY_PLEASE_SELECT_ERROR_COPYRIGHT));
+				}
+
 				if(alerts.isEmpty())
 				{
 					try
@@ -7610,6 +7627,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 			List<String> alerts = item.checkRequiredProperties();
+
+			// bjones86/plukasew - OWL-1076/OWL-1077/OWL-1637/OWL-1749
+			if( item.isCopyrightApplicable() && rb.getString( MSG_KEY_PLEASE_SELECT_COPYRIGHT ).equals( copyrightManager.getCopyrightString( item.copyrightInfo ) ) )
+			{
+				alerts.add( rb.getString( MSG_KEY_PLEASE_SELECT_ERROR_COPYRIGHT ) );
+			}
 			
 			if(alerts.isEmpty())
 			{

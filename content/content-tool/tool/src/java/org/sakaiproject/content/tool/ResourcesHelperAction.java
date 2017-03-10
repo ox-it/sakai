@@ -164,7 +164,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	/** name of state attribute for the default retract time */
 	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
-	
+
+	// bjones86 - OWL-1076/OWL-1077
+	private static final String MSG_KEY_PLEASE_SELECT_COPYRIGHT = "custom.copyright.pleaseSelect";
+	private static final String MSG_KEY_PLEASE_SELECT_COPYRIGHT_ERROR = "custom.copyright.pleaseSelect.error";
+
 	/** The title of the new page to be created in the site */
 	protected static final String STATE_PAGE_TITLE = PREFIX + "page_title";
 	
@@ -173,6 +177,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	private NotificationService notificationService = (NotificationService) ComponentManager.get(NotificationService.class);	
 	private EventTrackingService eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+
+	// bjones86 - OWL-1637
+	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
+			ComponentManager.get("org.sakaiproject.content.copyright.api.CopyrightManager");
 
 	public String buildAccessContext(VelocityPortlet portlet,
 			Context context,
@@ -250,7 +258,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
                 String ezproxy = ServerConfigurationService.getString("content.ezproxy.prefix", "");
 
-                if (ezproxy != null && ezproxy != "") {
+                if (ezproxy != null && !ezproxy.isEmpty()) {
                     context.put("ezproxyPrefix", ezproxy);
                 } else {
                     context.put("ezproxyPrefix", false);
@@ -1635,7 +1643,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					addAlert(state, rb.getString("alert.youchoosegroup")); 
 					return;
 				}
-				
+
+				// bjones86/plukasew - OWL-1076/OWL-1637/OWL-1749
+				copyrightManager.setLocale( rb.getLocale() );
+				if( newFile.isCopyrightApplicable() && contentResourceBundle.getString( MSG_KEY_PLEASE_SELECT_COPYRIGHT ).equals( copyrightManager.getCopyrightString( newFile.copyrightInfo ) ) )
+				{
+					addAlert( state, contentResourceBundle.getString( MSG_KEY_PLEASE_SELECT_COPYRIGHT_ERROR ) );
+					return;
+				}
+
 				ResourceConditionsHelper.saveCondition(newFile, params, state, i);
 				
 				uploadCount++;
@@ -2019,6 +2035,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		SessionState state = getState(request);
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
+		ParameterParser params = rundata.getParameters();
 
 		ContentResourceEdit resource = null;
 		ContentCollectionEdit collection= null;
@@ -2095,6 +2113,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					
 					ResourcePropertiesEdit resourceProps = resource.getPropertiesEdit();
 					resourceProps.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, uploadFileName);
+
+					// OWL-1517 - created CopyrightDelegate to read the copyright properties from the params and then set them on resourceProps	--bbailla2
+					CopyrightDelegate copyrightDelegate = new CopyrightDelegate();
+					copyrightDelegate.captureCopyright(params);
+					copyrightDelegate.setCopyrightOnEntity(resourceProps);
+
 					resource.setContent(uploadFile.getInputStream());
 					resource.setContentType(contentType);
 					resource.setAvailability(hidden, null, null);
