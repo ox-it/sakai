@@ -4,6 +4,7 @@ import org.apache.wicket.MetaDataKey;
 import org.apache.wicket.Page;
 import org.apache.wicket.bean.validation.BeanValidationConfiguration;
 import org.apache.wicket.resource.loader.ClassStringResourceLoader;
+import org.apache.wicket.resource.loader.PackageStringResourceLoader;
 import uk.ac.ox.it.shoal.pages.EditPage;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class EditApplication extends SakaiApplication {
         mountPage("/", EditPage.class);
         mountPage("/edit", EditPage.class);
         getResourceSettings().getStringResourceLoaders().add(new ClassStringResourceLoader(EditApplication.class));
+        getResourceSettings().getStringResourceLoaders().add(new PackageStringResourceLoader()) ;
         setMetaData(SUBJECT, readFile("/subjects.txt"));
         setMetaData(LEVEL, readFile("/levels.txt"));
         setMetaData(PURPOSE, readFile("/purposes.txt"));
