@@ -468,7 +468,7 @@ public abstract class DbSiteService extends BaseSiteService
 					// cache the 1000 batch size statement so we don't have to append 1000 occurences of ", ?" every time
 					if (maxBatchSizeStatement == null)
 					{
-						maxBatchSizerStatement = siteServiceSql.getUpdateSiteUnpublishSql(m_siteTableName, batchSize);
+						maxBatchSizeStatement = siteServiceSql.getUpdateSitesUnpublishSql(m_siteTableName, batchSize);
 					}
 					statement = maxBatchSizeStatement;
 				}
