@@ -125,4 +125,12 @@ public interface Topic extends MutableEntity {
     public Boolean getRevealIDsToRoles();
 
     public void setRevealIDsToRoles(Boolean revealIDsToRoles);
+
+    public void setAllowEmailNotifications(Boolean allowEmailNotifications);
+
+    public Boolean getAllowEmailNotifications();
+
+    public void setIncludeContentsInEmails(Boolean includeContentsInEmails);
+
+    public Boolean getIncludeContentsInEmails();
 }

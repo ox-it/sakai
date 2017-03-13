@@ -8203,7 +8203,12 @@ public class DiscussionForumTool
 	
 	public void  sendEmailNotification(Message reply, DiscussionMessageBean currthread, boolean needsModeration){
 		LOG.debug("ForumTool.sendEmailNotification(Message, DiscussionMessageBean, boolean)");
-		
+
+		// OWL-1557
+		if (!reply.getTopic().getAllowEmailNotifications()) {
+			return;
+		}
+
 		// get all users with notification level = 2
 		List<String> userlist = emailNotificationManager.getUsersToBeNotifiedByLevel( EmailNotification.EMAIL_REPLY_TO_ANY_MESSAGE);
 		
