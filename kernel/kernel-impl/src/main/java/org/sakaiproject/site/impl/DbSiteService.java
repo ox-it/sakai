@@ -453,12 +453,30 @@ public abstract class DbSiteService extends BaseSiteService
 
 		protected void unpublishTx(List<String> siteIds, String modifiedBy, Time modifiedOn)
 		{
-			String statement = siteServiceSql.getUpdateSitesUnpublishSql(m_siteTableName, siteIds.size());
+			// Oracle 1000 in clause limit
+			String maxBatchSizeStatement = null;
 
 			int size = siteIds.size();
-			for (int i = 0; i < size; i += 1000)
+			for (int i = 0; i < size; i += ORACLE_MAX_ELEMENTS_IN_CLAUSE)
 			{
-				int batchSize = Math.min(size - i, ORACLE_MAX_ELEMENTS_IN_CLAUSE);
+				int batchSize = Math.min(size - 1, ORACLE_MAX_ELEMENTS_IN_CLAUSE);
+
+				// statement changes based on batch size
+				String statement = null;
+				if (batchSize == ORACLE_MAX_ELEMENTS_IN_CLAUSE)
+				{
+					// cache the 1000 batch size statement so we don't have to append 1000 occurences of ", ?" every time
+					if (maxBatchSizeStatement == null)
+					{
+						maxBatchSizerStatement = siteServiceSql.getUpdateSiteUnpublishSql(m_siteTableName, batchSize);
+					}
+					statement = maxBatchSizeStatement;
+				}
+				else
+				{
+					statement = siteServiceSql.getUpdateSitesUnpublishSql(m_siteTableName, batchSize);
+				}
+
 				List<Object> fields = new ArrayList<>(batchSize + 2);
 				fields.add(modifiedBy);
 				fields.add(modifiedOn);
