@@ -670,7 +670,7 @@ public class MessageForumStatisticsBean {
 	}
 
 	/**
-	 * Filters out statistics associcated with anonymous topics for which the user is not permitted to see IDs
+	 * Filters out statistics associated with anonymous topics for which the user is not permitted to see IDs
 	 */
 	private List<UserStatistics> filterToAnonAwareStatistics(List<UserStatistics> statistics)
 	{
@@ -678,6 +678,7 @@ public class MessageForumStatisticsBean {
 		{
 			return statistics;
 		}
+
 		List<UserStatistics> filtered = new ArrayList<>();
 		for (UserStatistics stats : statistics)
 		{
@@ -687,6 +688,7 @@ public class MessageForumStatisticsBean {
 				filtered.add(stats);
 			}
 		}
+
 		return filtered;
 	}
 	
@@ -1037,16 +1039,15 @@ public class MessageForumStatisticsBean {
 			return messages;
 		}
 
-		List<Message> filtered = new ArrayList<Message>();
-		// Map topics to value of 'isUseAnonymousId(Topic)' to prevent redundant queries
-		Map<Topic, Boolean> topicToUseAnon = new HashMap<>();
+		List<Message> filtered = new ArrayList<>();
+		Map<Topic, Boolean> topicToUseAnon = new HashMap<>();	// Map topics to value of 'isUseAnonymousId(Topic)' to prevent redundant queries
 		for (Message message : messages)
 		{
 			Topic topic = message.getTopic();
 			Boolean useAnon = topicToUseAnon.get(topic);
 			if (useAnon == null)
 			{
-				useAnon = Boolean.valueOf(isUseAnonymousId(topic));
+				useAnon = isUseAnonymousId(topic);
 				topicToUseAnon.put(topic, useAnon);
 			}
 			if (!useAnon)
@@ -1055,6 +1056,7 @@ public class MessageForumStatisticsBean {
 				filtered.add(message);
 			}
 		}
+
 		return filtered;
 	}
 

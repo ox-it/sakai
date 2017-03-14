@@ -3365,7 +3365,7 @@ public class DiscussionForumTool
     				decoMsg.setUserCanDelete(decoTopicGetIsDeleteAny || (isOwn && decoTopicGetIsDeleteOwn));
     				LOG.debug("decoMsg.setUserCanEmail()");
     				LOG.debug("isSectionTA()" + isSectionTA());
-    				decoMsg.setUserCanEmail(!useAnonymousId && (isInstructor() || isSectionTA()));
+    				decoMsg.setUserCanEmail(!useAnonymousId && !topic.getPostAnonymous() && (isInstructor() || isSectionTA()));
     				decoTopic.addMessage(decoMsg);
     			}
 				if (LOG.isDebugEnabled()) LOG.debug("SETRANK calling getSelectedMessage, we can set Rank here");
@@ -4872,7 +4872,17 @@ public class DiscussionForumTool
 		boolean showRevisionHistory = ServerConfigurationService.getBoolean("msgcntr.forums.showRevisionHistory",true);
 		if (showRevisionHistory) {
 			String revisedInfo = "<p class=\"lastRevise textPanelFooter\">";
-			revisedInfo += createLastReviseByString(dfTopic);
+			if (dfTopic.getPostAnonymous())
+			{
+				// Don't reveal display ID or anon ID (this reveals who the editor is). Instead, simply say "Edited on <date>"
+				revisedInfo += getResourceBundleString(LAST_REVISE_ON_ANON) + " ";
+			}
+			else
+			{
+				revisedInfo += getResourceBundleString(LAST_REVISE_BY);
+				revisedInfo += getUserNameOrEid();
+				revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
+			}
 			SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"), getUserLocale());
 			formatter.setTimeZone(getUserTimeZone());
 			Date now = new Date();
@@ -5015,10 +5025,19 @@ public class DiscussionForumTool
 		  // optionally display the revision history. by default, revision history is included
 		  boolean showRevisionHistory = ServerConfigurationService.getBoolean("msgcntr.forums.showRevisionHistory",true);
 		  if (showRevisionHistory){
-		      String revisedInfo = createLastReviseByString(selectedTopic.getTopic());
-	          Date now = new Date();
-	          revisedInfo += now.toString() + " <br/> ";
-		      currentBody = revisedInfo.concat(currentBody);
+			String revisedInfo;
+			if (selectedTopic.getTopic().getPostAnonymous())
+			{
+				// Don't reveal display ID or anon ID (this reveals who the editor is). Instead, simply say "Edited on <date>"
+				revisedInfo = getResourceBundleString(LAST_REVISE_ON_ANON) + " ";
+			}
+			else
+			{
+				revisedInfo = createLastReviseByString(selectedTopic.getTopic());
+			}
+			Date now = new Date();
+			revisedInfo += now.toString() + " <br/> ";
+			currentBody = revisedInfo.concat(currentBody);
 		  }
 
 		  dMsg.setBody(currentBody);
@@ -8012,7 +8031,7 @@ public class DiscussionForumTool
 					|| (selectedTopic.getIsReviseOwn() && isOwn));  
 		 selectedMessage.setUserCanDelete(selectedTopic.getIsDeleteAny() || (isOwn && selectedTopic.getIsDeleteOwn()));
 		 boolean useAnonymousId = isUseAnonymousId(selectedTopic.getTopic());
-		 selectedMessage.setUserCanEmail(!useAnonymousId && (isInstructor() || isSectionTA()));
+		 selectedMessage.setUserCanEmail(!useAnonymousId && !selectedTopic.getTopic().getPostAnonymous() && (isInstructor() || isSectionTA()));
 
 		 // Set Rank for selectedMessage.
 		 String userEid = message.getCreatedBy();
