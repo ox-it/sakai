@@ -67,6 +67,7 @@
 			<div>
 				<h:outputText value="#{ForumTool.selectedTopic.topic.revealIDsToRoles ? msgs.cdfm_revealIDsToRoles_blurb :  msgs.cdfm_anonymous_blurb}" rendered="#{ForumTool.anonymousEnabled && ForumTool.selectedTopic.topic.postAnonymous}"/>
 			</div>
+			<h:outputText value="#{msgs.cdfm_anonymous_blurb}" rendered="#{ForumTool.anonymousEnabled && ForumTool.selectedTopic.topic.postAnonymous}"/>
 			<div class="instruction">			 
 				 <h:outputText value="#{msgs.cdfm_required}"/>
 				 <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
