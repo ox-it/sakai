@@ -189,10 +189,12 @@ public class ForumsEmailService {
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.msgposted")
 					+ " " + formatter.format(reply.getCreated()));
+			content.append(newline);
+			content.append(newline);
 			if (topic.getIncludeContentsInEmails()) {
-				content.append(newline);
-				content.append(newline);
 				content.append(reply.getBody());
+			} else {
+				content.append(DiscussionForumTool.getResourceBundleString("email.body.noContents", new Object[] { fromName }));
 			}
 			content.append(newline);
 			content.append(newline);
