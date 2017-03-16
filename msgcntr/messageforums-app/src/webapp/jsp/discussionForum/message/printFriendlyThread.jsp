@@ -39,7 +39,7 @@
 			<h:column>
 				<h:panelGroup styleClass="heading">
 					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" 
-					alt="#{ForumTool.selectedMessage.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
+					alt="#{ForumTool.selectedMessage.anonAwareAuthor}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
 						<h:outputText value="#{message.message.title}" styleClass="title" />		          	
 			          	<h:outputText value=" - #{message.anonAwareAuthor}"/>
 			          	<h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />
@@ -59,7 +59,7 @@
 			<h:column id="_msg_subject">
 						<h:panelGroup styleClass="heading">
 						<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" 
-						    alt="#{message.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
+						    alt="#{message.anonAwareAuthor}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !message.useAnonymousId}"/>
 						<h:outputText value="#{message.message.title}" styleClass="title"/>		          	
 			          	<h:outputText value=" - #{message.anonAwareAuthor}"/>
 			          	<h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />
