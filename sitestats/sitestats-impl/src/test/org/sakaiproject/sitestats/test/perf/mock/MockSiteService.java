@@ -18,6 +18,12 @@ import org.w3c.dom.Element;
 public class MockSiteService implements SiteService {
 
 	@Override
+	public boolean getBooleanSiteProperty(String id, String propertyName)
+	{
+		return false;
+	}
+
+	@Override
 	public String getLabel() {
 		// TODO Auto-generated method stub
 		return null;
@@ -395,6 +401,24 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
+	public boolean isGlobalJoinNotificationEnabled()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isJoinNotificationToggled(String id)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isUserLoggedIn()
+	{
+		return false;
+	}
+
+	@Override
 	public boolean allowUnjoinSite(String id) {
 		// TODO Auto-generated method stub
 		return false;
@@ -436,6 +460,12 @@ public class MockSiteService implements SiteService {
 		return null;
 	}
 
+	@Override
+	public List<Site> getUserSites(String userId)
+	{
+		return null;
+	}
+
 	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
 	{
 		return null;
@@ -454,6 +484,12 @@ public class MockSiteService implements SiteService {
 			String criteria, Map<String, String> propertyCriteria,
 			SortType sort, PagingPosition page, boolean requireDescription) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, String userId)
+	{
 		return null;
 	}
 
