@@ -186,3 +186,6 @@ form .shorttext{
     visibility: hidden;
 }
 
+#eventSubmit_doSave {
+    float: right;
+}
