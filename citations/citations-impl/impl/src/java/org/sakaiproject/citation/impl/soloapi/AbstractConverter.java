@@ -72,6 +72,10 @@ public abstract class AbstractConverter implements Converter {
 					}
 				}
 			}
+			// links to journal articles thses extra parameters
+			if (this instanceof JournalConverter){
+				value = value.replace("&fn=display", "&fn=search&tab=remote");
+			}
 		}
 		return value;
 	}
