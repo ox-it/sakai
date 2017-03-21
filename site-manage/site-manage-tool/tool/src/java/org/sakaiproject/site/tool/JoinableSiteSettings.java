@@ -99,6 +99,7 @@ public class JoinableSiteSettings
 	private static final String CONTEXT_JOIN_SITE_EXCLUDE_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinExcludeEnabledLocalDisabledGlobal";
 	private static final String CONTEXT_JOIN_SITE_LIMIT_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinLimitEnabledLocalDisabledGlobal";
 	private static final String CONTEXT_UI_SERVICE = "uiService";
+	private static final String CONTEXT_SITE_BROWSER_URL = "siteBrowserURL";
 	
 	// Message keys
 	private static final String MSG_KEY_UNJOINABLE 			= "join.unjoinable";
@@ -120,6 +121,7 @@ public class JoinableSiteSettings
 	private static final String SITE_REF_PREFIX			= "/site/";
 	private static final String SITE_BROWSER_MODE		= "sitebrowser.mode";
 	private static final String DEFAULT_UI_SERVICE 		= "Sakai";
+	private static final String SITE_BROWSER_SITE_ID	= "!gateway/page/!gateway-400";
 	public  static final String SITE_BROWSER_JOIN_MODE 	= "join";
 	
 	// sakai.properties
@@ -986,6 +988,7 @@ public class JoinableSiteSettings
 		}
 		
 		context.put( CONTEXT_UI_SERVICE, serverConfigService.getString( SAK_PROP_UI_SERVICE, DEFAULT_UI_SERVICE ) );
+		context.put( CONTEXT_SITE_BROWSER_URL, developerHelperService.getPortalURL() + SITE_REF_PREFIX + SITE_BROWSER_SITE_ID );
 		
 		if( isSiteJoinable )
 		{
@@ -1019,6 +1022,7 @@ public class JoinableSiteSettings
 		}
 		
 		context.put( CONTEXT_UI_SERVICE, serverConfigService.getString( SAK_PROP_UI_SERVICE, DEFAULT_UI_SERVICE ) );
+		context.put( CONTEXT_SITE_BROWSER_URL, developerHelperService.getPortalURL() + SITE_REF_PREFIX + SITE_BROWSER_SITE_ID );
 		
 		if( isSiteJoinable )
 		{
@@ -1147,6 +1151,7 @@ public class JoinableSiteSettings
 		}
 		
 		context.put( CONTEXT_UI_SERVICE, serverConfigService.getString( SAK_PROP_UI_SERVICE, DEFAULT_UI_SERVICE ) );
+		context.put( CONTEXT_SITE_BROWSER_URL, developerHelperService.getPortalURL() + SITE_REF_PREFIX + SITE_BROWSER_SITE_ID );
 		
 		putGlobalEnabledSettingsIntoContext( context );
 		updateContextFromSiteInfo( context, siteInfo );
@@ -1279,6 +1284,8 @@ public class JoinableSiteSettings
 		{
 			return;
 		}
+
+		context.put( CONTEXT_UI_SERVICE, serverConfigService.getString( SAK_PROP_UI_SERVICE ) );
 		
 		if( siteService.isGlobalJoinGroupEnabled() )
 		{
