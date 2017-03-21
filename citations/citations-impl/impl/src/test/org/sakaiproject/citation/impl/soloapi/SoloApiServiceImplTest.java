@@ -331,7 +331,7 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		assertEquals("1847", citation.getCitationProperty("year", false));
 		assertEquals("Washington, D.C", citation.getCitationProperty("publicationLocation", false));
 		assertEquals("L.P. Noble", citation.getCitationProperty("publisher", false));
-		assertEquals("http://solo.bodleian.ox.ac.uk/primo_library/libweb/action/display.do?doc=oxfaleph011255518&vid=OXVU1&fn=display&displayMode=full", citation.getCitationProperty("otherIds", false));
+		assertEquals("http://solo.bodleian.ox.ac.uk/primo_library/libweb/action/display.do?doc=oxfaleph011255518&vid=OXVU1&fn=search&tab=remote&displayMode=full", citation.getCitationProperty("otherIds", false));
 	}
 
 	public void testParseSampleOther() {
