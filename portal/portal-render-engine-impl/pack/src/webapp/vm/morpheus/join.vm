@@ -15,7 +15,7 @@
 
     </head>
     <!-- START VM join.vm -->
-    <body class="portalBody">
+    <body class="portalBody joinPage">
         #if ( $pageTop )
             <script>
                var sakaiPortalWindow = "";
@@ -23,7 +23,7 @@
         #end
         <table class="join" cellpadding="0" cellspacing="0" summary="layout">
             <tr>
-                <th colspan="2">${uiService} : ${rloader.getString("join_title")}</th>
+                <th colspan="2">${uiService} - ${rloader.getString("join_title")}</th>
             </tr>
             <tr>
                 <td class="logo"></td>
@@ -32,7 +32,7 @@
                         <tr>
                             <td>
                             <span class="instruction">
-                                ${rloader.getString("join_instr")} <em>${currentSite.siteTitle}</em>
+                                ${rloader.getString("join_instr")} <strong>${currentSite.siteTitle}</strong>
                             </span>
                             </td>
                         </tr>
@@ -44,10 +44,10 @@
                         #end
                         </tr>
                         <tr>
-                            <td>
-                                <form method="POST">
+                            <td class="act">
+                                <form method="post" action="#">
                                 #if (!${restrictedByAccountType})
-                                    <input type="submit" name="join" value="${rloader.getString("yes")}">
+                                    <input type="submit" name="join" value="${rloader.getString("yes")}" class="active">
                                     <input type="submit" name="reject" value="${rloader.getString("no")}">
                                 #else
                                     <input type="submit" name="return" value="${rloader.getString("return")}" class="active"/>
