@@ -23,7 +23,7 @@ table.myform {
 
 /* ----------- wrapper ------------*/
 .wrapper {
-    border: 2px solid #336699;
+    border: 2px solid #4f2683;
     padding: 10px 20px 20px 20px;
     background: #fff;
     margin: 2em auto;
@@ -32,7 +32,7 @@ table.myform {
 
 .header {
     padding: 5px 0 15px;
-    border-bottom: 1px solid #E4E4E4;
+    border-bottom: 1px solid #4f2683;
     margin-bottom: 10px;
 }
 
@@ -71,7 +71,7 @@ table.myform {
 
 .stylized p {
     color: #666666;
-    border-bottom: solid 1px #E4E4E4;
+    border-bottom: solid 1px #4f2683;
     padding-bottom: 10px;
     margin-bottom: 20px;
 }
@@ -148,7 +148,7 @@ table.myform {
 }
 
 .username {
-    color: #336699;
+    color: #4f2683;
     font-weight: bold;
 }
 

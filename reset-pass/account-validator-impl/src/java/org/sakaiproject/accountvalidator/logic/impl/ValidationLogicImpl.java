@@ -33,6 +33,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.StringUtils;
+import org.joda.time.Period;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
 import org.sakaiproject.accountvalidator.logic.ValidationException;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.logic.dao.ValidationDao;
@@ -339,6 +342,22 @@ public class ValidationLogicImpl implements ValidationLogic {
 		v = saveValidationAccount(v);
 		return v;
 	}
+
+	public String getFormattedMinutes(int totalMinutes)
+	{
+		Period period = new Period(totalMinutes * 60 * 1000);
+		// OWLTODO: This will use the JDK's default locale. This is probably okay, but we should reconsider, especially if we're contributing	--bbailla2
+		PeriodFormatter periodFormatter = PeriodFormat.wordBased();
+		return periodFormatter.print(period);
+	}
+
+	public String getFormattedExpirationMinutes()
+	{
+		// OWLTODO: we default to 60 minutes here (as we did in 2.9.1), but Sakai trunk says that the expiration is disabled if this property is not set.
+		int expirationMinutes = serverConfigurationService.getInt("accountValidator.maxPasswordResetMinutes", 60);
+		return getFormattedMinutes(expirationMinutes);
+	}
+
 	//Set other details for ValidationAccount and save
 	private ValidationAccount saveValidationAccount(ValidationAccount account){
 		account.setValidationSent(new Date());
@@ -351,9 +370,21 @@ public class ValidationLogicImpl implements ValidationLogic {
 				account.setFirstName(u.getFirstName());
 			}
 
+			//bbailla2 - For oracle - empty strings map to null in the DB.
+			else
+			{
+				account.setFirstName(" ");
+			}
+
 			if (StringUtils.isNotBlank(u.getLastName()))
 			{
 				account.setSurname(u.getLastName());
+			}
+
+			//bbailla2 - For oracle - empty strings map to null in the DB.
+			else
+			{
+				account.setSurname(" ");
 			}
 		}
 		catch(UserNotDefinedException e){
@@ -497,8 +528,16 @@ public class ValidationLogicImpl implements ValidationLogic {
 	}
 
 	public void save(ValidationAccount toSave) {
+		// bbailla2 - empty string maps to null in oracle
+		if (StringUtils.isEmpty(toSave.getFirstName()))
+		{
+			toSave.setFirstName(" ");
+		}
+		if (StringUtils.isEmpty(toSave.getSurname()))
+		{
+			toSave.setSurname(" ");
+		}
 		dao.save(toSave);
-		
 	}
 
 	public void resendValidation(String token) {
@@ -531,7 +570,8 @@ public class ValidationLogicImpl implements ValidationLogic {
 		String page = getPageForAccountStatus(account.getAccountStatus());
 		String serverUrl = serverConfigurationService.getServerUrl();
 		String url = serverUrl + "/accountvalidator/faces/" + page + "?tokenId=" + account.getValidationToken();
-		
+
+		replacementValues.put("expireTime", getFormattedExpirationMinutes());
 		
 		replacementValues.put("url", url);
 		//add some details about the user

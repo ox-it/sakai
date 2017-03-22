@@ -62,8 +62,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.springutil.SpringMessageLocator;
 
-public class ValidationProducer implements ViewComponentProducer,
-ViewParamsReporter, ActionResultInterceptor {
+public class ValidationProducer extends BaseValidationProducer implements ViewComponentProducer, ViewParamsReporter, ActionResultInterceptor {
 
 	private static Logger log = LoggerFactory.getLogger(ValidationProducer.class);
 	public static final String VIEW_ID = "validate";
@@ -236,7 +235,7 @@ ViewParamsReporter, ActionResultInterceptor {
 			
 			//we need some values to fill in
 			Object[] args = new Object[]{
-					serverConfigurationService.getString("ui.service", "Sakai"),
+					getUIService(),
 					addedBy.getDisplayName(),
 					addedBy.getEmail()
 					

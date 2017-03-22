@@ -28,7 +28,7 @@ p, h1, form, button {
 
 /* ----------- wrapper ------------*/
 .wrapper {
-	border:2px solid #336699;
+	border:2px solid #4f2683;
 	padding:10px 20px 20px 20px;
 	background:#fff;
 	margin: 2em auto;
@@ -148,7 +148,7 @@ p, h1, form, button {
     display: block;
     float: left;
     padding: 4px 2px;
-    border: 1px solid #aacfe4;
+    border: 1px solid #4f2683;
     width: 10em;
     margin: 0 0 6px 1em;
 }
@@ -179,7 +179,7 @@ p, h1, form, button {
 }
 
 .username {
-	color:#336699;
+	color:#4f2683;
 	font-weight:bold;
 }
 
