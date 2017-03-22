@@ -50,10 +50,8 @@ import org.tsugi.lti2.LTI2Messages;
 import org.tsugi.lti2.ToolProxy;
 import org.tsugi.lti2.ToolProxyBinding;
 import org.tsugi.lti2.ContentItem;
-import org.tsugi.lti2.objects.ToolConsumer;
 import org.tsugi.lti2.LTI2Config;
 
-import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti2.SakaiLTI2Config;
 
@@ -65,7 +63,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.api.privacy.PrivacyManager;
@@ -86,25 +83,15 @@ import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 
 import net.oauth.OAuth;
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthValidator;
-import net.oauth.SimpleOAuthValidator;
-import net.oauth.signature.OAuthSignatureMethod;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math3.util.Precision;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI
@@ -1781,11 +1768,7 @@ public class SakaiBLTIUtil {
 				message = "Result deleted";
 				retval = Boolean.TRUE;
 			} else {
-				if ( theGrade < 0.0 || theGrade > 1.0 ) {
-					throw new Exception("Grade out of range");
-				}
-				theGrade = theGrade * assignmentObject.getPoints();
-				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, String.valueOf(theGrade), "External Outcome");
+				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, getRoundedGrade(theGrade,assignmentObject.getPoints()), "External Outcome");
 				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, comment);
 
 
@@ -1801,6 +1784,17 @@ public class SakaiBLTIUtil {
 		}
 
 		return retval;
+	}
+
+	// Returns theGrade * points rounded to 2 digits (as a String)
+	// Used for testing and to avoid precision problems
+	public static String getRoundedGrade(Double theGrade, Double points) throws Exception {
+		if ( theGrade < 0.0 || theGrade > 1.0 ) {
+			throw new Exception("Grade out of range");
+		}
+		theGrade = theGrade * points;
+		theGrade = Precision.round(theGrade,2);
+		return String.valueOf(theGrade);
 	}
 
 	// Extract the necessary properties from a placement
