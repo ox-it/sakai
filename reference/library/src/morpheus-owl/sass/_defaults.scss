@@ -83,15 +83,26 @@ $link-active-background-color: transparent !default;
 $link-hover-background-color: transparent !default;
 
 /* Linknav button colors */
-$button-text-color:	 #777 !default;
-$button-border-color: #C0C0C0 !default;
-$button-background-color: #F0F0F0 !default;
-$button-background-secondary-color: #FFF !default;
+$button-text-color:	 #333 !default;
+$button-border-color: #ccc !default;
+$button-background-color: #fff !default;
+$button-background-secondary-color: #f2f2f2 !default;
 /* General button colors */
-$button-color-text-color: #FFF !default;
-$button-color-border-color: #4a8db3 !default;
-$button-color-background-color: $primary-color !default;
-$button-color-background-secondary-color: #276488 !default;
+$button-color-text-color: #333 !default;
+$button-color-border-color: #ccc !default;
+$button-color-background-color: #fff !default;
+$button-color-background-secondary-color: #f2f2f2 !default;
+/* Primary button colours */
+$button-primary-text-color: $background-color !default;
+$button-primary-border-color: $primary-color !default;
+$button-primary-background-color: $primary-color !default;
+$button-primary-background-secondary-color: #6e43a5 !default;
+$button-primary-background-tertiary-color: #552c8a !default;
+/* Disabled button colours */
+$button-disabled-text-color: #666 !default;
+$button-disabled-border-color: #ccc !default;
+$button-disabled-background-color: #f3f3f3 !default;
+
 /* ///////////// */
 
 $info-color:                $primary-color  !default;

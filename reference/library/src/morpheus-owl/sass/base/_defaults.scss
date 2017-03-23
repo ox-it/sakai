@@ -199,13 +199,54 @@ input[type="submit"][class="disabled"]:hover,
 input[type="button"][class="disabled"]:hover,
 button[disabled]:hover,
 button[class="disabled"]:hover,
-.formButtonDisabled, .formButtonDisabled:hover {
-	background: transparent linear-gradient(#EEE 0%, #EEE 100%) repeat scroll 0% 0% !important;
-	color: #333 !important;
-	border: 1px solid #DDD !important;
+.formButtonDisabled, 
+.formButtonDisabled:hover,
+.formButtonDisabled:active,
+input[type="submit"][disabled="disabled"]:active,
+input[type="button"][disabled="disabled"]:active,
+input[type="submit"][disabled="true"]:active,
+input[type="button"][disabled="true"]:active,
+input[type="submit"][disabled]:active,
+input[type="button"][disabled]:active,
+input[type="submit"][class="disabled"]:active,
+input[type="button"][class="disabled"]:active,
+button[disabled]:active,
+button[class="disabled"]:active,
+{
+	background: transparent linear-gradient($button-disabled-background-color 0%, $button-disabled-background-color 100%) repeat scroll 0% 0% !important;
+	color: $button-disabled-text-color !important;
+	border: 1px solid $button-disabled-border-color !important;
 	box-shadow: none !important;
 	cursor: not-allowed;
 	text-decoration: none;
+}
+
+.act 
+{
+	padding: 1em 0;
+	
+	.active
+	{
+		border-color: $button-primary-border-color;
+		color: $button-primary-text-color;
+		background: linear-gradient($button-primary-background-secondary-color 0%,$button-primary-background-color 80%);
+		box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+			
+		&:hover, &:focus
+		{
+			border-color: $button-primary-border-color; // needed to override default button hover/focus border
+			background: linear-gradient($button-primary-background-tertiary-color 0%,$button-primary-background-color 80%);
+			box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+		}
+		
+		&:active
+		{
+			border-color: $button-primary-border-color; // needed to override default button hover/focus border
+			color: $button-primary-text-color;
+			background: linear-gradient($button-primary-background-tertiary-color 0%,$button-primary-background-color 80%);
+			box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.6) inset;
+		}
+	}
 }
 
 ul, ol {
