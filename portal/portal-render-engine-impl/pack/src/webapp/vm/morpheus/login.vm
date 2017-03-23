@@ -40,6 +40,9 @@
                 </script>
 
             #end ## END of IF (!${loginTopLogin})
+
+        <script type="text/javascript" src="/library/js/caps-lock-checker.js"></script>
+
         <!-- END VM login.vm -->
     </body>
 </html>

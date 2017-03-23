@@ -64,9 +64,13 @@
 	}
 
 	&.with-errors{
-		input[type="text"],input[type="password"]{			
+		input[type="text"],input[type="password"]{
 			border: 1px solid $error-color;
 			background: $error-background-color;
+		}
+
+		input[type="password"].capsLockOnDisplay {
+			background: $error-background-color url("images/capsLock.png") no-repeat right;
 		}
 	}
 
@@ -101,4 +105,8 @@
 	top:  0;
 	left: 0;
 	z-index: 1000;
+}
+
+.capsLockOnDisplay {
+	background: #ffffff url("images/capsLock.png") no-repeat right;
 }
