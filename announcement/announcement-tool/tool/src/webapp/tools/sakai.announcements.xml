@@ -18,6 +18,7 @@
 		<category name="GradToolsStudent" />
 		<category name="GradToolsDepartment" />
 		<category name="GradToolsRackham" />
+		<category name="submission" />
 
 		<configuration name="functions.require" value="annc.read" /> 
 
