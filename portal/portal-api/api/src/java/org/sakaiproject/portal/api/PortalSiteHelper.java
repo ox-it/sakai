@@ -115,6 +115,14 @@ public interface PortalSiteHelper
 	String getUserSpecificSiteTitle( Site site, boolean escaped );
 
 	/**
+	 * Similar to getUserSpecificSiteTitle(Site site, boolean escaped), but also takes truncated parameter
+	 *
+	 * @see getUserSpecificSiteTitle(Site site, String userId)
+	 * @param truncated true if you want long titles to be truncated with an ellipses
+	 */
+	String getUserSpecificSiteTitle( Site site, boolean truncated, boolean escaped );
+
+	/**
 	 * Similar to getUserSpecificSiteTitle(Site site, boolean escaped), but consumes the specified siteProviders (for performance savings)
 	 *
 	 * @see getUserSpecificSiteTitle(Site site, String userId)

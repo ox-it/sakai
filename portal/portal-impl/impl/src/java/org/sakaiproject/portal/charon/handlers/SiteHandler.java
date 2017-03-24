@@ -28,13 +28,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Cookie;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,6 +55,7 @@ import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolManager;
@@ -533,8 +532,11 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteTitle", rb.getString("sit_mywor") );
 			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
 		}else{
-			rcontext.put("siteTitle", Web.escapeHtml(site.getTitle()));
-			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle( site, false ) );
+			List<Site> sites = new ArrayList<>();
+			sites.add( site );
+			Map<String, List<String>> providers = PortalSiteHelperImpl.getProviderIDsForSites( sites );
+			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle( site, false, true, providers.get( site.getReference() ) ));
+			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle( site, true, false, providers.get( site.getReference() ) ) );
 		}
 		
 		addLocale(rcontext, site, session.getUserId());

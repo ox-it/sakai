@@ -369,7 +369,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (site != null)
 		{
 			providers.addAll(getAuthzGroupService().getProviderIds(site.getReference()));
-			Collections.sort(providers);
+			//Collections.sort(providers);
 		}
 
 		return providers;
@@ -382,7 +382,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 * @param sites the list of sites to retrieve all provider IDs
 	 * @return a Map, where the key is the realm ID, and the value is a list of provider IDs for that site
 	 */
-	private static Map<String, List<String>> getProviderIDsForSites(List<Site> sites)
+	public static Map<String, List<String>> getProviderIDsForSites(List<Site> sites)
 	{
 		Map<String, List<String>> realmProviderMap = new HashMap<>();
 		if (!sites.isEmpty())
@@ -455,8 +455,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
 
-		String currentUser = UserDirectoryService.getCurrentUser().getId();
-		String siteTitle = SiteService.getUserSpecificSiteTitle(s, currentUser, siteProviders);
+		String siteTitle = getUserSpecificSiteTitle( s, false, true, siteProviders );
 		m.put("siteTitle", siteTitle);
 		m.put("fullTitle", siteTitle);
 		
@@ -501,9 +500,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					Map<String, Object> pm = new HashMap<>();
 
 					List<String> providers = getProviderIDsForSite(site);
-					String title = SiteService.getUserSpecificSiteTitle(site, currentUser, providers);
-
-					pm.put("siteTitle", Web.escapeHtml(title));
+					pm.put("siteTitle", getUserSpecificSiteTitle( site, false, true, providers ));
 					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
 
 					l.add(pm);
