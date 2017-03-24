@@ -369,7 +369,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if (site != null)
 		{
 			providers.addAll(getAuthzGroupService().getProviderIds(site.getReference()));
-			//Collections.sort(providers);
 		}
 
 		return providers;

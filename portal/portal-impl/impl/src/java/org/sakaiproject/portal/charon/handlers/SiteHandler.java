@@ -405,8 +405,11 @@ public class SiteHandler extends WorksiteHandler
 		session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 
 		// SAK-29138 - form a context sensitive title
+		List<Site> sites = new ArrayList<>();
+		sites.add( site );
+		List<String> providers = PortalSiteHelperImpl.getProviderIDsForSites( sites ).get( site.getReference() );
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false );
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site, false, false, providers );
 
 		// Lookup the page in the site - enforcing access control
 		// business rules
@@ -532,11 +535,8 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteTitle", rb.getString("sit_mywor") );
 			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
 		}else{
-			List<Site> sites = new ArrayList<>();
-			sites.add( site );
-			Map<String, List<String>> providers = PortalSiteHelperImpl.getProviderIDsForSites( sites );
-			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle( site, false, true, providers.get( site.getReference() ) ));
-			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle( site, true, false, providers.get( site.getReference() ) ) );
+			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle( site, false, true, providers ));
+			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle( site, true, false, providers ) );
 		}
 		
 		addLocale(rcontext, site, session.getUserId());
