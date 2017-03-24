@@ -2569,6 +2569,7 @@ public class UserPrefsTool
 					termsToSites.put(term, new ArrayList<Site>(1));
 				}
 
+				site.setTitle( getUserSpecificSiteTitle( site ) );
 				termsToSites.get(term).add(site);
 			}
 
@@ -2670,5 +2671,5 @@ public class UserPrefsTool
 	public String getServiceName() {
 		return ServerConfigurationService.getString("ui.name", "Sakai");
 	}
-	
+
 }

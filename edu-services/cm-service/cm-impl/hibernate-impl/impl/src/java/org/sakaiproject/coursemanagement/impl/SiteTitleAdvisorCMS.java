@@ -21,6 +21,7 @@
 
 package org.sakaiproject.coursemanagement.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +113,10 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
                 Collection<String> providerIDs = siteProviders;
                 if (providerIDs == null)
                 {
-                    providerIDs = azgs.getProviderIds(site.getReference());
+                    String realmID = site.getReference();
+                    List<String> realmIDs = new ArrayList<>();
+                    realmIDs.add( realmID );
+                    providerIDs = azgs.getProviderIDsForRealms( realmIDs ).get( realmID );
                 }
                 // Short circuit - only continue if there are more than one provider ID (cross listed site)
                 if( CollectionUtils.isNotEmpty( providerIDs ) )
