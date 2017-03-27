@@ -101,7 +101,10 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 
 	// bjones86 - OWL-501 - force home tool to top of the list always
-	private static final String HOME_TOOL_TITLE = "home";
+	private static final String OVERVIEW_TOOL_TITLE = "overview";
+
+	private static final String SAK_PROP_FORCE_OVERVIEW_TO_TOP = "portal.forceOverviewToTop";
+	private static final boolean SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT = true;
 
 	private static final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
 
@@ -1217,23 +1220,28 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		}
 
 		// bjones86 - OWL-501 - force home to the top at all times
-		List<SitePage> newPagesCopy = new ArrayList<>( newPages );
-		for( SitePage page : newPages )
+		if( ServerConfigurationService.getBoolean( SAK_PROP_FORCE_OVERVIEW_TO_TOP, SAK_PROP_FORCE_OVERVIEW_TO_TOP_DEFAULT ) )
 		{
-			if( HOME_TOOL_TITLE.equalsIgnoreCase( page.getTitle() ) )
+			List<SitePage> newPagesCopy = new ArrayList<>( newPages );
+			for( SitePage page : newPages )
 			{
-				int index = newPages.indexOf( page );
-				if( index >= 0 )
+				if( OVERVIEW_TOOL_TITLE.equalsIgnoreCase( page.getTitle() ) )
 				{
-					newPagesCopy = new ArrayList<>( newPages.size() );
-					newPagesCopy.addAll( newPages.subList( 0, index) );
-					newPagesCopy.add( 0, (SitePage) newPages.get( index ) );
-					newPagesCopy.addAll( newPages.subList( index + 1, newPages.size() ) );
+					int index = newPages.indexOf( page );
+					if( index >= 0 )
+					{
+						newPagesCopy = new ArrayList<>( newPages.size() );
+						newPagesCopy.addAll( newPages.subList( 0, index) );
+						newPagesCopy.add( 0, (SitePage) newPages.get( index ) );
+						newPagesCopy.addAll( newPages.subList( index + 1, newPages.size() ) );
+					}
 				}
 			}
+
+			return newPagesCopy;
 		}
 
-		return newPagesCopy;
+		return newPages;
 	}
 
 	/**
