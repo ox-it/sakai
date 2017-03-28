@@ -3859,7 +3859,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	            }
         	}
 
-        	if(label == null || url == null)
+        	if(label == null || url == null || url.equals(""))
         	{
         		if(logger.isDebugEnabled()) {
         			logger.debug("doCreateCitation: label null? " + label + " url null? " + url);
