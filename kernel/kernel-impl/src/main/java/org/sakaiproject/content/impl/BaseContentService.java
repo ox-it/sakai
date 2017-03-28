@@ -2144,7 +2144,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		String id = collectionId + name.trim();
 		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
 		{
-			throw new IdLengthException(id);
+			throw new IdLengthException(id, MAXIMUM_RESOURCE_ID_LENGTH);
 		}
 
 
@@ -3265,7 +3265,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		id = (String) fixTypeAndId(id, type).get("id");
 		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
 		{
-			throw new IdLengthException(id);
+			throw new IdLengthException(id, MAXIMUM_RESOURCE_ID_LENGTH);
 		}
 
 		ContentResourceEdit edit = null;
@@ -3363,7 +3363,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				String new_id = collectionId + base + "-" + attempts + ext;
 				if (new_id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
 				{
-					throw new IdLengthException(new_id);
+					throw new IdLengthException(new_id, MAXIMUM_RESOURCE_ID_LENGTH);
 				}
 				if (!siblings.contains(new_id))
 				{
@@ -3451,7 +3451,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		String id = collectionId + name;
 		if(id.length() > ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH)
 		{
-			throw new IdLengthException(id);
+			throw new IdLengthException(id, MAXIMUM_RESOURCE_ID_LENGTH);
 		}
 
 		BaseResourceEdit edit = null;
@@ -3505,7 +3505,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 					if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
 					{
-						throw new IdLengthException(id);
+						throw new IdLengthException(id, MAXIMUM_RESOURCE_ID_LENGTH);
 					}
 				}
 				while (siblings.contains(id));
@@ -3691,7 +3691,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		id = (String) fixTypeAndId(id, type).get("id");
 		if (id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
 		{
-			throw new IdLengthException(id);
+			throw new IdLengthException(id, MAXIMUM_RESOURCE_ID_LENGTH);
 		}
 
 		ContentResourceEdit edit = null;
@@ -3788,7 +3788,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				String new_id = collectionId + base + "-" + attempts + ext;
 				if (new_id.length() > MAXIMUM_RESOURCE_ID_LENGTH)
 				{
-					throw new IdLengthException(new_id);
+					throw new IdLengthException(new_id, MAXIMUM_RESOURCE_ID_LENGTH);
 				}
 				if (!siblings.contains(new_id))
 				{
@@ -4929,7 +4929,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		String new_id = newName(id, folder_id);
 		if (new_id.length() >= MAXIMUM_RESOURCE_ID_LENGTH)
 		{
-			throw new IdLengthException(new_id);
+			throw new IdLengthException(new_id, MAXIMUM_RESOURCE_ID_LENGTH);
 		}
 
 		// Should use copyIntoFolder if possible
@@ -5405,7 +5405,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 *            if copied item is a collection and the new id is already in use or if the copied item is not a collection and a unique id cannot be found in some arbitrary number of attempts (@see MAXIMUM_ATTEMPTS_FOR_UNIQUENESS).
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
-	 * @see copyIntoFolder(String, String) method (preferred method for invocation from a tool).
+	 * @see #copyIntoFolder(String, String) method (preferred method for invocation from a tool).
 	 */
 	public String copy(String id, String new_id) throws PermissionException, IdUnusedException, TypeException, InUseException,
 	OverQuotaException, IdUsedException, ServerOverloadException
