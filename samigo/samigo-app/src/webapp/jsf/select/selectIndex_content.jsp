@@ -107,7 +107,7 @@ sorting actions for table:
 --%>
   <!-- SELECT TABLE -->
   <div class="tier2">
-  <h:dataTable id="selectTable" value="#{select.takeableAssessments}" var="takeable" styleClass="table table-striped" summary="#{selectIndexMessages.sum_availableAssessment}">
+  <h:dataTable id="selectTable" value="#{select.takeableAssessments}" rendered="#{select.isThereAssessmentToTake eq 'true'}" var="takeable" styleClass="table table-striped" summary="#{selectIndexMessages.sum_availableAssessment}">
     <h:column headerClass="assessmentTitleHeader">
       <f:facet name="header">
           <h:outputText  value="#{selectIndexMessages.title} " />
@@ -155,29 +155,26 @@ sorting actions for table:
   </h2>
   <div class="info-text">
 	  <h:outputText rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{selectIndexMessages.review_assessment_notes}" />
+	  <h:outputText rendered="#{select.isThereAssessmentToReview eq 'false'}" value="#{selectIndexMessages.review_assessment_notAvailable}" />
   </div>
 	  
-<div class="panel panel-default">
-  <div class="panel-heading">
-	   	<h:commandLink
-			id="all"
-			value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.isThereAssessmentToReview eq 'true' && select.displayAllAssessments == 1}" onmouseup="disableLinks(this);submit();">
+<t:div rendered="#{select.isThereAssessmentToReview eq 'true'}" styleClass="panel panel-default">
+  <t:div rendered="#{select.displayAllAssessments == 1}" styleClass="panel-heading">
+		<h:outputText value="#{selectIndexMessages.review_assessment_recorded}" />
+		<h:outputText value="&#160; | &#160;" escape="false" />
+		<h:commandLink id="all" value="#{selectIndexMessages.review_assessment_all}" onmouseup="disableLinks(this);submit();">
 			<f:param name="selectSubmissions" value="2" />
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
 		</h:commandLink>
-    <h:outputText value="&#160; | &#160;" escape="false" />
-		<h:outputText value="#{selectIndexMessages.review_assessment_all}" rendered="#{select.displayAllAssessments == 2}" />
-    <h:outputText value="&#160; | &#160;" escape="false" />
-		<h:commandLink 
-			id="some"
-			value="#{selectIndexMessages.review_assessment_recorded}"
-			rendered="#{select.isThereAssessmentToReview eq 'true' && select.displayAllAssessments == 2}"
-			onmouseup="disableLinks(this);submit();">
+  </t:div>
+  <t:div rendered="#{select.displayAllAssessments == 2}" styleClass="panel-heading">
+		<h:outputText value="#{selectIndexMessages.review_assessment_all}" />
+		<h:outputText value="&#160; | &#160;" escape="false" />
+		<h:commandLink id="some" value="#{selectIndexMessages.review_assessment_recorded}" onmouseup="disableLinks(this);submit();">
 			<f:param name="selectSubmissions" value="1" />
 			<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
 		</h:commandLink>
-		<h:outputText value="#{selectIndexMessages.review_assessment_recorded}" rendered="#{select.displayAllAssessments == 1}" />
-  </div>
+  </t:div>
 
   <!-- REVIEW TABLE -->
 <%--
@@ -191,7 +188,7 @@ sorting actions for table:
 * Sort by: Title
 --%>
   <div class="table-responsive">
-  <h:dataTable styleClass="table table-striped" id="reviewTable" value="#{select.reviewableAssessments}" var="reviewable" summary="#{selectIndexMessages.sum_submittedAssessment}">
+  <h:dataTable styleClass="table table-striped" id="reviewTable" rendered="#{select.isThereAssessmentToReview eq 'true'}" value="#{select.reviewableAssessments}" var="reviewable" summary="#{selectIndexMessages.sum_submittedAssessment}">
 
 <%-- TITLE --%>
     <h:column>
@@ -320,7 +317,7 @@ sorting actions for table:
   <h:outputText value="#{selectIndexMessages.asterisk_2} #{selectIndexMessages.currently_being_edited}" rendered="#{select.hasAnyAssessmentRetractForEdit}" styleClass="validate"/>
   </h:panelGrid>
 
-  </div></div>
+  </div></t:div>
   </h:form>
 </div>
   <!-- end content -->
