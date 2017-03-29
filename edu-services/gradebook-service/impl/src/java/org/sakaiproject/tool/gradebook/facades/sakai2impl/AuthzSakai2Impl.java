@@ -22,7 +22,9 @@
 
 package org.sakaiproject.tool.gradebook.facades.sakai2impl;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +56,11 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
     	PERMISSION_GRADE_SECTION = "gradebook.gradeSection",
     	PERMISSION_EDIT_ASSIGNMENTS = "gradebook.editAssignments",
     	PERMISSION_VIEW_OWN_GRADES = "gradebook.viewOwnGrades";
+	
+	        // OWL custom permissions  --plukasew
+        public static final String PERMISSION_VIEW_EXTRA_USER_PROPERTIES = "gradebook.viewExtraUserProperties"; // OWLTODO: switch to community permission name if we contribute
+        public static final String PERMISSION_SUBMIT_COURSE_GRADES = "gradebook.submitCourseGrades";
+        public static final String PERMISSION_APPROVE_COURSE_GRADES = "gradebook.approveCourseGrades";
 
     /**
      * Perform authorization-specific framework initializations for the Gradebook.
@@ -75,6 +82,17 @@ public class AuthzSakai2Impl extends AuthzSectionsImpl implements Authz {
         if(!registered.contains(PERMISSION_VIEW_OWN_GRADES)) {
             FunctionManager.registerFunction(PERMISSION_VIEW_OWN_GRADES);
         }
+		
+		// register OWL custom permission  //plukasew
+        String[] owlPerms = {PERMISSION_VIEW_EXTRA_USER_PROPERTIES, PERMISSION_SUBMIT_COURSE_GRADES, PERMISSION_APPROVE_COURSE_GRADES};
+		List<String> owlPermList = Arrays.asList(owlPerms);
+		if (!registered.containsAll(owlPermList)) // OWLTODO: what if one permission is already registered? does it cause duplicate permissions? fail due to db constraints?
+		{
+			for (String perm : owlPermList)
+			{
+					FunctionManager.registerFunction(perm);
+			}
+		}
     }
 
 	public boolean isUserAbleToGrade(String gradebookUid) {

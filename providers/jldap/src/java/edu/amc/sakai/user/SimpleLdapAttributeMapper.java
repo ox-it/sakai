@@ -42,6 +42,7 @@ import org.sakaiproject.user.api.UserEdit;
 
 import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPEntry;
+import java.util.List;
 
 /**
  * Implements LDAP attribute mappings and filter generations using
@@ -366,7 +367,14 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         				"][physical attr name = " + attribute.getName() + 
         				"][value = " + attrValue + "]");
         	}
-            userData.setProperty(logicalAttrName, attrValue);
+        	// Support multivalue attributes.
+        	String[] attrValues = attribute.getStringValueArray();
+        	if (attrValues.length > 1) {
+        		List<String> newList = Arrays.asList(attrValues);
+        		userData.getProperties().put(logicalAttrName, newList);
+        	} else {
+        		userData.setProperty(logicalAttrName, attrValue);
+        	}
         }
         
     }
@@ -405,8 +413,14 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 		Properties srcProps = userData.getProperties();
 		ResourceProperties tgtProps = userEdit.getProperties();
 		for ( Entry srcProp : srcProps.entrySet() ) {
-			tgtProps.addProperty((String)srcProp.getKey(), 
-					(String)srcProp.getValue());
+			if (srcProp.getValue() instanceof String) {
+				tgtProps.addProperty((String)srcProp.getKey(), 
+						(String)srcProp.getValue());
+			} else if (srcProp.getValue() instanceof List) {
+				for(String value: (List<String>)srcProp.getValue()) {
+					tgtProps.addPropertyToList((String) srcProp.getKey(), value);
+				}
+			}
 		}
 		
 	}

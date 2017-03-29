@@ -503,7 +503,18 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
                                     attr("aria-hidden", "true").
                                     hide();
 
-  var $headers = self.$table.find("> thead > tr.gb-headers > th").slice(0,3);
+  //var $headers = self.$table.find("> thead > tr.gb-headers > th").slice(0,3);
+  var $headers = self.$table.find("> thead > tr.gb-headers > th");
+  var courseGradeIndex = 2;
+  $headers.each(function(index, origCell)
+  {
+     if ($(origCell).hasClass("gb-course-grade"))
+     {
+         courseGradeIndex = index;
+         return false;
+     }
+  });
+  $headers = $headers.slice(0, courseGradeIndex + 1);
   var $thead = $("<thead>");
   // append a dummy header row for when categorised
   $thead.append($("<tr>").addClass("gb-categories-row").append($("<th>").attr("colspan", $headers.length)));
@@ -524,7 +535,8 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   var $tbody = $("<tbody>");
   self.$table.find("> tbody > tr").each(function(i, origRow) {
     var $tr = $("<tr>");
-    self._cloneCells($(origRow).find(" > :lt(3)")).appendTo($tr);
+    //self._cloneCells($(origRow).find(" > :lt(3)")).appendTo($tr);
+    self._cloneCells($(origRow)).children().slice(0, courseGradeIndex + 1).appendTo($tr);
     $tbody.append($tr);
   });
   self.$fixedColumns.append($tbody);
@@ -547,7 +559,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   self.$fixedColumnsHeader.find("> thead > tr > *").on("mousedown", function(event) {
     event.preventDefault();
     $(window).scrollTop(self.$table.offset().top - 10);
-    self.$spreadsheet.scrollLeft(0);
+    self.$spreadsheet.find("#gradebookHorizontalOverflowWrapper").scrollLeft(0);
     var $targetCell = $(self.$table.find("> thead > tr.gb-headers > *").get($(this).index()));
 
     self.$spreadsheet.data("activeCell", $targetCell);
@@ -1329,6 +1341,23 @@ GradebookSpreadsheet.prototype.setupStudentFilter = function() {
   self.$table.on("click", "#studentFilterClear", function() {
     $(this).siblings(":input").val("").trigger("keyup").focus();
   });
+  
+  self.$table.on("keyup", "#studentNumberFilterInput", function(event)
+  {
+      // update fixed header
+      self.$fixedColumnsHeader.find(".studentNumberFilterInput").val(event.target.value);
+  });
+  
+  self.$table.on("keydown", "#studentNumberFilterInput", function(event)
+  {
+      if (event.keyCode === 13)  // Enter/return
+      {
+          event.preventDefault();
+          event.stopPropagation();
+          self.$table.find(".studentNumberFilterButton").trigger("click");
+      }
+  });
+  
 };
 
 

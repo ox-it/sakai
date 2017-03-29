@@ -32,6 +32,9 @@ public class GbStudentGradeInfo implements Serializable {
 
 	@Getter
 	private String studentEid;
+	
+	@Getter
+	private String studentNumber;
 
 	@Getter
 	@Setter
@@ -46,14 +49,20 @@ public class GbStudentGradeInfo implements Serializable {
 	public GbStudentGradeInfo() {
 	}
 
-	public GbStudentGradeInfo(final User u) {
+	public GbStudentGradeInfo(final User u)
+	{
+		this(u, "");
+	}
+	
+	public GbStudentGradeInfo(final User u, final String studentNumber) {
 		this.studentUuid = u.getId();
 		this.studentEid = u.getEid();
 		this.studentFirstName = u.getFirstName();
 		this.studentLastName = u.getLastName();
 		this.studentDisplayName = u.getDisplayName();
-		this.grades = new HashMap<Long, GbGradeInfo>();
-		this.categoryAverages = new HashMap<Long, Double>();
+		this.studentNumber = studentNumber;
+		this.grades = new HashMap<>();
+		this.categoryAverages = new HashMap<>();
 	}
 
 	/**

@@ -68,6 +68,12 @@ public class GradebookUiSettings implements Serializable {
 	 */
 	@Getter
 	private SortDirection studentSortOrder;
+	
+		/**
+	 * The direction to sort the student number column
+	 */
+	@Getter
+	private SortDirection studentNumberSortOrder;
 
 	/**
 	 * For sorting based on coursegrade
@@ -91,6 +97,10 @@ public class GradebookUiSettings implements Serializable {
 	@Getter
 	@Setter
 	private boolean gradeSummaryGroupedByCategory;
+	
+	@Getter
+	@Setter
+	private String studentNumberFilter;
 
 
 	public GradebookUiSettings() {
@@ -107,6 +117,8 @@ public class GradebookUiSettings implements Serializable {
 		this.categoryColors = new HashMap<String, String>();
 		this.showPoints = false;
 		this.gradeSummaryGroupedByCategory = false;
+		
+		studentNumberFilter = "";
 	}
 
 	public boolean isAssignmentVisible(final Long assignmentId) {
@@ -187,12 +199,19 @@ public class GradebookUiSettings implements Serializable {
 		resetSortOrder();
 		this.studentSortOrder = sortOrder;
 	}
+	
+	public void setStudentNumberSortOrder(SortDirection sortOrder)
+	{
+		resetSortOrder();
+		studentNumberSortOrder = sortOrder;
+	}
 
 	private void resetSortOrder() {
 		this.courseGradeSortOrder = null;
 		this.categorySortOrder = null;
 		this.assignmentSortOrder = null;
 		this.studentSortOrder = null;
+		this.studentNumberSortOrder = null;
 	}
 
 	@Override

@@ -165,6 +165,9 @@
 <!-- Uncomment and configure to use the JLDAPDirectoryProvider -->
 	<import resource="jldap-beans.xml" />
 
+<!-- Uncomment and configure to use the CandidateDetailsProvider -->
+	<import resource="candidate-details.xml" />
+
 <!--	Uncomment and configure to use the Kerberos Provider.
 
                  Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
@@ -205,6 +208,17 @@
         init-method="init"
         destroy-method="destroy">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-    </bean> 
+    </bean>
+	
+	<bean id="org.sakaiproject.user.detail.ValueEncryptionUtilities"
+		class="org.sakaiproject.user.detail.ValueEncryptionUtilities" init-method="init">
+        <property name="key">
+			<bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+					   factory-method="getString">
+			<constructor-arg value="ValueEncryptionUtilities.key" />
+			<constructor-arg value="none" />
+		</bean>
+		</property>
+	</bean>
 
 </beans>

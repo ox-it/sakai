@@ -223,8 +223,11 @@
     attribute to Sakai User instance member mapping behaviors. This
     example describes availabel configuration options for SimpleLdapAttributeMapper
     (the default LdapAttributeMapper implementation). -->
-	<bean id="edu.amc.sakai.user.LdapAttributeMapper"
+	<!--<bean id="edu.amc.sakai.user.LdapAttributeMapper"
 			class="edu.amc.sakai.user.SimpleLdapAttributeMapper"
+			init-method="init">-->
+	<bean id="edu.amc.sakai.user.LdapAttributeMapper"
+			class="edu.amc.sakai.user.SimpleLdapCandidateAttributeMapper"
 			init-method="init">
 			
 		<!-- A typical set of attribute mappings. Keys are logical

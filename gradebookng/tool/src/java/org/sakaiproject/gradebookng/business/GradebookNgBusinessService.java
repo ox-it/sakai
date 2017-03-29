@@ -15,11 +15,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
+import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -72,6 +74,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
 import lombok.Setter;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 
 /**
  * Business service for GradebookNG
@@ -116,6 +119,9 @@ public class GradebookNgBusinessService {
 
 	@Setter
 	private SecurityService securityService;
+	
+	@Setter
+	private CandidateDetailProvider candidateDetailProvider;
 
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 
@@ -217,12 +223,27 @@ public class GradebookNgBusinessService {
 	public List<User> getUsers(final List<String> userUuids) throws GbException {
 		try {
 			final List<User> users = this.userDirectoryService.getUsers(userUuids);
-			Collections.sort(users, new LastNameComparator()); // default sort
+			Collections.sort(users, new LastNameComparator()); // default sort // OWLTODO: remove this sort, it causes double sorting in various scenarios
 			return users;
 		} catch (final RuntimeException e) {
 			// an LDAP exception can sometimes be thrown here, catch and rethrow
 			throw new GbException("An error occurred getting the list of users.", e);
 		}
+	}
+	
+	public List<User> getUsers(final List<String> userUuids, final GradebookUiSettings settings)
+	{
+		// OWLTODO: for now we just grab the users from the previous method, ignoring the presort issue
+		
+		String studentNumberFilter = settings.getStudentNumberFilter();
+		Optional<Site> site = getCurrentSite();
+		if (studentNumberFilter.isEmpty() || !site.isPresent())
+		{
+			return getUsers(userUuids);
+		}
+		
+		return getUsers(userUuids).stream().filter(u -> getStudentNumber(u, site.get()).contains(studentNumberFilter))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -649,25 +670,38 @@ public class GradebookNgBusinessService {
 
 		// get role for current user
 		final GbRole role = this.getUserRole();
+		
+		Site site = getCurrentSite().orElse(null);
 
-		// get uuids as list of Users.
+		// get uuids as (potentially filtered) list of Users.
 		// this gives us our base list and will be sorted as per our desired
 		// sort method
-		final List<User> students = getUsers(studentUuids);
-		if (settings.getStudentSortOrder() != null || settings.getNameSortOrder() != null) {
+		final List<User> students = getUsers(studentUuids, settings);
+		stopwatch.timeWithContext("buildGradeMatrix", "getUsers", stopwatch.getTime());
+		if (settings.getStudentSortOrder() != null) {
 
-			if (settings.getNameSortOrder() == GbStudentNameSortOrder.FIRST_NAME) {
-				Collections.sort(students, new FirstNameComparator());
-			} else {
-				Collections.sort(students, new LastNameComparator());
+			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME.equals(settings.getNameSortOrder()) ?
+					new FirstNameComparator() : new LastNameComparator();
+			
+			if (SortDirection.DESCENDING.equals(settings.getStudentSortOrder()))
+			{
+				comp = Collections.reverseOrder(comp);
 			}
-
-			if (settings.getStudentSortOrder() != null &&
-					settings.getStudentSortOrder().equals(SortDirection.DESCENDING)) {
-
-				Collections.reverse(students);
+			Collections.sort(students, comp);
+		}
+		else if (settings.getStudentNumberSortOrder() != null)
+		{
+			if (site != null)
+			{
+				Comparator<User> comp = new StudentNumberComparator(site);
+				if (SortDirection.DESCENDING.equals(settings.getStudentNumberSortOrder()))
+				{
+					comp = Collections.reverseOrder(new StudentNumberComparator(site));
+				}
+				Collections.sort(students, comp);
 			}
 		}
+		stopwatch.timeWithContext("buildGradeMatrix", "sortUsers", stopwatch.getTime());
 
 		// get course grades
 		final Map<String, CourseGrade> courseGrades = getCourseGrades(studentUuids);
@@ -693,7 +727,7 @@ public class GradebookNgBusinessService {
 		for (final User student : students) {
 
 			// create and add the user info
-			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student);
+			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student, getStudentNumber(student, site));
 
 			// add the course grade, including the display
 			final CourseGrade courseGrade = courseGrades.get(student.getId());
@@ -961,46 +995,46 @@ public class GradebookNgBusinessService {
 
 		// sort the matrix based on the supplied assignment sort order (if any)
 		if (settings.getAssignmentSortOrder() != null) {
-			final AssignmentGradeComparator comparator = new AssignmentGradeComparator();
-			comparator.setAssignmentId(settings.getAssignmentSortOrder().getAssignmentId());
+			Comparator<GbStudentGradeInfo> comparator = new AssignmentGradeComparator(settings.getAssignmentSortOrder().getAssignmentId());
 
 			final SortDirection direction = settings.getAssignmentSortOrder().getDirection();
 
-			// sort
-			Collections.sort(items, comparator);
-
 			// reverse if required
 			if (direction == SortDirection.DESCENDING) {
-				Collections.reverse(items);
+				comparator = Collections.reverseOrder(comparator);
 			}
+			
+			// sort
+			Collections.sort(items, comparator);
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by assignment", stopwatch.getTime());
 
 		// sort the matrix based on the supplied category sort order (if any)
 		if (settings.getCategorySortOrder() != null) {
-			final CategorySubtotalComparator comparator = new CategorySubtotalComparator();
-			comparator.setCategoryId(settings.getCategorySortOrder().getCategoryId());
+			Comparator comparator = new CategorySubtotalComparator(settings.getCategorySortOrder().getCategoryId());
 
 			final SortDirection direction = settings.getCategorySortOrder().getDirection();
-
-			// sort
-			Collections.sort(items, comparator);
 
 			// reverse if required
 			if (direction == SortDirection.DESCENDING) {
 				Collections.reverse(items);
 			}
+			
+			// sort
+			Collections.sort(items, comparator);
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by category", stopwatch.getTime());
 
 		if (settings.getCourseGradeSortOrder() != null) {
-			// sort
-			Collections.sort(items, new CourseGradeComparator(getGradebookSettings()));
+			Comparator<GbStudentGradeInfo> comp = new CourseGradeComparator(getGradebookSettings());
 
 			// reverse if required
 			if (settings.getCourseGradeSortOrder() == SortDirection.DESCENDING) {
-				Collections.reverse(items);
+				comp = Collections.reverseOrder(comp);
 			}
+			
+			// sort
+			Collections.sort(items, comp);
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
 
@@ -1075,6 +1109,24 @@ public class GradebookNgBusinessService {
 		} catch (final Exception e) {
 			return null;
 		}
+	}
+	
+	public Optional<Site> getCurrentSite()
+	{
+		String siteId = getCurrentSiteId();
+		if (siteId != null)
+		{
+			try
+			{
+				return Optional.of(siteService.getSite(siteId));
+			}
+			catch (IdUnusedException e)
+			{
+				// do nothing
+			}
+		}
+		
+		return Optional.empty();
 	}
 
 	/**
@@ -1241,6 +1293,23 @@ public class GradebookNgBusinessService {
 		public int compare(final User u1, final User u2) {
 			return new CompareToBuilder().append(u1.getFirstName(), u2.getFirstName())
 					.append(u1.getLastName(), u2.getLastName()).toComparison();
+		}
+	}
+	
+	/**
+	 * Comparator class for sorting a list of users by student number
+	 */
+	@RequiredArgsConstructor
+	class StudentNumberComparator implements Comparator<User>
+	{
+		private final Site site;
+		
+		@Override
+		public int compare(final User u1, final User u2)
+		{
+			String stunum1 = candidateDetailProvider.getInstitutionalNumericId(u1, site).orElse("");
+			String stunum2 = candidateDetailProvider.getInstitutionalNumericId(u2, site).orElse("");
+			return stunum1.compareTo(stunum2);
 		}
 	}
 
@@ -1796,6 +1865,25 @@ public class GradebookNgBusinessService {
 		// other roles not yet catered for, catch all.
 		return false;
 	}
+	
+	// true if student numbers are visible to the current user
+	// doesn't take into account suppression of student number for individial students due to account type
+	public boolean isStudentNumberVisible()
+	{
+		User user = getCurrentUser();
+		Optional<Site> site = getCurrentSite();
+		return user != null && site.isPresent() && candidateDetailProvider.isInstitutionalNumericIdEnabled()
+				&& candidateDetailProvider.canUserViewInstitutionalNumericIds(user, site.get());
+	}
+	
+	public String getStudentNumber(User u, Site site)
+	{
+		if (site == null)
+		{
+			return "";
+		}
+		return candidateDetailProvider.getInstitutionalNumericId(u, site).orElse("");
+	}
 
 	/**
 	 * Build a list of group references to site membership (as uuids) for the groups that are viewable for the current user.
@@ -1952,10 +2040,10 @@ public class GradebookNgBusinessService {
 	 * has.
 	 *
 	 */
+	@RequiredArgsConstructor
 	class AssignmentGradeComparator implements Comparator<GbStudentGradeInfo> {
 
-		@Setter
-		private long assignmentId;
+		private final long assignmentId;
 
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {
@@ -1978,10 +2066,10 @@ public class GradebookNgBusinessService {
 	 * Note that this must have the categoryId set into it so we can extract the appropriate grade entry from the map that each student has.
 	 *
 	 */
+	@RequiredArgsConstructor
 	class CategorySubtotalComparator implements Comparator<GbStudentGradeInfo> {
 
-		@Setter
-		private long categoryId;
+		private final long categoryId;
 
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2) {

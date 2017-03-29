@@ -59,7 +59,6 @@
 #gradebookGrades th input[type='text'],
 #gradebookGrades th select {
   width: 100%;
-  font-size: 0.9em;
 }
 #gradebookGrades fieldset td {
   height: 2em;
@@ -92,6 +91,61 @@
   max-width: 220px;
   min-width: 220px;
 }
+
+#gradebookGrades .gb-student-number-cell
+{
+	width: 160px;
+	max-width: 160px;
+	min-width: 160px;
+	text-align:center;
+}
+
+#gradebookGrades .gb-student-number-cell .gb-title
+{
+	text-align: left;
+}
+
+#gradebookGrades .gb-student-number-filter .studentNumberFilterButton
+{
+	margin: 0;
+	font-family: FontAwesome;
+	padding:0.5em;
+	line-height: 1;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
+#gradebookGrades .gb-student-number-filter .studentNumberFilterClear
+{
+	margin: 0;
+	font-family: FontAwesome;
+	padding:0.5em;
+	line-height: 1;
+	border-radius: 0;
+	border-left: 0;
+	border-right: 0 none;
+	color: #666666;
+	background: white;
+}
+
+#gradebookGrades .studentNumberFilterInputGroup
+{
+	display: flex;
+	align-items: center;
+}
+
+#gradebookGrades .studentNumberFilterInput
+{
+	border: 1px solid #cccccc;
+	border-right: 0 none;
+}
+
+.gb-student-number-filter > div
+{
+	display: flex;
+	align-items: center;
+}
+
 #gradebookGrades thead th > div,
 #gradebookGrades tbody td > div {
   position: relative;
@@ -236,11 +290,6 @@
      so that the bottom-most menus display without being cropped */
   min-height: 40px;
 }
-/* Distinguish Headers and Fixed Columns */
-#gradebookGrades table thead tr > *:nth-child(3),
-#gradebookGrades table tbody tr > *:nth-child(3) {
-  border-right: 1px solid #BBB !important;
-}
 #gradebookGrades table tr.gb-headers th {
   border-bottom-color: #BBB;
 }
@@ -353,10 +402,14 @@
 }
 #gradebookGrades .gb-course-grade {
   text-align: center;
+  /* Distinguish Headers and Fixed Columns */
+  border-right: 1px solid #BBB !important;
 }
 #gradebookGrades .gb-grade-item-cell > div,
 #gradebookGrades .gb-course-grade > div,
-#gradebookGrades .gb-category-item-column-cell > div {
+#gradebookGrades .gb-category-item-column-cell > div,
+#gradebookGrades .gb-student-number-cell > div
+{
   line-height: 2.6em;
 }
 #gradebookGrades .gb-course-grade.points > div > span {
@@ -656,10 +709,13 @@
 #gradebookGrades .filtered-by-studentFilter {
   display: none;
 }
-#gradebookGrades .gb-student-filter {
+#gradebookGrades .gb-student-filter,
+#gradebookGrades .gb-student-number-filter
+{
   position: relative;
 }
-#gradebookGrades .gb-student-filter input {
+#gradebookGrades .gb-student-filter input,
+#gradebookGrades .gb-student-number-filter input{
   height: 2em;
 }
 #gradebookGrades .gb-student-filter-clear,
