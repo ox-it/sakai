@@ -819,6 +819,10 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private static final String VM_ADD_ROSTER_AUTH_REQUIRED = "authorizationRequired";
 
+	// OWL-2190
+	// restricts course site creation to particular section roles
+	private static final String SAK_PROP_CREATE_COURSE_ALLOWED_ROLES = "wsetup.create.course.allowedRoles";
+
 	/**
 	 * what are the tool ids within Home page?
 	 * If this is for a newly added Home tool, get the tool ids from template site or system set default
@@ -13803,7 +13807,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 		if( cms != null && user != null)
 		{
-			Map<String, String> sectionRoles = cms.findSectionRoles( user.getEid() );			
+			String[] allowedRoles = ServerConfigurationService.getStrings(SAK_PROP_CREATE_COURSE_ALLOWED_ROLES);
+			Map<String, String> sectionRoles;
+			if (ArrayUtils.isEmpty(allowedRoles))
+			{
+				sectionRoles = cms.findSectionRoles(user.getEid());
+			}
+			else
+			{
+				sectionRoles = cms.findSectionRolesMatchingRoles(user.getEid(), Arrays.asList(allowedRoles));
+			}
 			if( sectionRoles != null )
 			{
 				// Iterate through all the sections and add their corresponding academic sessions to our return value
@@ -15314,7 +15327,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					}
 					else
 					{
-						state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+						if (ServerConfigurationService.getBoolean(SAK_PROP_FILTER_TERMS, Boolean.FALSE))
+						{
+							// Filter terms is intended to prevent users from hitting case 37 (manual creation).
+							// This will handle element inspecting the academic session dropdown
+							state.setAttribute(STATE_TEMPLATE_INDEX, "36");
+						}
+						else
+						{
+							state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+						}
 					}		
 				}
 

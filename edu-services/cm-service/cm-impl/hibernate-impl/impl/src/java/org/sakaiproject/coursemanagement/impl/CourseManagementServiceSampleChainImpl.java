@@ -191,6 +191,10 @@ public class CourseManagementServiceSampleChainImpl implements CourseManagementS
 		return null;
 	}
 
+	public Map findSectionRolesMatchingRoles(String userEid, List<String> roles) {
+		return null;
+	}
+
 	public Set getCourseOfferingsInCanonicalCourse(String canonicalCourseEid) throws IdNotFoundException {
 		throw new IdNotFoundException(canonicalCourseEid, CanonicalCourse.class.getName());
 	}

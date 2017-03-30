@@ -418,9 +418,26 @@ public class CourseManagementServiceHibernateImpl extends HibernateDaoSupport im
 	public Map<String, String> findSectionRoles(final String userEid) {
 		List results = getHibernateTemplate().findByNamedQueryAndNamedParam(
 				"findSectionRoles", "userEid", userEid);
-		Map<String, String> sectionRoleMap = new HashMap<String, String>();
-		for(Iterator iter = results.iterator(); iter.hasNext();) {
-			Object[] oa = (Object[])iter.next();
+		return createSectionRolesMapFromQueryResults(results);
+	}
+
+	public Map<String, String> findSectionRolesMatchingRoles(final String userEid, final List<String> roles)
+	{
+		List results = getHibernateTemplate().findByNamedQueryAndNamedParam(
+				"findSectionRolesMatchingRoles", new String[]{"userId", "roles"}, new Object[]{userEid, roles});
+		return createSectionRolesMapFromQueryResults(results);
+	}
+
+	/**
+	 * SectionRolesMap queries return results as Object[][] in the form {{section1, role1], [section2, role2], ...}.
+	 * This method converts this into a Map
+	 */
+	private Map<String, String> createSectionRolesMapFromQueryResults(List queryResults)
+	{
+		Map<String, String> sectionRoleMap = new HashMap<>();
+		for (Object o : queryResults)
+		{
+			Object[] oa = (Object[])o;
 			sectionRoleMap.put((String)oa[0], (String)oa[1]);
 		}
 		return sectionRoleMap;

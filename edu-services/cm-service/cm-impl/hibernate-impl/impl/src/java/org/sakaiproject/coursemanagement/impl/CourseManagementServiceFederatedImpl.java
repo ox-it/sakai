@@ -730,6 +730,24 @@ public class CourseManagementServiceFederatedImpl implements
 		return sectionRoleMap;
 	}
 
+	public Map<String, String> findSectionRolesMatchingRoles(String userEid, List<String> roles)
+	{
+		Map<String, String> sectionRoleMap = new HashMap<String, String>();
+		for (CourseManagementService cms : implList)
+		{
+			Map<String, String> map = cms.findSectionRolesMatchingRoles(userEid, roles);
+			if (map == null)
+			{
+				continue;
+			}
+
+			// Earlier impls take precedence, so don't overwrite what's in the map
+
+			map.forEach(sectionRoleMap::putIfAbsent);
+		}
+		return sectionRoleMap;
+	}
+
 	public Set<CourseOffering> getCourseOfferingsInCanonicalCourse(String canonicalCourseEid) throws IdNotFoundException {
 		Set<CourseOffering> resultSet = new HashSet<CourseOffering>();
 		int exceptions = 0;

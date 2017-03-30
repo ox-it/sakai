@@ -1,3 +1,5 @@
+2017.03.30:
+	- [OWL-2586] ported findSectionRolesMatchingRoles in CourseManagementService (from OWL-2190)
 2017.03.06:
 	- [OWL-2583] port OWL-2191: added site property to override gradebook.externalAssessments.updateSameScore
 2017.03.01:

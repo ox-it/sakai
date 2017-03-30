@@ -445,6 +445,14 @@ public interface CourseManagementService {
 	public Map<String, String> findSectionRoles(String userEid);
 
 	/**
+	 * Finds the Sections (and roles) for which a user is a member, but filtered to the specified roles
+	 * @param userEid
+	 * @param roles returned map will only contain mappings to these roles
+	 * @return A Map of Section EIDs to roles for the user
+	 */
+	public Map<String, String> findSectionRolesMatchingRoles(String userEid, List<String> roles);
+
+	/**
 	 * Finds the CourseOfferings (and roles) for which a user is a member.
 	 * 
 	 * @param userEid

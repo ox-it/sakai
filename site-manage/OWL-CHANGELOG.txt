@@ -1,3 +1,5 @@
+2017.03.30:
+	- [OWL-2586] ported site-manage modifications to 11.3
 2017.03.06:
 	- [OWL-2569] mirror SAK-29583 in manage participants: duplicate paging/filtering on bottom of table
 	- [OWL-2240] implement CSRF protection in manage participants
