@@ -1459,7 +1459,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				{
 					//Http servlet access to dropbox resources
 					String userId=parts[3];
-					if ((userId==null)||(!isDropboxOwnerInCurrentUserGroups(ref,userId)))
+					if ((userId==null) || isDropboxMaintainer() || (!isDropboxOwnerInCurrentUserGroups(ref,userId)))
 					{
 						authDropboxGroupsCheck=false;
 					}
