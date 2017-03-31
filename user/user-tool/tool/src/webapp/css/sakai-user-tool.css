@@ -5,21 +5,12 @@
     color: rgb(85, 85, 85);
 }
 
-#user-create_edit .shorttext label
+#useredit .shorttext label, #user-create_edit .shorttext label
 {
     display: inline-block;
     float: none;
-    text-align: right;
-    width: 14em;
-    margin: 0 1em 0 0;
-    vertical-align: middle;
-}
-
-#useredit .shorttext label
-{
-    display: inline-block;
-    float: none;
-    text-align: left;
+    text-align:right;
+    padding-right:1em;
     min-width: 17em;
 }
 
@@ -31,16 +22,17 @@
 #user-create_edit input[type="text"], #user-create_edit input[type="password"]
 , #useredit input[type="text"], #useredit input[type="password"]
 {
-    width: 185px;
+    width:  225px;
 }
 
 #user-create_edit #strengthInfo, #useredit #strengthInfo
 {
     display: block;
     position: absolute;
-    left: 30.3em;
-    width: 50%;
-    margin-top: -11.9em;
+    left: 36em;
+    margin-right:1em;
+    min-width:100px;
+    margin-top: -6em;
     padding: 1em;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -55,7 +47,6 @@
     position: absolute;
     width: 0;
     height: 0;
-    top: 108px;
     left: -10px;
     border-top: 10px solid transparent;
     border-right: 10px solid #ccc;
@@ -63,24 +54,16 @@
 }
 
 #user-create_edit #matchMsg, #user-create_edit #strongMsg, #user-create_edit #weakMsg,
-#useredit #matchMsg, #useredit #strongMsg, #useredit #noMatchMsg, #useredit #weakMsg, #user-create_edit #emailWarningMsg,
+#useredit #matchMsg, #user-create_edit #noMatchMsg, #useredit #strongMsg, #useredit #noMatchMsg, #useredit #weakMsg, #user-create_edit #emailWarningMsg,
 #useredit #emailWarningMsg, #useredit #curPassReqMsg, #user-create_edit #failMsg, #user-create_edit #moderateMsg,
 #useredit #failMsg, #useredit #moderateMsg
 {
     display: block;
-    margin: 0.2em 0 0.5em 15.2em;
+    margin: 0.5em 0 0.5em 17.5em; /*17.5 is calculated by taking the min-width of the label and adding 0.5*/
     padding-left: 1.5em;
     vertical-align: top;
     line-height: 1.3em;
-}
-
-#user-create_edit #noMatchMsg{
-    display: block;
-    margin: -0.2em 0 0.5em 15.2em;
-    padding-left: 1.5em;
-    vertical-align: top;
-    line-height: 1em;
-}
+} 
 
 #user-create_edit #noMatchMsg, #user-create_edit #failMsg, #useredit #noMatchMsg, #useredit #failMsg,
 #user-create_edit #emailWarningMsg, #useredit #emailWarningMsg, #useredit #curPassReqMsg
@@ -99,9 +82,9 @@
 #user-create_edit #strengthBar, #useredit #strengthBar
 {
     background-color: #ccc;
-    width: 186px;
+    width: 220px;
     height: 5px;
-    margin: 5px 0px 0px 15.2em;
+    margin: 0.5em 0em 0.5em 17.5em;
     text-align: left;
 }
 
@@ -126,15 +109,9 @@
     color: rgb(85, 85, 85);
     display: inline-block;
     float: none;
-    text-align: left;
+    text-align: right;
     margin-right: 1em;
     min-width: 9em;
-}
-
-@media only screen and (max-width : 800px){
-    #userViewForm label, #useredit .shorttext label{
-        display: block;
-    }
 }
 
 #userViewForm .act, #user-create_edit .act, #useredit .act
@@ -178,6 +155,8 @@ form .shorttext{
 {
     padding: 0 0.5em;
     color: rgb(85, 85, 85);
+    width:auto;
+    border-bottom:0px;
 }
 
 .spinner {
@@ -188,4 +167,61 @@ form .shorttext{
 
 #eventSubmit_doSave {
     float: right;
+}
+
+@media only screen and (max-width :800px){
+
+    #userViewForm label, #useredit .shorttext label, #user-create_edit .shorttext label{        
+        display: block;
+        text-align: left;
+    }
+
+    #user-create_edit #matchMsg, #user-create_edit #strongMsg, #user-create_edit #weakMsg,
+    #useredit #matchMsg, #useredit #strongMsg, #useredit #noMatchMsg, #useredit #weakMsg, #user-create_edit #emailWarningMsg,
+    #useredit #emailWarningMsg, #useredit #curPassReqMsg, #user-create_edit #failMsg, #user-create_edit #moderateMsg,
+    #useredit #failMsg, #useredit #moderateMsg{
+        margin-left: 0.5em;
+    }
+
+    #user-create_edit #noMatchMsg{
+        margin-left: 0.5em;
+    }
+
+    #user-create_edit #strengthInfo, #useredit #strengthInfo{
+        position:relative;
+        margin-top: 1.5em;
+        margin-right:0px;
+        left:0px;
+    }
+
+    #user-create_edit #strengthInfo::after, #useredit #strengthInfo::after {
+        bottom: 100%;
+        left: 3%;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+        border-bottom-color: #ccc;
+        border-width: 10px;
+    }
+    
+    #user-create_edit label, #useredit label{
+        margin-top: 20px;
+    }
+
+    #user-create_edit #strengthInfo::before, #useredit #strengthInfo::before {
+        display:none;
+    }
+
+    #user-create_edit input[type="text"], #user-create_edit input[type="password"]
+    , #useredit input[type="text"], #useredit input[type="password"]{
+        width:  100%;
+    }
+
+    #user-create_edit #strengthBar, #useredit #strengthBar{
+        width:100%;
+        margin:0.5em 0em 0.5em 0em;
+    }
 }
