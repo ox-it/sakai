@@ -229,6 +229,12 @@
 	<bean id="edu.amc.sakai.user.LdapAttributeMapper"
 			class="edu.amc.sakai.user.SimpleLdapCandidateAttributeMapper"
 			init-method="init">
+		<property name="encryption">
+			<ref bean="org.sakaiproject.user.detail.ValueEncryptionUtilities" />
+		</property>
+		<property name="candidateIdLength"><value>10</value></property>
+		<property name="additionalInfoLength"><value>100</value></property>
+		<property name="studentNumberLength"><value>9</value></property>
 			
 		<!-- A typical set of attribute mappings. Keys are logical
 		names expected by the application. Values are physical LDAP

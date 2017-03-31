@@ -26,7 +26,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	private static final String USER_PROP_CANDIDATE_ID = "candidateID";
 	private static final String USER_PROP_ADDITIONAL_INFO = "additionalInfo";
 	private static final String USER_PROP_STUDENT_NUMBER = "studentNumber";
-	private static final String USER_PERM_STUDENT_NUMBER_VISIBLE = "user.studentNumber.visible";
+	private static final String USER_PERM_STUDENT_NUMBER_VISIBLE = "user.studentnumber.visible";
 	
 	private final static String SITE_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SITE_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
@@ -127,8 +127,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 				if(StringUtils.isNotBlank(studentNumber))
 				{
 					// this property is encrypted, so we need to decrypt it
-					// OWLTODO: skip encryption for testing, turn it back on later
-					String decrypt = studentNumber; //encryptionUtilities.decrypt(studentNumber);
+					String decrypt = encryptionUtilities.decrypt(studentNumber);
 					if (StringUtils.isNotBlank(decrypt)) {
 						return Optional.ofNullable(decrypt);
 					}
