@@ -115,17 +115,25 @@
 	border-bottom-left-radius: 0;
 }
 
-#gradebookGrades .gb-student-number-filter .studentNumberFilterClear
+#gradebookGrades .gb-student-number-filter .studentNumberFilterClear,
+#gradebookGrades .gb-student-number-filter .studentNumberFilterClear:disabled
 {
 	margin: 0;
 	font-family: FontAwesome;
 	padding:0.5em;
 	line-height: 1;
+	border: 1px solid #cccccc;
 	border-radius: 0;
-	border-left: 0;
-	border-right: 0 none;
+	border-left: 0 !important;
+	border-right: 0 !important;
 	color: #666666;
-	background: white;
+	background: #ffffff !important;
+}
+
+#gradebookGrades .gb-student-number-filter .studentNumberFilterClear:active,
+#gradebookGrades .gb-student-number-filter .studentNumberFilterClear:disabled
+{
+	box-shadow: none !important;
 }
 
 #gradebookGrades .studentNumberFilterInputGroup
@@ -134,10 +142,13 @@
 	align-items: center;
 }
 
-#gradebookGrades .studentNumberFilterInput
+#gradebookGrades .gb-student-number-filter .studentNumberFilterInput
 {
 	border: 1px solid #cccccc;
 	border-right: 0 none;
+	font-size: 12px;
+	height: 28px;
+	padding-left: 6px;
 }
 
 .gb-student-number-filter > div
@@ -145,6 +156,19 @@
 	display: flex;
 	align-items: center;
 }
+
+/*
+OWLTODO:
+Steps:
+ to .studentNumberFilterClear add:
+ border: 1px solid #ccc (higher up in the selector)
+ change background: white to background: #fff
+ in the active state, reset box-shadow:
+ none
+ Plus disabled states
+
+
+*/
 
 #gradebookGrades thead th > div,
 #gradebookGrades tbody td > div {
@@ -715,7 +739,8 @@
   position: relative;
 }
 #gradebookGrades .gb-student-filter input,
-#gradebookGrades .gb-student-number-filter input{
+#gradebookGrades .gb-student-number-filter input
+{
   height: 2em;
 }
 #gradebookGrades .gb-student-filter-clear,
