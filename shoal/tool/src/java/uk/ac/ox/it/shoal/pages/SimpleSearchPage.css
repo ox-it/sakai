@@ -5,7 +5,7 @@
 .sidebar {
     display: inline-block;
     vertical-align: top;
-    width: 10em;
+    width: 15em;
     margin-right: 2em;
 }
 
@@ -91,7 +91,7 @@ ul.results {
 
 .facet li a {
     display: inline-block;
-    max-width: 5.8em;
+    max-width: 10.8em;
     text-overflow: ellipsis;
     overflow-x: hidden;
     white-space: nowrap;
