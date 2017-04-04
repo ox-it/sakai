@@ -161,12 +161,12 @@ public class SimpleSearchPage extends SearchPage {
             filtersBox.add(filtersList);
             filtersBox.setVisible(filtersList.getViewSize() > 0);
 
+            add(provider.getFacet("purpose", "purpose", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
             add(provider.getFacet("type", "type", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
-            add(provider.getFacet("author", "author", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
             add(provider.getFacet("subject", "subject", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
             add(provider.getFacet("level", "level", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
-            add(provider.getFacet("purpose", "purpose", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
             add(provider.getFacet("interactivity", "interactivity", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
+
             add(provider.getOrderBy("order", p));
 
         }
