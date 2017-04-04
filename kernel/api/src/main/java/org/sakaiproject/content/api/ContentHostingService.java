@@ -438,7 +438,7 @@ public interface ContentHostingService extends EntityProducer
 	 * Access a List of all the ContentResource objects in this path (and below) which the current user has access.
 	 * 
 	 * @param id
-	 *        A collection id.
+	 *        A collection id. This cannot be the root collection.
 	 * @return a List of the ContentResource objects.
 	 */
 	public List<ContentResource> getAllResources(String id);
