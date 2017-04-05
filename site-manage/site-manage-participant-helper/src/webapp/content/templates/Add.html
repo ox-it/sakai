@@ -18,9 +18,9 @@
 		<h3 rsf:id="msg=java.addp">Add Participant</h3>
 		<p>
 			<span rsf:id="add.official" class="highlight"></span>
-			<span rsf:id = "add.official1"></span>
+			<span rsf:id="add.official1"></span>
+			<span rsf:id="add.official.instruction"></span>
 		</p>
-		<p rsf:id = "add.official.instruction"></p>
 		<!-- alert message -->
 		<div rsf:id="error-row:">
 			<div class="alertMessage" rsf:id="error">We Have Errors!</div>
@@ -33,7 +33,9 @@
 		<form rsf:id="participant-form" >
 			<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
 			<!-- add official account -->
+			<p>&nbsp;</p>
 			<h4 rsf:id="officialAccountSectionTitle"></h4>
+			<p class="instruction" rsf:id="msg=officialAccountSectionDescription"></p>
 			<label rsf:id="officialAccountLabel" for ="officialAccountParticipant">
 	           Official Account Label
 	        </label>
@@ -43,7 +45,9 @@
 			<h5 class="textPanelFooter" rsf:id="msg=add.multiple"></h5>
 			
 			<!-- add non-official account -->
+			<p>&nbsp;</p>
 			<h4  rsf:id="nonOfficialAccountSectionTitle"></h4>
+			<p class="instruction" rsf:id="nonOfficialAccountSectionDescription"></p>
 			<label rsf:id="nonOfficialAccountLabel" for ="nonOfficialAccountParticipant">
 	           Non-Official Account Label
 	        </label>
