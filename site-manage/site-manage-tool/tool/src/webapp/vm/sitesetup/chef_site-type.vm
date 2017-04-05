@@ -31,11 +31,16 @@
         $tlang.getString("sitetype.chothetyp.withouttemplate")
     </p>
     <form name="typeform" id="typeform" action="#toolForm("$action")&special=upload" method="post">
-        <p class="checkbox indnt1">
-            ## only show the radio button when there is any template site defined
-            <input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>    
-            <label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
-        </p>
+        #if (($templateSites.size() > 0) || ($canImportArchive))
+            <p class="checkbox indnt1">
+                ## only show the radio button when there is any template site defined
+                <input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>    
+                <label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
+            </p>
+        #else
+            ## otherwise, default to the choice
+            <input type="hidden" name="createMode" id="buildOwn" value="buildOwn" />
+        #end
         <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("sitetype.chothetyp.withtemplate.build.own.info")</p>
    
         ## NOTE: end if create from template enabled
