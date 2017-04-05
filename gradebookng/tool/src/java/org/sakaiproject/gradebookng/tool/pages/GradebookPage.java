@@ -547,6 +547,7 @@ public class GradebookPage extends BasePage {
 		modelData.put("categories", categories);
 		modelData.put("categoryType", this.businessService.getGradebookCategoryType());
 		modelData.put("categoriesEnabled", categoriesEnabled);
+		modelData.put("fixedColCount", businessService.isStudentNumberVisible() ? 4 : 3);
 
 		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(modelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
