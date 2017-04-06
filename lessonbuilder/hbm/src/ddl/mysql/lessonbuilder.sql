@@ -1,4 +1,3 @@
-
     create table lesson_builder_comments (
         id bigint not null auto_increment,
         itemId bigint not null,
@@ -96,6 +95,7 @@
         gradebookPoints double precision,
         owner varchar(99),
         groupOwned bit,
+        owned bit,
         groupid varchar(99),
         cssSheet varchar(250),
         primary key (pageId)
