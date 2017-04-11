@@ -161,7 +161,7 @@ public class LtiFileItemProducer implements ViewComponentProducer, NavigationCas
 		}
 
 		// We are not in the pop-up iframe, create a list of  tools registered as importers
-		List<Map<String, Object>> toolsFileItem = ltiService.getToolsFileItem();
+		List<Map<String, Object>> toolsFileItem = ltiService.getToolsFileItem(simplePageBean.getCurrentSiteId());
 		if ( toolsFileItem.size() < 1 ) {
 			UIOutput.make(tofill, "error-div");
 			UIBranchContainer er = UIBranchContainer.make(tofill, "errors:");

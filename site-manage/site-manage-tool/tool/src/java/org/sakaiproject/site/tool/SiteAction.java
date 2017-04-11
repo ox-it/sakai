@@ -25,10 +25,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,6 +49,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 import java.util.Vector;
 
 import javax.servlet.ServletContext;
@@ -81,7 +80,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.TwoFactorAuthentication;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
@@ -3031,13 +3029,13 @@ public class SiteAction extends PagedResourceActionII {
 					 String toolId = entry.getKey();
 					// get the proper html for tool input
 					String ltiToolId = toolMap.get("id").toString();
-					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId));
+					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), UUID.randomUUID().toString());
 					// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
 					for(int k=0; k<contentToolModel.length;k++)
 					{
 						contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
 					}
-					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId));
+					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId), site.getId());
 					String formInput=m_ltiService.formInput(ltiTool, contentToolModel);
 					toolMap.put("formInput", formInput);
 					currentLtiTools.put(ltiToolId, toolMap);
@@ -4175,40 +4173,38 @@ public class SiteAction extends PagedResourceActionII {
 			SessionState state, Site site, boolean updateToolRegistration) {
 		List<Map<String, Object>> visibleTools, allTools;
 		// get the visible and all (including stealthed) list of lti tools
-		visibleTools = m_ltiService.getTools(null,null,0,0);
-		if (site == null)
+		visibleTools = m_ltiService.getTools(null,null,0,0, UUID.randomUUID().toString());
+		if (site == null) {
 			allTools = visibleTools;
-		else
-			allTools = m_ltiService.getToolsDao(null,null,0,0,site.getId());
-      
-		if (visibleTools != null && !visibleTools.isEmpty())
-		{
-			HashMap<String, Map<String, Object>> ltiTools = new HashMap<String, Map<String, Object>>();
-			// get invoke count for all lti tools
-			List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0);
-			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
-			for ( Map<String,Object> content : contents ) {
-				String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
-				String siteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
-				if (siteId != null)
-				{
-					// whether the tool is already enabled in site
-					String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
-					if (StringUtils.trimToNull(pstr) != null && site != null)
-					{
-						// the lti tool is enabled in the site
-						ToolConfiguration toolConfig = SiteService.findTool(pstr);
-						if (toolConfig != null && toolConfig.getSiteId().equals(siteId))
-						{
-							Map<String, Object> m = new HashMap<String, Object>();
-							Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId));
-							if ( ltiToolValues != null )
-							{
-								m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
-								m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));
-								m.put(LTIService.LTI_TITLE, (String) content.get(LTIService.LTI_TITLE));
-								m.put("contentKey", content.get(LTIService.LTI_ID));
-								linkedLtiContents.put(ltiToolId, m);
+		} else {
+			// Get tools specfic for this site or that are available in all sites.
+			allTools = m_ltiService.getToolsDao(null, null, 0, 0, site.getId());
+		}
+		if (visibleTools != null && !visibleTools.isEmpty()) {
+			HashMap<String, Map<String, Object>> ltiTools = new HashMap<>();
+			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<>();
+			// Find the tools that exist in the site, this should only be done if we already have a site.
+			if (site != null) {
+				List<Map<String, Object>> contents = m_ltiService.getContentsDao(null, null, 0, 0, site.getId(), m_ltiService.isAdmin(site.getId()));
+				for (Map<String, Object> content : contents) {
+					String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
+					String siteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
+					if (siteId != null) {
+						// whether the tool is already enabled in site
+						String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
+						if (StringUtils.trimToNull(pstr) != null) {
+							// the lti tool is enabled in the site
+							ToolConfiguration toolConfig = SiteService.findTool(pstr);
+							if (toolConfig != null && toolConfig.getSiteId().equals(siteId)) {
+								Map<String, Object> m = new HashMap<>();
+								Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId), siteId);
+								if (ltiToolValues != null) {
+									m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
+									m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));
+									m.put(LTIService.LTI_TITLE, (String) content.get(LTIService.LTI_TITLE));
+									m.put("contentKey", content.get(LTIService.LTI_ID));
+									linkedLtiContents.put(ltiToolId, m);
+								}
 							}
 						}
 					}
@@ -6150,7 +6146,6 @@ public class SiteAction extends PagedResourceActionII {
 	/**
 	 * Determine whether the selected term is considered of "future term"
 	 * @param state
-	 * @param t
 	 */
 	private void isFutureTermSelected(SessionState state) {
 		AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
@@ -6484,7 +6479,6 @@ public class SiteAction extends PagedResourceActionII {
  * all tool types - normal, home, multiples and blti.  Note that if the toolOrder.xml is in the original format, this list will consist of 
  * all tools in a single group
  * @param state
- * @param is type
  * @param site
  */
 private Map<String,List> getTools(SessionState state, String type, Site site) {
@@ -6716,61 +6710,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 	}
 
-	/* SAK-16600 given list, return only those tools tha are BLTI
-	 * NOTE - this method is not yet used
-	 * @param	selToolList		list where tool.selected = true 
-	 * @return	list of tools that are selected and blti
-	 */
-	private List<String> getToolGroupLtiTools(List<String> selToolList) {
-		List<String> onlyLtiTools = new ArrayList<String>();
-		List<Map<String, Object>> allTools = m_ltiService.getTools(null, null,0, 0);
-		if (allTools != null && !allTools.isEmpty()) {
-			for (Map<String, Object> tool : allTools) {
-				Set keySet = tool.keySet();
-				Integer ltiId = (Integer) tool.get("id");
-				if (ltiId != null) {
-					String toolId = ltiId.toString();
-					if (selToolList.contains(toolId)) {
-						onlyLtiTools.add(toolId);
-					}
-				}
-		}
-	}
-		return onlyLtiTools;
-	}
-
-	/* SAK-16600 return selected list with blti tools removed
-	 * NOTE this method is not yet used
-	 * @param	selToolList		list where tool.selected = true 
-	 * @return	list of tools that are selected and not blti
-	 */
-	private List<String> removeLtiTools(List<String> selToolList) {
-		List<String> noLtiList = new ArrayList<String>();
-		noLtiList.addAll(selToolList);
-		List<String> ltiList = new ArrayList<String>();
-		List<Map<String, Object>> allTools = m_ltiService.getTools(null, null,0, 0);
-			if (allTools != null && !allTools.isEmpty()) {
-			for (Map<String, Object> tool : allTools) {
-				Set keySet = tool.keySet();
-				Integer ltiId = (Integer) tool.get("id");
-				if (ltiId != null) {
-					String toolId = ltiId.toString();
-					if (!ltiList.contains(toolId)) {
-						ltiList.add(toolId);
-					}
-				}
-			}
-		}
-		boolean result =  noLtiList.removeAll(ltiList);
-		return noLtiList;
-	}
-
 
 	private List selectedLTITools(Site site) {
 		List selectedLTI = new ArrayList();
 		if (site !=null) {
 			String siteId = site.getId();
-			List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0);
+			List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0, site.getId());
 			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
 			for ( Map<String,Object> content : contents ) {
 				String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
@@ -6863,7 +6808,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List<Map<String, Object>> allTools;
 		String siteId = "";
 		if ( site == null )
-			allTools = m_ltiService.getTools(null,null,0,0);
+			// We dont' have a site yet so just ask for all the available ones.
+			allTools = m_ltiService.getTools(null,null,0,0, UUID.randomUUID().toString());
 		else
 		{
 			siteId = Objects.toString(site.getId(), "");
@@ -7650,8 +7596,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * single section, for multiple sections of the same course, or for a
 	 * cross-listing having multiple courses
 	 * 
-	 * @param sectionList
-	 *            is a Vector of CourseListItem
 	 * @param id
 	 *            The site id
 	 */
@@ -8753,7 +8697,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * {@link #siteTitleEditable(SessionState, String)}).</p>
 	 * 
 	 * @param state
-	 * @param siteId
 	 * @return
 	 */
 	private boolean aliasAssignmentForNewSitesEnabled(SessionState state) {
@@ -10494,8 +10437,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 	/**
 	 * 
-	 * @param action
-	 * @param providers
 	 */
 	private void trackRosterChanges(String event, List <String> rosters) {
 		if (ServerConfigurationService.getBoolean(
@@ -10950,12 +10891,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 	} // updateCourseClasses
 
-	/**
-	 * test whether 
-	 * @param list
-	 * @param providerId
-	 * @return
-	 */
 	boolean listContainsString(List list, String s)
 	{
 		boolean rv = false;
@@ -11886,7 +11821,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// the tool is not selectd now. Remove it from site
 					Map<String, Object> oldLtiToolValues = oldLtiTools.get(oldLtiToolsId);
 					Long contentKey = Long.valueOf(oldLtiToolValues.get("contentKey").toString());
-					m_ltiService.deleteContent(contentKey);
+					m_ltiService.deleteContent(contentKey, site.getId());
 					// refresh the site object
 					site = refreshSiteObject(site);
 				}
@@ -13065,7 +13000,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	/**
 	 * adjust site type
 	 * @param state
-	 * @param site
 	 * @return
 	 */
 	private String checkNullSiteType(SessionState state, String type, String siteId) {
@@ -13463,6 +13397,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// update the lti tool list
 		if (state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null)
 		{
+			Site site = getStateSite(state);
 			Properties reqProps = params.getProperties();
 			// remember the reqProps may contain multiple lti inputs, so we need to differentiate those inputs and store one tool specific input into the map
 			HashMap<String, Map<String, Object>> ltiTools = (HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST);
@@ -13470,7 +13405,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			{
 				String ltiToolId = ltiToolEntry.getKey();
 				Map<String, Object> ltiToolAttributes = ltiToolEntry.getValue();
-				String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId));
+				String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId), site.getId());
 				Properties reqForCurrentTool = new Properties();
 				// the input page contains attributes prefixed with lti tool id, need to look for those attribute inut values
 				for (int k=0; k< contentToolModel.length;k++)
@@ -15851,7 +15786,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 	/**
 	 * whether this tool title is of Home tool title
-	 * @param toolTitle
 	 * @return
 	 */
 	private boolean isHomePage(SitePage page)
@@ -15953,8 +15887,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 	/**
 	 * create site from template
-	 * @param params
-	 * @param state
 	 */
 	private void doSite_copyFromTemplate(RunData data)
 	{	
@@ -15970,8 +15902,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 	/**
 	 * create course site from template, next step would be select roster
-	 * @param params
-	 * @param state
 	 */
 	private void doSite_copyFromCourseTemplate(RunData data)
 	{
@@ -16271,7 +16201,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	// SAK-20797
 	/**
 	 * return quota set on this specific site
-	 * @param collection
 	 * @return value of site-specific quota or 0 if not found
 	 */
 	private long getSiteSpecificQuota(Site site) {
@@ -16540,7 +16469,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * 
 	 * Only tools with content will be collected. See hasContent(toolId, siteId) for the behaviour.
 	 * 
-	 * @param list of siteids to check, could be a singleton
+	 * @param sites of siteids to check, could be a singleton
 	 * @return a list of toolIds that are in the sites that are available for import
 	 * 
 	 */
