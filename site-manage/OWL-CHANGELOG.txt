@@ -1,5 +1,6 @@
 2017.04.11:
 	- [OWL-2715] addressed missing key for "User Language (default)" text
+	- [OWL-2753] Hid LaTeX information from students in Site Info
 2017.04.05:
 	- [OWL-2732] Hid the "Build your own site" radio button when it is the only option"
 2017.03.30:

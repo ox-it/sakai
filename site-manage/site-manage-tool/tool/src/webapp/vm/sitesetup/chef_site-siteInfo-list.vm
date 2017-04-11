@@ -365,7 +365,7 @@
 			#end
 		#end
 		#end
-            #if ($isMathJaxInstalled)
+            #if ($!allowUpdate && $isMathJaxInstalled)
             <tr>
                 <th>
                 $tlang.getString("sinfo.mathjax.name")
