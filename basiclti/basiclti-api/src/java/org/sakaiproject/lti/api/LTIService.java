@@ -464,6 +464,7 @@ public interface LTIService {
     void filterContent(Map<String, Object> content, Map<String, Object> tool);
 
 
+
     // --- Deploy
     Object insertDeployDao(Properties newProps);
 
@@ -508,4 +509,12 @@ public interface LTIService {
     String formInput(Object row, String[] fieldInfo);
 
     boolean isAdmin(String siteId);
+
+	/**
+	 * This checks if a tool has to be configured to work in the site or if we should just skip the configuration.
+	 * @param tool The LTI tool.
+	 * @param contentToolModel The model for the tool.
+	 * @return <code>true</code> if the user has to provide some more configuration.
+	 */
+	boolean needsConfig(Map<String, Object> tool, String[] contentToolModel);
 }
