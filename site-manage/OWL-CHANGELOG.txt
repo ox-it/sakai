@@ -1,3 +1,5 @@
+2017.04.12:
+	- [OWL-2756] Added alt-text to Site Info -> Tool Order configuration buttons
 2017.04.11:
 	- [OWL-2715] addressed missing key for "User Language (default)" text
 	- [OWL-2753] Hid LaTeX information from students in Site Info

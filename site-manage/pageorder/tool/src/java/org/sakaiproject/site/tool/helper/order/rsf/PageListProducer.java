@@ -92,6 +92,8 @@ public class PageListProducer
                 UIOutput.make(pagerow, "page-name", page.getTitle());
                 UIInput.make(pagerow, "page-name-input", "#{SitePageEditHandler.nil}", page.getTitle());
                 UIMessage.make(pagerow, "page-name-label", "title");
+                UIOutput configure = UIOutput.make(pagerow, "configure");
+                configure.decorate(new UITooltipDecorator(UIMessage.make("page_configure")));
                 
                 //nameLabel.decorate(new UILabelTargetDecorator(name));
                 
