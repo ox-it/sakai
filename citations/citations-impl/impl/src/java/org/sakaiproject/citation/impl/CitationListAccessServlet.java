@@ -521,18 +521,18 @@ public class CitationListAccessServlet implements HttpAccess
 			out.println("\t\t\t</table></div></div>");
 
 			// rhs links
-				out.println("\t\t\t<div class=\"itemAction links\" style=\"width:20%\">");
+			out.println("\t\t\t<div class=\"itemAction links\" style=\"width:20%\">");
 			if( citation.hasCustomUrls() )
 			{
 				try {
 					String urlId = (String) citation.getCustomUrlIds().get(0);
+					String urlLabel = (StringUtils.isNotBlank(citation.getCustomUrlLabel(urlId))) ? Validator.escapeHtml(citation.getCustomUrlLabel(urlId)) : rb.getString( "e.avail.link.view" );
 					out.println("\t\t\t\t<div class=\"e-avail\"><a href=\"" + Validator.escapeHtml(citation.getCustomUrl( urlId )) + "\" target=\"_blank\">"
-					+ rb.getString( "e.avail.link.view" ) + "</a></div>");
+					+ urlLabel + "</a></div>");
 					} catch (IdUnusedException e) {
 					// no need to blow up the page if we can't find the e-availability url for one citation on it
 					}
-				out.println("\t\t\t\t |");
-				List<String> customUrlIds = citation.getCustomUrlIds();
+				List<String> customUrlIds = citation.getCustomUrlIds().subList(1, citation.getCustomUrlIds().size());
 				for( String urlId : customUrlIds )
 				{
 					if (!citation.hasPreferredUrl() ||
@@ -542,9 +542,8 @@ public class CitationListAccessServlet implements HttpAccess
 						try {
 							if (StringUtils.isNotBlank(citation.getCustomUrl(urlId))) {
 
-								String urlLabel = (StringUtils.isNotBlank(citation.getCustomUrlLabel(urlId))) ? rb.getString("nullUrlLabel.view") : Validator.escapeHtml(citation.getCustomUrlLabel(urlId));
-								out.println("\t\t\t\t<a href=\"" + Validator.escapeHtml(citation.getCustomUrl(urlId)) + "\" target=\"_blank\">" + urlLabel + "</a>");
-								out.println("\t\t\t\t |");
+								String urlLabel = (StringUtils.isNotBlank(citation.getCustomUrlLabel(urlId))) ? Validator.escapeHtml(citation.getCustomUrlLabel(urlId)) : rb.getString("nullUrlLabel.view");
+								out.println("\t\t\t\t | <a href=\"" + Validator.escapeHtml(citation.getCustomUrl(urlId)) + "\" target=\"_blank\">" + urlLabel + "</a>");
 							}
 						}
 						catch (IdUnusedException e) {
@@ -552,18 +551,21 @@ public class CitationListAccessServlet implements HttpAccess
 						}
 					}
 				}
-			} else {
-				// We only want to show the open url if no custom urls have been specified.
-				String soloLink = null;
-				if (citation.getCitationProperty("otherIds") instanceof Vector) {
-					soloLink = (String) ((Vector) citation.getCitationProperty("otherIds")).get(0);
-					}
-				else if (citation.getCitationProperty("otherIds") instanceof String) {
-					soloLink = (String) citation.getCitationProperty("otherIds");
+			}
+
+			// We always want to show the Solo open url even if custom urls have been specified.
+			String soloLink = null;
+			if (citation.getCitationProperty("otherIds") instanceof Vector) {
+				soloLink = (String) ((Vector) citation.getCitationProperty("otherIds")).get(0);
+			}
+			else if (citation.getCitationProperty("otherIds") instanceof String) {
+				soloLink = (String) citation.getCitationProperty("otherIds");
+			}
+			if (StringUtils.isNotEmpty(soloLink)) {
+				if( citation.hasCustomUrls()){
+					out.println("\t\t\t\t |");
 				}
-				if (soloLink!=null) {
-					out.println("\t\t\t\t<a href=\"" + soloLink + "\" target=\"_blank\">" + "Find it" + " on SOLO" + "</a>");
-				}
+				out.println("\t\t\t\t<a href=\"" + soloLink + "\" target=\"_blank\">" + "Find it" + " on SOLO" + "</a>");
 			}
 			// TODO This doesn't need any Inline HTTP Transport.
 			out.println("\t\t\t\t<span class=\"Z3988\" title=\""+ citation.getOpenurlParameters().substring(1).replace("&", "&amp;")+ "\"></span>");
