@@ -1049,3 +1049,7 @@ ALTER TABLE VALIDATIONACCOUNT_ITEM ADD COLUMN EID VARCHAR(255);
 UPDATE SAKAI_SITE_TOOL SET TITLE='Gradebook Classic' WHERE TITLE='Gradebook';
 UPDATE SAKAI_SITE_PAGE SET TITLE='Gradebook Classic' WHERE TITLE='Gradebook';
 
+-- LSNBLDR-633 Restrict editing of Lessons pages and subpages to one person
+ALTER TABLE lesson_builder_pages ADD owned bit default false not null;
+-- END LSNBLDR-633
+

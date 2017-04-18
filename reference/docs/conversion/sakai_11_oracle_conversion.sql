@@ -1055,3 +1055,7 @@ alter table SAKAI_MESSAGE_BUNDLE add tempcol clob;
 update SAKAI_MESSAGE_BUNDLE set tempcol=PROP_VALUE;
 alter table SAKAI_MESSAGE_BUNDLE drop column PROP_VALUE;
 alter table SAKAI_MESSAGE_BUNDLE rename column tempcol to PROP_VALUE;
+
+--LSNBLDR-633 Restrict editing of Lessons pages and subpages to one person
+ALTER TABLE lesson_builder_pages ADD owned bit default false not null;
+-- END LSNBLDR-633
