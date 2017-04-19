@@ -167,30 +167,35 @@ public class NestedCitationValidator implements CitationValidator {
 
 		// check the previous CitationCollectionOrder is of the correct type
 		List<CitationCollectionOrder> citationCollectionOrderList = getCitationService().getNestedCollectionAsList(collection.getId());
+		CitationCollectionOrder previousCitationCollectionOrder = null;
 		for (CitationCollectionOrder collectionOrder: citationCollectionOrderList) {
-			if (isH2){
-				//  check previous CitationCollectionOrder is an h1 h2 or description
-				if (!collectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING1) &&
-						!collectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING2) &&
-						!collectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.DESCRIPTION)){
-					return "Invalid place to add subsection: trying to add an H2 to something other than an H1 H2 or a DESCRIPTION for collection id:" + citationCollectionOrder.getCollectionId();
-				}
+			if (collectionOrder.getLocation()==citationCollectionOrder.getLocation()-1){
+				previousCitationCollectionOrder = collectionOrder;
 			}
-			else if (isH3){
-				//  check previous CitationCollectionOrder is an h2 h3 or description
-				if (!collectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING2) &&
-						!collectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING3) &&
-						!collectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.DESCRIPTION)){
-					return "Invalid place to add subsection: trying to add an H3 to something other than an H2 H3 or DESCRIPTION for collection id:" + citationCollectionOrder.getCollectionId();
-				}
+		}
+
+		if (isH2){
+			//  check previous CitationCollectionOrder is an h1 h2 or description
+			if (!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING1) &&
+					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING2) &&
+					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.DESCRIPTION)){
+				return "Invalid place to add subsection: trying to add an H2 to something other than an H1 H2 or a DESCRIPTION for collection id:" + citationCollectionOrder.getCollectionId();
 			}
-			else if (isDescription){
-				//  check previous CitationCollectionOrder is an h1 h2 or h3
-				if (!collectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING1) &&
-						!collectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING2) &&
-						!collectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING3)){
-					return "Invalid place to add subsection: trying to add a description to something other than an H1 H2 or H3 for collection id:" + citationCollectionOrder.getCollectionId();
-				}
+		}
+		else if (isH3){
+			//  check previous CitationCollectionOrder is an h2 h3 or description
+			if (!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING2) &&
+					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING3) &&
+					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.DESCRIPTION)){
+				return "Invalid place to add subsection: trying to add an H3 to something other than an H2 H3 or DESCRIPTION for collection id:" + citationCollectionOrder.getCollectionId();
+			}
+		}
+		else if (isDescription){
+			//  check previous CitationCollectionOrder is an h1 h2 or h3
+			if (!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING1) &&
+					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING2) &&
+					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING3)){
+				return "Invalid place to add subsection: trying to add a description to something other than an H1 H2 or H3 for collection id:" + citationCollectionOrder.getCollectionId();
 			}
 		}
 		return null;
