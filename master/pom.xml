@@ -124,6 +124,7 @@
     <sakai.mockito.version>2.2.16</sakai.mockito.version>
     <sakai.powermock.version>1.6.6</sakai.powermock.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
+    <sakai.wicket.version>1.4.15</sakai.wicket.version>
     <joda.time.version>2.9.4</joda.time.version>
     <sakai.genericdao.version>0.10.0</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>

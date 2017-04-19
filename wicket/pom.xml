@@ -23,10 +23,6 @@
     <packaging>pom</packaging>
     <inceptionYear>2017</inceptionYear>
 
-    <properties>
-        <sakai.wicket.version>1.4.15</sakai.wicket.version>
-    </properties>
-
     <modules>
         <module>wicket-components</module>
         <module>wicket-core</module>
