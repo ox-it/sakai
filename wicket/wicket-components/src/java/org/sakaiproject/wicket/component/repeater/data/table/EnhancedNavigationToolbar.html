@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd"
+      xml:lang="da"
+      lang="da">
+    <wicket:panel>
+        <tr class="navigation">
+            <td wicket:id="span">
+                <div class="navPanel" style="height:auto">
+                    <div class="viewNav">
+                        <div wicket:id="filterPanel"/>
+                        <div wicket:id="searchPanel"/>
+                        <wicket:enclosure child="tableTitle">
+                            <h4><span wicket:id="tableTitle" style="vertical-align: bottom;"></span></h4>
+                        </wicket:enclosure>
+                    </div>
+                    <div class="listNav">
+                        <div class="instruction"><span wicket:id="navigatorLabel">[navigator-label]</span></div>
+                        <div class="innerPanel"><span wicket:id="navigator">[navigator]</span></div>
+                    </div>
+                </div>
+                <div class="instruction"><span wicket:id="instructions"></span></div>
+            </td>
+        </tr>
+    </wicket:panel>
+</html>

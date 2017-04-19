@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd"
+      xml:lang="da"
+      lang="da">
+    <wicket:panel>
+        <form wicket:id="filterForm">
+            <p class="instruction">
+                <wicket:message key="filter.showing"/>
+            </p>
+            <select wicket:id="dropdown"/>
+                <a href="#" wicket:id="configurer">
+                <wicket:message key="filter.configurer"/>
+            </a>
+            <wicket:enclosure child="limiter">
+                <wicket:message key="filter.limiter.prefix"></wicket:message>
+                <input type="checkbox" wicket:id="limiter" ></input>
+                <wicket:message key="filter.limiter.suffix"></wicket:message>
+            </wicket:enclosure>
+        </form>
+    </wicket:panel>
+</html>

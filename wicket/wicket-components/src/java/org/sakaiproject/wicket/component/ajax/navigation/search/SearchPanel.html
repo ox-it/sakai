@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd"
+      xml:lang="da"
+      lang="da">
+    <wicket:panel>
+        <form wicket:id="searchForm" class="inlineForm">
+            <label for="search" class="skip"><wicket:message key="mb.list.search"/></label>
+            <input wicket:id="searchField" type="text" size="15" name="search" />
+            <input type="submit" wicket:message="value:mb.list.search" />
+            <input wicket:id="clearButton" type="submit" wicket:message="value:mb.list.clear" />
+        </form>
+    </wicket:panel>
+</html>
