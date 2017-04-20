@@ -1,3 +1,5 @@
+2017.04.20:
+	- [OWL-2745] no spinner on "submit as student" link
 2017.03.01:
 	- [OWL-2547] port assignments customizations to 11.3 (excluding content-review)
 2017.01.10:
