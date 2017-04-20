@@ -1,3 +1,5 @@
+2017.04.20:
+	- [OWL-2667] membership -> 'clear selections' button wasn't working
 2017.04.12:
 	- [OWL-2756] Added alt-text to Site Info -> Tool Order configuration buttons
 2017.04.11:
