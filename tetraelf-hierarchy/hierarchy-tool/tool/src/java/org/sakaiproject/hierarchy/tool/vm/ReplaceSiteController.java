@@ -114,7 +114,7 @@ public class ReplaceSiteController{
 		return displaySites(request);
 	}
 
-	@RequestMapping(value = "/site/save", method = RequestMethod.POST)
+	@RequestMapping(value = "/save", method = RequestMethod.POST)
 	public String saveSite(HttpServletRequest request,ModelMap model, @RequestParam(REQUEST_SITE) String siteId) {
 		PortalNodeSite node = portalHierarchyService.getCurrentPortalNode();
 		if (siteId != null && !siteId.isEmpty()) {
@@ -125,6 +125,8 @@ public class ReplaceSiteController{
 						"You shouldn't have been able to select a site as you don't have permission.", e);
 			}
 		}
+		// Reload the current node now the site has been changed.
+		node = portalHierarchyService.getCurrentPortalNode();
 		model.put("siteUrl", node.getSite().getUrl());
 		return "redirect";
 	}

@@ -313,7 +313,7 @@ public class TurnitinLTIUtil implements TurnitinLTIAPI {
 			log.error("deleteTIIToolContent: Could not find LTI service.");
 			return false;
 		}
-		return ltiService.deleteContent(Long.valueOf(contentKey));
+		return ltiService.deleteContent(Long.valueOf(contentKey), "!admin");
 	}
 	
 	private String formUrl(int type, String urlParam){

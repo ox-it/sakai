@@ -29,7 +29,6 @@ public class SimpleSearchPage extends SearchPage {
     private SolrServer solr;
 
 
-    private boolean doSearch;
     private String query;
 
     private String[] filters;
@@ -43,7 +42,6 @@ public class SimpleSearchPage extends SearchPage {
         setStatelessHint(true);
 
         // Setup the query.
-        doSearch = !p.get("query").isNull();
         query = p.get("query").toString("");
         // Need to parse the filter Query.
         filters = p.getValues("filter").stream().map(StringValue::toString).toArray(String[]::new);
@@ -58,26 +56,10 @@ public class SimpleSearchPage extends SearchPage {
         if (sorts.contains(order)) {
             provider.setSort(new Tuple<>(order, SolrQuery.ORDER.desc));
         }
-
-
+        add(new ResultsPanel("results", p));
 
     }
 
-    /**
-     * We do this in before render so that we don't end up performing a search when just submitting the form, as
-     * the form submit just issues a redirect.
-     */
-    @Override
-    public void onBeforeRender() {
-
-        // Are we searching.
-        if (doSearch) {
-            add(new ResultsPanel("results", p));
-        } else {
-            add(new EntryPanel("results", p));
-        }
-        super.onBeforeRender();
-    }
 
     /**
      * Escape the passed string. It splits on spaces and then escapes all the parts.
@@ -146,7 +128,7 @@ public class SimpleSearchPage extends SearchPage {
                     // Come back to this page but without any parameters.
                     setResponsePage(SimpleSearchPage.class, new PageParameters());
                 }
-            }.setVisible(!getPageParameters().isEmpty()));
+            }.setVisible(!p.isEmpty()));
             add(form);
 
             Class clazz = SimpleSearchPage.class;
@@ -161,12 +143,12 @@ public class SimpleSearchPage extends SearchPage {
             filtersBox.add(filtersList);
             filtersBox.setVisible(filtersList.getViewSize() > 0);
 
+            add(provider.getFacet("purpose", "purpose", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
             add(provider.getFacet("type", "type", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
-            add(provider.getFacet("author", "author", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
             add(provider.getFacet("subject", "subject", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
             add(provider.getFacet("level", "level", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
-            add(provider.getFacet("purpose", "purpose", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
             add(provider.getFacet("interactivity", "interactivity", new FacetSort(FacetSort.On.COUNT, FacetSort.Order.DESC), null, p));
+
             add(provider.getOrderBy("order", p));
 
         }

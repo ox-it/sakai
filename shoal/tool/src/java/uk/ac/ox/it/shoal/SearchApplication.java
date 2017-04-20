@@ -7,6 +7,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.SharedResourceReference;
 import org.apache.wicket.resource.FileSystemResource;
 import org.apache.wicket.resource.loader.ClassStringResourceLoader;
+import org.apache.wicket.resource.loader.PackageStringResourceLoader;
 import uk.ac.ox.it.shoal.pages.DisplayPage;
 import uk.ac.ox.it.shoal.pages.SimpleSearchPage;
 
@@ -31,6 +32,7 @@ public class SearchApplication extends SakaiApplication {
         mountPage("/display", DisplayPage.class);
 
         getResourceSettings().getStringResourceLoaders().add(new ClassStringResourceLoader(SearchApplication.class));
+        getResourceSettings().getStringResourceLoaders().add(new PackageStringResourceLoader()) ;
 
         getSharedResources().add("thumbnails", new FolderContentResource(Paths.get(System.getProperty("java.io.tmpdir"))));
         mountResource("/thumbnail/${filename}", new SharedResourceReference("thumbnails"));

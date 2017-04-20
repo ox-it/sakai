@@ -105,7 +105,7 @@ public class EditPage extends SakaiPage {
         List<String> types = getApplication().getMetaData(EditApplication.TYPE);
         ListMultipleChoice<String> type = new NoDefaultListMultipleChoice<>("type", types);
         purpose.add(new PropertyValidator<>());
-        FormComponentLabel typeLabel = new FormComponentLabel("type-label", purpose);
+        FormComponentLabel typeLabel = new FormComponentLabel("type-label", type);
         typeGroup.add(typeLabel);
         typeGroup.add(type);
         typeGroup.add(new ErrorBehaviour(type));

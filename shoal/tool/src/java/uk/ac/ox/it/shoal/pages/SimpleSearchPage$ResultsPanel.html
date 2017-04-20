@@ -2,7 +2,7 @@
 			   xmlns:wicket="http://wicket.apache.org">
 	<div>
 		<form method="get" wicket:id="searchForm">
-			<input type="text" wicket:id="query" placeholder="search resources" title="search query"/>
+			<input type="text" wicket:id="query" placeholder="search activites" title="search query"/>
 			<input wicket:id="search" type="submit" value="Search"/>
 			<input wicket:id="cancel" type="submit" value="Reset"/>
 		</form>
@@ -17,14 +17,11 @@
 				</li>
 			</ul>
 		</div>
-		<div class="facet" wicket:id="author"></div>
-
-		<div class="facet" wicket:id="subject"></div>
-		<div class="facet" wicket:id="type"></div>
-
 		<div class="facet" wicket:id="purpose"></div>
-		<div class="facet" wicket:id="interactivity"></div>
+		<div class="facet" wicket:id="type"></div>
+		<div class="facet" wicket:id="subject"></div>
 		<div class="facet" wicket:id="level"></div>
+		<div class="facet" wicket:id="interactivity"></div>
 
 	</div>
 
