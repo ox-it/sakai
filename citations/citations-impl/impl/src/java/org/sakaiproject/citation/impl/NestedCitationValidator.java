@@ -173,6 +173,9 @@ public class NestedCitationValidator implements CitationValidator {
 				previousCitationCollectionOrder = collectionOrder;
 			}
 		}
+		if (previousCitationCollectionOrder == null) {
+			return "Failed to find previous item for collection id: "+ citationCollectionOrder.getCollectionId();
+		}
 
 		if (isH2){
 			//  check previous CitationCollectionOrder is an h1 h2 or description
