@@ -40,6 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -75,6 +76,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     private EventTrackingService eventTrackingService;
     private ToolManager toolManager;
     private SiteService siteService;
+    private ServerConfigurationService serverConfigurationService;
 
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
@@ -94,6 +96,10 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
+    }
+
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
 	private ConcurrentHashMap<String, ExternalAssignmentProvider> externalProviders =

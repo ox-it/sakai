@@ -1,3 +1,5 @@
+2017.04.21:
+	- [OWL-2776] wire up serverConfigService properly so it doesn't NPE and cause problems
 2017.03.30:
 	- [OWL-2586] ported findSectionRolesMatchingRoles in CourseManagementService (from OWL-2190)
 2017.03.06:
