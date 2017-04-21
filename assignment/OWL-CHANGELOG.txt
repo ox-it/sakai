@@ -1,3 +1,5 @@
+2017.04.21:
+	- [OWL-2740] missed use case from OWL-799; duplicated decimal places warning message
 2017.04.20:
 	- [OWL-2745] no spinner on "submit as student" link
 2017.03.01:

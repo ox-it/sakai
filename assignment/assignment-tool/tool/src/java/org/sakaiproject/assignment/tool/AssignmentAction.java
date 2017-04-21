@@ -12415,7 +12415,7 @@ public class AssignmentAction extends PagedResourceActionII
 									int maxGrade = a.getContent().getMaxGradePoint();
 									try
 									{
-										if (Integer.parseInt(scalePointGrade(state, grade, factor)) > maxGrade)
+										if (state.getAttribute(STATE_MESSAGE) == null && Integer.parseInt(scalePointGrade(state, grade, factor)) > maxGrade)
 										{
 											if (state.getAttribute(GRADE_GREATER_THAN_MAX_ALERT) == null)
 											{
