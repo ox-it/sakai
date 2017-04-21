@@ -1,3 +1,5 @@
+2017.04.21:
+	- [OWL-2377] copy drop down selected index value in clone & disable JavaScript sub-routine
 2017.03.07:
 	- [OWL-2580] port copyright to 11.x
 2017.03.03:
