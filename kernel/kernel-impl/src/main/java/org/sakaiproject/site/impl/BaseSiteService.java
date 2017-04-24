@@ -2367,6 +2367,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 					if (serverConfigurationService().getBoolean("content.mixedContent.forceLinksInNewWindow", true)) {
 						out.println("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>");
 					}
+					out.println(serverConfigurationService().getString("portal.include.extrahead", ""));
 
 					out.println("<title>");
 					out.println(site.getTitle());
