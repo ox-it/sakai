@@ -50,12 +50,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CodingErrorAction;
-import java.nio.charset.CharacterCodingException;
 
 /**
  * FormattedText provides support for user entry of formatted text; the formatted text is HTML. This includes text formatting in user input such as bold, underline, and fonts.
@@ -400,7 +394,7 @@ public class FormattedTextImpl implements FormattedText
                     if (addBlankTargetToLinks() && StringUtils.isNotBlank(val)) {
                         Matcher m = M_patternAnchorTagWithOutTarget.matcher(val);
                         if (m.find()) {
-                            val = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+                            val = m.replaceAll("$1$2 target=\"_blank\" rel=\"noreferrer\">"); // adds a target to A tags without one
                         }
                     }
                 } catch (ScanException e) {
@@ -520,7 +514,7 @@ public class FormattedTextImpl implements FormattedText
         if (addBlankTargetToLinks()) {
             Matcher m = M_patternAnchorTagWithOutTarget.matcher(value);
             if (m.find()) {
-                value = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
+                value = m.replaceAll("$1$2 target=\"_blank\" rel=\"noreferrer\">"); // adds a target to A tags without one
             }
         }
 
@@ -676,7 +670,7 @@ public class FormattedTextImpl implements FormattedText
         } else {
             // default to _blank if not set and configured to force
             if (addBlankTargetToLinks()) {
-                hrefTarget = " target=\"_blank\"";
+                hrefTarget = " target=\"_blank\" rel=\"noreferrer\"";
             }
         }
 
