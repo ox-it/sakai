@@ -208,15 +208,32 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
 	public AssignmentGradeRecord clone()
     {
     	AssignmentGradeRecord agr = new AssignmentGradeRecord();
-    	agr.setDateRecorded(dateRecorded);
-    	agr.setGradableObject(gradableObject);
-    	agr.setGraderId(graderId);
-    	agr.setLetterEarned(letterEarned);
-    	agr.setPointsEarned(pointsEarned);
-    	agr.setPercentEarned(percentEarned);
-    	agr.setStudentId(studentId);
+		agr.makeIntoDuplicateOf(this, false);
     	return agr;
     }
+
+	// Created for OWL-1175	--bbailla2
+	/**
+	 * Makes this object a duplicate of the parameterized object.
+	 * NB: the Id does not get set in this method.
+	 * @param agr the AssignmentGradeRecord that this object will duplicate
+	 * @param allProps - whether the version, excludedFromGrade and userEnteredGrade are to be set
+	 */
+	public void makeIntoDuplicateOf(AssignmentGradeRecord agr, boolean allProps)
+	{
+		setDateRecorded(agr.getDateRecorded());
+		setGradableObject(agr.getGradableObject());
+		setGraderId(agr.getGraderId());
+		setLetterEarned(agr.getLetterEarned());
+		setPointsEarned(agr.getPointsEarned());
+		setPercentEarned(agr.getPointsEarned());
+		setStudentId(agr.getStudentId());
+		if (allProps)
+		{
+			setVersion(agr.getVersion());
+			setExcludedFromGrade(agr.isExcludedFromGrade());
+		}
+	}
 
 	public Boolean isExcludedFromGrade() {
 		return excludedFromGrade;

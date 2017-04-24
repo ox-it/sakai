@@ -54,6 +54,7 @@ public class Assignment implements Serializable, Comparable<Assignment> {
     private Integer categorizedSortOrder;
     private Long categoryId;
     private Integer categoryOrder;
+	private boolean anon = false;  // OWL-888 --plukasew
     
 
     public Assignment() {
@@ -204,7 +205,7 @@ public class Assignment implements Serializable, Comparable<Assignment> {
 		return isExtraCredit();
 	}
 	
-	//Needed for cateogry transfer
+	//Needed for category transfer
 	public void setCategoryExtraCredit(boolean categoryExtraCredit) {
 		this.categoryExtraCredit = categoryExtraCredit;
 	}
@@ -263,4 +264,28 @@ public class Assignment implements Serializable, Comparable<Assignment> {
 	public void setCategorizedSortOrder(Integer categorizedSortOrder) {
 		this.categorizedSortOrder = categorizedSortOrder;
 	}
+
+	/* ------------ Begin OWL-888 Anonymous grading for Law  --plukasew ------- */
+
+	/**
+	 * Returns whether or not this gradebook item is anonymous (used by Faculty of Law)
+	 * @return true if item is anonymous
+	 */
+	public boolean isAnon()
+	{
+		return anon;
+	}
+
+	/**
+	 * Sets wheher or not this gradebook item is anonymous (used by Faculty of Law)
+	 * @param value true if item is anonymous
+	 */
+	public void setAnon(boolean value)
+	{
+		// OWLTODO: from a UI standpoint it should not be possible to change an anonymous column to
+		// non-anonymous. This can be done by disallowing a change in this setter, but this might not be the best place for it.
+		anon = value;
+	}
+
+	/* ------------ End OWL-888 -------------------- */
 }

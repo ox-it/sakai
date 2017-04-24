@@ -142,5 +142,17 @@
             <artifactId>xstream</artifactId>
             <version>1.2.1</version>
         </dependency>
+
+        <!-- bjones86 - OWL-873 -->
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.course-management</groupId>
+            <artifactId>coursemanagement-api</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject</groupId>
+            <artifactId>sakai-coursemanagement-authz-provider-impl</artifactId>
+            <version>${sakai.version}</version>
+        </dependency>
     </dependencies>
 </project>

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 public class Category implements Serializable
@@ -534,5 +535,36 @@ public class Category implements Serializable
     public void setPointsPossible(Double pointsPossible) {
         this.totalPointsPossible = pointsPossible;
     }
+
+	/**
+	 * Returns true if it's pure anonymous (ie. all its assignments are anonymous)
+	 * --bbailla2
+	 */
+	public boolean isAnon()
+	{
+		if (CollectionUtils.isEmpty(assignmentList))
+		{
+			// empty is not considered anonymous
+			return false;
+		}
+
+		for (Object assignment : assignmentList)
+		{
+			if (assignment instanceof Assignment)
+			{
+				if (!((Assignment)assignment).isAnon())
+				{
+					// There is at least one normal assignment
+					return false;
+				}
+			}
+			else
+			{
+				// OWLTODO: other methods have no else for this situation, but should we do something?
+			}
+		}
+		// There is at least one assignment, and no normal assignments; therefore they are all anonymous
+		return true;
+	}
 
 }

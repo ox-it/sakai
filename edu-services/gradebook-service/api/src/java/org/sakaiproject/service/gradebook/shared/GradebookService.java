@@ -25,10 +25,13 @@ import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Set;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
 
 /**
  * This is the externally exposed API of the gradebook application.
@@ -872,5 +875,110 @@ public interface GradebookService {
 	 * @return set of changes made
 	 */
 	List getGradingEvents(final List<Long> assignmentIds, final Date since);
+
+	/* Begin OWL anonymous grading methods  --plukasew
+	 *
+	 * These methods interface with the owl_anon_grading_id table and are
+	 * for accessing and storing anonymous grading ids sourced from Registrar.
+	 */
+
+	/**
+	 * Returns the contents of the entire OWL_ANON_GRADING_ID table. Only cron jobs/web services should use this method
+	 * @returns the list of all OwlAnonGradingIDs in the database
+	 */
+	public List<OwlAnonGradingID> getAnonGradingIds();
+
+	/**
+	 * Returns all anonymous grading ids for the given section
+	 * @param sectionEid the section eid, cannot be null or empty
+	 * @return a list of OwlAnonGradingID objects for the given section
+	 * @throws IllegalArgumentException if sectionEid is null or empty
+	 */
+	public List<OwlAnonGradingID> getAnonGradingIdsForSection(final String sectionEid) throws IllegalArgumentException;
+
+	/**
+	 * Returns all anonymous grading ids with matching gradingIDs
+	 * @param gradingIDs a collection of gradingIDs to look up
+	 * @return a list of OwlAnonGradingIDs associated with the given gradingIDs
+	 * @throws IllegalArgumentException if gradingIDs is null or empty
+	 */
+	public List<OwlAnonGradingID> getAnonGradingIDsByGradingIDs(final Collection<Integer> gradingIDs) throws IllegalArgumentException;
+
+	/**
+	 * Returns all anonymous grading ids with matching sectionEIDs
+	 * @param sectionEIDs a collection of sectionEIDs to look up
+	 * @return a list of OwlAnonGradingIDs associated with the given sectionEIDs
+	 * @throws IllegalArgumentException if sectionEIDs is null or empty
+	 */
+	public List<OwlAnonGradingID> getAnonGradingIDsBySectionEIDs(final Collection<String> sectionEIDs) throws IllegalArgumentException;
+
+	/** 
+	 * Returns all anonymous grading ids with matching sectionEids, keyed by userEid with value
+	 * mapping sectionEid -> anonId
+	 * @param sectionEids the sectionEids to look up
+	 * @return mapping of userEid to collection of sectionEid/anonId pairs, will be empty if sectionEids null/empty or anonIds not found
+	 */
+	public Map<String, Map<String, String>> getAnonGradingIdMapBySectionEids(final Set<String> sectionEids);
+
+	/**
+	 * Returns the anonymous grading id corresponding to the give section/user combination. Do not use this method unless
+	 * you really only need to work with a single grading id.
+	 * @param sectionEid the section eid, cannot be null or empty
+	 * @param userEid the user eid, cannot be null or empty
+	 * @return the corresponding OwlAnonGradingID object, or a "null" OwlAnonGradingID object where anonGradingID is 0, if not found
+	 * @throws IllegalArgumentException if sectionEid/userEid is null or empty
+	 */
+	public OwlAnonGradingID getAnonGradingId(final String sectionEid, final String userEid) throws IllegalArgumentException;
+
+	/**
+	 * Persists a new OwlAnonGradingID object (new row in the db). Do not use this method unless you really
+	 * only need to work with a single grading id.
+	 * @param gradingId the new object to be persisted, cannot be null or have a grading id of 0
+	 * @return the unique identifier for the newly-persisted object
+	 * @throws IllegalArgumentException if gradingId is null or has a grading id value of 0
+	 */
+	public Long createAnonGradingId(final OwlAnonGradingID gradingId) throws IllegalArgumentException;
+
+	/**
+	 * Updates an existing persistent OwlAnonGradingID object (existing row in db). Do not use this method unless you really only need to work with a single grading id.
+	 */
+	public void updateAnonGradingId(final OwlAnonGradingID gradingId) throws IllegalArgumentException;
+
+	/**
+	 * Persist multiple OwlAnonGradingID objects (new rows in the db). Prefer this method over multiple calls to createAnonGradingId().
+	 * Null values or "null" objects in the collection are skipped. The number of successfully persisted objects is returned.
+	 * @param gradingIds the set of objects to be persisted, cannot be null
+	 * @return the number of objects that were successfully persisted
+	 * @throws IllegalArgumentException if gradingIds is null
+	 */
+	public int createAnonGradingIds(final Set<OwlAnonGradingID> gradingIds) throws IllegalArgumentException;
+
+	/**
+	 * Updates multiple OwlAnonGradingID objects (existing rows in the db). Prefer this method over multiple calls to updateAnonGradingId().
+	 * Null values or "null" objects in the collection are skipped. The number of successfully persisted objects is returned.
+	 * @param gradingIds the set of objects to be updated, cannot be null
+	 * @return the number of objects that were successfully updated
+	 * @throws IllegalArgumentExcpetion if gradingIds is null
+	 */
+	public int updateAnonGradingIds(final Set<OwlAnonGradingID> gradingIds) throws IllegalArgumentException;
+
+	/**
+	 * Deletes an existing persistent OwlAnonGradingID object (existing row in db). Do not use this method unless you really
+	 * only need to work with a single grading id.
+	 * @param gradingId the object to be deleted, cannot be null or having a grading id of 0
+	 * @throws IllegalArgumentException if gradingId is null or have a grading id value of 0
+	 */
+	public void deleteAnonGradingId(final OwlAnonGradingID gradingId) throws IllegalArgumentException;
+
+	/**
+	 * Deletes multiple OwlAnonGradingID objects (existing rows in the db). Prefer this method over multiple calls to deleteAnonGradingId().
+	 * Null values or "null" objects in the collection are skipped. The number of successfully deleted objects is returned.
+	 * @param gradingIds the set of objects to be deleted, cannot be null
+	 * @return the number of objects that were successfully deleted
+	 * @throws IllegalArgumentException if gradingIds is null
+	 */
+	public int deleteAnonGradingIds(final Set<OwlAnonGradingID> gradingIds) throws IllegalArgumentException;
+
+	/* End Owl anonymous grading methods */
 
 }

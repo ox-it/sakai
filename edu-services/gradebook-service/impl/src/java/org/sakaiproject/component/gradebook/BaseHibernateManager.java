@@ -116,6 +116,21 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return assignments;
     }
 
+    // OWL-883
+    protected List getAssignmentsAnonAware(Long gradebookId, Session session, boolean includeAnon) throws HibernateException
+    {
+        String query = "from Assignment as asn where asn.gradebook.id=? and asn.removed=false";
+        if (!includeAnon)
+        {
+            query += " and asn.anon=false";
+        }
+
+        List assignments = session.createQuery(query)
+            .setLong(0, gradebookId.longValue()).
+            list();
+        return assignments;
+    }
+
     protected List getCountedStudentGradeRecords(Long gradebookId, String studentId, Session session) throws HibernateException {
         return session.createQuery(
         	"select agr from AssignmentGradeRecord as agr, Assignment as asn where agr.studentId=? and agr.gradableObject=asn and asn.removed=false and asn.notCounted=false and asn.gradebook.id=?" +
@@ -262,13 +277,27 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 			uniqueResult();
 	}
 
+    // OWL-2545 - this is the original method signature; anon parameter added in method below  --bbailla2
     public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
            final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException
     {
-        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, false);
+    }
+
+    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
+           final Boolean isReleased, final Boolean isExtraCredit, final boolean isAnon) throws ConflictingAssignmentNameException, StaleObjectModificationException
+    {
+        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, isAnon);
     }
     
+    // OWL-888 --plukeasew
+    // this is the original method signature, it is being left here because it is a public method and may be called outside of edu-services/gradebook
     public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit)
+    {
+        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, false);
+    }
+
+    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit, final boolean isAnon)
     throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
     {
     	if(gradebookId == null || categoryId == null)
@@ -276,18 +305,31 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
     	}
 
-    	return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+    	return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, isAnon);
     }
     
+    // OWL-2545 - keeping this method signature for similar reasons as Paul's OWL-888 comment above --bbailla2
     private Long createNewAssignment(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
             final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException
     {
-        Assignment asn = prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+        return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit, false);
+    }
+
+    private Long createNewAssignment(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
+            final Boolean isReleased, final Boolean isExtraCredit, final boolean isAnon) throws ConflictingAssignmentNameException, StaleObjectModificationException
+    {
+        Assignment asn = prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit, isAnon);
         
         return saveNewAssignment(gradebookId, categoryId, asn);
     }
-    
+
+    // OWL-2545  --bbailla2
     private Assignment prepareNewAssignment(String name, Double points, Date dueDate, Boolean isNotCounted, Boolean isReleased, Boolean isExtraCredit)
+    {
+        return prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit, false);
+    }
+    
+    private Assignment prepareNewAssignment(String name, Double points, Date dueDate, Boolean isNotCounted, Boolean isReleased, Boolean isExtraCredit, final boolean isAnon)
     {
         String validatedName = StringUtils.trimToNull(name);
         if (validatedName == null){
@@ -317,6 +359,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         {
             asn.setReleased(isReleased.booleanValue());
         }
+
+        asn.setAnon(isAnon);
         
         return asn;
     }

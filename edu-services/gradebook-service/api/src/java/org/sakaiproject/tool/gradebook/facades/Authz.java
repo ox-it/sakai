@@ -106,6 +106,10 @@ public interface Authz {
      *          view or grade for the given gradebook item
      */
     public Map findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
+
+	// OWL anon
+	public Map findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, int gbCategoryType, String optionalSearchString,
+		String optionalSectionUid, boolean itemIsAnon);
 	
 	/**
 	 * 
@@ -121,6 +125,9 @@ public interface Authz {
 	 * 			student is not returned.
 	 */
 	public Map findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, int gbCategoryType, String optionalSearchString, String optionalSectionUid);
+
+	// OWL anon
+	public Map findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, int gbCategoryType, String optionalSearchString, String optionalSectionUid, boolean isAnon);
 	/**
 	 * 
 	 * @param gradebookUid
@@ -135,6 +142,14 @@ public interface Authz {
 	 * 			authorized to view/grade
 	 */
 	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid);
+
+	// OWL anon
+	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid, boolean isAnon);
+
+	/**
+	 * @param filterStudents specifies whether students who don't have anonymous grading IDs are filtered out (only takes effect if isAnon is true)
+	 */
+	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid, boolean isAnon, boolean filterStudents);
 	
 	/**
 	 * 

@@ -42,6 +42,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
@@ -91,6 +92,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
+
+// OWL anonymous grading imports  --plukasew
+import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -155,7 +159,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        @SuppressWarnings({ "unchecked", "rawtypes"})
 			List<Assignment> internalAssignments = (List<Assignment>)getHibernateTemplate().execute(new HibernateCallback() {
 	            public Object doInHibernate(Session session) throws HibernateException {
-	                return getAssignments(gradebookId, session);
+	                return getAssignmentsAnonAware(gradebookId, session, false);  // OWL-883
 	            }
 	        });
 	        
@@ -764,10 +768,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		//if attaching to category
 		if(assignmentDefinition.getCategoryId() != null) {
-			return createAssignmentForCategory(gradebook.getId(), assignmentDefinition.getCategoryId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit());
+			return createAssignmentForCategory(gradebook.getId(), assignmentDefinition.getCategoryId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit(), assignmentDefinition.isAnon());
 		}
 		
-		return createAssignment(gradebook.getId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit());
+		return createAssignment(gradebook.getId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit(), assignmentDefinition.isAnon());
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -3746,4 +3750,276 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		} 
 		return isFromGroup;
 	}
+
+	/* Begin OWL anonymous grading methods --plukasew
+	 *
+	 * These methods interface with the owl_anon_grading_id table and are
+	 * for accessing and storing anonymous grading ids sourced from Registrar.
+	 */
+
+	public List<OwlAnonGradingID> getAnonGradingIds()
+	{
+		HibernateCallback hc = (Session session)->
+		{
+			String queryString = "FROM OwlAnonGradingID";
+			Query query = session.createQuery(queryString);
+			return query.list();
+		};
+
+		return (List<OwlAnonGradingID>) getHibernateTemplate().execute(hc);
+	}
+
+	public List<OwlAnonGradingID> getAnonGradingIdsForSection(final String sectionEid)
+	{
+		if (StringUtils.isBlank(sectionEid))
+		{
+			return Collections.<OwlAnonGradingID>emptyList();
+		}
+
+		HibernateCallback hc = (Session session)->
+		{
+			String sid = sectionEid.trim();
+			String queryString = "FROM OwlAnonGradingID Where sectionEid = ?";
+			Query query = session.createQuery(queryString);
+			query.setString(0, sid);
+			return query.list();
+		};
+
+		return (List<OwlAnonGradingID>) getHibernateTemplate().execute(hc);
+	}
+
+	public List<OwlAnonGradingID> getAnonGradingIDsByGradingIDs(final Collection<Integer> gradingIDs)
+	{
+		if (CollectionUtils.isEmpty(gradingIDs))
+		{
+			return Collections.<OwlAnonGradingID>emptyList();
+		}
+
+		HibernateCallback hc = (Session session)->
+		{
+			List<OwlAnonGradingID> allGradingIDs = new ArrayList<>();
+			String queryString = "FROM OwlAnonGradingID WHERE anonGradingID IN (:gradingIDs)";
+			// each query can only do 1000 at a time
+			List<Integer> gradingIDSublist = new ArrayList<>();
+
+			Iterator<Integer> itGradingIDs = gradingIDs.iterator();
+			while (itGradingIDs.hasNext())
+			{
+				Integer currentGradingID = itGradingIDs.next();
+				gradingIDSublist.add(currentGradingID);
+				// query 1000 gradingIDs at a time (Oracle bug)
+				if (gradingIDSublist.size() == 1000 || !itGradingIDs.hasNext())
+				{
+					List<OwlAnonGradingID> thisBatch = session.createQuery(queryString).setParameterList("gradingIDs", gradingIDSublist).list();
+					allGradingIDs.addAll(thisBatch);
+					gradingIDSublist.clear();
+				}
+			}
+			return allGradingIDs;
+		};
+
+		return (List<OwlAnonGradingID>) getHibernateTemplate().execute(hc);
+	}
+
+	@Override
+	public List<OwlAnonGradingID> getAnonGradingIDsBySectionEIDs(final Collection<String> sectionEIDs)
+	{
+		if (CollectionUtils.isEmpty(sectionEIDs))
+		{
+			return Collections.<OwlAnonGradingID>emptyList();
+		}
+
+		HibernateCallback hc = (Session session)->
+		{
+			List<OwlAnonGradingID> allGradingIDs = new ArrayList<>();
+			String queryString = "FROM OwlAnonGradingID where sectionEid IN (:sectionEIDs)";
+			// each query can only do 1000 at a time (Oracle bug)
+			List<String> sectionEIDSublist = new ArrayList<>();
+			Iterator<String> itSectionEIDs = sectionEIDs.iterator();
+			while (itSectionEIDs.hasNext())
+			{
+				String currentSectionEID = itSectionEIDs.next();
+				sectionEIDSublist.add(currentSectionEID);
+				//query 1000 sectionEIDs at a time (Oracle bug)
+				if (sectionEIDSublist.size() == 1000 || !itSectionEIDs.hasNext())
+				{
+					List<OwlAnonGradingID> thisBatch = session.createQuery(queryString).setParameterList("sectionEIDs", sectionEIDSublist).list();
+					allGradingIDs.addAll(thisBatch);
+					sectionEIDSublist.clear();
+				}
+			}
+			return allGradingIDs;
+		};
+
+		return (List<OwlAnonGradingID>) getHibernateTemplate().execute(hc);
+	}
+
+	@Override
+	public Map<String, Map<String, String>> getAnonGradingIdMapBySectionEids(final Set<String> sectionEids)
+	{
+		List<OwlAnonGradingID> anonIds = getAnonGradingIDsBySectionEIDs(sectionEids);
+
+		Map<String, Map<String, String>> anonIdMap = new HashMap<>();
+
+		for (OwlAnonGradingID id : anonIds)
+		{
+			String userEid = id.getUserEid();
+			if (anonIdMap.containsKey(userEid))
+			{
+				anonIdMap.get(userEid).put(id.getSectionEid(), id.getAnonGradingID().toString());
+			}
+			else
+			{
+				Map<String, String> m = new HashMap<>();
+				m.put(id.getSectionEid(), id.getAnonGradingID().toString());
+				anonIdMap.put(userEid, m);
+			}
+		}
+
+		return anonIdMap;
+	}
+
+	public OwlAnonGradingID getAnonGradingId(final String sectionEid, final String userEid) throws IllegalArgumentException
+	{
+		if (StringUtils.isBlank(sectionEid) || StringUtils.isBlank(userEid))
+		{
+			throw new IllegalArgumentException("sectionEid/userEid cannot be null or blank");
+		}
+
+		HibernateCallback hc = (Session session)->
+		{
+			String sid = sectionEid.trim();
+			String uid = userEid.trim();
+			String queryString = "FROM OwlAnonGradingID WHERE SectionEid = ? and userEid = ?";
+			Query query = session.createQuery(queryString);
+			query.setString(0, sid);
+			query.setString(1, uid);
+			return query.uniqueResult();
+		};
+
+		OwlAnonGradingID id = (OwlAnonGradingID) getHibernateTemplate().execute(hc);
+		return id == null ? new OwlAnonGradingID() : id;
+	}
+
+	public Long createAnonGradingId(final OwlAnonGradingID gradingId) throws IllegalArgumentException
+	{
+		if (gradingId == null || gradingId.getAnonGradingID().intValue() == 0)
+		{
+			throw new IllegalArgumentException("grading id cannot be null or a \"null\" object");
+		}
+
+		HibernateCallback hc = (Session session)->(Long) session.save(gradingId);
+
+		return (Long) getHibernateTemplate().execute(hc);
+	}
+
+	public void updateAnonGradingId(final OwlAnonGradingID gradingId) throws IllegalArgumentException
+	{
+		if (gradingId == null || gradingId.getAnonGradingID().intValue() == 0)
+		{
+			throw new IllegalArgumentException("grading id cannot be null or a \"null\" object");
+		}
+
+		HibernateCallback hc = (Session session)->
+		{
+			session.update(gradingId);
+			return null;
+		};
+		
+		getHibernateTemplate().execute(hc);
+	}
+
+	public int createAnonGradingIds(final Set<OwlAnonGradingID> gradingIds) throws IllegalArgumentException
+	{
+		if (gradingIds == null)
+		{
+			throw new IllegalArgumentException("grading id set cannot be null");
+		}
+
+		HibernateCallback hc = (Session session)->
+		{
+			int createCount = 0;
+			for (OwlAnonGradingID id : gradingIds)
+			{
+				if (id != null && id.getAnonGradingID().intValue() != 0)
+				{
+					session.save(id);
+					++createCount;
+				}
+			}
+
+			return Integer.valueOf(createCount);
+		};
+
+		return ((Integer) getHibernateTemplate().execute(hc)).intValue();
+	}
+
+	public int updateAnonGradingIds(final Set<OwlAnonGradingID> gradingIds) throws IllegalArgumentException
+	{
+		if (gradingIds == null)
+		{
+			throw new IllegalArgumentException("grading id set cannot be null");
+		}
+
+		HibernateCallback hc = (Session session)->
+		{
+			int createCount = 0;
+			for (OwlAnonGradingID id : gradingIds)
+			{
+				if (id != null && id.getAnonGradingID().intValue() != 0)
+				{
+					session.update(id);
+					++createCount;
+				}
+			}
+
+			return Integer.valueOf(createCount);
+		};
+
+		return ((Integer) getHibernateTemplate().execute(hc)).intValue();
+	}
+
+	public void deleteAnonGradingId(final OwlAnonGradingID gradingId) throws IllegalArgumentException
+	{
+		if (gradingId == null || gradingId.getAnonGradingID().intValue() == 0)
+		{
+			throw new IllegalArgumentException("grading id cannot be null or a \"null\" object");
+		}
+
+		HibernateCallback hc = (Session session)->
+		{
+			session.delete(gradingId);
+			return null;
+		};
+
+		getHibernateTemplate().execute(hc);
+	}
+
+	public int deleteAnonGradingIds(final Set<OwlAnonGradingID> gradingIds) throws IllegalArgumentException
+	{
+		if (gradingIds == null)
+		{
+			throw new IllegalArgumentException("grading id set cannot be null");
+		}
+
+		HibernateCallback hc = (Session session)->
+		{
+			int deleteCount = 0;
+			for (OwlAnonGradingID id : gradingIds)
+			{
+				if (id != null && id.getAnonGradingID().intValue() != 0)
+				{
+					session.delete(id);
+					++deleteCount;
+				}
+			}
+
+			return Integer.valueOf(deleteCount);
+		};
+
+		return ((Integer)getHibernateTemplate().execute(hc)).intValue();
+	}
+
+	/** End OWL anonymous grading methods */
+
 }

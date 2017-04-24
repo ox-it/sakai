@@ -45,6 +45,8 @@
       <property name="hideInAllGradesTable" type="boolean">
       		<column name="HIDE_IN_ALL_GRADES_TABLE" default="0"/>
 	  </property>
+      <property name="anon" column="IS_ANON" type="boolean" not-null="true"> <!-- OWL-888 -plukasew -->
+      </property>
     </subclass>
 
 		<subclass name="org.sakaiproject.tool.gradebook.CourseGrade" extends="org.sakaiproject.tool.gradebook.GradableObject" discriminator-value="2">

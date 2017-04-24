@@ -52,6 +52,7 @@ public class Assignment extends GradableObject {
 	@Deprecated public static String SORT_BY_EDITOR = "gradeEditor";
 	@Deprecated public static String SORT_BY_SORTING = "sorting";
 	@Deprecated public static String DEFAULT_SORT = SORT_BY_SORTING;
+	@Deprecated public static String SORT_BY_ANON = "anon";  // OWL-890  --plukasew
     
     public static String item_type_points = "Points";
     public static String item_type_percentage = "Percentage";
@@ -67,6 +68,7 @@ public class Assignment extends GradableObject {
     public static Comparator countedComparator;
     public static Comparator gradeEditorComparator;
     public static Comparator categoryComparator;
+    public static Comparator anonComparator;  // OWL-890  --plukasew
 
     private Double pointsPossible;
     private Date dueDate;
@@ -86,6 +88,7 @@ public class Assignment extends GradableObject {
 	private String itemType;
 	public String selectedGradeEntryValue;
 	private boolean hideInAllGradesTable = false;
+	private boolean anon = false;  // OWL-888 -plukasew
 
 	static {
         dateComparator = new Comparator() {
@@ -297,6 +300,27 @@ public class Assignment extends GradableObject {
             @Override
             public String toString() {
                 return "Assignment.categoryComparator";
+            }
+        };
+
+        // OWL-890  --plukasew
+        anonComparator = new Comparator()
+        {
+            public int compare(Object o1, Object o2) {
+                if (log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by anon");
+                Assignment one = (Assignment)o1;
+                Assignment two = (Assignment)o2;
+
+                int comp = String.valueOf(one.isAnon()).compareTo(String.valueOf(two.isAnon()));
+                if (comp == 0) {
+                    return one.getName().compareTo(two.getName());
+                } else {
+                    return comp;
+                }
+            }
+            @Override
+            public String toString() {
+                return "Assignment.anonComparator";
             }
         };
     }
@@ -691,4 +715,26 @@ public class Assignment extends GradableObject {
 	public void setHideInAllGradesTable(boolean hideInAllGradesTable) {
 		this.hideInAllGradesTable = hideInAllGradesTable;
 	}
+
+	/* ----------- OWL-888 Begin anon grading methods --plukasew  ------- */
+
+	/**
+	 * Returns whether or not this gradebook item is used for anonymous grading (by Faculty of Law)
+	 * @return true if item is anonymous
+	 */
+	public boolean isAnon()
+	{
+		return anon;
+	}
+
+	/**
+	 * Sets whether or not this gradebook item is used for anonymous grading (by Faculty of Law)
+	 * @param value true if item is anonymous
+	 */
+	public void setAnon(boolean value)
+	{
+		anon = value;
+	}
+
+	/** ----------- End anon grading methods  --------------------- */
 }
