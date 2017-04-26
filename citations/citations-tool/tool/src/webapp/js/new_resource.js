@@ -51,6 +51,7 @@ var reportSuccess = function(msg){
  */
 var reportError = function(msg){
     $('#messageError').html(msg).show();
+    window.scrollTo(0, 0);
 };
 
 /*
