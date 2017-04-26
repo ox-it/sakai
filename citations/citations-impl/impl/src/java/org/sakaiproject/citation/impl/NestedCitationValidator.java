@@ -178,19 +178,22 @@ public class NestedCitationValidator implements CitationValidator {
 		}
 
 		if (isH2){
-			//  check previous CitationCollectionOrder is an h1 h2 or description
+			//  check previous CitationCollectionOrder is an h1 h2 h3 or description or citation
 			if (!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING1) &&
 					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING2) &&
+					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING3) &&
+					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.CITATION) &&
 					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.DESCRIPTION)){
-				return "Invalid place to add subsection: trying to add an H2 to something other than an H1 H2 or a DESCRIPTION for collection id:" + citationCollectionOrder.getCollectionId();
+				return "Invalid place to add subsection: trying to add an H2 to something other than an H1 H2 H3 or a DESCRIPTION or CITATION for collection id:" + citationCollectionOrder.getCollectionId();
 			}
 		}
 		else if (isH3){
-			//  check previous CitationCollectionOrder is an h2 h3 or description
+			//  check previous CitationCollectionOrder is an h2 h3 or description or citation
 			if (!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING2) &&
 					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.HEADING3) &&
+					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.CITATION) &&
 					!previousCitationCollectionOrder.getSectiontype().equals(CitationCollectionOrder.SectionType.DESCRIPTION)){
-				return "Invalid place to add subsection: trying to add an H3 to something other than an H2 H3 or DESCRIPTION for collection id:" + citationCollectionOrder.getCollectionId();
+				return "Invalid place to add subsection: trying to add an H3 to something other than an H2 H3 or DESCRIPTION or CITATION for collection id:" + citationCollectionOrder.getCollectionId();
 			}
 		}
 		else if (isDescription){
@@ -226,7 +229,7 @@ public class NestedCitationValidator implements CitationValidator {
 	@Override
 	public String getDragAndDropErrorMessage(List<CitationCollectionOrder> citationCollectionOrders, CitationCollection collection) {
 
-		for (CitationCollectionOrder h1Section : citationCollectionOrders.get(0).getChildren()) {
+		for (CitationCollectionOrder h1Section : citationCollectionOrders) {
 			if (!Arrays.asList(NESTED_CITATION_LIST.TOP_LEVEL.getAllowableTypes()).contains(
 					h1Section.getSectiontype())){
 				return "Invalid nested list: when checking H1 with value: " + h1Section.getValue() + " for collection with id: " +  h1Section.getCollectionId();
