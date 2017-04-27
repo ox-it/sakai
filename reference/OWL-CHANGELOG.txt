@@ -1,3 +1,5 @@
+2017.04.27:
+	- [OWL-2663] add SQL script snippet to rename old, unused tables in OWL conversion scripts
 2017.04.21:
 	- [OWL-2377] copy drop down selected index value in clone & disable JavaScript sub-routine
 2017.03.07:
