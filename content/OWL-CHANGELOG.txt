@@ -1,3 +1,5 @@
+2017.04.28:
+	- [OWL-2749] add copyright field to Home > Resources
 2017.03.07:
 	- [OWL-2580] port copyright to 11.x
 2017.01.23:

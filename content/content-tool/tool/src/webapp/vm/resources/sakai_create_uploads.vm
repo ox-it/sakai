@@ -100,29 +100,30 @@
                         </label>
                     </p>
                 #end
-            #elseif($model.isUserSite())
             #else
                 <div class="form">
                     ## bjones86 - OWL-1077
                     ## OWL-1517 - macro'd	--bbailla2
                     #copyrightSelect()
-                    #if($availability_is_enabled)
-                        <h4>$tlang.getString("avail.title") <small>$tlang.getString("avail.uploaded") </small></h4>
+                    #if(!$model.isUserSite())
+                        #if($availability_is_enabled)
+                            <h4>$tlang.getString("avail.title") <small>$tlang.getString("avail.uploaded") </small></h4>
+                            <div class="form-group">
+                                <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
+                                <label for="hidden_false">$tlang.getString("avail.show40")</label>
+                                <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
+                                <label for="hidden_true">$tlang.getString("avail.hide40")</label>
+                            </div>
+                        #end
                         <div class="form-group">
-                            <input type="radio" name="hidden" id="hidden_false" value="false" #if(!$upload_visibility_hidden)checked="checked" #end/>
-                            <label for="hidden_false">$tlang.getString("avail.show40")</label>
-                            <input type="radio" name="hidden" id="hidden_true" value="true" #if($upload_visibility_hidden)checked="checked" #end/>
-                            <label for="hidden_true">$tlang.getString("avail.hide40")</label>
+                            <h4><label for="notify">$tlang.getString("gen.email1")</label></h4>
+                            <select name="notify" id="notify">
+                                <option value="r">$tlang.getString("gen.email2")</option>
+                                <option value="o">$tlang.getString("gen.email3")</option>
+                                <option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+                            </select>
                         </div>
                     #end
-                    <div class="form-group">
-                        <h4><label for="notify">$tlang.getString("gen.email1")</label></h4>
-                        <select name="notify" id="notify">
-                            <option value="r">$tlang.getString("gen.email2")</option>
-                            <option value="o">$tlang.getString("gen.email3")</option>
-                            <option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-                        </select>
-                    </div>
                 </div>
             #end
         #end
