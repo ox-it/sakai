@@ -74,14 +74,14 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 
 	/**
 	 */
-	public List getAvailableEnrollments(String siteid, String userUid) {
-		List enrollments;
+	public List<EnrollmentRecord> getAvailableEnrollments(String siteid, String userUid) {
+		List<EnrollmentRecord> enrollments;
 		if ("-1".equals(userUid) || isUserAbleToGradeAll(siteid, userUid)) {
 			enrollments = getSectionAwareness().getSiteMembersInRole(siteid, Role.STUDENT);
 		} else {
 			// We use a map because we may have duplicate students among the section
 			// participation records.
-			Map enrollmentMap = new HashMap();
+			Map<String, EnrollmentRecord> enrollmentMap = new HashMap();
 			List sections = getAvailableSections(siteid, userUid);
 			for (Iterator iter = sections.iterator(); iter.hasNext(); ) {
 				CourseSection section = (CourseSection)iter.next();
@@ -91,7 +91,7 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 					enrollmentMap.put(enr.getUser().getUserUid(), enr);
 				}
 			}
-			enrollments = new ArrayList(enrollmentMap.values());
+			enrollments = new ArrayList<>(enrollmentMap.values());
 		}
 		return enrollments;
 	}

@@ -242,7 +242,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
    * initialize it myself. I will take a look at it again next year.
    * - daisyf (12/13/04)
    */
-  public HashSet getSectionSetForAssessment(PublishedAssessmentIfc assessment);
+  public HashSet<PublishedSectionData> getSectionSetForAssessment(PublishedAssessmentIfc assessment);
 
   // IMPORTANT:
   // 1. we do not want any Section info, so set loadSection to false

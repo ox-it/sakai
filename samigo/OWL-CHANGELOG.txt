@@ -1,3 +1,5 @@
+2017.05.02:
+	- [OWL-2807] user activity report exposes IDs for anonymous grading
 2017.03.07:
 	- [OWL-2583] backport SAM-2940 (OWL-2272): refactor autosubmit to enclose each update in a separate transaction and notify on failure
 	- [OWL-2583] port OWL-2251: grammar fix-up for 'allow only one response per column"

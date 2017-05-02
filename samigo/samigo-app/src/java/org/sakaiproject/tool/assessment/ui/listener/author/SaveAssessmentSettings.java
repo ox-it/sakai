@@ -67,6 +67,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 
 /**
@@ -287,15 +288,15 @@ public class SaveAssessmentSettings
     
     String firstTargetSelected = assessmentSettings.getFirstTargetSelected();
 	if ("Anonymous Users".equals(firstTargetSelected)) {
-		evaluation.setAnonymousGrading(Integer.valueOf("1"));
+		evaluation.setAnonymousGrading(EvaluationModelIfc.ANONYMOUS_GRADING);
 		evaluation.setToGradeBook("2");
 	}
 	else {
 		if (assessmentSettings.getAnonymousGrading()) {
-		      evaluation.setAnonymousGrading(1);
+		      evaluation.setAnonymousGrading(EvaluationModelIfc.ANONYMOUS_GRADING);
 		}
 		else {
-			evaluation.setAnonymousGrading(2);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.NON_ANONYMOUS_GRADING);
 		}
 		if (assessmentSettings.getToDefaultGradebook()) {
 			evaluation.setToGradeBook("1");

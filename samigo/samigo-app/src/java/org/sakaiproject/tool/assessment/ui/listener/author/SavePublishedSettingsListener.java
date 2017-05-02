@@ -626,10 +626,10 @@ implements ActionListener
 			evaluation.setAssessmentBase(assessment.getData());
 		}
 		if (assessmentSettings.getAnonymousGrading()) {
-			evaluation.setAnonymousGrading(1);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.ANONYMOUS_GRADING);
 		}
 		else {
-			evaluation.setAnonymousGrading(2);
+			evaluation.setAnonymousGrading(EvaluationModelIfc.NON_ANONYMOUS_GRADING);
 		}
 	    
 		// If there is value set for toDefaultGradebook, we reset it

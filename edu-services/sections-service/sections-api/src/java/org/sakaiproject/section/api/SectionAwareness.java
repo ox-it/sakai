@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 
 /**
@@ -93,7 +94,7 @@ public interface SectionAwareness {
      * the given {@link org.sakaiproject.section.api.facade.Role Role}.
      * 
      */
-    public List getSiteMembersInRole(String siteContext, Role role);
+    public List<EnrollmentRecord> getSiteMembersInRole(String siteContext, Role role);
 
     /**
      * Finds site members in the given context and {@link org.sakaiproject.section.api.facade.Role Role}

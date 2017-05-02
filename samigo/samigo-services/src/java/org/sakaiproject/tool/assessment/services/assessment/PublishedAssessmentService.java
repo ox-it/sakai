@@ -39,6 +39,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentD
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
@@ -778,7 +779,7 @@ public class PublishedAssessmentService extends AssessmentService{
 	   getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(agentId, siteId, allAssessments);
    }
 
-	public List getAllAssessmentsGradingDataByAgentAndSiteId(String agentId, String siteId) {
+	public List<AssessmentGradingData> getAllAssessmentsGradingDataByAgentAndSiteId(String agentId, String siteId) {
 		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
 				.getAllAssessmentsGradingDataByAgentAndSiteId(agentId, siteId);
 	}

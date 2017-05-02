@@ -1387,11 +1387,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	 * correctly. So for now, I am just going to initialize it myself. I will
 	 * take a look at it again next year. - daisyf (12/13/04)
 	 */
-	public HashSet getSectionSetForAssessment(PublishedAssessmentIfc assessment) {
+	public HashSet<PublishedSectionData> getSectionSetForAssessment(PublishedAssessmentIfc assessment) {
 		List sectionList = getHibernateTemplate().find(
 				"from PublishedSectionData s where s.assessment.publishedAssessmentId=? ", 
 				assessment.getPublishedAssessmentId());
-		HashSet set = new HashSet();
+		HashSet<PublishedSectionData> set = new HashSet<>();
 		for (int j = 0; j < sectionList.size(); j++) {
 			set.add((PublishedSectionData) sectionList.get(j));
 		}
