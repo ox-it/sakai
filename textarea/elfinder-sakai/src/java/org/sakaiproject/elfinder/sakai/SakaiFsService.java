@@ -3,6 +3,7 @@ package org.sakaiproject.elfinder.sakai;
 import cn.bluejoe.elfinder.controller.executor.FsItemEx;
 import cn.bluejoe.elfinder.service.*;
 import org.apache.commons.codec.binary.Base64;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.elfinder.impl.SakaiFsServiceConfig;
 import org.sakaiproject.elfinder.sakai.content.ContentFsItem;
@@ -40,6 +41,7 @@ public class SakaiFsService implements FsService {
 	private ContentHostingService contentHostingService;
 	private SiteService siteService;
 	private UserDirectoryService userDirectoryService;
+	private SecurityService securityService;
 
 	private FsSecurityChecker securityChecker;
 
@@ -179,6 +181,10 @@ public class SakaiFsService implements FsService {
 			if("!admin".equals(currentSiteId) || "~admin".equals(currentSiteId)){
 				continue;
 			}
+			//Exclude a site where the user does not have access because it's secure.
+			if(!securityService.unlock(siteService.SITE_VISIT, "/site/"+currentSiteId)){
+				continue;
+			}
 			volumes.add(getSiteVolume(currentSiteId));
 		}
 		return volumes.toArray(new FsVolume[0]);
@@ -235,4 +241,7 @@ public class SakaiFsService implements FsService {
 		this.userDirectoryService = userDirectoryService;
 	}
 
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
 }
