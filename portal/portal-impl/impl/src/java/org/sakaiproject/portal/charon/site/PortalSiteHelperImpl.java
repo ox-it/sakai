@@ -404,7 +404,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrlPrefix = siteUrlPrefix + prefix + "/";
 		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
-		m.put("siteUrl", siteUrlPrefix + Web.escapeUrl(getSiteEffectiveId(s)));
+		m.put("siteUrl", siteUrlPrefix + Web.escapeUrl(getSiteEffectiveId(s)).replaceAll("%3A",":"));
 		m.put("siteType", s.getType());
 		m.put("siteId", s.getId());
 
