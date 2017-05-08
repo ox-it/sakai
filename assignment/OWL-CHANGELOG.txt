@@ -1,3 +1,5 @@
+2017.05.08:
+	- [OWL-2758] fix note for attachments verified by content review service not appearing in UI
 2017.05.03:
 	- [OWL-2746] fix grade report view drop down to reflect user choice after page refresh
 2017.04.21:

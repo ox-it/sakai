@@ -645,7 +645,7 @@ $(document).ready(function(){
 							#end
 							#if ($plagiarismNote)
 								<p>
-									<i alt="$reviewIndicator" title="$reviewIndicator" class="fa fa-certificate reviewStyle"></i>
+									<i alt="$plagiarismNote" title="$plagiarismNote" class="fa fa-certificate reviewStyle"></i>
 									<em>
 										$plagiarismNote
 									</em>
@@ -737,6 +737,7 @@ $(document).ready(function(){
 					#if ($assignment.getContent().getAllowReviewService())
 						<p class="instruction">
 							<i alt="$reviewIndicator" title="$reviewIndicator" class="fa fa-certificate reviewStyle"></i>
+							<em>$reviewIndicator</em>
 						</p>
 						#if (!$assignment.getContent().isAllowAnyFile())
 							<ul>
