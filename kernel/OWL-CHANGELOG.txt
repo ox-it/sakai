@@ -1,0 +1,9 @@
+2017.05.09:
+	- [OWL-2599] Modifications from the community contribution
+2017.04.24:
+	- [OWL-2599] AnitSamy adds target=_blank without noreferrer
+2017.04.04:
+	- [OWL-2721] backport KNL-1498: excessive memory use when invalidating the cache
+	- [OWL-2696] backport KNL-1513
+2017.01.10:
+        - forked from https://github.com/sakaiproject/sakai/tree/11.3

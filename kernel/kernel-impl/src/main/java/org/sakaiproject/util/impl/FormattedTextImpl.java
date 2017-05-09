@@ -93,6 +93,10 @@ public class FormattedTextImpl implements FormattedText
     private boolean cleanUTF8 = true;
     private String restrictReplacement = null;
 
+    private String referrerPolicy = null;
+    private static final String SAK_PROP_REFERRER_POLICY = "content.cleaner.referrer-policy";
+    private static final String SAKAI_REFERRER_POLICY_DEFAULT = "noopener";
+
     private final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
     protected final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
     private final String RESOURCECLASS = "resource.class.content";
@@ -137,6 +141,8 @@ public class FormattedTextImpl implements FormattedText
                     "; return to tool=" + returnErrorToTool + 
                     "; notify user=" + showErrorToUser + 
                     "; details to user=" + showDetailedErrorToUser);
+
+            referrerPolicy = serverConfigurationService.getString(SAK_PROP_REFERRER_POLICY, SAKAI_REFERRER_POLICY_DEFAULT);
         }
         if (useLegacy) {
             M_log.error(
@@ -279,6 +285,8 @@ public class FormattedTextImpl implements FormattedText
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     private Pattern M_patternHrefTitle = Pattern.compile("\\stitle\\s*=\\s*(\".*?\"|'.*?')",
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    private Pattern M_patternHrefRel = Pattern.compile("\\srel\\s*=\\s*(\".*?\"|'.*?')",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuffer)
@@ -394,7 +402,7 @@ public class FormattedTextImpl implements FormattedText
                     if (addBlankTargetToLinks() && StringUtils.isNotBlank(val)) {
                         Matcher m = M_patternAnchorTagWithOutTarget.matcher(val);
                         if (m.find()) {
-                            val = m.replaceAll("$1$2 target=\"_blank\" rel=\"noreferrer\">"); // adds a target to A tags without one
+                            val = m.replaceAll("$1$2 target=\"_blank\" rel=\"" + referrerPolicy + "\">"); // adds a target to A tags without one
                         }
                     }
                 } catch (ScanException e) {
@@ -514,7 +522,7 @@ public class FormattedTextImpl implements FormattedText
         if (addBlankTargetToLinks()) {
             Matcher m = M_patternAnchorTagWithOutTarget.matcher(value);
             if (m.find()) {
-                value = m.replaceAll("$1$2 target=\"_blank\" rel=\"noreferrer\">"); // adds a target to A tags without one
+                value = m.replaceAll("$1$2 target=\"_blank\" rel=\"" + referrerPolicy + "\">"); // adds a target to A tags without one
             }
         }
 
@@ -639,6 +647,7 @@ public class FormattedTextImpl implements FormattedText
         String href = null;
         String hrefTarget = null;
         String hrefTitle = null;
+        String hrefRel = null;
 
         try {
             // get HREF value
@@ -656,6 +665,11 @@ public class FormattedTextImpl implements FormattedText
             if (matcher.find()) {
                 hrefTitle = matcher.group();
             }
+            // get rel value
+            matcher = M_patternHrefRel.matcher(anchor);
+            if (matcher.find()) {
+                hrefRel = matcher.group();
+            }
         } catch (Exception e) {
             M_log.error("FormattedText.processAnchor ", e);
         }
@@ -670,8 +684,20 @@ public class FormattedTextImpl implements FormattedText
         } else {
             // default to _blank if not set and configured to force
             if (addBlankTargetToLinks()) {
-                hrefTarget = " target=\"_blank\" rel=\"noreferrer\"";
+                hrefTarget = " target=\"_blank\"";
             }
+        }
+
+        if (hrefRel != null) {
+            // use the existing one
+            hrefRel = hrefRel.trim();
+            hrefRel = hrefRel.replaceAll("\"", ""); // slightly paranoid
+            hrefRel = hrefRel.replaceAll(">", ""); // slightly paranoid
+            hrefRel = hrefRel.replaceFirst("rel=", ""); // slightly paranoid
+            hrefRel = " rel=\"" + hrefRel + "\"";
+        } else if (hrefRel == null && " target=\"_blank\"".equals(hrefTarget)) {
+            // target is _blank but has no rel attribute
+            hrefRel = " rel=\"" + referrerPolicy + "\"";
         }
 
         if (hrefTitle != null) {
@@ -689,6 +715,9 @@ public class FormattedTextImpl implements FormattedText
             href = href.replaceAll(">", "");
             href = href.replaceFirst("href=", "href=\"");
             newAnchor = "<a " + href + "\"" + hrefTarget;
+            if (hrefRel != null) {
+                newAnchor += hrefRel;
+            }
             if (hrefTitle != null)
             {
                 newAnchor += hrefTitle;
