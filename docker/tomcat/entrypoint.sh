@@ -4,8 +4,13 @@ set -e
 # This creates a sakai.properties file for sakai based on the envrionment
 # Only create a sakai.properties if the values are set.
 if [[ -n "${DB_ENV_MYSQL_DATABASE}" && -n "${DB_ENV_MYSQL_USER}" && -n "${DB_ENV_MYSQL_PASSWORD}" ]]; then
+	# Lock down our server ID
+	SERVER_ID=$(hostname -i | md5sum | cut -c 1-8)
+
+	# Setup the default sakai props
 	cat <<EOF  > /opt/tomcat/sakai/sakai.properties
 auto.ddl=true
+serverId=${SERVER_ID}
 vendor@org.sakaiproject.db.api.SqlService=mysql
 driverClassName@javax.sql.BaseDataSource=com.mysql.jdbc.Driver
 hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect

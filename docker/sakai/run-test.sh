@@ -21,46 +21,89 @@ docker build -t $image_tag --pull .
 
 cat > test.yml <<EOF
 # This builds an image for production
-app:
-  extends:
-    file: common.yml
-    service: app
-  image: $image_tag
+version: '2'
+services:
+  app:
+    extends:
+      file: common.yml
+      service: app
+    image: $image_tag
 
-  volumes:
-   - ./test.properties:/opt/tomcat/sakai/local.properties
-   - ./sakai-keytab:/opt/tomcat/sakai/sakai-keytab
-   - /opt/tomcat/sakai/files
-   - /opt/tomcat/sakai/deleted
-   - ./logs:/opt/tomcat/logs
-  environment:
-   # Blank value gets copied through from local enviroment
-   SENTRY_DSN:
-   RABBITMQ_URL:
-   CATALINA_JMX_PORT: 5401
+    volumes:
+     - ./test.properties:/opt/tomcat/sakai/local.properties
+     - ./sakai-keytab:/opt/tomcat/sakai/sakai-keytab
+     - /opt/tomcat/sakai/files
+     - /opt/tomcat/sakai/deleted
+     - ./logs:/opt/tomcat/logs
+    environment:
+     # Blank value gets copied through from local enviroment
+     SENTRY_DSN:
+     RABBITMQ_URL:
+     CATALINA_JMX_PORT: 5401
+     DB_ENV_MYSQL_USER: sakai
+     DB_ENV_MYSQL_PASSWORD: sakai
+     DB_ENV_MYSQL_DATABASE: sakai
 
-  external_links:
-   - mailcatcher
+    external_links:
+     - mailcatcher
 
-  command: /opt/tomcat/bin/catalina.sh run
-  links:
-   - db
-   - solr
+    command: /opt/tomcat/bin/catalina.sh run
+    links:
+     - db
+     - solr
+    networks:
+      backend:
+        aliases:
+          # All app servers can be referred to by this alias on the backend network
+          - apps
 
-db:
-  extends:
-    file: common.yml
-    service: db
+  db:
+    extends:
+      file: common.yml
+      service: db
+    networks:
+      backend:
 
-web:
-  extends:
-    file: common.yml
-    service: web
-  links:
-   - app
+  web:
+    extends:
+      file: common.yml
+      service: web
+    ports:
+      - "80"
+      - "443"
+    networks:
+      - backend
+    links:
+     - app
+    volumes:
+      - shib-data:/var/run/shibboleth
+      - ./shibboleth:/opt/shibboleth
 
-solr:
-  extends:
-    file: common.yml
-    service: solr
+  solr:
+    extends:
+      file: common.yml
+      service: solr
+    networks:
+      - backend
+
+  # Just re-use the apache one.
+  shibd:
+    extends:
+      file: common.yml
+      service: web
+    environment:
+      SERVERNAME:
+      ENTITYID:
+    entrypoint: /opt/scripts/shibd-entrypoint.sh
+    command: /usr/sbin/shibd -u _shibd -g _shibd  -fF -c /etc/shibboleth/shibboleth2.xml
+    volumes:
+      - shib-data:/var/run/shibboleth
+      - ./shibboleth:/opt/shibboleth
+
+
+volumes:
+ # We use the shib socket to talk between apache and shibd
+ shib-data:
+networks:
+ backend: {}
 EOF
