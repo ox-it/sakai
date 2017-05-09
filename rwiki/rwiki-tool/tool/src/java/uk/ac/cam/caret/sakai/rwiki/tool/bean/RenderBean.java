@@ -21,10 +21,7 @@
 
 package uk.ac.cam.caret.sakai.rwiki.tool.bean;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -57,8 +54,10 @@ public class RenderBean
 	private boolean withBreadcrumbs = true;
 
 	private boolean canEdit = false;
-	
+
 	private boolean canRead = false;
+
+	private boolean canCreate = false;
 
 	private String previewContent = null;
 
@@ -85,6 +84,7 @@ public class RenderBean
 		this.withBreadcrumbs = withBreadcrumbs;
 		this.canEdit = objectService.checkUpdate(rwo);
 		this.canRead = objectService.checkRead(rwo);
+		this.canCreate = objectService.checkCreate(rwo);
 	}
 
 	/**
@@ -115,6 +115,7 @@ public class RenderBean
 			this.rwo = objectService.getRWikiObject(pageName, pageRealm);
 			this.canEdit = objectService.checkUpdate(rwo);
 			this.canRead = objectService.checkRead(rwo);
+			this.canCreate = objectService.checkCreate(rwo);
 		}
 		catch (PermissionException e)
 		{
@@ -497,7 +498,24 @@ public class RenderBean
 	{
 		this.canEdit = canEdit;
 	}
-	
+
+	/**
+	 * @return Returns the canCreate.
+	 */
+	public boolean getCanCreate()
+	{
+		return canCreate;
+	}
+
+	/**
+	 * @param canCreate
+	 *        The canCreate to set.
+	 */
+	public void setCanCreate(boolean canCreate)
+	{
+		this.canCreate = canCreate;
+	}
+
 	/**
 	 * @return Returns the canRead.
 	 */

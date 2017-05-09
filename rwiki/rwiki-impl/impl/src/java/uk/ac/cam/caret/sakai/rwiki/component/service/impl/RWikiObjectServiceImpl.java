@@ -1751,6 +1751,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * {@inheritDoc}
 	 */
+	public boolean checkCreate(RWikiObject rwo)
+	{
+		return wikiSecurityService.checkCreate((RWikiEntity) getEntity(rwo));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean checkAdmin(RWikiObject rwo)
 	{
 		return wikiSecurityService.checkAdmin((RWikiEntity) getEntity(rwo));
