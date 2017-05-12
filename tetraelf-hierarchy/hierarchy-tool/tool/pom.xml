@@ -108,13 +108,19 @@
 					<include>**/*.vm</include>
 				</includes>
 			</resource>
-
 			<resource>
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
 					<!-- We have velocity macros. -->
 					<include>**/*</include>
 				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+				<filtering>false</filtering>
 			</resource>
 		</resources>
 		<testResources>
