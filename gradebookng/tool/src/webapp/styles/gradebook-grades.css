@@ -31,7 +31,6 @@
 }
 #gradebookHorizontalOverflowWrapper {
   width: 100%;
-  padding-bottom: 160px;
   overflow: auto;
   position: relative;
   -webkit-overflow-scrolling: touch;
@@ -78,7 +77,7 @@
   min-width: 180px;
   min-height: 2.6em;
 }
-#gradebookGrades .gb-course-grade {
+#gradebookGrades .gb-course-grade, #gradebookGrades .gb-course-grade-dh {
   width: 120px;
   max-width: 120px;
   min-width: 120px;
@@ -86,7 +85,7 @@
 #gradebookGrades .gb-course-grade.gb-cg-override {
   font-weight: bold;
 }
-#gradebookGrades .gb-student-cell {
+#gradebookGrades .gb-student-cell, #gradebookGrades .gb-student-cell-dh {
   width: 220px;
   max-width: 220px;
   min-width: 220px;
@@ -94,10 +93,13 @@
 
 #gradebookGrades .gb-student-number-cell
 {
+	text-align:center;
+}
+#gradebookGrades .gb-student-number-cell, #gradebookGrades .gb-student-number-cell-dh
+{
 	width: 160px;
 	max-width: 160px;
 	min-width: 160px;
-	text-align:center;
 }
 
 #gradebookGrades .gb-student-number-cell .gb-title
@@ -105,7 +107,8 @@
 	text-align: left;
 }
 
-#gradebookGrades .gb-student-number-filter .studentNumberFilterButton
+#gradebookGrades .gb-student-number-filter .studentNumberFilterButton,
+#gradebookGrades .gb-student-filter .studentFilterButton
 {
 	margin: 0;
 	font-family: FontAwesome;
@@ -116,7 +119,9 @@
 }
 
 #gradebookGrades .gb-student-number-filter .studentNumberFilterClear,
-#gradebookGrades .gb-student-number-filter .studentNumberFilterClear:disabled
+#gradebookGrades .gb-student-number-filter .studentNumberFilterClear:disabled,
+#gradebookGrades .gb-student-filter .studentFilterClear,
+#gradebookGrades .gb-student-filter .studentFilterClear:disabled
 {
 	margin: 0;
 	font-family: FontAwesome;
@@ -131,18 +136,22 @@
 }
 
 #gradebookGrades .gb-student-number-filter .studentNumberFilterClear:active,
-#gradebookGrades .gb-student-number-filter .studentNumberFilterClear:disabled
+#gradebookGrades .gb-student-number-filter .studentNumberFilterClear:disabled,
+#gradebookGrades .gb-student-filter .studentFilterClear:active,
+#gradebookGrades .gb-student-filter .studentFilterClear:disabled
 {
 	box-shadow: none !important;
 }
 
-#gradebookGrades .studentNumberFilterInputGroup
+#gradebookGrades .studentNumberFilterInputGroup,
+#gradebookGrades .studentFilterInputGroup
 {
 	display: flex;
 	align-items: center;
 }
 
-#gradebookGrades .gb-student-number-filter .studentNumberFilterInput
+#gradebookGrades .gb-student-number-filter .studentNumberFilterInput,
+#gradebookGrades .gb-student-filter .studentFilterInput
 {
 	border: 1px solid #cccccc;
 	border-right: 0 none;
@@ -151,25 +160,13 @@
 	padding-left: 6px;
 }
 
-.gb-student-number-filter > div
+.gb-student-number-filter > div,
+.gb-student-filter > div
 {
 	display: flex;
 	align-items: center;
+	padding-right: 4px;
 }
-
-/*
-OWLTODO:
-Steps:
- to .studentNumberFilterClear add:
- border: 1px solid #ccc (higher up in the selector)
- change background: white to background: #fff
- in the active state, reset box-shadow:
- none
- Plus disabled states
-
-
-*/
-
 #gradebookGrades thead th > div,
 #gradebookGrades tbody td > div {
   position: relative;
@@ -453,11 +450,13 @@ Steps:
 }
 /* Row selector/highlights */
 #gradebookGrades .gb-row-selector {
-  width: 14px;
-  min-width: 14px;
   background-color: #EEE;
   cursor: pointer;
   vertical-align: middle;
+}
+#gradebookGrades .gb-row-selector, #gradebookGrades .gb-row-selector-dh {
+  width: 14px;
+  min-width: 14px;
 }
 #gradebookGrades .gb-row-selector > div:before {
   font-family: 'gradebook-icons';
@@ -560,14 +559,41 @@ Steps:
 }
 /* Toolbar */
 #gradebookGradesToolbar {
-  position: relative;
-  background: #FAFAFA;
   font-size: 0.9em;
-  overflow: visible;
-  padding: 0 0.4em;
-  width: 100%;
-  white-space: nowrap; /* don't wrap so it stays on one line */
-  height: 40px;
+  white-space: nowrap; /* don't wrap so show/hide items panel contents stay on one line */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 0.5em;
+  padding: 0;
+}
+.gb-section-group-filter
+{
+	display: flex;
+}
+.gb-column-display-settings
+{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.gb-column-display-settings .gb-column-display-button-group button
+{
+	margin: 0 0.25em 0 0.25em;
+}
+.gb-column-display-settings .gb-item-summary
+{
+	margin-bottom: 0.5em;
+}
+.gb-pager .gbSakaiPagerContainer
+{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+.gb-pager .gbSakaiPagerContainer input, .gb-pager .gbSakaiPagerContainer select
+{
+	margin: 0 0.25em 0 0.25em;
 }
 #gradebookGradesToolbar ul {
   list-style: none;
@@ -1269,4 +1295,82 @@ and (max-device-width : 736px) {
 #gbConnectionTimeoutFeedback:before {
   font-family: "gradebook-icons";
   content: "\f071";
+}
+
+#gradebookGrades thead .dummyHeaders th, #gradebookGrades thead .dummyHeaders
+{
+	height: 0;
+	padding: 0;
+	border: 0 none;
+	font-size: 0;
+	line-height: 0;
+	margin: 0;
+	min-height: 0;
+}
+
+#gradebookGrades thead .gb-categories-row th
+{
+	min-height: 0;
+}
+
+#gradebookVerticalOverflowWrapper
+{
+	max-width: calc(100% - 10em - 1em); /* 100% - tool menu width - scrollbar gap */
+	max-height: calc(100vh - 80px - 1em); /* viewport height - pager height - scrollbar gap */
+	-webkit-overflow-scrolling: touch;
+	overflow: auto;
+	position: relative;
+}
+
+#gradebookVerticalOverflowWrapper table
+{
+	table-layout: fixed;
+	border-collapse: separate;
+	border-spacing: 0;
+	width: 100%;
+}
+
+#gradebookGradesTable .gb-categories-row th:first-child
+{
+	position: relative;
+	z-index: 2;
+	will-change: transform;
+}
+
+#gradebookGradesTable thead .gb-row-selector,
+#gradebookGradesTable thead .gb-student-cell,
+#gradebookGradesTable thead .gb-student-number-cell,
+#gradebookGradesTable thead .gb-course-grade
+{
+	position: relative;
+	z-index: 2;
+	will-change: transform;
+}
+
+#gradebookGradesTable tbody .gb-row-selector,
+#gradebookGradesTable tbody .gb-student-cell,
+#gradebookGradesTable tbody .gb-student-number-cell,
+#gradebookGradesTable tbody .gb-course-grade,
+#gradebookGrades thead th
+{
+	position: relative;
+	z-index: 1;
+	will-change: transform;
+}
+
+#gradebookGrades table.table-striped > tbody > tr:nth-of-type(2n) > td,
+#gradebookGrades table.table-striped > tbody > tr:nth-of-type(2n) > th
+{
+	background-color: #FFF;
+}
+
+#gradebookGrades table.table-striped > tbody > tr:nth-of-type(2n+1) > td,
+#gradebookGrades table.table-striped > tbody > tr:nth-of-type(2n+1) > th
+{
+	background-color: #f9f9f9;
+}
+.gb-add-grades
+{
+	display: flex;
+	align-items: center;
 }

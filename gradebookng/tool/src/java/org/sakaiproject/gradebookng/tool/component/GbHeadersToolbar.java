@@ -5,11 +5,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortStateLocator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IStyledColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -24,11 +27,17 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
-public class GbHeadersToolbar extends HeadersToolbar {
+public class GbHeadersToolbar<S> extends HeadersToolbar<S> {
 
 	private final IModel<Map<String, Object>> model;
+	
+	private static final String DH_SUFFIX = "-dh";
+	private static final String HANDLE_COL_CSS_CLASS_DH = GradebookPage.HANDLE_COL_CSS_CLASS + DH_SUFFIX;
+	private static final String STUDENT_COL_CSS_CLASS_DH = GradebookPage.STUDENT_COL_CSS_CLASS + DH_SUFFIX;
+	private static final String STUDENT_NUM_COL_CSS_CLASS_DH = GradebookPage.STUDENT_NUM_COL_CSS_CLASS + DH_SUFFIX;
+	private static final String COURSE_GRADE_COL_CSS_CLASS_DH = GradebookPage.COURSE_GRADE_COL_CSS_CLASS + DH_SUFFIX;
 
-	public GbHeadersToolbar(final DataTable table, final ISortStateLocator stateLocator, final IModel<Map<String, Object>> model) {
+	public <T> GbHeadersToolbar(final DataTable<T, S> table, final ISortStateLocator stateLocator, final IModel<Map<String, Object>> model) {
 		super(table, stateLocator);
 		this.model = model;
 	}
@@ -42,8 +51,50 @@ public class GbHeadersToolbar extends HeadersToolbar {
 
 		final Map<String, Object> modelData = this.model.getObject();
 		final boolean categoriesEnabled = (boolean) modelData.get("categoriesEnabled");
+		
+		// add dummy headers because table is fixed layout and categories row is using colspan
+		// OWLTODO: see if we can remove this if not using categories
+		List<? extends IColumn> columns = getTable().getColumns();
+		ListView dummies = new ListView<IColumn>("dummyHeaders", columns)
+		{
+			@Override
+			protected void populateItem(ListItem<IColumn> item)
+			{
+				WebMarkupContainer dummy = new WebMarkupContainer("dummyHeader");
+				IColumn<?, S> col = item.getModelObject();
+				if (col instanceof IStyledColumn)
+				{
+					String colCss = StringUtils.trimToEmpty(((IStyledColumn) col).getCssClass());
+					String css = "";
+					if (GradebookPage.HANDLE_COL_CSS_CLASS.equals(colCss))
+					{
+						css = HANDLE_COL_CSS_CLASS_DH;
+					}
+					else if (GradebookPage.STUDENT_COL_CSS_CLASS.equals(colCss))
+					{
+						css = STUDENT_COL_CSS_CLASS_DH;
+					}
+					else if (GradebookPage.STUDENT_NUM_COL_CSS_CLASS.equals(colCss))
+					{
+						css = STUDENT_NUM_COL_CSS_CLASS_DH;
+					}
+					else if (colCss.startsWith(GradebookPage.COURSE_GRADE_COL_CSS_CLASS))
+					{
+						css = COURSE_GRADE_COL_CSS_CLASS_DH;
+					}
+					
+					if (!css.isEmpty())
+					{
+						dummy.add(AttributeModifier.append("class", css));
+					}
+				}
 
-		if (categoriesEnabled && settings.isCategoriesEnabled()) {
+				item.add(dummy);
+			}
+		};
+		add(dummies);
+
+		if (categoriesEnabled && settings.isCategoriesEnabled()) {	
 			final WebMarkupContainer categoriesRow = new WebMarkupContainer("categoriesRow");
 			
 			final Label emptyCat = new Label("empty", Model.of(""));

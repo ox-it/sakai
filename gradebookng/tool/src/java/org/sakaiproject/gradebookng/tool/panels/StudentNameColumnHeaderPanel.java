@@ -1,9 +1,11 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -12,6 +14,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -47,11 +50,11 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		final GbStudentNameSortOrder sortType = this.model.getObject();
 
 		// title
-		final Link<String> title = new Link<String>("title") {
+		final GbAjaxLink<String> title = new GbAjaxLink<String>("title") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onClick() {
+			public void onClick(AjaxRequestTarget target) {
 
 				// toggle the sort direction on each click
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -68,7 +71,8 @@ public class StudentNameColumnHeaderPanel extends Panel {
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(GradebookPage.class);
+				//setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
 			}
 		};
 
@@ -80,6 +84,56 @@ public class StudentNameColumnHeaderPanel extends Panel {
 				new AttributeModifier("class", "gb-sort-" + settings.getStudentSortOrder().toString().toLowerCase()));
 		}
 		add(title);
+		
+		final Form<String> form = new Form<>("studentFilterForm", Model.of(settings.getStudentFilter()));
+		add(form);
+		
+		final TextField<String> filterTextField = new TextField<>("studentFilter", form.getModel());
+		form.add(filterTextField);
+		
+		final GbAjaxButton clear = new GbAjaxButton("studentFilterClear")
+		{
+			@Override
+			public void onSubmit(final AjaxRequestTarget target, final Form<?> form)
+			{
+				// clear the student number filter
+				final GradebookUiSettings settings = gradebookPage.getUiSettings();
+				settings.setStudentFilter("");
+
+				// save settings
+				gradebookPage.setUiSettings(settings);
+				
+				// OWLTODO: refresh the provider here...eventually? will need a refactor of GradebookPage first...
+				// gradebookPage.refresh();
+				// target.add(gradebookPage.get("form"));
+				
+				// refresh
+				//setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
+				
+			}
+		};
+		form.add(clear);
+		
+		final GbAjaxButton submit = new GbAjaxButton("studentFilterButton")
+		{
+			@Override
+			public void onSubmit(final AjaxRequestTarget target, final Form<?> form)
+			{
+				String filterText = StringUtils.trimToEmpty((String) form.getModelObject());
+				// set the student number filter
+				final GradebookUiSettings settings = gradebookPage.getUiSettings();
+				settings.setStudentFilter(filterText);
+
+				// save settings
+				gradebookPage.setUiSettings(settings);
+
+				// refresh
+				//setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
+			}
+		};
+		form.add(submit);
 
 		// sort by first/last name link
 		final GbAjaxLink<GbStudentNameSortOrder> sortByName = new GbAjaxLink<GbStudentNameSortOrder>("sortByName", this.model) {
@@ -103,7 +157,8 @@ public class StudentNameColumnHeaderPanel extends Panel {
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(GradebookPage.class);
+				//setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
 
 			}
 		};

@@ -16,6 +16,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
@@ -29,6 +30,8 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 public class GradebookUiSettings implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	public static final int DEFAULT_GRADES_PAGE_SIZE = 100;
 
 	/**
 	 * Stores the selected group/section
@@ -99,8 +102,13 @@ public class GradebookUiSettings implements Serializable {
 	private boolean gradeSummaryGroupedByCategory;
 	
 	@Getter
-	@Setter
+	private String studentFilter;
+	
+	@Getter
 	private String studentNumberFilter;
+	
+	@Getter
+	private	int gradesPageSize;
 
 
 	public GradebookUiSettings() {
@@ -117,8 +125,11 @@ public class GradebookUiSettings implements Serializable {
 		this.categoryColors = new HashMap<String, String>();
 		this.showPoints = false;
 		this.gradeSummaryGroupedByCategory = false;
-		
+
+		studentFilter = "";
 		studentNumberFilter = "";
+		
+		gradesPageSize = DEFAULT_GRADES_PAGE_SIZE;
 	}
 
 	public boolean isAssignmentVisible(final Long assignmentId) {
@@ -212,6 +223,28 @@ public class GradebookUiSettings implements Serializable {
 		this.assignmentSortOrder = null;
 		this.studentSortOrder = null;
 		this.studentNumberSortOrder = null;
+	}
+	
+	public void setStudentFilter(String value)
+	{
+		studentFilter = StringUtils.trimToEmpty(value);
+	}
+	
+	public void setStudentNumberFilter(String value)
+	{
+		studentNumberFilter = StringUtils.trimToEmpty(value);
+	}
+	
+	/**
+	 * Sets the paging size for the grades table on the Grades page. Set to 0 for no limit.
+	 * @param value number of rows in each page. Set to 0 to indicate no limit. Negative values are ignored.
+	 */
+	public void setGradesPageSize(int value)
+	{
+		if (value >= 0)
+		{
+			gradesPageSize = value;
+		}
 	}
 
 	@Override

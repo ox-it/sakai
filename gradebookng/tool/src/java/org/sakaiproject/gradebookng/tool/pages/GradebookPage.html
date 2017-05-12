@@ -10,17 +10,11 @@
         <wicket:message key="feedback.connectiontimeout" />
     </div>
 
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="pull-left">
-                <button wicket:id="addGradeItem" class="button_color gb-add-gradebook-item-button">
-                    <wicket:message key="button.addgradeitem" />
-                </button>
-            </div>
-            <div class="pull-left">
-                <div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
-            </div>
-        </div>
+    <div class="gb-add-grades">
+		<button wicket:id="addGradeItem" class="button_color gb-add-gradebook-item-button">
+			<wicket:message key="button.addgradeitem" />
+		</button>
+		<div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
     </div>
 
     <div wicket:id="addOrEditGradeItemWindow" />
@@ -33,7 +27,7 @@
 	<div wicket:id="updateCourseGradeDisplayWindow" />
 
     <div wicket:id="toolbar" id="gradebookGradesToolbar">
-      <ul class="gb-toolbar-left">
+      <!--<ul class="gb-toolbar-left">
         <li>
           <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
           <select id="filterByGroup" wicket:id="groupFilter">
@@ -44,8 +38,8 @@
         <wicket:enclosure>
         	<li><span wicket:id="groupFilterOnlyOne" class="gb-group-title" role="status">Section 001</span></li>
         </wicket:enclosure>
-        <li><span wicket:id="studentSummary" class="gradebook-student-summary" role="status">Showing 20 of 25 Students</span></li>
-      </ul>
+        <!--<li><span wicket:id="studentSummary" class="gradebook-student-summary" role="status">Showing 20 of 25 Students</span></li>-->
+      <!--</ul>
       <ul class="gb-toolbar-right">
         <li><span wicket:id="gradeItemSummary" class="gb-item-summary" role="status" aria-live="polite">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
         <li>
@@ -54,8 +48,9 @@
         <li>
           <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="button" aria-controls="gradebookGradesTable"><wicket:message key="table.toolbar.categorytoggle"/></button>
         </li>
-      </ul>
+      </ul>-->
     </div>
+	<!--<div wicket:id="gradebookPager"></div>-->
     <div id="gradebookGrades">
       <div id="gradebookHorizontalOverflowWrapper">
           <div id="gradebookVerticalOverflowWrapper">
@@ -65,7 +60,10 @@
     </div>
   </form>
 
+	<div wicket:id="gradeItemsTogglePanelContainer">
   <div wicket:id="gradeItemsTogglePanel" id="gradeItemsTogglePanel" style="display: none;"/>
+	</div>
+  
   <div id="gradeItemsConcurrentUserWarning" style="display: none;">
     <ul class="gb-popover-notifications">
       <li class="gb-popover-notification-concurrentedit text-danger">

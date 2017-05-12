@@ -1,0 +1,24 @@
+<wicket:panel>
+<div class="gb-section-group-filter">
+	  <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
+	  <select id="filterByGroup" wicket:id="groupFilter">
+		<option value="1">Section 1</option>
+		<option value="2">Section 2</option>
+	  </select>
+	<wicket:enclosure>
+		<span wicket:id="groupFilterOnlyOne" class="gb-group-title" role="status">Section 001</span>
+	</wicket:enclosure>
+</div>
+<div class="gb-column-display-settings">
+	<span wicket:id="gradeItemSummary" class="gb-item-summary" role="status" aria-live="polite">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span>
+	<div class="gb-column-display-button-group">
+		<button wicket:id="toggleGradeItemsToolbarItem" id="toggleGradeItemsToolbarItem" class="button" aria-popup="true" aria-controls="gradeItemsTogglePanel">
+			<wicket:message key="label.toolbar.gradeitemstoggle"/>
+		</button>	
+		<button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" class="button" aria-controls="gradebookGradesTable">
+			<wicket:message key="table.toolbar.categorytoggle"/>
+		</button>
+	</div>
+</div>
+<div class="gb-pager" wicket:id="gradebookPager" />
+</wicket:panel>

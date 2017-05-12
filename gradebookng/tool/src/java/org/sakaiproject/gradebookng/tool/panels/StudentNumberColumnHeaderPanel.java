@@ -13,6 +13,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
@@ -35,10 +36,10 @@ public class StudentNumberColumnHeaderPanel extends Panel
 		final GradebookPage gradebookPage = (GradebookPage) getPage();
 		
 		// title
-		final Link<String> title = new Link<String>("title")
+		final GbAjaxLink<String> title = new GbAjaxLink<String>("title")
 		{
 			@Override
-			public void onClick()
+			public void onClick(AjaxRequestTarget target)
 			{
 				// toggle the sort direction on each click
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -55,7 +56,8 @@ public class StudentNumberColumnHeaderPanel extends Panel
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(GradebookPage.class);
+				//setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
 			}
 		};
 		
@@ -93,7 +95,8 @@ public class StudentNumberColumnHeaderPanel extends Panel
 				// target.add(gradebookPage.get("form"));
 				
 				// refresh
-				setResponsePage(GradebookPage.class);
+				//setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
 				
 			}
 		};
@@ -104,6 +107,7 @@ public class StudentNumberColumnHeaderPanel extends Panel
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form)
 			{
+				Object mo = form.getModelObject();
 				String filterText = StringUtils.trimToEmpty((String) form.getModelObject());
 				// set the student number filter
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -113,7 +117,8 @@ public class StudentNumberColumnHeaderPanel extends Panel
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(GradebookPage.class);
+				//setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
 			}
 		};
 		form.add(submit);

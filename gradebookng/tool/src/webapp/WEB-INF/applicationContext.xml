@@ -48,6 +48,12 @@
 		id="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
 		class="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
 		parent="org.sakaiproject.gradebookng.framework.GradebookNgEntityProducer">
-	</bean>	
+	</bean>
+	
+	<!-- The id of this bean needs to match the param 'applicationBean' under your web.xml -->
+    <!--<bean id="siteStatsApplication" class="org.sakaiproject.sitestats.tool.wicket.SiteStatsApplication">
+        <property name="businessService" ref="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"/>
+    </bean>-->
+	<!-- OWLTODO: revisit to inject business service? -->
 
 </beans>

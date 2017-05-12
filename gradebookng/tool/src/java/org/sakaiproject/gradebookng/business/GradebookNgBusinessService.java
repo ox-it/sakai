@@ -234,16 +234,27 @@ public class GradebookNgBusinessService {
 	public List<User> getUsers(final List<String> userUuids, final GradebookUiSettings settings)
 	{
 		// OWLTODO: for now we just grab the users from the previous method, ignoring the presort issue
+		// and any filtering opportunities
 		
+		String studentFilter = settings.getStudentFilter();
 		String studentNumberFilter = settings.getStudentNumberFilter();
 		Optional<Site> site = getCurrentSite();
-		if (studentNumberFilter.isEmpty() || !site.isPresent())
+		if (studentFilter.isEmpty() && (studentNumberFilter.isEmpty() || !site.isPresent()))
 		{
 			return getUsers(userUuids);
 		}
 		
-		return getUsers(userUuids).stream().filter(u -> getStudentNumber(u, site.get()).contains(studentNumberFilter))
+		return getUsers(userUuids).stream().filter(u -> studentMatchesAnyFilter(u, site.orElse(null), studentFilter, studentNumberFilter))
 				.collect(Collectors.toList());
+	}
+	
+	// simple or match across all filters
+	private boolean studentMatchesAnyFilter(User user, Site site, String studentFilter, String studentNumberFilter)
+	{
+		boolean studentMatch = !studentFilter.isEmpty() && (StringUtils.containsIgnoreCase(user.getDisplayName(), studentFilter) || StringUtils.containsIgnoreCase(user.getEid(), studentFilter));		
+		boolean numberMatch = site != null && !studentNumberFilter.isEmpty() && StringUtils.containsIgnoreCase(getStudentNumber(user, site), studentNumberFilter);
+		
+		return studentMatch || numberMatch;
 	}
 
 	/**
@@ -255,6 +266,7 @@ public class GradebookNgBusinessService {
 		return getGradebook(getCurrentSiteId());
 	}
 
+	
 	/**
 	 * Helper to get a reference to the gradebook for the specified site
 	 *
