@@ -22,18 +22,19 @@
 /* Container */
 #gradebookSpreadsheet {
   margin-top: 10px;
+  max-width: calc(100% - 1em); /* 100% - double scrollbar affordance gap */
 }
 #gradebookGrades {
   position: relative;
   overflow: hidden;
-  width: 100%;
+  /*width: 100%;*/
   font-size: 0.9em;
 }
 #gradebookHorizontalOverflowWrapper {
-  width: 100%;
+  /*width: 100%;
   overflow: auto;
   position: relative;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;*/
 }
 
 /* Table */
@@ -1315,11 +1316,11 @@ and (max-device-width : 736px) {
 
 #gradebookVerticalOverflowWrapper
 {
-	max-width: calc(100% - 10em - 1em); /* 100% - tool menu width - scrollbar gap */
-	max-height: calc(100vh - 80px - 1em); /* viewport height - pager height - scrollbar gap */
+	max-height: calc(100vh - 80px - 1em); /* viewport height - approx pager height - scrollbar gap */
 	-webkit-overflow-scrolling: touch;
 	overflow: auto;
 	position: relative;
+	background-color: #eeeeee;
 }
 
 #gradebookVerticalOverflowWrapper table
@@ -1327,7 +1328,7 @@ and (max-device-width : 736px) {
 	table-layout: fixed;
 	border-collapse: separate;
 	border-spacing: 0;
-	width: 100%;
+	/*width: 100%;*/
 }
 
 #gradebookGradesTable .gb-categories-row th:first-child
