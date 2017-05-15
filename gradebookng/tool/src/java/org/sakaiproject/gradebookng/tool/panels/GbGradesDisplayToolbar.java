@@ -143,7 +143,7 @@ public class GbGradesDisplayToolbar extends Panel
 					allGroupsTitle = getString("groups.available");
 				}
 			}
-			groups.add(0, new GbGroup(null, allGroupsTitle, null, GbGroup.Type.ALL));
+			groups.add(0, new GbGroup(null, allGroupsTitle, null, GbGroup.Type.ALL, null));
 		}
 
 		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<>("groupFilter", new Model<GbGroup>(),
@@ -179,6 +179,8 @@ public class GbGradesDisplayToolbar extends Panel
 			}
 
 		});
+		// Hide group filter in anonymous contexts (prevents single user group exploit of anonymous constraint)
+		groupFilter.setVisible(!page.getUiSettings().isContextAnonymous());
 
 		// set selected group, or first item in list
 		final GradebookUiSettings settings = page.getUiSettings();

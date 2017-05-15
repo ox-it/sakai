@@ -30,12 +30,16 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	private final String displayName;
 
 	@Getter
+	private final String eid;
+
+	@Getter
 	private final String studentNumber;
 
 	public GbUser(final User u) {
 		this.userUuid = u.getId();
 		this.displayId = u.getDisplayId();
 		this.displayName = u.getDisplayName();
+		this.eid = u.getEid();
 		this.studentNumber = "";
 	}
 
@@ -43,6 +47,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.userUuid = u.getId();
 		this.displayId = u.getDisplayId();
 		this.displayName = u.getDisplayName();
+		this.eid = u.getEid();
 		this.studentNumber = businessService.getStudentNumber(u, businessService.getCurrentSite().orElse(null));
 	}
 
@@ -50,6 +55,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		this.userUuid = "";
 		this.displayId = displayID;
 		this.displayName = displayName;
+		this.eid = "";
 		this.studentNumber = "";
 	}
 

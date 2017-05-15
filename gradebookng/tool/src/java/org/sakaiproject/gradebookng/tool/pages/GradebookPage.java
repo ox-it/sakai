@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -9,12 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -34,6 +37,8 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.Radio;
+import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -43,10 +48,13 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.gradebookng.business.CachedCMProvider;
 import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
+import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
+import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
@@ -114,6 +122,14 @@ public class GradebookPage extends BasePage {
 	boolean showGroupFilter = true;
 	
 	SakaiDataTable table;
+	GbGradesDisplayToolbar toolbar;
+	ToggleGradeItemsToolbarPanel gradeItemsTogglePanel;
+	WebMarkupContainer gradeItemsTogglePanelContainer;
+	private transient Map<String, Object> toolbarModelData;
+	private transient List<Assignment> assignments;
+	private transient GbGradesDataProvider studentGradeMatrix;
+
+	private transient CachedCMProvider cmProvider;
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
@@ -207,6 +223,96 @@ public class GradebookPage extends BasePage {
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
 
+		cmProvider = new CachedCMProvider(businessService, settings);
+
+		// Toggles the context between normal / anonymous items. Model is boolean: False->normal, True->anonymous  --bbailla2
+		final RadioGroup anonymousToggle = new RadioGroup("toggleAnonymous", Model.of(Boolean.valueOf(settings.isContextAnonymous())));
+		Radio anonToggle_normal = new Radio("anonToggle_normal", Model.of(Boolean.FALSE));
+		Radio anonToggle_anonymous = new Radio("anonToggle_anonymous", Model.of(Boolean.TRUE));
+		anonymousToggle.add(anonToggle_normal.add(new AjaxEventBehavior("onchange")
+		{
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				// Flip the context to normal
+				settings.setContextAnonymous(false);
+				anonymousToggle.setModelObject(Boolean.valueOf(false));
+				// Use default sort order. Maintaining any sort order would violate anonymity constraints
+				settings.setNameSortOrder(GbStudentNameSortOrder.LAST_NAME);
+				settings.setStudentSortOrder(SortDirection.ASCENDING);
+				// Clear the group filter for single user group violation of anonymity constraint
+				settings.setGroupFilter(new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL, null));
+				// repopulate all the data accordingly and redraw it
+				addOrReplaceTable(null);
+				redrawSpreadsheet(target);
+			}
+		}));
+		anonymousToggle.add(anonToggle_anonymous.add(new AjaxEventBehavior("onchange")
+		{
+			protected void onEvent(AjaxRequestTarget target)
+			{
+				// Flip the context to anonymous
+				settings.setContextAnonymous(true);
+				anonymousToggle.setModelObject(Boolean.valueOf(true));
+				// Clear filters and use the AnonIdSortOrder to eliminate any anonymity constraint violations
+				settings.setStudentFilter("");
+				settings.setStudentNumberFilter("");
+				settings.setAnonIdSortOrder(SortDirection.ASCENDING);
+				// Clear the group filter for single user group violation of anonymity constraint
+				settings.setGroupFilter(new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL, null));
+				// repopulate all the data accordingly and redraw it
+				addOrReplaceTable(null);
+				redrawSpreadsheet(target);
+			}
+		}));
+		// Hide the toggle if te site doesn't have anonIDs
+		anonymousToggle.setVisible(!cmProvider.getAnonIds().isEmpty());
+		form.add(anonymousToggle);
+
+		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
+		noAssignments.setVisible(false);
+		this.form.add(noAssignments);
+
+		final WebMarkupContainer noStudents = new WebMarkupContainer("noStudents");
+		noStudents.setVisible(false);
+		this.form.add(noStudents);
+
+
+		addOrReplaceTable(stopwatch);
+
+
+		// hide/show components
+
+		// no assignments, hide table, show message
+		if (assignments.isEmpty()) {
+			table.setVisible(false);
+			noAssignments.setVisible(true);
+		}
+
+		// no visible students, show table, show message
+		// don't want two messages though, hence the else
+		else if (studentGradeMatrix.size() == 0) {
+			noStudents.setVisible(true);
+		}
+
+		stopwatch.time("Gradebook page done", stopwatch.getTime());
+	}
+
+	/**
+	 * Constructs the Gradebook table, then adds it to the form (via form.addOrReplace for Ajax friendly updating).
+	 * Class members this method initializes: toolbarModelData, assignments, studentGradeMatrix
+	 * @param stopwatch a GbStopWatch instance. Will accept null.
+	 */
+	private void addOrReplaceTable(GbStopWatch stopwatch)
+	{
+		if (stopwatch == null)
+		{
+			stopwatch = new GbStopWatch();
+		}
+
+		final GradebookUiSettings settings = getUiSettings();
+
+		final Gradebook gradebook = this.businessService.getGradebook();
+
 		SortType sortBy = SortType.SORT_BY_SORTING;
 		if (settings.isCategoriesEnabled()) {
 			// Pre-sort assignments by the categorized sort order
@@ -214,17 +320,18 @@ public class GradebookPage extends BasePage {
 			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
 		}
 
-		// get Gradebook to save additional calls later
-		final Gradebook gradebook = this.businessService.getGradebook();
-
 		// get list of assignments. this allows us to build the columns and then
 		// fetch the grades for each student for each assignment from
 		// the map
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
+		final boolean isContextAnonymous = settings.isContextAnonymous();
+		assignments = this.businessService.getGradebookAssignments(sortBy);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 
+		// populates settings.getAnonAwareAssignmentIDsForContext() and getCategoryIDsInAnonContext()
+		businessService.setupAnonAwareAssignmentIDsAndCategoryIDsForContext(settings, assignments);
+
 		// get the grade matrix. It should be sorted if we have that info
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
+		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings, getCMProvider());
 
 		this.hasAssignmentsAndGrades = !assignments.isEmpty() && !grades.isEmpty();
 
@@ -234,14 +341,12 @@ public class GradebookPage extends BasePage {
 		stopwatch.time("buildGradeMatrix", stopwatch.getTime());
 
 		// categories enabled?
-		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 
 		// grading type?
 		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
 
 		// this could potentially be a sortable data provider
-		//final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
-		final GbGradesDataProvider studentGradeMatrix = new GbGradesDataProvider(grades, businessService, this);
+		studentGradeMatrix = new GbGradesDataProvider(grades, businessService, this);
 		final List<IColumn> cols = new ArrayList<>();
 
 		// add an empty column that we can use as a handle for selecting the row
@@ -279,7 +384,14 @@ public class GradebookPage extends BasePage {
 				modelData.put("displayName", studentGradeInfo.getStudentDisplayName());
 				modelData.put("nameSortOrder", settings.getNameSortOrder());
 
-				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
+				if (getUiSettings().isContextAnonymous())
+				{
+					cellItem.add(new Label(componentId, getAnonId(studentGradeInfo.getStudentEid())));
+				}
+				else
+				{
+					cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
+				}
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
 				cellItem.add(new AttributeModifier("abbr", studentGradeInfo.getStudentDisplayName()));
 				cellItem.add(new AttributeModifier("aria-label", studentGradeInfo.getStudentDisplayName()));
@@ -292,12 +404,11 @@ public class GradebookPage extends BasePage {
 			public String getCssClass() {
 				return STUDENT_COL_CSS_CLASS;
 			}
-
 		};
 		cols.add(studentNameColumn);
-		
+
 		// OWL student number column
-		if (businessService.isStudentNumberVisible())
+		if (!getUiSettings().isContextAnonymous() && businessService.isStudentNumberVisible())
 		{
 			final AbstractColumn studentNumberColumn = new AbstractColumn(new Model(""))
 			{
@@ -324,13 +435,11 @@ public class GradebookPage extends BasePage {
 				public String getCssClass() {
 					return STUDENT_NUM_COL_CSS_CLASS;
 				}
-
 			};
 			cols.add(studentNumberColumn);
 		}
-		
-		
 
+		// OWLTODO: only if course grade anonymity matches isContextAnonymous
 		// course grade column
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
 		final AbstractColumn courseGradeColumn = new AbstractColumn(new Model("")) {
@@ -353,11 +462,11 @@ public class GradebookPage extends BasePage {
 			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
 				final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
 
-				cellItem.add(new AttributeModifier("tabindex", 0));
+				cellItem.add(new AttributeModifier("tabIndex", 0));
 
 				// setup model
 				// TODO we may not need to pass everything into this panel since we now use a display string
-				// however we do requre that the label can receive events and update itself, although this could be recalculated for each
+				// however we do require that the label can receive events and update itself, although this could be recalculated for each
 				// event
 				final Map<String, Object> modelData = new HashMap<>();
 				modelData.put("courseGradeDisplay", studentGradeInfo.getCourseGrade().getDisplayString());
@@ -378,6 +487,12 @@ public class GradebookPage extends BasePage {
 
 		// build the rest of the columns based on the assignment list
 		for (final Assignment assignment : assignments) {
+
+			if (assignment.isAnon() != settings.isContextAnonymous())
+			{
+				// skip
+				continue;
+			}
 
 			final AbstractColumn column = new AbstractColumn(new Model(assignment)) {
 
@@ -408,7 +523,6 @@ public class GradebookPage extends BasePage {
 					final GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
 
 					final GbGradeInfo gradeInfo = studentGrades.getGrades().get(assignment.getId());
-
 					final Map<String, Object> modelData = new HashMap<>();
 					modelData.put("assignmentId", assignment.getId());
 					modelData.put("assignmentName", assignment.getName());
@@ -426,7 +540,6 @@ public class GradebookPage extends BasePage {
 
 					cellItem.setOutputMarkupId(true);
 				}
-
 			};
 
 			cols.add(column);
@@ -439,24 +552,45 @@ public class GradebookPage extends BasePage {
 		// TODO may be able to pass this list into the matrix to save another
 		// lookup in there)
 
+		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 		List<CategoryDefinition> categories = new ArrayList<>();
 
+		List<String> mixedCategoryNames = new ArrayList<>();
 		if (categoriesEnabled) {
 
 			// only work with categories if enabled
 			categories = this.businessService.getGradebookCategories();
 
 			// remove those that have no assignments
-			categories.removeIf(cat -> cat.getAssignmentList().isEmpty());
+			// OWL-2545 also filter if all contained assignments' isAnon() mismatch isContextAnonymous(); this removes pure-anon and pure-normal categories from opposing contexts  --bbailla2
+			categories.removeIf(cat -> 
+			{
+				return cat.getAssignmentList().stream().noneMatch(assignment->assignment.isAnon() == isContextAnonymous);
+			});
 
 			Collections.sort(categories, CategoryDefinition.orderComparator);
 
-			int currentColumnIndex = 3; // take into account first three header
-										// columns
+			int currentColumnIndex = 3; // take into account first three header columns
 
 			for (final CategoryDefinition category : categories) {
+				
+				// Get the assignmnet list for this category, but filter them removing assignments whose isAnon doesn't match the context
+				List<Assignment> visibleAssignmentList = new ArrayList<>(category.getAssignmentList());
+				// Before we filter, note that the anonymous context should not display 'mixed' category columns.
+				// Mixed categories: categories containing both normal and anonymous items. Mixed category grades should only be displayed in the normal context
+				if (isContextAnonymous)
+				{
+					// Do not need to seek anonymous items; if no anonymous items exist, the category would have already been filtered. Just seek normal items, then we know it's mixed
+					if (visibleAssignmentList.stream().anyMatch(assignment->!assignment.isAnon()))
+					{
+						mixedCategoryNames.add(category.getName());
+						continue;
+					}
+				}
+				// Now filter out assignments that do not match the context
+				visibleAssignmentList.removeIf(assignment -> assignment.isAnon() != isContextAnonymous);
 
-				if (category.getAssignmentList().isEmpty()) {
+				if (visibleAssignmentList.isEmpty()) {
 					continue;
 				}
 
@@ -491,12 +625,11 @@ public class GradebookPage extends BasePage {
 					public String getCssClass() {
 						return "gb-category-item-column-cell";
 					}
-
 				};
 
 				if (settings.isCategoriesEnabled()) {
 					// insert category column after assignments in that category
-					currentColumnIndex = currentColumnIndex + category.getAssignmentList().size();
+					currentColumnIndex = currentColumnIndex + visibleAssignmentList.size();
 					cols.add(currentColumnIndex, column);
 					currentColumnIndex = currentColumnIndex + 1;
 				} else {
@@ -508,53 +641,6 @@ public class GradebookPage extends BasePage {
 
 		stopwatch.time("all Columns added", stopwatch.getTime());
 
-		// TODO make this AjaxFallbackDefaultDataTable
-		/*final DataTable table = new DataTable("table", cols, studentGradeMatrix, 10) {  // OWLTODO: changed to 10 for local testing until we have a Sakai pager.
-			@Override
-			protected Item newCellItem(final String id, final int index, final IModel model) {
-				return new Item(id, index, model) {
-					@Override
-					protected void onComponentTag(final ComponentTag tag) {
-						super.onComponentTag(tag);
-
-						final Object modelObject = model.getObject();
-
-						if (modelObject instanceof AbstractColumn && "studentColumn"
-								.equals(((AbstractColumn) modelObject).getDisplayModel().getObject())) {
-							tag.setName("th");
-							tag.getAttributes().put("role", "rowheader");
-							tag.getAttributes().put("scope", "row");
-						} else {
-							tag.getAttributes().put("role", "gridcell");
-						}
-						tag.getAttributes().put("tabindex", "0");
-					}
-				};
-			}
-
-			@Override
-			protected Item newRowItem(final String id, final int index, final IModel model) {
-				return new Item(id, index, model) {
-					@Override
-					protected void onComponentTag(final ComponentTag tag) {
-						super.onComponentTag(tag);
-
-						tag.getAttributes().put("role", "row");
-					}
-				};
-			}
-
-			@Override
-			protected IModel<String> getCaptionModel() {
-				return Model.of(getString("gradespage.caption"));
-			}
-		};
-		table.addBottomToolbar(new NavigationToolbar(table) {
-			@Override
-			protected WebComponent newNavigatorLabel(final String navigatorId, final DataTable<?, ?> table) {
-				return constructTablePaginationLabel(navigatorId, table);
-			}
-		});*/
 		int pageSize = settings.getGradesPageSize();
 		table = new SakaiDataTable("table", cols, studentGradeMatrix, true, pageSize) {
 			@Override
@@ -566,15 +652,15 @@ public class GradebookPage extends BasePage {
 
 						final Object modelObject = model.getObject();
 
-						if (modelObject instanceof AbstractColumn && "studentColumn"
-								.equals(((AbstractColumn) modelObject).getDisplayModel().getObject())) {
+						if (modelObject instanceof AbstractColumn && 
+							"studentColumn".equals(((AbstractColumn) modelObject).getDisplayModel().getObject())) {
 							tag.setName("th");
 							tag.getAttributes().put("role", "rowheader");
 							tag.getAttributes().put("scope", "row");
 						} else {
 							tag.getAttributes().put("role", "gridcell");
 						}
-						tag.getAttributes().put("tabindex", "0");
+						tag.getAttributes().put("tabIndex", "0");
 					}
 				};
 			}
@@ -597,185 +683,35 @@ public class GradebookPage extends BasePage {
 			}
 		};
 
-		final Map<String, Object> modelData = new HashMap<>();
-		modelData.put("assignments", assignments);
-		modelData.put("categories", categories);
-		modelData.put("categoryType", this.businessService.getGradebookCategoryType());
-		modelData.put("categoriesEnabled", categoriesEnabled);
-		modelData.put("fixedColCount", businessService.isStudentNumberVisible() ? 4 : 3);
+		toolbarModelData = new HashMap<>();
+		toolbarModelData.put("assignments", assignments);
+		toolbarModelData.put("categories", categories);
+		toolbarModelData.put("categoryType", this.businessService.getGradebookCategoryType());
+		toolbarModelData.put("categoriesEnabled", categoriesEnabled);
+		// OWLTODO: deduct more in anon scenarios?
+		toolbarModelData.put("fixedColCount", (!settings.isContextAnonymous() && businessService.isStudentNumberVisible()) ? 4 : 3);
 
-		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(modelData)));
+		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(toolbarModelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
 		table.add(new AttributeModifier("data-gradestimestamp", gradesTimestamp.getTime()));
 
 		// enable drag and drop based on user role (note: entity provider has
-		// role checks on exposed API)
+		// role checks on exposed API
 		table.add(new AttributeModifier("data-sort-enabled", this.businessService.getUserRole() == GbRole.INSTRUCTOR));
-		
-		//form.add(new GbSakaiPagerContainer("gradebookPager", table));
 
-		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
-		noAssignments.setVisible(false);
-		this.form.add(noAssignments);
+		this.form.addOrReplace(table);
 
-		final WebMarkupContainer noStudents = new WebMarkupContainer("noStudents");
-		noStudents.setVisible(false);
-		this.form.add(noStudents);
-
-		this.form.add(table);
-
-		// Populate the toolbar
-		final GbGradesDisplayToolbar toolbar = new GbGradesDisplayToolbar("toolbar", Model.ofMap(modelData), table);
+		toolbar = new GbGradesDisplayToolbar("toolbar", Model.ofMap(toolbarModelData), table);
 		toolbar.setVisible(hasAssignmentsAndGrades);
-		form.add(toolbar);
-		/*final WebMarkupContainer toolbar = new WebMarkupContainer("toolbar");
-		toolbar.setVisible(this.hasAssignmentsAndGrades);
-		this.form.add(toolbar);
+		form.addOrReplace(toolbar);
 
-		toolbar.add(constructTableSummaryLabel("studentSummary", table));
-
-		final Label gradeItemSummary = new Label("gradeItemSummary",
-				new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size() + categories.size(),
-						assignments.size() + categories.size()));
-		gradeItemSummary.setEscapeModelStrings(false);
-		toolbar.add(gradeItemSummary);
-
-		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
-		toolbar.add(toggleGradeItemsToolbarItem);
-
-		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
-			@Override
-			protected void onInitialize() {
-				super.onInitialize();
-				if (settings.isCategoriesEnabled()) {
-					add(new AttributeAppender("class", " on"));
-				}
-				add(new AttributeModifier("aria-pressed", settings.isCategoriesEnabled()));
-			}
-
-			@Override
-			public void onSubmit() {
-				settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
-				setUiSettings(settings);
-
-				// refresh
-				setResponsePage(GradebookPage.class);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return categoriesEnabled && !assignments.isEmpty();
-			}
-		};
-		toolbar.add(toggleCategoriesToolbarItem);
-
-		// section and group dropdown
-		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
-
-		// if only one group, just show the title
-		// otherwise add the 'all groups' option
-		// cater for the case where there is only one group visible to TA but they can see everyone.
-		if (this.role == GbRole.TA) {
-
-			//if only one group, hide the filter
-			if (groups.size() == 1) {
-				this.showGroupFilter = false;
-
-				// but need to double check permissions to see if we have any permissions with no group reference
-				this.permissions.forEach(p -> {
-					if (!StringUtils.equalsIgnoreCase(p.getFunction(),GraderPermission.VIEW_COURSE_GRADE.toString()) && StringUtils.isBlank(p.getGroupReference())) {
-						this.showGroupFilter = true;
-					}
-				});
-			}
-		}
-
-		if(!this.showGroupFilter) {
-			toolbar.add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
-		} else {
-			toolbar.add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
-
-			// add the default ALL group to the list
-			String allGroupsTitle = getString("groups.all");
-			if (this.role == GbRole.TA) {
-
-				// does the TA have any permissions set?
-				// we can assume that if they have any then there is probably some sort of group restriction so we can change the label
-				if (!this.permissions.isEmpty()) {
-					allGroupsTitle = getString("groups.available");
-				}
-			}
-			groups.add(0, new GbGroup(null, allGroupsTitle, null, GbGroup.Type.ALL));
-		}
-
-		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", new Model<GbGroup>(),
-				groups, new ChoiceRenderer<GbGroup>() {
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public Object getDisplayValue(final GbGroup g) {
-						return g.getTitle();
-					}
-
-					@Override
-					public String getIdValue(final GbGroup g, final int index) {
-						return g.getId();
-					}
-
-				});
-
-		groupFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-
-			@Override
-			protected void onUpdate(final AjaxRequestTarget target) {
-
-				final GbGroup selected = (GbGroup) groupFilter.getDefaultModelObject();
-
-				// store selected group (null ok)
-				final GradebookUiSettings settings = getUiSettings();
-				settings.setGroupFilter(selected);
-				setUiSettings(settings);
-
-				// refresh
-				setResponsePage(GradebookPage.class);
-			}
-
-		});
-
-		// set selected group, or first item in list
-		groupFilter.setModelObject((settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
-		groupFilter.setNullValid(false);
-
-		// if only one item, hide the dropdown
-		if (groups.size() == 1) {
-			groupFilter.setVisible(false);
-		}
-
-		toolbar.add(groupFilter);*/
-
-		final ToggleGradeItemsToolbarPanel gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel(
-				"gradeItemsTogglePanel", Model.ofList(assignments));
-		final WebMarkupContainer gradeItemsTogglePanelContainer = new WebMarkupContainer("gradeItemsTogglePanelContainer");
+		List<Assignment> assignmentsInAnonContext = assignments.stream().filter(assignment-> isContextAnonymous == assignment.isAnon()).collect(Collectors.toList());
+		gradeItemsTogglePanel = new ToggleGradeItemsToolbarPanel(
+				"gradeItemsTogglePanel", Model.ofList(assignmentsInAnonContext), mixedCategoryNames);
+		gradeItemsTogglePanelContainer = new WebMarkupContainer("gradeItemsTogglePanelContainer");
 		gradeItemsTogglePanelContainer.setOutputMarkupId(true);
 		gradeItemsTogglePanelContainer.add(gradeItemsTogglePanel);
-		add(gradeItemsTogglePanelContainer);
-
-		// hide/show components
-
-		// no assignments, hide table, show message
-		if (assignments.isEmpty()) {
-			table.setVisible(false);
-			//toggleGradeItemsToolbarItem.setVisible(false);
-			noAssignments.setVisible(true);
-		}
-
-		// no visible students, show table, show message
-		// don't want two messages though, hence the else
-		else if (studentGradeMatrix.size() == 0) {
-			noStudents.setVisible(true);
-		}
-
-		stopwatch.time("Gradebook page done", stopwatch.getTime());
+		addOrReplace(gradeItemsTogglePanelContainer);
 	}
 	
 	public List<GbStudentGradeInfo> refreshStudentGradeInfo()
@@ -799,7 +735,7 @@ public class GradebookPage extends BasePage {
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
 
 		// get the grade matrix. It should be sorted if we have that info
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
+		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings, getCMProvider());
 		
 		// there is a timestamp put on the table that is used to check for concurrent modifications,
 		// update it now that we've refreshed the grade matrix
@@ -1039,6 +975,7 @@ public class GradebookPage extends BasePage {
 		if (target != null)
 		{
 			target.add(form); // OWLTODO: it may be possible to re-render only some components of the form instead of the whole thing
+			target.add(gradeItemsTogglePanelContainer);
 			
 			Component togglePanel = this.get("gradeItemsTogglePanelContainer");
 			target.add(togglePanel);
@@ -1047,5 +984,25 @@ public class GradebookPage extends BasePage {
 			target.appendJavaScript("sakai.gradebookng.spreadsheet.$table = $(\"#gradebookGradesTable\");");
 			target.appendJavaScript("sakai.gradebookng.spreadsheet.initTable();");
 		}
+	}
+
+	public CachedCMProvider getCMProvider()
+	{
+		return cmProvider;
+	}
+
+	public String getAnonId(String studentId)
+	{
+		return getCMProvider().getAnonId(studentId, getGroupFilterProviderId());
+	}
+
+	/**
+	 * If the group filter is pointing to a group associated with a provider that contains AnonymousIDs  if it's not pointing to an anonymous section
+	 */
+	public String getGroupFilterProviderId()
+	{
+		GradebookUiSettings settings = getUiSettings();
+		GbGroup group = settings.getGroupFilter();
+		return group == null ? null : group.getProviderId();
 	}
 }

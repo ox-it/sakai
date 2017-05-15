@@ -73,8 +73,12 @@ public class StudentNameCellPanel extends Panel {
 				}
 
 				content.setOutputMarkupId(true);
-				final String modalTitle = (new StringResourceModel("heading.studentsummary",
-						null, new Object[] { displayName, eid })).getString();
+
+				boolean isContextAnonymous = settings.isContextAnonymous();
+				final String modalTitle;
+				modalTitle = (new StringResourceModel("heading.studentsummary",
+					null, new Object[] { displayName, eid })).getString();
+				
 				target.appendJavaScript(String.format(
 						"new GradebookGradeSummary($(\"#%s\"), false, \"%s\");",
 						content.getMarkupId(), modalTitle));
@@ -121,5 +125,4 @@ public class StudentNameCellPanel extends Panel {
 		}
 		return firstName;
 	}
-
 }

@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -20,15 +21,18 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.Page;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.convert.ConversionException;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidationError;
 import org.apache.wicket.validation.IValidator;
+import org.sakaiproject.gradebookng.business.CachedCMProvider;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -40,6 +44,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class AddOrEditGradeItemPanelContent extends Panel {
 
 	private static final long serialVersionUID = 1L;
@@ -49,6 +54,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 	private AjaxCheckBox counted;
 	private AjaxCheckBox released;
+	private AjaxCheckBox anonymous;
 
 	private boolean categoriesEnabled;
 
@@ -245,6 +251,47 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 		add(this.counted);
 
+		// anonymous (OWL-2545)  --bbailla2
+		WebMarkupContainer anonymousContainer = new WebMarkupContainer("anonymousContainer")
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onInitialize()
+			{
+				super.onInitialize();
+				boolean isAnonymousAllowed = !AddOrEditGradeItemPanelContent.this.getCMProvider().getAnonIds().isEmpty();
+				setOutputMarkupId(true);
+				setVisibilityAllowed(isAnonymousAllowed);
+			}
+		};
+
+		anonymous = new AjaxCheckBox("anonymous", new PropertyModel<Boolean>(assignmentModel, "anon")) {
+			private static final long serialVersionUID = 1L;
+
+			private transient boolean isAnonymousAllowed;
+			@Override
+			protected void onInitialize()
+			{
+				super.onInitialize();
+				isAnonymousAllowed = !AddOrEditGradeItemPanelContent.this.getCMProvider().getAnonIds().isEmpty();
+				setOutputMarkupId(true);
+				setEnabled(assignment == null || assignment.getId() == null);
+			}
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) 
+			{
+				if (isAnonymousAllowed && getModelObject()) 
+				{
+					AddOrEditGradeItemPanelContent.this.anonymous.setModelObject(true);
+				}
+				target.add(AddOrEditGradeItemPanelContent.this.anonymous);
+			}
+		};
+		anonymousContainer.add(anonymous);
+		add(anonymousContainer);
+
 		// behaviour for when a category is chosen. If the category is extra
 		// credit, deselect and disable extra credit checkbox
 		categoryDropDown.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -283,5 +330,11 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			}
 		});
 
+	}
+
+	private transient CachedCMProvider cmProvider;
+	private CachedCMProvider getCMProvider()
+	{
+		return ((GradebookPage)getPage()).getCMProvider();
 	}
 }

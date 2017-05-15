@@ -159,7 +159,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        @SuppressWarnings({ "unchecked", "rawtypes"})
 			List<Assignment> internalAssignments = (List<Assignment>)getHibernateTemplate().execute(new HibernateCallback() {
 	            public Object doInHibernate(Session session) throws HibernateException {
-	                return getAssignmentsAnonAware(gradebookId, session, false);  // OWL-883
+	                // For anon grading in gradebook classic under OWL 10.3, the 'includeAnon' parameter was passed as 'false'. For OWL 11.3, I've set it to true here. 
+	                // It's more sensible in general to include everything and then filter if needed.
+	                return getAssignmentsAnonAware(gradebookId, session, true);  // OWL-883
 	            }
 	        });
 	        
@@ -245,6 +247,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	assignmentDefinition.setUngraded(internalAssignment.getUngraded());
     	assignmentDefinition.setSortOrder(internalAssignment.getSortOrder());
     	assignmentDefinition.setCategorizedSortOrder(internalAssignment.getCategorizedSortOrder());
+    	assignmentDefinition.setAnon(internalAssignment.isAnon());
     	
     	return assignmentDefinition;
     }   

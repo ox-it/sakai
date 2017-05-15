@@ -46,6 +46,7 @@ import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -62,6 +63,7 @@ import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
+import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -73,6 +75,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
+
+// OWL anonymous grading imports  --bbailla2
+import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
 
 /**
  * Business service for GradebookNG
@@ -633,7 +638,7 @@ public class GradebookNgBusinessService {
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final List<String> studentUuids) throws GbException {
-		return this.buildGradeMatrix(assignments, studentUuids, null);
+		return this.buildGradeMatrix(assignments, studentUuids, null, null);
 	}
 
 	/**
@@ -644,8 +649,8 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
-			final GradebookUiSettings uiSettings) throws GbException {
-		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
+			final GradebookUiSettings uiSettings, CachedCMProvider cmProvider) throws GbException {
+		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings, cmProvider);
 	}
 
 	/**
@@ -659,7 +664,7 @@ public class GradebookNgBusinessService {
 	 * TODO refactor this into a hierarchical method structure
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
-			final List<String> studentUuids, final GradebookUiSettings uiSettings) throws GbException {
+			final List<String> studentUuids, final GradebookUiSettings uiSettings, final CachedCMProvider cmProvider) throws GbException {
 
 		// TODO move GradebookUISettings to business
 
@@ -691,28 +696,51 @@ public class GradebookNgBusinessService {
 		// this gives us our base list and will be sorted as per our desired
 		// sort method
 		final List<User> students = getUsers(studentUuids, settings);
-		stopwatch.timeWithContext("buildGradeMatrix", "getUsers", stopwatch.getTime());
-		if (settings.getStudentSortOrder() != null) {
 
-			Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME.equals(settings.getNameSortOrder()) ?
-					new FirstNameComparator() : new LastNameComparator();
-			
-			if (SortDirection.DESCENDING.equals(settings.getStudentSortOrder()))
-			{
-				comp = Collections.reverseOrder(comp);
-			}
-			Collections.sort(students, comp);
-		}
-		else if (settings.getStudentNumberSortOrder() != null)
+		// Filter students for anon grading
+		if (uiSettings.isContextAnonymous())
 		{
-			if (site != null)
+			// Need to filter out users who don't have anonIDs
+			// Map eids to associated User objects
+			Map<String, User> eidToStudentMap = new HashMap<>();
+			for (User user : students)
 			{
-				Comparator<User> comp = new StudentNumberComparator(site);
-				if (SortDirection.DESCENDING.equals(settings.getStudentNumberSortOrder()))
+				eidToStudentMap.put(user.getEid(), user);
+			}
+			// Get the selected sectionId (or null if none selected)
+			GbGroup group = uiSettings.getGroupFilter();
+			String section = group == null ? null : group.getProviderId();
+			// In the key set, retain only students who have anonIDs; this removes the entire entry from the map
+			cmProvider.filterStudentIdsForAnonContext(eidToStudentMap.keySet(), section);
+			// remaining values are students who have anonIDs; retain only these users in our student list
+			students.retainAll(eidToStudentMap.values());
+		}
+
+		// Sort by name / student number
+		stopwatch.timeWithContext("buildGradeMatrix", "getUsers", stopwatch.getTime());
+		if (!uiSettings.isContextAnonymous())
+		{
+			if (settings.getStudentSortOrder() != null) {
+
+				Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME.equals(settings.getNameSortOrder()) ?
+						new FirstNameComparator() : new LastNameComparator();
+				if (SortDirection.DESCENDING.equals(settings.getStudentSortOrder()))
 				{
-					comp = Collections.reverseOrder(new StudentNumberComparator(site));
+					comp = Collections.reverseOrder(comp);
 				}
 				Collections.sort(students, comp);
+			}
+			else if (settings.getStudentNumberSortOrder() != null)
+			{
+				if (site != null)
+				{
+					Comparator<User> comp = new StudentNumberComparator(site);
+					if (SortDirection.DESCENDING.equals(settings.getStudentNumberSortOrder()))
+					{
+						comp = Collections.reverseOrder(new StudentNumberComparator(site));
+					}
+					Collections.sort(students, comp);
+				}
 			}
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "sortUsers", stopwatch.getTime());
@@ -774,6 +802,10 @@ public class GradebookNgBusinessService {
 		// building the category list
 		final Map<Long, Set<Long>> categoryAssignments = new TreeMap<>();
 
+		// Determine only which assignments / categories we're interested in wrt isContextAnonymous
+		Set<Long> assignmentIDsToInclude = uiSettings.getAnonAwareAssignmentIDsForContext();
+		Set<Long> categoryIDsToIncludeScores = uiSettings.getAnonAwareCategoryIDsForContext();
+
 		// iterate over assignments and get the grades for each
 		// note, the returned list only includes entries where there is a grade
 		// for the user
@@ -782,6 +814,12 @@ public class GradebookNgBusinessService {
 
 			final Long categoryId = assignment.getCategoryId();
 			final Long assignmentId = assignment.getId();
+
+			if (!categoryIDsToIncludeScores.contains(categoryId) && !assignmentIDsToInclude.contains(assignmentId))
+			{
+				// we don't need any info from this assignment; skip
+				continue;
+			}
 
 			// TA permission check. If there are categories and they don't have
 			// access to this one, skip it
@@ -849,9 +887,16 @@ public class GradebookNgBusinessService {
 		// build category columns
 		for (final CategoryDefinition category : categories) {
 
+			Long categoryId = category.getId();
+			if (!categoryIDsToIncludeScores.contains(categoryId))
+			{
+				// Nothing of interest in this category; skip
+				continue;
+			}
+
 			// use the category mappings for faster lookup of the assignmentIds
 			// and grades in the category
-			final Set<Long> categoryAssignmentIds = categoryAssignments.get(category.getId());
+			final Set<Long> categoryAssignmentIds = categoryAssignments.get(categoryId);
 
 			// if there are no assignments in the category (ie its a new
 			// category) this will be null, so skip
@@ -886,6 +931,13 @@ public class GradebookNgBusinessService {
 
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "categories built", stopwatch.getTime());
+
+		// Remove grades for assignments that are out of context (they would exist in the case of mixed categories)
+		for (GbStudentGradeInfo sg : matrix.values())
+		{
+			sg.getGrades().keySet().retainAll(assignmentIDsToInclude);
+		}
+
 
 		// for a TA, apply the permissions to each grade item to see if we can render it
 		// the list of students, assignments and grades is already filtered to those that can be viewed
@@ -1052,7 +1104,65 @@ public class GradebookNgBusinessService {
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
 
+		if (settings.getAnonIdSortOrder() != null) {
+			GbGroup group = settings.getGroupFilter();
+			String section = group == null ? null : group.getProviderId();
+			Comparator<GbStudentGradeInfo> comp = new AnonIDComparator(cmProvider, section);
+
+			if (settings.getAnonIdSortOrder() == SortDirection.DESCENDING) {
+				comp = Collections.reverseOrder(comp);
+			}
+
+			// sort
+			Collections.sort(items, comp);
+		}
+
 		return items;
+	}
+
+	/**
+	 * Visits all given assignments and populates the uiSettings.getAnonAwareAssignmentIDsForContext and getAnonAwareCategoryIDsForContext, representing which assignments and categories we need to display scores for
+	 * @param uiSettings used to determine if the context is anonymous
+	 * @param allAssignments the list of all assignments in this gradebook
+	 */
+	public void setupAnonAwareAssignmentIDsAndCategoryIDsForContext(GradebookUiSettings uiSettings, Collection<Assignment> allAssignments)
+	{
+		Set<Long> assignmentIDsToInclude = new HashSet<>();
+		Set<Long> categoryIDsToIncludeScores = new HashSet<>();
+		uiSettings.setAnonAwareAssignmentIDsForContext(assignmentIDsToInclude);
+		uiSettings.setAnonAwareCategoryIDsForContext(categoryIDsToIncludeScores);
+		Set<Long> categoriesContainingNormal = new HashSet<>();
+		Set<Long> categoriesContainingAnonymous = new HashSet<>();
+		for (Assignment assignment : allAssignments)
+		{
+			Long categoryId = assignment.getCategoryId();
+			if (categoryId != null)
+			{
+				if (assignment.isAnon())
+				{
+					categoriesContainingAnonymous.add(categoryId);
+				}
+				else
+				{
+					categoriesContainingNormal.add(categoryId);
+				}
+			}
+			if (assignment.isAnon() == uiSettings.isContextAnonymous())
+			{
+				assignmentIDsToInclude.add(assignment.getId());
+			}
+		}
+		if (uiSettings.isContextAnonymous())
+		{
+			// show grades pure anonymous categories; if there's one normal item, it's mixed and should be displayed in the normal context
+			categoryIDsToIncludeScores.addAll(categoriesContainingAnonymous);
+			categoryIDsToIncludeScores.removeAll(categoriesContainingNormal);
+		}
+		else
+		{
+			// If there are any normal items, we display the category score
+			categoryIDsToIncludeScores.addAll(categoriesContainingNormal);
+		}
 	}
 
 	/**
@@ -1071,7 +1181,7 @@ public class GradebookNgBusinessService {
 			final Collection<Group> groups = site.getGroups();
 
 			for (final Group group : groups) {
-				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
+				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP, group.getProviderGroupId()));
 			}
 
 		} catch (final IdUnusedException e) {
@@ -1330,6 +1440,28 @@ public class GradebookNgBusinessService {
 			String stunum1 = candidateDetailProvider.getInstitutionalNumericId(u1, site).orElse("");
 			String stunum2 = candidateDetailProvider.getInstitutionalNumericId(u2, site).orElse("");
 			return stunum1.compareTo(stunum2);
+		}
+	}
+
+	/**
+	 * Comparator class for sorting a list of users by anonymous grading IDs
+	 */
+	class AnonIDComparator implements Comparator<GbStudentGradeInfo>
+	{
+		private CachedCMProvider cmProvider;
+		private String sectionId;
+		public AnonIDComparator(CachedCMProvider cmProvider, String sectionId)
+		{
+			this.cmProvider = cmProvider;
+			this.sectionId = sectionId;
+		}
+
+		@Override
+		public int compare(final GbStudentGradeInfo s1, final GbStudentGradeInfo s2)
+		{
+			String anonId1 = StringUtils.trimToEmpty(cmProvider.getAnonId(s1.getStudentEid(), sectionId));
+			String anonId2 = StringUtils.trimToEmpty(cmProvider.getAnonId(s2.getStudentEid(), sectionId));
+			return anonId1.compareTo(anonId2);
 		}
 	}
 
@@ -2028,6 +2160,27 @@ public class GradebookNgBusinessService {
 		}
 		return false;
 	}
+
+	// -------------------- Begin Course Grade Submission methods --------------------
+
+	public List getViewableSections()
+	{
+		return gradebookService.getViewableSections(getCurrentSiteId());
+	}
+
+	// -------------------- End Course Grade Submission methods --------------------
+
+	// -------------------- Begin anonymous grading methods --------------------
+
+	/**
+	 * Gets anonymousIds for the specified sectionEids
+	 */
+	public List<OwlAnonGradingID> getAnonGradingIDsBySectionEIDs(Set<String> sectionEids)
+	{
+		return gradebookService.getAnonGradingIDsBySectionEIDs(sectionEids);
+	}
+
+	 // -------------------- End anonymous grading methods --------------------
 
 	/**
 	 * Comparator class for sorting a list of AssignmentOrders

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -70,7 +71,8 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 		// build the grade matrix for the user
 		final Gradebook gradebook = this.businessService.getGradebook();
-		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId);
+		final boolean isContextAnonymous = gradebookPage.getUiSettings().isContextAnonymous();
+		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId).stream().filter(assignment -> isContextAnonymous == assignment.isAnon()).collect(Collectors.toList());
 
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
@@ -85,7 +87,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 				.buildGradeMatrix(
 						assignments,
 						Arrays.asList(userId),
-						gradebookPage.getUiSettings())
+						gradebookPage.getUiSettings(), gradebookPage.getCMProvider())
 				.get(0);
 		final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
 		final Map<Long, GbGradeInfo> grades = studentGradeInfo.getGrades();

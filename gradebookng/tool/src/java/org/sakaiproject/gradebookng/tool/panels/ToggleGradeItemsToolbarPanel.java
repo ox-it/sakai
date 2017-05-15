@@ -37,11 +37,13 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 	protected GradebookNgBusinessService businessService;
 
 	IModel<List<? extends Assignment>> model;
+	List<String> mixedCategoryNames;
 	boolean categoriesEnabled = false;
 
-	public ToggleGradeItemsToolbarPanel(final String id, final IModel<List<? extends Assignment>> model) {
+	public ToggleGradeItemsToolbarPanel(final String id, final IModel<List<? extends Assignment>> model, List<String> mixedCategoryNames) {
 		super(id, model);
 		this.model = model;
+		this.mixedCategoryNames = mixedCategoryNames;
 	}
 
 	@Override
@@ -155,7 +157,9 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 					}
 				};
 				categoryScoreCheckbox.add(new AttributeModifier("value", categoryName));
-				categoryScoreFilter.add(categoryScoreCheckbox);
+				// If the context is anonymous, we have to filter out category scores for mixed categories (scores for mixed categories should display in normal view only)
+				boolean hideCategoryScores = settings.isContextAnonymous() && mixedCategoryNames.contains(categoryName);
+				categoryScoreFilter.add(categoryScoreCheckbox).setVisible(!hideCategoryScores);
 
 				categoryItem.add(categoryScoreFilter);
 			}

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -87,6 +88,12 @@ public class GradebookUiSettings implements Serializable {
 	private SortDirection courseGradeSortOrder;
 
 	/**
+	 * For sorting based on anonymousId
+	 */
+	@Getter
+	private SortDirection anonIdSortOrder;
+
+	/**
 	 * For showing/hiding the points
 	 */
 	@Getter
@@ -109,6 +116,30 @@ public class GradebookUiSettings implements Serializable {
 	
 	@Getter
 	private	int gradesPageSize;
+
+	/**
+	 * Whether the current UI context is anonymous; default is false  --bbailla2
+	 */
+	@Getter
+	@Setter
+	private boolean isContextAnonymous = false;
+
+	/**
+	 * For tracking which assignments are visible wrt isContextAnonymous.
+	 * Contains all assignments whose isAnon() matches isContextAnonymous
+	 */
+	@Getter
+	@Setter
+	Set<Long> anonAwareAssignmentIDsForContext;
+
+	/**
+	 * For tracking which categories' scores may be displayed wrt isContextAnonymous.
+	 * Note: mixed category scores are displayed in normal contexts, but hidden in anonymous contexts.
+	 * If the context is normal, this contains pure normal and mixed categories; if the context is anonymous, this contains only pure anonymous categories.
+	 */
+	@Getter
+	@Setter
+	Set<Long> anonAwareCategoryIDsForContext;
 
 
 	public GradebookUiSettings() {
@@ -217,12 +248,19 @@ public class GradebookUiSettings implements Serializable {
 		studentNumberSortOrder = sortOrder;
 	}
 
+	public void setAnonIdSortOrder(SortDirection sortOrder)
+	{
+		resetSortOrder();
+		anonIdSortOrder = sortOrder;
+	}
+
 	private void resetSortOrder() {
 		this.courseGradeSortOrder = null;
 		this.categorySortOrder = null;
 		this.assignmentSortOrder = null;
 		this.studentSortOrder = null;
 		this.studentNumberSortOrder = null;
+		this.anonIdSortOrder = null;
 	}
 	
 	public void setStudentFilter(String value)

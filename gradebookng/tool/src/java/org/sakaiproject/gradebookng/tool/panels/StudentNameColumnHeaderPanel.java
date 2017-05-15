@@ -59,12 +59,28 @@ public class StudentNameColumnHeaderPanel extends Panel {
 				// toggle the sort direction on each click
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
-				// if null, set a default sort, otherwise toggle, save, refresh.
-				if (settings.getStudentSortOrder() == null) {
-					settings.setStudentSortOrder(SortDirection.getDefault());
-				} else {
-					final SortDirection sortOrder = settings.getStudentSortOrder();
-					settings.setStudentSortOrder(sortOrder.toggle());
+				if (settings.isContextAnonymous())
+				{
+					SortDirection anonDir = settings.getAnonIdSortOrder();
+					if (anonDir == null)
+					{
+						settings.setAnonIdSortOrder(SortDirection.getDefault());
+					}
+					else
+					{
+						
+						settings.setAnonIdSortOrder(anonDir.toggle());
+					}
+				}
+				else
+				{
+					// if null, set a default sort, otherwise toggle, save, refresh.
+					if (settings.getStudentSortOrder() == null) {
+						settings.setStudentSortOrder(SortDirection.getDefault());
+					} else {
+						final SortDirection sortOrder = settings.getStudentSortOrder();
+						settings.setStudentSortOrder(sortOrder.toggle());
+					}
 				}
 
 				// save settings
@@ -86,6 +102,8 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		add(title);
 		
 		final Form<String> form = new Form<>("studentFilterForm", Model.of(settings.getStudentFilter()));
+		boolean isContextAnonymous = settings.isContextAnonymous();
+		form.setVisible(!isContextAnonymous);
 		add(form);
 		
 		final TextField<String> filterTextField = new TextField<>("studentFilter", form.getModel());
@@ -171,7 +189,11 @@ public class StudentNameColumnHeaderPanel extends Panel {
 			public String getObject() {
 
 				// shows the label opposite to the current sort type
-				if (sortType == GbStudentNameSortOrder.FIRST_NAME) {
+				if (settings.isContextAnonymous())
+				{
+					return getString("sortbyname.option.anonymous");
+				}
+				else if (sortType == GbStudentNameSortOrder.FIRST_NAME) {
 					return getString("sortbyname.option.last");
 				} else {
 					return getString("sortbyname.option.first");

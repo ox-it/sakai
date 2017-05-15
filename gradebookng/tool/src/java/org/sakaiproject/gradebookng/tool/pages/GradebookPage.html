@@ -17,6 +17,17 @@
 		<div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
     </div>
 
+	<wicket:container wicket:id="toggleAnonymous">
+		<span id="spnAnonToggle_normal">
+			<input wicket:id="anonToggle_normal" type="radio"/>
+			<label wicket:for="anonToggle_normal"><wicket:message key="anonToggle_normal" /></label>
+		</span>
+		<span id="spnAnonToggle_anonymous">
+			<input wicket:id="anonToggle_anonymous" type="radio"/>
+			<label wicket:for="anonToggle_anonymous"><wicket:message key="anonToggle_anonymous" /></label>
+		</span>
+	</wicket:container>
+
     <div wicket:id="addOrEditGradeItemWindow" />
     <div wicket:id="studentGradeSummaryWindow" />
     <div wicket:id="updateUngradedItemsWindow" />

@@ -33,6 +33,10 @@ public class GbGroup implements Comparable<GbGroup>, Serializable {
 	@Getter
 	private final Type type;
 
+	// OWL-2545  --bbailla2
+	@Getter
+	private final String providerId;
+
 	/**
 	 * Type of group
 	 */
@@ -42,11 +46,12 @@ public class GbGroup implements Comparable<GbGroup>, Serializable {
 		ALL;
 	}
 
-	public GbGroup(final String id, final String title, final String reference, final Type type) {
+	public GbGroup(final String id, final String title, final String reference, final Type type, final String providerId) {
 		this.id = id;
 		this.title = title;
 		this.reference = reference;
 		this.type = type;
+		this.providerId = providerId;
 	}
 
 	@Override
