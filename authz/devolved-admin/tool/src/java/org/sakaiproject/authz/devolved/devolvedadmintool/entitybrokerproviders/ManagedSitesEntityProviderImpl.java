@@ -42,23 +42,26 @@ public class ManagedSitesEntityProviderImpl extends AbstractEntityProvider
 	}
 
 	/**
-	 * /managed-sites/[siteid]/sites.json (e.g. /managed-sites/test-admin/sites.json)
+	 * /managed-sites/sites.json?adminSite=[siteid] (e.g. /managed-sites/sites.json?adminSite=test-admin)
 	 */
-	@EntityCustomAction (action = "sites", viewKey = EntityView.VIEW_SHOW)
-	public Object getManagedSites(EntityView view) throws IdUnusedException, PermissionException { 
-		String id = view.getEntityReference().getId();
+	@EntityCustomAction (action = "sites", viewKey = EntityView.VIEW_LIST)
+	public Object getManagedSites(EntityView view, Map<String, Object> params) throws IdUnusedException, PermissionException {
+		if (!params.containsKey("adminSite")) {
+			throw new IllegalArgumentException("Must include the name of an admin site in order to show information of sites managed by that admin site.");
+		}
+		String adminSite = (String) params.get("adminSite");
 		// Check site exists and user has permission to access the site.
 		try {
-			siteService.getSiteVisit(id);
+			siteService.getSiteVisit(adminSite);
 		} catch (IdUnusedException ie) {
-			throw new EntityNotFoundException("Cannot find site by siteId", id);
+			throw new EntityNotFoundException("Cannot find site by siteId", adminSite);
 		} catch (PermissionException pe) {
 			throw new SecurityException ();
 		}
 
-		List<Entity> sites = devolvedSakaiSecurity.findUsesOfAdmin("/site/" + id);
+		List<Entity> sites = devolvedSakaiSecurity.findUsesOfAdmin("/site/" + adminSite);
 
-		List<ManagedEntitySite> managedEntitySites = new ArrayList<>();
+		List<ManagedEntitySite> managedEntitySites = new ArrayList<>(sites.size());
 		for (Entity entity : sites) {
 			ManagedEntitySite es = new ManagedEntitySite((Site)entity, false);
 			managedEntitySites.add(es);
