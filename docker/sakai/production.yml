@@ -4,6 +4,8 @@ app:
     file: common.yml
     service: app
   build: .
+  environment:
+   SENTRY_DSN:
 
   command: /opt/tomcat/bin/catalina.sh run
   links:
