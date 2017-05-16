@@ -19,8 +19,9 @@
  */
 package org.sakaiproject.sentry;
 
-import net.kencochrane.raven.event.EventBuilder;
-import net.kencochrane.raven.event.helper.EventBuilderHelper;
+
+import com.getsentry.raven.event.EventBuilder;
+import com.getsentry.raven.event.helper.EventBuilderHelper;
 
 /**
  * Under docker it might be the case that the hostname isn't the same as the interface IP.

@@ -16,7 +16,7 @@ get read at startup and watched for changes. A simple example of this is:
     # Sentry setup
     # The DSN should be supplied through the envrionment variable SENTRY_DSN
     # log4j.appender.sentry.dsn=https://publicKey:secretKey@host:port/1?options
-    log4j.appender.sentry=net.kencochrane.raven.log4j.SentryAppender
+    log4j.appender.sentry=com.getsentry.raven.log4j.SentryAppender
     log4j.appender.sentry.Threshold=ERROR
     
     # Console setup

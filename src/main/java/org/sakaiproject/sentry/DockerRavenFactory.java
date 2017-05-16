@@ -19,9 +19,10 @@
  */
 package org.sakaiproject.sentry;
 
-import net.kencochrane.raven.DefaultRavenFactory;
-import net.kencochrane.raven.Raven;
-import net.kencochrane.raven.dsn.Dsn;
+
+import com.getsentry.raven.DefaultRavenFactory;
+import com.getsentry.raven.Raven;
+import com.getsentry.raven.dsn.Dsn;
 
 /**
  * This uses the DockerEventBuilder to set the hostname from the environment.
