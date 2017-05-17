@@ -21,7 +21,7 @@
 		<property name="displayNames">
 			<!-- These entries are used to map attributes onto nicer names. -->
 			<map>
-				<entry key="acserv" value="ASUC"/>
+				<entry key="acserv" value="GLAM"/>
 				<entry key="college" value="Colleges"/>
 				<entry key="conted" value="Continuing Education"/>
 				<entry key="councildep" value="Council Departments"/>
