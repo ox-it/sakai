@@ -6789,7 +6789,7 @@ public class SimplePageBean {
 	
 	public void addStudentContentSection(String ab) {
 		addBefore = ab; // used by appebdItem
-		if(getCurrentPage().getOwner() == null && canEditPage()) {
+		if(canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
 			update(item);
