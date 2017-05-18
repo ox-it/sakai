@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+
+<toolOrder>
+
+	<category name="myworkspace">
+		<tool id = "home" selected="true" />
+		<tool id = "sakai.dashboard" />
+		<tool id = "sakai.sitesetup" required = "true" />
+		<tool id = "sakai.membership" required="true" />
+		<tool id = "sakai.preferences" required="true" />
+
+	</category>
+
+	<category name="course">
+		<tool id = "sakai.iframe.site" />
+		<tool id = "sakai.dashboard" />
+		<tool id = "sakai.synoptic.chat" />
+		<tool id = "sakai.synoptic.messagecenter" />
+		<tool id = "sakai.synoptic.announcement" />
+		<tool id = "home" selected = "true" />
+		<tool id = "sakai.syllabus" />
+		<tool id = "sakai.lessonbuildertool" />
+		<tool id = "sakai.schedule" />
+		<tool id = "sakai.announcements" selected = "true" />
+		<tool id = "sakai.resources" />
+		<tool id = "sakai.forums" />
+		<tool id = "sakai.assignment" />
+		<tool id = "sakai.assignment.grades" />
+		<tool id = "sakai.samigo" />
+		<tool id = "sakai.gradebook.tool" />
+		<tool id = "sakai.dropbox" />
+		<tool id = "sakai.chat" />
+		<tool id = "sakai.rwiki" />
+		<tool id = "sakai.mailbox" />
+		<tool id = "sakai.news" />
+		<tool id = "sakai.iframe" />
+		<tool id = "sakai.presentation" />
+		<tool id = "sakai.sections" />
+		<tool id = "sakai.site.roster" />
+		<tool id = "sakai.siteinfo" required = "true" />
+		<tool id = "sakai.feedback" required = "true" />
+
+	</category>
+
+	<category name="project">
+		<tool id = "sakai.iframe.site" />
+		<tool id = "sakai.dashboard" />
+		<tool id = "sakai.synoptic.chat" />
+		<tool id = "sakai.synoptic.messagecenter" />
+		<tool id = "sakai.synoptic.announcement" />
+		<tool id = "home" selected = "true" />
+		<tool id = "sakai.syllabus" />
+		<tool id = "sakai.lessonbuildertool" />
+		<tool id = "sakai.schedule" />
+		<tool id = "sakai.announcements" />
+		<tool id = "sakai.resources" />
+		<tool id = "sakai.forums" />
+		<tool id = "sakai.assignment" />
+		<tool id = "sakai.assignment.grades" />
+		<tool id = "sakai.samigo" />
+		<tool id = "sakai.gradebook.tool" />
+		<tool id = "sakai.dropbox" />
+		<tool id = "sakai.chat" />
+		<tool id = "sakai.rwiki" />
+		<tool id = "sakai.mailbox" />
+		<tool id = "sakai.news" />
+		<tool id = "sakai.iframe" />
+		<tool id = "sakai.presentation" />
+		<tool id = "sakai.sections" />
+		<tool id = "sakai.site.roster" />
+		<tool id = "sakai.siteinfo" required = "true" />
+		<tool id = "sakai.feedback" required = "true" />
+	</category>
+
+        <category name="submission">
+                <tool id = "sakai.iframe.site" />
+                <tool id = "sakai.synoptic.announcement" />
+                <tool id = "home" selected = "true" />
+                <tool id = "sakai.schedule" />
+                <tool id = "sakai.announcements" />
+                <tool id = "sakai.resources" />
+                <tool id = "sakai.assignment" />
+                <tool id = "sakai.siteinfo" required = "true" />
+                <tool id = "sakai.feedback" required = "true" />
+        </category>
+</toolOrder>

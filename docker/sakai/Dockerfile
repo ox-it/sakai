@@ -16,7 +16,7 @@ COPY tomcat/lib /opt/tomcat/sakai-lib/
 COPY tomcat/webapps /opt/tomcat/webapps/
 
 # We don't copy local.properties for production
-COPY krb5.conf log4j.properties placeholder.properties sakai.quartz.properties sakai-jaas.conf jgroups-config.xml /opt/tomcat/sakai/
+COPY krb5.conf log4j.properties placeholder.properties sakai.quartz.properties sakai-jaas.conf jgroups-config.xml toolOrder.xml /opt/tomcat/sakai/
 COPY override /opt/tomcat/sakai/override
 COPY libyjpagent.so /opt/yjp/bin/linux-x86-64/
 COPY startup_with_yjp.sh /opt/tomcat/bin/
