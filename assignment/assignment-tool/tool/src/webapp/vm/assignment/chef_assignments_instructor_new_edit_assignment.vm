@@ -728,8 +728,7 @@
 					<div id="review.switch.ne.1" class="information">$reviewSwitchNe1</div>
 					<div class="checkbox  indnt2">
 						<label id="lblReviewService" for="$name_UseReviewService" class="instruction">
-						<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" onclick="ASN.toggleReviewServiceOptions(this.checked)" disabled="disabled"/>
-
+							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" onclick="ASN.toggleReviewServiceOptions(this.checked)" disabled="disabled"/>
 							$reviewServiceUse
 						</label>
 					</div>
@@ -753,7 +752,7 @@
 				#else
 					<div id="reviewServiceOptions" style="display:none" class="indnt3 tiioptions">
 				#end
-					<div>
+					<div class="checkbox">
 						<label for="$name_AllowStudentView">
 						#if ($!value_AllowStudentView.equals("true"))
 							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" checked="checked" />
@@ -771,21 +770,21 @@
 						$content_review_note
 					#end
 					<h5>$tlang.getString("review.submit.papers.repository")</h5>
-					<div class="tiiradio">
+					<div class="checkbox">
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE))
-						<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO">
+						<label>
 							<input type="radio" id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO"  name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_NONE"))checked#end/>$tlang.getString("review.submit.papers.repository.none")
 						</label>
 						<br/>
 						#end
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD))
-						<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO">
+						<label>
 							<input type="radio" id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_STANDARD"))checked#end/>$tlang.getString("review.submit.papers.repository.standard")
 						</label>
 						<br/>
 						#end
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION))
-						<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO">
+						<label>
 							<input type="radio" id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_INSITUTION"))checked#end/>$tlang.getString("review.submit.papers.repository.institution")<br/>
 						</label>
 						<br/>
@@ -793,25 +792,25 @@
 					</div>
 
 					#if( $show_NEW_ASSIGNMENT_REVIEW_SERVICE_GRADEMARK_ENABLED )
-					<div>
+					<div class="checkbox">
+						<label for="$name_AllowStudentViewExternalGrade">
 						#if ($!value_AllowStudentViewExternalGrade.equals("true"))
 								<input id="$name_AllowStudentViewExternalGrade" name="$name_AllowStudentViewExternalGrade" type="checkbox" value="true" checked="checked" />
-							#else
+						#else
 								<input id="$name_AllowStudentViewExternalGrade" name="$name_AllowStudentViewExternalGrade" type="checkbox" value="true" />
-							#end
-							<label for="$name_AllowStudentViewExternalGrade">
+						#end
 								$tlang.getString("review.allow.grades")
-							</label>
-						</div>
+						</label>
+					</div>
 					#end
 					#if (!$!value_NEW_ASSIGNMENT_REVIEW_SERVICE_HIDE_ALLOW_ANY_FILE.equals("true"))
-						<div>
-							#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE.equals("true"))			
+						<div class="checkbox">
+							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE">
+							#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE.equals("true"))
 								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE" type="checkbox" value="true" checked="checked" />
 							#else
 								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE" type="checkbox" value="true" />
 							#end
-							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_ALLOW_ANY_FILE">
 								$tlang.getString("review.originality.allow.any.file") 
 							</label>
 						</div>
@@ -821,18 +820,33 @@
 						$tlang.getString("review.originality.reports")
 					</h5>
 
-					<div class="tiiradio">
+					<div class="checkbox">
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY))
-						<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO">
-							<input type="radio" id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY"))checked#end/>$tlang.getString("review.originality.reports.immediately")
+						<label>
+							<input type="radio" id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" onclick="ASN.toggleReportOnDueDateInfo(false)" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_IMMEDIATELY"))checked#end/>$tlang.getString("review.originality.reports.immediately")
 						</label>
 						<br/>
 						#end
 						#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT.contains($name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE))
-						<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO">
-							<input type="radio" id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE"))checked#end/>$tlang.getString("review.originality.reports.due")
+						<label>
+							<input type="radio" id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO" onclick="ASN.toggleReportOnDueDateInfo(true)" value="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE" #if($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE"))checked#end/>$tlang.getString("review.originality.reports.due")
 						</label>
 						<br/>
+						<div id="reportsOnDueDateInfo" class="messageInformation"
+							#if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO.equals("$name_NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_DUE"))
+								style="display:inline-block;">
+							#else
+								style="display:none;">
+							#end
+							$tlang.getFormattedMessage("review.originality.reports.due.info", $reviewServiceName)
+							#if ($reviewServiceQueueBuffer != '0')
+								$tlang.getFormattedMessage("review.originality.reports.due.info.additional", $reviewServiceQueueBuffer, $reviewServiceName)
+							#end
+							#if ($validator.escapeHtml($!value_title) && $validator.escapeHtml($!value_title) !='')
+								<br/><br/>
+								$tlang.getFormattedMessage("review.originality.reports.due.info.date", $reviewServiceName, $effectiveDueDate)
+							#end
+						</div>
 						#end
 					</div>
 
@@ -842,7 +856,7 @@
 
 					<!-- Exclude Bibliographic materials -->
 					#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC)
-					<div>
+					<div class="checkbox">
 						<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC">
 							#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC.equals("true"))
 								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC" type="checkbox" value="true" checked="checked" />
@@ -855,7 +869,7 @@
 					#end
 					<!-- Exclude Quoted materials -->
 					#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED)
-					<div>
+					<div class="checkbox">
 						<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED">
 							#if ($!value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED.equals("true"))
 								<input id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED" type="checkbox" value="true" checked="checked" />
@@ -869,12 +883,12 @@
 					<!-- Exclude small matches -->
 
 					#if($show_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES)
-						<div>
+						<div class="checkbox">
 							<label for="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE">
 							#if ($value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 1 || $value_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_TYPE == 2)
-								<input type="checkbox" value="true" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" checked="checked" onclick="ASN.toggleSmallMatchesOptions(this.checked)"/>
+								<input type="checkbox" value="true" id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" checked="checked" onclick="ASN.toggleSmallMatchesOptions(this.checked)"/>
 							#else
-								<input type="checkbox" value="true" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" onclick="ASN.toggleSmallMatchesOptions(this.checked)"/>
+								<input type="checkbox" value="true" id="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" name="$name_NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_SMALL_MATCHES" onclick="ASN.toggleSmallMatchesOptions(this.checked)"/>
 							#end
 								$tlang.getString("review.exclude.smallMatches")
 							</label>

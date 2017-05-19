@@ -10907,7 +10907,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// return the variables
 		// Get new values from review service if defaults
 		public int getReviewScore() {
-			// Code to get updated score if default
 			M_log.debug(this + " getReviewScore for submission " + this.getId() + " and review service is: " + (this.getAssignment().getContent().getAllowReviewService()));
 			if (!this.getAssignment().getContent().getAllowReviewService()) {
 				M_log.debug(this + " getReviewScore Content review is not enabled for this assignment");
@@ -10927,55 +10926,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			boolean allowAnyFile = this.getAssignment().getContent().isAllowAnyFile();
 			ContentResource cr = getFirstAcceptableAttachement(allowAnyFile);
-			if (cr == null )
-			{
+			if (cr == null ) {
 				M_log.debug(this + " getReviewScore No suitable attachments found in list");
 				return -2;
 			}
-			try {
-				//we need to find the first attachment the CR will accept
-				String contentId = cr.getId();
-				M_log.debug(this + " getReviewScore checking for score for content: " + contentId);
 
-				Long status = contentReviewService.getReviewStatus(contentId);
-				if (status != null && (status.equals(ContentReviewItem.NOT_SUBMITTED_CODE) || status.equals(ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE)))  {
-					M_log.debug(this + " getReviewStatus returned a status of: " + status);
-					return -2;
-				}
-
-				int score = contentReviewService.getReviewScore(contentId, getAssignment().getReference(), getContentReviewSubmitterId());
-				m_reviewScore = score;
-				M_log.debug(this + " getReviewScore CR returned a score of: " + score);
-				return score;
-			} 
-			catch (QueueException cie) {
-				//should we add the item
-				try {
-					M_log.debug(this + " getReviewScore Item is not in queue we will try add it");
-					try {
-						
-						contentReviewService.queueContent(getContentReviewSubmitterId(), this.getContext(), getAssignment().getReference(), Arrays.asList(cr), this.getId(), false);
-					}
-					catch (QueueException qe) {
-						M_log.warn(" getReviewScore Unable to queue content with content review Service: " + qe.getMessage());
-					}
-
-				} catch (Exception e) {
-					M_log.error(e.getMessage(), e);
-				}
-				
-				return -1;
-			}
-			catch (Exception e) {
-				M_log.warn(this + " getReviewScore " + e.getMessage());
-				return -1;	
-			}			
+			return getReviewScore(cr);
 		}
 
-		/**
-		 * SAK-26322 - Essentially the same as getReviewScore() only it acts upon the ContentResource parameter rather than that which is returned by firstAcceptableAttachment().
-		 * TODO: consider deleting getReviewScore(). If not possible, then refactor to eliminate code duplication
-		 */
 		private int getReviewScore(ContentResource cr)
 		{
 			M_log.debug(this + " getReviewScore(ContentResource) for submission " + this.getId() + " and review service is: " + (this.getAssignment().getContent().getAllowReviewService()));
@@ -11056,55 +11014,26 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		public String getReviewReport() {
-//			 Code to get updated report if default
 			if (m_submittedAttachments.isEmpty()) { 
 				M_log.debug(this.getId() + " getReviewReport No attachments submitted."); 
 				return "Error";
-			}
-			else
-			{
+			} else {
 				try {
 					boolean allowAnyFile = this.getAssignment().getContent().isAllowAnyFile();
-					ContentResource cr = getFirstAcceptableAttachement(allowAnyFile);;
-					if (cr == null )
-					{
+					ContentResource cr = getFirstAcceptableAttachement(allowAnyFile);
+					if (cr == null ) {
 						M_log.debug(this + " getReviewReport No suitable attachments found in list");
 						return "error";
 					}
-					
-					String contentId = cr.getId();
-					
-					try {
-						Site site = SiteService.getSite(m_context);
-						Date asnCreationDate = new Date(m_asn.getTimeCreated().getTime());
-						boolean siteCanUseLTIReviewService = contentReviewSiteAdvisor.siteCanUseLTIReviewServiceForAssignment(site, asnCreationDate);
-						if (siteCanUseLTIReviewService) {
-							return contentReviewService.getReviewReport(contentId, null, null);
-						} else {
-							if (allowGradeSubmission(getReference())){
-								return contentReviewService.getReviewReportInstructor(contentId, getAssignment().getReference(), UserDirectoryService.getCurrentUser().getId());
-							} else {
-								return contentReviewService.getReviewReportStudent(contentId, getAssignment().getReference(), UserDirectoryService.getCurrentUser().getId());
-							}
-						}
-					} catch (IdUnusedException _iue) {
-						M_log.debug(this + " getReviewReport Could not find site from m_context value " + m_context);
-						return "error";
-					}
-					
+
+					return getReviewReport(cr);
 				} catch (Exception e) {
 					M_log.warn(":getReviewReport() " + e.getMessage());
 					return "Error";
 				}
-					
 			}
-			
 		}
 
-		/**
-		 * SAK-26322 - Essentially the same as getReviewReport(), only it acts upon the ContentResource that is passed rather than that which is returned from getFirstAcceptableAttachment()
-		 * TODO: consider removing getReviewReport(). If this is not possible, eliminate code duplication
-		 */
 		private String getReviewReport(ContentResource cr)
 		{
 			if (cr == null)
@@ -11190,75 +11119,27 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return m_reviewStatus;
 		}
 
-        public String getReviewError() {
-        //	Code to get  error report
-            if (m_submittedAttachments.isEmpty()) {
-                M_log.debug(this.getId() + " getReviewError No attachments submitted.");
-                return null;
-            }
-            else
-            {
-                try {
-                    boolean allowAnyFile = this.getAssignment().getContent().isAllowAnyFile();
-                    ContentResource cr = getFirstAcceptableAttachement(allowAnyFile);
-                    if (cr == null )
-                    {
-                        M_log.debug(this + " getReviewError No suitable attachments found in list");
-                        return null;
-                    }
+		public String getReviewError() {
+			if (m_submittedAttachments.isEmpty()) {
+				M_log.debug(this.getId() + " getReviewError No attachments submitted.");
+				return null;
+			} else {
+				try {
+					boolean allowAnyFile = this.getAssignment().getContent().isAllowAnyFile();
+					ContentResource cr = getFirstAcceptableAttachement(allowAnyFile);
+					if (cr == null ) {
+						M_log.debug(this + " getReviewError No suitable attachments found in list");
+						return null;
+					}
 
-                    String contentId = cr.getId();
+					return getReviewError(cr);
+				} catch (Exception e) {
+					M_log.warn(this + ":getReviewError() " + e.getMessage());
+					return null;
+				}
+			}
+		}
 
-                    // This should use getLocalizedReviewErrorMessage(contentId)
-                    // to get a i18n message of the error
-                    Long status = contentReviewService.getReviewStatus(contentId);
-                    String errorMessage = null;
-					
-					boolean exposeError = false;
-                    
-                    if (status != null) {
-                        if (status.equals(ContentReviewItem.REPORT_ERROR_NO_RETRY_CODE)) {
-                            errorMessage = rb.getString("content_review.error.REPORT_ERROR_NO_RETRY_CODE");
-                        } else if (status.equals(ContentReviewItem.REPORT_ERROR_RETRY_CODE)) {
-                            errorMessage = rb.getString("content_review.error.REPORT_ERROR_RETRY_CODE");
-                        } else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_NO_RETRY_CODE)) {
-                            errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_NO_RETRY_CODE");
-							exposeError = true;
-                        } else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_RETRY_CODE)) {
-                            errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_RETRY_CODE");
-							exposeError = true;
-                        } else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_RETRY_EXCEEDED)) {
-                            errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_RETRY_EXCEEDED_CODE");
-                        } else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_USER_DETAILS_CODE)) {
-                            errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_USER_DETAILS_CODE");
-                        } else if (ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE.equals(status)
-                                || ContentReviewItem.NOT_SUBMITTED_CODE.equals(status)) {
-                        	errorMessage = rb.getString("content_review.pending.info");
-                        }
-                    }
-                    
-                    if (errorMessage == null) {
-                        errorMessage = rb.getString("content_review.error");
-                    }
-                    
-                    // Expose the underlying CRS error to the UI
-                    if( exposeError && m_exposeTurnitinErrorToUI ) {
-                        errorMessage += " " + getLastErrorForContentReviewItem( contentId );
-                    }
-					
-                    return errorMessage;
-                } catch (Exception e) {
-                    //e.printStackTrace();
-                    M_log.warn(this + ":getReviewError() " + e.getMessage());
-                    return null;
-                }
-
-            }
-        }
-
-		/**
-		 * SAK-26322 - Essentially the same as getReviewError(), only it acts upon the ContentResource that is passed rather than that which is returned from getFirstAcceptableAttachment()
-		 */
 		private String getReviewError(ContentResource cr)
 		{
 			if (cr == null)
@@ -11271,7 +11152,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				String contentId = cr.getId();
 				//This should use getLocalizedReviewErrorMesage(contentId)
 				//to get a i18n message of the error
-				Long status = contentReviewService.getReviewStatus(contentId);
+				ContentReviewItem item = contentReviewService.getFirstItemByContentId(contentId);
+				Long status = item.getStatus();
 				String errorMessage = null;
 				boolean exposeError = false;
 
@@ -11304,9 +11186,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_USER_DETAILS_CODE");
 					}
-					else if (ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE.equals(status) || ContentReviewItem.NOT_SUBMITTED_CODE.equals(status))
+					else if (ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE.equals(status))
 					{
 						errorMessage = rb.getString("content_review.pending.info");
+					}
+					else if (ContentReviewItem.NOT_SUBMITTED_CODE.equals(status))
+					{
+						errorMessage = rb.getFormattedMessage("content_review.notYetSubmitted", new Object[] { contentReviewService.getServiceName() });
+					}
+					else if (ContentReviewItem.SUBMITTED_REPORT_ON_DUE_DATE_CODE.equals(status))
+					{
+						Assignment assignment = getAssignment();
+						long effectiveDueDate = getEffectiveDueDate(item.getTaskId(), assignment.getCloseTime().getTime(), assignment.getProperties(),
+																		m_serverConfigurationService.getInt("contentreview.due.date.queue.job.buffer.minutes", 0));
+						errorMessage = rb.getString("content_review.pending.info") + " " 
+										+ rb.getFormattedMessage("content_review.pending.reportOnDueDate", new Object[] { TimeService.newTime(effectiveDueDate).getDisplay() });
 					}
 				}
 
@@ -14937,6 +14831,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 		}
 		return "";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public long getEffectiveDueDate(String assignmentID, long assignmentDueDate, ResourceProperties assignmentProperties, int dueDateBuffer) {
+		return contentReviewService.getEffectiveDueDate(assignmentID, assignmentDueDate, assignmentProperties, dueDateBuffer);
 	}
 } // BaseAssignmentService
 

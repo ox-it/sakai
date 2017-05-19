@@ -31,6 +31,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -892,5 +893,14 @@ public class AssignmentService {
 			return false;
 
 		return service.hasBeenSubmitted(param0);
+	}
+
+	public static long getEffectiveDueDate(String assignmentID, long assignmentDueDate, ResourceProperties assignmentProperties, int dueDateBuffer) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null) {
+			return 0;
+		}
+
+		return service.getEffectiveDueDate(assignmentID, assignmentDueDate, assignmentProperties, dueDateBuffer);
 	}
 }

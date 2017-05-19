@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -974,4 +975,17 @@ public interface AssignmentService extends EntityProducer
 	 * @return The url as a String
 	 */
 	public String getDeepLink(String context, String assignmentId) throws Exception;
+
+	/**
+	 * Get the effective due date for the given ContentReviewItem. Takes into account assignment due date,
+	 * assignment resubmit due date, any manually set student-specific resubmit date if present, and the due
+	 * date buffer controlled by the "contentreview.due.date.queue.job.buffer.minutes" sakai.property
+	 *
+	 * @param assignmentID the ID of the assignment in question
+	 * @param assignmentDueDate the due date of the assignment
+	 * @param assignmentProperties the ResourceProperties object for the assignment
+	 * @param dueDateBuffer the due date buffer in minutes, from sakai.properties
+	 * @return the effective due date in milliseconds (long)
+	 */
+	public long getEffectiveDueDate(String assignmentID, long assignmentDueDate, ResourceProperties assignmentProperties, int dueDateBuffer);
 }

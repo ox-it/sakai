@@ -627,6 +627,17 @@ ASN.toggleReviewServiceOptions = function(checked){
     }
 };
 
+ASN.toggleReportOnDueDateInfo = function(checked){
+    var section = document.getElementById("reportsOnDueDateInfo");
+    if(checked){
+        section.style.display="inline-block";
+        ASN.resizeFrame('grow');
+    }else{
+        section.style.display="none";
+        ASN.resizeFrame('shrink');
+    }
+};
+
 ASN.toggleSmallMatchesOptions = function(checked){
     var section = document.getElementById("smallMatchesOptions");
     if(checked){

@@ -35,6 +35,7 @@ import org.sakaiproject.contentreview.exception.ReportException;
 import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.model.ContentReviewItem;
+import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
  *  ContentReview Service manages submission to the Content review queue and retrieving reports from the service
@@ -499,4 +500,27 @@ public interface ContentReviewService {
 	 * @return true if the given activity is configured correctly for use with the review service
 	 */
 	public boolean validateActivityConfiguration(String toolId, String activityId);
+
+	/**
+	 * Get the effective due date for the given ContentReviewItem. Takes into account assignment due date,
+	 * assignment resubmit due date, any manually set student-specific resubmit date if present, and the due
+	 * date buffer controlled by the "contentreview.due.date.queue.job.buffer.minutes" sakai.property
+	 *
+	 * @param assignmentID the ID of the assignment in question
+	 * @param assignmentDueDate the due date of the assignment
+	 * @param assignmentProperties the ResourceProperties object for the assignment
+	 * @param dueDateBuffer the due date buffer in minutes, from sakai.properties
+	 * @return the effective due date in milliseconds (long)
+	 */
+	public long getEffectiveDueDate(String assignmentID, long assignmentDueDate, ResourceProperties assignmentProperties, int dueDateBuffer);
+
+	/**
+	 * Updates the status of all ContentReviewItems for the given assignment. If the assignment is being changed to generate reports immediately,
+	 * all items in status 10 (pending, due date) need to be flipped to status 2 (pending). Vice versa for an assignment being changed to generate
+	 * reports on the due date.
+	 *
+	 * @param assignmentRef the ref of the assignment in question
+	 * @param generateReportsSetting the assignment's new setting for generating originality reports (2 = on due date)
+	 */
+	public void updatePendingStatusForAssignment(String assignmentRef, String generateReportsSetting);
 }

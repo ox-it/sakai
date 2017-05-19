@@ -17,6 +17,7 @@ import org.sakaiproject.contentreview.exception.SubmissionException;
 import org.sakaiproject.contentreview.exception.TransientSubmissionException;
 import org.sakaiproject.contentreview.model.ContentReviewItem;
 import org.sakaiproject.contentreview.service.ContentReviewService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -504,4 +505,21 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		return false;
 	}
 
+	@Override
+	public long getEffectiveDueDate(String assignmentID, long assignmentDueDate, ResourceProperties assignmentProperties, int dueDateBuffer) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null) {
+			return provider.getEffectiveDueDate(assignmentID, assignmentDueDate, assignmentProperties, dueDateBuffer);
+		}
+
+		return 0;
+	}
+
+	@Override
+	public void updatePendingStatusForAssignment(String assignmentRef, String generateReportsSetting) {
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null) {
+			provider.updatePendingStatusForAssignment(assignmentRef, generateReportsSetting);
+		}
+	}
 }

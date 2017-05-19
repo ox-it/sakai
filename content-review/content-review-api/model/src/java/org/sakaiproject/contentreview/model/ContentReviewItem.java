@@ -28,7 +28,6 @@ public class ContentReviewItem {
 	public static final String NOT_SUBMITTED = "Content awaiting submission";
 	public static final Long NOT_SUBMITTED_CODE = new Long(1);
 	
-	
 	public static final String SUBMITTED_AWAITING_REPORT = "Content submitted for review and awaiting report";
 	public static final Long SUBMITTED_AWAITING_REPORT_CODE= new Long(2);
 	
@@ -51,7 +50,9 @@ public class ContentReviewItem {
 	public static final Long REPORT_ERROR_NO_RETRY_CODE = new Long(8);
 	
 	public static final Long SUBMISSION_ERROR_RETRY_EXCEEDED = new Long(9);
-	
+
+	public static final Long SUBMITTED_REPORT_ON_DUE_DATE_CODE= new Long(10);
+
 	private Long id; //hibernate uses this as a primary key
 	private String contentId; //Sakai contentId
 	private String userId; // Sakai userId

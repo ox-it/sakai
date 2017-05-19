@@ -309,6 +309,8 @@ $(document).ready(function(){
 										<span class="reportIcon">
 										#if ($reviewResult.getReviewReport().equals("Error"))
 											<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-exclamation-triangle errorStyle"></i>
+										#elseif ($reviewResult.getReviewReport().equals("Pending"))
+											<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-clock-o"></i>
 										#else
 											<a href="$reviewResult.getReviewReport()" target="_blank">
 												<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag reviewStyle" style="color:$reviewResult.getReviewIconColor()"></i>

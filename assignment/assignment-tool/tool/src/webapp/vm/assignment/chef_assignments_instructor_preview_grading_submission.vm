@@ -97,6 +97,8 @@
 								<span class="reportIcon">
 									#if ($reviewResult.getReviewReport().equals("Error"))
 										<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+									#elseif ($reviewResult.getReviewReport().equals("Pending"))
+										<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-clock-o"></i>
 									#else
 										<a href="$reviewResult.getReviewReport()" target="_blank" rel="noreferrer">
 											<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">

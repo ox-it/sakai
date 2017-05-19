@@ -2556,6 +2556,10 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// Anon grading enabled/disabled
 		context.put( "enableAnonGrading", ServerConfigurationService.getBoolean( SAK_PROP_ENABLE_ANON_GRADING, false ) );
+
+		// Content review queue buffer
+		int reviewServiceQueueBuffer = ServerConfigurationService.getInt("contentreview.due.date.queue.job.buffer.minutes", 0);
+		context.put("reviewServiceQueueBuffer", reviewServiceQueueBuffer);
 		
 		// is the assignment an new assignment
 		String assignmentId = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);
@@ -2566,10 +2570,15 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				context.put("assignment", a);
 				if (a.isGroup()) {
-                                    Collection<String> _dupUsers = usersInMultipleGroups(a);
-                                    if (_dupUsers.size() > 0) context.put("multipleGroupUsers", _dupUsers);
+					Collection<String> _dupUsers = usersInMultipleGroups(a);
+					if (_dupUsers.size() > 0) {
+						context.put("multipleGroupUsers", _dupUsers);
+					}
+				}
+
+				long effectiveDueDate = AssignmentService.getEffectiveDueDate(a.getId(), a.getCloseTime().getTime(), a.getProperties(), reviewServiceQueueBuffer);
+				context.put("effectiveDueDate", TimeService.newTime(effectiveDueDate).getDisplay());
 			}
-		}
 		}
 
 		// set up context variables
@@ -9903,7 +9912,7 @@ public class AssignmentAction extends PagedResourceActionII
 		AssignmentService.commitEdit(ac);
 		
 		if(ac.getAllowReviewService()){
-			if (!syncTIIAssignment(ac, assignmentRef, openTime, dueTime, closeTime, resubmitCloseTime, null, state))
+			if (!syncTIIAssignment(ac, assignmentRef, openTime, dueTime, closeTime, resubmitCloseTime, null, state, generateOriginalityReport))
 			{
 				state.setAttribute("contentReviewSuccess", Boolean.FALSE);
 			}
@@ -9911,7 +9920,8 @@ public class AssignmentAction extends PagedResourceActionII
 		
 	}
 	
-	public boolean syncTIIAssignment(AssignmentContent assign, String assignmentRef, Time openTime, Time dueTime, Time closeTime, Time resubmitCloseTime, Date extension, SessionState state) {
+	public boolean syncTIIAssignment(AssignmentContent assign, String assignmentRef, Time openTime, Time dueTime, Time closeTime, Time resubmitCloseTime, 
+										Date extension, SessionState state, String genReportsSetting) {
         Map<String, Object> opts = new HashMap<>();
         
         opts.put("submit_papers_to", assign.getSubmitReviewRepo());
@@ -9993,6 +10003,10 @@ public class AssignmentAction extends PagedResourceActionII
             {
                 contentReviewService.offerIndividualExtension(assign.getContext(), assignmentRef, opts, extension);
             }
+
+			if (StringUtils.isNotBlank(genReportsSetting)) {
+				contentReviewService.updatePendingStatusForAssignment(assignmentRef, genReportsSetting);
+			}
 			return true;
         } catch (Exception e) {
             M_log.error(e.getMessage());
@@ -10022,7 +10036,7 @@ public class AssignmentAction extends PagedResourceActionII
 					asnResubmitCloseTime = TimeService.newTime(Long.parseLong(strResubmitCloseTime));
 				}
 			}
-			syncTIIAssignment(a.getContent(), a.getReference(), a.getOpenTime(), a.getDueTime(), a.getCloseTime(), asnResubmitCloseTime, new Date(extension.getTime()), state);
+			syncTIIAssignment(a.getContent(), a.getReference(), a.getOpenTime(), a.getDueTime(), a.getCloseTime(), asnResubmitCloseTime, new Date(extension.getTime()), state, null);
 		}
 	}
 	
