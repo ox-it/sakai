@@ -11065,7 +11065,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			catch (Exception e)
 			{
-				M_log.warn(":getReviewReport(ContentResource) " + e.getMessage());
+				M_log.debug(":getReviewReport(ContentResource) " + e.getMessage());
 				return "Error";
 			}
 		}
