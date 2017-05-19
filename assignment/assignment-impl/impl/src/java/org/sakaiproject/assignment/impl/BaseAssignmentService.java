@@ -2866,7 +2866,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 
 	private String htmlContent(AssignmentSubmission s) 
-	{	
+	{
 		Assignment a = s.getAssignment();
 		String context = s.getContext();
 		boolean isAnon = assignmentUsesAnonymousGrading( a );
@@ -2923,7 +2923,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String text = StringUtils.trimToNull(s.getSubmittedText());
 		if ( text != null)
 		{
-			buffer.append(rb.getString("gen.submittedtext") + newline + newline + Validator.escapeHtmlFormattedText(text) + newline + newline);
+			buffer.append(rb.getString("submission.inline") + ":" + newline + newline + Validator.escapeHtmlFormattedText(text) + newline + newline);
 		}
 		
 		// attachment if any
@@ -2938,7 +2938,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				buffer.append(rb.getString("gen.att"));
 			}
-			buffer.append(newline).append(newline);
+			buffer.append(":").append(newline).append(newline);
 			
 			for (int j = 0; j<attachments.size(); j++)
 			{

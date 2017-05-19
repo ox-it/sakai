@@ -3,6 +3,7 @@
 	- [OWL-1408] better icon for pending content review reports
 	- [OWL-2841] new blurb to explain factors/consequences of generating originality reports on the due date
 	- [OWL-2828] reduce logging output for TII report not available
+	- [OWL-1646] improve content of submission email notifications
 2017.05.08:
 	- [OWL-2758] fix note for attachments verified by content review service not appearing in UI
 2017.05.03:
