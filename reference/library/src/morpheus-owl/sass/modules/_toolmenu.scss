@@ -65,6 +65,11 @@ body.#{$namespace}toolMenu-collapsed{
 			}
 		}
 	}
+	
+	.#{$namespace}siteHierarchy
+	{
+		margin: 0 0 0 calc(#{$tool-menu-collapsed-width} + #{$standard-padding}); /* make room for tool menu - using variable fix from https://github.com/sass/sass/issues/818 */
+	}
 }
 
 #toolMenuWrap .img_site_toolmenu{

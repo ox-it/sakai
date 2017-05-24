@@ -31,7 +31,7 @@
 		display: flex;
 		align-items: center;
 		min-height: initial;
-		margin: 0 0 0 calc(10em + #{$standard-padding}); /* make room for tool menu - using variable fix from https://github.com/sass/sass/issues/818 */
+		margin: 0 0 0 calc(#{$tool-menu-width} + #{$standard-padding}); /* make room for tool menu - using variable fix from https://github.com/sass/sass/issues/818 */
 		padding: $standard-padding;
 
 		.#{$namespace}hierarchy--siteName a, .#{$namespace}hierarchy--1 a{
