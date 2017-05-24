@@ -59,6 +59,12 @@
 
 		<lookup-method name="dao" bean="org.sakaiproject.authz.impl.DevolvedAdminDao" />
 		<property name="adminSiteType"><value>admin</value></property>
+		<property name="restrictedSiteTypes">
+			<set>
+				<value>admin</value>
+				<value>submission</value>
+			</set>
+		</property>
 	</bean>
 
 	<alias name="org.sakaiproject.authz.api.SecurityService"

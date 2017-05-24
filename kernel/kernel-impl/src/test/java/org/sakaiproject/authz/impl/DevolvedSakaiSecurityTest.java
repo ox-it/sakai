@@ -75,20 +75,30 @@ public class DevolvedSakaiSecurityTest extends SakaiKernelTestBase {
 		adminRole2.allowFunction(DevolvedSakaiSecurity.ADMIN_REALM_PERMISSION);
 		Role useRole = site2.addRole("user");
 		useRole.allowFunction(DevolvedSakaiSecurity.ADMIN_REALM_PERMISSION_USE);
-		
+
 		site2.addMember("user2", "admin", true, false);
 		site2.addMember("user1", "user", true, false);
 		siteService.save(site2);
-		
+
+		// This site shouldn't allow it's maintain user to change the admin site.
+		Site siteRestricted = siteService.addSite("siteRestricted", (String)null);
+		siteRestricted.setType("submission");
+		Role custom = siteRestricted.addRole("custom");
+		custom.allowFunction(SiteService.SECURE_UPDATE_SITE);
+		siteRestricted.addMember("user2", "custom", true, false);
+		siteService.save(siteRestricted);
+
 		assertTrue(site1.isAllowed("user1", SiteService.SECURE_UPDATE_SITE));
 		assertTrue(site2.isAllowed("user2", SiteService.SECURE_UPDATE_SITE));
-		
+
 		
 		session.setUserId("user2");
 		assertFalse(siteService.allowUpdateSite(site1.getId()));
+		assertFalse(security.canSetAdminRealm(siteRestricted.getReference()));
 		
 		// Make people in site2 with the right permission be able to modify site one.
 		session.setUserId("user1");
+		assertTrue(security.canSetAdminRealm(site1.getReference()));
 		security.setAdminRealm(site1.getReference(), site2.getReference());
 
         // TODO This should really invalidate correctly.

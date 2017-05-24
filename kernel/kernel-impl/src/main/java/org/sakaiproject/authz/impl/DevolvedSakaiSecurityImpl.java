@@ -34,6 +34,8 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 	private static Logger log = LoggerFactory
 			.getLogger(DevolvedSakaiSecurityImpl.class);
 	
+	private Collection restrictedSiteTypes;
+
 	private String adminSiteType;
 	
 	private Cache adminCache;
@@ -48,8 +50,9 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 		super.init();
 		FunctionManager.registerFunction(ADMIN_REALM_PERMISSION);
 		FunctionManager.registerFunction(ADMIN_REALM_PERMISSION_USE);
-		log.info("Admin site type set to: "+ adminSiteType);
-		
+		log.debug("Admin site type: "+ adminSiteType);
+		log.debug("Restricted site types : "+ String.join(", ", restrictedSiteTypes));
+
 		adminCache = memoryService().newCache(DevolvedSakaiSecurityImpl.class.getName(), SiteService.REFERENCE_ROOT);
 		
 		siteDeleteObserver = (o, arg) -> {
@@ -137,7 +140,8 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 		if (SiteService.APPLICATION_ID.equals(ref.getType())
 				&& SiteService.SITE_SUBTYPE.equals(ref.getSubType())) {
 			// Only allow admins to change admin site on admin sites.
-			if (adminSiteType.equals(getSiteType(ref))) {
+			String siteType = getSiteType(ref);
+			if (siteType != null && restrictedSiteTypes.contains(siteType)) {
 				return isSuperUser();
 			} else {
 				return unlock(SiteService.SECURE_UPDATE_SITE, entityRef);
@@ -313,5 +317,9 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 
 	public void setAdminSiteType(String adminSiteType) {
 		this.adminSiteType = adminSiteType;
+	}
+
+	public void setRestrictedSiteTypes(Collection restrictedSiteTypes) {
+		this.restrictedSiteTypes = restrictedSiteTypes;
 	}
 }
