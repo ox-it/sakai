@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.business.util;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,6 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -21,11 +25,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+
 import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportDuplicateColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidColumnException;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
-import org.sakaiproject.gradebookng.business.exception.GbImportExportUnknownStudentException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportedCell;
@@ -37,9 +41,7 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-
-import au.com.bytecode.opencsv.CSVReader;
-import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.user.api.User;
 
 /**
  * Helper to handling parsing and processing of an imported gradebook file
@@ -69,6 +71,7 @@ public class ImportGradesHelper {
 	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
 	 * @param is
 	 * @param mimetype
+	 * @param filename
 	 * @param userMap
 	 * @return
 	 * @throws GbImportExportInvalidColumnException
@@ -77,7 +80,7 @@ public class ImportGradesHelper {
 	 * @throws IOException
 	 * @throws InvalidFormatException
 	 */
-	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
+	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename, final Map<String, User> userMap) throws GbImportExportInvalidColumnException, GbImportExportInvalidFileTypeException, GbImportExportDuplicateColumnException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
 
@@ -101,13 +104,13 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, IOException, GbImportExportDuplicateColumnException {
+	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final Map<String, User> userMap) throws GbImportExportInvalidColumnException, IOException, GbImportExportDuplicateColumnException {
 
 		// manually parse method so we can support arbitrary columns
 		final CSVReader reader = new CSVReader(new InputStreamReader(is));
 		String[] nextLine;
 		int lineCount = 0;
-		final List<ImportedRow> list = new ArrayList<ImportedRow>();
+		final List<ImportedRow> list = new ArrayList<>();
 		Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
 
 		try {
@@ -129,11 +132,11 @@ public class ImportGradesHelper {
 			try {
 				reader.close();
 			} catch (final IOException e) {
-				e.printStackTrace();
+				log.debug(e.getMessage());
 			}
 		}
 
-		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper();
+		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper(userMap);
 		importedGradeWrapper.setColumns(new ArrayList<>(mapping.values()));
 		importedGradeWrapper.setRows(list);
 
@@ -152,7 +155,7 @@ public class ImportGradesHelper {
 	 * @throws GbImportExportInvalidColumnException
 	 * @Throws GbImportExportDuplicateColumnException
 	 */
-	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, String> userMap) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException, GbImportExportDuplicateColumnException {
+	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, User> userMap) throws GbImportExportInvalidColumnException, InvalidFormatException, IOException, GbImportExportDuplicateColumnException {
 
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
@@ -177,7 +180,7 @@ public class ImportGradesHelper {
 			lineCount++;
 		}
 
-		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper();
+		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper(userMap);
 		importedGradeWrapper.setColumns(new ArrayList<>(mapping.values()));
 		importedGradeWrapper.setRows(list);
 		return importedGradeWrapper;
@@ -191,7 +194,7 @@ public class ImportGradesHelper {
 	 * @return
 	 * @throws GbImportExportUnknownStudentException if a row for a student is found that does not exist in the userMap
 	 */
-	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, String> userMap) {
+	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, User> userMap) {
 
 		final ImportedRow row = new ImportedRow();
 
@@ -222,13 +225,12 @@ public class ImportGradesHelper {
 				}
 
 				// check user is in the map (ie in the site)
-				final String studentUuid = userMap.get(lineVal);
-				if(StringUtils.isBlank(studentUuid)){
-					log.debug("Student was found in file but not in site: " + lineVal);
-					throw new GbImportExportUnknownStudentException("Student was found in file but not in site: " + lineVal);
-				}
+				User user = userMap.get(lineVal);
 				row.setStudentEid(lineVal);
-				row.setStudentUuid(studentUuid);
+				if(user != null) {
+					final String studentUuid = user.getId();
+					row.setStudentUuid(studentUuid);
+				}
 
 			} else if (column.getType() == ImportedColumn.Type.USER_NAME) {
 				row.setStudentName(lineVal);
@@ -333,14 +335,16 @@ public class ImportGradesHelper {
 			for (final ImportedRow row : spreadsheetWrapper.getRows()) {
 				final ImportedCell cell = row.getCellMap().get(columnTitle);
 				if (cell != null) {
-					final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
-					processedGradeItemDetail.setStudentEid(row.getStudentEid());
-					processedGradeItemDetail.setStudentUuid(row.getStudentUuid());
-					processedGradeItemDetail.setGrade(cell.getScore());
-					processedGradeItemDetail.setComment(cell.getComment());
-					processedGradeItemDetails.add(processedGradeItemDetail);
+					// Only process the grade item if the user is valid (present in the site/gradebook)
+					row.setUser(spreadsheetWrapper.getUserIdentifier());
+					if (row.getUser().isValid()) {
+						final ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
+						processedGradeItemDetail.setUser(row.getUser());
+						processedGradeItemDetail.setGrade(cell.getScore());
+						processedGradeItemDetail.setComment(cell.getComment());
+						processedGradeItemDetails.add(processedGradeItemDetail);
+					}
 				}
-
 			}
 			processedGradeItem.setProcessedGradeItemDetails(processedGradeItemDetails);
 
@@ -364,7 +368,6 @@ public class ImportGradesHelper {
 		});
 
 		return processedGradeItems;
-
 	}
 
 	/**
@@ -429,7 +432,6 @@ public class ImportGradesHelper {
 					status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NA);
 					break;
 				}
-
 			}
 			// If we get here, must not have been any changes
 			if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_UNKNOWN) {
@@ -445,7 +447,7 @@ public class ImportGradesHelper {
 	}
 
 	private static Map<Long, AssignmentStudentGradeInfo> transformCurrentGrades(final List<GbStudentGradeInfo> currentGrades) {
-		final Map<Long, AssignmentStudentGradeInfo> assignmentMap = new HashMap<Long, AssignmentStudentGradeInfo>();
+		final Map<Long, AssignmentStudentGradeInfo> assignmentMap = new HashMap<>();
 
 		for (final GbStudentGradeInfo studentGradeInfo : currentGrades) {
 			for (final Map.Entry<Long, GbGradeInfo> entry : studentGradeInfo.getGrades().entrySet()) {
@@ -458,7 +460,6 @@ public class ImportGradesHelper {
 				}
 				assignmentStudentGradeInfo.addGrade(studentGradeInfo.getStudentEid(), entry.getValue());
 			}
-
 		}
 
 		return assignmentMap;
@@ -478,7 +479,7 @@ public class ImportGradesHelper {
 	private static Map<Integer, ImportedColumn> mapHeaderRow(final String[] line) throws GbImportExportInvalidColumnException, GbImportExportDuplicateColumnException {
 
 		// retain order
-		final Map<Integer, ImportedColumn> mapping = new LinkedHashMap<Integer, ImportedColumn>();
+		final Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
 
 		for (int i = 0; i < line.length; i++) {
 
@@ -574,7 +575,6 @@ public class ImportGradesHelper {
 
 		// if we got here, couldn't parse the column header, throw an error
 		throw new GbImportExportInvalidColumnException("Invalid column header: " + headerValue);
-
 	}
 
 	/**

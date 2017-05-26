@@ -6,10 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+
 import org.mockito.Mockito;
+
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -24,77 +28,82 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.user.api.User;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Tests for the ImportGradesHelper class.
  */
 @Slf4j
 public class TestImportGradesHelper {
 
-
 	@Test
 	public void when_textcsv_thenCsvImportSucceeds() throws Exception {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import.csv", mockUserMap());
-		is.close();
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import.csv", mockUserMap());
+		}
 		testImport(importedSpreadsheetWrapper);
 	}
 
 	@Test
 	public void when_textplain_thenCsvImportSucceeds() throws Exception {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/plain", "grades_import.csv", mockUserMap());
-		is.close();
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/plain", "grades_import.csv", mockUserMap());
+		}
 		testImport(importedSpreadsheetWrapper);
 	}
 
 	@Test
 	public void when_textcommaseparatedvalues_thenCsvImportSucceeds() throws Exception {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/comma-separated-values", "grades_import.csv", mockUserMap());
-		is.close();
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/comma-separated-values", "grades_import.csv", mockUserMap());
+		}
 		testImport(importedSpreadsheetWrapper);
 	}
 
 	@Test
 	public void when_textapplicationcsv_thenCsvImportSucceeds() throws Exception {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import.csv", mockUserMap());
-		is.close();
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import.csv", mockUserMap());
+		}
 		testImport(importedSpreadsheetWrapper);
 	}
 
 	@Test
 	public void when_browser_says_applicationvndmsexcel_thenCsvImportSucceeds() throws Exception {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-		// Windows machine with MS Office installed is going to send this CSV with an Excel mimetype
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.csv", mockUserMap());
-		is.close();
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv")) {
+			// Windows machine with MS Office installed is going to send this CSV with an Excel mimetype
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.csv", mockUserMap());
+		}
 		testImport(importedSpreadsheetWrapper);
 	}
 
 	@Test
 	public void when_applicationvndmsexcel_thenXlsImportSucceeds() throws Exception {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.xls");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.xls", mockUserMap());
-		is.close();
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.xls")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.ms-excel", "grades_import.xls", mockUserMap());
+		}
 		testImport(importedSpreadsheetWrapper);
 	}
 
 	@Test
 	public void when_applicationvndopenxmlformatsofficedocumentspreadsheetmlsheet_thenXlsImportSucceeds() throws Exception {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.xls");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "grades_import.xls", mockUserMap());
-		is.close();
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.xls")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "grades_import.xls", mockUserMap());
+		}
 		testImport(importedSpreadsheetWrapper);
 	}
 
 	@Test(expected=GbImportExportInvalidFileTypeException.class)
 	public void when_anythingelse_thenImportFails() throws Exception {
-		final InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.pdf");
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/pdf", "grades_import.pdf", mockUserMap());
-		is.close();
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.pdf")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/pdf", "grades_import.pdf", mockUserMap());
+		}
 		testImport(importedSpreadsheetWrapper);
 	}
 
@@ -167,7 +176,6 @@ public class TestImportGradesHelper {
 		Assert.assertEquals("Incorrect title: " + "Assignment Ext", item4.getItemTitle());
 		Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_EXTERNAL, item4.getStatus().getStatusCode());
 		Assert.assertEquals("wrong status name", "From a test", item4.getStatus().getStatusValue());
-
 	}
 
 	/**
@@ -176,7 +184,7 @@ public class TestImportGradesHelper {
 	 * @return List of mocked assignments
 	 */
 	private List<Assignment> mockAssignments() {
-		final List<Assignment> assignments = new ArrayList<Assignment>();
+		final List<Assignment> assignments = new ArrayList<>();
 		final Assignment assignment1 = new Assignment();
 		assignment1.setId(1L);
 		assignment1.setName("Assignment 1");
@@ -206,7 +214,7 @@ public class TestImportGradesHelper {
 	 * @return
 	 */
 	private List<GbStudentGradeInfo> mockExistingStudentGrades() {
-		final List<GbStudentGradeInfo> grades = new ArrayList<GbStudentGradeInfo>();
+		final List<GbStudentGradeInfo> grades = new ArrayList<>();
 
 		final User user1 = Mockito.mock(User.class);
 		Mockito.when(user1.getId()).thenReturn("user1");
@@ -246,8 +254,8 @@ public class TestImportGradesHelper {
 	}
 
 	private ImportedSpreadsheetWrapper mockImportedSpreadsheetData() {
-		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = new ImportedSpreadsheetWrapper();
-		final List<ImportedColumn> columns = new ArrayList<ImportedColumn>();
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper = new ImportedSpreadsheetWrapper(mockUserMap());
+		final List<ImportedColumn> columns = new ArrayList<>();
 
 		// only list actual columns to be turned into the import here
 		columns.add(new ImportedColumn("Student ID", null, ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS));
@@ -262,7 +270,7 @@ public class TestImportGradesHelper {
 
 		importedSpreadsheetWrapper.setColumns(columns);
 
-		final List<ImportedRow> rows = new ArrayList<ImportedRow>();
+		final List<ImportedRow> rows = new ArrayList<>();
 
 		final ImportedRow row1 = new ImportedRow();
 		row1.setStudentUuid("user1");
@@ -314,11 +322,16 @@ public class TestImportGradesHelper {
 		return importedSpreadsheetWrapper;
 	}
 
-	private Map<String, String> mockUserMap() {
-		final Map<String, String> userMap = new HashMap<String, String>();
-		userMap.put("student1", "student name 1");
-		userMap.put("student2", "student name 2");
+	private Map<String, User> mockUserMap() {
+		final Map<String, User> userMap = new HashMap<>();
+		final User user1 = Mockito.mock(User.class);
+		Mockito.when(user1.getId()).thenReturn("student name 1");
+		Mockito.when(user1.getEid()).thenReturn("student1");
+		final User user2 = Mockito.mock(User.class);
+		Mockito.when(user2.getId()).thenReturn("student name 2");
+		Mockito.when(user2.getEid()).thenReturn("student2");
+		userMap.put("student1", user1);
+		userMap.put("student2", user2);
 		return userMap;
 	}
-
 }

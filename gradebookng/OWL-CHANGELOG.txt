@@ -1,6 +1,10 @@
+2017.05.26:
+	- [OWL-2842] Port the 'omissions' and 'grades preview' triangle disclosures for gradebook imports to 11.3
 2017.05.12:
         - [OWL-2827] Improve UI for large classes
 2017.04.03:
         - [OWL-2564] Port extra user properties to 11.3
 2017.03.29:
         - [OWL-2657] Refactor ExtraUserPropertiesUtility into a provider
+2017.01.10:
+        - forked from https://github.com/sakaiproject/sakai/tree/11.3

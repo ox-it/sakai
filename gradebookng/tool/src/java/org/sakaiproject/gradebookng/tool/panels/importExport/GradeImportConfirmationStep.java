@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.wicket.Component;
@@ -20,6 +22,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
@@ -34,15 +37,11 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Confirmation page for what is going to be imported
  */
 @Slf4j
 public class GradeImportConfirmationStep extends Panel {
-
-	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -52,8 +51,8 @@ public class GradeImportConfirmationStep extends Panel {
 
 	public GradeImportConfirmationStep(final String id, final IModel<ImportWizardModel> importWizardModel) {
 		super(id);
-		this.panelId = id;
-		this.model = importWizardModel;
+		panelId = id;
+		model = importWizardModel;
 	}
 
 	@Override
@@ -70,7 +69,6 @@ public class GradeImportConfirmationStep extends Panel {
 		final List<Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
 
 		final Form<?> form = new Form("form") {
-			private static final long serialVersionUID = 1L;
 
 			boolean errors = false;
 
@@ -107,10 +105,10 @@ public class GradeImportConfirmationStep extends Panel {
 				itemsToModify.forEach(item -> {
 
 					final Double points = NumberUtils.toDouble(item.getItemPointValue());
-					final Assignment assignment = GradeImportConfirmationStep.this.businessService.getAssignment(item.getItemTitle());
+					final Assignment assignment = businessService.getAssignment(item.getItemTitle());
 					assignment.setPoints(points);
 
-					final boolean updated = GradeImportConfirmationStep.this.businessService.updateAssignment(assignment);
+					final boolean updated = businessService.updateAssignment(assignment);
 					if(!updated) {
 						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
                         this.errors = true;
@@ -122,18 +120,18 @@ public class GradeImportConfirmationStep extends Panel {
 				// add/update the data
 				if (!this.errors) {
 
-					final List<ProcessedGradeItem> itemsToSave = new ArrayList<ProcessedGradeItem>();
+					final List<ProcessedGradeItem> itemsToSave = new ArrayList<>();
 					itemsToSave.addAll(itemsToUpdate);
 					itemsToSave.addAll(itemsToCreate);
 					itemsToSave.addAll(itemsToModify);
 
 					itemsToSave.forEach(processedGradeItem -> {
-						log.debug("Processing item: " + processedGradeItem);
+						log.debug("Processing item: {}", processedGradeItem);
 
 						final List<ProcessedGradeItemDetail> processedGradeItemDetails = processedGradeItem.getProcessedGradeItemDetails();
 
 						processedGradeItemDetails.forEach(processedGradeItemDetail -> {
-							log.debug("Processing detail: " + processedGradeItemDetail);
+							log.debug("Processing detail: {}", processedGradeItemDetail);
 
 							//get data
 							// if its an update/modify, this will get the id
@@ -148,8 +146,8 @@ public class GradeImportConfirmationStep extends Panel {
 							}
 							//TODO if assignmentId is still null, there will be a problem
 
-							final GradeSaveResponse saveResponse = GradeImportConfirmationStep.this.businessService.saveGrade(assignmentId,
-									processedGradeItemDetail.getStudentUuid(),
+							final GradeSaveResponse saveResponse = businessService.saveGrade(assignmentId,
+									processedGradeItemDetail.getUser().getUserUuid(),
 									processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
 
 							// handle the response types
@@ -162,12 +160,12 @@ public class GradeImportConfirmationStep extends Panel {
 									break;
 								case NO_CHANGE:
 									// Try to save just the comments
-									final String currentComment = StringUtils.trimToNull(GradeImportConfirmationStep.this.businessService.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid()));
+									final String currentComment = StringUtils.trimToNull(businessService.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getUser().getUserUuid()));
 									final String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
 
 									if (!StringUtils.equals(currentComment, newComment)) {
-										final boolean success = GradeImportConfirmationStep.this.businessService.updateAssignmentGradeComment(assignmentId, processedGradeItemDetail.getStudentUuid(), newComment);
-										log.info("Saving comment: " + success + ", " + assignmentId + ", "+ processedGradeItemDetail.getStudentEid() + ", " + processedGradeItemDetail.getComment());
+										final boolean success = businessService.updateAssignmentGradeComment(assignmentId, processedGradeItemDetail.getUser().getUserUuid(), newComment);
+										log.info("Saving comment: {}, {}, {}, {}", success, assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getComment());
 										if (!success) {
 											getSession().error(new ResourceModel("importExport.error.comment").getObject());
 											this.errors = true;
@@ -186,7 +184,7 @@ public class GradeImportConfirmationStep extends Panel {
 									break;
 							}
 
-							log.info("Saving grade for assignment id: " +  assignmentId + ", student: " + processedGradeItemDetail.getStudentEid() + ", grade: " + processedGradeItemDetail.getGrade() + ", comment: " + processedGradeItemDetail.getComment() + ", status: " + saveResponse);
+							log.info("Saving grade for assignment id: {}, student: {}, grade: {}, comment: {}, status: {}", assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment(), saveResponse);
 						});
 					});
 				}
@@ -202,7 +200,6 @@ public class GradeImportConfirmationStep extends Panel {
 
 		// back button
 		final Button backButton = new Button("backbutton") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit() {
@@ -211,7 +208,7 @@ public class GradeImportConfirmationStep extends Panel {
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();
 
-				Component newPanel = null;
+				Component newPanel;
 				if (assignmentsToCreate.size() > 0) {
 					newPanel = new CreateGradeItemStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
 				} else {
@@ -231,7 +228,6 @@ public class GradeImportConfirmationStep extends Panel {
 		// render items to be updated
 		final boolean hasItemsToUpdate = !itemsToUpdate.isEmpty();
 		final WebMarkupContainer gradesUpdateContainer = new WebMarkupContainer("grades_update_container") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean isVisible() {
@@ -249,7 +245,6 @@ public class GradeImportConfirmationStep extends Panel {
 		// render items to be created
 		final boolean hasItemsToCreate = !itemsToCreate.isEmpty();
 		final WebMarkupContainer gradesCreateContainer = new WebMarkupContainer("grades_create_container") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean isVisible() {
@@ -267,7 +262,6 @@ public class GradeImportConfirmationStep extends Panel {
 		// render items to be created
 		final boolean hasItemsToModify = !itemsToModify.isEmpty();
 		final WebMarkupContainer gradesModifyContainer = new WebMarkupContainer("grades_modify_container") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean isVisible() {
@@ -292,7 +286,6 @@ public class GradeImportConfirmationStep extends Panel {
 	private ListView<ProcessedGradeItem> makeListView(final String markupId, final List<ProcessedGradeItem> itemList) {
 
 		final ListView<ProcessedGradeItem> rval = new ListView<ProcessedGradeItem>(markupId, itemList) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void populateItem(final ListItem<ProcessedGradeItem> item) {
@@ -310,7 +303,6 @@ public class GradeImportConfirmationStep extends Panel {
 				if (gradeItem.getType() == ProcessedGradeItem.Type.COMMENT && gradeItem.getCommentStatus().getStatusCode() != ProcessedGradeItemStatus.STATUS_NA) {
 
 					item.add(new Behavior() {
-						private static final long serialVersionUID = 1L;
 
 						@Override
 						public void afterRender(final Component component) {
@@ -324,5 +316,4 @@ public class GradeImportConfirmationStep extends Panel {
 
 		return rval;
 	}
-
 }

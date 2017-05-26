@@ -23,15 +23,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CreateGradeItemStep extends Panel {
 
-	private static final long serialVersionUID = 1L;
-
-	private final String panelId;
+    private final String panelId;
     private final IModel<ImportWizardModel> model;
+
+    PreviewImportedGradesPanel previewGradesPanel;
 
     public CreateGradeItemStep(final String id, final IModel<ImportWizardModel> importWizardModel) {
         super(id);
-        this.panelId = id;
-        this.model = importWizardModel;
+        panelId = id;
+        model = importWizardModel;
     }
 
     @Override
@@ -50,17 +50,15 @@ public class CreateGradeItemStep extends Panel {
         final Assignment assignment = new Assignment();
         assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
         if(StringUtils.isNotBlank(processedGradeItem.getItemPointValue())) {
-        	assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
+            assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
         }
 
         final Model<Assignment> assignmentModel = new Model<>(assignment);
 
         @SuppressWarnings("unchecked")
-		final
-		Form<Assignment> form = new Form("form", assignmentModel) {
-			private static final long serialVersionUID = 1L;
+        final Form<Assignment> form = new Form("form", assignmentModel) {
 
-			@Override
+            @Override
             protected void onSubmit() {
 
                 final Assignment a = (Assignment)getDefaultModel().getObject();
@@ -68,7 +66,7 @@ public class CreateGradeItemStep extends Panel {
                 //add to model
                 importWizardModel.getAssignmentsToCreate().add(a);
 
-                log.debug("Assignment: " + assignment);
+                log.debug("Assignment: {}", assignment);
 
                 // sync up the assignment data so we can present it for confirmation
                 processedGradeItem.setAssignmentTitle(a.getName());
@@ -76,7 +74,7 @@ public class CreateGradeItemStep extends Panel {
 
                 //Figure out if there are more steps
                 //If so, go to the next step (ie do it all over again)
-                Component newPanel = null;
+                Component newPanel;
                 if (step < importWizardModel.getTotalSteps()) {
                     importWizardModel.setStep(step+1);
                     newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
@@ -86,8 +84,8 @@ public class CreateGradeItemStep extends Panel {
                 }
 
                 // clear any previous errors
-				final ImportExportPage page = (ImportExportPage) getPage();
-				page.clearFeedback();
+                final ImportExportPage page = (ImportExportPage) getPage();
+                page.clearFeedback();
 
                 newPanel.setOutputMarkupId(true);
                 CreateGradeItemStep.this.replaceWith(newPanel);
@@ -97,16 +95,15 @@ public class CreateGradeItemStep extends Panel {
         add(form);
 
         final Button backButton = new Button("backbutton") {
-			private static final long serialVersionUID = 1L;
 
-			@Override
+            @Override
             public void onSubmit() {
 
-				// clear any previous errors
-				final ImportExportPage page = (ImportExportPage) getPage();
-				page.clearFeedback();
+                // clear any previous errors
+                final ImportExportPage page = (ImportExportPage) getPage();
+                page.clearFeedback();
 
-                Component newPanel = null;
+                Component newPanel;
                 if (step > 1) {
                     importWizardModel.setStep(step-1);
                     newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
@@ -126,5 +123,7 @@ public class CreateGradeItemStep extends Panel {
         form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
         form.add(new AddOrEditGradeItemPanelContent("subComponents", assignmentModel));
 
+        previewGradesPanel = new PreviewImportedGradesPanel("previewGradesPanel", model);
+        form.add(previewGradesPanel);
     }
 }

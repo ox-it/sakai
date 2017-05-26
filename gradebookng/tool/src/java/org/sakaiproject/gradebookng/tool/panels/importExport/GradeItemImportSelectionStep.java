@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -25,15 +27,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
- * Page to allow the user to select which items in the imported file ar to be imported
+ * Page to allow the user to select which items in the imported file are to be imported
  */
 @Slf4j
 public class GradeItemImportSelectionStep extends Panel {
@@ -47,10 +48,12 @@ public class GradeItemImportSelectionStep extends Panel {
 
 	private boolean naHidden = false;
 
+	GradeItemImportOmissionsPanel omissionsPanel;
+
 	public GradeItemImportSelectionStep(final String id, final IModel<ImportWizardModel> importWizardModel) {
 		super(id);
-		this.panelId = id;
-		this.model = importWizardModel;
+		panelId = id;
+		model = importWizardModel;
 	}
 
 	@Override
@@ -58,10 +61,13 @@ public class GradeItemImportSelectionStep extends Panel {
 		super.onInitialize();
 
 		// unpack model
-		final ImportWizardModel importWizardModel = this.model.getObject();
+		final ImportWizardModel importWizardModel = model.getObject();
 
 		// get the count of items that are selectable
-		GradeItemImportSelectionStep.this.selectableItems = importWizardModel.getProcessedGradeItems().stream().filter(item -> item.getStatus().getStatusCode() != ProcessedGradeItemStatus.STATUS_NA).collect(Collectors.toList()).size();
+		selectableItems = importWizardModel.getProcessedGradeItems().stream().filter(item -> item.getStatus().getStatusCode() != ProcessedGradeItemStatus.STATUS_NA).collect(Collectors.toList()).size();
+
+		omissionsPanel = new GradeItemImportOmissionsPanel("omissionsPanel", model);
+		add(omissionsPanel);
 
 		// label to show if all items are actually hidden
 		final Label allHiddenLabel = new Label("allHiddenLabel", new ResourceModel("importExport.selection.hideitemsallhidden")) {
@@ -69,7 +75,7 @@ public class GradeItemImportSelectionStep extends Panel {
 
 			@Override
 			public boolean isVisible() {
-				return GradeItemImportSelectionStep.this.naHidden && (GradeItemImportSelectionStep.this.selectableItems == 0);
+				return naHidden && selectableItems == 0;
 			}
 		};
 		allHiddenLabel.setOutputMarkupPlaceholderTag(true);
@@ -83,23 +89,23 @@ public class GradeItemImportSelectionStep extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 
 				// toggle button state
-				if(GradeItemImportSelectionStep.this.naHidden) {
+				if(naHidden) {
 					//toggling off
-					GradeItemImportSelectionStep.this.naHidden = false;
-					this.add(AttributeModifier.replace("class", "button"));
-					this.add(AttributeModifier.replace("aria-pressed", "false"));
+					naHidden = false;
+					add(AttributeModifier.replace("class", "button"));
+					add(AttributeModifier.replace("aria-pressed", "false"));
 				} else {
 					//toggling on
-					GradeItemImportSelectionStep.this.naHidden = true;
-					this.add(AttributeModifier.replace("class", "button on"));
-					this.add(AttributeModifier.replace("aria-pressed", "true"));
+					naHidden = true;
+					add(AttributeModifier.replace("class", "button on"));
+					add(AttributeModifier.replace("aria-pressed", "true"));
 				}
 				target.add(this);
 				target.add(allHiddenLabel);
 
 				// toggle elements
 				target.appendJavaScript("$('.no_changes').toggle();");
-				if(GradeItemImportSelectionStep.this.selectableItems == 0) {
+				if(selectableItems == 0) {
 					target.appendJavaScript("$('.selection_form').toggle();");
 					//TODO show a message
 				}
@@ -107,7 +113,7 @@ public class GradeItemImportSelectionStep extends Panel {
 		};
 		add(hideNoChanges);
 
-		final CheckGroup<ProcessedGradeItem> group = new CheckGroup<ProcessedGradeItem>("group", new ArrayList<ProcessedGradeItem>());
+		final CheckGroup<ProcessedGradeItem> group = new CheckGroup<>("group", new ArrayList<ProcessedGradeItem>());
 
 		final Form<?> form = new Form("form") {
 			private static final long serialVersionUID = 1L;
@@ -120,7 +126,7 @@ public class GradeItemImportSelectionStep extends Panel {
 				log.debug("Processed items: " + selectedGradeItems.size());
 
 				// this has an odd model so we need to have the validation in the onSubmit.
-				if (selectedGradeItems.size() == 0) {
+				if (selectedGradeItems.isEmpty()) {
 					validated = false;
 					error(getString("importExport.selection.noneselected"));
 				}
@@ -149,7 +155,7 @@ public class GradeItemImportSelectionStep extends Panel {
 					log.debug("Actual items to create: " + itemsToCreate.size());
 
 					// repaint panel
-					Component newPanel = null;
+					Component newPanel;
 					importWizardModel.setSelectedGradeItems(selectedGradeItems);
 					importWizardModel.setItemsToCreate(itemsToCreate);
 					importWizardModel.setItemsToUpdate(itemsToUpdate);
@@ -279,7 +285,7 @@ public class GradeItemImportSelectionStep extends Panel {
 	}
 
 	private List<ProcessedGradeItem> filterListByStatus(final List<ProcessedGradeItem> gradeList, final List<Integer> statuses) {
-		final List<ProcessedGradeItem> filteredList = new ArrayList<ProcessedGradeItem>();
+		final List<ProcessedGradeItem> filteredList = new ArrayList<>();
 		for (final ProcessedGradeItem gradeItem : gradeList) {
 			if (statuses.contains(gradeItem.getStatus().getStatusCode())) {
 				filteredList.add(gradeItem);

@@ -4,18 +4,17 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
  * Model object used for the import wizard panels
  */
 public class ImportWizardModel implements Serializable {
-
-	private static final long serialVersionUID = 1L;
 
 	/**
 	 * List of items that have been uploaded
@@ -71,6 +70,12 @@ public class ImportWizardModel implements Serializable {
 	 */
 	@Getter
 	@Setter
-	private List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
+	private List<Assignment> assignmentsToCreate = new ArrayList<>();
 
+	/**
+	 * The {@link UserIdentificationReport} generated during parsing of the raw import file
+	 */
+	@Getter
+	@Setter
+	private UserIdentificationReport report;
 }

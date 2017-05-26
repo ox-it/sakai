@@ -7,12 +7,12 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.sakaiproject.gradebookng.business.importExport.UserIdentifier;
+
 /**
  * Represents a row of the spreadsheet, contains a few fixed fields and then the map of cells
  */
 public class ImportedRow implements Serializable {
-
-	private static final long serialVersionUID = 1L;
 
 	@Getter
 	@Setter
@@ -27,10 +27,17 @@ public class ImportedRow implements Serializable {
 	private String studentName;
 
 	@Getter
+	private GbUser user;
+
+	@Getter
 	@Setter
 	private Map<String, ImportedCell> cellMap;
 
 	public ImportedRow() {
-		this.cellMap = new HashMap<String, ImportedCell>();
+		this.cellMap = new HashMap<>();
+	}
+
+	public void setUser(UserIdentifier identifier) {
+		user = identifier.getUser(studentEid);
 	}
 }
