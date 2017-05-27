@@ -206,6 +206,9 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         // A better way to fix it would be to allow resources to create full HTML pages.
         autoParagraph: false,
 
+        // Fix the smileys to a single location
+        smiley_path: "/library/editor/ckeditor/plugins/smiley/images/",
+
         toolbar_Basic:
         [
             ['Source', '-', 'Bold', 'Italic', 'Underline', '-', 'Link', 'Unlink', '-', 'NumberedList','BulletedList', 'Blockquote']
