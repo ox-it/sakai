@@ -1,3 +1,5 @@
+2017.05.30:
+	- [OWL-2856] backport KNL-1530
 2017.05.12:
 	- [OWL-2599] More modifications from the community contribution
 2017.05.09:
