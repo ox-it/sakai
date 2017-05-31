@@ -6,6 +6,7 @@
     
     	<category name="course" />
         <category name="project" />
+		<category name="submission" />
 
 		<configuration name="reset.button" value="false"/>
 

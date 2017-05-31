@@ -20,6 +20,7 @@ app:
    - ./krb5.conf:/opt/tomcat/sakai/krb5.conf
    - ./sakai-keytab:/opt/tomcat/sakai/sakai-keytab
    - ./jgroups-config.xml:/opt/tomcat/sakai/jgroups-config.xml
+   - ./toolOrder.xml:/opt/tomcat/sakai/toolOrder.xml
    # Yourkit stuff
    - ./libyjpagent.so:/opt/yjp/bin/linux-x86-64/libyjpagent.so
    - ./startup_with_yjp.sh:/opt/tomcat/bin/startup_with_yjp.sh
