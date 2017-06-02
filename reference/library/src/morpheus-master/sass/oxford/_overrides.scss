@@ -98,6 +98,11 @@
     }
 }
 
+/*  Make colour of top part of banner Oxford blue */
+.#{$namespace}mainHeader .#{$namespace}topHeader, .#{$namespace}mainHeader.is-maximized .#{$namespace}topHeader .siteNavWrap {
+    background: linear-gradient(to right, $header-gradient-a, $header-gradient-b, $header-gradient-c, $header-gradient-d);
+}
+
 /* Extra icon mappings specific to WL. */
 @if $skin-with-icons {
     /* This selector is required as some local tools don't start with 'icon-sakai-'. */
