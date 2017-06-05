@@ -39,7 +39,8 @@ public class UsernameIdentifier implements UserIdentifier, Serializable
         }
         else
         {
-            user = new GbUser( userEID, "" );
+            //user = new GbUser( userEID, "" );
+			user = GbUser.forDisplayOnly(userEID, "");
             report.addUnknownUser( userEID );
             log.debug( "User {} is unknown to this gradebook", userEID );
         }

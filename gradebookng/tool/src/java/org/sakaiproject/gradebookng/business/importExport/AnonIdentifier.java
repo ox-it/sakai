@@ -39,7 +39,7 @@ public class AnonIdentifier implements UserIdentifier, Serializable
         }
         else
         {
-            user = new GbUser( anonID, "" );
+            user = GbUser.forDisplayOnly(anonID, "" );
             report.addUnknownUser( anonID );
             log.debug( "User's anon ID {} is unknown to this gradebook", anonID );
         }

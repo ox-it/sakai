@@ -22,19 +22,24 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.table.columns.HandleColumn;
+import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNameColumn;
+import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNumberColumn;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
-public class GbHeadersToolbar<S> extends HeadersToolbar<S> {
+public class GbHeadersToolbar<S> extends GbBaseHeadersToolbar<S> {
 
 	private final IModel<Map<String, Object>> model;
 	
 	private static final String DH_SUFFIX = "-dh";
-	private static final String HANDLE_COL_CSS_CLASS_DH = GradebookPage.HANDLE_COL_CSS_CLASS + DH_SUFFIX;
-	private static final String STUDENT_COL_CSS_CLASS_DH = GradebookPage.STUDENT_COL_CSS_CLASS + DH_SUFFIX;
-	private static final String STUDENT_NUM_COL_CSS_CLASS_DH = GradebookPage.STUDENT_NUM_COL_CSS_CLASS + DH_SUFFIX;
+	private static final String HANDLE_COL_CSS_CLASS_DH = HandleColumn.HANDLE_COL_CSS_CLASS + DH_SUFFIX;
+	private static final String STUDENT_COL_CSS_CLASS_DH = StudentNameColumn.STUDENT_COL_CSS_CLASS + DH_SUFFIX;
+	private static final String STUDENT_NUM_COL_CSS_CLASS_DH = StudentNumberColumn.STUDENT_NUM_COL_CSS_CLASS + DH_SUFFIX;
 	private static final String COURSE_GRADE_COL_CSS_CLASS_DH = GradebookPage.COURSE_GRADE_COL_CSS_CLASS + DH_SUFFIX;
 
 	public <T> GbHeadersToolbar(final DataTable<T, S> table, final ISortStateLocator stateLocator, final IModel<Map<String, Object>> model) {
@@ -46,7 +51,7 @@ public class GbHeadersToolbar<S> extends HeadersToolbar<S> {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final GradebookPage page = (GradebookPage) getPage();
+		final IGradesPage page = (IGradesPage) getPage();
 		final GradebookUiSettings settings = page.getUiSettings();
 
 		final Map<String, Object> modelData = this.model.getObject();
@@ -66,15 +71,15 @@ public class GbHeadersToolbar<S> extends HeadersToolbar<S> {
 				{
 					String colCss = StringUtils.trimToEmpty(((IStyledColumn) col).getCssClass());
 					String css = "";
-					if (GradebookPage.HANDLE_COL_CSS_CLASS.equals(colCss))
+					if (HandleColumn.HANDLE_COL_CSS_CLASS.equals(colCss))
 					{
 						css = HANDLE_COL_CSS_CLASS_DH;
 					}
-					else if (GradebookPage.STUDENT_COL_CSS_CLASS.equals(colCss))
+					else if (StudentNameColumn.STUDENT_COL_CSS_CLASS.equals(colCss))
 					{
 						css = STUDENT_COL_CSS_CLASS_DH;
 					}
-					else if (GradebookPage.STUDENT_NUM_COL_CSS_CLASS.equals(colCss))
+					else if (StudentNumberColumn.STUDENT_NUM_COL_CSS_CLASS.equals(colCss))
 					{
 						css = STUDENT_NUM_COL_CSS_CLASS_DH;
 					}
@@ -137,7 +142,7 @@ public class GbHeadersToolbar<S> extends HeadersToolbar<S> {
 					categoryItem.add(new AttributeModifier("style",
 							String.format("background-color: %s;", color)));
 					categoryItem.add(new Label("name", category.getName()));
-					categoryItem.add(page.buildFlagWithPopover("extraCreditCategoryFlag",
+					categoryItem.add(((BasePage) page).buildFlagWithPopover("extraCreditCategoryFlag",
 							getString("label.gradeitem.extracreditcategory")).setVisible(category.isExtraCredit()));
 
 					if (GbCategoryType.WEIGHTED_CATEGORY.equals(categoryType) && category.getWeight() != null) {

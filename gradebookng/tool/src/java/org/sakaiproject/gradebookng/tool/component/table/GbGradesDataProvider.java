@@ -7,7 +7,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import java.util.List;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 /**
  * OWLTODO: fix this lazy impl
@@ -16,13 +16,11 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 public class GbGradesDataProvider extends SortableDataProvider<GbStudentGradeInfo, String>
 {	
 	private List<GbStudentGradeInfo> list;
-	private GradebookNgBusinessService bus;
-	private GradebookPage page;
+	private final IGradesPage page;
 	
-	public GbGradesDataProvider(List<GbStudentGradeInfo> grades, GradebookNgBusinessService bus, GradebookPage page)
+	public GbGradesDataProvider(List<GbStudentGradeInfo> grades, IGradesPage page)
 	{
 		list = grades;
-		this.bus = bus;
 		this.page = page;
 	}
 	

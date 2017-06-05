@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -17,6 +18,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -26,8 +28,10 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.table.GbSakaiPagerContainer;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
@@ -39,9 +43,112 @@ import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
  *
  * @author plukasew
  */
-public class GbGradesDisplayToolbar extends Panel
+public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 {
-	private final SakaiDataTable table;
+	private Label liveGradingFeedback;
+	
+	public GbGradesDisplayToolbar(String id, final IModel<Map<String, Object>> model, SakaiDataTable table)
+	{
+		super(id, table);
+		this.setDefaultModel(model);
+	}
+	
+	@Override
+	protected void onInitialize()
+	{
+		super.onInitialize();
+		
+		GradebookPage page = (GradebookPage) getPage();
+		
+		Map<String, Object> model = (Map<String, Object>) getDefaultModelObject();
+		final List<Assignment> assignments = (List<Assignment>) model.get("assignments");
+		final List<CategoryDefinition> categories = (List<CategoryDefinition>) model.get("categories");
+		final boolean categoriesEnabled = (Boolean) model.get("categoriesEnabled");
+		
+		this.liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
+		this.liveGradingFeedback.setVisible(!assignments.isEmpty());
+		this.liveGradingFeedback.setOutputMarkupId(true);
+
+		// add the 'saving...' message to the DOM as the JavaScript will
+		// need to be the one that displays this message (Wicket will handle
+		// the 'saved' and 'error' messages when a grade is changed
+		this.liveGradingFeedback.add(new AttributeModifier("data-saving-message", getString("feedback.saving")));
+		addOrReplace(this.liveGradingFeedback);
+		
+		final Label gradeItemSummary = new Label("gradeItemSummary",
+				new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size() + categories.size(),
+						assignments.size() + categories.size()));
+		gradeItemSummary.setEscapeModelStrings(false);
+		add(gradeItemSummary);
+		
+		final GbAjaxButton addGradeItem = new GbAjaxButton("addGradeItem") {
+			@Override
+			public void onSubmit(final AjaxRequestTarget target, final Form form) {
+				final GbModalWindow window = page.getAddOrEditGradeItemWindow();
+				window.setTitle(getString("heading.addgradeitem"));
+				window.setComponentToReturnFocusTo(this);
+				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
+				window.show(target);
+			}
+
+			@Override
+			public boolean isVisible() {
+				if (page.getCurrentUserRole() != GbRole.INSTRUCTOR) {
+					return false;
+				}
+				return true;
+			}
+		};
+		addGradeItem.setDefaultFormProcessing(false);
+		addGradeItem.setOutputMarkupId(true);
+		add(addGradeItem);
+		
+		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
+		add(toggleGradeItemsToolbarItem);
+		
+		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
+			@Override
+			protected void onInitialize() {
+				super.onInitialize();
+				if (categoriesEnabled) {
+					add(new AttributeAppender("class", " on"));
+				}
+				add(new AttributeModifier("aria-pressed", categoriesEnabled));
+			}
+
+			@Override
+			public void onSubmit() {
+				GradebookUiSettings settings = page.getUiSettings();
+				settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
+				page.setUiSettings(settings);
+
+				// refresh
+				setResponsePage(GradebookPage.class);
+			}
+
+			@Override
+			public boolean isVisible() {
+				//return categoriesEnabled && !assignments.isEmpty();
+				return false;
+			}
+		};
+		add(toggleCategoriesToolbarItem);
+
+		// hide/show components
+
+		// no assignments, hide
+		if (assignments.isEmpty()) {
+			toggleGradeItemsToolbarItem.setVisible(false);
+		}
+	}
+	
+	public Component updateLiveGradingMessage(final String message) {
+		this.liveGradingFeedback.setDefaultModel(Model.of(message));
+
+		return this.liveGradingFeedback;
+	}
+	
+	/*private final SakaiDataTable table;
 	boolean showGroupFilter;
 	
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
@@ -202,5 +309,5 @@ public class GbGradesDisplayToolbar extends Panel
 		}
 		
 		add(new GbSakaiPagerContainer("gradebookPager", table));
-	}
+	}*/
 }

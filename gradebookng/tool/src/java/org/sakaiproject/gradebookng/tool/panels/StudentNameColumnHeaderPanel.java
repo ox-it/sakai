@@ -18,6 +18,7 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 /**
  *
@@ -44,7 +45,7 @@ public class StudentNameColumnHeaderPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
+		final IGradesPage gradebookPage = (IGradesPage) getPage();
 
 		// setup model
 		final GbStudentNameSortOrder sortType = this.model.getObject();
@@ -167,7 +168,7 @@ public class StudentNameColumnHeaderPanel extends Panel {
 				final GbStudentNameSortOrder newSort = currentSort.toggle();
 
 				// set the sort
-				final GradebookPage gradebookPage = (GradebookPage) getPage();
+				final IGradesPage gradebookPage = (IGradesPage) getPage();
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 				settings.setNameSortOrder(newSort);
 

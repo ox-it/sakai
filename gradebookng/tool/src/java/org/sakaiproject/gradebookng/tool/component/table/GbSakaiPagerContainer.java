@@ -1,13 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.sakaiproject.gradebookng.tool.component.table;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 
 
@@ -28,7 +23,7 @@ public class GbSakaiPagerContainer extends Panel
 			protected void onAjaxEvent(AjaxRequestTarget target)
 			{
 				super.onAjaxEvent(target);
-				GradebookPage page = (GradebookPage) getPage();
+				IGradesPage page = (IGradesPage) getPage();
 				page.redrawSpreadsheet(target);
 			}
 		});

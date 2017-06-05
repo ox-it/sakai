@@ -23,6 +23,7 @@ public class CourseGradeFormatter {
 	private final boolean isCourseGradeVisible;
 	private final boolean showPoints;
 	private final boolean showOverride;
+	private final boolean showLetterGrade;
 
 	/**
 	 * Constructor to initialise the data
@@ -34,18 +35,21 @@ public class CourseGradeFormatter {
 	 * @param isCourseGradeVisible if the course grade is visible to the user
 	 * @param showPoints if we are to show points
 	 * @param showOverride if we are to show the override
+	 * @param showLetterGrade if we are to show the letter grade
 	 * @return
 	 */
 	public CourseGradeFormatter(final Gradebook gradebook, final GbRole currentUserRole,
 			final boolean isCourseGradeVisible,
 			final boolean showPoints,
-			final boolean showOverride) {
+			final boolean showOverride,
+			final boolean showLetterGrade) {
 
 		this.gradebook = gradebook;
 		this.currentUserRole = currentUserRole;
 		this.isCourseGradeVisible = isCourseGradeVisible;
 		this.showPoints = showPoints;
 		this.showOverride = showOverride;
+		this.showLetterGrade = showLetterGrade;
 	}
 
 	/**
@@ -103,7 +107,34 @@ public class CourseGradeFormatter {
 		final List<String> parts = new ArrayList<>();
 
 		// letter grade
-		String letterGrade = null;
+		String letter = getLetterGrade(courseGrade);
+		if (!letter.isEmpty())
+		{
+			parts.add(letter);
+		}
+
+		// percentage
+		buildPercentage(courseGrade, parts);
+
+		// requested points
+		buildPoints(courseGrade, parts);
+
+		// if parts is empty, there are no grades, display a -
+		if (parts.isEmpty()) {
+			parts.add(MessageHelper.getString("coursegrade.display.none"));
+		}
+
+		return String.join(" ", parts);
+	}
+	
+	public String getLetterGrade(final CourseGrade courseGrade)
+	{
+		if (!showLetterGrade)
+		{
+			return "";
+		}
+		
+		String letterGrade;
 		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
 			letterGrade = courseGrade.getEnteredGrade();
 		} else {
@@ -112,10 +143,14 @@ public class CourseGradeFormatter {
 
 		if (StringUtils.isNotBlank(letterGrade)
 				&& (this.gradebook.isCourseLetterGradeDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {
-			parts.add(letterGrade);
+			return letterGrade;
 		}
-
-		// percentage
+		
+		return "";
+	}
+	
+	private void buildPercentage(final CourseGrade courseGrade, List<String> parts)
+	{
 		final String calculatedGrade;
 		if (this.showOverride && StringUtils.isNotBlank(courseGrade.getEnteredGrade())) {
 
@@ -132,17 +167,15 @@ public class CourseGradeFormatter {
 		}
 
 		if (StringUtils.isNotBlank(calculatedGrade)
-				&& (this.gradebook.isCourseAverageDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR)) {
-			if (parts.isEmpty()) {
-				parts.add(new StringResourceModel("coursegrade.display.percentage-first", null,
-						new Object[] { calculatedGrade }).getString());
-			} else {
-				parts.add(new StringResourceModel("coursegrade.display.percentage-second", null,
-						new Object[] { calculatedGrade }).getString());
-			}
+				&& (this.gradebook.isCourseAverageDisplayed() || this.currentUserRole == GbRole.INSTRUCTOR))
+		{
+			String key = parts.isEmpty() ? "coursegrade.display.percentage-first" : "coursegrade.display.percentage-second";
+			parts.add(new StringResourceModel(key, null, new Object[] { calculatedGrade }).getString());
 		}
-
-		// requested points
+	}
+	
+	private void buildPoints(final CourseGrade courseGrade, List<String> parts)
+	{
 		if (this.showPoints) {
 
 			// don't display points for weighted category type
@@ -161,23 +194,34 @@ public class CourseGradeFormatter {
 				// if instructor, show the points if requested
 				// otherwise check the settings
 				if (this.currentUserRole == GbRole.INSTRUCTOR || this.gradebook.isCoursePointsDisplayed()) {
-					if(pointsEarned != null && totalPointsPossible != null) {
-						if (parts.isEmpty()) {
-							parts.add(MessageHelper.getString("coursegrade.display.points-first", pointsEarned, totalPointsPossible));
-						} else {
-							parts.add(MessageHelper.getString("coursegrade.display.points-second", pointsEarned, totalPointsPossible));
-						}
+					if(pointsEarned != null && totalPointsPossible != null)
+					{
+						String key = parts.isEmpty() ? "coursegrade.display.points-first" : "coursegrade.display.points-second";
+						parts.add(MessageHelper.getString(key, pointsEarned, totalPointsPossible));
 					}
 				}
 			}
 		}
-
-		// if parts is empty, there are no grades, display a -
-		if (parts.isEmpty()) {
-			parts.add(MessageHelper.getString("coursegrade.display.none"));
-		}
-
-		return String.join(" ", parts);
+	}
+	
+	/**
+	 * Formats the course grade for display without the letter grade portion. Assumes user is instructor role.
+	 * @param courseGrade
+	 * @return
+	 */
+	public GbEditableCourseGradeDisplay formatForEditing(final CourseGrade courseGrade)
+	{	
+		GbEditableCourseGradeDisplay display = new GbEditableCourseGradeDisplay();
+		display.letterGrade = getLetterGrade(courseGrade);
+		display.percentageAndPoints = build(courseGrade).replaceFirst(display.letterGrade, "").trim();
+		
+		return display;
+	}
+	
+	public class GbEditableCourseGradeDisplay
+	{
+		public String letterGrade;
+		public String percentageAndPoints;
 	}
 
 }

@@ -151,7 +151,9 @@ public class UpdateUngradedItemsPanel extends Panel {
 		form.add(hiddenGradePoints);
 
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
-		groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL, null));
+
+		//groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
+		groups.add(0, GbGroup.all(getString("groups.all")));
 
 		if (this.businessService.getUserRole() == GbRole.TA) {
 			boolean categoriesEnabled = this.businessService.categoriesAreEnabled();

@@ -95,6 +95,8 @@ import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureExcep
 
 // OWL anonymous grading imports  --plukasew
 import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
+import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeApproval;
+import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmission;
 
 /**
  * A Hibernate implementation of GradebookService.
@@ -3539,7 +3541,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		List<GradeMappingDefinition> rval = new ArrayList<>();
 		
 		for(GradeMapping mapping: gradeMappings) {
-			rval.add(new GradeMappingDefinition(mapping.getId(), mapping.getName(), mapping.getGradeMap(), mapping.getDefaultBottomPercents()));
+			rval.add(new GradeMappingDefinition(mapping.getId(), mapping.getName(), new ArrayList<>(mapping.getGrades()),
+					mapping.getGradeMap(), mapping.getDefaultBottomPercents()));
 		}
 		return rval;
 		
@@ -4027,5 +4030,173 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	/** End OWL anonymous grading methods */
+	
+	/************************* Begin Course Grade Submission methods  --plukasew *****************************/
+    @Override    
+	public List<OwlGradeSubmission> getAllCourseGradeSubmissionsForSectionInSite(final String sectionEid, final String siteId) throws IllegalArgumentException
+	{
+		if (siteId == null || siteId.trim().isEmpty())
+		{
+			throw new IllegalArgumentException("siteId cannot be null or blank");
+		}
+		if (sectionEid == null || sectionEid.trim().isEmpty())
+		{
+			throw new IllegalArgumentException("sectionEid cannot be null or blank");
+		}
+
+		HibernateCallback hc = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session) throws HibernateException
+			{
+				List<OwlGradeSubmission> results = new ArrayList<OwlGradeSubmission>();
+				String sid = siteId.trim();
+				String eid = sectionEid.trim();
+				String queryString = "FROM OwlGradeSubmission WHERE siteId = ? AND sectionEid = ? ORDER BY submissionDate DESC";
+				Query query = session.createQuery(queryString);
+				query.setString(0, sid);
+				query.setString(1, eid);
+				List<OwlGradeSubmission> submissions = query.list();
+
+				for (OwlGradeSubmission sub : submissions)
+				{
+					int gradeCount = sub.getGradeData().size(); // this is really just here to prefetch the grade data while the Hibernate session is still open
+					if (gradeCount > 0)
+					{
+						results.add(sub);
+						// also prefetch any previous submission and/or approval
+						if (sub.hasPrevSubmission())
+						{
+							sub.getPrevSubmission().getStatusCode();
+						}
+						if (sub.hasApproval())
+						{
+							sub.getApproval().getUploadedToRegistrar();
+						}
+					}
+
+				}
+
+				return results;
+			}
+		};
+
+		return (List<OwlGradeSubmission>) getHibernateTemplate().execute(hc);
+	}
+
+	@Override
+	public OwlGradeSubmission getMostRecentCourseGradeSubmissionForSectionInSite(final String sectionEid, final String siteId) throws IllegalArgumentException
+	{
+		OwlGradeSubmission mostRecent = null;
+		List<OwlGradeSubmission> results = getAllCourseGradeSubmissionsForSectionInSite(sectionEid, siteId);
+		if (!results.isEmpty())
+		{
+			mostRecent = results.get(0); // results is already sorted by date in descending order
+		}
+
+		return mostRecent;
+	}
+
+	// OWL-1228  --plukasew
+	@Override
+	public boolean isSectionInSiteApproved(final String sectionEid, final String siteId) throws IllegalArgumentException
+	{
+		OwlGradeSubmission mostRecent = getMostRecentCourseGradeSubmissionForSectionInSite(sectionEid, siteId);
+
+		return mostRecent != null && mostRecent.hasApproval();
+	}
+
+	@Override
+	public boolean areAllSectionsInSiteApproved(final Set<String> sectionEids, final String siteId) throws IllegalArgumentException
+	{
+		if (sectionEids == null || sectionEids.isEmpty())
+		{
+			return false;
+		}
+
+		for (String eid : sectionEids)
+		{
+			if (!isSectionInSiteApproved(eid, siteId))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public Long createSubmission(final OwlGradeSubmission sub) throws IllegalArgumentException
+	{
+		if (sub == null || sub.getStatusCode() == OwlGradeSubmission.UNDEFINED_STATUS)
+		{
+			throw new IllegalArgumentException("submission cannot be null or a \"null\" object");
+		}
+
+		HibernateCallback hc = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session) throws HibernateException
+			{
+				return (Long) session.save(sub);
+			}
+		}; 
+
+		return (Long) getHibernateTemplate().execute(hc);
+
+	}
+
+	@Override
+	public void updateSubmission(final OwlGradeSubmission sub) throws IllegalArgumentException
+	{
+		if (sub == null || sub.getStatusCode() == OwlGradeSubmission.UNDEFINED_STATUS)
+		{
+			throw new IllegalArgumentException("submission cannot be null or a \"null\" object");
+		}
+
+		HibernateCallback hc = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session) throws HibernateException
+			{
+				session.update(sub);
+
+				return null;
+			}
+		};
+
+		getHibernateTemplate().execute(hc);
+	}
+
+	@Override
+	public Long createApproval(final OwlGradeApproval approval) throws IllegalArgumentException
+	{
+		if (approval == null)
+		{
+			throw new IllegalArgumentException("approval cannot be null");
+		}
+
+		HibernateCallback hc = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session) throws HibernateException
+			{
+				return (Long) session.save(approval);
+			}
+		};
+
+		return (Long) getHibernateTemplate().execute(hc);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public boolean isOfficialRegistrarGradingSchemeInUse( final Long gradebookID )
+	{
+		if( gradebookID == null )
+			return false;
+
+		String mappingScaleUID = getGradebook( gradebookID ).getSelectedGradeMapping().getGradingScale().getUid();
+		return( mappingScaleUID != null && !"".equals( mappingScaleUID ) && GradebookFrameworkServiceImpl.OFFICIAL_REGISTRAR_SCALE_UID.equals( mappingScaleUID ) );
+	}
+
+	/* End Course Grade Submission methods  --plukasew */
 
 }

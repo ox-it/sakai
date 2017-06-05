@@ -1,8 +1,6 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -12,39 +10,27 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
-import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
-import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -57,14 +43,14 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbHeadersToolbar;
 import org.sakaiproject.gradebookng.tool.component.table.GbGradesDataProvider;
-import org.sakaiproject.gradebookng.tool.component.table.GbSakaiPagerContainer;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
+import org.sakaiproject.gradebookng.tool.component.table.columns.HandleColumn;
+import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNameColumn;
+import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNumberColumn;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
@@ -72,13 +58,9 @@ import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.GbGradesDisplayToolbar;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
-import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
-import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
-import org.sakaiproject.gradebookng.tool.panels.StudentNumberColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -89,7 +71,8 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class GradebookPage extends BasePage {
+public class GradebookPage extends BasePage implements IGradesPage
+{
 
 	private static final long serialVersionUID = 1L;
 
@@ -99,9 +82,6 @@ public class GradebookPage extends BasePage {
 	// doubles as a translation key
 	public static final String UNCATEGORISED = "gradebookpage.uncategorised";
 	
-	public static final String HANDLE_COL_CSS_CLASS = "gb-row-selector";
-	public static final String STUDENT_COL_CSS_CLASS = "gb-student-cell";
-	public static final String STUDENT_NUM_COL_CSS_CLASS = "gb-student-number-cell";
 	public static final String COURSE_GRADE_COL_CSS_CLASS = "gb-course-grade";
 
 	GbModalWindow addOrEditGradeItemWindow;
@@ -198,28 +178,6 @@ public class GradebookPage extends BasePage {
 		this.updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
 		this.form.add(this.updateCourseGradeDisplayWindow);
 
-		final GbAjaxButton addGradeItem = new GbAjaxButton("addGradeItem") {
-			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form form) {
-				final GbModalWindow window = getAddOrEditGradeItemWindow();
-				window.setTitle(getString("heading.addgradeitem"));
-				window.setComponentToReturnFocusTo(this);
-				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
-				window.show(target);
-			}
-
-			@Override
-			public boolean isVisible() {
-				if (GradebookPage.this.role != GbRole.INSTRUCTOR) {
-					return false;
-				}
-				return true;
-			}
-		};
-		addGradeItem.setDefaultFormProcessing(false);
-		addGradeItem.setOutputMarkupId(true);
-		this.form.add(addGradeItem);
-
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
 
@@ -287,10 +245,10 @@ public class GradebookPage extends BasePage {
 			table.setVisible(false);
 			noAssignments.setVisible(true);
 		}
-
-		// no visible students, show table, show message
-		// don't want two messages though, hence the else
-		else if (studentGradeMatrix.size() == 0) {
+		else if (studentGradeMatrix.size() == 0)
+		{
+			// no visible students, show table, show message
+			// don't want two messages though, hence the else
 			noStudents.setVisible(true);
 		}
 
@@ -346,97 +304,18 @@ public class GradebookPage extends BasePage {
 		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
 
 		// this could potentially be a sortable data provider
-		studentGradeMatrix = new GbGradesDataProvider(grades, businessService, this);
+		//final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
+		studentGradeMatrix = new GbGradesDataProvider(grades, this);
 		final List<IColumn> cols = new ArrayList<>();
 
-		// add an empty column that we can use as a handle for selecting the row
-		final AbstractColumn handleColumn = new AbstractColumn(new Model("")) {
+		cols.add(new HandleColumn());
 
-			@Override
-			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
-				cellItem.add(new EmptyPanel(componentId));
-			}
-
-			@Override
-			public String getCssClass() {
-				return HANDLE_COL_CSS_CLASS;
-			}
-		};
-		cols.add(handleColumn);
-
-		// student name column
-		final AbstractColumn studentNameColumn = new AbstractColumn(new Model("studentColumn")) {
-
-			@Override
-			public Component getHeader(final String componentId) {
-				return new StudentNameColumnHeaderPanel(componentId, Model.of(settings.getNameSortOrder()));
-			}
-
-			@Override
-			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
-				final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
-
-				final Map<String, Object> modelData = new HashMap<>();
-				modelData.put("userId", studentGradeInfo.getStudentUuid());
-				modelData.put("eid", studentGradeInfo.getStudentEid());
-				modelData.put("firstName", studentGradeInfo.getStudentFirstName());
-				modelData.put("lastName", studentGradeInfo.getStudentLastName());
-				modelData.put("displayName", studentGradeInfo.getStudentDisplayName());
-				modelData.put("nameSortOrder", settings.getNameSortOrder());
-
-				if (getUiSettings().isContextAnonymous())
-				{
-					cellItem.add(new Label(componentId, getAnonId(studentGradeInfo.getStudentEid())));
-				}
-				else
-				{
-					cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
-				}
-				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
-				cellItem.add(new AttributeModifier("abbr", studentGradeInfo.getStudentDisplayName()));
-				cellItem.add(new AttributeModifier("aria-label", studentGradeInfo.getStudentDisplayName()));
-
-				// TODO may need a subclass of Item that does the onComponentTag
-				// override and then tag.setName("th");
-			}
-
-			@Override
-			public String getCssClass() {
-				return STUDENT_COL_CSS_CLASS;
-			}
-		};
-		cols.add(studentNameColumn);
-
+		cols.add(new StudentNameColumn(this));
+		
 		// OWL student number column
 		if (!getUiSettings().isContextAnonymous() && businessService.isStudentNumberVisible())
 		{
-			final AbstractColumn studentNumberColumn = new AbstractColumn(new Model(""))
-			{
-				@Override
-				public Component getHeader(final String componentId)
-				{
-					return new StudentNumberColumnHeaderPanel(componentId);
-				}
-
-				@Override
-				public void populateItem(final Item cellItem, final String componentId, final IModel rowModel)
-				{
-					final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
-
-					final String studentNumber = StringUtils.defaultIfBlank(studentGradeInfo.getStudentNumber(), "-");
-
-					cellItem.add(new Label(componentId, studentNumber));
-					cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
-					cellItem.add(new AttributeModifier("abbr", studentNumber));
-					cellItem.add(new AttributeModifier("aria-label", studentNumber));
-				}
-
-				@Override
-				public String getCssClass() {
-					return STUDENT_NUM_COL_CSS_CLASS;
-				}
-			};
-			cols.add(studentNumberColumn);
+			cols.add(new StudentNumberColumn());
 		}
 
 		// OWLTODO: only if course grade anonymity matches isContextAnonymous
@@ -471,12 +350,13 @@ public class GradebookPage extends BasePage {
 				final Map<String, Object> modelData = new HashMap<>();
 				modelData.put("courseGradeDisplay", studentGradeInfo.getCourseGrade().getDisplayString());
 				modelData.put("hasCourseGradeOverride", studentGradeInfo.getCourseGrade().getCourseGrade().getEnteredGrade() != null);
-				modelData.put("studentUuid", studentGradeInfo.getStudentUuid());
+				modelData.put("studentUuid", studentGradeInfo.getStudent().getUserUuid());
 				modelData.put("currentUserUuid", GradebookPage.this.currentUserUuid);
 				modelData.put("currentUserRole", GradebookPage.this.role);
 				modelData.put("gradebook", gradebook);
 				modelData.put("showPoints", settings.getShowPoints());
 				modelData.put("showOverride", true);
+				modelData.put("showLetterGrade", gradebook.isCourseLetterGradeDisplayed());  // OWLTODO: this is always true?
 				modelData.put("courseGradeVisible", courseGradeVisible);
 
 				cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData)));
@@ -527,8 +407,8 @@ public class GradebookPage extends BasePage {
 					modelData.put("assignmentId", assignment.getId());
 					modelData.put("assignmentName", assignment.getName());
 					modelData.put("assignmentPoints", assignment.getPoints());
-					modelData.put("studentUuid", studentGrades.getStudentUuid());
-					modelData.put("studentName", studentGrades.getStudentDisplayName());
+					modelData.put("studentUuid", studentGrades.getStudent().getUserUuid());
+					modelData.put("studentName", studentGrades.getStudent().getDisplayName());
 					modelData.put("categoryId", assignment.getCategoryId());
 					modelData.put("isExternal", assignment.isExternallyMaintained());
 					modelData.put("externalAppName", assignment.getExternalAppName());
@@ -614,7 +494,7 @@ public class GradebookPage extends BasePage {
 
 						final Map<String, Object> modelData = new HashMap<>();
 						modelData.put("score", score);
-						modelData.put("studentUuid", studentGrades.getStudentUuid());
+						modelData.put("studentUuid", studentGrades.getStudent().getUserUuid());
 						modelData.put("categoryId", category.getId());
 
 						cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
@@ -701,6 +581,7 @@ public class GradebookPage extends BasePage {
 
 		this.form.addOrReplace(table);
 
+		// Populate the toolbar
 		toolbar = new GbGradesDisplayToolbar("toolbar", Model.ofMap(toolbarModelData), table);
 		toolbar.setVisible(hasAssignmentsAndGrades);
 		form.addOrReplace(toolbar);
@@ -714,6 +595,7 @@ public class GradebookPage extends BasePage {
 		addOrReplace(gradeItemsTogglePanelContainer);
 	}
 	
+	@Override
 	public List<GbStudentGradeInfo> refreshStudentGradeInfo()
 	{
 		// first get any settings data from the session
@@ -725,9 +607,6 @@ public class GradebookPage extends BasePage {
 			sortBy = SortType.SORT_BY_CATEGORY;
 			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
 		}
-
-		// get Gradebook to save additional calls later
-		final Gradebook gradebook = this.businessService.getGradebook();
 
 		// get list of assignments. this allows us to build the columns and then
 		// fetch the grades for each student for each assignment from
@@ -754,10 +633,12 @@ public class GradebookPage extends BasePage {
 		return this.addOrEditGradeItemWindow;
 	}
 
+	@Override
 	public GbModalWindow getStudentGradeSummaryWindow() {
 		return this.studentGradeSummaryWindow;
 	}
 
+	@Override
 	public GbModalWindow getUpdateUngradedItemsWindow() {
 		return this.updateUngradedItemsWindow;
 	}
@@ -778,6 +659,7 @@ public class GradebookPage extends BasePage {
 		return this.gradeStatisticsWindow;
 	}
 
+	@Override
 	public GbModalWindow getUpdateCourseGradeDisplayWindow() {
 		return this.updateCourseGradeDisplayWindow;
 	}
@@ -787,6 +669,7 @@ public class GradebookPage extends BasePage {
 	 *
 	 * TODO move this to a helper
 	 */
+	@Override
 	public GradebookUiSettings getUiSettings() {
 
 		GradebookUiSettings settings = (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
@@ -856,43 +739,6 @@ public class GradebookPage extends BasePage {
 	}
 
 	/**
-	 * Build a table row summary for the table
-	 */
-	/*private Label constructTableSummaryLabel(final String componentId, final DataTable table) {
-		return constructTableLabel(componentId, table, false);
-	}
-
-	/**
-	 * Build a table pagination summary for the table
-	 */
-	/*private Label constructTablePaginationLabel(final String componentId, final DataTable table) {
-		return constructTableLabel(componentId, table, true);
-	}
-
-	/**
-	 * Build a table summary for the table along the lines of if verbose: "Showing 1{from} to 100{to} of 153{of} students" else:
-	 * "Showing 100{to} students"
-	 */
-	/*private Label constructTableLabel(final String componentId, final DataTable table, final boolean verbose) {
-		final long of = table.getItemCount();
-		final long from = (of == 0 ? 0 : table.getCurrentPage() * table.getItemsPerPage() + 1);
-		final long to = (of == 0 ? 0 : Math.min(of, from + table.getItemsPerPage() - 1));
-
-		StringResourceModel labelText;
-
-		if (verbose) {
-			labelText = new StringResourceModel("label.toolbar.studentsummarypaginated", null, from, to, of);
-		} else {
-			labelText = new StringResourceModel("label.toolbar.studentsummary", null, to);
-		}
-
-		final Label label = new Label(componentId, labelText);
-		label.setEscapeModelStrings(false); // to allow embedded HTML
-
-		return label;
-	}*/
-
-	/**
 	 * Comparator class for sorting Assignments in their categorised ordering
 	 */
 	class CategorizedAssignmentComparator implements Comparator<Assignment> {
@@ -934,28 +780,15 @@ public class GradebookPage extends BasePage {
 	}
 
 	@Override
-	public void onBeforeRender() {
-		super.onBeforeRender();
-
-		// add simple feedback nofication to sit above the table
-		// which is reset every time the page renders
-		this.liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
-		this.liveGradingFeedback.setVisible(this.hasAssignmentsAndGrades);
-		this.liveGradingFeedback.setOutputMarkupId(true);
-
-		// add the 'saving...' message to the DOM as the JavaScript will
-		// need to be the one that displays this message (Wicket will handle
-		// the 'saved' and 'error' messages when a grade is changed
-		this.liveGradingFeedback.add(new AttributeModifier("data-saving-message", getString("feedback.saving")));
-		this.form.addOrReplace(this.liveGradingFeedback);
-	}
-
 	public Component updateLiveGradingMessage(final String message) {
-		this.liveGradingFeedback.setDefaultModel(Model.of(message));
+		/*this.liveGradingFeedback.setDefaultModel(Model.of(message));
 
-		return this.liveGradingFeedback;
+		return this.liveGradingFeedback;*/
+		
+		return toolbar.updateLiveGradingMessage(message);
 	}
 	
+	@Override
 	public void updatePageSize(int pageSize, AjaxRequestTarget target)
 	{
 		if (pageSize < 0)
@@ -970,6 +803,7 @@ public class GradebookPage extends BasePage {
 		redrawSpreadsheet(target);
 	}
 	
+	@Override
 	public void redrawSpreadsheet(AjaxRequestTarget target)
 	{
 		if (target != null)
@@ -986,6 +820,7 @@ public class GradebookPage extends BasePage {
 		}
 	}
 
+	@Override
 	public CachedCMProvider getCMProvider()
 	{
 		return cmProvider;
@@ -1004,5 +839,23 @@ public class GradebookPage extends BasePage {
 		GradebookUiSettings settings = getUiSettings();
 		GbGroup group = settings.getGroupFilter();
 		return group == null ? null : group.getProviderId();
+	}
+	
+	@Override
+	public String getCurrentUserUuid()
+	{
+		return currentUserUuid;
+	}
+	
+	@Override
+	public GbRole getCurrentUserRole()
+	{
+		return role;
+	}
+	
+	@Override
+	public Gradebook getGradebook()
+	{
+		return gradebook;
 	}
 }

@@ -38,5 +38,22 @@ public class GbCourseGrade implements Serializable {
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this);
 	}
+	
+	public boolean hasOverride()
+	{
+		return courseGrade.getEnteredGrade() != null;
+	}
+	
+	public Double getCalculatedGrade()
+	{
+		try
+		{
+			return Double.parseDouble(courseGrade.getCalculatedGrade());
+		}
+		catch (NullPointerException | NumberFormatException e)
+		{
+			return null;
+		}
+	}
 
 }

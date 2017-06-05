@@ -14,7 +14,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 /**
  *
@@ -53,7 +53,7 @@ public class StudentNameCellPanel extends Panel {
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
 
-				final GradebookPage gradebookPage = (GradebookPage) getPage();
+				final IGradesPage gradebookPage = (IGradesPage) getPage();
 				final GbModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 

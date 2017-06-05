@@ -23,6 +23,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -67,7 +68,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		final Map<String, Object> modelData = (Map<String, Object>) getDefaultModelObject();
 		final String userId = (String) modelData.get("userId");
 
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
+		final IGradesPage gradebookPage = (IGradesPage) getPage();
 
 		// build the grade matrix for the user
 		final Gradebook gradebook = this.businessService.getGradebook();
@@ -79,7 +80,8 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 				GbRole.INSTRUCTOR,
 				true,
 				gradebook.isCoursePointsDisplayed(),
-				true);
+				true,
+				true);  // OWLTODO: test and configure this properly
 
 		// TODO catch if this is null, the get(0) will throw an exception
 		// TODO also catch the GbException

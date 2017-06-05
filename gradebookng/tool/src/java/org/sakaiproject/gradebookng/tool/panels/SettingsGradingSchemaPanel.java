@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -36,6 +37,8 @@ import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdateListener {
 
 	private static final long serialVersionUID = 1L;
+	
+	public static final double UNMAPPED = Double.NaN;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -45,6 +48,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 	WebMarkupContainer schemaWrap;
 	ListView<GbGradingSchemaEntry> schemaView;
 	List<GradeMappingDefinition> gradeMappings;
+	Map<String, GradeMappingDefinition> lookupMap = new LinkedHashMap<>();
 	private boolean expanded;
 
 	/**
@@ -69,6 +73,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 
 		// get all mappings available for this gradebook
 		this.gradeMappings = this.model.getObject().getGradebookInformation().getGradeMappings();
+		lookupMap = gradeMappings.stream().collect(Collectors.toMap(gm -> gm.getId(), gm -> gm));
 
 		// get current one
 		this.configuredGradeMappingId = this.model.getObject().getGradebookInformation().getSelectedGradeMappingId();
@@ -77,7 +82,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 		this.currentGradeMappingId = this.configuredGradeMappingId;
 
 		// setup the grading scale schema entries
-		this.model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
+		this.model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries2());
 
 		// create map of grading scales to use for the dropdown
 		final Map<String, String> gradeMappingMap = new LinkedHashMap<>();
@@ -107,9 +112,9 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 		add(settingsGradingSchemaPanel);
 
 		// grading scale type chooser
-		final List<String> gradingSchemaList = new ArrayList<String>(gradeMappingMap.keySet());
-		final DropDownChoice<String> typeChooser = new DropDownChoice<String>("type",
-				new PropertyModel<String>(this.model, "gradebookInformation.selectedGradeMappingId"), gradingSchemaList,
+		final List<String> gradingSchemaList = new ArrayList<>(gradeMappingMap.keySet());
+		final DropDownChoice<String> typeChooser = new DropDownChoice<>("type",
+				new PropertyModel<>(this.model, "gradebookInformation.selectedGradeMappingId"), gradingSchemaList,
 				new ChoiceRenderer<String>() {
 					private static final long serialVersionUID = 1L;
 
@@ -130,7 +135,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 		// render the grading schema table
 		this.schemaWrap = new WebMarkupContainer("schemaWrap");
 		this.schemaView = new ListView<GbGradingSchemaEntry>("schemaView",
-				new PropertyModel<List<GbGradingSchemaEntry>>(this.model, "gradingSchemaEntries")) {
+				new PropertyModel<>(this.model, "gradingSchemaEntries")) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -140,15 +145,22 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 				final GbGradingSchemaEntry entry = item.getModelObject();
 
 				// grade
-				final Label grade = new Label("grade", new PropertyModel<String>(entry, "grade"));
+				final Label grade = new Label("grade", new PropertyModel<>(entry, "grade"));
 				item.add(grade);
 
 				// minpercent
-				final TextField<Double> minPercent = new TextField<Double>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
+				final TextField<Double> minPercent = new TextField<>("minPercent", new PropertyModel<>(entry, "minPercent"));
 
 				// if grade is F or NP, set disabled
-				if (ArrayUtils.contains(new String[] { "F", "NP" }, entry.getGrade())) {
+				if (ArrayUtils.contains(new String[] { "F", "NP" }, entry.getGrade()))
+				{
 					minPercent.setEnabled(false);
+				}
+				if (entry.getMinPercent().equals(UNMAPPED))
+				{
+					// unmapped, uneditable grade. Disable and do not present.
+					minPercent.setEnabled(false);
+					minPercent.setVisible(false);
 				}
 
 				item.add(minPercent);
@@ -169,7 +181,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 				SettingsGradingSchemaPanel.this.currentGradeMappingId = (String) typeChooser.getDefaultModelObject();
 
 				// refresh data
-				SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries());
+				SettingsGradingSchemaPanel.this.model.getObject().setGradingSchemaEntries(setupGradingSchemaEntries2());
 
 				// repaint
 				target.add(SettingsGradingSchemaPanel.this.schemaWrap);
@@ -197,7 +209,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 
 		return rval;
 	}
-
+	
 	/**
 	 * Sync up the custom list we are using for the list view, back into the GrdebookInformation object
 	 */
@@ -208,7 +220,10 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 
 		final Map<String, Double> bottomPercents = new HashMap<>();
 		for (final GbGradingSchemaEntry schemaEntry : schemaEntries) {
-			bottomPercents.put(schemaEntry.getGrade(), schemaEntry.getMinPercent());
+			if (!schemaEntry.getMinPercent().equals(UNMAPPED))
+			{
+				bottomPercents.put(schemaEntry.getGrade(), schemaEntry.getMinPercent());
+			}
 		}
 
 		this.model.getObject().getGradebookInformation().setSelectedGradingScaleBottomPercents(bottomPercents);
@@ -225,7 +240,7 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 
 		// get configured values or defaults
 		// need to retain insertion order
-		Map<String, Double> bottomPercents = new LinkedHashMap<>();
+		Map<String, Double> bottomPercents;
 
 		// note that we sort based on name so we need to pull the right name out of the list of mappings, for both cases
 		final String gradingSchemaName = this.gradeMappings.stream()
@@ -255,6 +270,34 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 		}
 
 		return rval;
+	}
+	
+	private List<GbGradingSchemaEntry> setupGradingSchemaEntries2()
+	{
+		GradeMappingDefinition currentDef = lookupMap.get(currentGradeMappingId);
+		Map<String, Double> currentMappings = currentDef.getGradeMap();
+		List<String> currentUnmapped = currentDef.getUnmappedGrades();
+		final List<GbGradingSchemaEntry> finalEntries = new ArrayList<>(currentUnmapped.size());
+		for (String unmapped : currentUnmapped)
+		{
+			finalEntries.add(new GbGradingSchemaEntry(unmapped, UNMAPPED));
+		}
+		// OWL NOTE: we don't sort finalEntries (the unmapped grades, aka. special grade codes)
+		// to preserve the original order and grouping we have in pre-11 OWL
+		// OWLTODO: when contributing, it may be better to just throw everything in the finalEntries list
+		// and let MinPercentComparator sort it all out.
+		
+		// convert map into list of objects which is easier to work with in the views
+		final List<GbGradingSchemaEntry> entries = new ArrayList<>();
+		for (final Map.Entry<String, Double> entry : currentMappings.entrySet()) {
+			entries.add(new GbGradingSchemaEntry(entry.getKey(), entry.getValue()));
+		}
+		
+		Collections.sort(entries, new MinPercentComparator());
+		
+		finalEntries.addAll(entries);
+		
+		return finalEntries;
 	}
 
 	public boolean isExpanded() {
@@ -298,5 +341,32 @@ class LetterGradeComparator implements Comparator<String>, Serializable {
 		} else {
 			return o1.toLowerCase().compareTo(o2.toLowerCase());
 		}
+	}
+}
+
+/**
+ * Sorted entries by min percent in descending order. If min percents are equal, sorts by letter grade in ascending
+ * order using the LetterGradeComparator
+ * @author plukasew
+ */
+class MinPercentComparator implements Comparator<GbGradingSchemaEntry>, Serializable
+{
+	private LetterGradeComparator lgc;
+	
+	public MinPercentComparator()
+	{
+		lgc = new LetterGradeComparator();
+	}
+	
+	@Override
+	public int compare(final GbGradingSchemaEntry e1, final GbGradingSchemaEntry e2)
+	{
+		int comp = e1.getMinPercent().compareTo(e2.getMinPercent());
+		if (comp != 0)
+		{
+			return comp * -1;
+		}
+		
+		return lgc.compare(e1.getGrade(), e2.getGrade());
 	}
 }

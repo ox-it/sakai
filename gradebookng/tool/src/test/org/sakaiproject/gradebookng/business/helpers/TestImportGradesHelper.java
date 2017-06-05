@@ -233,8 +233,8 @@ public class TestImportGradesHelper {
 	private List<GbStudentGradeInfo> mockExistingStudentGrades() {
 		final List<GbStudentGradeInfo> grades = new ArrayList<>();
 
-		final User user1 = Mockito.mock(User.class);
-		Mockito.when(user1.getId()).thenReturn("user1");
+		final GbUser user1 = Mockito.mock(GbUser.class);
+		Mockito.when(user1.getUserUuid()).thenReturn("user1");
 		Mockito.when(user1.getEid()).thenReturn("user1");
 		final GbStudentGradeInfo studentGradeInfo1 = new GbStudentGradeInfo(user1);
 		final GradeDefinition gradeDefinition1 = new GradeDefinition();
@@ -250,8 +250,8 @@ public class TestImportGradesHelper {
 		studentGradeInfo2.addGrade(2L, new GbGradeInfo(gradeDefinition2));
 		grades.add(studentGradeInfo2);
 
-		final User user2 = Mockito.mock(User.class);
-		Mockito.when(user2.getId()).thenReturn("user2");
+		final GbUser user2 = Mockito.mock(GbUser.class);
+		Mockito.when(user2.getUserUuid()).thenReturn("user2");
 		Mockito.when(user2.getEid()).thenReturn("user2");
 		final GbStudentGradeInfo studentGradeInfo3 = new GbStudentGradeInfo(user2);
 		final GradeDefinition gradeDefinition3 = new GradeDefinition();

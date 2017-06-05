@@ -39,7 +39,7 @@ public class StudentNumberIdentifier implements UserIdentifier, Serializable
         }
         else
         {
-            user = new GbUser( studentNumber, "" );
+            user = GbUser.forDisplayOnly( studentNumber, "" );
             report.addUnknownUser( studentNumber );
             log.debug( "User's student # {} is unknown to this gradebook", studentNumber );
         }

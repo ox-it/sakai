@@ -9,7 +9,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -22,7 +21,8 @@ import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.BasePage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 public class CourseGradeColumnHeaderPanel extends Panel {
@@ -43,15 +43,15 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
+		final IGradesPage gradebookPage = (IGradesPage) getPage();
 
 		getParentCellFor(this).setOutputMarkupId(true);
 
-		final Link<String> title = new Link<String>("title") {
+		final GbAjaxLink<String> title = new GbAjaxLink<String>("title") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onClick() {
+			public void onClick(AjaxRequestTarget target) {
 
 				// toggle the sort direction on each click
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -68,7 +68,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
 			}
 
 		};
@@ -94,11 +94,12 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		final Map<String, Object> popoverModel = new HashMap<>();
 		popoverModel.put("role", role);
 		popoverModel.put("flag", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_RELEASED);
-		add(gradebookPage.buildFlagWithPopover("isReleasedFlag",
+		final BasePage bp = (BasePage) gradebookPage;
+		add(bp.buildFlagWithPopover("isReleasedFlag",
 				new HeaderFlagPopoverPanel("popover", Model.ofMap(popoverModel)).toPopoverString())
 				.setVisible(gradebook.isCourseGradeDisplayed()));
 		popoverModel.put("flag", HeaderFlagPopoverPanel.Flag.COURSE_GRADE_NOT_RELEASED);
-		add(gradebookPage.buildFlagWithPopover("notReleasedFlag",
+		add(bp.buildFlagWithPopover("notReleasedFlag",
 				new HeaderFlagPopoverPanel("popover", Model.ofMap(popoverModel)).toPopoverString())
 				.setVisible(!gradebook.isCourseGradeDisplayed()));
 
@@ -145,7 +146,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
 			}
 
 			@Override

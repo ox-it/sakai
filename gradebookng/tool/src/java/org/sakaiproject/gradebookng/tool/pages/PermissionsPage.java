@@ -98,7 +98,8 @@ public class PermissionsPage extends BasePage {
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
 
 		// add the default 'all' group
-		groups.add(0, new GbGroup(this.ALL_GROUPS, getString("groups.all"), this.ALL_GROUPS, GbGroup.Type.ALL, null));
+		//groups.add(0, new GbGroup(this.ALL_GROUPS, getString("groups.all"), this.ALL_GROUPS, GbGroup.Type.ALL));
+		groups.add(0, GbGroup.all(getString("groups.all")));
 
 		final Map<String, String> groupMap = new LinkedHashMap<>();
 		for (final GbGroup group : groups) {

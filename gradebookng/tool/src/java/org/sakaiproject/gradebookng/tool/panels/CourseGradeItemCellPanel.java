@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -15,11 +16,12 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
@@ -66,16 +68,17 @@ public class CourseGradeItemCellPanel extends Panel {
 		final boolean courseGradeVisible = (boolean) modelData.get("courseGradeVisible");
 		final boolean showPoints = (boolean) modelData.get("showPoints");
 		final boolean showOverride = (boolean) modelData.get("showOverride");
+		final boolean showLetterGrade = (boolean) modelData.get("showLetterGrade");
 
 		final boolean hasCourseGradeOverride = (boolean) modelData.get("hasCourseGradeOverride");
 
-		if (hasCourseGradeOverride) {
-			getParentCellFor(this).add(new AttributeAppender("class", " gb-cg-override"));
+		if (showOverride && hasCourseGradeOverride) {
+			getParentCellFor(this).add(new AttributeAppender("class", " gb-cg-override"));  // OWLTODO: constant
 		}
 
 		// the model map contains a lot of additional info we need for the course grade label, this is passed through
 
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
+		final IGradesPage gradebookPage = (IGradesPage) getPage();
 
 		// course grade label
 		final Label courseGradeLabel = new Label("courseGrade", Model.of(courseGradeDisplay)) {
@@ -91,13 +94,14 @@ public class CourseGradeItemCellPanel extends Panel {
 					if (StringUtils.equals(studentUuid, scoreChangedEvent.getStudentUuid())) {
 
 						final String newCourseGradeDisplay = refreshCourseGrade(studentUuid, gradebook, role, courseGradeVisible,
-								showPoints, showOverride);
+								showPoints, showOverride, showLetterGrade);
 
 						// if course grade has changed, then refresh it
 						if (!newCourseGradeDisplay.equals(getDefaultModelObject())) {
 							setDefaultModel(Model.of(newCourseGradeDisplay));
 
 							scoreChangedEvent.getTarget().add(this);
+							scoreChangedEvent.getTarget().add(getParentCellFor(this));
 							scoreChangedEvent.getTarget().appendJavaScript(
 								String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');", this.getMarkupId()));
 						}
@@ -174,16 +178,40 @@ public class CourseGradeItemCellPanel extends Panel {
 	 * @return
 	 */
 	private String refreshCourseGrade(final String studentUuid, final Gradebook gradebook, final GbRole role,
-			final boolean courseGradeVisible, final boolean showPoints, final boolean showOverride) {
+			final boolean courseGradeVisible, final boolean showPoints, final boolean showOverride, final boolean showLetterGrade) {
 
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				role,
 				courseGradeVisible,
 				showPoints,
-				showOverride);
+				showOverride,
+				showLetterGrade);
 
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
+		GbCourseGrade gbcg = new GbCourseGrade(courseGrade);
+		if (gbcg.hasOverride())
+		{
+			getParentCellFor(this).add(new AttributeModifier("class", "gb-cg-override")
+			{
+				@Override
+				protected String newValue(String currentValue, String value)
+				{
+					return currentValue.replaceAll(value, "") + " " + value;
+				}
+			});
+		}
+		else
+		{
+			getParentCellFor(this).add(new AttributeModifier("class", "gb-cg-override")
+			{
+				@Override
+				protected String newValue(String currentValue, String value)
+				{
+					return currentValue.replaceAll(value, "");
+				}
+			});
+		}
 
 		return courseGradeFormatter.format(courseGrade);
 	}

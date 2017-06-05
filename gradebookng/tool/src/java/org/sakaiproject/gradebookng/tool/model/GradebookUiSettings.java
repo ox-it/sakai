@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.model;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ public class GradebookUiSettings implements Serializable {
 	@Getter
 	private SortDirection studentSortOrder;
 	
-		/**
+	/**
 	 * The direction to sort the student number column
 	 */
 	@Getter
@@ -86,6 +87,13 @@ public class GradebookUiSettings implements Serializable {
 	 */
 	@Getter
 	private SortDirection courseGradeSortOrder;
+	
+	/**
+	 * For sorting based on OWL final grade column
+	 *
+	 */
+	@Getter
+	private SortDirection finalGradeSortOrder;
 
 	/**
 	 * For sorting based on anonymousId
@@ -146,14 +154,14 @@ public class GradebookUiSettings implements Serializable {
 		// defaults. Note there is no default for assignmentSortOrder as that
 		// requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
-		this.assignmentVisibility = new HashMap<Long, Boolean>();
-		this.categoryScoreVisibility = new HashMap<String, Boolean>();
+		this.assignmentVisibility = new HashMap<>();
+		this.categoryScoreVisibility = new HashMap<>();
 
 		// default sort order to student
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
 		this.studentSortOrder = SortDirection.ASCENDING;
 
-		this.categoryColors = new HashMap<String, String>();
+		this.categoryColors = new HashMap<>();
 		this.showPoints = false;
 		this.gradeSummaryGroupedByCategory = false;
 
@@ -161,6 +169,9 @@ public class GradebookUiSettings implements Serializable {
 		studentNumberFilter = "";
 		
 		gradesPageSize = DEFAULT_GRADES_PAGE_SIZE;
+		
+		anonAwareAssignmentIDsForContext = Collections.emptySet();
+		anonAwareCategoryIDsForContext = Collections.emptySet();
 	}
 
 	public boolean isAssignmentVisible(final Long assignmentId) {
@@ -226,6 +237,11 @@ public class GradebookUiSettings implements Serializable {
 		resetSortOrder();
 		this.courseGradeSortOrder = direction;
 	}
+	
+	public void setFinalGradeSortOrder(SortDirection direction) {
+		resetSortOrder();
+		this.finalGradeSortOrder = direction;
+	}
 
 	public void setCategorySortOrder(GbCategoryAverageSortOrder sortOrder) {
 		resetSortOrder();
@@ -261,6 +277,7 @@ public class GradebookUiSettings implements Serializable {
 		this.studentSortOrder = null;
 		this.studentNumberSortOrder = null;
 		this.anonIdSortOrder = null;
+		this.finalGradeSortOrder = null;
 	}
 	
 	public void setStudentFilter(String value)

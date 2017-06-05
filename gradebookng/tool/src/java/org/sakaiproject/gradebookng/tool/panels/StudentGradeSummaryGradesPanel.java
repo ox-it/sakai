@@ -78,7 +78,8 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 				GbRole.STUDENT,
 				gradebook.isCourseGradeDisplayed(),
 				gradebook.isCoursePointsDisplayed(),
-				true);
+				true,
+				true);  // OWLTODO: test and fix configuration
 
 		// build up table data
 		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);

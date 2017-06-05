@@ -233,12 +233,12 @@ public class ExportPanel extends Panel {
 
 			//add grades
 			grades.forEach(studentGradeInfo -> {
-				final List<String> line = new ArrayList<String>();
+				final List<String> line = new ArrayList<>();
 				if (!isCustomExport || this.includeStudentId) {
-					line.add(studentGradeInfo.getStudentEid());
+					line.add(studentGradeInfo.getStudent().getEid());
 				}
 				if (!isCustomExport ||this.includeStudentName) {
-					line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
+					line.add(studentGradeInfo.getStudent().getLastName() + ", " + studentGradeInfo.getStudent().getFirstName());
 				}
 				if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
 					assignments.forEach(assignment -> {

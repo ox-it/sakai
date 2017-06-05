@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
+import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeApproval;
+import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmission;
 
 /**
  * This is the externally exposed API of the gradebook application.
@@ -980,5 +982,26 @@ public interface GradebookService {
 	public int deleteAnonGradingIds(final Set<OwlAnonGradingID> gradingIds) throws IllegalArgumentException;
 
 	/* End Owl anonymous grading methods */
+	
+	/************************* Begin Course Grade Submission methods  --plukasew *****************************/
+	
+	public List<OwlGradeSubmission> getAllCourseGradeSubmissionsForSectionInSite(final String sectionEid, final String siteId) throws IllegalArgumentException;
+	
+	public OwlGradeSubmission getMostRecentCourseGradeSubmissionForSectionInSite(final String sectionEid, final String siteId) throws IllegalArgumentException;
+
+	// OWL-1228  --plukasew
+	public boolean isSectionInSiteApproved(final String sectionEid, final String siteId) throws IllegalArgumentException;
+
+	public boolean areAllSectionsInSiteApproved(final Set<String> sectionEids, final String siteId) throws IllegalArgumentException;
+
+	public Long createSubmission(final OwlGradeSubmission sub) throws IllegalArgumentException;
+
+	public void updateSubmission(final OwlGradeSubmission sub) throws IllegalArgumentException;
+
+	public Long createApproval(final OwlGradeApproval approval) throws IllegalArgumentException;
+
+	public boolean isOfficialRegistrarGradingSchemeInUse( final Long gradebookID );
+
+	/* End Course Grade Submission methods  --plukasew */
 
 }

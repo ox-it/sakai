@@ -19,6 +19,9 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 
 	@Getter
 	private final String userUuid;
+	
+	@Getter
+	private final String eid;
 
 	/**
 	 * If displaying an eid, this is the one to display
@@ -28,35 +31,51 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 
 	@Getter
 	private final String displayName;
-
+	
 	@Getter
-	private final String eid;
+	private final String firstName;
+	
+	@Getter
+	private final String lastName;
 
 	@Getter
 	private final String studentNumber;
-
-	public GbUser(final User u) {
-		this.userUuid = u.getId();
-		this.displayId = u.getDisplayId();
-		this.displayName = u.getDisplayName();
-		this.eid = u.getEid();
-		this.studentNumber = "";
+	
+	private GbUser()
+	{
+		this("", "", "", "", "", "", "");
 	}
 
-	public GbUser(final User u, GradebookNgBusinessService businessService) {
-		this.userUuid = u.getId();
-		this.displayId = u.getDisplayId();
-		this.displayName = u.getDisplayName();
-		this.eid = u.getEid();
-		this.studentNumber = businessService.getStudentNumber(u, businessService.getCurrentSite().orElse(null));
-	}
-
-	public GbUser(final String displayID, final String displayName) {
-		this.userUuid = "";
-		this.displayId = displayID;
+	private GbUser(String userUuid, String eid, String displayId, String displayName, String firstName, String lastName, String studentNumber)
+	{
+		this.userUuid = userUuid;
+		this.eid = eid;
+		this.displayId = displayId;
 		this.displayName = displayName;
-		this.eid = "";
-		this.studentNumber = "";
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.studentNumber = studentNumber;
+	}
+	
+	public static GbUser fromUser(final User u)
+	{
+		return fromUserWithStudentNumber(u, "");
+	}
+	
+	public static GbUser fromUserAcquiringStudentNumber(final User u, GradebookNgBusinessService businessService)
+	{
+		String num = businessService.getStudentNumber(u, businessService.getCurrentSite().orElse(null));
+		return fromUserWithStudentNumber(u, num);
+	}
+	
+	public static GbUser fromUserWithStudentNumber(final User u, final String studentNumber)
+	{
+		return new GbUser(u.getId(), u.getEid(), u.getDisplayId(), u.getDisplayName(), u.getFirstName(), u.getLastName(), "");
+	}
+	
+	public static GbUser forDisplayOnly(final String displayId, final String displayName)
+	{
+		return new GbUser("", "", displayId, displayName, "", "", "");
 	}
 
 	public boolean isValid() {
@@ -64,10 +83,15 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	}
 
 	@Override
-	public int compareTo(GbUser user) {
-		String str1 = displayId + " (" + displayName + ")";
-		String str2 = user.displayId + " (" + user.displayName + ")";
-		return str1.compareTo(str2);
+	public int compareTo(GbUser user)
+	{
+		int comp = displayId.compareToIgnoreCase(user.displayId);
+		if (comp == 0)
+		{
+			comp = displayName.compareToIgnoreCase(user.displayName);
+		}
+		
+		return comp;
 	}
 
 	@Override

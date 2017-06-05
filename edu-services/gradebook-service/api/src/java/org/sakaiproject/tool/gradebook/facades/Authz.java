@@ -24,6 +24,10 @@ package org.sakaiproject.tool.gradebook.facades;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+// OWL imports
+import org.sakaiproject.authz.api.Role;
 
 /**
  * Facade to external role and authorization service.
@@ -176,4 +180,22 @@ public interface Authz {
 	 * @return GradebookService.gradePermission, GradebookService.viewPermission, or null if no permission
 	 */
 	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid);
+	
+	/********************* Begin OWL custom permission methods  --plukasew ********************/
+
+	public boolean isUserAbleToViewExtraUserProperties(String userUid, String siteID);
+
+	public boolean isUserAbleToSubmitCourseGrades(String userEid, String sectionEID, String siteID);
+	
+	public boolean isUserAbleToSubmitCourseGrades(String userEid, Set<Role> siteRoles, Map<String, String> userRoleMap);
+
+	public boolean isUserAbleToApproveCourseGrades(String userEid, String sectionEID, String siteID);
+	
+	public boolean isUserAbleToApproveCourseGrades(String userEid, Set<Role> siteRoles, Map<String, String> userRoleMap);
+	
+	public Map<String, String> getSectionUserRoleMap(String sectionEid);
+	
+	public Set<Role> getSiteRolesForGradebook(String gradebookUid);
+
+	/********************* End OWL custom permission methods ********************/
 }

@@ -41,6 +41,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 public class SakaiPagingNavigator extends AjaxPagingNavigator {
 
@@ -186,7 +187,7 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 			{
 				int pageSize = NumberUtils.toInt(getFormComponent().getDefaultModelObjectAsString(), GradebookUiSettings.DEFAULT_GRADES_PAGE_SIZE);
 				
-				final GradebookPage page = (GradebookPage) getPage();
+				final IGradesPage page = (IGradesPage) getPage();
 				
 				page.updatePageSize(pageSize, target);
 			}

@@ -24,6 +24,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  * Base page for our app
@@ -40,6 +41,7 @@ public class BasePage extends WebPage {
 	protected GradebookNgBusinessService businessService;
 
 	Link<Void> gradebookPageLink;
+	Link<Void> courseGradesPageLink;
 	Link<Void> settingsPageLink;
 	Link<Void> importExportPageLink;
 	Link<Void> permissionsPageLink;
@@ -55,6 +57,8 @@ public class BasePage extends WebPage {
 	 * The user's role in the site
 	 */
 	protected GbRole role;
+	
+	protected final Gradebook gradebook;
 
 	public BasePage() {
 		log.debug("BasePage()");
@@ -62,6 +66,7 @@ public class BasePage extends WebPage {
 		// setup some data that can be shared across all pages
 		this.currentUserUuid = this.businessService.getCurrentUser().getId();
 		this.role = this.businessService.getUserRole();
+		gradebook = businessService.getGradebook();
 
 		// set locale
 		setUserPreferredLocale();
@@ -95,6 +100,24 @@ public class BasePage extends WebPage {
 		};
 		this.gradebookPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(this.gradebookPageLink);
+		
+		// course grades page
+		courseGradesPageLink = new Link<Void>("courseGradesPageLink") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				setResponsePage(CourseGradesPage.class);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return (BasePage.this.role == GbRole.INSTRUCTOR);
+			}
+
+		};
+		courseGradesPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
+		nav.add(courseGradesPageLink);
 
 		// import/export page
 		this.importExportPageLink = new Link<Void>("importExportPageLink") {

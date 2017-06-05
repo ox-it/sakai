@@ -533,7 +533,8 @@ public class ImportGradesHelper {
 					assignmentStudentGradeInfo.setAssignmemtId(assignmentId);
 					assignmentMap.put(assignmentId, assignmentStudentGradeInfo);
 				}
-				assignmentStudentGradeInfo.addGrade(studentGradeInfo.getStudentEid(), entry.getValue());
+				//assignmentStudentGradeInfo.addGrade(studentGradeInfo.getStudentEid(), entry.getValue());
+				assignmentStudentGradeInfo.addGrade(studentGradeInfo.getStudent().getEid(), entry.getValue());
 			}
 		}
 

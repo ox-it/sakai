@@ -161,6 +161,12 @@ public class GradebookInformation implements Serializable {
 		this.courseAverageDisplayed = courseAverageDisplayed;
 	}
 	
+	public List<String> getSelectedGradingScaleUnmappedGrades()
+	{
+		// OWLTODO: efficiency....
+		return gradeMappings.stream().filter(gm -> gm.getId().equals(selectedGradeMappingId)).findFirst().get().getUnmappedGrades();
+	}
+	
 	@Override
 	public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);

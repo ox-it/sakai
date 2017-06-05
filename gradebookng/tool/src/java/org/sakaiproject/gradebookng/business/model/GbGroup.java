@@ -8,6 +8,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import lombok.Getter;
 import lombok.ToString;
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.site.api.Group;
 
 /**
  * Represents a group or section
@@ -32,10 +34,10 @@ public class GbGroup implements Comparable<GbGroup>, Serializable {
 
 	@Getter
 	private final Type type;
-
-	// OWL-2545  --bbailla2
-	@Getter
-	private final String providerId;
+	
+	// OWL-2545  --bbailla2 
+	@Getter 
+	private final String providerId; 
 
 	/**
 	 * Type of group
@@ -52,6 +54,18 @@ public class GbGroup implements Comparable<GbGroup>, Serializable {
 		this.reference = reference;
 		this.type = type;
 		this.providerId = providerId;
+	}
+	
+	public static GbGroup fromGroup(Group g)
+	{
+		String provider = StringUtils.trimToEmpty(g.getProviderGroupId());
+		Type type = provider.isEmpty() ? Type.GROUP : Type.SECTION;
+		return new GbGroup(g.getId(), g.getTitle(), g.getReference(), type, provider);
+	}
+	
+	public static GbGroup all(String title)
+	{
+		return new GbGroup(null, title, null, Type.ALL, "");
 	}
 
 	@Override

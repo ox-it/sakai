@@ -4,10 +4,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sakaiproject.user.api.User;
-
 import lombok.Getter;
-import lombok.Setter;
+
+import org.sakaiproject.gradebookng.business.finalgrades.GbStudentCourseGradeInfo;
 
 /**
  * Model for storing the grade info for a student
@@ -15,30 +14,8 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class GbStudentGradeInfo implements Serializable {
+public class GbStudentGradeInfo extends GbStudentCourseGradeInfo implements Serializable {
 	private static final long serialVersionUID = 1L;
-
-	@Getter
-	private String studentUuid;
-
-	@Getter
-	private String studentDisplayName;
-
-	@Getter
-	private String studentFirstName;
-
-	@Getter
-	private String studentLastName;
-
-	@Getter
-	private String studentEid;
-	
-	@Getter
-	private String studentNumber;
-
-	@Getter
-	@Setter
-	private GbCourseGrade courseGrade;
 
 	@Getter
 	private Map<Long, GbGradeInfo> grades;
@@ -46,23 +23,15 @@ public class GbStudentGradeInfo implements Serializable {
 	@Getter
 	private Map<Long, Double> categoryAverages;
 
-	public GbStudentGradeInfo() {
-	}
-
-	public GbStudentGradeInfo(final User u)
-	{
-		this(u, "");
+	private GbStudentGradeInfo() {
 	}
 	
-	public GbStudentGradeInfo(final User u, final String studentNumber) {
-		this.studentUuid = u.getId();
-		this.studentEid = u.getEid();
-		this.studentFirstName = u.getFirstName();
-		this.studentLastName = u.getLastName();
-		this.studentDisplayName = u.getDisplayName();
-		this.studentNumber = studentNumber;
-		this.grades = new HashMap<>();
-		this.categoryAverages = new HashMap<>();
+	public GbStudentGradeInfo(final GbUser u)
+	{
+		super(u);
+		
+		grades = new HashMap<>();
+		categoryAverages = new HashMap<>();
 	}
 
 	/**

@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -21,7 +22,6 @@ import javax.xml.bind.JAXBException;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -46,7 +46,6 @@ import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -63,14 +62,12 @@ import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
-import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
-import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -78,6 +75,15 @@ import org.sakaiproject.util.ResourceLoader;
 
 // OWL anonymous grading imports  --bbailla2
 import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
+
+import lombok.Setter;
+import org.sakaiproject.coursemanagement.api.Membership;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.gradebookng.business.finalgrades.GbStudentCourseGradeInfo;
+import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
+import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeApproval;
+import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmission;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 
 /**
  * Business service for GradebookNG
@@ -165,7 +171,7 @@ public class GradebookNgBusinessService {
 				 * if(userUuids.contains(m.getUserId())) { groupMembers.add(m.getUserId()); } } }
 				 */
 
-				if (groupFilter.getType() == GbGroup.Type.GROUP) {
+				//if (groupFilter.getType() == GbGroup.Type.GROUP) {
 					final Set<Member> members = this.siteService.getSite(siteId).getGroup(groupFilter.getId())
 							.getMembers();
 					for (final Member m : members) {
@@ -173,7 +179,7 @@ public class GradebookNgBusinessService {
 							groupMembers.add(m.getUserId());
 						}
 					}
-				}
+				//}
 
 				// only keep the ones we identified in the group
 				userUuids.retainAll(groupMembers);
@@ -249,6 +255,20 @@ public class GradebookNgBusinessService {
 		
 		return getUsers(userUuids).stream().filter(u -> studentMatchesAnyFilter(u, site.orElse(null), studentFilter, studentNumberFilter))
 				.collect(Collectors.toList());
+	}
+	
+	public List<GbUser> getGbUsers(final List<User> users)
+	{
+		// OWLTODO: refactor so that this method replaces all the getUsers() methods
+		List<GbUser> gbUsers = new ArrayList<>(users.size());
+		Site site = getCurrentSite().orElse(null);
+		for (User u : users)
+		{
+			String studentNumber = getStudentNumber(u, site);
+			gbUsers.add(GbUser.fromUserWithStudentNumber(u, studentNumber));
+		}
+		
+		return gbUsers;
 	}
 	
 	// simple or match across all filters
@@ -698,7 +718,7 @@ public class GradebookNgBusinessService {
 		final List<User> students = getUsers(studentUuids, settings);
 
 		// Filter students for anon grading
-		if (uiSettings.isContextAnonymous())
+		if (settings.isContextAnonymous())
 		{
 			// Need to filter out users who don't have anonIDs
 			// Map eids to associated User objects
@@ -708,7 +728,7 @@ public class GradebookNgBusinessService {
 				eidToStudentMap.put(user.getEid(), user);
 			}
 			// Get the selected sectionId (or null if none selected)
-			GbGroup group = uiSettings.getGroupFilter();
+			GbGroup group = settings.getGroupFilter();
 			String section = group == null ? null : group.getProviderId();
 			// In the key set, retain only students who have anonIDs; this removes the entire entry from the map
 			cmProvider.filterStudentIdsForAnonContext(eidToStudentMap.keySet(), section);
@@ -718,7 +738,7 @@ public class GradebookNgBusinessService {
 
 		// Sort by name / student number
 		stopwatch.timeWithContext("buildGradeMatrix", "getUsers", stopwatch.getTime());
-		if (!uiSettings.isContextAnonymous())
+		if (!settings.isContextAnonymous())
 		{
 			if (settings.getStudentSortOrder() != null) {
 
@@ -761,24 +781,30 @@ public class GradebookNgBusinessService {
 				role,
 				isCourseGradeVisible(currentUserUuid),
 				settings.getShowPoints(),
-				true);
+				true,    // show override
+				false);  // show letter grade
+		// OWLTODO: having everything run through business service is not very flexible...
+		// ... we want to show the override on the main page but not the final grades page
+		// ... shouldn't display be the responsibility of the view?
 
 		// seed the map for all students so we can progresseively add grades
 		// also add the course grade here, to save an iteration later
 		// TA permissions already included in course grade visibility
-		for (final User student : students) {
-
+		List<GbUser> gbStudents = getGbUsers(students);
+		for (final GbUser student : gbStudents)
+		{
 			// create and add the user info
-			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student, getStudentNumber(student, site));
+			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student);
 
 			// add the course grade, including the display
-			final CourseGrade courseGrade = courseGrades.get(student.getId());
-			final GbCourseGrade gbCourseGrade = new GbCourseGrade(courseGrades.get(student.getId()));
+			String uid = student.getUserUuid();
+			final CourseGrade courseGrade = courseGrades.get(uid);
+			final GbCourseGrade gbCourseGrade = new GbCourseGrade(courseGrades.get(uid));
 			gbCourseGrade.setDisplayString(courseGradeFormatter.format(courseGrade));
 			sg.setCourseGrade(gbCourseGrade);
 
 			// add to map so we can build on it later
-			matrix.put(student.getId(), sg);
+			matrix.put(uid, sg);
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix seeded", stopwatch.getTime());
 
@@ -803,8 +829,8 @@ public class GradebookNgBusinessService {
 		final Map<Long, Set<Long>> categoryAssignments = new TreeMap<>();
 
 		// Determine only which assignments / categories we're interested in wrt isContextAnonymous
-		Set<Long> assignmentIDsToInclude = uiSettings.getAnonAwareAssignmentIDsForContext();
-		Set<Long> categoryIDsToIncludeScores = uiSettings.getAnonAwareCategoryIDsForContext();
+		Set<Long> assignmentIDsToInclude = settings.getAnonAwareAssignmentIDsForContext();
+		Set<Long> categoryIDsToIncludeScores = settings.getAnonAwareCategoryIDsForContext();
 
 		// iterate over assignments and get the grades for each
 		// note, the returned list only includes entries where there is a grade
@@ -1103,6 +1129,19 @@ public class GradebookNgBusinessService {
 			Collections.sort(items, comp);
 		}
 		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
+		
+		if (settings.getFinalGradeSortOrder() != null) {
+			Comparator<GbStudentGradeInfo> comp = new FinalGradeComparator();
+
+			// reverse if required
+			if (settings.getFinalGradeSortOrder() == SortDirection.DESCENDING) {
+				comp = Collections.reverseOrder(comp);
+			}
+			
+			// sort
+			Collections.sort(items, comp);
+		}
+		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
 
 		if (settings.getAnonIdSortOrder() != null) {
 			GbGroup group = settings.getGroupFilter();
@@ -1181,7 +1220,8 @@ public class GradebookNgBusinessService {
 			final Collection<Group> groups = site.getGroups();
 
 			for (final Group group : groups) {
-				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP, group.getProviderGroupId()));
+				//rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP, group.getProviderGroupId()));
+				rval.add(GbGroup.fromGroup(group));
 			}
 
 		} catch (final IdUnusedException e) {
@@ -1459,8 +1499,8 @@ public class GradebookNgBusinessService {
 		@Override
 		public int compare(final GbStudentGradeInfo s1, final GbStudentGradeInfo s2)
 		{
-			String anonId1 = StringUtils.trimToEmpty(cmProvider.getAnonId(s1.getStudentEid(), sectionId));
-			String anonId2 = StringUtils.trimToEmpty(cmProvider.getAnonId(s2.getStudentEid(), sectionId));
+			String anonId1 = StringUtils.trimToEmpty(cmProvider.getAnonId(s1.getStudent().getEid(), sectionId));
+			String anonId2 = StringUtils.trimToEmpty(cmProvider.getAnonId(s2.getStudent().getEid(), sectionId));
 			return anonId1.compareTo(anonId2);
 		}
 	}
@@ -1717,7 +1757,7 @@ public class GradebookNgBusinessService {
 	public GbUser getUser(final String userUuid) {
 		try {
 			final User u = this.userDirectoryService.getUser(userUuid);
-			return new GbUser(u);
+			return GbUser.fromUserAcquiringStudentNumber(u, this);
 		} catch (final UserNotDefinedException e) {
 			return null;
 		}
@@ -2302,6 +2342,99 @@ public class GradebookNgBusinessService {
 					.toComparison();
 		}
 	}
+	
+	/**
+	 * Comparator class for sorting by OWL final grade
+	 *
+	 */
+	class FinalGradeComparator implements Comparator<GbStudentGradeInfo>
+	{	
+		@Override
+		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2)
+		{
+			String fg1 = FinalGradeFormatter.format(g1.getCourseGrade());
+			String fg2 = FinalGradeFormatter.format(g2.getCourseGrade());
+			
+			return fg1.compareTo(fg2);
+		}
+	}
+	
+	/************************* Begin Course Grade Submission methods  --plukasew *****************************/
+	
+	public List<OwlGradeSubmission> getAllCourseGradeSubmissionsForSection(final String sectionEid) throws IllegalArgumentException
+	{
+		return gradebookService.getAllCourseGradeSubmissionsForSectionInSite(sectionEid, getCurrentSiteId());
+	}
+	
+	public OwlGradeSubmission getMostRecentCourseGradeSubmissionForSection(final String sectionEid) throws IllegalArgumentException
+	{
+		return gradebookService.getMostRecentCourseGradeSubmissionForSectionInSite(sectionEid, getCurrentSiteId());
+	}
+
+	// OWL-1228  --plukasew
+	public boolean isSectionApproved(final String sectionEid) throws IllegalArgumentException
+	{
+		return gradebookService.isSectionInSiteApproved(sectionEid, getCurrentSiteId());
+	}
+
+	public boolean areAllSectionsApproved(final Set<String> sectionEids) throws IllegalArgumentException
+	{
+		return gradebookService.areAllSectionsInSiteApproved(sectionEids, getCurrentSiteId());
+	}
+
+	public Long createSubmission(final OwlGradeSubmission sub) throws IllegalArgumentException
+	{
+		return gradebookService.createSubmission(sub);
+	}
+
+	public void updateSubmission(final OwlGradeSubmission sub) throws IllegalArgumentException
+	{
+		gradebookService.updateSubmission(sub);
+	}
+
+	public Long createApproval(final OwlGradeApproval approval) throws IllegalArgumentException
+	{
+		return gradebookService.createApproval(approval);
+	}
+
+	public boolean isOfficialRegistrarGradingSchemeInUse( final Long gradebookID )
+	{
+		return gradebookService.isOfficialRegistrarGradingSchemeInUse(gradebookID);
+	}
+	
+	public Section getSectionByEid(String eid)
+	{
+		return courseManagementService.getSection(eid);
+	}
+	
+	public Set<Membership> getSectionMemberships(String sectionEid)
+	{
+		return courseManagementService.getSectionMemberships(sectionEid);
+	}
+	
+	public List<GbStudentCourseGradeInfo> getSectionCourseGrades(GbGroup group)
+	{
+		// OWLTODO: implement this, see getCourseGrades(bus.getGradeableUsers(uiSettings.getGroupFilter()))
+		// and buildgradematrix()
+		if (group.getType() == GbGroup.Type.SECTION)
+		{
+			Map<String, CourseGrade> courseGrades = getCourseGrades(getGradeableUsers(group));
+			List<GbStudentCourseGradeInfo> secCourseGrades = new ArrayList<>(courseGrades.size());
+			for (Entry<String, CourseGrade> entry : courseGrades.entrySet())
+			{
+				GbUser student = getUser(entry.getKey());
+				GbStudentCourseGradeInfo cgi = new GbStudentCourseGradeInfo(student);
+				cgi.setCourseGrade(new GbCourseGrade(entry.getValue()));
+				secCourseGrades.add(cgi);
+			}
+			
+			return secCourseGrades;
+		}
+		
+		return Collections.emptyList();
+	}
+
+	/* End Course Grade Submission methods  --plukasew */
 
 	/**
 	 * Create a map so that we can use the user's EID (from the imported file) to lookup their UUID (used to store the grade by the backend service).
@@ -2309,8 +2442,8 @@ public class GradebookNgBusinessService {
 	 * @return Map where the user's EID is the key and the {@link GbUser} object is the value
 	 */
 	public Map<String, GbUser> getUserEidMap() {
-		final List<User> users = getUsers(getGradeableUsers());
-		final Map<String, GbUser> userEidMap = users.stream().collect(Collectors.toMap(User::getEid, user -> new GbUser(user, this)));
+		final List<GbUser> users = getGbUsers(getUsers(getGradeableUsers()));
+		final Map<String, GbUser> userEidMap = users.stream().collect(Collectors.toMap(GbUser::getEid, user -> user));
 		return userEidMap;
 	}
 
@@ -2321,17 +2454,8 @@ public class GradebookNgBusinessService {
 	 * @return Map where the user's student number is the key and the {@link GbUser} object is the value
 	 */
 	public Map<String, GbUser> getUserStudentNumMap() {
-		final Site currentSite = getCurrentSite().orElse(null);
-		final List<User> users = getUsers(getGradeableUsers());
-		final Map<String, GbUser> userStudentNumMap = new HashMap<>();
-		for (User user : users) {
-			String studentNumber = getStudentNumber(user, currentSite);
-			if( StringUtils.isNotBlank(studentNumber))
-			{
-				userStudentNumMap.put(studentNumber, new GbUser(user, this));
-			}
-		}
-
+		final List<GbUser> users = getGbUsers(getUsers(getGradeableUsers()));
+		final Map<String, GbUser> userStudentNumMap = users.stream().collect(Collectors.toMap(GbUser::getStudentNumber, user -> user));
 		return userStudentNumMap;
 	}
 

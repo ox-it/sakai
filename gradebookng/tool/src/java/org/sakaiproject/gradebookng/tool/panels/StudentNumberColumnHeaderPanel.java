@@ -6,16 +6,14 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 /**
  *
@@ -33,7 +31,7 @@ public class StudentNumberColumnHeaderPanel extends Panel
 	{
 		super.onInitialize();
 		
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
+		final IGradesPage gradebookPage = (IGradesPage) getPage();
 		
 		// title
 		final GbAjaxLink<String> title = new GbAjaxLink<String>("title")

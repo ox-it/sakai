@@ -67,7 +67,8 @@ public class CourseGradeOverridePanel extends Panel {
 				currentUserRole,
 				courseGradeVisible,
 				false,
-				false);
+				false,
+				false);  // OWLTODO: fix and configure this
 
 		// heading
 		CourseGradeOverridePanel.this.window.setTitle(

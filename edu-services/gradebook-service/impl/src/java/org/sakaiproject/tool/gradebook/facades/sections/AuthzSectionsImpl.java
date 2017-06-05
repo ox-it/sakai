@@ -1235,5 +1235,53 @@ public class AuthzSectionsImpl implements Authz {
 		// this is a hack because I can't get Spring to give me this component
 		return (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 	}
+	
+	/********************* Begin OWL custom permission methods   --plukasew ********************/
+	// working implementations exist in subclass AuthzSakai2Impl, providing stubs here
+	// to meet Authz interface requirements
+
+	@Override
+	public boolean isUserAbleToViewExtraUserProperties(String userUid, String siteId)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isUserAbleToSubmitCourseGrades(String userUid, String sectionEID, String siteID)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isUserAbleToApproveCourseGrades(String userUid, String sectionEID, String siteID)
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean isUserAbleToSubmitCourseGrades(String userEid, Set<org.sakaiproject.authz.api.Role> siteRoles, Map<String, String> userRoleMap)
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean isUserAbleToApproveCourseGrades(String userEid, Set<org.sakaiproject.authz.api.Role> siteRoles, Map<String, String> userRoleMap)
+	{
+		return false;
+	}
+	
+	@Override
+	public Map<String, String> getSectionUserRoleMap(String sectionEid)
+	{
+		return Collections.EMPTY_MAP;
+	}
+	
+	@Override
+	public Set<org.sakaiproject.authz.api.Role> getSiteRolesForGradebook(String gradebookUid)
+	{
+		return Collections.EMPTY_SET;
+	}
+
+	/********************* End OWL custom permission methods ********************/
 
 }
