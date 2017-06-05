@@ -1,4 +1,5 @@
 2017.06.05:
+	- [OWL-2675] Reduce amount of logging from GradebookNG during file import
 	- [OWL-2860] Hide the 'Grade Entry' panel on the GradebookNG -> Settings page from non-admins
 	- [OWL-2855] Port DPC import support to 11.3
 2017.05.26:

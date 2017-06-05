@@ -165,7 +165,7 @@ public class GradeImportConfirmationStep extends Panel {
 
 									if (!StringUtils.equals(currentComment, newComment)) {
 										final boolean success = businessService.updateAssignmentGradeComment(assignmentId, processedGradeItemDetail.getUser().getUserUuid(), newComment);
-										log.info("Saving comment: {}, {}, {}, {}", success, assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getComment());
+										log.debug("Saving comment: {}, {}, {}, {}", success, assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getComment());
 										if (!success) {
 											getSession().error(new ResourceModel("importExport.error.comment").getObject());
 											this.errors = true;
@@ -184,7 +184,7 @@ public class GradeImportConfirmationStep extends Panel {
 									break;
 							}
 
-							log.info("Saving grade for assignment id: {}, student: {}, grade: {}, comment: {}, status: {}", assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment(), saveResponse);
+							log.debug("Saving grade for assignment id: {}, student: {}, grade: {}, comment: {}, status: {}", assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment(), saveResponse);
 						});
 					});
 				}
