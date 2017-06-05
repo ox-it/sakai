@@ -45,13 +45,13 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StaleObjectStateException;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
@@ -3328,7 +3328,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		});
 				
 		//set grade type
-		gradebook.setGrade_type(gbInfo.getGradeType());
+		boolean onlyAdminsSetGradeType = ServerConfigurationService.getBoolean("gradebook.settings.gradeEntry.hideFromNonAdmins", false);
+		if(!onlyAdminsSetGradeType || (onlyAdminsSetGradeType && SecurityService.isSuperUser())) {
+			gradebook.setGrade_type(gbInfo.getGradeType());
+		}
 		
 		//set category type
 		gradebook.setCategory_type(gbInfo.getCategoryType());

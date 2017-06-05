@@ -11,6 +11,7 @@ import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -32,12 +33,14 @@ import org.sakaiproject.service.gradebook.shared.exception.UnmappableCourseGrade
  */
 public class SettingsPage extends BasePage {
 
-	private static final long serialVersionUID = 1L;
-
 	private boolean gradeEntryExpanded = false;
 	private boolean gradeReleaseExpanded = false;
 	private boolean categoryExpanded = false;
 	private boolean gradingSchemaExpanded = false;
+
+	private boolean hideGradeEntryFromNonAdmins;
+	private static final String SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS = "gradebook.settings.gradeEntry.hideFromNonAdmins";
+	private static final boolean SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS_DEFAULT = false;
 
 	SettingsGradeEntryPanel gradeEntryPanel;
 	SettingsGradeReleasePanel gradeReleasePanel;
@@ -45,16 +48,22 @@ public class SettingsPage extends BasePage {
 	SettingsGradingSchemaPanel gradingSchemaPanel;
 
 	public SettingsPage() {
-		disableLink(this.settingsPageLink);
+		disableLink(settingsPageLink);
+		setHideGradeEntryFromNonAdmins();
 	}
 
 	public SettingsPage(final boolean gradeEntryExpanded, final boolean gradeReleaseExpanded,
 			final boolean categoryExpanded, final boolean gradingSchemaExpanded) {
-		disableLink(this.settingsPageLink);
+		disableLink(settingsPageLink);
 		this.gradeEntryExpanded = gradeEntryExpanded;
 		this.gradeReleaseExpanded = gradeReleaseExpanded;
 		this.categoryExpanded = categoryExpanded;
 		this.gradingSchemaExpanded = gradingSchemaExpanded;
+		setHideGradeEntryFromNonAdmins();
+	}
+
+	private void setHideGradeEntryFromNonAdmins() {
+		hideGradeEntryFromNonAdmins = ServerConfigurationService.getBoolean(SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS, SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS_DEFAULT);
 	}
 
 	@Override
@@ -68,21 +77,24 @@ public class SettingsPage extends BasePage {
 		final GbSettings gbSettings = new GbSettings(settings);
 		final CompoundPropertyModel<GbSettings> formModel = new CompoundPropertyModel<GbSettings>(gbSettings);
 
-		this.gradeEntryPanel = new SettingsGradeEntryPanel("gradeEntryPanel", formModel, this.gradeEntryExpanded);
-		this.gradeReleasePanel = new SettingsGradeReleasePanel("gradeReleasePanel", formModel, this.gradeReleaseExpanded);
-		this.categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, this.categoryExpanded);
-		this.gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, this.gradingSchemaExpanded);
+		gradeEntryPanel = new SettingsGradeEntryPanel("gradeEntryPanel", formModel, gradeEntryExpanded);
+		gradeReleasePanel = new SettingsGradeReleasePanel("gradeReleasePanel", formModel, gradeReleaseExpanded);
+		categoryPanel = new SettingsCategoryPanel("categoryPanel", formModel, categoryExpanded);
+		gradingSchemaPanel = new SettingsGradingSchemaPanel("gradingSchemaPanel", formModel, gradingSchemaExpanded);
+
+		// Hide the panel if sakai.property is true and user is not admin
+		if (hideGradeEntryFromNonAdmins && !businessService.isSuperUser()) {
+			gradeEntryPanel.setVisible(false);
+		}
 
 		// form
 		final Form<GbSettings> form = new Form<GbSettings>("form", formModel) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onValidate() {
 				super.onValidate();
 
 				final GbSettings model = getModelObject();
-
 				final List<CategoryDefinition> categories = model.getGradebookInformation().getCategories();
 
 				// validate the categories
@@ -101,10 +113,9 @@ public class SettingsPage extends BasePage {
 						}
 
 						// ensure we don't have drop highest and keep highest at the same time
-						if((cat.getDropHighest().intValue() > 0 && cat.getKeepHighest().intValue() > 0) || (cat.getDrop_lowest().intValue() > 0 && cat.getKeepHighest().intValue() > 0)) {
+						if((cat.getDropHighest() > 0 && cat.getKeepHighest() > 0) || (cat.getDrop_lowest() > 0 && cat.getKeepHighest() > 0)) {
 							error(getString("settingspage.update.failure.categorydropkeepenabled"));
 						}
-
 					}
 
 					if (totalWeight.compareTo(BigDecimal.ONE) != 0) {
@@ -140,7 +151,6 @@ public class SettingsPage extends BasePage {
 						error(getString("settingspage.displaycoursegrade.notenough"));
 					}
 				}
-
 			}
 
 			@Override
@@ -174,7 +184,6 @@ public class SettingsPage extends BasePage {
 
 		// cancel button
 		final Button cancel = new Button("cancel") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit() {
@@ -185,16 +194,15 @@ public class SettingsPage extends BasePage {
 		form.add(cancel);
 
 		// panels
-		form.add(this.gradeEntryPanel);
-		form.add(this.gradeReleasePanel);
-		form.add(this.categoryPanel);
-		form.add(this.gradingSchemaPanel);
+		form.add(gradeEntryPanel);
+		form.add(gradeReleasePanel);
+		form.add(categoryPanel);
+		form.add(gradingSchemaPanel);
 
 		add(form);
 
 		// expand/collapse panel actions
 		add(new GbAjaxLink("expandAll") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -202,7 +210,6 @@ public class SettingsPage extends BasePage {
 			}
 		});
 		add(new GbAjaxLink("collapseAll") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -216,15 +223,13 @@ public class SettingsPage extends BasePage {
 		super.renderHead(response);
 
 		final String version = ServerConfigurationService.getString("portal.cdn.version", "");
-
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-settings.css?version=%s", version)));
-		response.render(
-				JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js?version=%s", version)));
-
+		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-settings.js?version=%s", version)));
 	}
 
 	/**
 	 * Getters for these panels as we need to interact with them from the child panels
+	 * @return
 	 */
 	public SettingsGradeReleasePanel getSettingsGradeReleasePanel() {
 		return this.gradeReleasePanel;
@@ -233,5 +238,4 @@ public class SettingsPage extends BasePage {
 	public SettingsCategoryPanel getSettingsCategoryPanel() {
 		return this.categoryPanel;
 	}
-
 }

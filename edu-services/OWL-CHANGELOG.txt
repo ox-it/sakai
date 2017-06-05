@@ -1,3 +1,5 @@
+2017.06.05:
+	- [OWL-2860] Hide the 'Grade Entry' panel on the GradebookNG -> Settings page from non-admins
 2017.05.02:
 	- [OWL-2807] added some generics
 2017.04.21:

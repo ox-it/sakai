@@ -1,3 +1,6 @@
+2017.06.05:
+	- [OWL-2860] Hide the 'Grade Entry' panel on the GradebookNG -> Settings page from non-admins
+	- [OWL-2855] Port DPC import support to 11.3
 2017.05.26:
 	- [OWL-2842] Port the 'omissions' and 'grades preview' triangle disclosures for gradebook imports to 11.3
 2017.05.12:
