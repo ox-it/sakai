@@ -201,7 +201,7 @@ public class ImportGradesHelper {
 		// Create the ImportedSpreadsheetWrapper object
 		final ImportedSpreadsheetWrapper importedGradeWrapper = new ImportedSpreadsheetWrapper();
 		if (rows.isEmpty()) {
-			importedGradeWrapper.setColumns(new ArrayList<>(columnMapping.values()));
+			importedGradeWrapper.setColumns(new ArrayList<>());
 		} else {
 			importedGradeWrapper.setColumns(new ArrayList<>(columnMapping.values()));
 		}
