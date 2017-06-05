@@ -1,65 +1,49 @@
 package org.sakaiproject.gradebookng.business.importExport;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-
-import org.apache.commons.lang.StringUtils;
+import lombok.Getter;
 
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.user.api.User;
 
 /**
- *
+ * Identifier utility for user EIDs.
+ * 
  * @author plukasew, bjones86
  */
 @Slf4j
 public class UsernameIdentifier implements UserIdentifier, Serializable
 {
-    private final Map<String, GbUser> userMap;
-    private final String namePlaceHolder;
+    private final Map<String, GbUser> userEidMap;
+
+    @Getter
     private final UserIdentificationReport report;
 
-    public UsernameIdentifier(Map<String, User> rosterMap, String unknownNamePlaceholder)
+    public UsernameIdentifier( Map<String, GbUser> eidMap )
     {
-        userMap = new HashMap<>();
-        namePlaceHolder = StringUtils.trimToEmpty(unknownNamePlaceholder);
-
-        for (String userId : rosterMap.keySet())
-        {
-            GbUser gu = new GbUser(rosterMap.get(userId));
-            userMap.put(userId, gu);
-        }
-
-        report = new UserIdentificationReport(new HashSet<>(userMap.values()));
+        userEidMap = eidMap;
+        report = new UserIdentificationReport( new HashSet<>( userEidMap.values() ) );
     }
 
     @Override
-    public GbUser getUser(String userId)
+    public GbUser getUser( String userEID )
     {
-        GbUser user;
-        if (userMap.containsKey(userId))
+        GbUser user = userEidMap.get( userEID );
+        if( user != null )
         {
-            user = userMap.get(userId);
-            report.addIdentifiedUser(user);
-            log.debug("User {} identified as UID: {}", userId, user.getUserUuid());
+            report.addIdentifiedUser( user );
+            log.debug( "User {} identified as UUID: {}", userEID, user.getUserUuid() );
         }
         else
         {
-            user = new GbUser(userId, namePlaceHolder);
-            report.addUnknownUser(userId);
-            log.debug("User {} is unknown to this gradebook", userId);
+            user = new GbUser( userEID, "" );
+            report.addUnknownUser( userEID );
+            log.debug( "User {} is unknown to this gradebook", userEID );
         }
 
         return user;
-    }
-
-    @Override
-    public UserIdentificationReport getReport()
-    {
-        return report;
     }
 }

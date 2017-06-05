@@ -3,51 +3,83 @@ package org.sakaiproject.gradebookng.business.importExport;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.model.ImportedRow;
-import org.sakaiproject.user.api.User;
 
 /**
- *
+ * Factory class for building the correct {@link UserIdentifier} type for the given data.
+ * 
  * @author plukasew, bjones86
  */
 public class UserIdentifierFactory
 {
-    private static final String USERNAME_TYPE = "username";
-    private static final String STUDENT_NUMBER_TYPE = "student";
-    private static final String ANON_TYPE = "anon";
-
-    private static final String ALL_DIGITS_PATTERN = "^\\d+$";
-    private static final int MAX_ANON_ID_LENGTH = 5;
-
-    private static final int ROW_READ_MAX = 5;
-
-    public static UserIdentifier buildIdentifierForSheet( List<ImportedRow> rows, Map<String, User> rosterMap )
-    {
-        String type = idSheetType( rows );
-        if( ANON_TYPE.equals( type ) )
-        {
-            return new AnonIdentifier( rosterMap );
-        }
-//        else if( STUDENT_NUMBER_TYPE.equals( type ) )
-//        {
-//
-//        }
-        else
-        {
-            // OWLTODO: fix the name placeholder thing
-            return new UsernameIdentifier( rosterMap, "" );
-        }
-    }
-
-    private static String idSheetType( List<ImportedRow> rows )
+    /**
+     * Create the correct {@link UserIdentifier} that corresponds to the data parsed from the imported file.
+     *
+     * @param rows
+     * @param rosterMap
+     * @return
+     */
+    public static UserIdentifier buildIdentifierForSheet( List<ImportedRow> rows, Map<String, GbUser> rosterMap )
     {
         // No content (rows does not include headers); bail early
+        UserIdentifier identifier;
         if( rows.isEmpty() )
         {
-            return USERNAME_TYPE;
+            return new UsernameIdentifier( rosterMap );
         }
 
-        // OWLTODO: introduce more logic here to determine type when anon and DPC functionality is added
-        return USERNAME_TYPE;
+        // Check the first row to determine content type
+        ImportedRow firstRow = rows.get( 0 );
+        if( StringUtils.isNotBlank( firstRow.getAnonID() ) )
+        {
+            identifier = new AnonIdentifier( rosterMap );
+        }
+        else if( StringUtils.isNotBlank( firstRow.getStudentNumber() ) )
+        {
+            identifier = new StudentNumberIdentifier( rosterMap );
+        }
+        else
+        {
+            identifier = new UsernameIdentifier( rosterMap );
+        }
+
+        validateUsers( identifier, rows );
+        return identifier;
+    }
+
+    /**
+     * Validate all users for the imported data, using the given {@link UserIdentifier} object.
+     * 
+     * @param userIdentifier
+     * @param rows
+     * @param rosterMap
+     */
+    private static void validateUsers( UserIdentifier userIdentifier, List<ImportedRow> rows )
+    {
+        for( ImportedRow row : rows )
+        {
+            String lookupProp;
+            if( userIdentifier instanceof AnonIdentifier )
+            {
+                lookupProp = row.getAnonID();
+            }
+            else if( userIdentifier instanceof StudentNumberIdentifier )
+            {
+                lookupProp = row.getStudentNumber();
+            }
+            else
+            {
+                lookupProp = row.getStudentEid();
+            }
+
+            GbUser user = userIdentifier.getUser( lookupProp );
+            if( user != null )
+            {
+                row.setUser( user );
+            }
+        }
     }
 }

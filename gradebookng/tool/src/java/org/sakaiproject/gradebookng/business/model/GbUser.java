@@ -6,6 +6,7 @@ import lombok.Getter;
 
 import org.apache.commons.lang.StringUtils;
 
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -15,8 +16,6 @@ import org.sakaiproject.user.api.User;
  *
  */
 public class GbUser implements Serializable, Comparable<GbUser> {
-
-	private static final long serialVersionUID = 1L;
 
 	@Getter
 	private final String userUuid;
@@ -30,16 +29,28 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	@Getter
 	private final String displayName;
 
+	@Getter
+	private final String studentNumber;
+
 	public GbUser(final User u) {
 		this.userUuid = u.getId();
 		this.displayId = u.getDisplayId();
 		this.displayName = u.getDisplayName();
+		this.studentNumber = "";
+	}
+
+	public GbUser(final User u, GradebookNgBusinessService businessService) {
+		this.userUuid = u.getId();
+		this.displayId = u.getDisplayId();
+		this.displayName = u.getDisplayName();
+		this.studentNumber = businessService.getStudentNumber(u, businessService.getCurrentSite().orElse(null));
 	}
 
 	public GbUser(final String displayID, final String displayName) {
 		this.userUuid = "";
 		this.displayId = displayID;
 		this.displayName = displayName;
+		this.studentNumber = "";
 	}
 
 	public boolean isValid() {
@@ -51,5 +62,15 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 		String str1 = displayId + " (" + displayName + ")";
 		String str2 = user.displayId + " (" + user.displayName + ")";
 		return str1.compareTo(str2);
+	}
+
+	@Override
+	public String toString() {
+		String retVal = displayId;
+		if (StringUtils.isNotBlank(studentNumber)) {
+			retVal += " (" + studentNumber + ")";
+		}
+
+		return retVal;
 	}
 }

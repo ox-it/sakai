@@ -1,8 +1,5 @@
 package org.sakaiproject.gradebookng.business;
 
-import java.math.RoundingMode;
-import java.text.Format;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,12 +18,15 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
-import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
+
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -68,13 +68,11 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-
-import lombok.Setter;
-import org.sakaiproject.user.api.CandidateDetailProvider;
 
 /**
  * Business service for GradebookNG
@@ -209,7 +207,7 @@ public class GradebookNgBusinessService {
 			return new ArrayList<>(userUuids);
 
 		} catch (final IdUnusedException e) {
-			e.printStackTrace();
+			log.debug(e.getMessage());
 			return null;
 		}
 	}
@@ -295,6 +293,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
 	 *
+	 * @param siteId
 	 * @return a list of assignments or null if no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments(final String siteId) {
@@ -305,6 +304,7 @@ public class GradebookNgBusinessService {
 	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access sorted by the provided
 	 * SortType
 	 *
+	 * @param sortBy
 	 * @return a list of assignments or null if no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments(final SortType sortBy) {
@@ -318,6 +318,7 @@ public class GradebookNgBusinessService {
 	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
 	 * are an instructor using the student review mode)
 	 *
+	 * @param studentUuid
 	 * @return a list of assignments or null if no gradebook
 	 */
 	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid) {
@@ -348,6 +349,7 @@ public class GradebookNgBusinessService {
 	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order
 	 *
 	 * @param siteId the siteId
+	 * @param sortBy
 	 * @return a list of assignments or empty list if none/no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments(final String siteId, final SortType sortBy) {
@@ -626,7 +628,7 @@ public class GradebookNgBusinessService {
 	 * student summary but could be more for paging etc
 	 *
 	 * @param assignments list of assignments
-	 * @param list of uuids
+	 * @param studentUuids of uuids
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
@@ -813,7 +815,7 @@ public class GradebookNgBusinessService {
 					values = categoryAssignments.get(categoryId);
 					values.add(assignmentId);
 				} else {
-					values = new HashSet<Long>();
+					values = new HashSet<>();
 					values.add(assignmentId);
 				}
 				categoryAssignments.put(categoryId, values);
@@ -1206,8 +1208,6 @@ public class GradebookNgBusinessService {
 	 * @param siteId the siteId
 	 * @param assignmentId the assignment we are reordering
 	 * @param order the new order
-	 * @throws IdUnusedException
-	 * @throws PermissionException
 	 */
 	public void updateAssignmentOrder(final String siteId, final long assignmentId, final int order) {
 
@@ -1247,7 +1247,7 @@ public class GradebookNgBusinessService {
 			this.siteService.getSite(siteId);
 		} catch (final IdUnusedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.debug(e.getMessage());
 			return;
 		}
 
@@ -1280,8 +1280,7 @@ public class GradebookNgBusinessService {
 	 */
 	private void updateAssignmentCategorizedOrder(final String gradebookId, final Long categoryId,
 			final Long assignmentId, final int order) {
-		this.gradebookService.updateAssignmentCategorizedOrder(gradebookId, categoryId, assignmentId,
-				new Integer(order));
+		this.gradebookService.updateAssignmentCategorizedOrder(gradebookId, categoryId, assignmentId, order);
 	}
 
 	/**
@@ -1368,7 +1367,6 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get an Assignment in the current site given the assignment id
 	 *
-	 * @param siteId
 	 * @param assignmentId
 	 * @return
 	 */
@@ -1658,7 +1656,7 @@ public class GradebookNgBusinessService {
 		try {
 			siteRef = this.siteService.getSite(siteId).getReference();
 		} catch (final IdUnusedException e) {
-			e.printStackTrace();
+			log.debug(e.getMessage());
 			return null;
 		}
 
@@ -1787,7 +1785,7 @@ public class GradebookNgBusinessService {
 				rval.add(getUser(userUuid));
 			}
 		} catch (final IdUnusedException e) {
-			e.printStackTrace();
+			log.debug(e.getMessage());
 		}
 
 		return rval;
@@ -2143,4 +2141,49 @@ public class GradebookNgBusinessService {
 		}
 	}
 
+	/**
+	 * Create a map so that we can use the user's EID (from the imported file) to lookup their UUID (used to store the grade by the backend service).
+	 *
+	 * @return Map where the user's EID is the key and the {@link GbUser} object is the value
+	 */
+	public Map<String, GbUser> getUserEidMap() {
+		final List<User> users = getUsers(getGradeableUsers());
+		final Map<String, GbUser> userEidMap = users.stream().collect(Collectors.toMap(User::getEid, user -> new GbUser(user, this)));
+		return userEidMap;
+	}
+
+	/**
+	 * Create a map so that we can use the user's student number (from the imported file) to lookup their UUID (used to store the grade
+	 * by the backend service).
+	 *
+	 * @return Map where the user's student number is the key and the {@link GbUser} object is the value
+	 */
+	public Map<String, GbUser> getUserStudentNumMap() {
+		final Site currentSite = getCurrentSite().orElse(null);
+		final List<User> users = getUsers(getGradeableUsers());
+		final Map<String, GbUser> userStudentNumMap = new HashMap<>();
+		for (User user : users) {
+			String studentNumber = getStudentNumber(user, currentSite);
+			if( StringUtils.isNotBlank(studentNumber))
+			{
+				userStudentNumMap.put(studentNumber, new GbUser(user, this));
+			}
+		}
+
+		return userStudentNumMap;
+	}
+
+	/**
+	 * Create a map so that we can use the user's anonymous ID (from the imported file) to lookup their UUID (used to store the grade
+	 * by the backend service).
+	 *
+	 * @return Map where the user's anonymous ID is the key and the {@link GbUser} object is the value
+	 */
+	public Map<String, GbUser> getUserAnonIdMap() {
+		final List<User> users = getUsers(getGradeableUsers());
+
+		// OWLTODO: perform the necessary lookup and GbUser creation here
+		final Map<String, GbUser> userAnonIdMap = new HashMap<>();
+		return userAnonIdMap;
+	}
 }

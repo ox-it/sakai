@@ -8,10 +8,9 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.sakaiproject.gradebookng.business.importExport.AnonIdentifier;
+import org.sakaiproject.gradebookng.business.importExport.ImportHeadingValidationReport;
 import org.sakaiproject.gradebookng.business.importExport.UserIdentifier;
 import org.sakaiproject.gradebookng.business.importExport.UserIdentifierFactory;
-import org.sakaiproject.user.api.User;
 
 /**
  * Wraps an imported file
@@ -19,7 +18,6 @@ import org.sakaiproject.user.api.User;
 public class ImportedSpreadsheetWrapper implements Serializable {
 
 	@Getter
-	@Setter
 	private List<ImportedRow> rows;
 
 	@Getter
@@ -27,17 +25,25 @@ public class ImportedSpreadsheetWrapper implements Serializable {
 	private List<ImportedColumn> columns;
 
 	@Getter
-	@Setter
 	private UserIdentifier userIdentifier;
 
 	@Getter
-	@Setter
-	private boolean anon;
+	private final ImportHeadingValidationReport headingReport;
 
-	public ImportedSpreadsheetWrapper(Map<String, User> rosterMap) {
+	@Getter
+	@Setter
+	private boolean isDPC;
+
+	public ImportedSpreadsheetWrapper() {
 		rows = new ArrayList<>();
 		columns = new ArrayList<>();
+		userIdentifier = null;
+		headingReport = new ImportHeadingValidationReport();
+		isDPC = false;
+	}
+
+	public void setRows(List<ImportedRow> rows, Map<String, GbUser> rosterMap) {
+		this.rows = rows;
 		userIdentifier = UserIdentifierFactory.buildIdentifierForSheet(rows, rosterMap);
-		anon = userIdentifier instanceof AnonIdentifier;
 	}
 }

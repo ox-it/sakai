@@ -1,65 +1,49 @@
 package org.sakaiproject.gradebookng.business.importExport;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
 
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.user.api.User;
 
 /**
- *
+ * Identifier utility for anonymous IDs.
+ * 
  * @author plukasew, bjones86
  */
 @Slf4j
 public class AnonIdentifier implements UserIdentifier, Serializable
 {
-    private final Map<String, GbUser> userMap;
+    private final Map<String, GbUser> anonIdMap;
+
+    @Getter
     private final UserIdentificationReport report;
 
-    public AnonIdentifier(Map<String, User> anonRosterMap)
+    public AnonIdentifier( Map<String, GbUser> anonymousIdMap )
     {
-        userMap = new HashMap<>();
-
-        for (String anonId : anonRosterMap.keySet())
-        {
-            GbUser gu = new GbUser(anonRosterMap.get(anonId));
-            userMap.put(anonId, gu);
-        }
-
-        report = new UserIdentificationReport(new HashSet<>(userMap.values()));
-
-        // OWLTODO: this is almost identical to UsernameIdentifier! Base class? constructor modifier?
-        // OWLTODO: can we pull the roster maps out of SpreadsheetUploadBean and into these classes?
+        anonIdMap = anonymousIdMap;
+        report = new UserIdentificationReport( new HashSet<>( anonIdMap.values() ) );
     }
 
     @Override
-    public GbUser getUser(String userId)
+    public GbUser getUser( String anonID )
     {
-        GbUser user;
-
-        if (userMap.containsKey(userId))
+        GbUser user = anonIdMap.get( anonID );
+        if( user != null )
         {
-            user = userMap.get(userId);
-            report.addIdentifiedUser(user);
-            log.debug("User {} identified as UID: {}", userId, user.getUserUuid());
+            report.addIdentifiedUser( user );
+            log.debug( "User's anon ID {} identified as UUID: {}", anonID, user.getUserUuid() );
         }
         else
         {
-            user = new GbUser(userId, "");
-            report.addUnknownUser(userId);
-            log.debug("User {} is unknown to this gradebook", userId);
+            user = new GbUser( anonID, "" );
+            report.addUnknownUser( anonID );
+            log.debug( "User's anon ID {} is unknown to this gradebook", anonID );
         }
 
         return user;
-    }
-
-    @Override
-    public UserIdentificationReport getReport()
-    {
-        return report;
     }
 }

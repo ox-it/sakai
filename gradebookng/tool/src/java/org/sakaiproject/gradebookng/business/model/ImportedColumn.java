@@ -1,13 +1,14 @@
 package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
-
-import org.apache.commons.lang.StringUtils;
+import java.util.Objects;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Describes the type of column imported
@@ -15,8 +16,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ImportedColumn implements Serializable {
-
-	private static final long serialVersionUID = 1L;
 
 	@Getter
 	@Setter
@@ -36,6 +35,8 @@ public class ImportedColumn implements Serializable {
 		COMMENTS,
 		USER_ID,
 		USER_NAME,
+		STUDENT_NUMBER,
+		ANONYMOUS_ID,
 		IGNORE;
 	}
 
@@ -44,15 +45,14 @@ public class ImportedColumn implements Serializable {
 	 * @return
 	 */
 	public boolean isIgnorable() {
-		if(this.type == Type.USER_ID || this.type == Type.USER_NAME || this.type == Type.IGNORE) {
-			return true;
-		}
-		return false;
+		return this.type == Type.USER_ID || this.type == Type.USER_NAME || this.type == Type.STUDENT_NUMBER || this.type == Type.ANONYMOUS_ID || this.type == Type.IGNORE;
 	}
 
 	/**
 	 * Column titles are the only thing we care about for comparisons so that we can filter out duplicates.
 	 * Must also match type and exclude IGNORE
+	 * @param o
+	 * @return
 	 */
 	@Override
 	public boolean equals(final Object o) {
@@ -63,10 +63,15 @@ public class ImportedColumn implements Serializable {
 		if(this.type == Type.IGNORE || other.type == Type.IGNORE){
 			return false;
 		}
-		if(StringUtils.equalsIgnoreCase(this.columnTitle, other.getColumnTitle()) && this.type == other.getType()){
-			return true;
-		}
-		return false;
+		return StringUtils.equalsIgnoreCase(this.columnTitle, other.getColumnTitle()) && this.type == other.getType();
 	}
 
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = 47 * hash + Objects.hashCode(this.columnTitle);
+		hash = 47 * hash + Objects.hashCode(this.points);
+		hash = 47 * hash + Objects.hashCode(this.type);
+		return hash;
+	}
 }
