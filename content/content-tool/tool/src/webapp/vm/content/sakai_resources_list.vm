@@ -59,10 +59,6 @@
 			#if($showQuota)
 			<li><span><a href="#toolLinkParam("ResourcesAction" "doShowQuota" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.quota')">$clang.getString("list.quota")</a></span></li>
 			#end
-			#if($showRecycleBin)
-			<li><span><a href="#toolLinkParam("ResourcesAction" "doDispatchAction" "selectedItemId=$validator.escapeUrl($collectionId)&rt_action=${TYPE_FOLDER}${ACTION_DELIMITER}${RESTORE_ACTION_ID}")" title="$clang.getString('list.quota')">$clang.getString("list.recycle")</a></span></li>
-			#end
-
 			##SAK-30085
 			#if($showJumpToResourceForm)
 			<li class="inputItem">
