@@ -70,7 +70,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	
 	public static GbUser fromUserWithStudentNumber(final User u, final String studentNumber)
 	{
-		return new GbUser(u.getId(), u.getEid(), u.getDisplayId(), u.getDisplayName(), u.getFirstName(), u.getLastName(), "");
+		return new GbUser(u.getId(), u.getEid(), u.getDisplayId(), u.getDisplayName(), u.getFirstName(), u.getLastName(), studentNumber);
 	}
 	
 	public static GbUser forDisplayOnly(final String displayId, final String displayName)

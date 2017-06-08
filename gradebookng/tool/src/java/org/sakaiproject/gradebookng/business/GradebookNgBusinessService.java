@@ -2443,7 +2443,14 @@ public class GradebookNgBusinessService {
 	 */
 	public Map<String, GbUser> getUserEidMap() {
 		final List<GbUser> users = getGbUsers(getUsers(getGradeableUsers()));
-		final Map<String, GbUser> userEidMap = users.stream().collect(Collectors.toMap(GbUser::getEid, user -> user));
+		final Map<String, GbUser> userEidMap = new HashMap<>();
+		for (GbUser user : users) {
+			String eid = user.getEid();
+			if (StringUtils.isNotBlank(eid)) {
+				userEidMap.put(eid, user);
+			}
+		}
+
 		return userEidMap;
 	}
 
@@ -2455,7 +2462,14 @@ public class GradebookNgBusinessService {
 	 */
 	public Map<String, GbUser> getUserStudentNumMap() {
 		final List<GbUser> users = getGbUsers(getUsers(getGradeableUsers()));
-		final Map<String, GbUser> userStudentNumMap = users.stream().collect(Collectors.toMap(GbUser::getStudentNumber, user -> user));
+		final Map<String, GbUser> userStudentNumMap = new HashMap<>();
+		for (GbUser user : users) {
+			String studentNum = user.getStudentNumber();
+			if (StringUtils.isNotBlank(studentNum)) {
+				userStudentNumMap.put(studentNum, user);
+			}
+		}
+
 		return userStudentNumMap;
 	}
 
