@@ -1,3 +1,5 @@
+2017.06.08:
+	- [OWL-2880] port OWL-2323 to 11.3
 2017.04.20:
 	- [OWL-2667] membership -> 'clear selections' button wasn't working
 2017.04.12:

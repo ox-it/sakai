@@ -6411,6 +6411,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							String relativeWebPath = null;
 							MyTool newTool = new MyTool();
 							newTool.title = tool.get("title").toString();
+							// OWLTODO: fix this temporary hack!
+							if ("Turnitin".equals(newTool.title) || "Turnitin Reports".equals(newTool.title))
+							{
+								continue;
+							}
 							newTool.id = LTITOOL_ID_PREFIX + ltiToolId;
 							newTool.description = (String) tool.get("description");
 							newTool.group = groupName;
