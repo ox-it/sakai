@@ -12,6 +12,7 @@ import org.sakaiproject.hierarchy.api.PortalHierarchyService;
 import org.sakaiproject.hierarchy.api.model.PortalNode;
 import org.sakaiproject.hierarchy.api.model.PortalNodeRedirect;
 import org.sakaiproject.hierarchy.api.model.PortalNodeSite;
+import org.sakaiproject.site.api.SiteService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,9 @@ public class HierarchyEntityProviderImpl extends AbstractEntityProvider
 
 	@Setter
 	private transient PortalHierarchyService portalHierarchyService;
+
+	@Setter
+	private transient SiteService siteService;
 
 	/**
 	 * /portal-hierarchy/site.json?portalpath=/path(e.g. /sitename/name or :sitename:path)
@@ -97,5 +101,41 @@ public class HierarchyEntityProviderImpl extends AbstractEntityProvider
 			throw new IllegalArgumentException("No site found for the given portal path");
 		}
 		return hierarchySiteSummary;
+	}
+
+	/**
+	 * /portal-hierarchy/locations.json?siteid=id)
+	 */
+	@EntityCustomAction(action = "locations", viewKey = EntityView.VIEW_LIST)
+	public List<PortalNodeSummary> getNodesFromRootForSite(EntityView view, Map<String, Object> params){
+		String siteId =  (String)params.get("siteid");
+
+		if(StringUtils.isBlank(siteId)){
+			throw new IllegalArgumentException("site ID must be set in order to get the site node locations");
+		}
+
+		List<PortalNodeSummary> portalNodeSummaries = new ArrayList<>();
+
+		if (siteService.siteExists(siteId)) {
+
+			List<PortalNode> portalNodes = portalHierarchyService.getNodesWithSite(siteId);
+			PortalNode portalNodePrimary = portalHierarchyService.getDefaultNode(siteId);
+
+			// Site exists but if it is not in the hierarchy show an empty entity.
+			if (portalNodes.isEmpty()) {
+				return portalNodeSummaries;
+			}
+
+			for (PortalNode pn : portalNodes) {
+					PortalNodeSummary pne = new PortalNodeSummary(pn);
+					if (pn.equals(portalNodePrimary)) {
+						pne.setPrimary(true);
+					}
+					portalNodeSummaries.add(pne);
+			}
+		} else {
+			throw new IllegalArgumentException("The site ID is not valid");
+		}
+		return portalNodeSummaries;
 	}
 }
