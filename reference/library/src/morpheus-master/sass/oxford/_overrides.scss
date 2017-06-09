@@ -135,3 +135,26 @@
     .icon-sakai-oxam-admin{                  @extend .fa-gears;}
     .icon-oxford-podcasts {                  @extend .fa-volume-up;}
 }
+
+/* Show the breadcrumbs on one rows (when there are parent sites) */
+.#{$namespace}siteHierarchy {
+
+  @media #{$nonPhone}{
+
+	.Mrphs-siteHierarchyAlign {
+	  display: flex;
+	  justify-content: center;
+	  float: left;
+
+	  .Mrphs-hierarchy--parent-sites, .Mrphs-hierarchy--siteName, .Mrphs-hierarchy--siteNameSeparator, .Mrphs-hierarchy--toolName  {
+		align-self: center;
+		padding-top: 2rem;
+		padding-bottom: 0px;
+		font-size: 100%;
+		margin-right: 10px;
+		margin-bottom: 0;
+		font-weight: normal;
+	  }
+	}
+  }
+}
