@@ -2709,6 +2709,11 @@ public abstract class BaseCitationService implements CitationService
 			}
 		}
 
+		public void add(CitationCollectionOrder citationCollectionOrder)
+		{
+			this.m_nestedCitationCollectionOrders.add(citationCollectionOrder);
+		}
+
 		/*
 		 * (non-Javadoc)
 		 *
@@ -3202,6 +3207,7 @@ public abstract class BaseCitationService implements CitationService
 			{
 				this.m_order = new TreeSet<String>(this.m_comparator);
 			}
+			this.m_order.clear();
 			Iterator it = other.m_citations.keySet().iterator();
 			while(it.hasNext())
 			{
@@ -3233,11 +3239,14 @@ public abstract class BaseCitationService implements CitationService
 						BasicCitation newCitation = new BasicCitation();
 						newCitation.copy(oldCitation);
 						newCitation.m_temporary = isTemporary;
-						this.saveCitation(newCitation);
+						if (isTemporary){ // don't save the citation if it's just temporary
+							this.saveCitation(newCitation);
+						}
 
 						// copy the citation's citationCollectionOrder
 						CitationCollectionOrder newCitationCollectionOrder = citationCollectionOrder.copy(this.getId(), newCitation.getId());
 						this.saveCitationCollectionOrder(newCitationCollectionOrder);
+						this.add(newCitationCollectionOrder);
 
 					} catch (IdUnusedException e) {
 						M_log.warn("copying citationcollectionorder(" + citationCollectionOrder.getCitationid() + ") ==> " + citationCollectionOrder.getValue(), e);
@@ -3247,6 +3256,7 @@ public abstract class BaseCitationService implements CitationService
 					// copy the citationCollectionOrder
 					CitationCollectionOrder newCitationCollectionOrder = citationCollectionOrder.copy(this.getId());
 					this.saveCitationCollectionOrder(newCitationCollectionOrder);
+					this.add(newCitationCollectionOrder);
 				}
 			}
 
