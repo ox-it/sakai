@@ -27,10 +27,6 @@
 <head>
  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
- <!-- IE8 runnung in IE7 compatability mode breaks this page 
-     work around is the line below --> 
- <meta http-equiv="X-UA-Compatible" content="IE=8">
-
  <title>Researcher Development</title>
 
  <link href='<c:out value="${skinRepo}" />/tool_base.css' type="text/css" rel="stylesheet" media="all" />
