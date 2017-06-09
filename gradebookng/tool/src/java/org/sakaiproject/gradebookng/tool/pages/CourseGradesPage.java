@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
@@ -23,10 +24,12 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.CachedCMProvider;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.component.GbBaseHeadersToolbar;
 import org.sakaiproject.gradebookng.tool.component.table.GbGradesDataProvider;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
@@ -394,5 +397,10 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	{
 		return cmProvider;
 	}
-	
+
+	@Override
+	public void addOrReplaceTable(GbStopWatch stopwatch) {}
+
+	@Override
+	public void setFocusedAssignmentID(long assignmentID) {}
 }

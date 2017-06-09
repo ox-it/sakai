@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -13,12 +14,13 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.BasePage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -35,12 +37,11 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  */
 public class AddOrEditGradeItemPanel extends Panel {
 
-	private static final long serialVersionUID = 1L;
-
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
 	IModel<Long> model;
+	private final ModalWindow window;
 
 	/**
 	 * How this panel is rendered
@@ -55,20 +56,21 @@ public class AddOrEditGradeItemPanel extends Panel {
 	public AddOrEditGradeItemPanel(final String id, final ModalWindow window, final IModel<Long> model) {
 		super(id);
 		this.model = model;
+		this.window = window;
 
 		// determine mode
 		if (model != null) {
-			this.mode = Mode.EDIT;
+			mode = Mode.EDIT;
 		} else {
-			this.mode = Mode.ADD;
+			mode = Mode.ADD;
 		}
 
 		// setup the backing object
 		Assignment assignment;
 
-		if (this.mode == Mode.EDIT) {
-			final Long assignmentId = this.model.getObject();
-			assignment = this.businessService.getAssignment(assignmentId);
+		if (mode == Mode.EDIT) {
+			final Long assignmentId = model.getObject();
+			assignment = businessService.getAssignment(assignmentId);
 
 			// TODO if we are in edit mode and don't have an assignment, need to error here
 
@@ -78,18 +80,17 @@ public class AddOrEditGradeItemPanel extends Panel {
 			// Default released to true
 			assignment.setReleased(true);
 			// If no categories, then default counted to true
-			final Gradebook gradebook = this.businessService.getGradebook();
+			final Gradebook gradebook = businessService.getGradebook();
 			assignment.setCounted(GradebookService.CATEGORY_TYPE_NO_CATEGORY == gradebook.getCategory_type());
 		}
 
 		// form model
-		final Model<Assignment> formModel = new Model<Assignment>(assignment);
+		final Model<Assignment> formModel = new Model<>(assignment);
 
 		// form
-		final Form<Assignment> form = new Form<Assignment>("addOrEditGradeItemForm", formModel);
+		final Form<Assignment> form = new Form<>("addOrEditGradeItemForm", formModel);
 
 		final GbAjaxButton submit = new GbAjaxButton("submit", form) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
@@ -104,7 +105,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 					final List<CategoryDefinition> categories = AddOrEditGradeItemPanel.this.businessService.getGradebookCategories();
 					final CategoryDefinition category = categories
 							.stream()
-							.filter(c -> (c.getId() == assignment.getCategoryId())
+							.filter(c -> (Objects.equals(c.getId(), assignment.getCategoryId()))
 									&& (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDrop_lowest() > 0))
 							.filter(c -> (c.getDropHighest() > 0 || c.getKeepHighest() > 0 || c.getDrop_lowest() > 0))
 							.findFirst()
@@ -113,7 +114,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 					if (category != null) {
 						final Assignment mismatched = category.getAssignmentList()
 								.stream()
-								.filter(a -> Double.compare(a.getPoints().doubleValue(), assignment.getPoints().doubleValue()) != 0)
+								.filter(a -> Double.compare(a.getPoints(), assignment.getPoints()) != 0)
 								.findFirst()
 								.orElse(null);
 						if (mismatched != null) {
@@ -133,21 +134,31 @@ public class AddOrEditGradeItemPanel extends Panel {
 
 				// OK
 				if (validated) {
+					final IGradesPage gradebookPage = (IGradesPage) getPage();
+					final BasePage basePage = (BasePage) getPage();
+					Long assignmentId = null;
 					if (AddOrEditGradeItemPanel.this.mode == Mode.EDIT) {
 
 						final boolean success = AddOrEditGradeItemPanel.this.businessService.updateAssignment(assignment);
+						assignmentId = assignment.getId();
 
 						if (success) {
-							getSession().success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
-							setResponsePage(getPage().getPageClass());
+
+							// refresh
+							AddOrEditGradeItemPanel.this.window.close(target);
+							gradebookPage.setFocusedAssignmentID(assignmentId);
+							gradebookPage.addOrReplaceTable(null);
+							gradebookPage.redrawSpreadsheet(target);
+
+							// display feedback
+							basePage.success(MessageFormat.format(getString("message.edititem.success"), assignment.getName()));
+							target.add(basePage.feedbackPanel);
 						} else {
 							error(new ResourceModel("message.edititem.error").getObject());
 							target.addChildren(form, FeedbackPanel.class);
 						}
 
 					} else {
-
-						Long assignmentId = null;
 
 						boolean success = true;
 						try {
@@ -166,10 +177,17 @@ public class AddOrEditGradeItemPanel extends Panel {
 							success = false;
 						}
 						if (success) {
-							getSession()
-									.success(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
-							setResponsePage(getPage().getPageClass(),
-									new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
+
+							// refresh
+							AddOrEditGradeItemPanel.this.window.close(target);
+							gradebookPage.setFocusedAssignmentID(assignmentId);
+							gradebookPage.addOrReplaceTable(null);
+							gradebookPage.redrawSpreadsheet(target);
+
+							// display feedback
+							basePage.success(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
+							target.add(basePage.feedbackPanel);
+							//setResponsePage(getPage().getPageClass(), new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
 						} else {
 							target.addChildren(form, FeedbackPanel.class);
 						}
@@ -195,11 +213,10 @@ public class AddOrEditGradeItemPanel extends Panel {
 
 		// cancel button
 		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-				window.close(target);
+				AddOrEditGradeItemPanel.this.window.close(target);
 			}
 		};
 		cancel.setDefaultFormProcessing(false);
@@ -214,7 +231,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 	 * @return
 	 */
 	private ResourceModel getSubmitButtonLabel() {
-		if (this.mode == Mode.EDIT) {
+		if (mode == Mode.EDIT) {
 			return new ResourceModel("button.savechanges");
 		} else {
 			return new ResourceModel("button.create");

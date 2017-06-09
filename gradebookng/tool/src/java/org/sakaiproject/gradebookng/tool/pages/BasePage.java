@@ -4,6 +4,8 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.CssHeaderItem;
@@ -18,12 +20,11 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
-
-import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -34,8 +35,6 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  */
 @Slf4j
 public class BasePage extends WebPage {
-
-	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -64,8 +63,8 @@ public class BasePage extends WebPage {
 		log.debug("BasePage()");
 
 		// setup some data that can be shared across all pages
-		this.currentUserUuid = this.businessService.getCurrentUser().getId();
-		this.role = this.businessService.getUserRole();
+		currentUserUuid = businessService.getCurrentUser().getId();
+		role = businessService.getUserRole();
 		gradebook = businessService.getGradebook();
 
 		// set locale
@@ -73,8 +72,6 @@ public class BasePage extends WebPage {
 
 		// nav container
 		final WebMarkupContainer nav = new WebMarkupContainer("gradebookPageNav") {
-
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean isVisible() {
@@ -84,8 +81,7 @@ public class BasePage extends WebPage {
 		};
 
 		// grades page
-		this.gradebookPageLink = new Link<Void>("gradebookPageLink") {
-			private static final long serialVersionUID = 1L;
+		gradebookPageLink = new Link<Void>("gradebookPageLink") {
 
 			@Override
 			public void onClick() {
@@ -98,12 +94,11 @@ public class BasePage extends WebPage {
 			}
 
 		};
-		this.gradebookPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
-		nav.add(this.gradebookPageLink);
+		gradebookPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
+		nav.add(gradebookPageLink);
 		
 		// course grades page
 		courseGradesPageLink = new Link<Void>("courseGradesPageLink") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick() {
@@ -120,8 +115,7 @@ public class BasePage extends WebPage {
 		nav.add(courseGradesPageLink);
 
 		// import/export page
-		this.importExportPageLink = new Link<Void>("importExportPageLink") {
-			private static final long serialVersionUID = 1L;
+		importExportPageLink = new Link<Void>("importExportPageLink") {
 
 			@Override
 			public void onClick() {
@@ -133,12 +127,11 @@ public class BasePage extends WebPage {
 				return (BasePage.this.role == GbRole.INSTRUCTOR);
 			}
 		};
-		this.importExportPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
-		nav.add(this.importExportPageLink);
+		importExportPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
+		nav.add(importExportPageLink);
 
 		// permissions page
-		this.permissionsPageLink = new Link<Void>("permissionsPageLink") {
-			private static final long serialVersionUID = 1L;
+		permissionsPageLink = new Link<Void>("permissionsPageLink") {
 
 			@Override
 			public void onClick() {
@@ -150,12 +143,11 @@ public class BasePage extends WebPage {
 				return (BasePage.this.role == GbRole.INSTRUCTOR);
 			}
 		};
-		this.permissionsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
-		nav.add(this.permissionsPageLink);
+		permissionsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
+		nav.add(permissionsPageLink);
 
 		// settings page
-		this.settingsPageLink = new Link<Void>("settingsPageLink") {
-			private static final long serialVersionUID = 1L;
+		settingsPageLink = new Link<Void>("settingsPageLink") {
 
 			@Override
 			public void onClick() {
@@ -167,14 +159,14 @@ public class BasePage extends WebPage {
 				return (BasePage.this.role == GbRole.INSTRUCTOR);
 			}
 		};
-		this.settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
-		nav.add(this.settingsPageLink);
+		settingsPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
+		nav.add(settingsPageLink);
 
 		add(nav);
 
 		// Add a FeedbackPanel for displaying our messages
-		this.feedbackPanel = new GbFeedbackPanel("feedback");
-		add(this.feedbackPanel);
+		feedbackPanel = new GbFeedbackPanel("feedback");
+		add(feedbackPanel);
 
 	}
 
@@ -182,13 +174,14 @@ public class BasePage extends WebPage {
 	 * Helper to clear the feedback panel display from any child component
 	 */
 	public void clearFeedback() {
-		this.feedbackPanel.clear();
+		feedbackPanel.clear();
 	}
 
 	/**
 	 * This block adds the required wrapper markup to style it like a Sakai tool. Add to this any additional CSS or JS references that you
 	 * need.
 	 *
+	 * @param response
 	 */
 	@Override
 	public void renderHead(final IHeaderResponse response) {
@@ -206,26 +199,27 @@ public class BasePage extends WebPage {
 		response.render(OnLoadHeaderItem.forScript("setMainFrameHeight( window.name )"));
 
 		// Tool additions (at end so we can override if required)
-		response.render(StringHeaderItem
-				.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
+		response.render(StringHeaderItem.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
 
 		// Shared stylesheets
-		response.render(CssHeaderItem
-				.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
-
+		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-shared.css?version=%s", version)));
 	}
 
 	/**
 	 * Helper to disable a link. Add the Sakai class 'current'.
+	 * @param l
 	 */
 	protected void disableLink(final Link<Void> l) {
-		l.add(new AttributeAppender("class", new Model<String>("current"), " "));
+		l.add(new AttributeAppender("class", new Model<>("current"), " "));
 		l.replace(new Label("screenreaderlabel", getString("link.screenreader.tabselected")));
 		l.setEnabled(false);
 	}
 
 	/**
 	 * Helper to build a notification flag with a Bootstrap popover
+	 * @param componentId
+	 * @param message
+	 * @return
 	 */
 	public WebMarkupContainer buildFlagWithPopover(final String componentId, final String message) {
 		final WebMarkupContainer flagWithPopover = new WebMarkupContainer(componentId);
@@ -247,6 +241,8 @@ public class BasePage extends WebPage {
 
 	/**
 	 * Helper to generate content for a Bootstrap popover with close button
+	 * @param message
+	 * @return
 	 */
 	public String generatePopoverContent(final String message) {
 		final String popoverHTML = "<a href='javascript:void(0);' class='gb-popover-close'></a><ul class='gb-popover-notifications'><li class='text-info'>%s</li></ul>";

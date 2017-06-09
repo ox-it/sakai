@@ -2,17 +2,20 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
@@ -23,8 +26,6 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
  *
  */
 public class CategoryColumnHeaderPanel extends Panel {
-
-	private static final long serialVersionUID = 1L;
 
 	private final IModel<CategoryDefinition> modelData;
 
@@ -39,14 +40,13 @@ public class CategoryColumnHeaderPanel extends Panel {
 
 		final CategoryDefinition category = this.modelData.getObject();
 
-		final Link<String> title = new Link<String>("title", Model.of(category.getName())) {
-			private static final long serialVersionUID = 1L;
+		final GbAjaxLink<String> title = new GbAjaxLink<String>("title", Model.of(category.getName())) {
 
 			@Override
-			public void onClick() {
+			public void onClick(AjaxRequestTarget target) {
 
 				// toggle the sort direction on each click
-				final GradebookPage gradebookPage = (GradebookPage) getPage();
+				final IGradesPage gradebookPage = (IGradesPage) getPage();
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
 				// if null, set a default sort, otherwise toggle, save, refresh.
@@ -65,7 +65,7 @@ public class CategoryColumnHeaderPanel extends Panel {
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
 			}
 
 		};
@@ -91,5 +91,4 @@ public class CategoryColumnHeaderPanel extends Panel {
 		colorSwatch.add(new AttributeAppender("style", String.format("background-color:%s;", categoryColor)));
 		add(colorSwatch);
 	}
-
 }

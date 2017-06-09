@@ -3,7 +3,9 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -11,7 +13,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -28,7 +29,9 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
@@ -40,10 +43,10 @@ import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+@Slf4j
 public class AssignmentColumnHeaderPanel extends Panel {
 
 	public static final String ICON_SAKAI = "icon-sakai--";
-	private static final long serialVersionUID = 1L;
 
 	private final IModel<Assignment> modelData;
 	private final GbGradingType gradingType;
@@ -63,22 +66,22 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		getParentCellFor(this).setOutputMarkupId(true);
 
-		final Assignment assignment = this.modelData.getObject();
+		final Assignment assignment = modelData.getObject();
 
 		// get user's role
-		final GbRole role = this.businessService.getUserRole();
+		final GbRole role = businessService.getUserRole();
 
 		// do they have permission to edit this assignment?
 		final boolean canEditAssignment = canUserEditAssignment(role, assignment);
 
-		final Link<String> title = new Link<String>("title", Model.of(assignment.getName())) {
-			private static final long serialVersionUID = 1L;
+		final IGradesPage gradebookPage = (IGradesPage) getPage();
+
+		final GbAjaxLink<String> title = new GbAjaxLink<String>("title", Model.of(assignment.getName())) {
 
 			@Override
-			public void onClick() {
+			public void onClick(AjaxRequestTarget target) {
 
 				// toggle the sort direction on each click
-				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
 				// if null, set a default sort, otherwise toggle, save, refresh.
@@ -97,15 +100,13 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				setResponsePage(GradebookPage.class);
+				gradebookPage.redrawSpreadsheet(target);
 			}
-
 		};
 		title.add(new AttributeModifier("title", assignment.getName()));
 		title.add(new Label("label", FormatHelper.abbreviateMiddle(assignment.getName())));
 
 		// set the class based on the sortOrder. May not be set for this assignment so match it
-		final GradebookPage gradebookPage = (GradebookPage) getPage();
 		final GradebookUiSettings settings = gradebookPage.getUiSettings();
 		if (settings != null && settings.getAssignmentSortOrder() != null
 				&& settings.getAssignmentSortOrder().getAssignmentId() == assignment.getId()) {
@@ -132,13 +133,14 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		add(new Label("dueDate", Model.of(FormatHelper.formatDate(assignment.getDueDate(), getString("label.noduedate")))));
 
-		final WebMarkupContainer externalAppFlag = gradebookPage.buildFlagWithPopover("externalAppFlag", "");
+		final BasePage bp = (BasePage) gradebookPage;
+		final WebMarkupContainer externalAppFlag = bp.buildFlagWithPopover("externalAppFlag", "");
 		if (assignment.getExternalAppName() == null) {
 			externalAppFlag.setVisible(false);
 		} else {
 			externalAppFlag.setVisible(true);
 			externalAppFlag.add(new AttributeModifier("data-content",
-					gradebookPage.generatePopoverContent(new StringResourceModel("label.gradeitem.externalapplabel",
+					bp.generatePopoverContent(new StringResourceModel("label.gradeitem.externalapplabel",
 							null, new Object[] { assignment.getExternalAppName() }).getString())));
 			String iconClass = ICON_SAKAI + "default-tool";
 			if ("Assignments".equals(assignment.getExternalAppName())) {
@@ -153,20 +155,20 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		}
 		add(externalAppFlag);
 
-		add(gradebookPage.buildFlagWithPopover("extraCreditFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_EXTRA_CREDIT))
+		add(bp.buildFlagWithPopover("extraCreditFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_EXTRA_CREDIT))
 				.setVisible(assignment.isExtraCredit()));
-		add(gradebookPage.buildFlagWithPopover("isCountedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_COUNTED))
+		add(bp.buildFlagWithPopover("isCountedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_COUNTED))
 				.setVisible(assignment.isCounted()));
-		add(gradebookPage.buildFlagWithPopover("notCountedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_COUNTED))
+		add(bp.buildFlagWithPopover("notCountedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_COUNTED))
 				.setVisible(!assignment.isCounted()));
-		add(gradebookPage.buildFlagWithPopover("isReleasedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_RELEASED))
+		add(bp.buildFlagWithPopover("isReleasedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_RELEASED))
 				.setVisible(assignment.isReleased()));
-		add(gradebookPage.buildFlagWithPopover("notReleasedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_RELEASED))
+		add(bp.buildFlagWithPopover("notReleasedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_RELEASED))
 				.setVisible(!assignment.isReleased()));
 
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
 		add(new AttributeModifier("data-category", assignment.getCategoryName()));
-		if (GbCategoryType.WEIGHTED_CATEGORY.equals(this.businessService.getGradebookCategoryType()) && assignment.getWeight() != null) {
+		if (GbCategoryType.WEIGHTED_CATEGORY.equals(businessService.getGradebookCategoryType()) && assignment.getWeight() != null) {
 			add(new AttributeModifier("data-category-weight", String.format("%s%%", Math.round(assignment.getWeight() * 100))));
 		}
 		add(new AttributeModifier("data-category-extra-credit", assignment.isCategoryExtraCredit()));
@@ -176,7 +178,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		final WebMarkupContainer menu = new WebMarkupContainer("menu");
 
 		menu.add(new GbAjaxLink<Long>("editAssignmentDetails", Model.of(assignment.getId())) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -196,7 +197,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 
 		menu.add(new GbAjaxLink<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -208,41 +208,41 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			}
 		});
 
-		menu.add(new Link<Long>("moveAssignmentLeft", Model.of(assignment.getId())) {
-			private static final long serialVersionUID = 1L;
+		menu.add(new GbAjaxLink<Long>("moveAssignmentLeft", Model.of(assignment.getId())) {
 
 			@Override
-			public void onClick() {
+			public void onClick(final AjaxRequestTarget target) {
 				// given the id, get the assignment, get the sort order, then update and refresh
 				// note that we cannot use the passed in assignment sort order in here
 				// as we may have had an async reorder on the front end but not had the model data updated,
 				// so we just make sure we get it fresh
 
-				final Long assignmentId = getModelObject();
+				final Long assignmentId = (Long) getModelObject();
 
-				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				GradebookUiSettings settings = gradebookPage.getUiSettings();
-
 				if (settings == null) {
 					settings = new GradebookUiSettings();
-					gradebookPage.setUiSettings(settings);
 				}
 
 				if (settings.isCategoriesEnabled()) {
 					try {
 						final Integer order = calculateCurrentCategorizedSortOrder(assignmentId);
-						AssignmentColumnHeaderPanel.this.businessService.updateAssignmentCategorizedOrder(assignmentId,
-								(order.intValue() - 1));
+						AssignmentColumnHeaderPanel.this.businessService.updateAssignmentCategorizedOrder(assignmentId, (order - 1));
 					} catch (final Exception e) {
-						e.printStackTrace();
+						log.debug(e.getMessage());
 						error("error reordering within category");
 					}
 				} else {
-					final int order = AssignmentColumnHeaderPanel.this.businessService.getAssignmentSortOrder(assignmentId.longValue());
-					AssignmentColumnHeaderPanel.this.businessService.updateAssignmentOrder(assignmentId.longValue(), (order - 1));
+					final int order = AssignmentColumnHeaderPanel.this.businessService.getAssignmentSortOrder(assignmentId);
+					AssignmentColumnHeaderPanel.this.businessService.updateAssignmentOrder(assignmentId, (order - 1));
 				}
 
-				setResponsePage(GradebookPage.class);
+				// save settings
+				gradebookPage.setUiSettings(settings);
+
+				// refresh
+				gradebookPage.addOrReplaceTable(null);
+				gradebookPage.redrawSpreadsheet(target);
 			}
 
 			@Override
@@ -251,37 +251,37 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			}
 		});
 
-		menu.add(new Link<Long>("moveAssignmentRight", Model.of(assignment.getId())) {
-			private static final long serialVersionUID = 1L;
+		menu.add(new GbAjaxLink<Long>("moveAssignmentRight", Model.of(assignment.getId())) {
 
 			@Override
-			public void onClick() {
+			public void onClick(final AjaxRequestTarget target) {
 
-				final Long assignmentId = getModelObject();
+				final Long assignmentId = (Long) getModelObject();
 
-				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				GradebookUiSettings settings = gradebookPage.getUiSettings();
-
 				if (settings == null) {
 					settings = new GradebookUiSettings();
-					gradebookPage.setUiSettings(settings);
 				}
 
 				if (settings.isCategoriesEnabled()) {
 					try {
 						final Integer order = calculateCurrentCategorizedSortOrder(assignmentId);
-						AssignmentColumnHeaderPanel.this.businessService.updateAssignmentCategorizedOrder(assignmentId,
-								(order.intValue() + 1));
+						AssignmentColumnHeaderPanel.this.businessService.updateAssignmentCategorizedOrder(assignmentId, (order + 1));
 					} catch (final Exception e) {
-						e.printStackTrace();
+						log.debug(e.getMessage());
 						error("error reordering within category");
 					}
 				} else {
-					final int order = AssignmentColumnHeaderPanel.this.businessService.getAssignmentSortOrder(assignmentId.longValue());
-					AssignmentColumnHeaderPanel.this.businessService.updateAssignmentOrder(assignmentId.longValue(), (order + 1));
+					final int order = AssignmentColumnHeaderPanel.this.businessService.getAssignmentSortOrder(assignmentId);
+					AssignmentColumnHeaderPanel.this.businessService.updateAssignmentOrder(assignmentId, (order + 1));
 				}
 
-				setResponsePage(GradebookPage.class);
+				// save settings
+				gradebookPage.setUiSettings(settings);
+
+				// refresh
+				gradebookPage.addOrReplaceTable(null);
+				gradebookPage.redrawSpreadsheet(target);
 			}
 
 			@Override
@@ -291,7 +291,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 
 		menu.add(new GbAjaxLink<Long>("hideAssignment", Model.of(assignment.getId())) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -301,7 +300,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 
 		menu.add(new GbAjaxLink<Long>("setUngraded", Model.of(assignment.getId())) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -331,7 +329,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		// delete item
 		menu.add(new GbAjaxLink<Long>("deleteGradeItem", Model.of(assignment.getId())) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -376,7 +373,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 	private String generateFlagPopover(final HeaderFlagPopoverPanel.Flag flag) {
 		final Map<String, Object> popoverModel = new HashMap<>();
-		popoverModel.put("assignmentId", this.modelData.getObject().getId());
+		popoverModel.put("assignmentId", modelData.getObject().getId());
 		popoverModel.put("flag", flag);
 		return new HeaderFlagPopoverPanel("popover", Model.ofMap(popoverModel)).toPopoverString();
 	}
@@ -389,14 +386,14 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	 * @return the current sort index of the assignment within their category
 	 */
 	private Integer calculateCurrentCategorizedSortOrder(final Long assignmentId) {
-		final Assignment assignment = AssignmentColumnHeaderPanel.this.businessService.getAssignment(assignmentId.longValue());
+		final Assignment assignment = businessService.getAssignment(assignmentId);
 		Integer order = assignment.getCategorizedSortOrder();
 
 		if (order == null) {
 			// if no categorized order for assignment, calculate one based on the default sort order
-			final List<Assignment> assignments = AssignmentColumnHeaderPanel.this.businessService.getGradebookAssignments();
+			final List<Assignment> assignments = businessService.getGradebookAssignments();
 			final List<Long> assignmentIdsInCategory = assignments.stream()
-					.filter(a -> a.getCategoryId() == assignment.getCategoryId())
+					.filter(a -> Objects.equals(a.getCategoryId(), assignment.getCategoryId()))
 					.map(Assignment::getId)
 					.collect(Collectors.toList());
 
@@ -410,9 +407,8 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		if (role == GbRole.INSTRUCTOR) {
 			return true;
 		} else {
-			final List<PermissionDefinition> permissions = this.businessService.getPermissionsForUser(
-					this.businessService.getCurrentUser().getId());
-			final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
+			final List<PermissionDefinition> permissions = businessService.getPermissionsForUser(businessService.getCurrentUser().getId());
+			final boolean categoriesEnabled = businessService.categoriesAreEnabled();
 			for (final PermissionDefinition permission : permissions) {
 				final boolean gradePermission = permission.getFunction().equals(GraderPermission.GRADE.toString());
 

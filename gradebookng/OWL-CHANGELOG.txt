@@ -1,3 +1,5 @@
+2017.06.09:
+	- [OWL-2911] AJAX the rest of the Grades page
 2017.06.05:
 	- [OWL-2675] Reduce amount of logging from GradebookNG during file import
 	- [OWL-2860] Hide the 'Grade Entry' panel on the GradebookNG -> Settings page from non-admins

@@ -7,9 +7,10 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
@@ -18,8 +19,6 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
  *
  */
 public class ZeroUngradedItemsPanel extends Panel {
-
-	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -47,18 +46,19 @@ public class ZeroUngradedItemsPanel extends Panel {
 				final List<Assignment> assignments = ZeroUngradedItemsPanel.this.businessService.getGradebookAssignments();
 
 				for (final Assignment assignment : assignments) {
-					final long assignmentId = assignment.getId().longValue();
+					final long assignmentId = assignment.getId();
 					ZeroUngradedItemsPanel.this.businessService.updateUngradedItems(assignmentId, ZERO_GRADE);
 				}
 
+				// refresh
 				ZeroUngradedItemsPanel.this.window.close(target);
-				setResponsePage(GradebookPage.class);
+				final IGradesPage gradebookPage = (IGradesPage) getPage();
+				gradebookPage.redrawSpreadsheet(target);
 			}
 		};
 		add(submit);
 
 		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {

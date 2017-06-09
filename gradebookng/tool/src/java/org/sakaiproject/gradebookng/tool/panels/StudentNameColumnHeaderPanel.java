@@ -11,13 +11,13 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 /**
@@ -28,8 +28,6 @@ import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
  *
  */
 public class StudentNameColumnHeaderPanel extends Panel {
-
-	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -156,7 +154,6 @@ public class StudentNameColumnHeaderPanel extends Panel {
 
 		// sort by first/last name link
 		final GbAjaxLink<GbStudentNameSortOrder> sortByName = new GbAjaxLink<GbStudentNameSortOrder>("sortByName", this.model) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -184,7 +181,6 @@ public class StudentNameColumnHeaderPanel extends Panel {
 
 		// the label changes depending on the state so we wrap it in a model
 		final IModel<String> sortByNameModel = new Model<String>() {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getObject() {

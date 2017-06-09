@@ -11,7 +11,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.$horizontalOverflow = $("#gradebookHorizontalOverflowWrapper");
 
   // no students or grade items, nothing to do
-  if (this.$table.length == 0) {
+  if (this.$table.length === 0) {
 	  return;
   }
 
@@ -22,7 +22,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this._CATEGORIES_MAP = {}; // header models keyed on their category
   this._ALL_CATEGORIES = []; // category strings in an alpha sorted list
   this._COLUMN_ORDER = [];   // the order of the columns when categories aren't enabled
-  this._CATEGORY_DATA = {} // info about each category including weighting and color
+  this._CATEGORY_DATA = {}; // info about each category including weighting and color
 
 
   // set it all up
@@ -48,14 +48,14 @@ function GradebookSpreadsheet($spreadsheet) {
     self.setupConcurrencyCheck();
     self.setupStudentFilter();
     self.setupMenusAndPopovers();
-    self.setupNewAssignmentFocus();
+    self.setupAssignmentFocus();
   });
 
   this.onReady(function() {
     self.findCourseGradeIndex();
     self.setupScrollHandling();
     self.setupConnectionPoll();
-  })
+  });
 
   this.ready();
 };
@@ -77,7 +77,7 @@ GradebookSpreadsheet.prototype.initTable = function()
     self.setupConcurrencyCheck();
     self.setupStudentFilter();
     self.setupMenusAndPopovers();
-    self.setupNewAssignmentFocus();
+    self.setupAssignmentFocus();
     
     self.findCourseGradeIndex();
     self.setupScrollHandling();
@@ -172,7 +172,7 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
     }
   }, function() {
     
-  })
+  });
 };
 
 
@@ -199,23 +199,23 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
 
 
   // arrow left 37 (DISABLE TAB FOR NOW || tab 9 + SHIFT)
-  if (event.keyCode == 37) { // || (event.shiftKey && event.keyCode == 9)) {
+  if (event.keyCode === 37) { // || (event.shiftKey && event.keyCode == 9)) {
     self.navigate(event, event.target, "left");
 
   // arrow up 38
-  } else if (event.keyCode == 38) {
+  } else if (event.keyCode === 38) {
     self.navigate(event, event.target, "up");
 
   // arrow right 39 (DISABLE TAB FOR NOW || tab 9)
-  } else if (event.keyCode == 39) { // || event.keyCode == 9) {
+  } else if (event.keyCode === 39) { // || event.keyCode == 9) {
     self.navigate(event, event.target, "right");
 
   // arrow down 40
-  } else if (event.keyCode == 40) {
+  } else if (event.keyCode === 40) {
     self.navigate(event, event.target, "down");
 
   // return 13
-  } else if (isEditableCell && event.keyCode == 13) {
+  } else if (isEditableCell && event.keyCode === 13) {
     event.preventDefault();
     self.getCellModel($eventTarget).enterEditMode(event.keyCode);
 
@@ -226,13 +226,13 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
     self.getCellModel($eventTarget).enterEditMode(event.keyCode);
 
   // DEL 8
-  } else if (isEditableCell && event.keyCode == 8) {
+  } else if (isEditableCell && event.keyCode === 8) {
     event.preventDefault();
     // TODO: no clear mechanism yet
     //self.getCellModel($eventTarget).clear();
 
   // ESC 27
-  } else if (event.keyCode == 27) {
+  } else if (event.keyCode === 27) {
     event.preventDefault();
     self.$table.find('[data-toggle="popover"]').popover("hide");
   }
@@ -249,7 +249,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
 
   var $targetCell;
 
-  if (direction == "left") {
+  if (direction === "left") {
     if ($cell.index() > 0) {
       event.preventDefault();
       event.stopPropagation();
@@ -260,7 +260,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
       fromCell.focus();
       return true;
     }
-  } else if (direction == "right") {
+  } else if (direction === "right") {
     event.preventDefault();
     event.stopPropagation();
 
@@ -273,7 +273,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
       }
       return true;
     }
-  } else if (direction == "up") {
+  } else if (direction === "up") {
     // can we go up a row inside the tbody
     if ($row.index() > 0) {
       event.preventDefault();
@@ -281,7 +281,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
 
       var $targetRow = aCell.getRow().prevAll(":visible:first");
 
-      if ($targetRow.length == 0) {
+      if ($targetRow.length === 0) {
         // all rows above are hidden! Jump to the header
         $targetRow = self.$table.find("> thead > tr.gb-headers");
       }
@@ -289,7 +289,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
       $targetCell = $targetRow.find("> *:nth-child("+($cell.index()+1)+")");
 
     // can we go up a row to the thead
-    } else if ($row.index() == 0 && $row.parent().is("tbody")) {
+    } else if ($row.index() === 0 && $row.parent().is("tbody")) {
       event.preventDefault();
       event.stopPropagation();
 
@@ -300,7 +300,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
     } else {
       fromCell.focus();
     }
-  } else if (direction == "down") {
+  } else if (direction === "down") {
     if ($row.parent().is("thead")) {
       event.preventDefault();
       event.stopPropagation();
@@ -323,7 +323,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
   }
 
   // stay in "edit mode" if the next cell is editable
-  if (enableEditMode && $targetCell && $cell != $targetCell) {
+  if (enableEditMode && $targetCell && $cell !== $targetCell) {
     var targetCellModel = self.getCellModel($targetCell);
     if (targetCellModel.isEditable()) {
       targetCellModel.enterEditMode();
@@ -352,7 +352,7 @@ GradebookSpreadsheet.prototype.ensureCellIsVisible = function($cell) {
   }*/
 
   // check input is visible on y-scroll
-  if ($cell.parent().parent().prop("tagName") == "TBODY") {
+  if ($cell.parent().parent().prop("tagName") === "TBODY") {
     var $header = self.getHeader();
     var headerBottomPosition = $header[0].offsetTop + $header[0].offsetHeight;
     if ($cell[0].offsetTop < headerBottomPosition) {
@@ -425,13 +425,13 @@ GradebookSpreadsheet.prototype.handleInputReturn = function(event, $cell) {
 
 
 GradebookSpreadsheet.prototype.handleInputArrowKey = function(event, $cell) {
-  if (event.keyCode == 37) {
+  if (event.keyCode === 37) {
     this.navigate(event, $cell, "left", true);
-  } else if (event.keyCode == 38) {
+  } else if (event.keyCode === 38) {
     this.navigate(event, $cell, "up", true);
-  } else if (event.keyCode == 39) {
+  } else if (event.keyCode === 39) {
     this.navigate(event, $cell, "right", true);
-  } else if (event.keyCode == 40) {
+  } else if (event.keyCode === 40) {
     this.navigate(event, $cell, "down", true);
   }
   return false;
@@ -866,13 +866,13 @@ GradebookSpreadsheet.prototype.proxyEventToElementsInOriginalCell = function(eve
     $originalCell.next().focus();
     return true;
   // or a flag?
-  } else if ($target.closest(".gb-grade-item-flags").length == 1) {
+  } else if ($target.closest(".gb-grade-item-flags").length === 1) {
     setTimeout(function() {
-      $originalCell.find($target.attr("class").split(' ').map(function(cssClass) {return "." + cssClass}).join(" ")).focus();
+      $originalCell.find($target.attr("class").split(' ').map(function(cssClass) {return "." + cssClass;}).join(" ")).focus();
     });
     return true;
   // external item flag?
-  } else if ($target.closest(".gb-external-app-flag").length == 1) {
+  } else if ($target.closest(".gb-external-app-flag").length === 1) {
     setTimeout(function() {
       $originalCell.find(".gb-external-app-flag").focus();
     });
@@ -894,7 +894,7 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
       var categoryScope = droppedCellModel.categoryDragScope;
       var category = droppedCellModel.getCategory();
 
-      if (self._CATEGORIES_MAP[category].length == 1) {
+      if (self._CATEGORIES_MAP[category].length === 1) {
         return; // only 1 in the category so don't need to change order
       }
 
@@ -903,7 +903,7 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
       var oldSiblingsIndex = $.inArray(droppedCellModel, self._CATEGORIES_MAP[category]);
       var newSiblingsIndex = $cellsInCategory.index(droppedCellModel.$cell);
 
-      if (oldSiblingsIndex == newSiblingsIndex) {
+      if (oldSiblingsIndex === newSiblingsIndex) {
         // no change in order
         return;
       }
@@ -915,7 +915,7 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
 
       if (newSiblingsIndex < oldSiblingsIndex) { // moved to the left
         var closestSiblingOnRightIndex = $.inArray(droppedCellModel.$cell.next().data("model"), self._CATEGORIES_MAP[category]);
-        self._CATEGORIES_MAP[category].splice(closestSiblingOnRightIndex, 0, droppedCellModel)
+        self._CATEGORIES_MAP[category].splice(closestSiblingOnRightIndex, 0, droppedCellModel);
       } else { // moved to the right
         var closestSiblingOnLeftIndex = $.inArray(droppedCellModel.$cell.prev().data("model"), self._CATEGORIES_MAP[category]);
         self._CATEGORIES_MAP[category].splice(closestSiblingOnLeftIndex + 1, 0, droppedCellModel);
@@ -982,7 +982,7 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
     addClasses: false,
     helper: function(event, ui, foo) {
       var $cell = $(event.currentTarget);
-      if ($cell[0] == document) {
+      if ($cell[0] === document) {
         // drag was initiated on a fixed header cell so figure out which cell we really want
         $cell = self.$table.find("thead > tr:last > :eq("+$(event.target).closest("th").index()+")");
       }
@@ -1066,7 +1066,7 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
     var numberVisible = 0;
 
     var $categoryCell;
-    if (category == "Uncategorized") {
+    if (category === "Uncategorized") {
       $categoryCell = $categoriesRow.find("> th.gb-uncategorized");
     } else {
       $categoryCell = $categoriesRow.find("> th[data-category-id='" + categoryData.id + "']");
@@ -1094,7 +1094,7 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
     }
 
     $categoryCell.attr("colspan", numberVisible);
-    if (numberVisible == 0) {
+    if (numberVisible === 0) {
       $categoryCell.hide();
     } else {
       $categoryCell.show();
@@ -1161,7 +1161,7 @@ GradebookSpreadsheet.prototype.updateCategoryLabelPositions = function(animate) 
 
       var newLeftOffset = Math.max(offset, 0);
 
-      if ($label.data("leftOffset") != newLeftOffset || $label.data("labelWidth") != newLabelWidth) {
+      if ($label.data("leftOffset") !== newLeftOffset || $label.data("labelWidth") !== newLabelWidth) {
         var newStyles = {
           marginLeft: Math.max(offset, 0),
           width: newLabelWidth
@@ -1182,7 +1182,7 @@ GradebookSpreadsheet.prototype.updateCategoryLabelPositions = function(animate) 
 
 GradebookSpreadsheet.prototype.find = function() {
   return this.$spreadsheet.find.apply(this.$spreadsheet, arguments);
-}
+};
 
 
 GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
@@ -1202,13 +1202,13 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
     self._CATEGORIES_MAP[category] = self._CATEGORIES_MAP[category] || [];
     self._CATEGORIES_MAP[category].push(model);
 
-    if ($.inArray(category, self._ALL_CATEGORIES) == -1) {
+    if ($.inArray(category, self._ALL_CATEGORIES) === -1) {
       self._ALL_CATEGORIES.push(category);
-      if (category != "Uncategorized") {
+      if (category !== "Uncategorized") {
         self._CATEGORY_DATA[category] = model.getCategoryData();
       } else {
         self._CATEGORY_DATA["Uncategorized"] = {
-          label: "Uncategorized",
+          label: "Uncategorized"
         };
       }
     }
@@ -1227,27 +1227,27 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
   });
 
   self._ALL_CATEGORIES = self._ALL_CATEGORIES.sort(function(a, b) {
-    if (a == "Uncategorized") {
+    if (a === "Uncategorized") {
       return 1;
-    } else if (b == "Uncategorized") {
+    } else if (b === "Uncategorized") {
       return -1;
     }
 
-    if (self._CATEGORY_DATA[a] == null) {
+    if (self._CATEGORY_DATA[a] === null) {
       return 1;
-    } else if (self._CATEGORY_DATA[b] == null) {
+    } else if (self._CATEGORY_DATA[b] === null) {
       return -1;
     }
 
     return self._CATEGORY_DATA[a].order > self._CATEGORY_DATA[b].order;
   });
-}
+};
 
 
 GradebookSpreadsheet.prototype.isGroupedByCategory = function() {
   return this.toolbarModel.$toolbar.
       find("#toggleCategoriesToolbarItem").hasClass("on");
-}
+};
 
 GradebookSpreadsheet.prototype.getCategoriesMap = function() {
   return this._CATEGORIES_MAP;
@@ -1299,7 +1299,6 @@ GradebookSpreadsheet.prototype.refreshHiddenVisualCue = function() {
     }
     $.each($headersToShow, function() {
       var model = $(this).data("model");
-      var key;
       if (model.$cell.is(".gb-category-item-column-cell")) {
         self.toolbarModel.$gradeItemsFilterPanel.find(".gb-item-category-score-filter :input:not(:checked)[value='"+model.getCategory()+"']").trigger("click");
       } else {
@@ -1316,13 +1315,13 @@ GradebookSpreadsheet.prototype.refreshHiddenVisualCue = function() {
     if ($th.is(":not(:visible)")) {
       var $cue = $("<a>").attr("href", "javascript:void(0);").addClass("gb-hidden-column-visual-cue");
       var $prevVisible = $th.prev(":visible");
-      if ($prevVisible.find(".gb-hidden-column-visual-cue").length == 0) {
+      if ($prevVisible.find(".gb-hidden-column-visual-cue").length === 0) {
         $prevVisible.find("> div:first").append($cue);
       }
       $cue.click(showColumns);
     }
   });
-}
+};
 
 
 GradebookSpreadsheet.prototype.showCategoryScoreColumn = function(category) {
@@ -1393,7 +1392,7 @@ GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
     $.each(data, function(i, conflict) {
       var model = self.getCellModelForStudentAndAssignment(conflict.studentUuid, conflict.assignmentId);
       var $notification = model.$cell.find(".gb-cell-notification-out-of-date");
-      if ($notification.length == 0) {
+      if ($notification.length === 0) {
         $notification = $("<span>").addClass("gb-cell-notification").addClass("gb-cell-notification-out-of-date");
         model.$cell.find("> div").prepend($notification);
       
@@ -1601,7 +1600,7 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
     var $btnGroup = $(event.target);
 
     function handleDropdownItemBlur(blurEvent) {
-      if ($(blurEvent.relatedTarget).closest(".btn-group.open").length == 0) {
+      if ($(blurEvent.relatedTarget).closest(".btn-group.open").length === 0) {
         // Firefox will only offer a blurEvent.relatedTarget if the item can be focussed
         // and links will only be included in the tab index if the user's accessibility
         // configuration has this option enabled (e.g. accessibility.tabfocus option).
@@ -1620,12 +1619,12 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
         mouseDownEvent.stopPropagation();
         $(mouseDownEvent.target).focus();
       }
-    })
+    });
 
     $btnGroup.find("ul.dropdown-menu li a").on("mousedown", function(mouseDownEvent) {
       mouseDownEvent.stopPropagation();
       $(mouseDownEvent.target).focus();
-    })
+    });
 
     $btnGroup.find(".btn.dropdown-toggle, ul.dropdown-menu li a").on("blur", handleDropdownItemBlur);
 
@@ -1676,12 +1675,12 @@ GradebookSpreadsheet.prototype.ready = function() {
     callback();
   });
   GradebookSpreadsheet.prototype._callbacks = null;
-}
+};
 
 GradebookSpreadsheet.prototype._callbacks = [];
 
 GradebookSpreadsheet.prototype.onReady = function(callback) {
-  if (this.$spreadsheet.data("initialized") == true) {
+  if (this.$spreadsheet.data("initialized") === true) {
     setTimeout(function() { callback(); });
   } else {
     GradebookSpreadsheet.prototype._callbacks.push(callback);
@@ -1691,7 +1690,7 @@ GradebookSpreadsheet.prototype.onReady = function(callback) {
 
 GradebookSpreadsheet.prototype.setupCell = function(cellId, assignmentId, studentUuid) {
   var cellModel = this.getCellModelForStudentAndAssignment(studentUuid, assignmentId);
-  cellModel.handleSaveComplete(cellId)
+  cellModel.handleSaveComplete(cellId);
 };
 
 
@@ -1718,13 +1717,13 @@ GradebookSpreadsheet.prototype.findVisibleStudentAfter = function(studentUuid) {
   } else {
     return false;
   }
-}
+};
 
 
-GradebookSpreadsheet.prototype.setupNewAssignmentFocus = function() {
+GradebookSpreadsheet.prototype.setupAssignmentFocus = function() {
   var self = this;
 
-  var $justCreated = self.$table.find(".gb-just-created");
+  var $justCreated = self.$table.find(".gb-item-focused");
 
   if ($justCreated.length > 0) {
     self.onReady(function() {
@@ -1779,7 +1778,7 @@ GradebookSpreadsheet.prototype.positionModalAtTop = function($modal) {
 GradebookSpreadsheet.prototype.setLiveFeedbackAsSaving = function() {
   var $liveFeedback = this.$spreadsheet.closest("#gradebookSpreadsheet").find(".gb-live-feedback");
   $liveFeedback.html($liveFeedback.data("saving-message"));
-  $liveFeedback.show()
+  $liveFeedback.show();
 };
 
 
@@ -1861,7 +1860,7 @@ GradebookEditableCell.prototype.setupMenu = function() {
     self.$input.trigger("viewlog.sakai");
     self.$cell.find(".dropdown-toggle").dropdown('toggle');
     return false;
-  })
+  });
   self.$cell.on("click", ".gb-edit-comments", function() {
     self.$input.trigger("editcomment.sakai");
     self.$cell.find(".dropdown-toggle").dropdown('toggle');
@@ -1880,14 +1879,14 @@ GradebookEditableCell.prototype.setupInputKeyboardNavigation = function() {
   var self = this;
   self.$input.on("keydown", function(event) {
     // Return 13
-    if (event.keyCode == 13) {
+    if (event.keyCode === 13) {
       // first blur the $input to trigger a change event
       self.$input.trigger("blur");
 
       // ask the spreadsheet to navigate based on a return key action
       self.gradebookSpreadsheet.handleInputReturn(event, self.$cell);
     // ESC 27
-    } else if (event.keyCode == 27) {
+    } else if (event.keyCode === 27) {
       self.$cell.focus();
       self._focusAfterSaveComplete = true;
 
@@ -1896,7 +1895,7 @@ GradebookEditableCell.prototype.setupInputKeyboardNavigation = function() {
       self.gradebookSpreadsheet.handleInputArrowKey(event, self.$cell);
 
     // TAB 9
-    } else if (event.keyCode == 9) {
+    } else if (event.keyCode === 9) {
       self.gradebookSpreadsheet.handleInputTab(event, self.$cell);
     }
   });
@@ -1920,7 +1919,7 @@ GradebookEditableCell.prototype.setupInput = function() {
 
     var withValue = self.$cell.data("initialValue");
    
-    if (withValue != null && withValue != "") {
+    if (withValue !== null && withValue !== "") {
       self.$input.val(withValue);
     } else {
       self.$input.select();
@@ -1946,7 +1945,7 @@ GradebookEditableCell.prototype.setupInput = function() {
     // To get around this, we use a custom event "scorechanged" and trigger this
     // manually; a Wicket behaviour is bound to this custom event and handles the
     // the update in the Wicket backend.
-    if (self.$cell.data("originalValue") != self.$input.val()) {
+    if (self.$cell.data("originalValue") !== self.$input.val()) {
       self.$cell.data("_pendingReplacement", true);
       self.$input.trigger("scorechange.sakai");
     }
@@ -1980,7 +1979,7 @@ GradebookEditableCell.prototype.enterEditMode = function(keyCode) {
 
   var initialValue = "";
 
-  if (keyCode && typeof keyCode == "number") {
+  if (keyCode && typeof keyCode === "number") {
     // only buffer 0-9 key strokes
     if (keyCode >= 48 && keyCode <= 57) {
       initialValue = keyCode - 48;
@@ -2096,7 +2095,7 @@ GradebookHeaderCell.prototype.setColumnKey = function() {
   self.columnKey = columnKey;
 
   return columnKey;
-}
+};
 
 
 GradebookHeaderCell.prototype.getTitle = function() {
@@ -2175,7 +2174,7 @@ GradebookHeaderCell.prototype.moveColumnTo = function(newIndex) {
 
   var currentIndex = self.$cell.index();
 
-  if (currentIndex == newIndex) {
+  if (currentIndex === newIndex) {
     return; //nothing to do
   }
 
@@ -2238,7 +2237,7 @@ GradebookHeaderCell.prototype.hide = function() {
   if (this.$categoryCell) {
     var newColspan = parseInt(this.$categoryCell.attr("colspan")) - 1;
     this.$categoryCell.attr("colspan", newColspan);
-    if (newColspan == 0) {
+    if (newColspan === 0) {
       this.$categoryCell.hide();
     }
   }
@@ -2322,9 +2321,9 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     var itemFilters = $group.find(".gb-item-filter :input, .gb-item-category-score-filter :input").length;
 
     $label.find(".gradebook-filter-partial-signal").remove();
-    if (checkedItemFilters == 0) {
+    if (checkedItemFilters === 0) {
       $input.prop("checked", false);
-    } else if (checkedItemFilters == itemFilters) {
+    } else if (checkedItemFilters === itemFilters) {
       $input.prop("checked", true);
     } else {
       $input.prop("checked", false);
@@ -2482,7 +2481,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
     // Support click outside menu panel to close panel
     function hidePanelOnOuterClick(mouseDownEvent) {
-      if ($(mouseDownEvent.target).closest(".gb-toggle-grade-items-panel, #toggleGradeItemsToolbarItem").length == 0) {
+      if ($(mouseDownEvent.target).closest(".gb-toggle-grade-items-panel, #toggleGradeItemsToolbarItem").length === 0) {
         $button.removeClass("on");
         $button.attr("aria-expanded", "false");
         self.$gradeItemsFilterPanel.hide().attr("aria-hidden", "true");
@@ -2496,13 +2495,13 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
   $button.on("keydown", function(event) {
     // up arrow hides menu
-    if (event.keyCode == 38) {
+    if (event.keyCode === 38) {
       if (self.$gradeItemsFilterPanel.is(":visible")) {
         $(this).trigger("click");
         return false;
       }
     // down arrow shows menu or focuses first item in menu
-    } else if (event.keyCode == 40) {
+    } else if (event.keyCode === 40) {
       if (self.$gradeItemsFilterPanel.is(":not(:visible)")) {
         $(this).trigger("click");
       } else {
@@ -2572,22 +2571,22 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     var currentIndex = $menuItems.index($this);
 
     // up arrow navigates up or back to button
-    if (event.keyCode == 38) {
-      if (currentIndex == 0) {
+    if (event.keyCode === 38) {
+      if (currentIndex === 0) {
         $button.focus();
       } else {
         $menuItems[currentIndex-1].focus();
       }
       return false;
     // down arrow navigates down list
-    } else if (event.keyCode == 40) {
+    } else if (event.keyCode === 40) {
       if (currentIndex + 1 < $menuItems.length) {
         $menuItems[currentIndex+1].focus();
         return false;
       }
 
     // if return then treat as click
-    } else if (event.keyCode == 13) {
+    } else if (event.keyCode === 13) {
       $this.trigger("click");
       return false;
     }
@@ -2637,7 +2636,7 @@ GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuc
                                                         siteId: siteId,
                                                         assignmentId: assignmentId,
                                                         order: order
-                                                      })
+                                                      });
 };
 
 
@@ -2647,7 +2646,7 @@ GradebookAPI.updateCategorizedAssignmentOrder = function(siteId, assignmentId, c
                                                         assignmentId: assignmentId,
                                                         categoryId: categoryId,
                                                         order: order
-                                                      })
+                                                      });
 };
 
 

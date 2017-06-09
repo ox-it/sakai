@@ -7,8 +7,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
+
+import lombok.Setter;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -32,7 +35,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.util.string.StringValue;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.CachedCMProvider;
 import org.sakaiproject.gradebookng.business.GbGradingType;
@@ -73,10 +76,8 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  */
 public class GradebookPage extends BasePage implements IGradesPage
 {
-
-	private static final long serialVersionUID = 1L;
-
-	public static final String CREATED_ASSIGNMENT_ID_PARAM = "createdAssignmentId";
+	@Setter
+	private long focusedAssignmentID = 0;
 
 	// flag to indicate a category is uncategorised
 	// doubles as a translation key
@@ -111,7 +112,6 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 	private transient CachedCMProvider cmProvider;
 
-	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
 
@@ -184,7 +184,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		cmProvider = new CachedCMProvider(businessService, settings);
 
 		// Toggles the context between normal / anonymous items. Model is boolean: False->normal, True->anonymous  --bbailla2
-		final RadioGroup anonymousToggle = new RadioGroup("toggleAnonymous", Model.of(Boolean.valueOf(settings.isContextAnonymous())));
+		final RadioGroup anonymousToggle = new RadioGroup("toggleAnonymous", Model.of(settings.isContextAnonymous()));
 		Radio anonToggle_normal = new Radio("anonToggle_normal", Model.of(Boolean.FALSE));
 		Radio anonToggle_anonymous = new Radio("anonToggle_anonymous", Model.of(Boolean.TRUE));
 		anonymousToggle.add(anonToggle_normal.add(new AjaxEventBehavior("onchange")
@@ -193,7 +193,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 			{
 				// Flip the context to normal
 				settings.setContextAnonymous(false);
-				anonymousToggle.setModelObject(Boolean.valueOf(false));
+				anonymousToggle.setModelObject(false);
 				// Use default sort order. Maintaining any sort order would violate anonymity constraints
 				settings.setNameSortOrder(GbStudentNameSortOrder.LAST_NAME);
 				settings.setStudentSortOrder(SortDirection.ASCENDING);
@@ -210,7 +210,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 			{
 				// Flip the context to anonymous
 				settings.setContextAnonymous(true);
-				anonymousToggle.setModelObject(Boolean.valueOf(true));
+				anonymousToggle.setModelObject(true);
 				// Clear filters and use the AnonIdSortOrder to eliminate any anonymity constraint violations
 				settings.setStudentFilter("");
 				settings.setStudentNumberFilter("");
@@ -260,7 +260,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 	 * Class members this method initializes: toolbarModelData, assignments, studentGradeMatrix
 	 * @param stopwatch a GbStopWatch instance. Will accept null.
 	 */
-	private void addOrReplaceTable(GbStopWatch stopwatch)
+	public void addOrReplaceTable(GbStopWatch stopwatch)
 	{
 		if (stopwatch == null)
 		{
@@ -379,15 +379,14 @@ public class GradebookPage extends BasePage implements IGradesPage
 				@Override
 				public Component getHeader(final String componentId) {
 					final AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId,
-							new Model<Assignment>(assignment), gradingType);
+							new Model<>(assignment), gradingType);
 
 					panel.add(new AttributeModifier("data-category", assignment.getCategoryName()));
 					panel.add(new AttributeModifier("data-category-id", assignment.getCategoryId()));
 
-					final StringValue createdAssignmentId = getPageParameters().get(CREATED_ASSIGNMENT_ID_PARAM);
-					if (!createdAssignmentId.isNull() && assignment.getId().equals(createdAssignmentId.toLong())) {
-						panel.add(new AttributeModifier("class", "gb-just-created"));
-						getPageParameters().remove(CREATED_ASSIGNMENT_ID_PARAM);
+					if (assignment.getId().equals(focusedAssignmentID)) {
+						panel.add(new AttributeModifier("class", "gb-item-focused"));
+						focusedAssignmentID = 0;
 					}
 
 					return panel;
@@ -479,7 +478,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 					@Override
 					public Component getHeader(final String componentId) {
 						final CategoryColumnHeaderPanel panel = new CategoryColumnHeaderPanel(componentId,
-								new Model<CategoryDefinition>(category));
+								new Model<>(category));
 
 						panel.add(new AttributeModifier("data-category", category.getName()));
 
@@ -668,6 +667,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 	 * Getter for the GradebookUiSettings. Used to store a few UI related settings for the current session only.
 	 *
 	 * TODO move this to a helper
+	 * @return
 	 */
 	@Override
 	public GradebookUiSettings getUiSettings() {
@@ -725,6 +725,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 	/**
 	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
+	 * @return
 	 */
 	public String generateRandomRGBColorString() {
 		final Random rand = new Random();
@@ -745,7 +746,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		@Override
 		public int compare(final Assignment a1, final Assignment a2) {
 			// if in the same category, sort by their categorized sort order
-			if (a1.getCategoryId() == a2.getCategoryId()) {
+			if (Objects.equals(a1.getCategoryId(), a2.getCategoryId())) {
 				// handles null orders by putting them at the end of the list
 				if (a1.getCategorizedSortOrder() == null) {
 					return 1;
@@ -833,6 +834,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 	/**
 	 * If the group filter is pointing to a group associated with a provider that contains AnonymousIDs  if it's not pointing to an anonymous section
+	 * @return
 	 */
 	public String getGroupFilterProviderId()
 	{

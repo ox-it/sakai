@@ -14,6 +14,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -26,8 +27,6 @@ import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 public class CourseGradeColumnHeaderPanel extends Panel {
-
-	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -48,7 +47,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		getParentCellFor(this).setOutputMarkupId(true);
 
 		final GbAjaxLink<String> title = new GbAjaxLink<String>("title") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -105,7 +103,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		// menu
 		final WebMarkupContainer menu = new WebMarkupContainer("menu") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean isVisible() {
@@ -113,7 +110,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 			}
 		};
 		menu.add(new GbAjaxLink("setUngraded") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -127,7 +123,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		});
 
 		final GbAjaxLink<Boolean> showHidePoints = new GbAjaxLink("showHidePoints", this.model) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -157,7 +152,6 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		// the label changes depending on the state so we wrap it in a model
 		final IModel<String> showHidePointsModel = new Model<String>() {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getObject() {

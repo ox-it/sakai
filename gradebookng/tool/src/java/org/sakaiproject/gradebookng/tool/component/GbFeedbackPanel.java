@@ -1,4 +1,3 @@
-
 package org.sakaiproject.gradebookng.tool.component;
 
 import org.apache.wicket.AttributeModifier;
@@ -10,8 +9,6 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
  * Feedback panel used and reused by GradebookNG so that the messages are styled consistently. Markup ID is automatically output.
  */
 public class GbFeedbackPanel extends FeedbackPanel {
-
-	private static final long serialVersionUID = 1L;
 
 	public GbFeedbackPanel(final String id) {
 		super(id);
