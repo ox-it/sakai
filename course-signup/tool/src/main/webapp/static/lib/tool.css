@@ -525,3 +525,9 @@ div.calendarView a.action {
     padding-right: 1%;
 }
 
+/* Override the default widths so search criteria have enough space on a mobile but only when search results shown. */
+@media only screen and (max-width: 800px) {
+    .advanced_search .right, .left{
+        width: 50%;
+    }
+}
