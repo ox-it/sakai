@@ -56,10 +56,9 @@ public class ImportGradesHelper {
 	public final static int USER_NAME_POS = 1;
 
 	// patterns for detecting column headers and their types
-	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("([\\w ]+ \\[[0-9]+(\\.[0-9][0-9]?)?\\])");
-	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("(\\* [\\w ]+)");
-	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("([\\w ]+)");
-	final static Pattern POINTS_PATTERN = Pattern.compile("(\\d+)(?=]$)");
+	final static Pattern ASSIGNMENT_WITH_POINTS_PATTERN = Pattern.compile("(.+ )\\[(\\d+(\\.\\d+)?)\\]");
+	final static Pattern ASSIGNMENT_COMMENT_PATTERN = Pattern.compile("\\* (.+)");
+	final static Pattern STANDARD_HEADER_PATTERN = Pattern.compile("(.+)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
 
 	// list of mimetypes for each category. Must be compatible with the parser
@@ -270,7 +269,7 @@ public class ImportGradesHelper {
 			// In case there aren't enough data fields in the line to match up with the number of columns needed
 			String lineVal = null;
 			if (i < line.length) {
-				lineVal = trim(line[i]);
+				lineVal = StringUtils.trimToNull(line[i]);
 			}
 
 			final String columnTitle = column.getColumnTitle();
@@ -567,7 +566,7 @@ public class ImportGradesHelper {
 			} else if(i == USER_NAME_POS) {
 				column.setType(ImportedColumn.Type.USER_NAME);
 			} else {
-				column = parseHeaderToColumn(trim(line[i]), headingReport);
+				column = parseHeaderToColumn(StringUtils.trimToNull(line[i]), headingReport);
 			}
 
 			// check for duplicates
@@ -601,53 +600,36 @@ public class ImportGradesHelper {
 
 		final ImportedColumn column = new ImportedColumn();
 
+		final Matcher m4 = IGNORE_PATTERN.matcher(headerValue);
+		if (m4.matches()) {
+			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
+			column.setType(ImportedColumn.Type.IGNORE);
+			return column;
+		}
+
 		// assignment with points header
 		final Matcher m1 = ASSIGNMENT_WITH_POINTS_PATTERN.matcher(headerValue);
 		if (m1.matches()) {
 
-			// extract title and score
-			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
-			final Matcher pointsMatcher = POINTS_PATTERN.matcher(headerValue);
-
-			if (titleMatcher.find()) {
-				column.setColumnTitle(trim(titleMatcher.group()));
-			}
-			if (pointsMatcher.find()) {
-				column.setPoints(pointsMatcher.group());
-			}
-
+			column.setColumnTitle(StringUtils.trimToNull(m1.group(1)));
+			column.setPoints(m1.group(2));
 			column.setType(ImportedColumn.Type.GB_ITEM_WITH_POINTS);
-
 			return column;
 		}
 
 		final Matcher m2 = ASSIGNMENT_COMMENT_PATTERN.matcher(headerValue);
 		if (m2.matches()) {
 
-			// extract title
-			final Matcher titleMatcher = STANDARD_HEADER_PATTERN.matcher(headerValue);
-
-			if (titleMatcher.find()) {
-				column.setColumnTitle(trim(titleMatcher.group()));
-			}
+			column.setColumnTitle(StringUtils.trimToNull(m2.group(1)));
 			column.setType(ImportedColumn.Type.COMMENTS);
-
 			return column;
 		}
 
 		final Matcher m3 = STANDARD_HEADER_PATTERN.matcher(headerValue);
 		if (m3.matches()) {
 
-			column.setColumnTitle(headerValue);
+			column.setColumnTitle(StringUtils.trimToNull(headerValue));
 			column.setType(ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS);
-
-			return column;
-		}
-
-		final Matcher m4 = IGNORE_PATTERN.matcher(headerValue);
-		if (m4.matches()) {
-			log.info("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
-			column.setType(ImportedColumn.Type.IGNORE);
 			return column;
 		}
 
@@ -671,20 +653,10 @@ public class ImportGradesHelper {
 		for (final Cell cell : row) {
 			// force cell to String
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			s[i] = trim(cell.getStringCellValue());
+			s[i] = StringUtils.trimToNull(cell.getStringCellValue());
 			i++;
 		}
 
 		return s;
-	}
-
-	/**
-	 * Helper to trim a string to null
-	 *
-	 * @param s
-	 * @return
-	 */
-	private static String trim(final String s) {
-		return StringUtils.trimToNull(s);
 	}
 }

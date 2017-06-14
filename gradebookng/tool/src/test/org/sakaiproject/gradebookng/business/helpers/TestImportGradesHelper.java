@@ -27,7 +27,6 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.user.api.User;
 
 /**
  * Tests for the ImportGradesHelper class.

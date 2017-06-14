@@ -2,12 +2,12 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
@@ -21,18 +21,13 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.Page;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.convert.ConversionException;
-import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidationError;
-import org.apache.wicket.validation.IValidator;
-import org.sakaiproject.gradebookng.business.CachedCMProvider;
+
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -47,8 +42,6 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 @Slf4j
 public class AddOrEditGradeItemPanelContent extends Panel {
 
-	private static final long serialVersionUID = 1L;
-
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	private GradebookNgBusinessService businessService;
 
@@ -61,20 +54,18 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 	public AddOrEditGradeItemPanelContent(final String id, final Model<Assignment> assignmentModel) {
 		super(id, assignmentModel);
 
-		final Gradebook gradebook = this.businessService.getGradebook();
+		final Gradebook gradebook = businessService.getGradebook();
 		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
 
 		final Assignment assignment = assignmentModel.getObject();
 
 		this.categoriesEnabled = true;
 		if (gradebook.getCategory_type() == GbCategoryType.NO_CATEGORY.getValue()) {
-			this.categoriesEnabled = false;
+			categoriesEnabled = false;
 		}
 
 		// title
-		final TextField<String> title = new TextField<String>("title",
-				new PropertyModel<String>(assignmentModel, "name")) {
-			private static final long serialVersionUID = 1L;
+		final TextField<String> title = new TextField<String>("title", new PropertyModel<>(assignmentModel, "name")) {
 
 			@Override
 			public boolean isEnabled() {
@@ -102,9 +93,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			pointsLabel.setDefaultModel(new ResourceModel("label.addgradeitem.points"));
 		}
 		add(pointsLabel);
-		final TextField<Double> points = new TextField<Double>("points",
-				new PropertyModel<Double>(assignmentModel, "points")) {
-			private static final long serialVersionUID = 1L;
+		final TextField<Double> points = new TextField<Double>("points", new PropertyModel<>(assignmentModel, "points")) {
 
 			@Override
 			public boolean isEnabled() {
@@ -126,9 +115,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 		// due date
 		// TODO date format needs to come from i18n
-		final DateTextField dueDate = new DateTextField("duedate", new PropertyModel<Date>(assignmentModel, "dueDate"),
-				getString("format.date")) {
-			private static final long serialVersionUID = 1L;
+		final DateTextField dueDate = new DateTextField("duedate", new PropertyModel<>(assignmentModel, "dueDate"), getString("format.date")) {
 
 			@Override
 			public boolean isEnabled() {
@@ -141,7 +128,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		final List<CategoryDefinition> categories = new ArrayList<>();
 		final Map<Long, CategoryDefinition> categoryMap = new LinkedHashMap<>();
 
-		if (this.categoriesEnabled) {
+		if (categoriesEnabled) {
 			categories.addAll(this.businessService.getGradebookCategories());
 
 			for (final CategoryDefinition category : categories) {
@@ -152,20 +139,18 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		// wrapper for category section. It doesnt get shown at all if
 		// categories are not enabled.
 		final WebMarkupContainer categoryWrap = new WebMarkupContainer("categoryWrap");
-		categoryWrap.setVisible(this.categoriesEnabled);
+		categoryWrap.setVisible(categoriesEnabled);
 
 		final DropDownChoice<Long> categoryDropDown = new DropDownChoice<Long>("category",
-				new PropertyModel<Long>(assignmentModel, "categoryId"), new ArrayList<Long>(categoryMap.keySet()),
+				new PropertyModel<>(assignmentModel, "categoryId"), new ArrayList<>(categoryMap.keySet()),
 				new IChoiceRenderer<Long>() {
-					private static final long serialVersionUID = 1L;
 
 					@Override
 					public Object getDisplayValue(final Long value) {
 						final CategoryDefinition category = categoryMap.get(value);
 						if (GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type()) {
 							final String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
-							return MessageFormat.format(getString("label.addgradeitem.categorywithweight"),
-									category.getName(), weight);
+							return MessageFormat.format(getString("label.addgradeitem.categorywithweight"), category.getName(), weight);
 						} else {
 							return category.getName();
 						}
@@ -176,7 +161,6 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 						return object.toString();
 					}
 				}) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected String getNullValidDisplayValue() {
@@ -190,7 +174,6 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		categoryWrap.add(categoryDropDown);
 
 		categoryWrap.add(new WebMarkupContainer("noCategoriesMessage") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean isVisible() {
@@ -203,9 +186,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		// extra credit
 		// if an extra credit category is selected, this will be unchecked and
 		// disabled
-		final AjaxCheckBox extraCredit = new AjaxCheckBox("extraCredit",
-				new PropertyModel<Boolean>(assignmentModel, "extraCredit")) {
-			private static final long serialVersionUID = 1L;
+		final AjaxCheckBox extraCredit = new AjaxCheckBox("extraCredit", new PropertyModel<>(assignmentModel, "extraCredit")) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
@@ -217,8 +198,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		add(extraCredit);
 
 		// released
-		this.released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released")) {
-			private static final long serialVersionUID = 1L;
+		released = new AjaxCheckBox("released", new PropertyModel<>(assignmentModel, "released")) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
@@ -228,13 +208,12 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 				}
 			}
 		};
-		this.released.setOutputMarkupId(true);
-		add(this.released);
+		released.setOutputMarkupId(true);
+		add(released);
 
 		// counted
 		// if checked, release must also be checked and then disabled
-		this.counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted")) {
-			private static final long serialVersionUID = 1L;
+		counted = new AjaxCheckBox("counted", new PropertyModel<>(assignmentModel, "counted")) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
@@ -245,45 +224,34 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			}
 		};
 
-		if (this.businessService.categoriesAreEnabled()) {
-			this.counted.setEnabled(assignment.getCategoryId() != null);
+		if (businessService.categoriesAreEnabled()) {
+			counted.setEnabled(assignment.getCategoryId() != null);
 		}
 
-		add(this.counted);
+		add(counted);
 
 		// anonymous (OWL-2545)  --bbailla2
-		WebMarkupContainer anonymousContainer = new WebMarkupContainer("anonymousContainer")
-		{
-			private static final long serialVersionUID = 1L;
-
+		WebMarkupContainer anonymousContainer = new WebMarkupContainer("anonymousContainer") {
 			@Override
-			protected void onInitialize()
-			{
+			protected void onInitialize() {
 				super.onInitialize();
-				boolean isAnonymousAllowed = !AddOrEditGradeItemPanelContent.this.getCMProvider().getAnonIds().isEmpty();
 				setOutputMarkupId(true);
-				setVisibilityAllowed(isAnonymousAllowed);
 			}
 		};
 
-		anonymous = new AjaxCheckBox("anonymous", new PropertyModel<Boolean>(assignmentModel, "anon")) {
-			private static final long serialVersionUID = 1L;
-
+		anonymous = new AjaxCheckBox("anonymous", new PropertyModel<>(assignmentModel, "anon")) {
 			private transient boolean isAnonymousAllowed;
+
 			@Override
-			protected void onInitialize()
-			{
+			protected void onInitialize() {
 				super.onInitialize();
-				isAnonymousAllowed = !AddOrEditGradeItemPanelContent.this.getCMProvider().getAnonIds().isEmpty();
 				setOutputMarkupId(true);
 				setEnabled(assignment == null || assignment.getId() == null);
 			}
 
 			@Override
-			protected void onUpdate(final AjaxRequestTarget target) 
-			{
-				if (isAnonymousAllowed && getModelObject()) 
-				{
+			protected void onUpdate(final AjaxRequestTarget target) {
+				if (isAnonymousAllowed && getModelObject()) {
 					AddOrEditGradeItemPanelContent.this.anonymous.setModelObject(true);
 				}
 				target.add(AddOrEditGradeItemPanelContent.this.anonymous);
@@ -295,7 +263,6 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		// behaviour for when a category is chosen. If the category is extra
 		// credit, deselect and disable extra credit checkbox
 		categoryDropDown.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
@@ -329,12 +296,5 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 				}
 			}
 		});
-
-	}
-
-	private transient CachedCMProvider cmProvider;
-	private CachedCMProvider getCMProvider()
-	{
-		return ((GradebookPage)getPage()).getCMProvider();
 	}
 }

@@ -76,6 +76,7 @@ public class GradeImportConfirmationStep extends Panel {
 			protected void onSubmit() {
 
 				final Map<String, Long> assignmentMap = new HashMap<>();
+				final List<ProcessedGradeItem> itemsToSave = new ArrayList<>();
 
 				// Create new GB items
 				assignmentsToCreate.forEach(assignment -> {
@@ -83,20 +84,20 @@ public class GradeImportConfirmationStep extends Panel {
 					Long assignmentId = null;
 
 					try {
-                        assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(assignment);
-                    } catch (final AssignmentHasIllegalPointsException e) {
-                    	getSession().error(new ResourceModel("error.addgradeitem.points").getObject());
-                        this.errors = true;
-                    } catch (final ConflictingAssignmentNameException e) {
-                    	getSession().error(new ResourceModel("error.addgradeitem.title").getObject());
-                        this.errors = true;
-                    } catch (final ConflictingExternalIdException e) {
-                    	getSession().error(new ResourceModel("error.addgradeitem.exception").getObject());
-                        this.errors = true;
-                    } catch (final Exception e) {
-                    	getSession().error(new ResourceModel("error.addgradeitem.exception").getObject());
-                        this.errors = true;
-                    }
+						assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(assignment);
+					} catch (final AssignmentHasIllegalPointsException e) {
+						getSession().error(new ResourceModel("error.addgradeitem.points").getObject());
+						this.errors = true;
+					} catch (final ConflictingAssignmentNameException e) {
+						getSession().error(new ResourceModel("error.addgradeitem.title").getObject());
+						this.errors = true;
+					} catch (final ConflictingExternalIdException e) {
+						getSession().error(new ResourceModel("error.addgradeitem.exception").getObject());
+						this.errors = true;
+					} catch (final Exception e) {
+						getSession().error(new ResourceModel("error.addgradeitem.exception").getObject());
+						this.errors = true;
+					}
 
 					assignmentMap.put(StringUtils.trim(assignment.getName()), assignmentId);
 				});
@@ -111,7 +112,7 @@ public class GradeImportConfirmationStep extends Panel {
 					final boolean updated = businessService.updateAssignment(assignment);
 					if(!updated) {
 						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
-                        this.errors = true;
+						this.errors = true;
 					}
 
 					assignmentMap.put(StringUtils.trim(assignment.getName()), assignment.getId());
@@ -120,7 +121,6 @@ public class GradeImportConfirmationStep extends Panel {
 				// add/update the data
 				if (!this.errors) {
 
-					final List<ProcessedGradeItem> itemsToSave = new ArrayList<>();
 					itemsToSave.addAll(itemsToUpdate);
 					itemsToSave.addAll(itemsToCreate);
 					itemsToSave.addAll(itemsToModify);
