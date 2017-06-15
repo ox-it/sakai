@@ -15,25 +15,43 @@ public class GbFeedbackPanel extends FeedbackPanel {
 
 		setOutputMarkupId(true);
 	}
+	
+	@Override
+	protected void onConfigure()
+	{
+		super.onConfigure();
+		if (getFeedbackMessages().isEmpty())
+		{
+			add(AttributeModifier.remove("class"));
+		}
+	}
 
 	@Override
 	protected Component newMessageDisplayComponent(final String id, final FeedbackMessage message) {
 		final Component newMessageDisplayComponent = super.newMessageDisplayComponent(id, message);
 
-		if (message.getLevel() == FeedbackMessage.ERROR ||
-				message.getLevel() == FeedbackMessage.DEBUG ||
-				message.getLevel() == FeedbackMessage.FATAL) {
-			add(AttributeModifier.replace("class", "messageError"));
-			add(AttributeModifier.append("class", "feedback"));
-		} else if (message.getLevel() == FeedbackMessage.WARNING) {
-			add(AttributeModifier.replace("class", "messageWarning"));
-			add(AttributeModifier.append("class", "feedback"));
-		} else if (message.getLevel() == FeedbackMessage.INFO) {
-			add(AttributeModifier.replace("class", "messageInformation"));
-			add(AttributeModifier.append("class", "feedback"));
-		} else if (message.getLevel() == FeedbackMessage.SUCCESS) {
-			add(AttributeModifier.replace("class", "messageSuccess"));
-			add(AttributeModifier.append("class", "feedback"));
+		switch (message.getLevel())
+		{
+			case FeedbackMessage.ERROR:
+			case FeedbackMessage.DEBUG:
+			case FeedbackMessage.FATAL:
+				add(AttributeModifier.replace("class", "messageError"));
+				add(AttributeModifier.append("class", "feedback"));
+				break;
+			case FeedbackMessage.WARNING:
+				add(AttributeModifier.replace("class", "messageWarning"));
+				add(AttributeModifier.append("class", "feedback"));
+				break;
+			case FeedbackMessage.INFO:
+				add(AttributeModifier.replace("class", "messageInformation"));
+				add(AttributeModifier.append("class", "feedback"));
+				break;
+			case FeedbackMessage.SUCCESS:
+				add(AttributeModifier.replace("class", "messageSuccess"));
+				add(AttributeModifier.append("class", "feedback"));
+				break;
+			default:
+				break;
 		}
 
 		return newMessageDisplayComponent;

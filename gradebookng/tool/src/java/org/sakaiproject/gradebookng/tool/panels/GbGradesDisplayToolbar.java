@@ -1,8 +1,9 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -11,11 +12,12 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-
 import org.sakaiproject.gradebookng.business.GbRole;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
@@ -23,6 +25,8 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
+
 
 /**
  *
@@ -35,7 +39,7 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 	
 	public GbGradesDisplayToolbar(String id, final IModel<Map<String, Object>> model, SakaiDataTable table, final boolean hasAssignmentsAndGrades)
 	{
-		super(id, table);
+		super(id, table, Collections.emptyList());
 		this.setDefaultModel(model);
 		this.hasAssignmentsAndGrades = hasAssignmentsAndGrades;
 	}
@@ -43,6 +47,49 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 	@Override
 	protected void onInitialize()
 	{
+		// section and group dropdown
+		groups = bus.getSiteSectionsAndGroups();
+		/*GbRole role = bus.getUserRole();
+		String currentUserUuid = bus.getCurrentUser().getId();
+		List<PermissionDefinition> permissions = bus.getPermissionsForUser(currentUserUuid);
+		
+		// if only one group, just show the title
+		// otherwise add the 'all groups' option
+		// cater for the case where there is only one group visible to TA but they can see everyone.
+		if (role == GbRole.TA) {
+
+			//if only one group, hide the filter
+			if (groups.size() == 1) {
+				showGroupFilter = false;
+
+				// but need to double check permissions to see if we have any permissions with no group reference
+				permissions.forEach(p -> {
+					if (!StringUtils.equalsIgnoreCase(p.getFunction(),GraderPermission.VIEW_COURSE_GRADE.toString()) && StringUtils.isBlank(p.getGroupReference())) {
+						showGroupFilter = true;
+					}
+				});
+			}
+		}
+
+		if(!showGroupFilter) {
+			add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
+		} else {
+			add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
+
+			// add the default ALL group to the list
+			String allGroupsTitle = getString("groups.all");
+			if (role == GbRole.TA) {
+
+				// does the TA have any permissions set?
+				// we can assume that if they have any then there is probably some sort of group restriction so we can change the label
+				if (!permissions.isEmpty()) {
+					allGroupsTitle = getString("groups.available");
+				}
+			}
+			//groups.add(0, new GbGroup(null, allGroupsTitle, null, GbGroup.Type.ALL));
+			groups.add(0, GbGroup.all(allGroupsTitle));
+		}*/
+		
 		super.onInitialize();
 		
 		GradebookPage page = (GradebookPage) getPage();
@@ -125,6 +172,51 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 		if (assignments.isEmpty()) {
 			toggleGradeItemsToolbarItem.setVisible(false);
 		}
+	}
+	
+	@Override
+	protected boolean showGroupFilter()
+	{	
+		// if only one group, just show the title
+		showGroupFilter = super.showGroupFilter();
+		
+		// otherwise add the 'all groups' option
+		// cater for the case where there is only one group visible to TA but they can see everyone.
+		if (role == GbRole.TA) {
+
+			//if only one group, hide the filter
+			if (groups.size() == 1) {
+				showGroupFilter = false;
+
+				// but need to double check permissions to see if we have any permissions with no group reference
+				permissions.forEach(p -> {
+					if (!StringUtils.equalsIgnoreCase(p.getFunction(),GraderPermission.VIEW_COURSE_GRADE.toString()) && StringUtils.isBlank(p.getGroupReference())) {
+						showGroupFilter = true;
+					}
+				});
+			}
+		}
+		
+		return showGroupFilter;
+	}
+	
+	@Override
+	protected void handleShowGroupFilter()
+	{
+		add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
+
+		// add the default ALL group to the list
+		String allGroupsTitle = getString("groups.all");
+		if (role == GbRole.TA) {
+
+			// does the TA have any permissions set?
+			// we can assume that if they have any then there is probably some sort of group restriction so we can change the label
+			if (!permissions.isEmpty()) {
+				allGroupsTitle = getString("groups.available");
+			}
+		}
+
+		groups.add(0, GbGroup.all(allGroupsTitle));
 	}
 	
 	public Component updateLiveGradingMessage(final String message) {

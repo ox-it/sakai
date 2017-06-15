@@ -16,7 +16,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -25,6 +24,7 @@ import org.sakaiproject.gradebookng.tool.behavior.RevertScoreBehavior;
 import org.sakaiproject.gradebookng.tool.behavior.ScoreChangeBehavior;
 import org.sakaiproject.gradebookng.tool.component.table.columns.FinalGradeColumn;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
+import org.sakaiproject.gradebookng.tool.pages.CourseGradesPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
@@ -143,6 +143,7 @@ public class FinalGradeItemCellPanel extends Panel
 						String displayGrade = FinalGradeFormatter.format(newGbCourseGrade);
 						gradeField.setModelObject(displayGrade);
 						target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
+						((CourseGradesPage) page).redrawForGradeChange(target);
 						// trigger async event that score has been updated and now displayed
 						target.appendJavaScript(String.format("$('#%s').trigger('scoreupdated.sakai')", gradeField.getMarkupId()));
 					}
@@ -227,7 +228,7 @@ public class FinalGradeItemCellPanel extends Panel
 
 		final ArrayList<String> cssClasses = new ArrayList<>();
 		cssClasses.add(baseGradeStyle); // always
-		if (model.getObject().getCourseGrade().hasOverride())
+		if (model.getObject().getCourseGrade().getOverride().isPresent())
 		{
 			cssClasses.add("gb-cg-override");
 		}

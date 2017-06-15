@@ -48,7 +48,7 @@ public class GbGroup implements Comparable<GbGroup>, Serializable {
 		ALL;
 	}
 
-	public GbGroup(final String id, final String title, final String reference, final Type type, final String providerId) {
+	private GbGroup(final String id, final String title, final String reference, final Type type, final String providerId) {
 		this.id = id;
 		this.title = title;
 		this.reference = reference;
@@ -65,7 +65,13 @@ public class GbGroup implements Comparable<GbGroup>, Serializable {
 	
 	public static GbGroup all(String title)
 	{
-		return new GbGroup(null, title, null, Type.ALL, "");
+		//return new GbGroup(null, title, null, Type.ALL, "");
+		return new GbGroup("ALL", title, "", Type.ALL, "");
+	}
+	
+	public boolean isSection()
+	{
+		return type == Type.SECTION;
 	}
 
 	@Override

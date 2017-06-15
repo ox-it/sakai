@@ -104,10 +104,13 @@ public class BasePage extends WebPage {
 			public void onClick() {
 				setResponsePage(CourseGradesPage.class);
 			}
-
+			
 			@Override
-			public boolean isVisible() {
-				return (BasePage.this.role == GbRole.INSTRUCTOR);
+			protected void onInitialize()
+			{
+				super.onInitialize();
+				setVisible(role == GbRole.INSTRUCTOR && businessService.getCurrentSite()
+						.map(s -> "course".equals(s.getType())).orElse(false));
 			}
 
 		};

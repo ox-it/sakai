@@ -1,11 +1,11 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -27,6 +27,11 @@ import org.apache.wicket.model.Model;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
+import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeStatistics;
+import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmissionPresenter;
+import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmitter;
+import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmitter.SubmissionHistoryRow;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.component.GbBaseHeadersToolbar;
@@ -41,10 +46,13 @@ import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.GbBaseGradesDisplayToolbar;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.CourseGradeSubmissionPanel;
+import org.sakaiproject.gradebookng.tool.panels.finalgrades.CourseGradeSubmissionPanel.CourseGradeSubmissionData;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.CourseSummaryPanel;
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.gradebookng.tool.panels.finalgrades.SectionStatisticsPanel.SectionStats;
+import org.sakaiproject.gradebookng.tool.panels.finalgrades.SubmissionHistoryPanel.SubmissionHistory;
+import org.sakaiproject.gradebookng.tool.panels.finalgrades.SubmitAndApprovePanel.SubmitAndApproveStatus;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
-import org.sakaiproject.service.gradebook.shared.SortType;
+import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmissionGrades;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
@@ -64,11 +72,15 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	private boolean showGroupFilter = true;
 	
 	private SakaiDataTable table;
+	private CourseGradeSubmissionPanel submissionPanel;
 	
 	GbModalWindow updateCourseGradeDisplayWindow;
 	GbModalWindow studentGradeSummaryWindow;
 	GbModalWindow updateUngradedItemsWindow;
 	
+	private transient CourseGradeSubmitter submitter;
+	private List<GbGroup> sections;
+
 	public CourseGradesPage()
 	{
 		// students and TAs cannot access this page, redirect them to Grades page
@@ -95,7 +107,12 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		
 		form.add(new CourseSummaryPanel("courseSummaryPanel"));
 		
-		form.add(new CourseGradeSubmissionPanel("courseGradeSubmissionPanel"));
+		sections = businessService.getSiteSections();
+		
+		CourseGradeSubmissionData data = new CourseGradeSubmissionData();
+		updateStatsAndHistoryModel(data);
+		form.add(submissionPanel = new CourseGradeSubmissionPanel("courseGradeSubmissionPanel", Model.of(data)));
+		submissionPanel.setOutputMarkupId(true);
 		
 		updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
 		form.add(updateCourseGradeDisplayWindow);
@@ -108,27 +125,10 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		updateUngradedItemsWindow = new GbModalWindow("updateUngradedItemsWindow");
 		form.add(updateUngradedItemsWindow);
 		
-		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
-		
-		SortType sortBy = SortType.SORT_BY_SORTING;
-		/*if (settings.isCategoriesEnabled()) {
-			// Pre-sort assignments by the categorized sort order
-			sortBy = SortType.SORT_BY_CATEGORY;
-			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
-		}*/
+		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForFinalGrades(settings);
 
-		// get list of assignments. this allows us to build the columns and then
-		// fetch the grades for each student for each assignment from
-		// the map
-		// OWLTODO: make this only return the course grade
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
-
-		// get the grade matrix. It should be sorted if we have that info
-		// OWLTODO: course grade only
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
-
-		this.hasAssignmentsAndGrades = !assignments.isEmpty() && !grades.isEmpty();
+		this.hasAssignmentsAndGrades = !grades.isEmpty();
 
 		// mark the current timestamp so we can use this date to check for any changes since now
 		final Date gradesTimestamp = new Date();
@@ -197,8 +197,6 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		};
 
 		final Map<String, Object> modelData = new HashMap<>();
-		modelData.put("assignments", assignments);
-		modelData.put("categories", Collections.emptyList()); // OWLTODO: remove category stuff
 		modelData.put("categoryType", this.businessService.getGradebookCategoryType());
 		modelData.put("categoriesEnabled", false);
 		modelData.put("fixedColCount", businessService.isStudentNumberVisible() ? 4 : 3);
@@ -209,8 +207,13 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		
 		form.add(table);
 		
-		final GbBaseGradesDisplayToolbar toolbar = new GbBaseGradesDisplayToolbar("toolbar", table);
+		final GbBaseGradesDisplayToolbar toolbar = new GbBaseGradesDisplayToolbar("toolbar", table, sections);
 		form.add(toolbar);
+	}
+	
+	public List<GbGroup> getSections()
+	{
+		return sections;
 	}
 	
 	@Override
@@ -294,25 +297,8 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	@Override
 	public List<GbStudentGradeInfo> refreshStudentGradeInfo()
 	{
-		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
-
-		SortType sortBy = SortType.SORT_BY_SORTING;
-		/*if (settings.isCategoriesEnabled()) {
-			// Pre-sort assignments by the categorized sort order
-			sortBy = SortType.SORT_BY_CATEGORY;
-			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
-		}*/
-
-		// OWLTODO: we don't need the assignments here, just the course grades, build the grade matrix from that instead
-		
-		// get list of assignments. this allows us to build the columns and then
-		// fetch the grades for each student for each assignment from
-		// the map
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
-
-		// get the grade matrix. It should be sorted if we have that info
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
+		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForFinalGrades(settings);
 		
 		// there is a timestamp put on the table that is used to check for concurrent modifications,
 		// update it now that we've refreshed the grade matrix
@@ -334,6 +320,96 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 			target.appendJavaScript("sakai.gradebookng.spreadsheet.$table = $(\"#gradebookGradesTable\");");
 			target.appendJavaScript("sakai.gradebookng.spreadsheet.initTable();");
 		}
+	}
+	
+	// OWLTODO: probably move all this logic into CourseGradeSubmissionPanel or into CourseGradeSubmitter itself?
+	private void updateStatsAndHistoryModel(CourseGradeSubmissionData data)
+	{	
+		// 1. refresh the provided members
+		// 2. get the course grades
+		// 3. get the stats, passing in above
+		// 4. get the history, passing in above
+		// 5. get the submission/approval status, passing in above
+		// 6. update the dependant models
+		
+		// 1 and 2 (get course grades calls refresh)
+		CourseGradeSubmitter submitter = getSubmitter();
+		Set<OwlGradeSubmissionGrades> courseGrades = submitter.getCurrentCourseGrades();
+		
+		// 3
+		CourseGradeStatistics stats = new CourseGradeStatistics(courseGrades);
+		int missing = submitter.getMissingGradeCount();  // requires a refresh but this was done above
+		data.setStats(new SectionStats(stats, missing));
+		
+		// 4
+		List<SubmissionHistoryRow> history = submitter.getSubmissionHistoryRowsForSelectedSection();
+		String status = submitter.getGradeChangeReport(courseGrades).getCurrentStatusMessage();
+		data.setHistory(new SubmissionHistory(history, status));
+		
+		// 5
+		// button visible checks
+		boolean isSubmitter = submitter.isCurrentUserAbleToSubmit();
+		boolean isApprover = submitter.isCurrentUserAbleToApprove();
+		// button enabled checks
+		boolean canSubmit = isSubmitter && submitter.hasSubmittableGrades(new StringBuilder()); // OWLTODO: we need this message?
+		boolean canApprove = isApprover && submitter.isSectionReadyForApprovalByCurrentUser();
+		SubmitAndApproveStatus sas = SubmitAndApproveStatus.builder().canSubmit(isSubmitter).canApprove(isApprover)
+				.submitReady(canSubmit).approveReady(canApprove).statusMsg(status).build();
+		data.setButtonStatus(sas);
+	}
+	
+	private void redrawStatsAndHistory(AjaxRequestTarget target)
+	{
+		updateStatsAndHistoryModel(submissionPanel.getData());
+		submissionPanel.redrawStats(target);
+		submissionPanel.redrawHistory(target);
+		submissionPanel.redrawButtons(target);
+	}
+	
+	public void submitGrades(AjaxRequestTarget target)
+	{
+		// OWLTODO: submit() and updateStatsAndHistoryModel() do a lot of the same expensive work, so refactor the common functionality
+		// out to improve performance
+		getSubmitter().submit();
+		redrawForSubmission(target);
+	}
+	
+	public void approveGrades(AjaxRequestTarget target)
+	{
+		getSubmitter().approve();
+		redrawForSubmission(target);
+	}
+	
+	public void redrawForSubmission(AjaxRequestTarget target)
+	{
+		updateStatsAndHistoryModel(submissionPanel.getData());
+		submissionPanel.redrawHistory(target);
+		submissionPanel.redrawButtons(target);
+		submissionPanel.redrawFeedback(target);
+	}
+	
+	public void redrawForGradeChange(AjaxRequestTarget target)
+	{
+		updateStatsAndHistoryModel(submissionPanel.getData());
+		submissionPanel.redrawStats(target);
+		submissionPanel.redrawButtons(target);
+	}
+	
+	public void submitAndApproveError(String msg)
+	{
+		submissionPanel.error(msg);
+	}
+	
+	public void submitAndApproveMsg(String msg)
+	{
+		submissionPanel.success(msg);
+	}
+	
+	@Override
+	public void redrawForGroupChange(AjaxRequestTarget target)
+	{
+		redrawSpreadsheet(target);
+		redrawStatsAndHistory(target);
 	}
 	
 	@Override
@@ -392,4 +468,14 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 
 	@Override
 	public void setFocusedAssignmentID(long assignmentID) {}
+	
+	public CourseGradeSubmitter getSubmitter()
+	{
+		if (submitter == null)
+		{
+			submitter = new CourseGradeSubmitter(businessService, new CourseGradeSubmissionPresenter(this));
+		}
+		
+		return submitter;
+	}
 }

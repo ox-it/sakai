@@ -25,6 +25,11 @@ public class IndicatingAjaxDropDownChoice<T> extends DropDownChoice<T> implement
 		super(id, model, choices, renderer);
 	}
 	
+	public IndicatingAjaxDropDownChoice(String id, IModel<T> model, List<? extends T> choices, IChoiceRenderer<? super T> renderer)
+	{
+		super(id, model, choices, renderer);
+	}
+	
 	@Override
 	protected void onInitialize()
 	{

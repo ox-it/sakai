@@ -326,7 +326,7 @@ public class CourseGradeItemEditableCellPanel extends Panel
 
 		final ArrayList<String> cssClasses = new ArrayList<>();
 		cssClasses.add(baseGradeStyle); // always
-		if (model.getObject().getGbCourseGrade().hasOverride())
+		if (model.getObject().getGbCourseGrade().getOverride().isPresent())
 		{
 			cssClasses.add("gb-cg-override");
 		}

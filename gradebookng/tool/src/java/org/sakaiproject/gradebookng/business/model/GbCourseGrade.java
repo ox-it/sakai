@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
@@ -39,21 +40,30 @@ public class GbCourseGrade implements Serializable {
 		return ToStringBuilder.reflectionToString(this);
 	}
 	
-	public boolean hasOverride()
+	public Optional<String> getOverride()
 	{
-		return courseGrade.getEnteredGrade() != null;
+		if (courseGrade != null)
+		{
+			return Optional.ofNullable(courseGrade.getEnteredGrade());
+		}
+		
+		return Optional.empty();
 	}
-	
-	public Double getCalculatedGrade()
+
+	public Optional<Double> getCalculatedGrade()
 	{
 		try
 		{
-			return Double.parseDouble(courseGrade.getCalculatedGrade());
+			if (courseGrade != null)
+			{
+				return Optional.of(Double.parseDouble(courseGrade.getCalculatedGrade()));
+			}
 		}
 		catch (NullPointerException | NumberFormatException e)
 		{
-			return null;
+			// do nothing
 		}
+		
+		return Optional.empty();
 	}
-
 }

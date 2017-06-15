@@ -9,6 +9,7 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.settings.IRequestCycleSettings.RenderStrategy;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.sakaiproject.gradebookng.tool.pages.CourseGradesPage;
 import org.sakaiproject.gradebookng.tool.pages.ErrorPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
@@ -29,6 +30,7 @@ public class GradebookNgApplication extends WebApplication {
 
 		// page mounting for bookmarkable URLs
 		mountPage("/grades", GradebookPage.class);
+		mountPage("/finalgrades", CourseGradesPage.class);
 		mountPage("/settings", SettingsPage.class);
 		mountPage("/importexport", ImportExportPage.class);
 		mountPage("/permissions", PermissionsPage.class);
@@ -41,9 +43,6 @@ public class GradebookNgApplication extends WebApplication {
 
 		// Don't throw an exception if we are missing a property, just fallback
 		getResourceSettings().setThrowExceptionOnMissingResource(false);
-
-		// Remove the wicket specific tags from the generated markup
-		getMarkupSettings().setStripWicketTags(true);
 
 		// Don't add any extra tags around a disabled link (default is <em></em>)
 		getMarkupSettings().setDefaultBeforeDisabledLink(null);

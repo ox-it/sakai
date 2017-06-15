@@ -14,16 +14,12 @@
 
 package org.sakaiproject.gradebookng.business.finalgrades;
 
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,10 +29,8 @@ import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.owl.finalgrades.MissingStudentNumberException;
-import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.facades.Authz;
@@ -50,6 +44,7 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.entitybroker.util.SakaiToolData;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
@@ -94,7 +89,7 @@ public class CourseGradeSubmitter implements Serializable
     
     private static final String STUDENT_NUMBER_SAKAI_PROPERTY = "gradebook.empNumKey";
     
-    private static final String SUPPORT_EMAIL_SAKAI_PROPERTY = "support.email";
+    private static final String SUPPORT_EMAIL_SAKAI_PROPERTY = "mail.support";
     private static final String SUPPORT_EMAIL = ServerConfigurationService.getString(SUPPORT_EMAIL_SAKAI_PROPERTY, "");
     
     private static final String EMAIL_SFTP_ERROR_TEMPLATE = "gradebook.courseGradeSubmission.sftpError";
@@ -125,21 +120,24 @@ public class CourseGradeSubmitter implements Serializable
     private static final String REGISTRAR_PASS_GRADE_CODE = "PAS";
     private static final String REGISTRAR_FAIL_GRADE_CODE = "FAI";
     
-    public static final String GRADEBOOK_TOOL_ID = "sakai.gradebook.tool";
+    public static final String GRADEBOOK_TOOL_ID = "sakai.gradebookng";
     
     private static final String EMAIL_SUFFIX = "@uwo.ca";
     
     private static final int REGISTRAR_GRADE_MIN = 0;
     private static final int REGISTRAR_GRADE_MAX = 100;
     
-    private static final String NO_GRADES_READY_MSG_KEY = "course_grade_details_no_grades_ready";
-    private static final String SINGLE_GRADE_READY_MSG_KEY = "course_grade_details_single_grade_ready";
-    private static final String GRADES_READY_MSG_KEY = "course_grade_details_grades_ready";
-    private static final String CURRENT_STATUS_MSG_KEY = "course_grade_details_current_status";
-    private static final String GRADE_HAS_MSG_KEY = "course_grade_details_grade_has";
-    private static final String GRADES_HAVE_MSG_KEY = "course_grade_details_grades_have";
+    private static final String NO_GRADES_READY_MSG_KEY = "finalgrades_no_grades_ready";
+    private static final String SINGLE_GRADE_READY_MSG_KEY = "finalgrades_single_grade_ready";
+    private static final String GRADES_READY_MSG_KEY = "finalgrades_grades_ready";
+    private static final String CURRENT_STATUS_MSG_KEY = "finalgrades_current_status";
+    private static final String GRADE_HAS_MSG_KEY = "finalgrades_grade_has";
+    private static final String GRADES_HAVE_MSG_KEY = "finalgrades_grades_have";
+	
+	private static final String FINAL_GRADES_URL = "%s/tool/%s/finalgrades";
     
-	private final GradebookNgBusinessService bus;
+	private final transient GradebookNgBusinessService bus;
+	private final transient CourseGradeSubmissionPresenter presenter;
     private String siteId;
     private String userEid;
     private String userEmail;
@@ -166,9 +164,10 @@ public class CourseGradeSubmitter implements Serializable
      * @throws IllegalArgumentException
      * @throws IllegalStateException 
      */
-    public CourseGradeSubmitter(GradebookNgBusinessService service) throws IllegalArgumentException, IllegalStateException
+    public CourseGradeSubmitter(GradebookNgBusinessService service, CourseGradeSubmissionPresenter presenter) throws IllegalArgumentException, IllegalStateException
     {
 		bus = service;
+		this.presenter = presenter;
         siteId = StringUtils.defaultIfBlank(bus.getCurrentSiteId(), "");
         if (siteId.isEmpty())
         {
@@ -190,13 +189,13 @@ public class CourseGradeSubmitter implements Serializable
             userEmail = currentUser.getEmail().trim();
         }
         
-        userIp = CourseGradeSubmissionPresenter.getUserIp();
+        userIp = presenter.getUserIp();
         if (userIp.isEmpty())
         {
             throw new IllegalStateException("Cannot determine current user IP address");
         }
         
-        currentSectionProvidedMembers = Collections.EMPTY_SET;
+        currentSectionProvidedMembers = Collections.emptySet();
         currentSectionSubmittableMemberCount = 0;
         
         gradebookUid = bus.getGradebook().getUid();
@@ -219,6 +218,11 @@ public class CourseGradeSubmitter implements Serializable
         
         return sectionStats;
     }
+	
+	public void clearStats()
+	{
+		sectionStats = null;
+	}
     
     public int getMissingGradeCount()
     {
@@ -264,24 +268,23 @@ public class CourseGradeSubmitter implements Serializable
     /**
      * Submits initial grades or revisions. Called when the submit/revise button
      * is clicked in the Course Grade Submission section of the Course Grades page.
-     * @param event the event object
      */
-    public void submit(ActionEvent event)
+    public void submit()
     {
         // Check our prerequisities
         /*
         - A section is selected and it has provided (sakora) members
         - There are grades for this section
         - Current user has permission to submit (submit permission & membership in section with non-submittable role)
-        - There are approvers for this section 
         */
+		
+		Set<OwlGradeSubmissionGrades> currentGrades = getCurrentCourseGrades(); // this call refreshes current members as well
         
         // Check that a section is selected and it has provided members
-        refreshCurrentProvidedMembers();
         if (currentSectionProvidedMembers.isEmpty())
         {
             // abort and update UI
-            CourseGradeSubmissionPresenter.presentError("Please select a valid Registrar's section before submitting grades.");
+            presenter.presentError("Please select a valid Registrar's section before submitting grades.");
             return;
         }
         
@@ -289,27 +292,18 @@ public class CourseGradeSubmitter implements Serializable
         if (!isUserAbleToSubmit(userEid, currentSectionProvidedMembers))
         {
             // abort and update UI
-            CourseGradeSubmissionPresenter.presentError("You are not permitted to submit grades for the selected section.");
+            presenter.presentError("You are not permitted to submit grades for the selected section.");
             return;
         }
         
-        // Are there submittable grades for this section?
+		// Are there submittable grades for this section?
         StringBuilder msg = new StringBuilder();
-        if (!hasSubmittableGrades(msg))
+        if (!hasSubmittableGrades(currentGrades, msg))
         {
             // abort and update UI
-            CourseGradeSubmissionPresenter.presentError(msg.toString());
+            presenter.presentError(msg.toString());
             return;
         }
-        
-        // Are there approvers for this section?
-        Set<User> approvers = getApproversFromMembership(currentSectionProvidedMembers);
-        /*if (approvers.isEmpty())
-        {
-            // abort and update UI
-            FacesUtil.addErrorMessage("There are no approvers currently assigned to the selected section. Please try again later.");
-            return;
-        } we're going to allow this  --plukasew */ 
                  
         // Process submission
         /*
@@ -322,11 +316,10 @@ public class CourseGradeSubmitter implements Serializable
          */
              
         /* *********** 1. get current course grades ************** */
-        Set<OwlGradeSubmissionGrades> currentGrades = getCurrentCourseGrades();
         if (!allGradesWithinRange(currentGrades, REGISTRAR_GRADE_MIN, REGISTRAR_GRADE_MAX))
         {
             // update UI and abort
-            CourseGradeSubmissionPresenter.presentError("One or more numeric course grades are outside the allowed range of "
+            presenter.presentError("One or more numeric course grades are outside the allowed range of "
                     + REGISTRAR_GRADE_MIN + " to " + REGISTRAR_GRADE_MAX + ". Please revise and submit again.");
             return;
         }
@@ -353,7 +346,7 @@ public class CourseGradeSubmitter implements Serializable
         {
             // no change in grades
             // OWLTODO: Handle this better
-            CourseGradeSubmissionPresenter.presentError("No grade changes. You must add or change at least one grade before submitting a revision.");
+            presenter.presentError("No grade changes. You must add or change at least one grade before submitting a revision.");
             return;
         }
         
@@ -380,6 +373,7 @@ public class CourseGradeSubmitter implements Serializable
             }
             
             // 4. find grade admins for this site
+			Set<User> approvers = getApproversFromMembership(currentSectionProvidedMembers);
             String gradeAdmins = "";
             String prefix = "";
             for (User approver : approvers)
@@ -431,10 +425,10 @@ public class CourseGradeSubmitter implements Serializable
                 }
                 
                 // send notice to approvers
-                //String toolRef = dhs.getCurrentToolReference();
-                //String toolId = dhs.getToolIdFromToolRef(toolRef); // this returns "sakai.gradebook" but the real id is "sakai.gradebook.tool"
-                //String toolUrl = dhs.getToolViewURL(toolId, null, null, null);
-                String linkToGradebook = dhs.getToolViewURL(GRADEBOOK_TOOL_ID, null, null, null);
+                //String linkToGradebook = dhs.getToolViewURL(GRADEBOOK_TOOL_ID, null, null, null);
+				SakaiToolData td = dhs.getToolData(GRADEBOOK_TOOL_ID, null);
+				String toolId = td.getPlacementId();
+				String linkToGradebook = String.format(FINAL_GRADES_URL, dhs.getLocationReferenceURL(td.getLocationReference()), toolId);
                 replacementValues.clear();
                 replacementValues.put(EMAIL_SUBMISSION_NOTICE_KEY_SUBMITTER, userEid);
                 replacementValues.put(EMAIL_SUBMISSION_NOTICE_KEY_SECTION_NAME, section.getTitle());
@@ -503,13 +497,13 @@ public class CourseGradeSubmitter implements Serializable
                 message += " These grades will be reviewed for approval when a grade admin has been assigned to this section by your department.";
             else
                 message += " Grade admins (" + gradeAdmins + ") have been notified via email.";
-            CourseGradeSubmissionPresenter.presentMsg(message);
+            presenter.presentMsg(message);
         }
         catch (NestedRuntimeException he)
         {
             // submission can't be created, so we'll notify the user and return?
             LOG.error(LOG_PREFIX + "Hibernate error during submission by " + userEid + ": " + he.getMessage(), he);
-            CourseGradeSubmissionPresenter.presentError("There was an error saving data to the database. Please try again later. If the problems persists, please contact " + SUPPORT_EMAIL);
+            presenter.presentError("There was an error saving data to the database. Please try again later. If the problems persists, please contact " + SUPPORT_EMAIL);
         }
 		
     } // end submit
@@ -520,7 +514,7 @@ public class CourseGradeSubmitter implements Serializable
      * button is clicked in the Course Grade Submission section of the Course Grades page.
      * @param event the event object
      */
-    public void approve(ActionEvent event)
+    public void approve()
     {
         // check prerequisites
         OwlGradeSubmission existingSubmission = bus.getMostRecentCourseGradeSubmissionForSection(getSelectedSectionEid());
@@ -528,7 +522,7 @@ public class CourseGradeSubmitter implements Serializable
         if (!isSectionReadyForApprovalByCurrentUser(message))
         {
             // abort and update UI
-            CourseGradeSubmissionPresenter.presentError(message.toString());
+            presenter.presentError(message.toString());
             return;
         }
         
@@ -627,11 +621,11 @@ public class CourseGradeSubmitter implements Serializable
             {
                 // approval can't be created, or submission can't be updated, so we'll notify the user and return?
                 LOG.error(LOG_PREFIX + "Error saving approval to database: " + he.getMessage(), he);
-                CourseGradeSubmissionPresenter.presentError("An error occurred saving data to the database.");
+                presenter.presentError("An error occurred saving data to the database.");
             }
             
             //OWL-697 (mweston4) Email instructor(s) when grades are approved for their section
-            StringBuilder facesMsg = new StringBuilder();
+            StringBuilder msg = new StringBuilder();
             Map<String, String> placeholderValues = new HashMap<>();
             if (EMAIL_ENABLED){
                     
@@ -650,7 +644,7 @@ public class CourseGradeSubmitter implements Serializable
                     template = emailTemplateService.getRenderedTemplate(EMAIL_APPROVAL_NOTICE_NOCHANGES_TEMPLATE, new Locale( "en" ), placeholderValues);
                 }
                 
-                facesMsg.append("Grades approved, but were identical to the previously approved grades and therefore not transferred to the Office of the Registar. No additional action is required.");
+                msg.append("Grades approved, but were identical to the previously approved grades and therefore not transferred to the Office of the Registar. No additional action is required.");
             }
             else
             {
@@ -659,7 +653,7 @@ public class CourseGradeSubmitter implements Serializable
                     template = emailTemplateService.getRenderedTemplate(EMAIL_APPROVAL_NOTICE_TEMPLATE, new Locale( "en" ), placeholderValues);
                 }
                 
-                facesMsg.append("Grades approved and securely transferred to the Office of the Registrar.");
+                msg.append("Grades approved and securely transferred to the Office of the Registrar.");
             }
             
             //OWL-697 (mweston4) Email instructor(s) when grades are approved for their section
@@ -710,7 +704,7 @@ public class CourseGradeSubmitter implements Serializable
                         if (!recipients.isEmpty()) {
                             emailService.sendMail(new InternetAddress(SUPPORT_EMAIL), recipients.toArray(new InternetAddress[0]), template.getRenderedSubject(), template.getRenderedMessage(), null, null, null);
                             if (notificationList.length() > 0) {
-                                facesMsg.append(" The following users have been notified by email (").append(notificationList).append(").");
+                                msg.append(" The following users have been notified by email (").append(notificationList).append(").");
                             }
                             
                             // bjones86 - OWL-966 - log course grade approval
@@ -730,7 +724,7 @@ public class CourseGradeSubmitter implements Serializable
                 }
             }
             
-            CourseGradeSubmissionPresenter.presentMsg(facesMsg.toString());
+            presenter.presentMsg(msg.toString());
         }
         else
         {
@@ -776,20 +770,26 @@ public class CourseGradeSubmitter implements Serializable
             }
             
             LOG.error(LOG_PREFIX + "SFTP transfer to Registrar by " + userEid + " failed for submission: " + existingSubmission.getId());
-            CourseGradeSubmissionPresenter.presentError("An error occurred transfering grades to the Registrar. Please try again later. If the problem persists, please contact " + SUPPORT_EMAIL);
+            presenter.presentError("An error occurred transfering grades to the Registrar. Please try again later. If the problem persists, please contact " + SUPPORT_EMAIL);
         }
         
     }
+	
+	// OWLTODO: try to remove calls to this method, getCurrentCourseGrades() is slow, pass it in instead...
+	public boolean hasSubmittableGrades(StringBuilder messageRef)
+	{
+		return hasSubmittableGrades(getCurrentCourseGrades(), messageRef);
+	}
     
-    public boolean hasSubmittableGrades(StringBuilder messageRef)
-    {
+    public boolean hasSubmittableGrades(Set<OwlGradeSubmissionGrades> currentGrades, StringBuilder messageRef)
+    {	
         boolean submittable = true;
-        if (getCurrentCourseGrades().isEmpty())
+        if (currentGrades.isEmpty())
         {
             messageRef.append("There are no valid grades to submit for the selected section.");
             submittable = false;
         }
-        else if (getGradeChangeReport().hasAddsOrRevisions() == false)
+        else if (getGradeChangeReport(currentGrades).hasAddsOrRevisions() == false)
         {
             messageRef.append("No grades have been added or modified since last submission.");
             submittable = false;
@@ -797,10 +797,15 @@ public class CourseGradeSubmitter implements Serializable
         
         return submittable;
     }
+	
+	// OWLTODO: try to remove calls to this method, getCurrentCourseGrades is slow, pass it in instead...
+	public GradeChangeReport getGradeChangeReport()
+	{
+		return getGradeChangeReport(getCurrentCourseGrades());
+	}
     
-    public GradeChangeReport getGradeChangeReport()
+    public GradeChangeReport getGradeChangeReport(Set<OwlGradeSubmissionGrades> currentGrades)
     {
-        GradeChangeReport report = new GradeChangeReport();
         if (isSectionSelected())
         {
             OwlGradeSubmission existingSubmission = bus.getMostRecentCourseGradeSubmissionForSection(getSelectedSectionEid());
@@ -809,16 +814,19 @@ public class CourseGradeSubmitter implements Serializable
             {
                 prevGrades = getPreviousCourseGrades(existingSubmission);
             }
-            report = checkForGradeChanges(getCurrentCourseGrades(), prevGrades);
+            return checkForGradeChanges(currentGrades, prevGrades);
         }
         
-        return report;
+        return new GradeChangeReport();
     }
     
     private GradeChangeReport checkForGradeChanges(Set<OwlGradeSubmissionGrades> currentGrades, Set<OwlGradeSubmissionGrades> previousGrades)
     {
         GradeChangeReport changes = new GradeChangeReport();
         
+		// OWLTODO: keying on student number here fails to detect changes if student has no student number
+		// is having no student number valid (CStudies?)? switch to eid instead?
+		// OWLTODO: need to check again qat to see how provided members with no student number are handled historically
         Map<String, OwlGradeSubmissionGrades> currentGradeMap = new HashMap<>();
         for (OwlGradeSubmissionGrades grade : currentGrades)
         {
@@ -834,7 +842,6 @@ public class CourseGradeSubmitter implements Serializable
         Set<String> newStudents = new HashSet<>();
         Set<String> sameStudents = new HashSet<>();
         Set<String> changedStudents = new HashSet<>();
-        Set<String> unchangedStudents = new HashSet<>();
         Set<String> missingStudents = new HashSet<>();
         
         sameStudents.addAll(currentGradeMap.keySet());
@@ -848,11 +855,7 @@ public class CourseGradeSubmitter implements Serializable
         
         for (String stu : sameStudents)
         {
-            if (currentGradeMap.get(stu).getGrade().equals(prevGradeMap.get(stu).getGrade()))
-            {
-                unchangedStudents.add(stu);
-            }
-            else
+            if (!currentGradeMap.get(stu).getGrade().equals(prevGradeMap.get(stu).getGrade()))
             {
                 changedStudents.add(stu);
             }
@@ -910,7 +913,7 @@ public class CourseGradeSubmitter implements Serializable
         - the new grades are not exactly the same as the old grades
         */
         
-        refreshCurrentProvidedMembers();
+        //refreshCurrentProvidedMembers();
         OwlGradeSubmission sub = bus.getMostRecentCourseGradeSubmissionForSection(getSelectedSectionEid());
         
         if (currentSectionProvidedMembers.isEmpty())
@@ -932,19 +935,23 @@ public class CourseGradeSubmitter implements Serializable
         return ready;
     }
              
-    private Set<OwlGradeSubmissionGrades> getCurrentCourseGrades()
+    public Set<OwlGradeSubmissionGrades> getCurrentCourseGrades()
     {
+		// OWLTODO: this method is quite slow....
+		// split into getCurrent... and refreshCurrent... ?
+		
 		// OWL NOTE: refactored this method heavily for GBNG
 		
         Set<OwlGradeSubmissionGrades> finalGrades = new HashSet();
           
         // get all course grades from gradebook for the selected section
-        GbGroup section = CourseGradeSubmissionPresenter.getSelectedSection();
+        GbGroup section = presenter.getSelectedSection();
         if (section == null || section.getType() != GbGroup.Type.SECTION)
         {
             // no selected section, just return early
             return finalGrades;
         }
+		refreshCurrentProvidedMembers();
         List<GbStudentCourseGradeInfo> courseGrades = bus.getSectionCourseGrades(section);
 		
         //Map currentCourseGrades = bean.findMatchingEnrollmentsForViewableCourseGrade(null, null); // no username filter, no section filter
@@ -1162,18 +1169,18 @@ public class CourseGradeSubmitter implements Serializable
 		GbCourseGrade gbcg = record.getCourseGrade();
 		CourseGrade cg = gbcg.getCourseGrade();
 		
-        if (gbcg.hasOverride()) // we have an overridden grade, as a string
+		Optional<String> override = gbcg.getOverride();
+        if (override.isPresent()) // we have an overridden grade, as a string
         {
-            finalGrade = overriddenGradeAsGradeString(cg.getEnteredGrade());
+            finalGrade = overriddenGradeAsGradeString(override.get());
         }
         else // we have a numeric grade, or no grade was recorded
         {
 			// getCalculatedGrade was originally a non-null toString'd Double, so this should be safe
-            Double autoCalcGrade = gbcg.getCalculatedGrade();
-            if (autoCalcGrade == null)
-            {
-                throw new MissingCourseGradeException("No course grade entered for student: " + record.getStudent().getUserUuid());
-            }
+            if (!gbcg.getCalculatedGrade().isPresent())
+			{
+				throw new MissingCourseGradeException("No course grade entered for student: " + record.getStudent().getUserUuid());
+			}
             finalGrade = FinalGradeFormatter.formatForRegistrar(gbcg);
         } 
         
@@ -1273,7 +1280,7 @@ public class CourseGradeSubmitter implements Serializable
     
     private String getSelectedSectionEid()
     {
-		return CourseGradeSubmissionPresenter.getSelectedSectionEid();
+		return presenter.getSelectedSection().getProviderId();
 	}
     
     private void refreshCurrentProvidedMembers()
@@ -1395,13 +1402,13 @@ public class CourseGradeSubmitter implements Serializable
     
     public boolean isCurrentUserAbleToSubmit()
     {
-        refreshCurrentProvidedMembers();
+        //refreshCurrentProvidedMembers();
         return isUserAbleToSubmit(userEid, currentSectionProvidedMembers);
     }
     
     public boolean isCurrentUserAbleToApprove()
     {
-        refreshCurrentProvidedMembers();
+        //refreshCurrentProvidedMembers();
         return isUserAbleToApprove(userEid, currentSectionProvidedMembers);
     }
     
@@ -1542,64 +1549,42 @@ public class CourseGradeSubmitter implements Serializable
     
     public class SubmissionHistoryRow implements Serializable
     {
-        private OwlGradeSubmission submission;
+		@Getter
+        private final OwlGradeSubmission sub;
+		@Getter
+		private final String subDate, subByName, subByEid, status, appDate, appByName, appByEid;
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("MMM dd yyyy HH:mm:ss");
         
-        public SubmissionHistoryRow(OwlGradeSubmission sub)
+        public SubmissionHistoryRow(OwlGradeSubmission submission)
         {
-            submission = sub;
-        }
-        
-        public String getStatusText()
-        {
-            String date;
-            String action;
-            String userEid;
-            SimpleDateFormat formatter = new SimpleDateFormat("MMM dd yyyy HH:mm:ss");
-            UserDirectoryService uds = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
-            
-            if (submission.hasApproval())
-            {
-                OwlGradeApproval approval = submission.getApproval();
-                
-                date = formatter.format(approval.getApprovalDate());
-                action = "Approved";
-                userEid = approval.getUserEid();
-            }
-            else
-            {
-                date = formatter.format(submission.getSubmissionDate());
-                userEid = submission.getUserEid();
-                if (submission.hasPrevSubmission())
-                {
-                    action = "Revised";
-                }
-                else
-                {
-                    action = "Submitted";
-                }
-            }
-            
-            String user;
-            try
-            {
-                user = uds.getUserByEid(userEid).getDisplayName() + " (" + userEid + ")";
-            }
-            catch (UserNotDefinedException unde)
-            {
-                user = "unknown user (" + userEid + ")";
-            }
-            
-            String status = date + " - " + action + " by " + user; 
-            
-            return status;
+            sub = submission;
+			subDate = formatter.format(sub.getSubmissionDate());
+			subByEid = sub.getUserEid();
+			subByName = bus.getUserByEid(subByEid).map(u -> u.getDisplayName()).orElse(subByEid);
+
+			if (sub.hasApproval())
+			{
+				status = "Approved";
+				OwlGradeApproval app = sub.getApproval();
+				appDate = formatter.format(app.getApprovalDate());
+				appByEid = app.getUserEid();
+				appByName = bus.getUserByEid(appByEid).map(u -> u.getDisplayName()).orElse(appByEid);
+			}
+			else
+			{
+				status = "Pending Approval";
+				appDate = appByName = appByEid = "-";
+			}
+			
         }
         
         public boolean isApproved()
         {
-            return submission.hasApproval();
+            return sub.hasApproval();
         }
         
-        public void showPdf()
+        /*public void showPdf()
         {
             // check the current user's permissions
             refreshCurrentProvidedMembers();
@@ -1613,10 +1598,10 @@ public class CourseGradeSubmitter implements Serializable
                     OutputStream out = response.getOutputStream();
 
                     //render the pdf, and setup the response's header
-                    CourseGradePdfGenerator pdfGen = new CourseGradePdfGenerator(submission);
+                    CourseGradePdfGenerator pdfGen = new CourseGradePdfGenerator(sub);
 
                     // see if we have a previously approved submission
-                    OwlGradeSubmission previouslyApprovedSubmission = findPreviousApproval(submission.getPrevSubmission());
+                    OwlGradeSubmission previouslyApprovedSubmission = findPreviousApproval(sub.getPrevSubmission());
                     if (previouslyApprovedSubmission != null)
                     {
                         pdfGen.setPreviousApprovedGrades(previouslyApprovedSubmission.getGradeData());
@@ -1634,16 +1619,16 @@ public class CourseGradeSubmitter implements Serializable
                 }
                 catch(IOException e)
                 {
-                    LOG.error(LOG_PREFIX + "Could not generate PDF for submission id = " + submission.getId(), e);
-                    CourseGradeSubmissionPresenter.presentError("Unable to generate PDF file. Please try again later. If the problem persists, contact " + SUPPORT_EMAIL);
+                    LOG.error(LOG_PREFIX + "Could not generate PDF for submission id = " + sub.getId(), e);
+                    presenter.presentError("Unable to generate PDF file. Please try again later. If the problem persists, contact " + SUPPORT_EMAIL);
                 }
             }
             else
             {
-                CourseGradeSubmissionPresenter.presentError("You do not have permission to view this report.");
+                presenter.presentError("You do not have permission to view this report.");
             }
 
-         }
+         }*/
         
     } // end class SubmissionHistoryRow
     
@@ -1744,15 +1729,15 @@ public class CourseGradeSubmitter implements Serializable
         {
             if (newStudentCount < 1)
             {
-                return CourseGradeSubmissionPresenter.getLocalizedString(CourseGradeSubmitter.NO_GRADES_READY_MSG_KEY);
+                return presenter.getLocalizedString(CourseGradeSubmitter.NO_GRADES_READY_MSG_KEY);
             }
             else if (newStudentCount == 1)
             {
-                return CourseGradeSubmissionPresenter.getLocalizedString(CourseGradeSubmitter.SINGLE_GRADE_READY_MSG_KEY);
+                return presenter.getLocalizedString(CourseGradeSubmitter.SINGLE_GRADE_READY_MSG_KEY);
             }
             else
             {
-                return CourseGradeSubmissionPresenter.getLocalizedString(CourseGradeSubmitter.GRADES_READY_MSG_KEY, new String[] {String.valueOf(newStudentCount)});
+                return presenter.getLocalizedString(CourseGradeSubmitter.GRADES_READY_MSG_KEY, new String[] {String.valueOf(newStudentCount)});
             }
         }
         
@@ -1764,7 +1749,7 @@ public class CourseGradeSubmitter implements Serializable
         {
             String counts[] = {gradeCountMessage(revisedStudentCount), gradeCountMessage(newStudentCount), gradeCountMessage(missingStudentCount)};
        
-            return CourseGradeSubmissionPresenter.getLocalizedString(CourseGradeSubmitter.CURRENT_STATUS_MSG_KEY, counts);
+            return presenter.getLocalizedString(CourseGradeSubmitter.CURRENT_STATUS_MSG_KEY, counts);
         }
         
         /**
@@ -1777,10 +1762,10 @@ public class CourseGradeSubmitter implements Serializable
             String prefix = count + " ";
             if (count == 1)
             {
-                return prefix + CourseGradeSubmissionPresenter.getLocalizedString(CourseGradeSubmitter.GRADE_HAS_MSG_KEY);
+                return prefix + presenter.getLocalizedString(CourseGradeSubmitter.GRADE_HAS_MSG_KEY);
             }
             
-            return prefix + CourseGradeSubmissionPresenter.getLocalizedString(CourseGradeSubmitter.GRADES_HAVE_MSG_KEY);   
+            return prefix + presenter.getLocalizedString(CourseGradeSubmitter.GRADES_HAVE_MSG_KEY);   
         }
         
     } // end class GradeChangeReport

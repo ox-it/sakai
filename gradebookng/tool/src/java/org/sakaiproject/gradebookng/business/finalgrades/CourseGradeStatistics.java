@@ -3,6 +3,7 @@
 
 package org.sakaiproject.gradebookng.business.finalgrades;
 
+import java.io.Serializable;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -19,9 +20,9 @@ import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmiss
  * Calculates statistics for course grades
  * @author plukasew
  */
-public class CourseGradeStatistics
+public class CourseGradeStatistics implements Serializable
 {
-    private static final Log LOG = LogFactory.getLog(CourseGradeSubmitter.class);
+    private static final Log LOG = LogFactory.getLog(CourseGradeStatistics.class);
     private static final String LOG_PREFIX = "OWL: Course Grade Submission: ";
     
     public static final String CONVERT_LETTER_GRADES_SAKAI_PROPERTY = "gradebook.courseGradeSubmission.stats.convertLetterGrades";
@@ -55,10 +56,10 @@ public class CourseGradeStatistics
             LOG.warn(LOG_PREFIX + "Gradescale for stats failed to initialize. Check sakai.properties for " + KEYS_SAKAI_PROPERTY + " and " + VALUES_SAKAI_PROPERTY);
         }
     }
-    private Map<String, MutableInt> gradeScaleCount;
-    private DescriptiveStatistics stats;
+    private final Map<String, MutableInt> gradeScaleCount;
+    private final DescriptiveStatistics stats;
     private Double mode;
-    private int numericCount;
+    private final int numericCount;
     private int nonNumericCount;
     
     public CourseGradeStatistics(Set<OwlGradeSubmissionGrades> grades)

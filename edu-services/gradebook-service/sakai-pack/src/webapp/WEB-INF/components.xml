@@ -40,6 +40,14 @@
         <property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
         <property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
         <property name="gradebookPermissionService"><ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService"/></property>
+		
+		<!-- bjones86 - OWL-873 -->
+        <property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+        <property name="sectionRoleResolver">
+           <bean class="org.sakaiproject.coursemanagement.impl.provider.SectionRoleResolver" init-method="init">
+               <property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration" />
+           </bean>
+        </property>
     </bean>
 
     <bean id="org_sakaiproject_tool_gradebook_facades_EventTrackingService"

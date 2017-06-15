@@ -833,6 +833,49 @@ public class GradebookNgBusinessService {
 
 		return items;
 	}
+	
+	public List<GbStudentGradeInfo> buildGradeMatrixForFinalGrades(final GradebookUiSettings uiSettings) throws GbException
+	{
+		// ------------- Initialization -------------
+
+		// settings could be null depending on constructor so it needs to be corrected
+		final GradebookUiSettings settings = (uiSettings != null) ? uiSettings : new GradebookUiSettings();
+
+		final GbStopWatch stopwatch = new GbStopWatch();
+		stopwatch.start();
+		stopwatch.timeWithContext("buildGradeMatrixForFinalGrades", "buildGradeMatrixForFinalGrades start", stopwatch.getTime());
+
+		final Gradebook gradebook = getGradebook();
+		if (gradebook == null) {
+			return Collections.emptyList();
+		}
+		stopwatch.timeWithContext("buildGradeMatrix", "getGradebook", stopwatch.getTime());
+
+		// get current user
+		final String currentUserUuid = getCurrentUser().getId();
+
+		// get role for current user
+		final GbRole role = getUserRole();
+
+		// ------------- Get Users -------------
+
+		final List<GbUser> gbStudents = getGbUsersForUiSettings(getGradeableUsers(), settings);
+		stopwatch.timeWithContext("buildGradeMatrix", "getGbUsersForUiSettings", stopwatch.getTime());
+
+		// ------------- Course Grades -------------
+
+		final Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
+
+		putCourseGradesInMatrix(matrix, gbStudents, gradebook, role, isCourseGradeVisible(currentUserUuid), settings);
+		stopwatch.timeWithContext("buildGradeMatrix", "putCourseGradesInMatrix", stopwatch.getTime());
+
+		// ------------- Sorting -------------
+
+		List<GbStudentGradeInfo> items = sortGradeMatrix(matrix, settings);
+		stopwatch.timeWithContext("buildGradeMatrix", "sortGradeMatrix", stopwatch.getTime());
+
+		return items;
+	}
 
 	/**
 	 * Build the matrix of assignments and grades for the Export process
@@ -1593,6 +1636,11 @@ public class GradebookNgBusinessService {
 
 		return rval;
 	}
+	
+	public List<GbGroup> getSiteSections()
+	{
+		return getSiteSectionsAndGroups().stream().filter(GbGroup::isSection).collect(Collectors.toList());
+	}
 
 	/**
 	 * Helper to get siteid. This will ONLY work in a portal site context, it will return null otherwise (ie via an entityprovider).
@@ -2093,6 +2141,25 @@ public class GradebookNgBusinessService {
 			return GbUser.fromUserAcquiringStudentNumberAndAnonIdMap(u, this);
 		} catch (final UserNotDefinedException e) {
 			return null;
+		}
+	}
+	
+	/**
+	 * Get the user given an eid. Autopopulates student number.
+	 *
+	 * @param eid
+	 * @return Optional<GbUser>, empty if not found
+	 */
+	public Optional<GbUser> getUserByEid(final String eid)
+	{
+		try
+		{
+			final User u = userDirectoryService.getUserByEid(eid);
+			return Optional.of(GbUser.fromUserAcquiringStudentNumber(u, this));
+		}
+		catch (final UserNotDefinedException e)
+		{
+			return Optional.empty();
 		}
 	}
 

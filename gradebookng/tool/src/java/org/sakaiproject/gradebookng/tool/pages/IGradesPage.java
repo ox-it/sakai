@@ -33,7 +33,9 @@ public interface IGradesPage
 	public void redrawSpreadsheet(AjaxRequestTarget target);
 
 	public void addOrReplaceTable(GbStopWatch stopwatch);
-
+	
+	public void redrawForGroupChange(AjaxRequestTarget target);
+	
 	public GbModalWindow getUpdateCourseGradeDisplayWindow();
 
 	public GbModalWindow getUpdateUngradedItemsWindow();

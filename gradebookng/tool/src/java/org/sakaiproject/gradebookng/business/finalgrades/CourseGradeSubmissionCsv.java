@@ -7,14 +7,16 @@
 
 package org.sakaiproject.gradebookng.business.finalgrades;
 
-import com.sshtools.j2ssh.SftpClient;
+/*import com.sshtools.j2ssh.SftpClient;
 import com.sshtools.j2ssh.SshClient;
 import com.sshtools.j2ssh.authentication.AuthenticationProtocolState;
 import com.sshtools.j2ssh.authentication.PasswordAuthenticationClient;
 import com.sshtools.j2ssh.configuration.ConfigurationException;
 import com.sshtools.j2ssh.configuration.ConfigurationLoader;
 import com.sshtools.j2ssh.io.ByteArrayReader;
-import com.sshtools.j2ssh.transport.IgnoreHostKeyVerification;
+import com.sshtools.j2ssh.transport.IgnoreHostKeyVerification;*/
+import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,6 +32,11 @@ import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmissionGrades;
+
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.future.ConnectFuture;
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.client.subsystem.sftp.SftpClient;
 
 /**
  * Represents a CSV file of course grade submission data
@@ -47,7 +54,7 @@ public class CourseGradeSubmissionCsv
     private static final String SFTP_HOST_SAKAI_PROPERTY = "gradebook.courseGradeSubmission.sftp.host";
     private static final String SFTP_USER_SAKAI_PROPERTY = "gradebook.courseGradeSubmission.sftp.user";
     private static final String SFTP_PASSWORD_SAKAI_PROPERTY = "gradebook.courseGradeSubmission.sftp.password";
-	// OWLTODO: make port configurable
+	private static final String SFTP_PORT_SAKAI_PROPERTY = "gradebook.courseGradeSubmission.sftp.port";
     
     private List<String> gradeList;
     private String prefix;
@@ -181,9 +188,50 @@ public class CourseGradeSubmissionCsv
         byte[] csvBytes = allGrades.toString().getBytes();
         
         generateFilename();
-        
+		
+		try (SshClient sshClient = SshClient.setUpDefaultClient())
+		{
+			sshClient.start();
+			
+			// get sftp info from sakai.properties
+            String host = ServerConfigurationService.getString(SFTP_HOST_SAKAI_PROPERTY);
+			int port = ServerConfigurationService.getInt(SFTP_PORT_SAKAI_PROPERTY, 22);
+            String user = ServerConfigurationService.getString(SFTP_USER_SAKAI_PROPERTY);
+            String password = ServerConfigurationService.getString(SFTP_PASSWORD_SAKAI_PROPERTY);
+			
+			ConnectFuture future = sshClient.connect(user, host, port);
+			future.await();
+			
+			try (ClientSession clientSession = future.getSession())
+			{
+				clientSession.addPasswordIdentity(password);
+				clientSession.auth().verify(30000);  // 30 second timeout
+				SftpClient sftp = clientSession.createSftpClient();
+				try (OutputStream os = sftp.write(filename))
+				{
+					os.write(csvBytes);
+					os.flush();
+				}
+				finally
+				{
+					sftp.close();
+					clientSession.close(false);
+				}
+			}
+			finally
+			{
+				sshClient.stop();
+			}
+			
+			uploaded = true;
+		}
+		catch (IOException e)
+		{
+			LOG.error("OWL: Course Grade Submission: SFTP transfer failed: " + e.getMessage(), e);
+		}
+		
         // j2ssh sftp
-        try
+        /*try
         {
             // get sftp info from sakai.properties
             String host = ServerConfigurationService.getString(SFTP_HOST_SAKAI_PROPERTY);
@@ -215,7 +263,7 @@ public class CourseGradeSubmissionCsv
         catch (Exception e)
         {
             LOG.error("OWL: Course Grade Submission: SFTP transfer failed: " + e.getMessage(), e);
-        }
+        }*/
                 
         return uploaded;
     }

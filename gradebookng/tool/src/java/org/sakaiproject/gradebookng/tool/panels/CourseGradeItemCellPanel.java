@@ -190,7 +190,7 @@ public class CourseGradeItemCellPanel extends Panel {
 
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
 		GbCourseGrade gbcg = new GbCourseGrade(courseGrade);
-		if (gbcg.hasOverride())
+		if (gbcg.getOverride().isPresent())
 		{
 			getParentCellFor(this).add(new AttributeModifier("class", "gb-cg-override")
 			{

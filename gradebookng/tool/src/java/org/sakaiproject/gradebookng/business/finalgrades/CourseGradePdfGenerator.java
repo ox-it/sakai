@@ -342,107 +342,124 @@ public class CourseGradePdfGenerator
     
     private void drawSignature(PDPage page, PDPageContentStream contentStream) throws IOException
     {
-        contentStream.setFont(SIGNATURE_FONT, SIGNATURE_FONT_SIZE);
-        contentStream.beginText();
-            //left side of the box's x coordinate
-            float lx = SIGNATURE_MARGIN_X;
-            //right side of the box's x coordinate
-            float rx = page.getMediaBox().getWidth() - SIGNATURE_MARGIN_X;
-            //top of the box's y coordinate
-            float ty = FOOT_Y + SIGNATURE_HEIGHT;
-            //bottom of the box's y coordinate
-            float by = FOOT_Y;
-            
-            float center = page.getMediaBox().getWidth()/2f;
-            
-            //top
-            drawLine(contentStream, lx, ty, rx, ty);
-            //right
-            drawLine(contentStream, rx,ty,rx,by);
-            //bottom
-            drawLine(contentStream, rx,by,lx,by);
-            //left
-            drawLine(contentStream, lx,by,lx,ty);
-            //center
-            drawLine(contentStream, center, ty, center, by);
-            
-            float cellMargin = 4f;
-            float signatureRightMargin=4f;
-            
-            drawLine(contentStream, lx + cellMargin, ty - SIGNATURE_SEGMENT_MARGIN - SIGNATURE_UPPER_PADDING, center - cellMargin - signatureRightMargin, ty - SIGNATURE_SEGMENT_MARGIN - SIGNATURE_UPPER_PADDING);
-            float toMoveX=SIGNATURE_MARGIN_X + cellMargin;
-            float toMoveY=ty - SIGNATURE_TEXT_MARGIN -SIGNATURE_UPPER_PADDING;
-            contentStream.newLineAtOffset(toMoveX, toMoveY);
-            contentStream.showText("Instructor Name");
-            //contentStream.newLineAtOffset(rx, by);
-            
-            String please="(Please Print)";
-            float textWidth = SIGNATURE_FONT.getStringWidth(please)/1000f * SIGNATURE_FONT_SIZE;
-            
-            toMoveX=-toMoveX + center - cellMargin - textWidth - signatureRightMargin;
-            
-            contentStream.newLineAtOffset(toMoveX, 0);
-            contentStream.showText(please);
-            
-            toMoveX=-toMoveX;
-            
-	    //Was 16f, requested to take it down two lines, so 16f + 2*12f =40f
-            float downFromInstName = 40f;
-            toMoveY-=downFromInstName;
-            contentStream.newLineAtOffset(toMoveX, -downFromInstName);
-            contentStream.showText("Grades of INC, SPC and AEGROTAT standing must");
-            
-            float textHeight=12f;
-            toMoveY-=textHeight;
-            contentStream.newLineAtOffset(0, -textHeight);
-            contentStream.showText("be approved by the Dean of the faculty in which the");
-            
-            toMoveY-=textHeight;
-            contentStream.newLineAtOffset(0, -textHeight);
-            contentStream.showText("student is registered prior to the submission of the");
-            
-            toMoveY-=textHeight;
-            contentStream.newLineAtOffset(0, -textHeight);
-            contentStream.showText("grade to the Office of the Registrar.");
-            
-            drawLine(contentStream, center+cellMargin,
-					ty - SIGNATURE_SEGMENT_MARGIN - SIGNATURE_UPPER_PADDING,
-					page.getMediaBox().getWidth()-SIGNATURE_MARGIN_X-cellMargin-signatureRightMargin,
-					ty-SIGNATURE_SEGMENT_MARGIN-SIGNATURE_UPPER_PADDING);
+		contentStream.setFont(SIGNATURE_FONT, SIGNATURE_FONT_SIZE);
+		contentStream.beginText();
+		//left side of the box's x coordinate
+		float lx = SIGNATURE_MARGIN_X;
+		//right side of the box's x coordinate
+		float rx = page.getMediaBox().getWidth() - SIGNATURE_MARGIN_X;
+		//top of the box's y coordinate
+		float ty = FOOT_Y + SIGNATURE_HEIGHT;
+		//bottom of the box's y coordinate
+		float by = FOOT_Y;
 
-            toMoveX=-SIGNATURE_MARGIN_X + center;
-            toMoveY=-toMoveY + ty - SIGNATURE_TEXT_MARGIN - SIGNATURE_UPPER_PADDING;
-            contentStream.newLineAtOffset(toMoveX, toMoveY);
-            contentStream.showText("Signature of Instructor");
-            
-            String date = "Date";
-            textWidth=SIGNATURE_FONT.getStringWidth(date)/1000f * SIGNATURE_FONT_SIZE;
-            toMoveX=center - SIGNATURE_MARGIN_X - signatureRightMargin - textWidth - 2*cellMargin;
-            contentStream.newLineAtOffset(toMoveX, 0);
-            contentStream.showText(date);
-            
-            drawLine(contentStream, center+cellMargin, ty - SIGNATURE_SEGMENT_MARGIN - SIGNATURE_TEXT_MARGIN - SIGNATURE_UPPER_PADDING, page.getMediaBox().getWidth()-SIGNATURE_MARGIN_X-cellMargin-signatureRightMargin,ty-SIGNATURE_SEGMENT_MARGIN-SIGNATURE_TEXT_MARGIN-SIGNATURE_UPPER_PADDING);
-            toMoveX=-toMoveX;
-            toMoveY=-SIGNATURE_TEXT_MARGIN;
-            contentStream.newLineAtOffset(toMoveX, toMoveY);
-            contentStream.showText("Signature of Chairperson");
-            
-            toMoveX=-toMoveX;
-            contentStream.newLineAtOffset(toMoveX, 0);
-            contentStream.showText(date);
-            
-            drawLine(contentStream, center+cellMargin, ty - SIGNATURE_SEGMENT_MARGIN - 2*SIGNATURE_TEXT_MARGIN - SIGNATURE_UPPER_PADDING, page.getMediaBox().getWidth()-SIGNATURE_MARGIN_X-cellMargin-signatureRightMargin,ty-SIGNATURE_SEGMENT_MARGIN-2*SIGNATURE_TEXT_MARGIN-SIGNATURE_UPPER_PADDING);
-            toMoveX=-toMoveX;
-            toMoveY=-SIGNATURE_TEXT_MARGIN;
-            contentStream.newLineAtOffset(toMoveX, toMoveY);
-            contentStream.showText("Signature of Dean");
-            
-            toMoveX=-toMoveX;
-            contentStream.newLineAtOffset(toMoveX, 0);
-            contentStream.showText(date);
-            
-        
-        contentStream.endText();
+		float center = page.getMediaBox().getWidth()/2f;
+
+		//top
+		drawLine(contentStream, lx, ty, rx, ty);
+		//right
+		drawLine(contentStream, rx,ty,rx,by);
+		//bottom
+		drawLine(contentStream, rx,by,lx,by);
+		//left
+		drawLine(contentStream, lx,by,lx,ty);
+		//center
+		drawLine(contentStream, center, ty, center, by);
+
+		float cellMargin = 4f;
+		float signatureRightMargin=4f;
+
+		drawLine(contentStream, lx + cellMargin, ty - SIGNATURE_SEGMENT_MARGIN - SIGNATURE_UPPER_PADDING, center - cellMargin - signatureRightMargin, ty - SIGNATURE_SEGMENT_MARGIN - SIGNATURE_UPPER_PADDING);
+		float toMoveX=SIGNATURE_MARGIN_X + cellMargin;
+		float toMoveY=ty - SIGNATURE_TEXT_MARGIN -SIGNATURE_UPPER_PADDING;
+		contentStream.newLineAtOffset(toMoveX, toMoveY);
+		contentStream.showText("Instructor Name");
+		//contentStream.newLineAtOffset(rx, by);
+
+		String please="(Please Print)";
+		float textWidth = SIGNATURE_FONT.getStringWidth(please)/1000f * SIGNATURE_FONT_SIZE;
+
+		toMoveX=-toMoveX + center - cellMargin - textWidth - signatureRightMargin;
+
+		contentStream.newLineAtOffset(toMoveX, 0);
+		contentStream.showText(please);
+
+		toMoveX=-toMoveX;
+
+		//Was 16f, requested to take it down two lines, so 16f + 2*12f =40f
+		float downFromInstName = 40f;
+		toMoveY-=downFromInstName;
+		contentStream.newLineAtOffset(toMoveX, -downFromInstName);
+		contentStream.showText("Grades of INC, SPC and AEGROTAT standing must");
+
+		float textHeight=12f;
+		toMoveY-=textHeight;
+		contentStream.newLineAtOffset(0, -textHeight);
+		contentStream.showText("be approved by the Dean of the faculty in which the");
+
+		toMoveY-=textHeight;
+		contentStream.newLineAtOffset(0, -textHeight);
+		contentStream.showText("student is registered prior to the submission of the");
+
+		toMoveY-=textHeight;
+		contentStream.newLineAtOffset(0, -textHeight);
+		contentStream.showText("grade to the Office of the Registrar.");
+
+		drawLine(contentStream, center+cellMargin,
+				ty - SIGNATURE_SEGMENT_MARGIN - SIGNATURE_UPPER_PADDING,
+				page.getMediaBox().getWidth()-SIGNATURE_MARGIN_X-cellMargin-signatureRightMargin,
+				ty-SIGNATURE_SEGMENT_MARGIN-SIGNATURE_UPPER_PADDING);
+
+		// After upgrading to PDFBOX 2.x the offset math below this point broke so I reworked it  --plukasew
+		String date = "Date";
+		final float SIG_BEGIN_X = center + cellMargin;
+		final float DATE_WIDTH = SIGNATURE_FONT.getStringWidth(date)/1000f * SIGNATURE_FONT_SIZE;
+		final float DATE_BEGIN_X = center - SIGNATURE_MARGIN_X - signatureRightMargin - DATE_WIDTH - 2*cellMargin;
+		final float INSTRUCTOR_Y = ty - SIGNATURE_UPPER_PADDING - SIGNATURE_TEXT_MARGIN;
+		final float CHAIR_Y = INSTRUCTOR_Y - SIGNATURE_TEXT_MARGIN;
+		final float DEAN_Y = CHAIR_Y - SIGNATURE_TEXT_MARGIN;
+		
+		//toMoveX = center + cellMargin;
+		toMoveX = SIG_BEGIN_X;
+		//toMoveY = ty - SIGNATURE_TEXT_MARGIN - SIGNATURE_UPPER_PADDING;
+		toMoveY = INSTRUCTOR_Y;
+		contentStream.newLineAtOffset(toMoveX, toMoveY);
+		contentStream.showText("Signature of Instructor");
+
+		
+		//textWidth=SIGNATURE_FONT.getStringWidth(date)/1000f * SIGNATURE_FONT_SIZE;
+		//toMoveX=center - SIGNATURE_MARGIN_X - signatureRightMargin - textWidth - 2*cellMargin;
+		toMoveX = DATE_BEGIN_X;
+		contentStream.newLineAtOffset(toMoveX, 0);
+		contentStream.showText(date);
+
+		drawLine(contentStream, center+cellMargin, ty - SIGNATURE_SEGMENT_MARGIN - SIGNATURE_TEXT_MARGIN - SIGNATURE_UPPER_PADDING, page.getMediaBox().getWidth()-SIGNATURE_MARGIN_X-cellMargin-signatureRightMargin,ty-SIGNATURE_SEGMENT_MARGIN-SIGNATURE_TEXT_MARGIN-SIGNATURE_UPPER_PADDING);
+		//toMoveX=-toMoveX;
+		toMoveX = SIG_BEGIN_X;
+		//toMoveY=-SIGNATURE_TEXT_MARGIN;
+		toMoveY = CHAIR_Y;
+		contentStream.newLineAtOffset(toMoveX, toMoveY);
+		contentStream.showText("Signature of Chairperson");
+
+		//toMoveX=-toMoveX;
+		toMoveX = DATE_BEGIN_X;
+		contentStream.newLineAtOffset(toMoveX, 0);
+		contentStream.showText(date);
+
+		drawLine(contentStream, center+cellMargin, ty - SIGNATURE_SEGMENT_MARGIN - 2*SIGNATURE_TEXT_MARGIN - SIGNATURE_UPPER_PADDING, page.getMediaBox().getWidth()-SIGNATURE_MARGIN_X-cellMargin-signatureRightMargin,ty-SIGNATURE_SEGMENT_MARGIN-2*SIGNATURE_TEXT_MARGIN-SIGNATURE_UPPER_PADDING);
+		//toMoveX=-toMoveX;
+		toMoveX = SIG_BEGIN_X;
+		//toMoveY=-SIGNATURE_TEXT_MARGIN;
+		toMoveY = DEAN_Y;
+		contentStream.newLineAtOffset(toMoveX, toMoveY);
+		contentStream.showText("Signature of Dean");
+
+		//toMoveX=-toMoveX;
+		toMoveX = DATE_BEGIN_X;
+		contentStream.newLineAtOffset(toMoveX, 0);
+		contentStream.showText(date);
+
+		contentStream.endText();
     }
     
     private void drawStat(PDPageContentStream contentStream, String stat) throws IOException
@@ -830,9 +847,11 @@ public class CourseGradePdfGenerator
 	
 	private void drawLine(PDPageContentStream cs, float startX, float startY, float endX, float endY) throws IOException
 	{
+		cs.endText();
 		cs.moveTo(startX, startY);
 		cs.lineTo(endX, endY);
 		cs.stroke();
+		cs.beginText();
 	}
     
     /********************* BEGIN NESTED CLASSES ************************/

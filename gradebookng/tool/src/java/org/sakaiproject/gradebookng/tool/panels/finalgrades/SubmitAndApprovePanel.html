@@ -3,14 +3,20 @@
 
 <body>
 <wicket:panel>
-  <div class="submitAndApprove">
-	<button wicket:id="submitFinalGrades" class="button_color submitFinalGrades">
-		Submit
-	</button>
-	<button wicket:id="approveFinalGrades" class="button_color approveFinalGrades">
-		Approve
-	</button>
-    </div>
+<div class="submitAndApprove">
+	<div class="submissionStatus">
+		<span wicket:id="currentStatus">Since last submission, 0 grades have been revised, 0 grades have been added, and 1 grade has been removed.</span>
+	</div>
+	<div class="submitAndApproveActions">
+		<button wicket:id="submitFinalGrades" class="button_color submitFinalGrades">
+			Submit
+		</button>
+		<button wicket:id="approveFinalGrades" class="button_color approveFinalGrades">
+			Approve
+		</button>
+		<span wicket:id="submitAndApproveFeedback"></span>
+	</div>
+</div>
 </wicket:panel>
 </body>
 </html>

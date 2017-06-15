@@ -746,6 +746,11 @@ GradebookSpreadsheet.prototype.setupConnectionPoll = function() {
   this.ping = new ConnectionPoll($("#gbConnectionTimeoutFeedback"));
 };
 
+GradebookSpreadsheet.prototype.setupSectionStats = function()
+{
+    this.stats = new SectionStats();
+}
+
 /*************************************************************************************
  * GradebookEditableCell - behaviour for editable cells
  */

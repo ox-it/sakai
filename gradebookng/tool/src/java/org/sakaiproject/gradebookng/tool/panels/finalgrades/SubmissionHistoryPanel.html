@@ -6,7 +6,7 @@
 	<div id="revisionHistoryContainer" class="revisionHistoryContainer">
 		<h5 class="submissionHistoryHeading">Submission History</h5>
 		<div class="submissionStatus">
-			Since last submission, 0 grades have been revised, 0 grades have been added, and 1 grade has been removed.
+			<span wicket:id="currentStatus">Since last submission, 0 grades have been revised, 0 grades have been added, and 1 grade has been removed.</span>
 		</div>
 		<div class="submissionHistoryContainer">
 			<table>
@@ -16,37 +16,8 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>Apr 14 2017 16:00:29</td>
-						<td title="owlinstructor01">Owl Instructor</td>
-						<td class="approved">Approved</td>
-						<td>Apr 14 2017 16:00:29</td>
-						<td title="owlgradeadmin01">Owl Gradeadmin</td>
-						<td><a href="#">View Report</a></td>
-					</tr>
-					<tr>
-						<td>Apr 12 2017 16:44:29</td>
-						<td title="owlinstructor01">Owl Instructor</td>
-						<td>Approved (Obsolete)</td>
-						<td>Apr 14 2017 07:30:58</td>
-						<td title="owlgradeadmin01">Owl Gradeadmin</td>
-						<td><a href="#">View Report</a></td>
-					</tr>
-					<tr>
-						<td>Apr 09 2017 11:00:29</td>
-						<td title="owlinstructor01">Owl Instructor</td>
-						<td>Pending Approval (Obsolete)</td>
-						<td>-</td>
-						<td>-</td>
-						<td><a href="#">View Report</a></td>
-					</tr>
-										<tr>
-						<td>Apr 04 2017 12:03:19</td>
-						<td title="owlinstructor01">Owl Instructor</td>
-						<td>Pending Approval (Obsolete)</td>
-						<td>-</td>
-						<td>-</td>
-						<td><a href="#">View Report</a></td>
+					<tr wicket:id="rows">
+						<td wicket:id="historyRow"></td>
 					</tr>
 				</tbody>
 			</table>

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 
 import lombok.Setter;
 
@@ -201,7 +202,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 				settings.setNameSortOrder(GbStudentNameSortOrder.LAST_NAME);
 				settings.setStudentSortOrder(SortDirection.ASCENDING);
 				// Clear the group filter for single user group violation of anonymity constraint
-				settings.setGroupFilter(new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL, null));
+				settings.setGroupFilter(GbGroup.all(getString("groups.all")));
 				// repopulate all the data accordingly and redraw it
 				addOrReplaceTable(null);
 				redrawSpreadsheet(target);
@@ -219,7 +220,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 				settings.setStudentNumberFilter("");
 				settings.setAnonIdSortOrder(SortDirection.ASCENDING);
 				// Clear the group filter for single user group violation of anonymity constraint
-				settings.setGroupFilter(new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL, null));
+				settings.setGroupFilter(GbGroup.all(getString("groups.all")));
 				// repopulate all the data accordingly and redraw it
 				addOrReplaceTable(null);
 				redrawSpreadsheet(target);
@@ -895,6 +896,12 @@ public class GradebookPage extends BasePage implements IGradesPage
 			target.appendJavaScript("sakai.gradebookng.spreadsheet.initTable();");
 		}
 	}
+	
+	@Override
+	public void redrawForGroupChange(AjaxRequestTarget target)
+	{
+		redrawSpreadsheet(target);
+	}
 
 	/**
 	 * If the group filter is pointing to a group associated with a provider that contains AnonymousIDs  if it's not pointing to an anonymous section
@@ -904,7 +911,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 	{
 		GradebookUiSettings settings = getUiSettings();
 		GbGroup group = settings.getGroupFilter();
-		return group == null ? null : group.getProviderId();
+		return group == null ? "" : StringUtils.trimToEmpty(group.getProviderId());
 	}
 	
 	@Override

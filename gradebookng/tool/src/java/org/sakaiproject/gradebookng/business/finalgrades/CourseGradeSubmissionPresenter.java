@@ -1,7 +1,10 @@
 package org.sakaiproject.gradebookng.business.finalgrades;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
+import org.sakaiproject.gradebookng.tool.pages.CourseGradesPage;
 
 /**
  * Interfaces CourseGradeSubmitter with presentation framework for better isolation
@@ -9,63 +12,48 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
  */
 public class CourseGradeSubmissionPresenter
 {
-	// OWLTODO: convert all this to wicket
+	private final CourseGradesPage page;
 	
-	public static String getUserIp()
+	public CourseGradeSubmissionPresenter(final CourseGradesPage page)
 	{
-		// OWLTODO: convert to wicket, trim and return empty string if not found
-		//userIp = ((HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest()).getRemoteAddr();
-		return "127.0.0.1";
+		this.page = page;
 	}
 	
-	public static void presentError(String msg)
+	public String getUserIp()
 	{
-        //FacesUtil.addErrorMessage("Please select a valid Registrar's section before submitting grades.");
+		String userIp = ((HttpServletRequest) page.getRequest().getContainerRequest()).getRemoteAddr();
+		return StringUtils.trimToEmpty(userIp);
 	}
 	
-	public static void presentMsg(String msg)
+	public void presentError(String msg)
 	{
-		// FacesUtil.addMessage(message);
+        page.submitAndApproveError(msg);
+	}
+	
+	public void presentMsg(String msg)
+	{
+		page.submitAndApproveMsg(msg);
 		
 	}
 	
-	public static GbGroup getSelectedSection()
+	public GbGroup getSelectedSection()
 	{
-		// OWLTODO: get the selected section from the UI
-		return GbGroup.all("ALL");
+		GbGroup filter = page.getUiSettings().getGroupFilter();
+		if (filter == null)
+		{
+			filter = page.getSections().get(0);
+		}
+		
+		return filter;
 	}
 	
-	public static String getSelectedSectionUid()
+	public String getLocalizedString(String key)
 	{
-		// OWLTODO: get the selected section from the UI
-		return "";
+		return page.getString(key);
 	}
 	
-	public static String getSelectedSectionEid()
+	public String getLocalizedString(String key, String[] params)
 	{
-		// OWLTODO: get the selected section from the UI
-		return "";
-	}
-	
-	public static HttpServletResponse getServletResponse()
-	{
-		// FacesContext fc = FacesContext.getCurrentInstance();
-        // HttpServletResponse response = (HttpServletResponse) fc.getExternalContext().getResponse();
-		return null;
-	}
-	
-	public static void completeResponse()
-	{
-		//FacesContext.getCurrentInstance().responseComplete();
-	}
-	
-	public static String getLocalizedString(String key)
-	{
-		return "";
-	}
-	
-	public static String getLocalizedString(String key, String[] params)
-	{
-		return "";
+		return new StringResourceModel(key, page, null, (Object[]) params).getString();
 	}
 }
