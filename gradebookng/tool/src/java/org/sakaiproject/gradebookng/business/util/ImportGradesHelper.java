@@ -315,6 +315,9 @@ public class ImportGradesHelper {
 				row.getCellMap().put(columnTitle, cell);
 
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
+				if (StringUtils.isNotBlank(lineVal)) {
+					cell.setScore(lineVal);
+				}
 				row.getCellMap().put(columnTitle, cell);
 
 			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {

@@ -1,6 +1,7 @@
 2017.06.15:
 	- [OWL-2678] Backport the instructions for the Import page from #3942
 	- [OWL-2623] Visually indicate required fields in Add/Edit Gradebook Item modal
+	- [OWL-2626] Import silently fails to import grades column values if points possible is not provided in the header
 2017.06.14:
 	- [OWL-2851] Importing items with special characters in the title caused the import to fail
 2017.06.09:
