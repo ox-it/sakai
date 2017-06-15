@@ -108,6 +108,17 @@
 	}
 }
 
+.form-required{
+	label{
+		&:after{
+			content: "*";
+			color: $error-color;
+			position: relative;
+			top: 3px;
+		}
+	}
+}
+
 .nav.nav-tabs, .sakai_tabs{
 	margin: 0 0.4em 0 0;
 	> li{

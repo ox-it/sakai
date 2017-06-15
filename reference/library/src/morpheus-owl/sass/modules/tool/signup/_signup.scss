@@ -1,14 +1,5 @@
 .#{$namespace}sakai-signup {
 
-	.form-required{
-		&:after{
-			content: "*";
-			color: $error-color;
-			position: relative;
-			top: 3px;
-		}		
-	}
-
 	.toggleMeetings{
 		cursor:pointer;
 		&.toggleDownload{
