@@ -182,4 +182,7 @@ $footer-color: $background-color-secondary !default;
 
 @import "customization"; //it is created on-the-fly by maven.
 
+$instruction-color: #5c5c5c !default;
+$instruction-background-color: #fff !default;
+
 @import url(#{$font-family-url});

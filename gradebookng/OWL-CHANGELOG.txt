@@ -1,3 +1,5 @@
+2017.06.15:
+	- [OWL-2678] Backport the instructions for the Import page from #3942
 2017.06.14:
 	- [OWL-2851] Importing items with special characters in the title caused the import to fail
 2017.06.09:

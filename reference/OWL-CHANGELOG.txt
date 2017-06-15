@@ -1,3 +1,5 @@
+2017.06.15:
+	- [OWL-2678] Backport the instructions for the Import page from #3942
 2017.04.27:
 	- [OWL-2663] add SQL script snippet to rename old, unused tables in OWL conversion scripts
 2017.04.21:
