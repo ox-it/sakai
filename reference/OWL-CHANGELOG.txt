@@ -1,3 +1,5 @@
+2017.06.16:
+	- [OWL-2925] Spinner algorithm is applying textContent to invalid input types
 2017.06.15:
 	- [OWL-2678] Backport the instructions for the Import page from #3942
 	- [OWL-2623] Move the 'form-required' class styles to extendables for use in any project instead of being limited to assignments and signup
