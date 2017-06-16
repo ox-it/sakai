@@ -26,7 +26,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.gradebookng.business.CachedCMProvider;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
@@ -70,8 +69,6 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	GbModalWindow studentGradeSummaryWindow;
 	GbModalWindow updateUngradedItemsWindow;
 	
-	private transient CachedCMProvider cmProvider;
-	
 	public CourseGradesPage()
 	{
 		// students and TAs cannot access this page, redirect them to Grades page
@@ -114,8 +111,6 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
 		
-		cmProvider = new CachedCMProvider(businessService, settings);
-
 		SortType sortBy = SortType.SORT_BY_SORTING;
 		/*if (settings.isCategoriesEnabled()) {
 			// Pre-sort assignments by the categorized sort order
@@ -131,7 +126,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 
 		// get the grade matrix. It should be sorted if we have that info
 		// OWLTODO: course grade only
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings, cmProvider);
+		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
 
 		this.hasAssignmentsAndGrades = !assignments.isEmpty() && !grades.isEmpty();
 
@@ -317,7 +312,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
 
 		// get the grade matrix. It should be sorted if we have that info
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings, cmProvider);
+		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
 		
 		// there is a timestamp put on the table that is used to check for concurrent modifications,
 		// update it now that we've refreshed the grade matrix
@@ -392,12 +387,6 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		redrawSpreadsheet(target);
 	}
 	
-	@Override
-	public CachedCMProvider getCMProvider()
-	{
-		return cmProvider;
-	}
-
 	@Override
 	public void addOrReplaceTable(GbStopWatch stopwatch) {}
 

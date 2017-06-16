@@ -74,7 +74,6 @@ public class StudentNameCellPanel extends Panel {
 
 				content.setOutputMarkupId(true);
 
-				boolean isContextAnonymous = settings.isContextAnonymous();
 				final String modalTitle;
 				modalTitle = (new StringResourceModel("heading.studentsummary",
 					null, new Object[] { displayName, eid })).getString();

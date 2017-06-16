@@ -52,6 +52,7 @@ import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -254,21 +255,108 @@ public class GradebookNgBusinessService {
 		return getUsers(userUuids).stream().filter(u -> studentMatchesAnyFilter(u, site.orElse(null), studentFilter, studentNumberFilter))
 				.collect(Collectors.toList());
 	}
-	
-	public List<GbUser> getGbUsers(final List<User> users)
+
+	/**
+	 * Gets a List of GbUsers for the specified userUuids, populating them with student numbers and anonIds without any filtering; sorting by last name
+	 * Appropriate only for back end business like grade exports, statistics, etc.
+	 */
+	public List<GbUser> getGbUsers(final List<String> userUuids)
 	{
-		// OWLTODO: refactor so that this method replaces all the getUsers() methods
-		List<GbUser> gbUsers = new ArrayList<>(users.size());
+		List<GbUser> gbUsers = new ArrayList<>();
+		List<User> users = getUsers(userUuids);
+		List<OwlAnonGradingID> anonIds = gradebookService.getAnonGradingIDsBySectionEIDs(getViewableSectionEids());
+		Map<String, Map<String, Integer>> studentSectionAnonIdMap = getStudentSectionAnonIdMap(anonIds);
+
 		Site site = getCurrentSite().orElse(null);
 		for (User u : users)
 		{
 			String studentNumber = getStudentNumber(u, site);
-			gbUsers.add(GbUser.fromUserWithStudentNumber(u, studentNumber));
+			Map<String, Integer> sectionAnonIdMap = getMapForKey(studentSectionAnonIdMap, u.getEid());
+			gbUsers.add(GbUser.fromUserWithStudentNumberAndAnonIdMap(u, studentNumber, sectionAnonIdMap));
 		}
 		
 		return gbUsers;
 	}
-	
+
+	/**
+	 * Gets a List of GbUsers for the specified userUuids, populating them with student numbers / anonIds as appropriate, and also filtering in accordance with any ui search filters
+	 */
+	public List<GbUser> getGbUsersForUiSettings(final List<String> userUuids, final GradebookUiSettings settings)
+	{
+		List<User> users = getUsers(userUuids, settings);
+		
+		// Filter students for anon grading
+		final Map<String, Map<String, Integer>> studentSectionAnonIdMap;
+		if (settings.isContextAnonymous())
+		{
+			// Need to filter out users who don't have anonIDs
+			List<OwlAnonGradingID> anonIDs = getAnonGradingIDsForUiSettings(settings);
+			studentSectionAnonIdMap = getStudentSectionAnonIdMap(anonIDs);
+			users.removeIf(user -> !studentSectionAnonIdMap.containsKey(user.getEid()));
+		}
+		else
+		{
+			studentSectionAnonIdMap = null;
+		}
+
+		List<GbUser> gbUsers = new ArrayList<>(users.size());
+		Site site = getCurrentSite().orElse(null);
+
+		// Sort by name / student number
+		if (!settings.isContextAnonymous())
+		{
+			if (settings.getStudentSortOrder() != null) {
+
+				Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME.equals(settings.getNameSortOrder()) ?
+						new FirstNameComparator() : new LastNameComparator();
+				if (SortDirection.DESCENDING.equals(settings.getStudentSortOrder()))
+				{
+					comp = Collections.reverseOrder(comp);
+				}
+				Collections.sort(users, comp);
+			}
+			else if (settings.getStudentNumberSortOrder() != null)
+			{
+				if (site != null)
+				{
+					Comparator<User> comp = new StudentNumberComparator(site);
+					if (SortDirection.DESCENDING.equals(settings.getStudentNumberSortOrder()))
+					{
+						comp = Collections.reverseOrder(new StudentNumberComparator(site));
+					}
+					Collections.sort(users, comp);
+				}
+			}
+		}
+
+		for (User u : users)
+		{
+			String studentNumber = getStudentNumber(u, site);
+			Map<String, Integer> sectionAnonIdMap = getMapForKey(studentSectionAnonIdMap, u.getEid());
+			gbUsers.add(GbUser.fromUserWithStudentNumberAndAnonIdMap(u, studentNumber, sectionAnonIdMap));
+		}
+
+		return gbUsers;
+	}
+
+	/**
+	 * Null safe method to get a map associated with an outer key in a Map<outterKey, Map<innerKey, innerValue>>.
+	 * So, if the whole map, or the inner map is null, an empty map is created
+	 */
+	private static <T, U, V> Map<U, V> getMapForKey(Map<T, Map<U, V>> tripleMap, T key)
+	{
+		if (tripleMap == null)
+		{
+			return new LinkedHashMap<>();
+		}
+		Map<U, V> retMap = tripleMap.get(key);
+		if (retMap == null)
+		{
+			return new LinkedHashMap<>();
+		}
+		return retMap;
+	}
+
 	// simple or match across all filters
 	private boolean studentMatchesAnyFilter(User user, Site site, String studentFilter, String studentNumberFilter)
 	{
@@ -458,7 +546,7 @@ public class GradebookNgBusinessService {
 
 		final Gradebook gradebook = this.getGradebook();
 		if (gradebook != null) {
-			rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), this.getGradeableUsers());
+			rval = this.gradebookService.getCourseGradeForStudents(gradebook.getUid(), studentUuids);
 		}
 		return rval;
 	}
@@ -656,7 +744,7 @@ public class GradebookNgBusinessService {
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
 			final List<String> studentUuids) throws GbException {
-		return this.buildGradeMatrix(assignments, studentUuids, null, null);
+		return this.buildGradeMatrix(assignments, studentUuids, null);
 	}
 
 	/**
@@ -668,8 +756,8 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
-			final GradebookUiSettings uiSettings, CachedCMProvider cmProvider) throws GbException {
-		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings, cmProvider);
+			final GradebookUiSettings uiSettings) throws GbException {
+		return this.buildGradeMatrix(assignments, this.getGradeableUsers(uiSettings.getGroupFilter()), uiSettings);
 	}
 
 	/**
@@ -684,9 +772,11 @@ public class GradebookNgBusinessService {
 	 * TODO refactor this into a hierarchical method structure
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
-			final List<String> studentUuids, final GradebookUiSettings uiSettings, final CachedCMProvider cmProvider) throws GbException {
+			final List<String> studentUuids, final GradebookUiSettings uiSettings) throws GbException {
 
 		// TODO move GradebookUISettings to business
+
+		// ------------- Initialization -------------
 
 		// settings could be null depending on constructor so it needs to be corrected
 		final GradebookUiSettings settings = (uiSettings != null) ? uiSettings : new GradebookUiSettings();
@@ -712,455 +802,33 @@ public class GradebookNgBusinessService {
 		
 		Site site = getCurrentSite().orElse(null);
 
-		// get uuids as (potentially filtered) list of Users.
-		// this gives us our base list and will be sorted as per our desired
-		// sort method
-		final List<User> students = getUsers(studentUuids, settings);
+		// ------------- Get Users -------------
 
-		// Filter students for anon grading
-		if (settings.isContextAnonymous())
-		{
-			// Need to filter out users who don't have anonIDs
-			// Map eids to associated User objects
-			Map<String, User> eidToStudentMap = new HashMap<>();
-			for (User user : students)
-			{
-				eidToStudentMap.put(user.getEid(), user);
-			}
-			// Get the selected sectionId (or null if none selected)
-			GbGroup group = settings.getGroupFilter();
-			String section = group == null ? null : group.getProviderId();
-			// In the key set, retain only students who have anonIDs; this removes the entire entry from the map
-			cmProvider.filterStudentIdsForAnonContext(eidToStudentMap.keySet(), section);
-			// remaining values are students who have anonIDs; retain only these users in our student list
-			students.retainAll(eidToStudentMap.values());
-		}
+		final List<GbUser> gbStudents = getGbUsersForUiSettings(studentUuids, settings);
+		stopwatch.timeWithContext("buildGradeMatrix", "getGbUsersForUiSettings", stopwatch.getTime());
 
-		// Sort by name / student number
-		stopwatch.timeWithContext("buildGradeMatrix", "getUsers", stopwatch.getTime());
-		if (!settings.isContextAnonymous())
-		{
-			if (settings.getStudentSortOrder() != null) {
+		// ------------- Course Grades -------------
 
-				Comparator<User> comp = GbStudentNameSortOrder.FIRST_NAME.equals(settings.getNameSortOrder()) ?
-						new FirstNameComparator() : new LastNameComparator();
-				if (SortDirection.DESCENDING.equals(settings.getStudentSortOrder()))
-				{
-					comp = Collections.reverseOrder(comp);
-				}
-				Collections.sort(students, comp);
-			}
-			else if (settings.getStudentNumberSortOrder() != null)
-			{
-				if (site != null)
-				{
-					Comparator<User> comp = new StudentNumberComparator(site);
-					if (SortDirection.DESCENDING.equals(settings.getStudentNumberSortOrder()))
-					{
-						comp = Collections.reverseOrder(new StudentNumberComparator(site));
-					}
-					Collections.sort(students, comp);
-				}
-			}
-		}
-		stopwatch.timeWithContext("buildGradeMatrix", "sortUsers", stopwatch.getTime());
-
-		// get course grades
-		final Map<String, CourseGrade> courseGrades = getCourseGrades(studentUuids);
-
-		stopwatch.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
-
-		// setup a map because we progressively build this up by adding grades
-		// to a student's entry
 		final Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
 
-		// setup the course grade formatter
-		// TODO we want the override except in certain cases. Can we hard code this?
-		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
-				gradebook,
-				role,
-				isCourseGradeVisible(currentUserUuid),
-				settings.getShowPoints(),
-				true,    // show override
-				false);  // show letter grade
-		// OWLTODO: having everything run through business service is not very flexible...
-		// ... we want to show the override on the main page but not the final grades page
-		// ... shouldn't display be the responsibility of the view?
+		putCourseGradesInMatrix(matrix, gbStudents, gradebook, role, isCourseGradeVisible(currentUserUuid), settings);
+		stopwatch.timeWithContext("buildGradeMatrix", "putCourseGradesInMatrix", stopwatch.getTime());
 
-		// seed the map for all students so we can progresseively add grades
-		// also add the course grade here, to save an iteration later
-		// TA permissions already included in course grade visibility
-		List<GbUser> gbStudents = getGbUsers(students);
-		for (final GbUser student : gbStudents)
-		{
-			// create and add the user info
-			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student);
+		// ------------- Assignments & Categories -------------
 
-			// add the course grade, including the display
-			String uid = student.getUserUuid();
-			final CourseGrade courseGrade = courseGrades.get(uid);
-			final GbCourseGrade gbCourseGrade = new GbCourseGrade(courseGrades.get(uid));
-			gbCourseGrade.setDisplayString(courseGradeFormatter.format(courseGrade));
-			sg.setCourseGrade(gbCourseGrade);
+		putAssignmentsAndCategoryItemsInMatrix(matrix, gbStudents, assignments, gradebook, currentUserUuid, role, settings);
+		stopwatch.timeWithContext("buildGradeMatrix", "putAssignmentAndCategoryItemsInMatrix", stopwatch.getTime());
 
-			// add to map so we can build on it later
-			matrix.put(uid, sg);
-		}
-		stopwatch.timeWithContext("buildGradeMatrix", "matrix seeded", stopwatch.getTime());
+		// ------------- Sorting -------------
 
-		// get categories. This call is filtered for TAs as well.
-		final List<CategoryDefinition> categories = this.getGradebookCategories();
-
-		// for TA's, build a lookup map of visible categoryIds so we can filter
-		// the assignment list to not fetch grades
-		// for assignments we don't have category level access to.
-		// for everyone else this will just be an empty list that is unused
-		final List<Long> categoryIds = new ArrayList<>();
-
-		if (role == GbRole.TA) {
-			for (final CategoryDefinition category : categories) {
-				categoryIds.add(category.getId());
-			}
-		}
-
-		// this holds a map of categoryId and the list of assignment ids in each
-		// we build this whilst iterating below to save further iterations when
-		// building the category list
-		final Map<Long, Set<Long>> categoryAssignments = new TreeMap<>();
-
-		// Determine only which assignments / categories we're interested in wrt isContextAnonymous
-		Set<Long> assignmentIDsToInclude = settings.getAnonAwareAssignmentIDsForContext();
-		Set<Long> categoryIDsToIncludeScores = settings.getAnonAwareCategoryIDsForContext();
-
-		// iterate over assignments and get the grades for each
-		// note, the returned list only includes entries where there is a grade
-		// for the user
-		// we also build the category lookup map here
-		for (final Assignment assignment : assignments) {
-
-			final Long categoryId = assignment.getCategoryId();
-			final Long assignmentId = assignment.getId();
-
-			if (!categoryIDsToIncludeScores.contains(categoryId) && !assignmentIDsToInclude.contains(assignmentId))
-			{
-				// we don't need any info from this assignment; skip
-				continue;
-			}
-
-			// TA permission check. If there are categories and they don't have
-			// access to this one, skip it
-			if (role == GbRole.TA) {
-
-				log.debug("TA processing category: " + categoryId);
-
-				if (!categoryIds.isEmpty() && categoryId != null && !categoryIds.contains(categoryId)) {
-					continue;
-				}
-			}
-
-			// TA stub out. So that we can support 'per grade' permissions for a
-			// TA, we need a stub record for every student
-			// This is because getGradesForStudentsForItem only returns records
-			// where there is a grade (even if blank)
-			// So this iteration for TAs allows the matrix to be fully
-			// populated.
-			// This is later updated to be a real grade entry if there is one.
-			if (role == GbRole.TA) {
-				for (final User student : students) {
-					final GbStudentGradeInfo sg = matrix.get(student.getId());
-					sg.addGrade(assignment.getId(), new GbGradeInfo(null));
-				}
-			}
-
-			// build the category map (if assignment is categorised)
-			if (categoryId != null) {
-				Set<Long> values;
-				if (categoryAssignments.containsKey(categoryId)) {
-					values = categoryAssignments.get(categoryId);
-					values.add(assignmentId);
-				} else {
-					values = new HashSet<>();
-					values.add(assignmentId);
-				}
-				categoryAssignments.put(categoryId, values);
-			}
-
-			// get grades
-			final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(),
-					assignment.getId(), studentUuids);
-			stopwatch.timeWithContext("buildGradeMatrix", "getGradesForStudentsForItem: " + assignment.getId(),
-					stopwatch.getTime());
-
-			// iterate the definitions returned and update the record for each
-			// student with the grades
-			for (final GradeDefinition def : defs) {
-				final GbStudentGradeInfo sg = matrix.get(def.getStudentUid());
-
-				if (sg == null) {
-					log.warn("No matrix entry seeded for: " + def.getStudentUid()
-							+ ". This user may be been removed from the site");
-				} else {
-					// this will overwrite the stub entry for the TA matrix if
-					// need be
-					sg.addGrade(assignment.getId(), new GbGradeInfo(def));
-				}
-			}
-			stopwatch.timeWithContext("buildGradeMatrix", "updatedStudentGradeInfo: " + assignment.getId(),
-					stopwatch.getTime());
-		}
-		stopwatch.timeWithContext("buildGradeMatrix", "matrix built", stopwatch.getTime());
-
-		// build category columns
-		for (final CategoryDefinition category : categories) {
-
-			Long categoryId = category.getId();
-			if (!categoryIDsToIncludeScores.contains(categoryId))
-			{
-				// Nothing of interest in this category; skip
-				continue;
-			}
-
-			// use the category mappings for faster lookup of the assignmentIds
-			// and grades in the category
-			final Set<Long> categoryAssignmentIds = categoryAssignments.get(categoryId);
-
-			// if there are no assignments in the category (ie its a new
-			// category) this will be null, so skip
-			if (categoryAssignmentIds != null) {
-
-				for (final User student : students) {
-
-					final GbStudentGradeInfo sg = matrix.get(student.getId());
-
-					// get grades
-					final Map<Long, GbGradeInfo> grades = sg.getGrades();
-
-					// build map of just the grades we want
-					final Map<Long, String> gradeMap = new HashMap<>();
-					for (final Long assignmentId : categoryAssignmentIds) {
-						final GbGradeInfo gradeInfo = grades.get(assignmentId);
-						if (gradeInfo != null) {
-							gradeMap.put(assignmentId, gradeInfo.getGrade());
-						}
-					}
-
-					final Double categoryScore = this.gradebookService.calculateCategoryScore(gradebook,
-							student.getId(), category, category.getAssignmentList(), gradeMap);
-
-					// add to GbStudentGradeInfo
-					sg.addCategoryAverage(category.getId(), categoryScore);
-
-					// TODO the TA permission check could reuse this iteration... check performance.
-
-				}
-			}
-
-		}
-		stopwatch.timeWithContext("buildGradeMatrix", "categories built", stopwatch.getTime());
-
-		// Remove grades for assignments that are out of context (they would exist in the case of mixed categories)
-		for (GbStudentGradeInfo sg : matrix.values())
-		{
-			sg.getGrades().keySet().retainAll(assignmentIDsToInclude);
-		}
-
-
-		// for a TA, apply the permissions to each grade item to see if we can render it
-		// the list of students, assignments and grades is already filtered to those that can be viewed
-		// so we are only concerned with the gradeable permission
-		if (role == GbRole.TA) {
-
-			// get permissions
-			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid);
-
-			log.debug("All permissions: " + permissions.size());
-
-			// only need to process this if some are defined
-			// again only concerned with grade permission, so parse the list to
-			// remove those that aren't GRADE
-			if (!permissions.isEmpty()) {
-
-				final Iterator<PermissionDefinition> iter = permissions.iterator();
-				while (iter.hasNext()) {
-					final PermissionDefinition permission = iter.next();
-					if (!StringUtils.equalsIgnoreCase(GraderPermission.GRADE.toString(), permission.getFunction())) {
-						iter.remove();
-					}
-				}
-			}
-
-			log.debug("Filtered permissions: " + permissions.size());
-
-			// if we still have permissions, they will be of type grade, so we
-			// need to enrich the students grades
-			if (!permissions.isEmpty()) {
-
-				// first need a lookup map of assignment id to category so we
-				// can link up permissions by category
-				final Map<Long, Long> assignmentCategoryMap = new HashMap<>();
-				for (final Assignment assignment : assignments) {
-					assignmentCategoryMap.put(assignment.getId(), assignment.getCategoryId());
-				}
-
-				// get the group membership for the students
-				final Map<String, List<String>> groupMembershipsMap = getGroupMemberships();
-
-				// for every student
-				for (final User student : students) {
-
-					log.debug("Processing student: " + student.getEid());
-
-					final GbStudentGradeInfo sg = matrix.get(student.getId());
-
-					// get their assignment/grade list
-					final Map<Long, GbGradeInfo> gradeMap = sg.getGrades();
-
-					// for every assignment that has a grade
-					for (final Map.Entry<Long, GbGradeInfo> entry : gradeMap.entrySet()) {
-
-						// categoryId
-						final Long gradeCategoryId = assignmentCategoryMap.get(entry.getKey());
-
-						log.debug("Grade: " + entry.getValue());
-
-						// iterate the permissions
-						// if category, compare the category,
-						// then check the group and find the user in the group
-						// if all ok, mark it as GRADEABLE
-
-						boolean gradeable = false;
-
-						for (final PermissionDefinition permission : permissions) {
-							// we know they are all GRADE so no need to check
-							// here
-
-							boolean categoryOk = false;
-							boolean groupOk = false;
-
-							final Long permissionCategoryId = permission.getCategoryId();
-							final String permissionGroupReference = permission.getGroupReference();
-
-							log.debug("permissionCategoryId: " + permissionCategoryId);
-							log.debug("permissionGroupReference: " + permissionGroupReference);
-
-							// if permissions category is null (can grade all
-							// categories) or they match (can grade this
-							// category)
-							if (permissionCategoryId == null || permissionCategoryId.equals(gradeCategoryId)) {
-								categoryOk = true;
-								log.debug("Category check passed");
-							}
-
-							// if group reference is null (can grade all groups)
-							// or group membership contains student (can grade
-							// this group)
-							if (StringUtils.isBlank(permissionGroupReference)) {
-								groupOk = true;
-								log.debug("Group check passed #1");
-							} else {
-								final List<String> groupMembers = groupMembershipsMap.get(permissionGroupReference);
-								log.debug("groupMembers: " + groupMembers);
-
-								if (groupMembers != null && groupMembers.contains(student.getId())) {
-									groupOk = true;
-									log.debug("Group check passed #2");
-								}
-							}
-
-							if (categoryOk && groupOk) {
-								gradeable = true;
-								break;
-							}
-						}
-
-						// set the gradeable flag on this grade instance
-						final GbGradeInfo gradeInfo = entry.getValue();
-						gradeInfo.setGradeable(gradeable);
-					}
-				}
-			}
-			stopwatch.timeWithContext("buildGradeMatrix", "TA permissions applied", stopwatch.getTime());
-		}
-
-		// get the matrix as a list of GbStudentGradeInfo
-		final List<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
-
-		// sort the matrix based on the supplied assignment sort order (if any)
-		if (settings.getAssignmentSortOrder() != null) {
-			Comparator<GbStudentGradeInfo> comparator = new AssignmentGradeComparator(settings.getAssignmentSortOrder().getAssignmentId());
-
-			final SortDirection direction = settings.getAssignmentSortOrder().getDirection();
-
-			// reverse if required
-			if (direction == SortDirection.DESCENDING) {
-				comparator = Collections.reverseOrder(comparator);
-			}
-			
-			// sort
-			Collections.sort(items, comparator);
-		}
-		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by assignment", stopwatch.getTime());
-
-		// sort the matrix based on the supplied category sort order (if any)
-		if (settings.getCategorySortOrder() != null) {
-			Comparator comparator = new CategorySubtotalComparator(settings.getCategorySortOrder().getCategoryId());
-
-			final SortDirection direction = settings.getCategorySortOrder().getDirection();
-
-			// reverse if required
-			if (direction == SortDirection.DESCENDING) {
-				Collections.reverse(items);
-			}
-			
-			// sort
-			Collections.sort(items, comparator);
-		}
-		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by category", stopwatch.getTime());
-
-		if (settings.getCourseGradeSortOrder() != null) {
-			Comparator<GbStudentGradeInfo> comp = new CourseGradeComparator(getGradebookSettings());
-
-			// reverse if required
-			if (settings.getCourseGradeSortOrder() == SortDirection.DESCENDING) {
-				comp = Collections.reverseOrder(comp);
-			}
-			
-			// sort
-			Collections.sort(items, comp);
-		}
-		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
-		
-		if (settings.getFinalGradeSortOrder() != null) {
-			Comparator<GbStudentGradeInfo> comp = new FinalGradeComparator();
-
-			// reverse if required
-			if (settings.getFinalGradeSortOrder() == SortDirection.DESCENDING) {
-				comp = Collections.reverseOrder(comp);
-			}
-			
-			// sort
-			Collections.sort(items, comp);
-		}
-		stopwatch.timeWithContext("buildGradeMatrix", "matrix sorted by course grade", stopwatch.getTime());
-
-		if (settings.getAnonIdSortOrder() != null) {
-			GbGroup group = settings.getGroupFilter();
-			String section = group == null ? null : group.getProviderId();
-			Comparator<GbStudentGradeInfo> comp = new AnonIDComparator(cmProvider, section);
-
-			if (settings.getAnonIdSortOrder() == SortDirection.DESCENDING) {
-				comp = Collections.reverseOrder(comp);
-			}
-
-			// sort
-			Collections.sort(items, comp);
-		}
+		List<GbStudentGradeInfo> items = sortGradeMatrix(matrix, settings);
+		stopwatch.timeWithContext("buildGradeMatrix", "sortGradeMatrix", stopwatch.getTime());
 
 		return items;
 	}
 
 	/**
-	 * Visits all given assignments and populates the uiSettings.getAnonAwareAssignmentIDsForContext and getAnonAwareCategoryIDsForContext, representing which assignments and categories we need to display scores for
+	 * Visits all given assignments and populates the uiSettings.getAnonAwareAssignmentIDsForContext and getAnonAwareCategoryIDsForContext lists, representing which assignments and categories we need to display scores for
 	 * @param uiSettings used to determine if the context is anonymous
 	 * @param allAssignments the list of all assignments in this gradebook
 	 */
@@ -1193,7 +861,7 @@ public class GradebookNgBusinessService {
 		}
 		if (uiSettings.isContextAnonymous())
 		{
-			// show grades pure anonymous categories; if there's one normal item, it's mixed and should be displayed in the normal context
+			// show grades for pure anonymous categories; if there's one normal item, it's mixed and should be displayed only in the normal context
 			categoryIDsToIncludeScores.addAll(categoriesContainingAnonymous);
 			categoryIDsToIncludeScores.removeAll(categoriesContainingNormal);
 		}
@@ -1202,6 +870,428 @@ public class GradebookNgBusinessService {
 			// If there are any normal items, we display the category score
 			categoryIDsToIncludeScores.addAll(categoriesContainingNormal);
 		}
+	}
+
+	// If a use case exists, feel free to provide a convenience method to call this passing in getGradebook(), getRole(), isCourseGradeVisible(getCurrentSite()) etc.
+	/**
+	 * Adds course grade info into the matrix specified in the first param
+	 * @param matrix mapping of student uids to GbStudentGradeInfo in which to store course grades
+	 * @param gbStudents list of student for whom to retrieve course grades
+	 * @param gradebook current site's gradebook
+	 * @param role current user's GbRole in the site
+	 * @param isCourseGradeVisible whether the current user can see course grades in this site
+	 * @param settings GradebookUiSettings instance
+	 */
+	public void putCourseGradesInMatrix(Map<String, GbStudentGradeInfo> matrix, List<GbUser> gbStudents, Gradebook gradebook, GbRole role, boolean isCourseGradeVisible, GradebookUiSettings settings)
+	{
+		// Collect studentUuids for getCourseGrades
+		List<String> studentUuids = gbStudents.stream().map(GbUser::getUserUuid).collect(Collectors.toList());
+
+		// get course grades
+		final Map<String, CourseGrade> courseGrades = getCourseGrades(studentUuids);
+
+		// setup the course grade formatter
+		// TODO we want the override except in certain cases. Can we hard code this?
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+				gradebook,
+				role,
+				isCourseGradeVisible,
+				settings.getShowPoints(),
+				true,    // show override
+				false);  // show letter grade
+
+		for (final GbUser student : gbStudents)
+		{
+			// create and add the user info
+			final GbStudentGradeInfo sg = new GbStudentGradeInfo(student);
+
+			// add the course grade, including the display
+			String uid = student.getUserUuid();
+			final CourseGrade courseGrade = courseGrades.get(uid);
+			final GbCourseGrade gbCourseGrade = new GbCourseGrade(courseGrades.get(uid));
+			gbCourseGrade.setDisplayString(courseGradeFormatter.format(courseGrade));
+			sg.setCourseGrade(gbCourseGrade);
+
+			// add to map so we can build on it later
+			matrix.put(uid, sg);
+		}
+	}
+
+	/**
+	 * Convenience method
+	 */
+	public void putAssignmentsAndCategoryItemsInMatrix(Map<String, GbStudentGradeInfo> matrix, List<Assignment> assignments)
+	{
+		List<GbUser> gbStudents = getGbUsers(getGradeableUsers());
+		putAssignmentsAndCategoryItemsInMatrix(matrix, gbStudents, assignments, getGradebook(), getCurrentUser().getId(), getUserRole(), null);
+	}
+
+	/**
+	 * Builds up the matrix (a map<userUid, GbStudentGradeInfo>) for the specified students / assignments.a
+	 * @param matrix output parameter; a map of studentUuids to GbStudentGradeInfo objects which will contain grade data for the specified assignments
+	 * @param gbStudents list of GbUsers for whom to retrieve grading data
+	 * @param assignments the list of assignments for which to retrieve grading data. Computes category scores associated with these assignments as appropriate
+	 * @param gradebook the gradebook containing the assignments, etc.
+	 * @param currentUserUuid
+	 * @param role the current user's role
+	 * @param settings the GradebookUiSettings instance associated with the user's session; used to determine whether the context is anonymous. If null, all grading data will be retrieved without any anonymous aware filtering
+	 */
+	public void putAssignmentsAndCategoryItemsInMatrix(Map<String, GbStudentGradeInfo> matrix, List<GbUser> gbStudents, List<Assignment> assignments, Gradebook gradebook, String currentUserUuid, GbRole role, GradebookUiSettings settings)
+	{
+		// Collect list of studentUuids, and ensure the matrix is populated with GbStudentGradeInfo instances for each student
+		final List<String> studentUuids = new ArrayList<String>(gbStudents.size());
+		gbStudents.stream().forEach(gbStudent ->
+		{
+			String userUuid = gbStudent.getUserUuid();
+			studentUuids.add(userUuid);
+			GbStudentGradeInfo info = matrix.get(userUuid);
+			if (info == null)
+			{
+				matrix.put(userUuid, new GbStudentGradeInfo(gbStudent));
+			}
+		});
+
+		// get categories. This call is filtered for TAs as well.
+		final List<CategoryDefinition> categories = this.getGradebookCategories();
+
+		// for TA's, build a lookup map of visible categoryIds so we can filter
+		// the assignment list to not fetch grades
+		// for assignments we don't have category level access to.
+		// for everyone else this will just be an empty list that is unused
+		final List<Long> categoryIds = new ArrayList<>();
+
+		if (role == GbRole.TA) {
+			for (final CategoryDefinition category : categories) {
+				categoryIds.add(category.getId());
+			}
+		}
+
+		// this holds a map of categoryId and the list of assignment ids in each
+		// we build this whilst iterating below to save further iterations when
+		// building the category list
+		final Map<Long, Set<Long>> categoryAssignments = new TreeMap<>();
+
+		// Determine only which assignments / categories we're interested in wrt isContextAnonymous
+		Set<Long> assignmentIDsToInclude = null;
+		Set<Long> categoryIDsToIncludeScores = null;
+		if (settings != null)
+		{
+			assignmentIDsToInclude = settings.getAnonAwareAssignmentIDsForContext();
+			categoryIDsToIncludeScores = settings.getAnonAwareCategoryIDsForContext();
+		}
+
+		// iterate over assignments and get the grades for each
+		// note, the returned list only includes entries where there is a grade
+		// for the user
+		// we also build the category lookup map here
+		for (final Assignment assignment : assignments) {
+
+			final Long categoryId = assignment.getCategoryId();
+			final Long assignmentId = assignment.getId();
+
+			if (settings != null && !categoryIDsToIncludeScores.contains(categoryId) && !assignmentIDsToInclude.contains(assignmentId))
+			{
+				// we don't need any info from this assignment; skip
+				continue;
+			}
+
+			// TA permission check. If there are categories and they don't have
+			// access to this one, skip it
+			if (role == GbRole.TA) {
+				log.debug("TA processing category: " + categoryId);
+
+				if (!categoryIds.isEmpty() && categoryId != null && !categoryIds.contains(categoryId)) {
+					continue;
+				}
+
+				// TA stub out. So that we can support 'per grade' permissions for a
+				// TA, we need a stub record for every student
+				// This is because getGradesForStudentsForItem only returns records
+				// where there is a grade (even if blank)
+				// So this iteration for TAs allows the matrix to be fully
+				// populated.
+				// This is later updated to be a real grade enry if there is one.
+				for (final GbUser student : gbStudents) {
+					final GbStudentGradeInfo sg = matrix.get(student.getUserUuid());
+					sg.addGrade(assignment.getId(), new GbGradeInfo(null));
+				}
+			}
+
+			// build the category map (if assignment is categorised)
+			if (categoryId != null) {
+				Set<Long> values;
+				if (categoryAssignments.containsKey(categoryId)) {
+					values = categoryAssignments.get(categoryId);
+					values.add(assignmentId);
+				}
+				else {
+					values = new HashSet<>();
+					values.add(assignmentId);
+				}
+				categoryAssignments.put(categoryId, values);
+			}
+
+			// get grades
+			final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(),
+					assignment.getId(), studentUuids);
+
+			// iterate the definitions returned and update the record for each
+			// student with the grades
+			for (final GradeDefinition def : defs) {
+				final GbStudentGradeInfo sg = matrix.get(def.getStudentUid());
+
+				if (sg == null) {
+					log.warn("No matrix entry seeded for: " + def.getStudentUid()
+							+ ". This user may have been removed from the site");
+				}
+				else {
+					// this will overwrite the stub entry for the TA matrix if
+					// need be
+					sg.addGrade(assignment.getId(), new GbGradeInfo(def));
+				}
+			}
+		}
+
+		// build category columns
+		for (final CategoryDefinition category : categories) {
+
+			Long categoryId = category.getId();
+			if (settings != null && !categoryIDsToIncludeScores.contains(categoryId))
+			{
+				// Nothing of interest in this category; skip
+				continue;
+			}
+
+			// use the category mappings for faster lookup of the assignmentIds
+			// and grades in the category
+			final Set<Long> categoryAssignmentIds = categoryAssignments.get(categoryId);
+
+			// if there are no assignments in the category (ie its a new category) this will be null, so skip
+			if (categoryAssignmentIds != null) {
+				for (final GbUser student : gbStudents) {
+					final GbStudentGradeInfo sg = matrix.get(student.getUserUuid());
+					
+					// get grades
+					final Map<Long, GbGradeInfo> grades = sg.getGrades();
+
+					// build map of just the grades we want
+					final Map<Long, String> gradeMap = new HashMap<>();
+					for (final Long assignmentId : categoryAssignmentIds) {
+						final GbGradeInfo gradeInfo = grades.get(assignmentId);
+						if (gradeInfo != null) {
+							gradeMap.put(assignmentId, gradeInfo.getGrade());
+						}
+					}
+
+					final Double categoryScore = this.gradebookService.calculateCategoryScore(gradebook,
+							student.getUserUuid(), category, category.getAssignmentList(), gradeMap);
+
+					// add to GbStudentGradeInfo
+					sg.addCategoryAverage(category.getId(), categoryScore);
+
+					// TODO the TA permission check could reuse this iteration... check performance.
+				}
+			}
+		}
+
+		// Remove grades for assignments that are out of context (they would exist in the case of mixed categories)
+		if (settings != null)
+		{
+			for (GbStudentGradeInfo sg : matrix.values())
+			{
+				sg.getGrades().keySet().retainAll(assignmentIDsToInclude);
+			}
+		}
+
+		// for a TA, apply the permissions to each grade item to see if we can render it
+		// the list of students, assignments and grades is already filtered to those that can be viewed
+		// so we are only concerned with the gradeable permission
+		if (role == GbRole.TA) 
+		{
+			// get permissions
+			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid);
+
+			log.debug("All permissions: " + permissions.size());
+
+			// only need to process this if some are defined
+			// again only concerned with grade permission, so parse the list to
+			// remove those that aren't GRADE
+			permissions.removeIf(permission -> !StringUtils.equalsIgnoreCase(GraderPermission.GRADE.toString(), permission.getFunction()));
+
+			log.debug("Filtered permissions: " + permissions.size());
+
+			// if we still have permissions, they will be of type grade, so we
+			// need to enrich the students grades
+			if (!permissions.isEmpty()) 
+			{
+				// first need a lookup map of assignment id to category, so we
+				// can link up permissions by category
+				final Map<Long, Long> assignmentCategoryMap = new HashMap<>();
+				for (final Assignment assignment : assignments) 
+				{
+					assignmentCategoryMap.put(assignment.getId(), assignment.getCategoryId());
+				}
+
+				// get the group membership for the students
+				final Map<String, List<String>> groupMembershipsMap = getGroupMemberships();
+
+				// for every student
+				for (final GbUser student : gbStudents)
+				{
+					log.debug("Processing student: " + student.getEid());
+
+					final GbStudentGradeInfo sg = matrix.get(student.getUserUuid());
+
+					// get their assignment/grade list
+					final Map<Long, GbGradeInfo> gradeMap = sg.getGrades();
+
+					// for every assignment that has a grade
+					for (final Map.Entry<Long, GbGradeInfo> entry : gradeMap.entrySet())
+					{
+						// categoryId
+						final Long gradeCategoryId = assignmentCategoryMap.get(entry.getKey());
+
+						log.debug("Grade: " + entry.getValue());
+
+						// iterate the permissions
+						// if category, compare the category,
+						// then check the group and find the user in the group
+						// if all ok, mark it as GRADEABLE
+
+						boolean gradeable = false;
+
+						for (final PermissionDefinition permission : permissions) {
+							// we know they are all GRADE so no need to check here
+
+							boolean categoryOk = false;
+							boolean groupOk = false;
+
+							final Long permissionCategoryId = permission.getCategoryId();
+							final String permissionGroupReference = permission.getGroupReference();
+
+							log.debug("permissionCategoryId: " + permissionCategoryId);
+							log.debug("permissionGroupReference: " + permissionGroupReference);
+
+							// if permissions category is null (can grade all
+							// categories) or they match (can grade this
+							// category)
+							if (permissionCategoryId == null || permissionCategoryId.equals(gradeCategoryId)) {
+								categoryOk = true;
+								log.debug("Category check passed");
+							}
+
+							// if group reference is null (can grade all groups)
+							// or group membership contains student (can grade
+							// this group)
+							if (StringUtils.isBlank(permissionGroupReference)) {
+								groupOk = true;
+								log.debug("Group check passed #1");
+							} else {
+								final List<String> groupMembers = groupMembershipsMap.get(permissionGroupReference);
+								log.debug("groupMembers: " + groupMembers);
+
+								if (groupMembers != null && groupMembers.contains(student.getUserUuid())) {
+									groupOk = true;
+									log.debug("Group check passed #2");
+								}
+							}
+
+							if (categoryOk && groupOk) {
+								gradeable = true;
+								break;
+							}
+						}
+
+						// set the gradeable flag on this grade instance
+						final GbGradeInfo gradeInfo = entry.getValue();
+						gradeInfo.setGradeable(gradeable);
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Takes the value set of the matrix (a map<studentUuid, GbStudentGradeInfo>), and sorts the value set appropriately wrt the GradebookUiSettings
+	 * @return the valueSet of the matrix as an appropriately sorted List
+	 */
+	public List<GbStudentGradeInfo> sortGradeMatrix(Map<String, GbStudentGradeInfo> matrix, GradebookUiSettings settings)
+	{
+		// Get the matrix as a list of GbStudentGradeInfo
+		final List<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
+
+		// sort the matrix based on the supplied assignment sort order (if any)
+		if (settings.getAssignmentSortOrder() != null)
+		{
+			Comparator<GbStudentGradeInfo> comparator = new AssignmentGradeComparator(settings.getAssignmentSortOrder().getAssignmentId());
+
+			final SortDirection direction = settings.getAssignmentSortOrder().getDirection();
+
+			// reverse if required
+			if (direction == SortDirection.DESCENDING) {
+				comparator = Collections.reverseOrder(comparator);
+			}
+
+			// sort
+			Collections.sort(items, comparator);
+		}
+
+		// sort the matrix based on the supplied category sort order (if any)
+		if (settings.getCategorySortOrder() != null)
+		{
+			Comparator comparator = new CategorySubtotalComparator(settings.getCategorySortOrder().getCategoryId());
+
+			final SortDirection direction = settings.getCategorySortOrder().getDirection();
+
+			// reverse if required
+			if (direction == SortDirection.DESCENDING) {
+				comparator = Collections.reverseOrder(comparator);
+			}
+
+			// sort
+			Collections.sort(items, comparator);
+		}
+
+		if (settings.getCourseGradeSortOrder() != null)
+		{
+			Comparator comp = new CourseGradeComparator(getGradebookSettings());
+
+			// reverse if required
+			if (settings.getCourseGradeSortOrder() == SortDirection.DESCENDING) {
+				comp = Collections.reverseOrder(comp);
+			}
+
+			// sort
+			Collections.sort(items, comp);
+		}
+
+		if (settings.getFinalGradeSortOrder() != null)
+		{
+			Comparator<GbStudentGradeInfo> comp = new FinalGradeComparator();
+
+			// reverse if required
+			if (settings.getFinalGradeSortOrder() == SortDirection.DESCENDING) {
+				comp = Collections.reverseOrder(comp);
+			}
+
+			// sort
+			Collections.sort(items, comp);
+		}
+
+		if (settings.getAnonIdSortOrder() != null) {
+			GbGroup group = settings.getGroupFilter();
+			String section = group == null ? null : group.getProviderId();
+			Comparator<GbStudentGradeInfo> comp = new AnonIDComparator(section);
+
+			if (settings.getAnonIdSortOrder() == SortDirection.DESCENDING) {
+				comp = Collections.reverseOrder(comp);
+			}
+
+			// sort
+			Collections.sort(items, comp);
+		}
+
+		return items;
 	}
 
 	/**
@@ -1488,19 +1578,17 @@ public class GradebookNgBusinessService {
 	 */
 	class AnonIDComparator implements Comparator<GbStudentGradeInfo>
 	{
-		private final CachedCMProvider cmProvider;
 		private final String sectionId;
-		public AnonIDComparator(CachedCMProvider cmProvider, String sectionId)
+		public AnonIDComparator(String sectionId)
 		{
-			this.cmProvider = cmProvider;
 			this.sectionId = sectionId;
 		}
 
 		@Override
 		public int compare(final GbStudentGradeInfo s1, final GbStudentGradeInfo s2)
 		{
-			String anonId1 = StringUtils.trimToEmpty(cmProvider.getAnonId(s1.getStudent().getEid(), sectionId));
-			String anonId2 = StringUtils.trimToEmpty(cmProvider.getAnonId(s2.getStudent().getEid(), sectionId));
+			String anonId1 = StringUtils.trimToEmpty(s1.getStudent().getAnonId(sectionId));
+			String anonId2 = StringUtils.trimToEmpty(s2.getStudent().getAnonId(sectionId));
 			return anonId1.compareTo(anonId2);
 		}
 	}
@@ -1760,7 +1848,7 @@ public class GradebookNgBusinessService {
 	public GbUser getUser(final String userUuid) {
 		try {
 			final User u = this.userDirectoryService.getUser(userUuid);
-			return GbUser.fromUserAcquiringStudentNumber(u, this);
+			return GbUser.fromUserAcquiringStudentNumberAndAnonIdMap(u, this);
 		} catch (final UserNotDefinedException e) {
 			return null;
 		}
@@ -2211,6 +2299,21 @@ public class GradebookNgBusinessService {
 		return gradebookService.getViewableSections(getCurrentSiteId());
 	}
 
+	public Set<String> getViewableSectionEids()
+	{
+		List<CourseSection> vSections = getViewableSections();
+		Set<String> viewableSectionEids = new HashSet<>();
+		for (CourseSection s : vSections)
+		{
+			if (s != null && StringUtils.isNotBlank(s.getEid()))
+			{
+				viewableSectionEids.add(s.getEid());
+			}
+		}
+
+		return viewableSectionEids;
+	}
+
 	// -------------------- End Course Grade Submission methods --------------------
 
 	// -------------------- Begin anonymous grading methods --------------------
@@ -2224,6 +2327,105 @@ public class GradebookNgBusinessService {
 	{
 		return gradebookService.getAnonGradingIDsBySectionEIDs(sectionEids);
 	}
+
+	public List<OwlAnonGradingID> getAnonGradingIDsForCurrentSite()
+	{
+		return gradebookService.getAnonGradingIDsBySectionEIDs(getViewableSectionEids());
+	}
+
+	/**
+	 * Gets anonymousIds for the group filter provided by GradebookUiSettings
+	 */
+	public List<OwlAnonGradingID> getAnonGradingIDsForUiSettings(GradebookUiSettings settings)
+	{
+		// The sections we'll be looking anonIDs up for
+		Set<String> sections = new HashSet<>();
+
+		// Get the group filter's selected sectionId; if none selected, get all viewable sections
+		GbGroup group = settings.getGroupFilter();
+		String section = group == null ? null : group.getProviderId();
+		if (section == null)
+		{
+			sections.addAll(getViewableSectionEids());
+		}
+		else
+		{
+			sections.add(section);
+		}
+		
+		return gradebookService.getAnonGradingIDsBySectionEIDs(sections);
+	}
+
+	/**
+	 * For performance, use only in contexts where data is presented for one user
+	 */
+	public Map<String, Integer> getSectionAnonIdMapForUser(String userEid)
+	{
+		return getStudentSectionAnonIdMap(getAnonGradingIDsForCurrentSite()).get(userEid);
+	}
+
+	/**
+	 * Builds a Map<studentUid, Map<section, anonId>> from the specified OwlAnonGradingID list
+	 */
+	public Map<String, Map<String, Integer>> getStudentSectionAnonIdMap(List<OwlAnonGradingID> anonIds)
+	{
+		Map<String, Map<String, Integer>> studentSectionAnonIdMap = new LinkedHashMap<>();
+		Collections.sort(anonIds, defaultOwlAnonGradingIDOrdering);
+		for (OwlAnonGradingID anonId : anonIds)
+		{
+			addTripleToMap(studentSectionAnonIdMap, anonId.getUserEid(), anonId.getSectionEid(), anonId.getAnonGradingID());
+		}
+
+		return studentSectionAnonIdMap;
+	}
+
+	/**
+	 * Builds a Map<section, Map<studentUid, anonId>> from the specified OwlAnonGradingID list
+	 */
+	public Map<String, Map<String, Integer>> getSectionStudentAnonIdMap(List<OwlAnonGradingID> anonIds)
+	{
+		Map<String, Map<String, Integer>> sectionStudentAnonIdMap = new LinkedHashMap<>();
+		Collections.sort(anonIds, defaultOwlAnonGradingIDOrdering);
+		for (OwlAnonGradingID anonId : anonIds)
+		{
+			addTripleToMap(sectionStudentAnonIdMap, anonId.getSectionEid(), anonId.getUserEid(), anonId.getAnonGradingID());
+		}
+
+		return sectionStudentAnonIdMap;
+	}
+
+	/**
+	 * For any Map<T, Map<U, V>>, maps key1->(key2, value); constructing the inner map for key1 if it doesn't exist
+	 */
+	private static <T, U, V> void addTripleToMap(Map<T, Map<U, V>> map, T key1, U key2, V value)
+	{
+		Map<U, V> key1Map = map.get(key1);
+		if (key1Map == null)
+		{
+			key1Map = new LinkedHashMap<>();
+			map.put(key1, key1Map);
+		}
+		key1Map.put(key2, value);
+	}
+
+	/**
+	 * Orders OwlAnonGradingIDs: primary sort by sections, secondary sort by userEids. This is mainly used to ensure the order in which OwlAnonGradingID data is added into LinkedHashMaps is deterministic.
+	 */
+	public static Comparator<OwlAnonGradingID> defaultOwlAnonGradingIDOrdering = new Comparator<OwlAnonGradingID>()
+	{
+		@Override
+		public int compare(final OwlAnonGradingID id1, final OwlAnonGradingID id2)
+		{
+			int sectionComparison = id1.getSectionEid().compareTo(id2.getSectionEid());
+			if (sectionComparison == 0)
+			{
+				int userIdComparison = id1.getUserEid().compareTo(id2.getUserEid());
+				// if userIdComparison is 0, there's no need to go further with anonIds; they should be unique per (sectionId, userId) pair
+				return userIdComparison;
+			}
+			return sectionComparison;
+		}
+	};
 
 	 // -------------------- End anonymous grading methods --------------------
 
@@ -2447,7 +2649,7 @@ public class GradebookNgBusinessService {
 	 * @return Map where the user's EID is the key and the {@link GbUser} object is the value
 	 */
 	public Map<String, GbUser> getUserEidMap() {
-		final List<GbUser> users = getGbUsers(getUsers(getGradeableUsers()));
+		final List<GbUser> users = getGbUsers(getGradeableUsers());
 		final Map<String, GbUser> userEidMap = new HashMap<>();
 		for (GbUser user : users) {
 			String eid = user.getEid();
@@ -2466,7 +2668,7 @@ public class GradebookNgBusinessService {
 	 * @return Map where the user's student number is the key and the {@link GbUser} object is the value
 	 */
 	public Map<String, GbUser> getUserStudentNumMap() {
-		final List<GbUser> users = getGbUsers(getUsers(getGradeableUsers()));
+		final List<GbUser> users = getGbUsers(getGradeableUsers());
 		final Map<String, GbUser> userStudentNumMap = new HashMap<>();
 		for (GbUser user : users) {
 			String studentNum = user.getStudentNumber();
@@ -2478,17 +2680,4 @@ public class GradebookNgBusinessService {
 		return userStudentNumMap;
 	}
 
-	/**
-	 * Create a map so that we can use the user's anonymous ID (from the imported file) to lookup their UUID (used to store the grade
-	 * by the backend service).
-	 *
-	 * @return Map where the user's anonymous ID is the key and the {@link GbUser} object is the value
-	 */
-	public Map<String, GbUser> getUserAnonIdMap() {
-		final List<User> users = getUsers(getGradeableUsers());
-
-		// OWLTODO: perform the necessary lookup and GbUser creation here
-		final Map<String, GbUser> userAnonIdMap = new HashMap<>();
-		return userAnonIdMap;
-	}
 }

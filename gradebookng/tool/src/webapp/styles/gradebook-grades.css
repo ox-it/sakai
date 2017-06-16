@@ -94,7 +94,7 @@
   min-width: 220px;
 }
 
-#gradebookGrades .gb-student-number-cell
+#gradebookGrades .gb-student-number-cell, #gradebookGrades .gb-student-cell-anon
 {
 	text-align:center;
 }
@@ -446,7 +446,8 @@
 #gradebookGrades .gb-grade-item-cell > div,
 #gradebookGrades .gb-course-grade > div,
 #gradebookGrades .gb-category-item-column-cell > div,
-#gradebookGrades .gb-student-number-cell > div
+#gradebookGrades .gb-student-number-cell > div,
+#gradebookGrades .gb-student-cell-anon > div
 {
   line-height: 2.6em;
 }

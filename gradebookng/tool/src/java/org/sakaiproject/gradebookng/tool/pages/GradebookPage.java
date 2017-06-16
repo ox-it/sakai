@@ -37,7 +37,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.gradebookng.business.CachedCMProvider;
 import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.SortDirection;
@@ -110,8 +109,6 @@ public class GradebookPage extends BasePage implements IGradesPage
 	private transient List<Assignment> assignments;
 	private transient GbGradesDataProvider studentGradeMatrix;
 
-	private transient CachedCMProvider cmProvider;
-
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
 
@@ -181,8 +178,6 @@ public class GradebookPage extends BasePage implements IGradesPage
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
 
-		cmProvider = new CachedCMProvider(businessService, settings);
-
 		// Toggles the context between normal / anonymous items. Model is boolean: False->normal, True->anonymous  --bbailla2
 		final RadioGroup anonymousToggle = new RadioGroup("toggleAnonymous", Model.of(settings.isContextAnonymous()));
 		Radio anonToggle_normal = new Radio("anonToggle_normal", Model.of(Boolean.FALSE));
@@ -222,8 +217,8 @@ public class GradebookPage extends BasePage implements IGradesPage
 				redrawSpreadsheet(target);
 			}
 		}));
-		// Hide the toggle if te site doesn't have anonIDs
-		anonymousToggle.setVisible(!cmProvider.getAnonIds().isEmpty());
+		// Hide the toggle if the site doesn't have anonIDs
+		anonymousToggle.setVisible(!businessService.getAnonGradingIDsForCurrentSite().isEmpty());
 		form.add(anonymousToggle);
 
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
@@ -286,9 +281,11 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 		// populates settings.getAnonAwareAssignmentIDsForContext() and getCategoryIDsInAnonContext()
 		businessService.setupAnonAwareAssignmentIDsAndCategoryIDsForContext(settings, assignments);
+		List<Assignment> displayedAssignments = new ArrayList<>(assignments);
+		displayedAssignments.removeIf(assignment -> assignment.isAnon() != isContextAnonymous);
 
 		// get the grade matrix. It should be sorted if we have that info
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings, getCMProvider());
+		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
 
 		// mark the current timestamp so we can use this date to check for any changes since now
 		final Date gradesTimestamp = new Date();
@@ -310,7 +307,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		cols.add(new StudentNameColumn(this));
 		
 		// OWL student number column
-		if (!getUiSettings().isContextAnonymous() && businessService.isStudentNumberVisible())
+		if (!isContextAnonymous && businessService.isStudentNumberVisible())
 		{
 			cols.add(new StudentNumberColumn());
 		}
@@ -365,7 +362,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		// build the rest of the columns based on the assignment list
 		for (final Assignment assignment : assignments) {
 
-			if (assignment.isAnon() != settings.isContextAnonymous())
+			if (assignment.isAnon() != isContextAnonymous)
 			{
 				// skip
 				continue;
@@ -560,12 +557,12 @@ public class GradebookPage extends BasePage implements IGradesPage
 		};
 
 		toolbarModelData = new HashMap<>();
-		toolbarModelData.put("assignments", assignments);
+		toolbarModelData.put("assignments", displayedAssignments);
 		toolbarModelData.put("categories", categories);
 		toolbarModelData.put("categoryType", this.businessService.getGradebookCategoryType());
 		toolbarModelData.put("categoriesEnabled", categoriesEnabled);
 		// OWLTODO: deduct more in anon scenarios?
-		toolbarModelData.put("fixedColCount", (!settings.isContextAnonymous() && businessService.isStudentNumberVisible()) ? 4 : 3);
+		toolbarModelData.put("fixedColCount", (!isContextAnonymous && businessService.isStudentNumberVisible()) ? 4 : 3);
 
 		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(toolbarModelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
@@ -610,7 +607,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
 
 		// get the grade matrix. It should be sorted if we have that info
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings, getCMProvider());
+		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings);
 		
 		// there is a timestamp put on the table that is used to check for concurrent modifications,
 		// update it now that we've refreshed the grade matrix
@@ -816,17 +813,6 @@ public class GradebookPage extends BasePage implements IGradesPage
 			target.appendJavaScript("sakai.gradebookng.spreadsheet.$table = $(\"#gradebookGradesTable\");");
 			target.appendJavaScript("sakai.gradebookng.spreadsheet.initTable();");
 		}
-	}
-
-	@Override
-	public CachedCMProvider getCMProvider()
-	{
-		return cmProvider;
-	}
-
-	public String getAnonId(String studentId)
-	{
-		return getCMProvider().getAnonId(studentId, getGroupFilterProviderId());
 	}
 
 	/**

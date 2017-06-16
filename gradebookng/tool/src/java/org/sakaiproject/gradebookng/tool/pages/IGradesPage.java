@@ -5,7 +5,6 @@ import java.util.List;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
-import org.sakaiproject.gradebookng.business.CachedCMProvider;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
@@ -44,8 +43,6 @@ public interface IGradesPage
 	public Component updateLiveGradingMessage(final String message);
 
 	public void updatePageSize(int pageSize, AjaxRequestTarget target);
-
-	public CachedCMProvider getCMProvider();
 
 	public void setFocusedAssignmentID(long focusedAssignmentID);
 }

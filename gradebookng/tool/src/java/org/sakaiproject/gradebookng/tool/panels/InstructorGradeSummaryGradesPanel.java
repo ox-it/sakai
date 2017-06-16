@@ -89,7 +89,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 				.buildGradeMatrix(
 						assignments,
 						Arrays.asList(userId),
-						gradebookPage.getUiSettings(), gradebookPage.getCMProvider())
+						gradebookPage.getUiSettings())
 				.get(0);
 		final Map<Long, Double> categoryAverages = studentGradeInfo.getCategoryAverages();
 		final Map<Long, GbGradeInfo> grades = studentGradeInfo.getGrades();

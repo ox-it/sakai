@@ -48,6 +48,7 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		super.onInitialize();
 		
 		IGradesPage page = (IGradesPage) getPage();
+		final GradebookUiSettings settings = page.getUiSettings();
 		
 		// section and group dropdown
 		GbRole role = businessService.getUserRole();
@@ -74,7 +75,7 @@ public class GbBaseGradesDisplayToolbar extends Panel
 			}
 		}
 
-		if(!showGroupFilter) {
+		if(!showGroupFilter && !settings.isContextAnonymous()) {
 			add(new Label("groupFilterOnlyOne", Model.of(groups.get(0).getTitle())));
 		} else {
 			add(new EmptyPanel("groupFilterOnlyOne").setVisible(false));
@@ -108,6 +109,7 @@ public class GbBaseGradesDisplayToolbar extends Panel
 					}
 
 				});
+		groupFilter.setVisible(showGroupFilter && !settings.isContextAnonymous());
 
 		groupFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 
@@ -129,7 +131,6 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		});
 
 		// set selected group, or first item in list
-		final GradebookUiSettings settings = page.getUiSettings();
 		groupFilter.setModelObject((settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
 		groupFilter.setNullValid(false);
 

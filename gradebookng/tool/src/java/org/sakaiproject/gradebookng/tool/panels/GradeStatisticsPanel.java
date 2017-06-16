@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -73,7 +74,9 @@ public class GradeStatisticsPanel extends Panel {
 				(new StringResourceModel("label.statistics.title", null,
 						new Object[] { assignment.getName() }).getString()));
 
-		final List<GbStudentGradeInfo> gradeInfo = this.businessService.buildGradeMatrix(Arrays.asList(assignment));
+		Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
+		businessService.putAssignmentsAndCategoryItemsInMatrix(matrix, Arrays.asList(assignment));
+		final List<GbStudentGradeInfo> gradeInfo = new ArrayList<>(matrix.values());
 
 		final List<Double> allGrades = new ArrayList<>();
 

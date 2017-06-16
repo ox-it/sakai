@@ -18,6 +18,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -97,10 +98,11 @@ public class GradeLogPanel extends Panel {
 		final GbUser user = this.businessService.getUser(studentUuid);
 		StringResourceModel titleModel;
 		GradebookPage page = (GradebookPage)getPage();
-		boolean isContextAnonymous = page.getUiSettings().isContextAnonymous();
+		GradebookUiSettings settings = page.getUiSettings();
+		boolean isContextAnonymous = settings.isContextAnonymous();
 		if (isContextAnonymous)
 		{
-			titleModel = new StringResourceModel("heading.gradelog.anonymous", null, new Object[]{page.getAnonId(user.getEid())});
+			titleModel = new StringResourceModel("heading.gradelog.anonymous", null, new Object[]{ user.getAnonId(settings) });
 		}
 		else
 		{
