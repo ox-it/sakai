@@ -33,6 +33,7 @@ app:
    # In development this means we can read files without anything special
    SAKAI_USER: root
    SENTRY_DSN:
+   SENTRY_ENVIRONMENT:
    CATALINA_OPTS_EXTRA:
   links:
    - db
