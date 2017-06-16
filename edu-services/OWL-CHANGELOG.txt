@@ -1,3 +1,5 @@
+2017.06.16:
+	- [OWL-2926] fresh sites/gradebookNG instances with no gradebook items make it difficult to create new gradebook items
 2017.06.05:
 	- [OWL-2860] Hide the 'Grade Entry' panel on the GradebookNG -> Settings page from non-admins
 2017.05.02:

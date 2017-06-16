@@ -4,7 +4,6 @@
 
 <wicket:extend>
   <form wicket:id="form" id="gradebookSpreadsheet">
-    <div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
     <div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
     <div id="gbConnectionTimeoutFeedback" class="messageWarning" style="display:none;">
         <wicket:message key="feedback.connectiontimeout" />
@@ -66,6 +65,7 @@
       <div id="gradebookHorizontalOverflowWrapper">
           <div id="gradebookVerticalOverflowWrapper">
               <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
+              <div wicket:id="noAssignments" class="messageInformation"><wicket:message key="no-assignments.label" /></div>
           </div>
       </div>
     </div>

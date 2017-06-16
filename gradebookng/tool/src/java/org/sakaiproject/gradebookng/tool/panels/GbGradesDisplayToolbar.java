@@ -1,56 +1,43 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.StringUtils;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
+
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
-import org.sakaiproject.gradebookng.tool.component.table.GbSakaiPagerContainer;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 /**
  *
- * @author plukasew
+ * @author plukasew, bjones86
  */
 public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 {
 	private Label liveGradingFeedback;
+	private final boolean hasAssignmentsAndGrades;
 	
-	public GbGradesDisplayToolbar(String id, final IModel<Map<String, Object>> model, SakaiDataTable table)
+	public GbGradesDisplayToolbar(String id, final IModel<Map<String, Object>> model, SakaiDataTable table, final boolean hasAssignmentsAndGrades)
 	{
 		super(id, table);
 		this.setDefaultModel(model);
+		this.hasAssignmentsAndGrades = hasAssignmentsAndGrades;
 	}
 	
 	@Override
@@ -93,10 +80,7 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 
 			@Override
 			public boolean isVisible() {
-				if (page.getCurrentUserRole() != GbRole.INSTRUCTOR) {
-					return false;
-				}
-				return true;
+				return page.getCurrentUserRole() == GbRole.INSTRUCTOR;
 			}
 		};
 		addGradeItem.setDefaultFormProcessing(false);
@@ -104,6 +88,7 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 		add(addGradeItem);
 		
 		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
+		toggleGradeItemsToolbarItem.setVisible(hasAssignmentsAndGrades);
 		add(toggleGradeItemsToolbarItem);
 		
 		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {

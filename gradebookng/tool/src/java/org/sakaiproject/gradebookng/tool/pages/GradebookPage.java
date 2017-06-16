@@ -242,8 +242,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 		// no assignments, hide table, show message
 		if (assignments.isEmpty()) {
-			table.setVisible(false);
-			noAssignments.setVisible(true);
+			//noAssignments.setVisible(true);		OWL-2926: uncomment this to display the message (OWL-2927)
 		}
 		else if (studentGradeMatrix.size() == 0)
 		{
@@ -290,8 +289,6 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 		// get the grade matrix. It should be sorted if we have that info
 		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments, settings, getCMProvider());
-
-		this.hasAssignmentsAndGrades = !assignments.isEmpty() && !grades.isEmpty();
 
 		// mark the current timestamp so we can use this date to check for any changes since now
 		final Date gradesTimestamp = new Date();
@@ -581,8 +578,8 @@ public class GradebookPage extends BasePage implements IGradesPage
 		this.form.addOrReplace(table);
 
 		// Populate the toolbar
-		toolbar = new GbGradesDisplayToolbar("toolbar", Model.ofMap(toolbarModelData), table);
-		toolbar.setVisible(hasAssignmentsAndGrades);
+		this.hasAssignmentsAndGrades = !assignments.isEmpty() && !grades.isEmpty();
+		toolbar = new GbGradesDisplayToolbar("toolbar", Model.ofMap(toolbarModelData), table, hasAssignmentsAndGrades);
 		form.addOrReplace(toolbar);
 
 		List<Assignment> assignmentsInAnonContext = assignments.stream().filter(assignment-> isContextAnonymous == assignment.isAnon()).collect(Collectors.toList());

@@ -1,3 +1,5 @@
+2017.06.16:
+	- [OWL-2926] fresh sites/gradebookNG instances with no gradebook items make it difficult to create new gradebook items
 2017.06.15:
 	- [OWL-2678] Backport the instructions for the Import page from #3942
 	- [OWL-2623] Visually indicate required fields in Add/Edit Gradebook Item modal

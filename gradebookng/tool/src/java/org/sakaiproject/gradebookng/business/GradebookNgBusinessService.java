@@ -20,9 +20,11 @@ import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBException;
 
-import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
@@ -30,10 +32,13 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Membership;
+import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.exception.GbException;
+import org.sakaiproject.gradebookng.business.finalgrades.GbStudentCourseGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -43,6 +48,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -62,28 +68,20 @@ import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
+import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
+import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeApproval;
+import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmission;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
-
-// OWL anonymous grading imports  --bbailla2
-import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
-
-import lombok.Setter;
-import org.sakaiproject.coursemanagement.api.Membership;
-import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.gradebookng.business.finalgrades.GbStudentCourseGradeInfo;
-import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
-import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeApproval;
-import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmission;
-import org.sakaiproject.user.api.CandidateDetailProvider;
 
 /**
  * Business service for GradebookNG
@@ -666,6 +664,7 @@ public class GradebookNgBusinessService {
 	 *
 	 * @param assignments list of assignments
 	 * @param uiSettings the UI settings. Wraps sort order and group filter (sort = null for no sort, filter = null for all groups)
+	 * @param cmProvider
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(final List<Assignment> assignments,
@@ -679,6 +678,7 @@ public class GradebookNgBusinessService {
 	 * @param assignments list of assignments
 	 * @param studentUuids student uuids
 	 * @param uiSettings the settings from the UI that wraps up preferences
+	 * @param cmProvider
 	 * @return
 	 *
 	 * TODO refactor this into a hierarchical method structure
@@ -1488,8 +1488,8 @@ public class GradebookNgBusinessService {
 	 */
 	class AnonIDComparator implements Comparator<GbStudentGradeInfo>
 	{
-		private CachedCMProvider cmProvider;
-		private String sectionId;
+		private final CachedCMProvider cmProvider;
+		private final String sectionId;
 		public AnonIDComparator(CachedCMProvider cmProvider, String sectionId)
 		{
 			this.cmProvider = cmProvider;
@@ -1521,12 +1521,15 @@ public class GradebookNgBusinessService {
 		final List<Assignment> assignments = this.gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid,
 				SortType.SORT_BY_SORTING);
 		final List<Long> assignmentIds = assignments.stream().map(a -> a.getId()).collect(Collectors.toList());
-		final List<GradingEvent> events = this.gradebookService.getGradingEvents(assignmentIds, since);
+		if (CollectionUtils.isEmpty(assignmentIds)) {
+			return rval;
+		}
 
 		// keep a hash of all users so we don't have to hit the service each time
 		final Map<String, GbUser> users = new HashMap<>();
 
 		// filter out any events made by the current user
+		final List<GradingEvent> events = this.gradebookService.getGradingEvents(assignmentIds, since);
 		for (final GradingEvent event : events) {
 			if (!event.getGraderId().equals(currentUser.getId())) {
 				// update cache (if required)
@@ -2214,6 +2217,8 @@ public class GradebookNgBusinessService {
 
 	/**
 	 * Gets anonymousIds for the specified sectionEids
+	 * @param sectionEids
+	 * @return
 	 */
 	public List<OwlAnonGradingID> getAnonGradingIDsBySectionEIDs(Set<String> sectionEids)
 	{
