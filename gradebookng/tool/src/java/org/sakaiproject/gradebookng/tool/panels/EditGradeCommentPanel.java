@@ -17,6 +17,8 @@ import org.apache.wicket.validation.validator.StringValidator;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import lombok.Getter;
@@ -106,9 +108,19 @@ public class EditGradeCommentPanel extends Panel {
 		// TODO if user/assignment has been deleted since rendering the GradebookPage, handle nulls here gracefully
 		final GbUser user = this.businessService.getUser(studentUuid);
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
-		EditGradeCommentPanel.this.window.setTitle(
-				(new StringResourceModel("heading.editcomment", null,
-						new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() })).getString());
+
+		GradebookUiSettings settings = ((GradebookPage)getPage()).getUiSettings();
+
+		StringResourceModel titleModel;
+		if (settings.isContextAnonymous())
+		{
+			titleModel = new StringResourceModel("heading.editcomment.anonymous", null, new Object[] { user.getAnonId(settings), assignment.getName() });
+		}
+		else
+		{
+			titleModel = new StringResourceModel("heading.editcomment", null, new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() });
+		}
+		EditGradeCommentPanel.this.window.setTitle(titleModel.getString());
 
 		// textarea
 		form.add(new TextArea<String>("comment", new PropertyModel<String>(formModel, "gradeComment"))
