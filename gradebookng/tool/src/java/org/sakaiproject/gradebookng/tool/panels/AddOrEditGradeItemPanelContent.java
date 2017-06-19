@@ -240,8 +240,6 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		};
 
 		anonymous = new AjaxCheckBox("anonymous", new PropertyModel<>(assignmentModel, "anon")) {
-			private transient boolean isAnonymousAllowed;
-
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
@@ -251,13 +249,15 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target) {
-				if (isAnonymousAllowed && getModelObject()) {
+				if (getModelObject()) {
 					AddOrEditGradeItemPanelContent.this.anonymous.setModelObject(true);
 				}
 				target.add(AddOrEditGradeItemPanelContent.this.anonymous);
 			}
 		};
 		anonymousContainer.add(anonymous);
+		// Only display the anonymous toggle if there are anonIDs in the site
+		anonymousContainer.setVisible(!businessService.getAnonGradingIDsForCurrentSite().isEmpty());
 		add(anonymousContainer);
 
 		// behaviour for when a category is chosen. If the category is extra
