@@ -12,8 +12,9 @@
 			<table class="table table-bordered table-striped table-hover table-condensed">
 				<thead>
 					<tr>
-						<th class="col-md-3"><wicket:message key="column.header.coursegradeoverride.studentname" /></th>
-						<th class="col-md-2"><wicket:message key="column.header.coursegradeoverride.studentid" /></th>
+						<th wicket:id="studentNameHeader" class="col-md-3">Student Name</th>
+						<th wicket:id="studentIdHeader" class="col-md-2">Student ID</th>
+						<th wicket:id="anonIdHeader" class="col-md-3">Grading ID</th>
 						<th class="col-md-1"><wicket:message key="column.header.coursegradeoverride.points" /></th>
 						<th class="col-md-3"><wicket:message key="column.header.coursegradeoverride.calculated" /></th>
 						<th class="col-md-3"><wicket:message key="column.header.coursegradeoverride.gradeoverride" /></th>
@@ -23,6 +24,7 @@
 					<tr>
 						<td wicket:id="studentName">Tony Stark</td>
 						<td wicket:id="studentEid">tstark1</td>
+						<td wicket:id="anonId">1234</td>
 						<td wicket:id="points">123/456</td>
 						<td wicket:id="calculated">C (63.15%)</td>
 						<td><input type="text" wicket:id="overrideGrade" size="5" maxlength="2"/></td>

@@ -19,6 +19,8 @@ import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
 /**
@@ -47,12 +49,25 @@ public class CourseGradeOverrideLogPanel extends Panel {
 		// unpack model
 		final String studentUuid = (String) getDefaultModelObject();
 
+		GradebookUiSettings settings = ((GradebookPage)getPage()).getUiSettings();
+		boolean isContextAnonymous = settings.isContextAnonymous();
+
 		// heading
 		// TODO if user has been deleted since rendering the GradebookPage, handle a null here gracefully
 		final GbUser user = this.businessService.getUser(studentUuid);
-		CourseGradeOverrideLogPanel.this.window.setTitle(
-				(new StringResourceModel("heading.coursegradelog", null,
-						new Object[] { user.getDisplayName(), user.getDisplayId() })).getString());
+		StringResourceModel titleModel;
+		if (isContextAnonymous)
+		{
+			titleModel = new StringResourceModel("heading.coursegradelog.anonymous", null,
+				new Object[] { user.getAnonId(settings) });
+		}
+		else
+		{
+			titleModel = new StringResourceModel("heading.coursegradelog", null,
+				new Object[] { user.getDisplayName(), user.getDisplayId() });
+		}
+
+		CourseGradeOverrideLogPanel.this.window.setTitle(titleModel.getString());
 
 		// get the course grade
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);

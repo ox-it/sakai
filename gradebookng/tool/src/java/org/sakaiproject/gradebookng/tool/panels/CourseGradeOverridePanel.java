@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.Component;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -23,6 +24,8 @@ import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -70,10 +73,20 @@ public class CourseGradeOverridePanel extends Panel {
 				false,
 				false);  // OWLTODO: fix and configure this
 
+		GradebookUiSettings settings = ((GradebookPage)getPage()).getUiSettings();
+		boolean isContextAnonymous = settings.isContextAnonymous();
+
+		StringResourceModel titleModel;
+		if (isContextAnonymous)
+		{
+			titleModel = new StringResourceModel("heading.coursegrade.anonymous", null, new Object[]{ studentUser.getAnonId(settings) });
+		}
+		else
+		{
+			titleModel = new StringResourceModel("heading.coursegrade", null, new Object[]{ studentUser.getDisplayName(), studentUser.getDisplayId() });
+		}
 		// heading
-		CourseGradeOverridePanel.this.window.setTitle(
-				(new StringResourceModel("heading.coursegrade", null,
-						new Object[] { studentUser.getDisplayName(), studentUser.getDisplayId() })).getString());
+		CourseGradeOverridePanel.this.window.setTitle(titleModel.getString());
 
 		// form model
 		// we are only dealing with the 'entered grade' so we use this directly
@@ -82,8 +95,28 @@ public class CourseGradeOverridePanel extends Panel {
 		// form
 		final Form<String> form = new Form<String>("form", formModel);
 
-		form.add(new Label("studentName", studentUser.getDisplayName()));
-		form.add(new Label("studentEid", studentUser.getDisplayId()));
+		Component studentNameHeader = new Label("studentNameHeader", new ResourceModel("column.header.coursegradeoverride.studentname"))
+			.setVisible(!isContextAnonymous);
+		Component studentIdHeader = new Label("studentIdHeader", new ResourceModel("column.header.coursegradeoverride.studentid"))
+			.setVisible(!isContextAnonymous);
+		Component anonIdHeader = new Label("anonIdHeader", new ResourceModel("column.header.coursegradeoverride.anonid"))
+			.setVisible(isContextAnonymous);
+		form.add(studentNameHeader);
+		form.add(studentIdHeader);
+		form.add(anonIdHeader);
+
+		Component lblStudentName = new Label("studentName", studentUser.getDisplayName()).setVisible(!isContextAnonymous)
+			.setVisible(!isContextAnonymous);
+		Component lblStudentId = new Label("studentEid", studentUser.getDisplayId()).setVisible(!isContextAnonymous)
+			.setVisible(!isContextAnonymous);
+		String anonId = settings.isContextAnonymous() ? studentUser.getAnonId(settings) : "";
+		Component lblAnonId = new Label("anonId", anonId).setVisible(isContextAnonymous)
+			.setVisible(isContextAnonymous);
+		form.add(lblStudentName);
+		form.add(lblStudentId);
+		form.add(lblAnonId);
+
+
 		form.add(new Label("points", formatPoints(courseGrade, gradebook)));
 		form.add(new Label("calculated", courseGradeFormatter.format(courseGrade)));
 

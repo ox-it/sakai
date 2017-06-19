@@ -92,8 +92,10 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		};
 
 		final GradebookUiSettings settings = gradebookPage.getUiSettings();
-		title.add(new AttributeModifier("title", new ResourceModel("column.header.students")));
-		title.add(new Label("label", new ResourceModel("column.header.students")));
+		String titleKey = settings.isContextAnonymous() ? "column.header.students.anonymous" : "column.header.students";
+		ResourceModel titleModel = new ResourceModel(titleKey);
+		title.add(new AttributeModifier("title", titleModel));
+		title.add(new Label("label", titleModel));
 		if (settings != null && settings.getStudentSortOrder() != null) {
 			title.add(
 				new AttributeModifier("class", "gb-sort-" + settings.getStudentSortOrder().toString().toLowerCase()));
