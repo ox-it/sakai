@@ -52,6 +52,8 @@ public class AdminSiteReportWriterSakai implements AdminSiteReportWriter {
 			session.setUserEid(USER_EID);
 			runnable.run();
 		} finally {
+			// This is needed to make sure things get unlocked.
+			session.clear();
 			session.setUserId(oldId);
 			session.setUserEid(oldEid);
 		}
