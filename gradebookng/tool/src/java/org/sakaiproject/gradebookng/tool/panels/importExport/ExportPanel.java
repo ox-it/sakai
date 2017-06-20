@@ -229,7 +229,7 @@ public class ExportPanel extends Panel {
 			csvWriter.writeNext(header.toArray(new String[] {}));
 
 			// get the grade matrix
-			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrix(assignments);
+			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForExport(assignments);
 
 			//add grades
 			grades.forEach(studentGradeInfo -> {
