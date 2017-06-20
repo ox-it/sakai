@@ -11,42 +11,8 @@ import java.util.Date;
 import java.util.List;
 
 public class PortalPersistentNodeDaoHibernate extends HibernateDaoSupport implements PortalPersistentNodeDao {
-	
-	private static final Log log = LogFactory.getLog(PortalPersistentNodeDaoHibernate.class);
-
-	private static final String INDEX_SITE_ID = "create index portal_node_site_id_idx on PORTAL_NODE (siteId)";
-	private static final String INDEX_PATH_HASH = "create unique index portal_node_path_hash_idx on PORTAL_NODE (pathHash)";
-
-	private boolean ddl = true;
-
-	public void setDdl(boolean ddl) {
-		this.ddl = ddl;
-	}
 
 	public void init() {
-		if (ddl) {
-			Session session = getSession();
-			Transaction ta = session.beginTransaction();
-			SQLQuery createSQLQuery;
-			try {
-				// Hibernate (3.2.7) fails to create these indexes so we do it manually.
-				// With later versions of hibernate this can go away.
-				createSQLQuery = session.createSQLQuery(INDEX_SITE_ID);
-				createSQLQuery.executeUpdate();
-				createSQLQuery = session.createSQLQuery(INDEX_PATH_HASH);
-				createSQLQuery.executeUpdate();
-				ta.commit();
-				log.info("Created indexes.");
-			} catch (HibernateException e ) {
-				// This will fail on all subsequent restarts
-				// On MySQL at least this comes through as a SQL Grammar exception so it isn't easy to
-				// see when it's failing due to index already existing.
-				log.debug("Failed to create index: "+ e.getMessage() );
-				ta.rollback();
-			} finally {
-				session.close();
-			}
-		}
 	}
 
 	@Override
