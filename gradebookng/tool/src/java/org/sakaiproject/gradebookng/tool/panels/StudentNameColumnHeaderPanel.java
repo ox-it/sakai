@@ -7,6 +7,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -201,6 +202,10 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		};
 
 		sortByName.add(new Label("sortByNameLabel", sortByNameModel));
-		add(sortByName);
+
+		WebMarkupContainer studentDropdown = new WebMarkupContainer("studentDropdown");
+		studentDropdown.add(sortByName);
+		studentDropdown.setVisible(!isContextAnonymous);
+		add(studentDropdown);
 	}
 }
