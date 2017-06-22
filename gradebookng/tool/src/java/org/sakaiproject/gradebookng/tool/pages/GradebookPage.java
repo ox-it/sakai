@@ -103,6 +103,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 	
 	SakaiDataTable table;
 	GbGradesDisplayToolbar toolbar;
+	final RadioGroup anonymousToggle;
 	ToggleGradeItemsToolbarPanel gradeItemsTogglePanel;
 	WebMarkupContainer gradeItemsTogglePanelContainer;
 	private transient Map<String, Object> toolbarModelData;
@@ -179,7 +180,14 @@ public class GradebookPage extends BasePage implements IGradesPage
 		final GradebookUiSettings settings = getUiSettings();
 
 		// Toggles the context between normal / anonymous items. Model is boolean: False->normal, True->anonymous  --bbailla2
-		final RadioGroup anonymousToggle = new RadioGroup("toggleAnonymous", Model.of(settings.isContextAnonymous()));
+		anonymousToggle = new RadioGroup("toggleAnonymous", Model.of(settings.isContextAnonymous()))
+		{
+			@Override
+			public boolean isInputNullable()
+			{
+				return false;
+			}
+		};
 		Radio anonToggle_normal = new Radio("anonToggle_normal", Model.of(Boolean.FALSE));
 		Radio anonToggle_anonymous = new Radio("anonToggle_anonymous", Model.of(Boolean.TRUE));
 		anonymousToggle.add(anonToggle_normal.add(new AjaxEventBehavior("onchange")
@@ -188,7 +196,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 			{
 				// Flip the context to normal
 				settings.setContextAnonymous(false);
-				anonymousToggle.setModelObject(false);
+				anonymousToggle.setModelObject(Boolean.FALSE);
 				// Use default sort order. Maintaining any sort order would violate anonymity constraints
 				settings.setNameSortOrder(GbStudentNameSortOrder.LAST_NAME);
 				settings.setStudentSortOrder(SortDirection.ASCENDING);
@@ -205,7 +213,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 			{
 				// Flip the context to anonymous
 				settings.setContextAnonymous(true);
-				anonymousToggle.setModelObject(true);
+				anonymousToggle.setModelObject(Boolean.TRUE);
 				// Clear filters and use the AnonIdSortOrder to eliminate any anonymity constraint violations
 				settings.setStudentFilter("");
 				settings.setStudentNumberFilter("");
@@ -217,8 +225,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 				redrawSpreadsheet(target);
 			}
 		}));
-		// Hide the toggle if the site doesn't have anonIDs
-		anonymousToggle.setVisible(!businessService.getAnonGradingIDsForCurrentSite().isEmpty());
+		// visibility is handled in addOrReplaceTable
 		form.add(anonymousToggle);
 
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
@@ -275,9 +282,44 @@ public class GradebookPage extends BasePage implements IGradesPage
 		// get list of assignments. this allows us to build the columns and then
 		// fetch the grades for each student for each assignment from
 		// the map
-		final boolean isContextAnonymous = settings.isContextAnonymous();
 		assignments = this.businessService.getGradebookAssignments(sortBy);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
+
+		// The anonymous toggle should be visible if the site has anonymous IDs, and there are both anonymous and normal assignments.
+		// In the case that all assignments are anonymous, the toggle should be invisible, and the context locked to anonymous
+		boolean anonToggleVisible = false;
+		boolean siteHasAnonIds = !businessService.getAnonGradingIDsForCurrentSite().isEmpty();
+		if (siteHasAnonIds)
+		{
+			boolean hasNormal = false;
+			boolean hasAnon = false;
+			for (Assignment assignment : assignments)
+			{
+				if (assignment.isAnon())
+				{
+					hasAnon = true;
+				}
+				else
+				{
+					hasNormal = true;
+				}
+
+				if (hasNormal && hasAnon)
+				{
+					anonToggleVisible = true;
+					break;
+				}
+			}
+
+			if (hasAnon && !hasNormal)
+			{
+				// only anonymous items exist; set the context to anonymous
+				settings.setContextAnonymous(true);
+			}
+		}
+		anonymousToggle.setVisible(anonToggleVisible);
+
+		final boolean isContextAnonymous = settings.isContextAnonymous();
 
 		// populates settings.getAnonAwareAssignmentIDsForContext() and getCategoryIDsInAnonContext()
 		businessService.setupAnonAwareAssignmentIDsAndCategoryIDsForContext(settings, assignments);
