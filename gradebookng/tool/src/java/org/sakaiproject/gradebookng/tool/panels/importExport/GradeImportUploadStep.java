@@ -1,6 +1,8 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
@@ -10,7 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.wicket.Component;
-import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
@@ -20,16 +23,21 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.exception.GbImportCommentMissingItemException;
+import org.sakaiproject.gradebookng.business.importExport.CommentValidationReport;
+import org.sakaiproject.gradebookng.business.importExport.CommentValidator;
 import org.sakaiproject.gradebookng.business.importExport.GradeValidationReport;
 import org.sakaiproject.gradebookng.business.importExport.GradeValidator;
-import org.sakaiproject.gradebookng.business.importExport.ImportHeadingValidationReport;
+import org.sakaiproject.gradebookng.business.importExport.HeadingValidationReport;
+import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.model.ImportedColumn;
+import org.sakaiproject.gradebookng.business.model.ImportedRow;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
@@ -74,11 +82,17 @@ public class GradeImportUploadStep extends Panel {
 			fileUploadField = new FileUploadField("upload");
 			add(fileUploadField);
 
-			add(new Button("continuebutton"));
-
-			final Button cancel = new Button("cancelbutton") {
+			SakaiAjaxButton continueButton = new SakaiAjaxButton("continuebutton") {
 				@Override
-				public void onSubmit() {
+				public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+					processUploadedFile(target);
+				}
+			};
+			add(continueButton);
+
+			final SakaiAjaxButton cancel = new SakaiAjaxButton("cancelbutton") {
+				@Override
+				public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 					setResponsePage(GradebookPage.class);
 				}
 			};
@@ -86,8 +100,7 @@ public class GradeImportUploadStep extends Panel {
 			add(cancel);
 		}
 
-		@Override
-		public void onSubmit() {
+		public void processUploadedFile(AjaxRequestTarget target) {
 
 			final FileUpload upload = fileUploadField.getFileUpload();
 			if (upload != null) {
@@ -113,12 +126,13 @@ public class GradeImportUploadStep extends Panel {
 				}
 
 				// If there are duplicate headings, tell the user now
-				ImportHeadingValidationReport headingReport = spreadsheetWrapper.getHeadingReport();
+				boolean hasValidationErrors = false;
+				HeadingValidationReport headingReport = spreadsheetWrapper.getHeadingReport();
 				SortedSet<String> duplicateHeadings = headingReport.getDuplicateHeadings();
 				if (!duplicateHeadings.isEmpty()) {
 					String duplicates = StringUtils.join(duplicateHeadings, ", ");
 					error(MessageHelper.getString("importExport.error.duplicateColumns", duplicates));
-					return;
+					hasValidationErrors = true;
 				}
 
 				// If there are invalid headings, tell the user now
@@ -126,51 +140,80 @@ public class GradeImportUploadStep extends Panel {
 				if (!invalidHeadings.isEmpty()) {
 					String invalids = StringUtils.join(invalidHeadings, ", ");
 					error(MessageHelper.getString("importExport.error.invalidColumns", invalids));
-					return;
+					hasValidationErrors = true;
 				}
 
 				// If there are blank headings, tell the user now
 				int blankHeadings = headingReport.getBlankHeaderTitleCount();
 				if (blankHeadings > 0) {
 					error(MessageHelper.getString("importExport.error.blankHeadings", blankHeadings));
-					return;
+					hasValidationErrors = true;
 				}
 
 				// If there are duplicate student entires, tell the user now (we can't make the decision about which entry takes precedence)
-				SortedSet<GbUser> duplicateStudents = spreadsheetWrapper.getUserIdentifier().getReport().getDuplicateUsers();
+				UserIdentificationReport userReport = spreadsheetWrapper.getUserIdentifier().getReport();
+				SortedSet<GbUser> duplicateStudents = userReport.getDuplicateUsers();
 				if (!duplicateStudents.isEmpty()) {
 					String duplicates = StringUtils.join(duplicateStudents, ", ");
 					error(MessageHelper.getString("importExport.error.duplicateStudents", duplicates));
-					return;
+					hasValidationErrors = true;
 				}
 
-				// Perform grade validation for DPC files; present error message with invalid grades on current page
-				boolean validateGrades = spreadsheetWrapper.isDPC();
-				if (validateGrades) {
-					GradeValidationReport report = new GradeValidator().validate(spreadsheetWrapper.getRows(), validateGrades);
-					SortedMap<String, String> invalidGrades = report.getInvalidNumericGrades();
-					if (!invalidGrades.isEmpty()) {
-						String badGrades = StringUtils.join(invalidGrades.entrySet(), ", ");
-						error(MessageHelper.getString("importExport.error.invalidGradeData", badGrades));
-						return;
+				// Perform grade validation; present error message with invalid grades on current page
+				boolean isSourceDPC = spreadsheetWrapper.isDPC();
+				List<ImportedColumn> columns = spreadsheetWrapper.getColumns();
+				List<ImportedRow> rows = spreadsheetWrapper.getRows();
+				GradeValidationReport gradeReport = new GradeValidator().validate(rows, columns, isSourceDPC);
+				SortedMap<String, SortedMap<String, String>> invalidGradesMap = gradeReport.getInvalidNumericGrades();
+				if (!invalidGradesMap.isEmpty()) {
+					Collection<SortedMap<String, String>> invalidGrades = invalidGradesMap.values();
+					List<String> badGradeEntries = new ArrayList<>(invalidGrades.size());
+					for (SortedMap<String, String> invalidGradeEntries : invalidGrades) {
+						badGradeEntries.add(StringUtils.join(invalidGradeEntries.entrySet(), ", "));
+					}
+
+					String badGrades = StringUtils.join(badGradeEntries, ", ");
+					error(MessageHelper.getString("importExport.error.invalidGradeData", badGrades));
+					hasValidationErrors = true;
+				}
+
+				// Perform comment validation if the file is not a DPC; present error message with invalid comments on current page
+				if (!isSourceDPC) {
+					CommentValidationReport commentReport = new CommentValidator().validate(rows, columns);
+					SortedMap<String, SortedMap<String, String>> invalidCommentsMap = commentReport.getInvalidComments();
+					if (!invalidCommentsMap.isEmpty()) {
+						Collection<SortedMap<String, String>> invalidComments = invalidCommentsMap.values();
+						List<String> badCommentEntries = new ArrayList<>(invalidComments.size());
+						for (SortedMap<String, String> invalidCommentEntries : invalidComments) {
+							badCommentEntries.add(StringUtils.join(invalidCommentEntries.entrySet(), ", "));
+						}
+
+						String badComments = StringUtils.join(badCommentEntries, ", ");
+						error(MessageHelper.getString("importExport.error.invalidComments", CommentValidator.MAX_COMMENT_LENGTH, badComments));
+						hasValidationErrors = true;
 					}
 				}
 
 				//get existing data
 				final List<Assignment> assignments = businessService.getGradebookAssignments();
-				final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments);
+				final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments);
 
 				// process file
-				List<ProcessedGradeItem> processedGradeItems;
-				try {
-					processedGradeItems = ImportGradesHelper.processImportedGrades(spreadsheetWrapper, assignments, grades);
-				} catch (final GbImportCommentMissingItemException e) {
-					error(MessageHelper.getString("importExport.error.commentnoitem", e.getColumnTitle()));
-					return;
+				List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(spreadsheetWrapper, assignments, grades);
+
+				// If the file has orphaned comment columns, tell the user now
+				SortedSet<String> orphanedCommentColumns = headingReport.getOrphanedCommentHeadings();
+				if (!orphanedCommentColumns.isEmpty()) {
+					String invalids = StringUtils.join(orphanedCommentColumns, ", ");
+					error(MessageHelper.getString("importExport.error.orphanedComments", invalids));
+					hasValidationErrors = true;
 				}
+
 				// if empty there are no users
+				final ImportExportPage page = (ImportExportPage) getPage();
 				if (processedGradeItems.isEmpty()) {
 					error(getString("importExport.error.empty"));
+					target.add(page.feedbackPanel);
 					return;
 				}
 
@@ -183,22 +226,30 @@ public class GradeImportUploadStep extends Panel {
 				}
 				if (noValidUsers) {
 					error(getString("importExport.error.noValidStudents"));
+					hasValidationErrors = true;
+				}
+
+				// Return errors before processing further
+				if (hasValidationErrors) {
+					target.add(page.feedbackPanel);
 					return;
 				}
 
-				// OK, GO TO NEXT PAGE
-
-				// clear any previous errors
-				final ImportExportPage page = (ImportExportPage) getPage();
+				// No validation errors were encountered; clear out previous errors and continue to the next step in the wizard
 				page.clearFeedback();
+				target.add(page.feedbackPanel);
 
-				// repaint panel
+				// Create the next panel
 				final ImportWizardModel importWizardModel = new ImportWizardModel();
 				importWizardModel.setProcessedGradeItems(processedGradeItems);
-				importWizardModel.setReport(spreadsheetWrapper.getUserIdentifier().getReport());
+				importWizardModel.setUserReport(userReport);
 				final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId, Model.of(importWizardModel));
 				newPanel.setOutputMarkupId(true);
-				GradeImportUploadStep.this.replaceWith(newPanel);
+
+				// AJAX the new panel into place
+				WebMarkupContainer container = page.container;
+				container.addOrReplace(newPanel);
+				target.add(container);
 			} else {
 				error(getString("importExport.error.noFileSelected"));
 			}

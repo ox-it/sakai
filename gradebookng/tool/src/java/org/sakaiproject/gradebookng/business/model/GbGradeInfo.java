@@ -1,13 +1,14 @@
 package org.sakaiproject.gradebookng.business.model;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 
-import lombok.Getter;
-import lombok.Setter;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 
 /**
  * Similar to GradeDefinition but serialisable and grader permission aware
@@ -16,8 +17,6 @@ import lombok.Setter;
  *
  */
 public class GbGradeInfo implements Serializable, Comparable<GbGradeInfo> {
-
-	private static final long serialVersionUID = 1L;
 
 	@Getter
 	private final String grade;
@@ -58,13 +57,13 @@ public class GbGradeInfo implements Serializable, Comparable<GbGradeInfo> {
 
 	/**
 	 * Only compares grades
+	 * @param o
+	 * @return
 	 */
 	@Override
 	public int compareTo(final GbGradeInfo o) {
 		return new CompareToBuilder()
 				.append(this.grade, o.getGrade())
 				.toComparison();
-
 	}
-
 }

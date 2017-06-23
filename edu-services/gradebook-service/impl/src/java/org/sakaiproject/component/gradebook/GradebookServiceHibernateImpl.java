@@ -189,11 +189,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				return getAssignmentWithoutStats(gradebookUid, assignmentId, session);
-			}
-		});
+		Assignment assignment = getAssignmentWithoutStatsByID(gradebookUid, assignmentId);
 		
 		if (assignment == null) {
 			throw new AssessmentNotFoundException("No gradebook item exists with gradable object id = " + assignmentId);
@@ -1641,11 +1637,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
           return new HashMap<>();
       }
 
-      Assignment gradebookItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException {
-              return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
-          }
-      });
+      Assignment gradebookItem = getAssignmentWithoutStatsByID(gradebookUid, gradableObjectId);
 
       if (gradebookItem == null) {
           log.debug("The gradebook item does not exist, so returning empty set");
@@ -1742,11 +1734,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  if (studentIds != null && !studentIds.isEmpty()) {
 		  // first, we need to make sure the current user is authorized to view the
 		  // grades for all of the requested students
-		  Assignment gbItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			  public Object doInHibernate(Session session) throws HibernateException {
-				  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
-			  }
-		  });
+		  Assignment gbItem = getAssignmentWithoutStatsByID(gradebookUid, gradableObjectId);
 		  
 		  if (gbItem != null) {
 			  Gradebook gradebook = gbItem.getGradebook();
@@ -2041,196 +2029,182 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   }
 
   @Override
-  public void saveGradesAndComments(final String gradebookUid, final Long gradableObjectId, List<GradeDefinition> gradeDefList) {
-	  if (gradebookUid == null || gradableObjectId == null) {
-		  throw new IllegalArgumentException("Null gradebookUid or gradableObjectId passed to saveGradesAndComments");
+  public void saveGradesAndComments(final String gradebookUID, final Long gradableObjectID, final List<GradeDefinition> gradeDefList) {
+	  if (gradebookUID == null || gradableObjectID == null) {
+		  throw new IllegalArgumentException("Null gradebook or gradeableObjectID passed to saveGradesAndComments");
 	  }
 
-	  if (gradeDefList != null) {
+	  if (CollectionUtils.isNotEmpty(gradeDefList)) {
 		  Gradebook gradebook;
 
 		  try {
-			  gradebook = getGradebook(gradebookUid); 
+			  gradebook = getGradebook(gradebookUID);
 		  } catch (GradebookNotFoundException gnfe) {
-			  throw new GradebookNotFoundException("No gradebook exists with the given gradebookUid: " + 
-					  gradebookUid + "Error: " + gnfe.getMessage());
+			  throw new GradebookNotFoundException("No gradebook exists with the given gradebookUid: " + gradebookUID + "Error: " + gnfe.getMessage());
 		  }
 
-		  Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			  public Object doInHibernate(Session session) throws HibernateException {
-				  return getAssignmentWithoutStats(gradebookUid, gradableObjectId, session);
-			  }
-		  });
-
+		  Assignment assignment = getAssignmentWithoutStatsByID(gradebookUID, gradableObjectID);
 		  if (assignment == null) {
-			  throw new AssessmentNotFoundException("No gradebook item exists with gradable object id = " + gradableObjectId);
+			  throw new AssessmentNotFoundException("No gradebook item exists with gradable object id = " + gradableObjectID);
 		  }
 
-		  if (!currentUserHasGradingPerm(gradebookUid)) {
+		  if (!currentUserHasGradingPerm(gradebookUID)) {
 			  log.warn("User attempted to save grades and comments without authorization");
-			  throw new SecurityException("Current user is not authorized to save grades or comments in gradebook " + gradebookUid);
+			  throw new SecurityException("Current user is not authorized to save grades or comments in gradebook " + gradebookUID);
 		  }
 
-		  // let's identify all of the students being updated first
+		  // Identify all of the students being updated first
 		  Map<String, GradeDefinition> studentIdGradeDefMap = new HashMap<>();
 		  Map<String, String> studentIdToGradeMap = new HashMap<>();
-
 		  for (GradeDefinition gradeDef: gradeDefList) {
 			  studentIdGradeDefMap.put(gradeDef.getStudentUid(), gradeDef);
 			  studentIdToGradeMap.put(gradeDef.getStudentUid(), gradeDef.getGrade());
 		  }
 
-		  // check for invalid grades
-		  List invalidStudents = identifyStudentsWithInvalidGrades(gradebookUid, studentIdToGradeMap);
-		  if (invalidStudents != null && !invalidStudents.isEmpty()) {
-			  throw new InvalidGradeException ("At least one grade passed to be updated is " +
-			  "invalid. No grades or comments were updated.");
+		  // OWLTODO: this check may be unnecessary if we're validating grades in the first step of the grade import wizard
+		  // OWLTODO: BUT, this can only be removed if the only place it's used is in the grade import (other places may not
+		  // OWLTODO: perform the grade validation prior to calling this
+		  // Check for invalid grades
+		  List<String> invalidStudentUUIDs = identifyStudentsWithInvalidGrades(gradebookUID, studentIdToGradeMap);
+		  if (CollectionUtils.isNotEmpty(invalidStudentUUIDs)) {
+			  throw new InvalidGradeException("At least one grade passed to be updated is " + "invalid. No grades or comments were updated.");
 		  }
 
-		  boolean userHasGradeAllPerm = currentUserHasGradeAllPerm(gradebookUid);
-
-		  // let's retrieve all of the existing grade recs for the given students
-		  // and assignments
-		  List<AssignmentGradeRecord> allGradeRecs = 
-			  getAllAssignmentGradeRecordsForGbItem(gradableObjectId, studentIdGradeDefMap.keySet());
-
-
-		  // put in map for easier accessibility
-		  Map<String, AssignmentGradeRecord> studentIdToAgrMap = new HashMap<>();
-		  if (allGradeRecs != null) {
-			  for (AssignmentGradeRecord rec : allGradeRecs) {
-				  studentIdToAgrMap.put(rec.getStudentId(), rec);
+		  // Retrieve all existing grade records for the given students and assignment
+		  List<AssignmentGradeRecord> existingGradeRecords = getAllAssignmentGradeRecordsForGbItem(gradableObjectID, studentIdGradeDefMap.keySet());
+		  Map<String, AssignmentGradeRecord> studentIdGradeRecordMap = new HashMap<>();
+		  if (CollectionUtils.isNotEmpty(existingGradeRecords)) {
+			  for (AssignmentGradeRecord agr : existingGradeRecords) {
+				  studentIdGradeRecordMap.put(agr.getStudentId(), agr);
 			  }
 		  }
 
-		  // set up the grader and grade time
-		  String graderId = getAuthn().getUserUid();
-		  Date now = new Date();
-
-		  // get grade mapping, if nec, to convert grades to points
-		  LetterGradePercentMapping mapping = null;
-		  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-			  mapping = getLetterGradePercentMapping(gradebook);
-		  }
-
-		  // get all of the comments, as well
-		  List<Comment> allComments = getComments(assignment, studentIdGradeDefMap.keySet());
-		  // put in a map for easier accessibility
+		  // Retrieve all existing comments for the given students and assignment
+		  List<Comment> existingComments = getComments(assignment, studentIdGradeDefMap.keySet());
 		  Map<String, Comment> studentIdCommentMap = new HashMap<>();
-		  if (allComments != null) {
-			  for (Comment comment : allComments) {
+		  if (CollectionUtils.isNotEmpty(existingComments)) {
+			  for (Comment comment : existingComments) {
 				  studentIdCommentMap.put(comment.getStudentId(), comment);
 			  }
 		  }
 
-		  // these are the records that will need to be updated. iterate through
-		  // everything and then we'll save it all at once
-		  Set<AssignmentGradeRecord> agrToUpdate = new HashSet<>();
-		  // do not use a HashSet b/c you may have multiple Comments with null id and the same comment at this point.
-		  // the Comment object defines objects as equal if they have the same id, comment text, and gb item. the
-		  // only difference may be the student ids
+		  boolean userHasGradeAllPerm = currentUserHasGradeAllPerm(gradebookUID);
+		  String graderUUID = getAuthn().getUserUid();
+		  Date now = new Date();
+		  LetterGradePercentMapping gradeMapping = null;
+		  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+			  gradeMapping = getLetterGradePercentMapping(gradebook);
+		  }
+
+		  // Don't use a HashSet because you may have multiple Comments with null ID and the same comment at this point.
+		  // The Comment object defines objects as equal if they have the same ID, comment text, and gradebook item. The
+		  // only difference may be the student IDs
 		  List<Comment> commentsToUpdate = new ArrayList<>();
 		  Set<GradingEvent> eventsToAdd = new HashSet<>();
-
+		  Set<AssignmentGradeRecord> gradeRecordsToUpdate = new HashSet<>();
 		  for (GradeDefinition gradeDef : gradeDefList) {
+			  String studentUUID = gradeDef.getStudentUid();
 
-			  String studentId = gradeDef.getStudentUid();
-
-			  // check specific grading privileges if user does not have
-			  // grade all perm
+			  // Check specific grading privileges if the user does not have the grade all permission
 			  if (!userHasGradeAllPerm) {
-				  if (!isUserAbleToGradeItemForStudent(gradebookUid, gradableObjectId, studentId)) {
-					  log.warn("User " + graderId + " attempted to save a grade for " + studentId + 
-					  " without authorization");
-
-					  throw new SecurityException("User " + graderId + " attempted to save a grade for " + 
-							  studentId + " without authorization");
+				  if (!isUserAbleToGradeItemForStudent(gradebookUID, gradableObjectID, studentUUID)) {
+					  log.warn("User " + graderUUID + " attempted to save a grade for " + studentUUID + " without authorization");
+					  throw new SecurityException("User " + graderUUID + " attempted to save a grade for " + studentUUID + " without authorization");
 				  }
 			  }
 
-			  Double convertedGrade = convertInputGradeToPoints(gradebook.getGrade_type(), mapping, assignment.getPointsPossible(), gradeDef.getGrade());
-
-			  // let's see if this agr needs to be updated
-			  AssignmentGradeRecord gradeRec = studentIdToAgrMap.get(studentId);
+			  // Determine if the AssignmentGradeRecord needs to be updated
+			  String newGrade = StringUtils.trimToEmpty(gradeDef.getGrade());
+			  Double convertedGrade = convertInputGradeToPoints(gradebook.getGrade_type(), gradeMapping, assignment.getPointsPossible(), newGrade);
+			  AssignmentGradeRecord gradeRec = studentIdGradeRecordMap.get(studentUUID);
 			  if (gradeRec != null) {
-				  if ((convertedGrade == null && gradeRec.getPointsEarned() != null) || 
-						  (convertedGrade != null && gradeRec.getPointsEarned() == null) ||
-						  (convertedGrade != null && gradeRec.getPointsEarned() != null && 
-								  !convertedGrade.equals(gradeRec.getPointsEarned()))) {
-					  
+				  Double pointsEarned = gradeRec.getPointsEarned();
+				  if ((convertedGrade == null && pointsEarned != null)
+						  || (convertedGrade != null && pointsEarned == null)
+						  || (convertedGrade != null && pointsEarned != null && !convertedGrade.equals(pointsEarned))) {
 					  gradeRec.setPointsEarned(convertedGrade);
-					  gradeRec.setGraderId(graderId);
+					  gradeRec.setGraderId(graderUUID);
 					  gradeRec.setDateRecorded(now);
+					  gradeRecordsToUpdate.add(gradeRec);
 
-					  agrToUpdate.add(gradeRec);
-
-					  // we also need to add a GradingEvent
-					  // the event stores the actual input grade, not the converted one
-					  GradingEvent event = new GradingEvent(assignment, graderId, studentId, gradeDef.getGrade());
+					  // Add a GradingEvent, which stores the actual input grade rather than the converted one
+					  GradingEvent event = new GradingEvent(assignment, graderUUID, studentUUID, newGrade);
 					  eventsToAdd.add(event);
 				  }
 			  } else {
-				  // if the grade is something other than null, add a new AGR
-				  if (gradeDef.getGrade() != null && !gradeDef.getGrade().trim().equals("")) {
-					  gradeRec =  new AssignmentGradeRecord(assignment, studentId, convertedGrade);
-					  gradeRec.setPointsEarned(convertedGrade);
-					  gradeRec.setGraderId(graderId);
+				  // If the grade is something other than null, add a new AssignmentGradeRecord
+				  if (StringUtils.isNotBlank(newGrade)) {
+					  gradeRec = new AssignmentGradeRecord(assignment, studentUUID, convertedGrade);
+					  gradeRec.setGraderId(graderUUID);
 					  gradeRec.setDateRecorded(now);
+					  gradeRecordsToUpdate.add(gradeRec);
 
-					  agrToUpdate.add(gradeRec);
-
-					  // we also need to add a GradingEvent
-					  // the event stores the actual input grade, not the converted one
-					  GradingEvent event = new GradingEvent(assignment, graderId, studentId, gradeDef.getGrade());
+					  // Add a GradingEvent, which stores the actual input grade rather than the converted one
+					  GradingEvent event = new GradingEvent(assignment, graderUUID, studentUUID, newGrade);
 					  eventsToAdd.add(event);
 				  }
 			  }
 
-			  // let's see if the comment needs to be updated
-			  Comment comment = studentIdCommentMap.get(studentId);
+			  // Determine if the Comment needs to be updated
+			  Comment comment = studentIdCommentMap.get(studentUUID);
+			  String newCommentText = StringUtils.trimToEmpty(gradeDef.getGradeComment());
 			  if (comment != null) {
-				  boolean oldCommentIsNull = comment.getCommentText() == null || comment.getCommentText().equals("");
-				  boolean newCommentIsNull = gradeDef.getGradeComment() == null || gradeDef.getGradeComment().equals("");
-				  
-				  if ((oldCommentIsNull && !newCommentIsNull) || 
-						  (!oldCommentIsNull && newCommentIsNull) ||
-						  (!oldCommentIsNull && !newCommentIsNull && 
-								  !gradeDef.getGradeComment().equals(comment.getCommentText()))) {
-					  // update this comment
-					  comment.setCommentText(gradeDef.getGradeComment());
-					  comment.setGraderId(graderId);
+				  String existingCommentText = StringUtils.trimToEmpty(comment.getCommentText());
+				  boolean existingCommentTextIsEmpty = existingCommentText.isEmpty();
+				  boolean newCommentTextIsEmpty = newCommentText.isEmpty();
+				  if ((existingCommentTextIsEmpty && !newCommentTextIsEmpty)
+						  || (!existingCommentTextIsEmpty && newCommentTextIsEmpty)
+						  || (!existingCommentTextIsEmpty && !newCommentTextIsEmpty && !newCommentText.equals(existingCommentText))) {
+					  comment.setCommentText(newCommentText);
+					  comment.setGraderId(graderUUID);
 					  comment.setDateRecorded(now);
-
 					  commentsToUpdate.add(comment);
 				  }
 			  } else {
-				  // if there is a comment, add it
-				  if (gradeDef.getGradeComment() != null && !gradeDef.getGradeComment().trim().equals("")) {
-					  comment = new Comment(studentId, gradeDef.getGradeComment(), assignment);
-					  comment.setGraderId(graderId);
+				  // If the comment is something other than null, add a new Comment
+				  if (!newCommentText.isEmpty()) {
+					  comment = new Comment(studentUUID, newCommentText, assignment);
+					  comment.setGraderId(graderUUID);
 					  comment.setDateRecorded(now);
-
 					  commentsToUpdate.add(comment);
 				  }
 			  }
 		  }
 
-		  // now let's save them
+		  // Save or update the necessary items
 		  try {
-			for (AssignmentGradeRecord assignmentGradeRecord : agrToUpdate) {
-				getHibernateTemplate().saveOrUpdate(assignmentGradeRecord);
-			}
-			for (Comment comment : commentsToUpdate) {
-				getHibernateTemplate().saveOrUpdate(comment);
-			}
-			for (GradingEvent gradingEvent : eventsToAdd) {
-				getHibernateTemplate().saveOrUpdate(gradingEvent);
-			}
-		  }	catch (HibernateOptimisticLockingFailureException | StaleObjectStateException ex) {
-			  if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item " + gradableObjectId);
+			  for (AssignmentGradeRecord gradeRecord : gradeRecordsToUpdate) {
+				  getHibernateTemplate().saveOrUpdate(gradeRecord);
+			  }
+			  for (Comment comment : commentsToUpdate) {
+				  getHibernateTemplate().saveOrUpdate(comment);
+			  }
+			  for (GradingEvent event : eventsToAdd) {
+				  getHibernateTemplate().saveOrUpdate(event);
+			  }
+		  } catch (HibernateOptimisticLockingFailureException | StaleObjectStateException ex) {
+			  if (log.isInfoEnabled()) {
+				  log.info("An optimistic locking failure occurred while attempting to save scores and comments for gb Item " + gradableObjectID);
+			  }
 			  throw new StaleObjectModificationException(ex);
 		  }
 	  }
+  }
+
+  /**
+   * Helper method to retrieve Assignment by ID without stats for the given gradebook.
+   * Reduces code duplication in several areas.
+   * 
+   * @param gradebookUID
+   * @param gradeableObjectID
+   * @return
+   */
+  private Assignment getAssignmentWithoutStatsByID(final String gradebookUID, final Long gradeableObjectID) {
+	  return (Assignment) getHibernateTemplate().execute(new HibernateCallback() {
+		  public Object doInHibernate(Session session) throws HibernateException {
+			  return getAssignmentWithoutStats(gradebookUID, gradeableObjectID, session);
+		  }
+	  });
   }
 
   /**
@@ -2519,11 +2493,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        		gradebookUid + " gradebookItemId:" + gradebookItemId);
 	    }
 	    
-	    Assignment gbItem = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                return getAssignmentWithoutStats(gradebookUid, gradebookItemId, session);
-            }
-        });
+	    Assignment gbItem = getAssignmentWithoutStatsByID(gradebookUid, gradebookItemId);
 	    
 	    if (gbItem == null) {
 	        throw new AssessmentNotFoundException("No gradebook item found with id " + gradebookItemId);

@@ -8,7 +8,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.sakaiproject.gradebookng.business.importExport.ImportHeadingValidationReport;
+import org.sakaiproject.gradebookng.business.importExport.HeadingValidationReport;
 import org.sakaiproject.gradebookng.business.importExport.UserIdentifier;
 import org.sakaiproject.gradebookng.business.importExport.UserIdentifierFactory;
 
@@ -28,7 +28,7 @@ public class ImportedSpreadsheetWrapper implements Serializable {
 	private UserIdentifier userIdentifier;
 
 	@Getter
-	private final ImportHeadingValidationReport headingReport;
+	private final HeadingValidationReport headingReport;
 
 	@Getter
 	@Setter
@@ -38,7 +38,7 @@ public class ImportedSpreadsheetWrapper implements Serializable {
 		rows = new ArrayList<>();
 		columns = new ArrayList<>();
 		userIdentifier = null;
-		headingReport = new ImportHeadingValidationReport();
+		headingReport = new HeadingValidationReport();
 		isDPC = false;
 	}
 

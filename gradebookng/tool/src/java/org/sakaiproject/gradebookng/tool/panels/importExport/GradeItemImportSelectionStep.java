@@ -14,8 +14,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Check;
 import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.CheckGroupSelector;
@@ -30,6 +30,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 
@@ -38,7 +39,6 @@ import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
  */
 @Slf4j
 public class GradeItemImportSelectionStep extends Panel {
-	private static final long serialVersionUID = 1L;
 
 	private final String panelId;
 	private final IModel<ImportWizardModel> model;
@@ -71,7 +71,6 @@ public class GradeItemImportSelectionStep extends Panel {
 
 		// label to show if all items are actually hidden
 		final Label allHiddenLabel = new Label("allHiddenLabel", new ResourceModel("importExport.selection.hideitemsallhidden")) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public boolean isVisible() {
@@ -83,7 +82,6 @@ public class GradeItemImportSelectionStep extends Panel {
 
 		// button to hide NA/no changes items
 		final AjaxLink<Void> hideNoChanges = new AjaxLink<Void>("hideNoChanges") {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
@@ -115,92 +113,95 @@ public class GradeItemImportSelectionStep extends Panel {
 
 		final CheckGroup<ProcessedGradeItem> group = new CheckGroup<>("group", new ArrayList<ProcessedGradeItem>());
 
-		final Form<?> form = new Form("form") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit() {
-				boolean validated = true;
-
-				final List<ProcessedGradeItem> selectedGradeItems = (List<ProcessedGradeItem>) group.getModelObject();
-				log.debug("Processed items: " + selectedGradeItems.size());
-
-				// this has an odd model so we need to have the validation in the onSubmit.
-				if (selectedGradeItems.isEmpty()) {
-					validated = false;
-					error(getString("importExport.selection.noneselected"));
-				}
-
-				if (validated) {
-
-					// clear any previous errors
-					final ImportExportPage page = (ImportExportPage) getPage();
-					page.clearFeedback();
-
-					// Process the selected items into the create/update lists
-					final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(selectedGradeItems,
-							Arrays.asList(ProcessedGradeItemStatus.STATUS_UPDATE, ProcessedGradeItemStatus.STATUS_NA));
-					final List<ProcessedGradeItem> itemsToCreate = filterListByStatus(selectedGradeItems,
-							Arrays.asList(ProcessedGradeItemStatus.STATUS_NEW));
-					final List<ProcessedGradeItem> itemsToModify = filterListByStatus(selectedGradeItems,
-							Arrays.asList(ProcessedGradeItemStatus.STATUS_MODIFIED));
-
-					log.debug("Filtered Update items: " + itemsToUpdate.size());
-					log.debug("Filtered Create items: " + itemsToCreate.size());
-					log.debug("Filtered Modify items: " + itemsToModify.size());
-
-					// Don't want comment items here
-					// TODO using N/A to indicate this is a comment column? How about an enum...
-					itemsToCreate.removeIf(i -> StringUtils.equals("N/A", i.getItemPointValue()));
-					log.debug("Actual items to create: " + itemsToCreate.size());
-
-					// repaint panel
-					Component newPanel;
-					importWizardModel.setSelectedGradeItems(selectedGradeItems);
-					importWizardModel.setItemsToCreate(itemsToCreate);
-					importWizardModel.setItemsToUpdate(itemsToUpdate);
-					importWizardModel.setItemsToModify(itemsToModify);
-
-					// create those that need to be created. When finished all, continue.
-					if (itemsToCreate.size() > 0) {
-						importWizardModel.setStep(1);
-						importWizardModel.setTotalSteps(itemsToCreate.size());
-						newPanel = new CreateGradeItemStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
-					} else {
-						newPanel = new GradeImportConfirmationStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
-					}
-					newPanel.setOutputMarkupId(true);
-					GradeItemImportSelectionStep.this.replaceWith(newPanel);
-				}
-
-			}
-		};
+		final Form<?> form = new Form("form");
 		add(form);
 		form.add(group);
 
-		final Button backButton = new Button("backbutton") {
-			private static final long serialVersionUID = 1L;
-
+		final SakaiAjaxButton backButton = new SakaiAjaxButton("backbutton") {
 			@Override
-			public void onSubmit() {
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();
+				target.add(page.feedbackPanel);
 
-				final Component newPanel = new GradeImportUploadStep(GradeItemImportSelectionStep.this.panelId);
-				newPanel.setOutputMarkupId(true);
-				GradeItemImportSelectionStep.this.replaceWith(newPanel);
+				// Create the previous panel
+				final Component previousPanel = new GradeImportUploadStep(GradeItemImportSelectionStep.this.panelId);
+				previousPanel.setOutputMarkupId(true);
+
+				// AJAX the previous panel into place
+				WebMarkupContainer container = page.container;
+				container.addOrReplace(previousPanel);
+				target.add(container);
 			}
 		};
 		backButton.setDefaultFormProcessing(false);
 		group.add(backButton);
 
-		group.add(new Button("nextbutton"));
+		final SakaiAjaxButton nextButton = new SakaiAjaxButton("nextbutton") {
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+				final List<ProcessedGradeItem> selectedGradeItems = (List<ProcessedGradeItem>) group.getModelObject();
+				log.debug("Processed items: " + selectedGradeItems.size());
+
+				// this has an odd model so we need to have the validation in the onSubmit.
+				final ImportExportPage page = (ImportExportPage) getPage();
+				if (selectedGradeItems.isEmpty()) {
+					error(getString("importExport.selection.noneselected"));
+					target.add(page.feedbackPanel);
+					return;
+				}
+
+				// clear any previous errors
+				page.clearFeedback();
+				target.add(page.feedbackPanel);
+
+				// Process the selected items into the create/update lists
+				final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(selectedGradeItems,
+						Arrays.asList(ProcessedGradeItemStatus.STATUS_UPDATE, ProcessedGradeItemStatus.STATUS_NA));
+				final List<ProcessedGradeItem> itemsToCreate = filterListByStatus(selectedGradeItems,
+						Arrays.asList(ProcessedGradeItemStatus.STATUS_NEW));
+				final List<ProcessedGradeItem> itemsToModify = filterListByStatus(selectedGradeItems,
+						Arrays.asList(ProcessedGradeItemStatus.STATUS_MODIFIED));
+
+				log.debug("Filtered Update items: " + itemsToUpdate.size());
+				log.debug("Filtered Create items: " + itemsToCreate.size());
+				log.debug("Filtered Modify items: " + itemsToModify.size());
+
+				// Don't want comment items here
+				// TODO using N/A to indicate this is a comment column? How about an enum...
+				itemsToCreate.removeIf(i -> StringUtils.equals("N/A", i.getItemPointValue()));
+				log.debug("Actual items to create: " + itemsToCreate.size());
+
+				// repaint panel
+				Component newPanel;
+				importWizardModel.setSelectedGradeItems(selectedGradeItems);
+				importWizardModel.setItemsToCreate(itemsToCreate);
+				importWizardModel.setItemsToUpdate(itemsToUpdate);
+				importWizardModel.setItemsToModify(itemsToModify);
+
+				// create those that need to be created. When finished all, continue.
+				if (itemsToCreate.size() > 0) {
+					importWizardModel.setStep(1);
+					importWizardModel.setTotalSteps(itemsToCreate.size());
+					newPanel = new CreateGradeItemStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
+				} else {
+					newPanel = new GradeImportConfirmationStep(GradeItemImportSelectionStep.this.panelId, Model.of(importWizardModel));
+				}
+
+				// AJAX the new panel into place
+				newPanel.setOutputMarkupId(true);
+				WebMarkupContainer container = page.container;
+				container.addOrReplace(newPanel);
+				target.add(newPanel);
+			}
+		};
+		group.add(nextButton);
 
 		group.add(new CheckGroupSelector("groupselector"));
 		final ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades", importWizardModel.getProcessedGradeItems()) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void populateItem(final ListItem<ProcessedGradeItem> item) {
@@ -246,7 +247,6 @@ public class GradeItemImportSelectionStep extends Panel {
 				final ProcessedGradeItemStatus commentStatus = importedItem.getCommentStatus();
 
 				item.add(new Behavior() {
-					private static final long serialVersionUID = 1L;
 
 					@Override
 					public void afterRender(final Component component) {

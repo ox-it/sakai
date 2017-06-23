@@ -1,10 +1,10 @@
 package org.sakaiproject.gradebookng.business.model;
 
+import lombok.Getter;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import lombok.Getter;
 
 import org.sakaiproject.gradebookng.business.finalgrades.GbStudentCourseGradeInfo;
 
@@ -15,7 +15,6 @@ import org.sakaiproject.gradebookng.business.finalgrades.GbStudentCourseGradeInf
  *
  */
 public class GbStudentGradeInfo extends GbStudentCourseGradeInfo implements Serializable {
-	private static final long serialVersionUID = 1L;
 
 	@Getter
 	private Map<Long, GbGradeInfo> grades;
@@ -53,5 +52,4 @@ public class GbStudentGradeInfo extends GbStudentCourseGradeInfo implements Seri
 	public void addCategoryAverage(final Long categoryId, final Double score) {
 		this.categoryAverages.put(categoryId, score);
 	}
-
 }

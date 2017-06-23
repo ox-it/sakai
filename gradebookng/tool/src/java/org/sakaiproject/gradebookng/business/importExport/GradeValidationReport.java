@@ -13,10 +13,10 @@ import lombok.Getter;
 public class GradeValidationReport
 {
     //@Getter
-    //private final SortedMap<String, String> invalidLetterGrades;
+    //private final SortedMap<String, SortedMap<String, String>> invalidLetterGrades;
 
     @Getter
-    private final SortedMap<String, String> invalidNumericGrades;
+    private final SortedMap<String, SortedMap<String, String>> invalidNumericGrades;
 
     public GradeValidationReport()
     {
@@ -24,13 +24,22 @@ public class GradeValidationReport
         invalidNumericGrades = new ConcurrentSkipListMap<>();
     }
 
-    //public void addInvalidLetterGrade( String userEID, String grade )
+    //public void addInvalidLetterGrade( String columnTitle, String userEID, String grade )
     //{
-    //    invalidLetterGrades.put( userEID, grade );
     //}
 
-    public void addInvalidNumericGrade( String userEID, String grade )
+    public void addInvalidNumericGrade( String columnTitle, String userEID, String grade )
     {
-        invalidNumericGrades.put( userEID, grade );
+        SortedMap<String, String> columnInvalidGradesMap = invalidNumericGrades.get( columnTitle );
+        if( columnInvalidGradesMap == null )
+        {
+            columnInvalidGradesMap = new ConcurrentSkipListMap<>();
+            columnInvalidGradesMap.put( userEID, grade );
+            invalidNumericGrades.put( columnTitle, columnInvalidGradesMap );
+        }
+        else
+        {
+            columnInvalidGradesMap.put( userEID, grade );
+        }
     }
 }

@@ -108,6 +108,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 
 	/**
 	 * Gets an anonId for this user (site-wide, Ie. not specific to any particular section). An AnonymousConstraintViolationException will be thrown if an anonId is not found (users should be filtered before invoking this).
+	 * @return
 	 */
 	public String getAnonId()
 	{
@@ -121,6 +122,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	 *     1) A non-blank sectionId is specified, but no anonId is found for that section or
 	 *     2) The sectionId is null / blank, and no anonId is found in the site
 	 * To avoid these, ensure that your student lists are filtered to include only students with anonymousIDs before attempting to do any anonId retrievals
+	 * @return
 	 */
 	public String getAnonId(String sectionId)
 	{
@@ -153,6 +155,8 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 
 	/**
 	 * Uses settings.getGroupFilter to determine which section to look up an anonId for, then invokes getAnonId(String sectionId)
+	 * @param settings
+	 * @return
 	 */
 	public String getAnonId(GradebookUiSettings settings)
 	{

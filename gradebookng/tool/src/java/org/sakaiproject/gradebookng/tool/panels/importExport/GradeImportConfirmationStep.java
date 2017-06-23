@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -22,13 +22,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
+
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
@@ -36,6 +37,9 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.tool.gradebook.Gradebook;
+
 
 /**
  * Confirmation page for what is going to be imported
@@ -65,45 +69,73 @@ public class GradeImportConfirmationStep extends Panel {
 		final List<ProcessedGradeItem> itemsToCreate = importWizardModel.getItemsToCreate();
 		final List<ProcessedGradeItem> itemsToUpdate = importWizardModel.getItemsToUpdate();
 		final List<ProcessedGradeItem> itemsToModify = importWizardModel.getItemsToModify();
-
 		final List<Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
 
-		final Form<?> form = new Form("form") {
+		final Form<?> form = new Form("form");
+		add(form);
 
-			boolean errors = false;
-
+		// back button
+		final SakaiAjaxButton backButton = new SakaiAjaxButton("backbutton") {
 			@Override
-			protected void onSubmit() {
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
+				// clear any previous errors
+				final ImportExportPage page = (ImportExportPage) getPage();
+				page.clearFeedback();
+				target.add(page.feedbackPanel);
+
+				// Create the previous panel
+				Component previousPanel;
+				if (assignmentsToCreate.size() > 0) {
+					previousPanel = new CreateGradeItemStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
+				} else {
+					previousPanel = new GradeItemImportSelectionStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
+				}
+
+				// AJAX the previous panel into place
+				previousPanel.setOutputMarkupId(true);
+				WebMarkupContainer container = page.container;
+				container.addOrReplace(previousPanel);
+				target.add(container);
+			}
+		};
+		backButton.setDefaultFormProcessing(false);
+		form.add(backButton);
+
+		// finish button
+		final SakaiAjaxButton finishButton = new SakaiAjaxButton("finishbutton") {
+			@Override
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+				boolean errors = false;
 				final Map<String, Long> assignmentMap = new HashMap<>();
 				final List<ProcessedGradeItem> itemsToSave = new ArrayList<>();
 
 				// Create new GB items
-				assignmentsToCreate.forEach(assignment -> {
+				for (Assignment assignment : assignmentsToCreate) {
 
 					Long assignmentId = null;
-
 					try {
 						assignmentId = GradeImportConfirmationStep.this.businessService.addAssignment(assignment);
 					} catch (final AssignmentHasIllegalPointsException e) {
-						getSession().error(new ResourceModel("error.addgradeitem.points").getObject());
-						this.errors = true;
+						error(new ResourceModel("error.addgradeitem.points").getObject());
+						errors = true;
 					} catch (final ConflictingAssignmentNameException e) {
-						getSession().error(new ResourceModel("error.addgradeitem.title").getObject());
-						this.errors = true;
+						error(new ResourceModel("error.addgradeitem.title").getObject());
+						errors = true;
 					} catch (final ConflictingExternalIdException e) {
-						getSession().error(new ResourceModel("error.addgradeitem.exception").getObject());
-						this.errors = true;
+						error(new ResourceModel("error.addgradeitem.exception").getObject());
+						errors = true;
 					} catch (final Exception e) {
-						getSession().error(new ResourceModel("error.addgradeitem.exception").getObject());
-						this.errors = true;
+						error(new ResourceModel("error.addgradeitem.exception").getObject());
+						errors = true;
 					}
 
 					assignmentMap.put(StringUtils.trim(assignment.getName()), assignmentId);
-				});
+				}
 
 				//Modify any that need modification
-				itemsToModify.forEach(item -> {
+				for (ProcessedGradeItem item : itemsToModify) {
 
 					final Double points = NumberUtils.toDouble(item.getItemPointValue());
 					final Assignment assignment = businessService.getAssignment(item.getItemTitle());
@@ -111,119 +143,77 @@ public class GradeImportConfirmationStep extends Panel {
 
 					final boolean updated = businessService.updateAssignment(assignment);
 					if(!updated) {
-						getSession().error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
-						this.errors = true;
+						error(MessageHelper.getString("importExport.error.pointsmodification", assignment.getName()));
+						errors = true;
 					}
 
 					assignmentMap.put(StringUtils.trim(assignment.getName()), assignment.getId());
-				});
+				}
 
 				// add/update the data
-				if (!this.errors) {
+				if (!errors) {
 
 					itemsToSave.addAll(itemsToUpdate);
 					itemsToSave.addAll(itemsToCreate);
 					itemsToSave.addAll(itemsToModify);
 
-					itemsToSave.forEach(processedGradeItem -> {
+					final Gradebook gradebook = businessService.getGradebook();
+					for (ProcessedGradeItem processedGradeItem : itemsToSave) {
 						log.debug("Processing item: {}", processedGradeItem);
 
+						//get data
+						// if its an update/modify, this will get the id
+						Long assignmentId = processedGradeItem.getItemId();
+
+						//if assignment title was modified, we need to use that instead
+						final String assignmentTitle = StringUtils.trim((processedGradeItem.getAssignmentTitle() != null) ? processedGradeItem.getAssignmentTitle() : processedGradeItem.getItemTitle());
+
+						// a newly created assignment will have a null ID here and need a lookup from the map to get the ID
+						if (assignmentId == null) {
+							assignmentId = assignmentMap.get(assignmentTitle);
+						}
+						//TODO if assignmentId is still null, there will be a problem
+
+						// Get the assignment
+						final Assignment assignment = businessService.getAssignment(assignmentId);
+
 						final List<ProcessedGradeItemDetail> processedGradeItemDetails = processedGradeItem.getProcessedGradeItemDetails();
+						List<GradeDefinition> gradeDefList = new ArrayList<>();
+						for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItemDetails) {
+							GradeDefinition gradeDef = new GradeDefinition();
+							gradeDef.setStudentUid(processedGradeItemDetail.getUser().getUserUuid());
+							gradeDef.setGrade(processedGradeItemDetail.getGrade());
+							gradeDef.setGradeComment(processedGradeItemDetail.getComment());
+							gradeDefList.add(gradeDef);
+						}
 
-						processedGradeItemDetails.forEach(processedGradeItemDetail -> {
-							log.debug("Processing detail: {}", processedGradeItemDetail);
-
-							//get data
-							// if its an update/modify, this will get the id
-							Long assignmentId = processedGradeItem.getItemId();
-
-							//if assignment title was modified, we need to use that instead
-							final String assignmentTitle = StringUtils.trim((processedGradeItem.getAssignmentTitle() != null) ? processedGradeItem.getAssignmentTitle() : processedGradeItem.getItemTitle());
-
-							// a newly created assignment will have a null ID here and need a lookup from the map to get the ID
-							if (assignmentId == null) {
-								assignmentId = assignmentMap.get(assignmentTitle);
-							}
-							//TODO if assignmentId is still null, there will be a problem
-
-							final GradeSaveResponse saveResponse = businessService.saveGrade(assignmentId,
-									processedGradeItemDetail.getUser().getUserUuid(),
-									processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
-
-							// handle the response types
-							switch(saveResponse) {
-								case OK:
-									// sweet
-									break;
-								case OVER_LIMIT:
-									// no worries!
-									break;
-								case NO_CHANGE:
-									// Try to save just the comments
-									final String currentComment = StringUtils.trimToNull(businessService.getAssignmentGradeComment(assignmentId, processedGradeItemDetail.getUser().getUserUuid()));
-									final String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
-
-									if (!StringUtils.equals(currentComment, newComment)) {
-										final boolean success = businessService.updateAssignmentGradeComment(assignmentId, processedGradeItemDetail.getUser().getUserUuid(), newComment);
-										log.debug("Saving comment: {}, {}, {}, {}", success, assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getComment());
-										if (!success) {
-											getSession().error(new ResourceModel("importExport.error.comment").getObject());
-											this.errors = true;
-										}
-									}
-									break;
-								case CONCURRENT_EDIT:
-									// this will be handled eventually
-									break;
-								case ERROR:
-									// uh oh
-									getSession().error(new ResourceModel("importExport.error.grade").getObject());
-									this.errors = true;
-									break;
-								default:
-									break;
-							}
-
-							log.debug("Saving grade for assignment id: {}, student: {}, grade: {}, comment: {}, status: {}", assignmentId, processedGradeItemDetail.getUser().getDisplayId(), processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment(), saveResponse);
-						});
-					});
+						final GradeSaveResponse saveResponse = businessService.saveGradesAndCommentsForImport(gradebook, assignment, gradeDefList);
+						switch (saveResponse) {
+							case OK:
+								break;
+							case ERROR:
+								error(new ResourceModel("importExport.error.grade").getObject());
+								errors = true;
+								break;
+							default:
+								break;
+						}
+					}
 				}
 
-				if (!this.errors) {
+				final ImportExportPage page = (ImportExportPage) getPage();
+				if (!errors) {
+					// Clear any previous errors
+					page.clearFeedback();
 					getSession().success(getString("importExport.confirmation.success"));
 					setResponsePage(GradebookPage.class);
-				}
-				//auto refresh will render the errors
-			}
-		};
-		add(form);
-
-		// back button
-		final Button backButton = new Button("backbutton") {
-
-			@Override
-			public void onSubmit() {
-
-				// clear any previous errors
-				final ImportExportPage page = (ImportExportPage) getPage();
-				page.clearFeedback();
-
-				Component newPanel;
-				if (assignmentsToCreate.size() > 0) {
-					newPanel = new CreateGradeItemStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
 				} else {
-					newPanel = new GradeItemImportSelectionStep(GradeImportConfirmationStep.this.panelId, Model.of(importWizardModel));
+					// Present errors to the user
+					target.add(page.feedbackPanel);
 				}
-
-				newPanel.setOutputMarkupId(true);
-				GradeImportConfirmationStep.this.replaceWith(newPanel);
 			}
 		};
-		backButton.setDefaultFormProcessing(false);
-		form.add(backButton);
-
-		// finish button
-		form.add(new Button("finishbutton"));
+		form.add(finishButton);
 
 		// render items to be updated
 		final boolean hasItemsToUpdate = !itemsToUpdate.isEmpty();

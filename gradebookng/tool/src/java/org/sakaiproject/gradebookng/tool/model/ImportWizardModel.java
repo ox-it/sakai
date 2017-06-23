@@ -77,5 +77,5 @@ public class ImportWizardModel implements Serializable {
 	 */
 	@Getter
 	@Setter
-	private UserIdentificationReport report;
+	private UserIdentificationReport userReport;
 }

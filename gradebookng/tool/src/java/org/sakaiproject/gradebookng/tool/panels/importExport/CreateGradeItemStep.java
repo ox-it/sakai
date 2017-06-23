@@ -3,7 +3,6 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -16,6 +15,9 @@ import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 
 /**
  * Importer has detected that items need to be created so extract the data and wrap the 'AddOrEditGradeItemPanelContent' panel
@@ -56,12 +58,14 @@ public class CreateGradeItemStep extends Panel {
         final Model<Assignment> assignmentModel = new Model<>(assignment);
 
         @SuppressWarnings("unchecked")
-        final Form<Assignment> form = new Form("form", assignmentModel) {
+        final Form<Assignment> form = new Form("form", assignmentModel);
+        add(form);
 
+        final SakaiAjaxButton nextButton = new SakaiAjaxButton("nextbutton") {
             @Override
-            protected void onSubmit() {
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
-                final Assignment a = (Assignment)getDefaultModel().getObject();
+                final Assignment a = (Assignment) form.getDefaultModel().getObject();
 
                 //add to model
                 importWizardModel.getAssignmentsToCreate().add(a);
@@ -86,34 +90,41 @@ public class CreateGradeItemStep extends Panel {
                 // clear any previous errors
                 final ImportExportPage page = (ImportExportPage) getPage();
                 page.clearFeedback();
+                target.add(page.feedbackPanel);
 
+                // AJAX the new panel into place
                 newPanel.setOutputMarkupId(true);
-                CreateGradeItemStep.this.replaceWith(newPanel);
-
+                WebMarkupContainer container = page.container;
+                container.addOrReplace(newPanel);
+                target.add(newPanel);
             }
         };
-        add(form);
+        form.add(nextButton);
 
-        final Button backButton = new Button("backbutton") {
-
+        final SakaiAjaxButton backButton = new SakaiAjaxButton("backbutton") {
             @Override
-            public void onSubmit() {
+            public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
                 // clear any previous errors
                 final ImportExportPage page = (ImportExportPage) getPage();
                 page.clearFeedback();
+                target.add(page.feedbackPanel);
 
-                Component newPanel;
+                // Create the previous panel
+                Component previousPanel;
                 if (step > 1) {
                     importWizardModel.setStep(step-1);
-                    newPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
+                    previousPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 }
                 else {
-                    newPanel = new GradeItemImportSelectionStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
+                    previousPanel = new GradeItemImportSelectionStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 }
 
-                newPanel.setOutputMarkupId(true);
-                CreateGradeItemStep.this.replaceWith(newPanel);
+                // AJAX the previous panel into place
+                previousPanel.setOutputMarkupId(true);
+                WebMarkupContainer container = page.container;
+                container.addOrReplace(previousPanel);
+                target.add(container);
             }
         };
         backButton.setDefaultFormProcessing(false);

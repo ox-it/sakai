@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
+import au.com.bytecode.opencsv.CSVWriter;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,6 +17,7 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.time.Duration;
+
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
@@ -24,11 +27,7 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
 public class ExportPanel extends Panel {
-
-	private static final long serialVersionUID = 1L;
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -59,8 +58,7 @@ public class ExportPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		add(new AjaxCheckBox("includeStudentName", Model.of(this.includeStudentName)) {
-			private static final long serialVersionUID = 1L;
+		add(new AjaxCheckBox("includeStudentName", Model.of(includeStudentName)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
@@ -68,8 +66,7 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(ExportPanel.this.includeStudentName);
 			}
 		});
-		add(new AjaxCheckBox("includeStudentId", Model.of(this.includeStudentId)) {
-			private static final long serialVersionUID = 1L;
+		add(new AjaxCheckBox("includeStudentId", Model.of(includeStudentId)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
@@ -77,8 +74,7 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(ExportPanel.this.includeStudentId);
 			}
 		});
-		add(new AjaxCheckBox("includeGradeItemScores", Model.of(this.includeGradeItemScores)) {
-			private static final long serialVersionUID = 1L;
+		add(new AjaxCheckBox("includeGradeItemScores", Model.of(includeGradeItemScores)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
@@ -86,8 +82,7 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(ExportPanel.this.includeGradeItemScores);
 			}
 		});
-		add(new AjaxCheckBox("includeGradeItemComments", Model.of(this.includeGradeItemComments)) {
-			private static final long serialVersionUID = 1L;
+		add(new AjaxCheckBox("includeGradeItemComments", Model.of(includeGradeItemComments)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
@@ -95,8 +90,7 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(ExportPanel.this.includeGradeItemComments);
 			}
 		});
-		add(new AjaxCheckBox("includePoints", Model.of(this.includePoints)) {
-			private static final long serialVersionUID = 1L;
+		add(new AjaxCheckBox("includePoints", Model.of(includePoints)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
@@ -111,8 +105,7 @@ public class ExportPanel extends Panel {
 				return categoryType != GbCategoryType.WEIGHTED_CATEGORY;
 			}
 		});
-		add(new AjaxCheckBox("includeLastLogDate", Model.of(this.includeLastLogDate)) {
-			private static final long serialVersionUID = 1L;
+		add(new AjaxCheckBox("includeLastLogDate", Model.of(includeLastLogDate)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
@@ -120,8 +113,7 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(ExportPanel.this.includeLastLogDate);
 			}
 		});
-		add(new AjaxCheckBox("includeCourseGrade", Model.of(this.includeCourseGrade)) {
-			private static final long serialVersionUID = 1L;
+		add(new AjaxCheckBox("includeCourseGrade", Model.of(includeCourseGrade)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
@@ -129,8 +121,7 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(ExportPanel.this.includeCourseGrade);
 			}
 		});
-		add(new AjaxCheckBox("includeCalculatedGrade", Model.of(this.includeCalculatedGrade)) {
-			private static final long serialVersionUID = 1L;
+		add(new AjaxCheckBox("includeCalculatedGrade", Model.of(includeCalculatedGrade)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
@@ -138,8 +129,7 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(ExportPanel.this.includeCalculatedGrade);
 			}
 		});
-		add(new AjaxCheckBox("includeGradeOverride", Model.of(this.includeGradeOverride)) {
-			private static final long serialVersionUID = 1L;
+		add(new AjaxCheckBox("includeGradeOverride", Model.of(includeGradeOverride)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
@@ -149,7 +139,6 @@ public class ExportPanel extends Panel {
 		});
 
 		add(new DownloadLink("downloadFullGradebook", new LoadableDetachableModel<File>() {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected File load() {
@@ -169,7 +158,6 @@ public class ExportPanel extends Panel {
 		}, buildFileName()).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
 
 		add(new DownloadLink("downloadCustomGradebook", new LoadableDetachableModel<File>() {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected File load() {
@@ -184,123 +172,111 @@ public class ExportPanel extends Panel {
 
 		try {
 			tempFile = File.createTempFile("gradebookTemplate", ".csv");
-			final FileWriter fw = new FileWriter(tempFile);
-			final CSVWriter csvWriter = new CSVWriter(fw);
+			try (FileWriter fw = new FileWriter(tempFile); CSVWriter csvWriter = new CSVWriter(fw)) {
 
-			// Create csv header
-			final List<String> header = new ArrayList<String>();
-			if (!isCustomExport || this.includeStudentId) {
-				header.add(getString("importExport.export.csv.headers.studentId"));
-			}
-			if (!isCustomExport || this.includeStudentName) {
-				header.add(getString("importExport.export.csv.headers.studentName"));
-			}
-
-			// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-			final List<Assignment> assignments = this.businessService.getGradebookAssignments();
-
-			//build column header
-			assignments.forEach(assignment -> {
-				final String assignmentPoints = assignment.getPoints().toString();
-				if (!isCustomExport || this.includeGradeItemScores) {
-					header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
+				// Create csv header
+				final List<String> header = new ArrayList<>();
+				if (!isCustomExport || includeStudentId) {
+					header.add(getString("importExport.export.csv.headers.studentId"));
 				}
-				if (!isCustomExport || this.includeGradeItemComments) {
-					header.add("* " + assignment.getName());
-				}
-			});
-
-			if (isCustomExport && this.includePoints) {
-				header.add(String.format("%s%s",
-					CUSTOM_EXPORT_COLUMN_PREFIX,
-					getString("importExport.export.csv.headers.points")));
-			}
-			if (isCustomExport && this.includeCalculatedGrade) {
-				header.add(String.format("%s%s",
-					CUSTOM_EXPORT_COLUMN_PREFIX,
-					getString("importExport.export.csv.headers.calculatedGrade")));
-			}
-			if (isCustomExport && this.includeCourseGrade) {
-				header.add(String.format("%s%s",
-					CUSTOM_EXPORT_COLUMN_PREFIX,
-					getString("importExport.export.csv.headers.courseGrade")));
-			}
-			if (isCustomExport && this.includeGradeOverride) {
-				header.add(String.format("%s%s",
-					CUSTOM_EXPORT_COLUMN_PREFIX,
-					getString("importExport.export.csv.headers.gradeOverride")));
-			}
-			if (isCustomExport && this.includeLastLogDate) {
-				header.add(String.format("%s%s",
-					CUSTOM_EXPORT_COLUMN_PREFIX,
-					getString("importExport.export.csv.headers.lastLogDate")));
-			}
-
-			csvWriter.writeNext(header.toArray(new String[] {}));
-
-			// get the grade matrix
-			final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForExport(assignments);
-
-			//add grades
-			grades.forEach(studentGradeInfo -> {
-				final List<String> line = new ArrayList<>();
-				if (!isCustomExport || this.includeStudentId) {
-					line.add(studentGradeInfo.getStudent().getEid());
-				}
-				if (!isCustomExport ||this.includeStudentName) {
-					line.add(studentGradeInfo.getStudent().getLastName() + ", " + studentGradeInfo.getStudent().getFirstName());
-				}
-				if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
-					assignments.forEach(assignment -> {
-						final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
-						if (gradeInfo != null) {
-							if (!isCustomExport || this.includeGradeItemScores) {
-								line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
-							}
-							if (!isCustomExport || this.includeGradeItemComments) {
-								line.add(gradeInfo.getGradeComment());
-							}
-						} else {
-							// Need to account for no grades
-							if (!isCustomExport || this.includeGradeItemScores) {
-								line.add(null);
-							}
-							if (!isCustomExport || this.includeGradeItemComments) {
-								line.add(null);
-							}
-						}
-					});
+				if (!isCustomExport || includeStudentName) {
+					header.add(getString("importExport.export.csv.headers.studentName"));
 				}
 
-				final GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
-				final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
+				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
+				final List<Assignment> assignments = businessService.getGradebookAssignments();
 
-				if (isCustomExport && this.includePoints) {
-					line.add(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()));
-				}
-				if (isCustomExport && this.includeCalculatedGrade) {
-					line.add(courseGrade.getCalculatedGrade());
-				}
-				if (isCustomExport && this.includeCourseGrade) {
-					line.add(courseGrade.getMappedGrade());
-				}
-				if (isCustomExport && this.includeGradeOverride) {
-					line.add(courseGrade.getEnteredGrade());
-				}
-				if (isCustomExport && this.includeLastLogDate) {
-					if (courseGrade.getDateRecorded() == null) {
-						line.add(null);
-					} else {
-						line.add(FormatHelper.formatDateTime(courseGrade.getDateRecorded()));
+				//build column header
+				assignments.forEach(assignment -> {
+					final String assignmentPoints = assignment.getPoints().toString();
+					if (!isCustomExport || includeGradeItemScores) {
+						header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
 					}
+					if (!isCustomExport || includeGradeItemComments) {
+						header.add("* " + assignment.getName());
+					}
+				});
+				
+				if (isCustomExport && includePoints) {
+					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.points")));
 				}
+				if (isCustomExport && includeCalculatedGrade) {
+					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.calculatedGrade")));
+				}
+				if (isCustomExport && includeCourseGrade) {
+					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
+				}
+				if (isCustomExport && includeGradeOverride) {
+					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.gradeOverride")));
+				}
+				if (isCustomExport && includeLastLogDate) {
+					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.lastLogDate")));
+				}
+				
+				csvWriter.writeNext(header.toArray(new String[] {}));
+				
+				// get the grade matrix
+				final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments);
 
-				csvWriter.writeNext(line.toArray(new String[] {}));
+				//add grades
+				grades.forEach(studentGradeInfo -> {
+					final List<String> line = new ArrayList<>();
+					if (!isCustomExport || includeStudentId) {
+						line.add(studentGradeInfo.getStudent().getEid());
+					}
+					if (!isCustomExport ||includeStudentName) {
+						line.add(studentGradeInfo.getStudent().getLastName() + ", " + studentGradeInfo.getStudent().getFirstName());
+					}
+					if (!isCustomExport || includeGradeItemScores || includeGradeItemComments) {
+						assignments.forEach(assignment -> {
+							final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
+							if (gradeInfo != null) {
+								if (!isCustomExport || includeGradeItemScores) {
+									line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
+								}
+								if (!isCustomExport || includeGradeItemComments) {
+									line.add(gradeInfo.getGradeComment());
+								}
+							} else {
+								// Need to account for no grades
+								if (!isCustomExport || includeGradeItemScores) {
+									line.add(null);
+								}
+								if (!isCustomExport || includeGradeItemComments) {
+									line.add(null);
+								}
+							}
+						});
+					}
 
-			});
+					final GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
+					final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
 
-			csvWriter.close();
-			fw.close();
+					if (isCustomExport && includePoints) {
+						line.add(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()));
+					}
+					if (isCustomExport && includeCalculatedGrade) {
+						line.add(courseGrade.getCalculatedGrade());
+					}
+					if (isCustomExport && includeCourseGrade) {
+						line.add(courseGrade.getMappedGrade());
+					}
+					if (isCustomExport && includeGradeOverride) {
+						line.add(courseGrade.getEnteredGrade());
+					}
+					if (isCustomExport && includeLastLogDate) {
+						if (courseGrade.getDateRecorded() == null) {
+							line.add(null);
+						} else {
+							line.add(FormatHelper.formatDateTime(courseGrade.getDateRecorded()));
+						}
+					}
+
+					csvWriter.writeNext(line.toArray(new String[] {}));
+
+				});
+
+			}
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -310,8 +286,8 @@ public class ExportPanel extends Panel {
 
 	private String buildFileName() {
 		final String prefix = "gradebook_export";
-		final String extension = this.exportFormat.toString().toLowerCase();
-		String gradebookName = this.businessService.getGradebook().getName();
+		final String extension = exportFormat.toString().toLowerCase();
+		String gradebookName = businessService.getGradebook().getName();
 
 		if (StringUtils.trimToNull(gradebookName) == null) {
 			return String.format("%s.%s", gradebookName, extension);

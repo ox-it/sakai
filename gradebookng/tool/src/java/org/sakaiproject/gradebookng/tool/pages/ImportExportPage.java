@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.tool.panels.importExport.GradeImportUploadStep;
 
@@ -14,12 +15,15 @@ import org.sakaiproject.gradebookng.tool.panels.importExport.GradeImportUploadSt
  */
 public class ImportExportPage extends BasePage {
 
-	private static final long serialVersionUID = 1L;
+	public WebMarkupContainer container;
 
 	public ImportExportPage() {
 		disableLink(this.importExportPageLink);
 
-		add(new GradeImportUploadStep("wizard"));
+		container = new WebMarkupContainer("gradebookImportExportContainer");
+		container.setOutputMarkupId(true);
+		container.add(new GradeImportUploadStep("wizard"));
+		add(container);
 	}
 
 	@Override

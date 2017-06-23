@@ -10,7 +10,7 @@ import lombok.Getter;
  * 
  * @author plukasew, bjones86
  */
-public class ImportHeadingValidationReport
+public class HeadingValidationReport
 {
     @Getter
     private final SortedSet<String> duplicateHeadings;
@@ -19,18 +19,27 @@ public class ImportHeadingValidationReport
     private final SortedSet<String> invalidHeadings;
 
     @Getter
+    private final SortedSet<String> orphanedCommentHeadings;
+
+    @Getter
     private int blankHeaderTitleCount;
 
-    public ImportHeadingValidationReport()
+    public HeadingValidationReport()
     {
         duplicateHeadings = new ConcurrentSkipListSet<>();
         invalidHeadings = new ConcurrentSkipListSet<>();
+        orphanedCommentHeadings = new ConcurrentSkipListSet<>();
         blankHeaderTitleCount = 0;
     }
 
     public void addDuplicateHeading( String heading )
     {
         duplicateHeadings.add( heading );
+    }
+
+    public void addOrphanedCommentHeading( String heading )
+    {
+        orphanedCommentHeadings.add( heading );
     }
 
     public void addInvalidHeading( String heading )
