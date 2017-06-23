@@ -178,8 +178,8 @@ $skin-with-icons: true !default;
 $icon-size: 20px !default;
 
 /* Footer */
-$footer-background: transparent !default;
-$footer-color: $background-color-secondary !default;
+$footer-background: $primary-color !default;
+$footer-color: #fff !default;
 
 @import "customization"; //it is created on-the-fly by maven.
 

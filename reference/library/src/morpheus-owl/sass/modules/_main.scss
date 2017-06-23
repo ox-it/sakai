@@ -25,7 +25,12 @@
 	@include align-items(stretch);
 	@include display-flex(flex);
 	@include flex-direction(row);
-	> .#{$namespace}pagebody{
+	> .#{$namespace}pagebody
+	{
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
 		width: 100%;
 	}
 	@media #{$phone}{
@@ -80,16 +85,65 @@
 	background: $footer-background;
 }
 
-.#{$namespace}footer{
+.#{$namespace}footer
+{
 	color: $footer-color;
-	padding: 0.8em;
-	font-size: 0.8em;
-	#footer-links{
+	padding: 1em;
+	font-size: $smaller-font-size;
+	
+	a 
+	{
+		color: #fff;
+	}
+	
+	#footer-links
+	{
 		list-style: none;
 		padding: 0 0 0 0;
-		li{
+		text-align: center;
+		
+		li
+		{
 			display: inline-block;
+			padding: 0 1.5em;
+			border-right: 1px solid $footer-color;
 		}
+		
+		li:last-child
+		{
+			border-right: 0 none;
+		}
+	}
+	
+	.#{$namespace}footer--nav.Mrphs-footer--nav__project 
+	{
+		margin-bottom: 0;
+		padding: 0;
+		list-style: none;
+	}
+	
+	.#{$namespace}footer--nav__build__panel 
+	{
+		margin: 0;
+	}
+	
+	##{$namespace}footer--nav__project--sakai
+	{
+		display: block;
+		margin: 2em;
+		text-align: center;
+	}
+
+	.#{$namespace}footer--nav__project--copyright 
+	{
+		margin-bottom: 1.5em;
+		text-align: center;
+	}
+	
+	.#{$namespace}footer--nav__build__panel 
+	{
+		margin: 0;
+		text-align: center;
 	}
 }
 

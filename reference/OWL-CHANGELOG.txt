@@ -1,3 +1,5 @@
+2017.06.23:
+	- [OWL-2686] Initial styling for the footer
 2017.06.16:
 	- [OWL-2925] Spinner algorithm is applying textContent to invalid input types
 2017.06.15:
