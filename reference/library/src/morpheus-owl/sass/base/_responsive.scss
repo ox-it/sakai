@@ -3,12 +3,14 @@
 body{
 	@media #{$phone}{
 		&.toolsNav--displayed{
-			#toolMenuWrap{
+			#toolMenuWrap
+			{
+				position: absolute;
 				width: 100%;
-				top: 6.3em;
+				top: 3.5em;
 				left: 0px;
 				box-shadow: 0px 0em 1em rgba(0,0,0,0.5);
-				height:95%;
+				height: auto;
 				&:after {
 					bottom: 100%;
 					left: 25%;
@@ -53,10 +55,10 @@ body{
 					list-style: none;
 					padding: 0 0 0 0;
 					li{
-						border-left: 2px solid darken( $tool-menu-background-color, 10% );
-						display: inline-block;
-						margin: -4px -4px 0px 0; //FIX for inline-block extra space.
-						width: calc( 25% - 1px );
+						border-left: 2px solid $tool-sub-menu-border-color;
+						display: block;
+						margin: 0; //FIX for inline-block extra space.
+						width: 100%;
 						&.#{$namespace}collapseTools{
 							display: none;
 						}

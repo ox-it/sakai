@@ -22,7 +22,7 @@ $more-sites-single-column: "only screen and (max-width : #{ $break-more-sites-si
 $font-family-url: "//fonts.googleapis.com/css?family=Noto Sans:400,700" !default;
 
 //Typography variables
-$font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif !default;
+$font-family: "Helvetica Neue", "Nimbus Sans L", "Liberation Sans", Arial, sans-serif !default;
 $default-font-size: 14px !default;
 $smaller-font-size: 0.857em !default; // 12px
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
@@ -41,27 +41,28 @@ $alt-colour: 				 #d36f00 !default;
 
 $text-color:				 #212121 !default;
 
-$portal-background-color: $background-color !default;
+$portal-background-color: 	 $background-color !default;
 
 $tool-background-color:		 $background-color !default;
-$tool-menu-background-color:			 #EBEBEB !default;
+$tool-menu-background-color: #EBEBEB !default;
+$tool-menu-border-color:	 $primary-color !default; // could be #d2d2d2
 $tool-menu-color: 			 #424242 !default;
-$tool-tab-background-color: 			 #F8F8F8 !default;
+$tool-tab-background-color:  #F8F8F8 !default;
 $tool-border-color:			 #E0E0E0 !default;
-$tool-tab-active-background-color: 			 $background-color !default;
-$tool-tab-active-border-color: 	 $background-color !default;
-$tool-menu-hover-color: $tool-background-color !default;
-$tool-menu-hover-background-color: $primary-color !default;
-$tool-menu-current-background-color: $background-color !default;
-$tool-menu-current-color: $primary-color !default;
-$tool-menu-current-border-color: $primary-color !default;
-$tool-sub-menu-border-color: darken( $tool-menu-background-color, 10% ) !default;
-$tool-sub-menu-background-color: darken( $tool-menu-background-color, 10% ) !default;
-$tool-sub-menu-hover-background-color: $primary-color !default;
-$tool-sub-menu-hover-color: #FFF !default;
-$tool-sub-menu-current-color: $primary-color !default;
-$tool-sub-menu-current-background-color: $background-color !default;
-$tool-sub-menu-current-hover-color: $tool-menu-color !default;
+$tool-tab-active-background-color: 	$background-color !default;
+$tool-tab-active-border-color: 	 	$background-color !default;
+$tool-menu-hover-color: 			$tool-menu-color !default;
+$tool-menu-hover-background-color: 	#ddd !default;
+$tool-menu-current-background-color:	$background-color !default;
+$tool-menu-current-color: 			$primary-color !default;
+$tool-menu-current-border-color: 	$primary-color !default;
+$tool-sub-menu-border-color: 		#d2d2d2 !default;
+$tool-sub-menu-background-color: 	darken( $tool-menu-background-color, 10% ) !default;
+$tool-sub-menu-hover-background-color: 	$primary-color !default;
+$tool-sub-menu-hover-color: 		#FFF !default;
+$tool-sub-menu-current-color: 		$primary-color !default;
+$tool-sub-menu-current-background-color:$background-color !default;
+$tool-sub-menu-current-hover-color: 	$tool-menu-color !default;
 $tool-sub-menu-current-hover-background-color: $background-color !default;
 
 $tool-nav-link-color: #666 !default;
@@ -156,8 +157,8 @@ $sites-nav-submenu-item-selected-color:     $sites-nav-menu-item-selected-color 
 $sites-nav-submenu-item-selected-border:    none !default;
 
 /* Tool Menu */
-$tool-menu-width: 12em !default;
-$tool-menu-collapsed-width: 2.5em !default;
+$tool-menu-width: 180px !default;
+$tool-menu-collapsed-width: 42px !default;
 
 /* Navigation Hierarchy */
 $hierarchy-size: 3.5em;

@@ -2,6 +2,7 @@
 
 .Mrphs-toolsNav__menuitem--icon {
   display: block;
+  font-size: $default-font-size;
   line-height: 1.25;
   text-align: center;
 }
@@ -9,7 +10,7 @@
 @if $skin-with-icons {
   [class*="icon-sakai--"] {
     @extend .fa-fw;
-    @extend .fa-lg;
+//  @extend .fa-lg; OWLTODO: needed?
     @extend .fa;
   }
 

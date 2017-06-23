@@ -30,19 +30,26 @@ body.#{$namespace}toolMenu-collapsed{
 			li{
 				a{
 					min-height: 1.7em;
-					&:hover{
-						.#{$namespace}toolsNav__menuitem--title{
+					&:hover, &:focus
+					{
+						.#{$namespace}toolsNav__menuitem--title
+						{
 							position: absolute;
-							display: block;
-							float: right;
-							margin: -1.4em 0em 0em 0.7em;
-							background: $primary-color;
-							padding: 0.85em;
-							border-left: 3px solid $primary-color-shadow;
+							display: flex;
+							align-items: center;
+						//	float: right; 		OWLTODO: needed?
+							margin: 0 0 0 -1px;		// to cover the tool menu's border
+							background: inherit;
+							padding: 1em;
 							z-index: 10;
 							width: auto;
-							border-radius: 0;
-							line-height: 100%;
+							border: 1px solid $tool-sub-menu-border-color;
+							border-left: 0 none;
+							border-radius: 0 5px 5px 0;
+							line-height: 2em; 		// OWLTODO: better way for height?
+							top: -1px;
+							bottom: -1px;
+							left: $tool-menu-collapsed-width; // OWLTODO: 2.5em;
 						}
 					}
 					&.is-invisible {
@@ -87,8 +94,9 @@ body.#{$namespace}toolMenu-collapsed{
 	display: block;
 	min-width: $tool-menu-width;
 	width: $tool-menu-width;
-	@include flex-basis( 7.5em );
-	margin: -2.55em 0 0 0;
+	@include flex-basis( #{$tool-menu-width} );
+	margin: -35px 0 0 0; // OWLTODO: remove the need for this negative margin by changing the markup
+	border-right: 1px solid $tool-menu-border-color;
 	text-align: center;
 	@include transition( left 0.25s linear 0s );
 	
@@ -243,26 +251,45 @@ nav#subSites{
 				margin: 0;
 			}
 			a{
-				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
-				color: $tool-menu-color;
+				position: relative;
 				display: flex;
 				align-items: center;
+			    min-height: 3.5em;
+				padding: 1em;
+				border-bottom: 1px solid $tool-sub-menu-border-color;
 				font-family: $header-font-family;
 				font-weight: $default-font-weight;
 				font-size: $smaller-font-size;
 			    line-height: 1.25;
-			    min-height: 3.5em;
-				padding: $standard-padding;
+				color: $tool-menu-color;
 				text-align: left;
 				text-decoration: none;
-				&:hover{
+				
+				&:before
+				{
+					content: "";
+					display: inline-block;
+					// height: 100%;		OWLTODO: needed?
+					position: absolute;
+					top: -1px;			//cover top border
+					bottom: -1px;		//cover bottom border
+					left: 0;
+					border-left: 4px solid transparent;
+				}
+				&:hover, &:focus
+				{
 					background: $tool-menu-hover-background-color;
 					color: $tool-menu-hover-color;
+					
+					&:before
+					{
+						border-left-color: $tool-menu-color;
+					}
 				}
+				
 				@media #{$phone}{
-					height:  5.5em;
+					min-height:  3em;
 					overflow: hidden;
-					padding: 0.85em 0.25em 0.1em;
 				}
 				.#{$namespace}toolsNav__menuitem--title{
 					display: block;
@@ -270,38 +297,47 @@ nav#subSites{
 					text-overflow: ellipsis;
 					white-space: pre-wrap;
 					overflow: hidden;
-					margin: 0 0 0 $standard-padding; /* space between tool name and icon */
+					margin: 0 0 0 1em; /* space between tool name and icon; matches link padding above */
 				}
 				&.is-invisible {
-					color: #AAAAAA;
+					// color: #AAAAAA; 		OWLTODO: do we need to change the colour?
 					font-style: italic;
 					position: relative;
 					&:after {
 						@extend .fa-lg;
 						@extend .fa;
 						content: '\f070';
-						position: absolute;
-						top: 4px;
-						right: 4px;
-					}
-					.#{$namespace}toolsNav__menuitem--icon{
-						font-style: italic;
+						position: relative;
 					}
 				}
 			}
 			&.is-current{
 				background: $tool-menu-current-background-color;
+				margin-right: -1px; 	// to overlap the toolMenuWrap's right border to look like a tab
+
 				a{
-					border-left: 4px solid $tool-menu-current-border-color;
+					// border-left: 4px solid $tool-menu-current-border-color;
 					border-bottom: 1px solid $tool-menu-current-border-color;
 					color: $tool-menu-current-color;
+					
 					.#{$namespace}toolsNav__menuitem--title{
 						font-weight: 700;
 					}
-					&:hover{
-						background: $tool-menu-hover-background-color;
-						color: $tool-menu-hover-color;
+					&:before
+					{
+						border-left-color: $primary-color;
 					}
+					&:hover, &:focus
+					{
+						background: $tool-menu-current-background-color;
+						color: $tool-menu-current-color;
+						
+						&:before
+						{
+							border-left-color: $tool-menu-current-border-color;
+						}
+					}
+					
 					@media #{$phone}{
 						border: 1px solid $tool-menu-current-border-color;
 						border-left: 1px solid $tool-menu-current-border-color;
