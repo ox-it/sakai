@@ -285,19 +285,29 @@ public class GradebookPage extends BasePage implements IGradesPage
 		assignments = this.businessService.getGradebookAssignments(sortBy);
 		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
 
-		// The anonymous toggle should be visible if the site has anonymous IDs, and there are both anonymous and normal assignments.
-		// In the case that all assignments are anonymous, the toggle should be invisible, and the context locked to anonymous
+		// The anonymous toggle should be visible if the site has anonymous IDs, and there is both anonymous and normal content to view.
 		boolean anonToggleVisible = false;
 		boolean siteHasAnonIds = !businessService.getAnonGradingIDsForCurrentSite().isEmpty();
 		if (siteHasAnonIds)
 		{
+			// Cases:
+			// 1) Assignments all normal / empty: invisible & force context=normal
+			// 2) Assignments mixed: visible
+			// 3) Assignments all anonymous:
+			//    a) none count towards course grade?: visible (content is mixed since course grades are normal)
+			//    b) some count towards course grade?: invisible & force context = anonymous
 			boolean hasNormal = false;
 			boolean hasAnon = false;
+			boolean hasCountingAnon = false;
 			for (Assignment assignment : assignments)
 			{
 				if (assignment.isAnon())
 				{
 					hasAnon = true;
+					if (assignment.isCounted())
+					{
+						hasCountingAnon = true;
+					}
 				}
 				else
 				{
@@ -306,15 +316,35 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 				if (hasNormal && hasAnon)
 				{
+					// Case 2) mixed scenario
 					anonToggleVisible = true;
 					break;
 				}
 			}
 
-			if (hasAnon && !hasNormal)
+			if (!hasAnon)
 			{
-				// only anonymous items exist; set the context to anonymous
-				settings.setContextAnonymous(true);
+				// Case 1) Assignments are all normal / empty
+				// Force this just in case an anonymous item was recently deleted and everything remaining is normal
+				settings.setContextAnonymous(false);
+			}
+			else if (!hasNormal)
+			{
+				// Case 3) Assignments are all anonymous
+				if (!hasCountingAnon)
+				{
+					// Case 3 a)
+					// All assignmnents are anonymous, but none of them count toward the course grade.
+					// Without counting items, the course grade is considered normal.
+					// Content is mixed; the toggle needs to be visible
+					anonToggleVisible = true;
+				}
+				else
+				{
+					// case 3 b)
+					// only anonymous items exist and the course grade is anonymous; force the context to anonymous
+					settings.setContextAnonymous(true);
+				}
 			}
 		}
 		anonymousToggle.setVisible(anonToggleVisible);
