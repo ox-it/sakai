@@ -705,17 +705,6 @@ body.is-logged-out{
 					border-bottom: $sites-nav-menu-item-selected-border-bottom; /* to pre-allocate space for dropdown top border needed for illusion */
 					border-left: $sites-nav-menu-item-selected-border-left;
 					/*border-radius: 4px;*/
-					
-					&::after
-					{
-						content: "";
-						position: absolute;
-						bottom: -8px;
-						left: 0.65em;
-						width: 0;
-						border: 5px solid transparent;
-						border-bottom-color: #fff;
-					}
 				}
 				ul{
 					background: $sites-nav-menu-item-selected-background;
