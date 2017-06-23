@@ -94,6 +94,7 @@ body.#{$namespace}toolMenu-collapsed{
 	display: block;
 	min-width: $tool-menu-width;
 	width: $tool-menu-width;
+	min-height: 100vh;
 	@include flex-basis( #{$tool-menu-width} );
 	margin: -35px 0 0 0; // OWLTODO: remove the need for this negative margin by changing the markup
 	border-right: 1px solid $tool-menu-border-color;
@@ -208,22 +209,34 @@ nav#subSites{
 #toolMenu, #subSites{
 	ul{
 		padding: 0;
-		margin:  0;
+		margin: 0;
+		
+		@media #{$nonPhone}
+		{
+			margin-bottom: 4em; // space at the bottom of the list to avoid the collapse button overlapping tools
+		}
+			
 		li{
 			line-height: 0;
 			&.#{$namespace}collapseTools
 			{
+				position: fixed;
+				bottom: 0;
+				left: 0; // OWLTODO: get rid of this, but fix the width issue
+				z-index: 1;
 				display:flex;
 				align-items:center;
 				justify-content:flex-end; /* right-align the arrows when expanded */
+				width: calc(#{$tool-menu-width} - 1px); /* width minus 1px border; using variable fix from https://github.com/sass/sass/issues/818 */;
 				height:3em;
 				padding: 0 1em;
 				border-right: 1px solid $tool-menu-background-color;
-				border-bottom: 1px solid darken( $tool-menu-background-color, 10% );
 				cursor:pointer;
 				font-size: 1.2em;
 				background-color: $tool-tab-background-color;
-				&:hover
+				box-shadow: 0 -1px 3px rgba(0,0,0,0.3);
+			
+				&:hover, &:focus
 				{
 					background: $tool-menu-hover-background-color;
 					color: $tool-menu-hover-color;
@@ -231,6 +244,7 @@ nav#subSites{
 				&.min
 				{
 					justify-content:center; /* center the arrows when collapsed */
+					width: calc(#{$tool-menu-collapsed-width} - 1px); /* width minus 1px border; using variable fix from https://github.com/sass/sass/issues/818 */;;
 				}
 				
 				i
