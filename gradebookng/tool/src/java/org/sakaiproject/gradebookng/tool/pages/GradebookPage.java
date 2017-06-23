@@ -354,52 +354,55 @@ public class GradebookPage extends BasePage implements IGradesPage
 			cols.add(new StudentNumberColumn());
 		}
 
-		// OWLTODO: only if course grade anonymity matches isContextAnonymous
-		// course grade column
-		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
-		final AbstractColumn courseGradeColumn = new AbstractColumn(new Model("")) {
-			@Override
-			public Component getHeader(final String componentId) {
-				return new CourseGradeColumnHeaderPanel(componentId, Model.of(settings.getShowPoints()));
-			}
-
-			@Override
-			public String getCssClass() {
-				final String cssClass = COURSE_GRADE_COL_CSS_CLASS;
-				if (settings.getShowPoints()) {
-					return cssClass + " points";
-				} else {
-					return cssClass;
+		boolean isCourseGradeColumnDisplayed = isContextAnonymous == businessService.isCourseGradePureAnonForAllAssignments(assignments);
+		if (isCourseGradeColumnDisplayed)
+		{
+			// course grade column
+			final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
+			final AbstractColumn courseGradeColumn = new AbstractColumn(new Model("")) {
+				@Override
+				public Component getHeader(final String componentId) {
+					return new CourseGradeColumnHeaderPanel(componentId, Model.of(settings.getShowPoints()));
 				}
-			}
 
-			@Override
-			public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
-				final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
+				@Override
+				public String getCssClass() {
+					final String cssClass = COURSE_GRADE_COL_CSS_CLASS;
+					if (settings.getShowPoints()) {
+						return cssClass + " points";
+					} else {
+						return cssClass;
+					}
+				}
 
-				cellItem.add(new AttributeModifier("tabIndex", 0));
+				@Override
+				public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
+					final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
 
-				// setup model
-				// TODO we may not need to pass everything into this panel since we now use a display string
-				// however we do require that the label can receive events and update itself, although this could be recalculated for each
-				// event
-				final Map<String, Object> modelData = new HashMap<>();
-				modelData.put("courseGradeDisplay", studentGradeInfo.getCourseGrade().getDisplayString());
-				modelData.put("hasCourseGradeOverride", studentGradeInfo.getCourseGrade().getCourseGrade().getEnteredGrade() != null);
-				modelData.put("studentUuid", studentGradeInfo.getStudent().getUserUuid());
-				modelData.put("currentUserUuid", GradebookPage.this.currentUserUuid);
-				modelData.put("currentUserRole", GradebookPage.this.role);
-				modelData.put("gradebook", gradebook);
-				modelData.put("showPoints", settings.getShowPoints());
-				modelData.put("showOverride", true);
-				modelData.put("showLetterGrade", gradebook.isCourseLetterGradeDisplayed());  // OWLTODO: this is always true?
-				modelData.put("courseGradeVisible", courseGradeVisible);
+					cellItem.add(new AttributeModifier("tabIndex", 0));
 
-				cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData)));
-				cellItem.setOutputMarkupId(true);
-			}
-		};
-		cols.add(courseGradeColumn);
+					// setup model
+					// TODO we may not need to pass everything into this panel since we now use a display string
+					// however we do require that the label can receive events and update itself, although this could be recalculated for each
+					// event
+					final Map<String, Object> modelData = new HashMap<>();
+					modelData.put("courseGradeDisplay", studentGradeInfo.getCourseGrade().getDisplayString());
+					modelData.put("hasCourseGradeOverride", studentGradeInfo.getCourseGrade().getCourseGrade().getEnteredGrade() != null);
+					modelData.put("studentUuid", studentGradeInfo.getStudent().getUserUuid());
+					modelData.put("currentUserUuid", GradebookPage.this.currentUserUuid);
+					modelData.put("currentUserRole", GradebookPage.this.role);
+					modelData.put("gradebook", gradebook);
+					modelData.put("showPoints", settings.getShowPoints());
+					modelData.put("showOverride", true);
+					modelData.put("showLetterGrade", gradebook.isCourseLetterGradeDisplayed());  // OWLTODO: this is always true?
+					modelData.put("courseGradeVisible", courseGradeVisible);
+
+					cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData)));
+					cellItem.setOutputMarkupId(true);
+				}
+			};
+			cols.add(courseGradeColumn);
+		}
 
 		// build the rest of the columns based on the assignment list
 		for (final Assignment assignment : assignments) {
@@ -470,6 +473,13 @@ public class GradebookPage extends BasePage implements IGradesPage
 		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
 		List<CategoryDefinition> categories = new ArrayList<>();
 
+		// Calculate # of fixed columns
+		// 1 handle column
+		// + 1 studentName column / grading ID column
+		// + !isContextAnonymous && isStudentNumberVisible ? 1 : 0
+		// + isCourseGradeColumnDisplayed ? 1 : 0
+		int fixedColCount = 2 + (!isContextAnonymous && businessService.isStudentNumberVisible() ? 1 : 0) + (isCourseGradeColumnDisplayed ? 1 : 0);
+
 		List<String> mixedCategoryNames = new ArrayList<>();
 		if (categoriesEnabled) {
 
@@ -485,7 +495,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 			Collections.sort(categories, CategoryDefinition.orderComparator);
 
-			int currentColumnIndex = 3; // take into account first three header columns
+			int currentColumnIndex = fixedColCount;
 
 			for (final CategoryDefinition category : categories) {
 				
@@ -603,8 +613,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		toolbarModelData.put("categories", categories);
 		toolbarModelData.put("categoryType", this.businessService.getGradebookCategoryType());
 		toolbarModelData.put("categoriesEnabled", categoriesEnabled);
-		// OWLTODO: deduct more in anon scenarios?
-		toolbarModelData.put("fixedColCount", (!isContextAnonymous && businessService.isStudentNumberVisible()) ? 4 : 3);
+		toolbarModelData.put("fixedColCount", fixedColCount);
 
 		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(toolbarModelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));

@@ -814,7 +814,11 @@ public class GradebookNgBusinessService {
 
 		final Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
 
-		putCourseGradesInMatrix(matrix, gbStudents, gradebook, role, isCourseGradeVisible(currentUserUuid), settings);
+		// Add course grades only if isContextAnonymous matches whether the course grade is pure anonymous
+		if (settings.isContextAnonymous() == isCourseGradePureAnonForAllAssignments(assignments))
+		{
+			putCourseGradesInMatrix(matrix, gbStudents, gradebook, role, isCourseGradeVisible(currentUserUuid), settings);
+		}
 		stopwatch.timeWithContext("buildGradeMatrix", "putCourseGradesInMatrix", stopwatch.getTime());
 
 		// ------------- Assignments & Categories -------------
@@ -875,6 +879,36 @@ public class GradebookNgBusinessService {
 		stopwatch.timeWithContext("buildGradeMatrix", "sortGradeMatrix", stopwatch.getTime());
 
 		return items;
+	}
+
+	/**
+	 * Returns true if all items counting toward the course grade are anonymous in the specified list of assignments. If no assignments count toward the course grade, it is not considered pure anonymous.
+	 * @param allAssignments for performance purposes; it is expected to be the complete list of assignments in the course (or at least the entire list of assignments that count toward the course grade).
+	 * To guarantee accuracy, pass the complete unfiltered list of assignments in the course
+	 */
+	public boolean isCourseGradePureAnonForAllAssignments(List<Assignment> allAssignments)
+	{
+		// Return true if there exists at least one anonymous counting assignment and no normal counting assignments
+		boolean normalFound = false;
+		boolean anonFound = false;
+		for (Assignment assignment : allAssignments)
+		{
+			if (assignment.isCounted())
+			{
+				if (assignment.isAnon())
+				{
+					anonFound = true;
+				}
+				else
+				{
+					normalFound = true;
+					break;
+				}
+			}
+		}
+
+		// Return true iff there is at least one assignment and all assignments are anonymous
+		return anonFound && !normalFound;
 	}
 
 	/**
