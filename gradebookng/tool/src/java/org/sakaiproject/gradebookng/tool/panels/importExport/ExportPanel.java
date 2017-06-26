@@ -158,6 +158,16 @@ public class ExportPanel extends Panel {
 
 		}, buildFileName()).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
 
+		add(new DownloadLink("downloadFullGradebookRevealed", new LoadableDetachableModel<File>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected File load() {
+				// OWLTODO: impl!
+				return null;
+			}
+		}, buildFileName()).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
+
 		add(new DownloadLink("downloadCustomGradebook", new LoadableDetachableModel<File>() {
 			private static final long serialVersionUID = 1L;
 

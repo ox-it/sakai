@@ -2655,7 +2655,7 @@ public class GradebookNgBusinessService {
 		// Get the group filter's selected sectionId; if none selected, get all viewable sections
 		GbGroup group = settings.getGroupFilter();
 		String section = group == null ? null : group.getProviderId();
-		if (section == null)
+		if (StringUtils.isBlank(section))
 		{
 			sections.addAll(getViewableSectionEids());
 		}
