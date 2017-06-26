@@ -2,7 +2,9 @@
 	.#{$namespace}toolTitleNav
 	{
 		position: relative;
-		background-color: #eee;
+		top: 0;			// OWLTODO: to overwrite the "minus top" below
+		background-color: $tool-menu-background-color;
+		border-bottom: 1px solid $tool-sub-menu-border-color;
 		
 		.#{$namespace}toolTitleNav__title
 		{
@@ -28,12 +30,18 @@
 .#{$namespace}toolTitleNav
 {
 	position: absolute;
+	top: -2.5em;				// OWLTODO: is there a better way to do this? Lessons is different too
 	right: 0;
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
 	margin: 0;
 	padding: 0;
+	
+	@media #{$phone}
+	{
+		top: 0;					// OWLTODO: fix this too to reflect 10 lines above this
+	}
 		
 	.#{$namespace}toolTitleNav__title{
 		display: none;
@@ -82,7 +90,7 @@
 		z-index: 1;
 		@media #{$tablet}{
 			left: 0.35em;
-			font-size: 1.5em;
+			//font-size: 1.5em; OWLTODO: needed?
 			margin: 0px 0 0px 0;
 			top: -4px;
 			z-index: 1;
@@ -95,6 +103,7 @@
 		margin: $standard-padding $standard-padding $standard-padding 0;
 		padding: $standard-padding;
 		border: 1px solid #e0e0e0;
+		border-radius: 3px;
 		background: $tool-tab-background-color;
 		color: $tool-nav-link-color;
 		text-decoration :none;
@@ -104,16 +113,10 @@
 			color: $swapped-view-text-color;
 			text-decoration: none;
 		}
-		@media #{$tablet}{
-			background: $tool-background-color;
-			border: 0px none;
-			color: $primary-color;
-			margin-right: 0em;
+		@media #{$tablet}
+		{
+			// OWLTODO:
 		}
-		/*@media #{$tablet}{
-			background: transparent;
-		}*/
-		//@include icon();
 		&--directurl{
 			@extend .fa;
 			@extend .fa-link;
@@ -147,10 +150,7 @@
 		{
 			margin-left: $standard-padding;
 			font-family: $font-family;
-			/*font-size: $default-font-size;*/
-			text-transform: uppercase;
-			font-size: 0.8em;
-			letter-spacing: 1px;
+			font-size: $smaller-font-size;
 			@media #{$tablet}{
 				display: none;
 			}
@@ -169,13 +169,19 @@
 
 .portletBody{
 	background: $tool-background-color;
-	padding: $default-font-size $default-font-size 40px $default-font-size;
-	@media #{$phone}{
-		margin: 2.3em 0 0 0;
-	}
-	> * {
+	padding: $default-font-size;
+
+	> * 
+	{
 		position: relative;
 		top: -2px;
+	}
+	
+	.page-header 	// to override Bootstrap inheritance
+	{
+		margin: 1em 0;
+		padding: 0;
+		border: 0 solid;
 	}
 }
 

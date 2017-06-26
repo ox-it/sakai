@@ -20,4 +20,13 @@
 		list-style: none;
 		padding: 0 0 0 0;
 	}
+	.#{$namespace}toolTitleNav
+	{
+		top: -1.5em;			// OWLTODO: need to fix a better way
+	}
+}
+
+.hierarchyWrap					// OWLTODO: best spot?
+{
+	display: flex;
 }

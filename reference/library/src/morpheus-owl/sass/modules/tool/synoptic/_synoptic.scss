@@ -1,7 +1,7 @@
 .#{$namespace}sakai-synoptic-announcement, .#{$namespace}sakai-summary-calendar, .#{$namespace}sakai-synoptic-messagecenter, .#{$namespace}sakai-synoptic-chat, .#{$namespace}sakai-motd, .#{$namespace}sakai-iframe-myworkspace, .#{$namespace}sakai-iframe-service
 {
 	margin-bottom: 1em;
-	border: 1px solid #ddd;
+	border: 1px solid $tool-sub-menu-border-color;
 	
 	iframe{
 		z-index: 0;
@@ -9,14 +9,15 @@
 }
 .#{$namespace}sakai-iframe-site
 {
-	border: 1px solid #ddd;
+	border: 1px solid $tool-sub-menu-border-color;
 	
 	.siteDescription{
 		margin: 2em 0 0 0;
 	}
 }
 
-body > .portletBody > #calendarForm{
+body > .portletBody > #calendarForm
+{
 	overflow: hidden;
-	padding: 5px 0 0 4px;
+	padding: $default-font-size 0 0 0;
 }

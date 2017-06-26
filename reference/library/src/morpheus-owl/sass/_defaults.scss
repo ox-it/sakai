@@ -44,18 +44,24 @@ $text-color:				 #212121 !default;
 $portal-background-color: 	 $background-color !default;
 
 $tool-background-color:		 $background-color !default;
-$tool-menu-background-color: #EBEBEB !default;
+$tool-menu-background-color: #eee !default;
 $tool-menu-border-color:	 $primary-color !default; // could be #d2d2d2
 $tool-menu-color: 			 #424242 !default;
-$tool-tab-background-color:  #F8F8F8 !default;
 $tool-border-color:			 #E0E0E0 !default;
+$tool-tab-background-color:  		#F8F8F8 !default;
+$tool-tab-border-color: 			#d2d2d2 !default;
+$tool-nav-link-color: 				#666 !default;
+$tool-nav-active-link-color:		#424242 !default;
 $tool-tab-active-background-color: 	$background-color !default;
-$tool-tab-active-border-color: 	 	$background-color !default;
-$tool-menu-hover-color: 			$tool-menu-color !default;
-$tool-menu-hover-background-color: 	#ddd !default;
+$tool-tab-active-border-color: 	 	$tool-nav-active-link-color !default;
+$tool-tab-current-background-color: $background-color !default;
+$tool-tab-current-border-color: 	$tool-tab-border-color !default;
+$tool-nav-current-link-color: 			$primary-color !default;
+$tool-menu-hover-color: 				$tool-menu-color !default;
+$tool-menu-hover-background-color: 		#ddd !default;
 $tool-menu-current-background-color:	$background-color !default;
-$tool-menu-current-color: 			$primary-color !default;
-$tool-menu-current-border-color: 	$primary-color !default;
+$tool-menu-current-color: 				$primary-color !default;
+$tool-menu-current-border-color: 		$primary-color !default;
 $tool-sub-menu-border-color: 		#d2d2d2 !default;
 $tool-sub-menu-background-color: 	darken( $tool-menu-background-color, 10% ) !default;
 $tool-sub-menu-hover-background-color: 	$primary-color !default;
@@ -64,8 +70,6 @@ $tool-sub-menu-current-color: 		$primary-color !default;
 $tool-sub-menu-current-background-color:$background-color !default;
 $tool-sub-menu-current-hover-color: 	$tool-menu-color !default;
 $tool-sub-menu-current-hover-background-color: $background-color !default;
-
-$tool-nav-link-color: #666 !default;
 
 $main-content-background: $background-color !default;
 $top-header-background: #000 !default;

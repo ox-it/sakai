@@ -1,13 +1,9 @@
 .navIntraTool{
-	margin: -14px -14px 0 -14px;
+	margin: -14px -14px 0 -14px;  		// OWLTODO: find a better way to accomplish this
 	background: $tool-background-color;
 	border-bottom: 1px solid $tool-border-color;
-	padding: 0 170px 0 1em;
-	//max-width: calc(100% - 170px);
-	@media #{$phone}{
-		padding: 0.3em 0.7em;
-		//max-width: 100%;
-	}
+	padding: 0 125px 0 1em;
+
 	&:after{
 		content: " ";
 		display: block;
@@ -16,54 +12,83 @@
 	li{
 		display: inline-block;
 		margin: 0 0 0 0;
-		span{
+		span
+		{
 			display: inline;
-			a{
-				background: $tool-tab-background-color;
-				border-top: 1px solid $tool-border-color;
-				border-left: 1px solid $tool-border-color;
-				border-right: 1px solid $tool-border-color;
-				color: $tool-nav-link-color;
+		
+			> a
+			{
+				position: relative;
 				display: block;
-				font-size: 0.8em;
-				margin: 2px 0.25em 0 0;
-				letter-spacing: 1.2px;
+				margin: 0;
 				padding: 6px 10px;
+				border-top: 1px solid $tool-tab-border-color;
+				border-left: 1px solid $tool-tab-border-color;
+				border-right: 1px solid $tool-tab-border-color;
+				background: $tool-tab-background-color;
+				font-size: $smaller-font-size;
+				color: $tool-nav-link-color;
 				text-decoration: none;
-				text-transform: uppercase;
-				@media #{$phone}{
-					@include sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color );
-				}
 				
-				&:hover
+				&:hover, &:active
 				{
-					color: $swapped-view-text-color;
+					background-color: #eee;
+					color: $tool-nav-active-link-color;
 					text-decoration: none;
+					
+					&:before
+					{
+						content: "";
+						display: inline-block;
+						position: absolute;
+						top: -1px;
+						right: -1px;
+						left: -1px;
+						border-top: 4px solid #424242;
+					}
 				}
 			}
-			&.current{
-				background: $tool-background-color;
-				border-top: 1px solid $tool-border-color;
-				border-left: 1px solid $tool-border-color;
-				border-right: 1px solid $tool-border-color;
-				display: block;
-				font-size: 0.8em;
-				letter-spacing: 1.2px;
-				margin: 2px 0.25em 0 0;
-				padding: 7px 10px 6px 10px;
+			&.current
+			{
 				position: relative;
-				text-transform: uppercase;
 				top: 1px;
-				@media #{$phone}{
-					@include sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
+				display: block;
+				margin: 2px 0 0 0;
+				padding: 7px 10px 6px 10px;
+				border-top: 1px solid $tool-tab-current-border-color;
+				border-left: 1px solid $tool-tab-current-border-color;
+				border-right: 1px solid $tool-tab-current-border-color;
+				background: $tool-tab-current-background-color;
+				font-size: $smaller-font-size;
+				color: $tool-nav-current-link-color;
+				
+				&:before
+				{
+					content: "";
+					display: inline-block;
+					position: absolute;
+					top: -1px;
+					right: -1px;
+					left: -1px;
+					border-top: 4px solid $tool-nav-current-link-color;
 				}
 				a{
-					background: #FFF;
+					background: transparent;
 				    border: 0px none;
 				    font-size: 1em;
 				    margin: 0 0 0 0;
 				    padding: 0 0 0 0;
-				    top: 1px;
+					
+					&:before
+					{
+						content: "";
+						display: inline-block;
+						position: absolute;
+						top: -1px;
+						right: -1px;
+						left: -1px;
+						border-top: 4px solid transparent;
+					}
 				}
 			}
 			&.inactive{

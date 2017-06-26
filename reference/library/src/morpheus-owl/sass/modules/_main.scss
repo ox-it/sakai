@@ -76,9 +76,20 @@
 	margin: 0;
 	clear: both;
 	width: 100%;
-	@media #{$phone}{
+	
+	@media #{$phone}
+	{
 		margin: 0 0 0 0;
 	}
+	.#{$namespace}container 
+	{
+		margin-right: $standard-padding;
+		margin-left: $standard-padding;
+	}
+}
+.#{$namespace}container
+{
+	position: relative;
 }
 
 .#{$namespace}container--footer{
