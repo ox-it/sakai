@@ -11,7 +11,7 @@ public class PortalNodeSummary {
 	public PortalNodeSummary(){};
 
 	public PortalNodeSummary(PortalNode portalNode){
-		this.nodeUrl = portalNode.getPath();
+		this.nodeUrl = portalNode.getUrlPath();
 	}
 
 }
