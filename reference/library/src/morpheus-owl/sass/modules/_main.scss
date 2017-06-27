@@ -98,63 +98,82 @@
 
 .#{$namespace}footer
 {
-	color: $footer-color;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 	padding: 1em;
 	font-size: $smaller-font-size;
+	color: $footer-color;
 	
-	a 
+	a, a:hover, a:active
 	{
-		color: #fff;
+		color: $footer-color;
 	}
 	
 	#footer-links
 	{
 		list-style: none;
+		margin: -100px 0 0 0;		//OWLTODO: find a better way to do this
 		padding: 0 0 0 0;
-		text-align: center;
+		//text-align: center;
 		
 		li
 		{
 			display: inline-block;
-			padding: 0 1.5em;
+			padding: 0 1em;
 			border-right: 1px solid $footer-color;
+		}
+		
+		li:first-child
+		{
+			padding-left: 0;
 		}
 		
 		li:last-child
 		{
-			border-right: 0 none;
+			border-right: 0 solid;
 		}
 	}
 	
 	.#{$namespace}footer--nav.Mrphs-footer--nav__project 
 	{
-		margin-bottom: 0;
+		align-self: flex-end;
+		order: -1;
+		margin: 0;
 		padding: 0;
 		list-style: none;
 	}
 	
 	.#{$namespace}footer--nav__build__panel 
 	{
-		margin: 0;
+		margin: 0 110px 0 0;			//OWLTODO: making room for logo; need a better way
 	}
 	
 	##{$namespace}footer--nav__project--sakai
 	{
 		display: block;
-		margin: 2em;
-		text-align: center;
+		margin: 0;
+		text-align: right;
+		
+		img
+		{
+			width: 100px;
+		}
 	}
 
 	.#{$namespace}footer--nav__project--copyright 
 	{
-		margin-bottom: 1.5em;
-		text-align: center;
+		margin: 1em 110px 1em 0;			//OWLTODO: making room for logo; need a better way
+	}
+
+	.#{$namespace}footer--nav__project--poweredby
+	{
+		width: 100px;
 	}
 	
 	.#{$namespace}footer--nav__build__panel 
 	{
 		margin: 0;
-		text-align: center;
 	}
 }
 
