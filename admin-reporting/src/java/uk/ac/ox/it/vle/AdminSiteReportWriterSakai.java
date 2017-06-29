@@ -52,6 +52,8 @@ public class AdminSiteReportWriterSakai implements AdminSiteReportWriter {
 			session.setUserEid(USER_EID);
 			runnable.run();
 		} finally {
+			// This is needed to make sure things get unlocked.
+			session.clear();
 			session.setUserId(oldId);
 			session.setUserEid(oldEid);
 		}
@@ -59,43 +61,25 @@ public class AdminSiteReportWriterSakai implements AdminSiteReportWriter {
 
 	@Override
 	public void writeReport(final String filename, final String mimeType, final InputStream stream, final Access access) {
-		doAsAdmin(new Runnable() {
-			@Override
-			public void run() {
-				String resourceId = outputFolder + Entity.SEPARATOR + filename;
+		doAsAdmin(() -> {
+			String resourceId = outputFolder + Entity.SEPARATOR + filename;
+			try {
 				try {
-					try {
-						contentHostingService.removeResource(resourceId);
-					} catch (IdUnusedException e) {
-						// Expected.
-					}
-					ContentResourceEdit resource = contentHostingService.addResource(resourceId);
-					resource.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, filename);
-					resource.setContent(stream);
-					resource.setContentType(mimeType);
-					if (Access.PUBLIC.equals(access)) {
-						resource.setPublicAccess();
-					}
-					contentHostingService.commitResource(resource);
-					// These catches should be updated to use SakaiException when we are on Sakai 10+.
-				} catch (InUseException e) {
-					throw new IllegalStateException("Unable to update resource: " + resourceId, e);
-				} catch (TypeException e) {
-					throw new IllegalStateException("Unable to update resource: " + resourceId, e);
-				} catch (PermissionException e) {
-					throw new IllegalStateException("Unable to update resource: " + resourceId, e);
-				} catch (IdUsedException e) {
-					throw new IllegalStateException("Unable to update resource: " + resourceId, e);
-				} catch (IdInvalidException e) {
-					throw new IllegalStateException("Unable to update resource: " + resourceId, e);
-				} catch (InconsistentException e) {
-					throw new IllegalStateException("Unable to update resource: " + resourceId, e);
-				} catch (ServerOverloadException e) {
-					throw new IllegalStateException("Unable to update resource: " + resourceId, e);
-				} catch (OverQuotaException e) {
-					throw new IllegalStateException("Unable to update resource: " + resourceId, e);
+					contentHostingService.removeResource(resourceId);
+				} catch (IdUnusedException e) {
+					// Expected.
 				}
-
+				ContentResourceEdit resource = contentHostingService.addResource(resourceId);
+				resource.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, filename);
+				resource.setContent(stream);
+				resource.setContentType(mimeType);
+				if (Access.PUBLIC.equals(access)) {
+					resource.setPublicAccess();
+				}
+				contentHostingService.commitResource(resource);
+				// These catches should be updated to use SakaiException when we are on Sakai 10+.
+			} catch (SakaiException e) {
+				throw new IllegalStateException("Unable to update resource: " + resourceId, e);
 			}
 		});
 	}
