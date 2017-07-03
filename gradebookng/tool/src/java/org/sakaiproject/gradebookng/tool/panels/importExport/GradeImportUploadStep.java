@@ -102,6 +102,7 @@ public class GradeImportUploadStep extends Panel {
 
 		public void processUploadedFile(AjaxRequestTarget target) {
 
+			final ImportExportPage page = (ImportExportPage) getPage();
 			final FileUpload upload = fileUploadField.getFileUpload();
 			if (upload != null) {
 
@@ -210,7 +211,6 @@ public class GradeImportUploadStep extends Panel {
 				}
 
 				// if empty there are no users
-				final ImportExportPage page = (ImportExportPage) getPage();
 				if (processedGradeItems.isEmpty()) {
 					error(getString("importExport.error.empty"));
 					target.add(page.feedbackPanel);
@@ -252,6 +252,7 @@ public class GradeImportUploadStep extends Panel {
 				target.add(container);
 			} else {
 				error(getString("importExport.error.noFileSelected"));
+				target.add(page.feedbackPanel);
 			}
 		}
 	}
