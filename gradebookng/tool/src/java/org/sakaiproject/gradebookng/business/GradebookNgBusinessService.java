@@ -37,6 +37,7 @@ import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
+import org.sakaiproject.gradebookng.business.exception.AnonymousConstraintViolationException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
 import org.sakaiproject.gradebookng.business.finalgrades.GbStudentCourseGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
@@ -264,10 +265,27 @@ public class GradebookNgBusinessService {
 	 */
 	public List<GbUser> getGbUsers(final List<String> userUuids)
 	{
-		List<GbUser> gbUsers = new ArrayList<>();
+		return getGbUsersFilteredIfAnonymous(userUuids, false);
+	}
+
+	/**
+	 * Gets a List of GbUsers for the specified userUuids, populating them with student numbers and anonIds.
+	 * Filters any users who do not have anonIds if filterForAnonymous is set. Sorts by last name.
+	 * Inappropriate for the UI in most cases, because there is no section aware filtering; best suited for exports / statistics
+	 * @param userUuids
+	 * @param filterForAnonymous whether the returned users should be filtered to include only users who have anonymousIDs
+	 * @return
+	 */
+	public List<GbUser> getGbUsersFilteredIfAnonymous(final List<String> userUuids, boolean filterForAnonymous)
+	{
+		List<GbUser> gbUsers = new ArrayList<>(userUuids.size());
 		List<User> users = getUsers(userUuids);
 		List<OwlAnonGradingID> anonIds = gradebookService.getAnonGradingIDsBySectionEIDs(getViewableSectionEids());
 		Map<String, Map<String, Integer>> studentSectionAnonIdMap = getStudentSectionAnonIdMap(anonIds);
+		if (filterForAnonymous)
+		{
+			users = users.stream().filter(user -> studentSectionAnonIdMap.keySet().contains(user.getEid())).collect(Collectors.toList());
+		}
 
 		Site site = getCurrentSite().orElse(null);
 		for (User u : users)
@@ -276,7 +294,7 @@ public class GradebookNgBusinessService {
 			Map<String, Integer> sectionAnonIdMap = getMapForKey(studentSectionAnonIdMap, u.getEid());
 			gbUsers.add(GbUser.fromUserWithStudentNumberAndAnonIdMap(u, studentNumber, sectionAnonIdMap));
 		}
-		
+
 		return gbUsers;
 	}
 
@@ -877,8 +895,8 @@ public class GradebookNgBusinessService {
 	 * @param assignments list of assignments
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrixForImportExport(final List<Assignment> assignments) throws GbException {
-
+	public List<GbStudentGradeInfo> buildGradeMatrixForImportExport(final List<Assignment> assignments, boolean isContextAnonymous) throws GbException 
+	{
 		// ------------- Initialization -------------
 		final GbStopWatch stopwatch = new GbStopWatch();
 		stopwatch.start();
@@ -896,10 +914,17 @@ public class GradebookNgBusinessService {
 		// get role for current user
 		final GbRole role = this.getUserRole();
 
-		// ------------- Get Users -------------
 		final GradebookUiSettings settings = new GradebookUiSettings();
+		if (isContextAnonymous)
+		{
+			settings.setContextAnonymous(true);
+			settings.setAnonIdSortOrder(SortDirection.ASCENDING);
+		}
+
+		// ------------- Get Users -------------
+
 		final List<String> studentUUIDs = getGradeableUsers();
-		final List<GbUser> gbStudents = getGbUsersForUiSettings(studentUUIDs, settings);
+		final List<GbUser> gbStudents = getGbUsersFilteredIfAnonymous(studentUUIDs, isContextAnonymous);
 		stopwatch.timeWithContext("buildGradeMatrix", "getGbUsersForUiSettings", stopwatch.getTime());
 
 		// ------------- Course Grades -------------

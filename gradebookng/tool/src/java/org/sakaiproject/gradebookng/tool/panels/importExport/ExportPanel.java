@@ -3,10 +3,15 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -15,6 +20,7 @@ import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.Session;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.time.Duration;
 
@@ -49,6 +55,9 @@ public class ExportPanel extends Panel {
 	boolean includeLastLogDate = false;
 	boolean includeCalculatedGrade = false;
 	boolean includeGradeOverride = false;
+
+	// Model for file names; gets updated by buildFileName(), which is invoked by buildFile for effiency with determining csv vs zip wrt anonymity
+	private Model<String> fileNameModel = new Model<>();
 
 	public ExportPanel(final String id) {
 		super(id);
@@ -142,158 +151,382 @@ public class ExportPanel extends Panel {
 
 			@Override
 			protected File load() {
-				return buildFile(false);
+				return buildFile(false, false);
 			}
 
-		}, buildFileName()).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
+		}, fileNameModel).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
+
+		boolean siteHasAnonIDs = !businessService.getAnonGradingIDsForCurrentSite().isEmpty();
 
 		add(new DownloadLink("downloadFullGradebookRevealed", new LoadableDetachableModel<File>() {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected File load() {
-				// OWLTODO: impl!
-				return null;
+				return buildFile(false, true);
 			}
-		}, buildFileName()).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
+		}, fileNameModel)
+			.setCacheDuration(Duration.NONE)
+			.setDeleteAfterDownload(true)
+			.setVisible(siteHasAnonIDs));
 
 		add(new DownloadLink("downloadCustomGradebook", new LoadableDetachableModel<File>() {
 
 			@Override
 			protected File load() {
-				return buildFile(true);
+				return buildFile(true, false);
 			}
 
-		}, buildFileName()).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
+		}, fileNameModel).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
+
+		add(new DownloadLink("downloadCustomGradebookRevealed", new LoadableDetachableModel<File>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected File load() {
+				return buildFile(true, true);
+			}
+		}, fileNameModel)
+			.setCacheDuration(Duration.NONE)
+			.setDeleteAfterDownload(true)
+			.setVisible(siteHasAnonIDs));
 	}
 
-	private File buildFile(final boolean isCustomExport) {
+	/**
+	 * Builds the export file. Will produce a zip if the anonymity is mixed; preduces a csv otherwise
+	 * @param isCustomExport - whether the custom 
+	 */
+	private File buildFile(final boolean isCustomExport, final boolean isRevealed) {
+		// The temporary file that will be returned. May be .csv, or .zip in the case of mixed anonymous content
 		File tempFile;
 
-		try {
-			tempFile = File.createTempFile("gradebookTemplate", ".csv");
-			try (FileWriter fw = new FileWriter(tempFile); CSVWriter csvWriter = new CSVWriter(fw)) {
+		// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
+		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 
-				// Create csv header
-				final List<String> header = new ArrayList<>();
-				if (!isCustomExport || includeStudentId) {
-					header.add(getString("importExport.export.csv.headers.studentId"));
-				}
-				if (!isCustomExport || includeStudentName) {
-					header.add(getString("importExport.export.csv.headers.studentName"));
-				}
+		// Determine what kind of content we're working with - all normal / all anonymous / mixed, and build the file name with the appropriate extension
+		boolean hasNormal = false;
+		boolean hasAnon = false;
+		if (isRevealed)
+		{
+			buildFileName("csv");
+		}
+		else
+		{
+			// Determine if the site is pure normal / mixed / pure anonymous
+			boolean siteHasAnonIds = !businessService.getAnonGradingIDsForCurrentSite().isEmpty();
+			if (siteHasAnonIds)
+			{
+				// cases:
+				// 1) Assignments all normal: single CSV
+				// 2) Assignments mixed: zip with normal & anon CSVs
+				// 3) Assignments all anonymous:
+				//    a) none count towards course grade?: zip (normal CSV with course grades; anon CSV with everything else)
+				//    b) some count towards course grade?: anon CSV only
 
-				// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-				final List<Assignment> assignments = businessService.getGradebookAssignments();
+				boolean hasCountingAnon = false;
 
-				//build column header
-				assignments.forEach(assignment -> {
-					final String assignmentPoints = assignment.getPoints().toString();
-					if (!isCustomExport || includeGradeItemScores) {
-						header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
-					}
-					if (!isCustomExport || includeGradeItemComments) {
-						header.add("* " + assignment.getName());
-					}
-				});
-				
-				if (isCustomExport && includePoints) {
-					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.points")));
-				}
-				if (isCustomExport && includeCalculatedGrade) {
-					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.calculatedGrade")));
-				}
-				if (isCustomExport && includeCourseGrade) {
-					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.courseGrade")));
-				}
-				if (isCustomExport && includeGradeOverride) {
-					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.gradeOverride")));
-				}
-				if (isCustomExport && includeLastLogDate) {
-					header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.lastLogDate")));
-				}
-				
-				csvWriter.writeNext(header.toArray(new String[] {}));
-				
-				// get the grade matrix
-				final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments);
-
-				//add grades
-				grades.forEach(studentGradeInfo -> {
-					final List<String> line = new ArrayList<>();
-					if (!isCustomExport || includeStudentId) {
-						line.add(studentGradeInfo.getStudent().getEid());
-					}
-					if (!isCustomExport ||includeStudentName) {
-						line.add(studentGradeInfo.getStudent().getLastName() + ", " + studentGradeInfo.getStudent().getFirstName());
-					}
-					if (!isCustomExport || includeGradeItemScores || includeGradeItemComments) {
-						assignments.forEach(assignment -> {
-							final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
-							if (gradeInfo != null) {
-								if (!isCustomExport || includeGradeItemScores) {
-									line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
-								}
-								if (!isCustomExport || includeGradeItemComments) {
-									line.add(gradeInfo.getGradeComment());
-								}
-							} else {
-								// Need to account for no grades
-								if (!isCustomExport || includeGradeItemScores) {
-									line.add(null);
-								}
-								if (!isCustomExport || includeGradeItemComments) {
-									line.add(null);
-								}
-							}
-						});
-					}
-
-					final GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
-					final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
-
-					if (isCustomExport && includePoints) {
-						line.add(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()));
-					}
-					if (isCustomExport && includeCalculatedGrade) {
-						line.add(courseGrade.getCalculatedGrade());
-					}
-					if (isCustomExport && includeCourseGrade) {
-						line.add(courseGrade.getMappedGrade());
-					}
-					if (isCustomExport && includeGradeOverride) {
-						line.add(courseGrade.getEnteredGrade());
-					}
-					if (isCustomExport && includeLastLogDate) {
-						if (courseGrade.getDateRecorded() == null) {
-							line.add(null);
-						} else {
-							line.add(FormatHelper.formatDateTime(courseGrade.getDateRecorded()));
+				for (Assignment assignment : assignments)
+				{
+					if (assignment.isAnon())
+					{
+						hasAnon = true;
+						if (assignment.isCounted())
+						{
+							hasCountingAnon = true;
 						}
 					}
+					else
+					{
+						hasNormal = true;
+					}
 
-					csvWriter.writeNext(line.toArray(new String[] {}));
+					if (hasNormal && hasAnon)
+					{
+						// Case 2) mixed scenario
+						// Prepare a zip
+						buildFileName("zip");
+						break;
+					}
+				}
 
-				});
-
+				if (!hasAnon)
+				{
+					// Case 1) pure normal
+					buildFileName("csv");
+				}
+				else if (!hasNormal)
+				{
+					// Case 3) all anonymous
+					if (!hasCountingAnon)
+					{
+						// Case 3 a) - mixed scenario: all anon, but course grade is normal
+						hasNormal = true;
+						// Prepare a zip
+						buildFileName("zip");
+					}
+					else
+					{
+						// Case 3 b) - pure anon
+						buildFileName("csv");
+					}
+				}
 			}
+			else
+			{
+				// !siteHasAnonIds: all normal
+				buildFileName("csv");
+			}
+		}
+
+
+		// Are course grades anonymous? (only matters for non-revealed)
+		boolean isCourseGradePureAnon = false;
+		if (!isRevealed)
+		{
+			isCourseGradePureAnon = businessService.isCourseGradePureAnonForAllAssignments(assignments);
+		}
+
+
+		try {
+			if (isRevealed || !(hasAnon && hasNormal))
+			{
+				// Non mixed scenarios (Ie. csv scenarios)
+				tempFile = File.createTempFile("gradebookTemplate", ".csv");
+				final FileWriter fw = new FileWriter(tempFile);
+				final CSVWriter csvWriter = new CSVWriter(fw);
+				// Write an appropriate CSV via getCSVContents
+				if (isRevealed)
+				{
+					writeLines(csvWriter, getCSVContents(assignments, isCustomExport, true, false, false));
+				}
+				else if (hasAnon)
+				{
+					writeLines(csvWriter, getCSVContents(assignments, isCustomExport, false, true, isCourseGradePureAnon));
+				}
+				else
+				{
+					writeLines(csvWriter, getCSVContents(assignments, isCustomExport, false, false, isCourseGradePureAnon));
+				}
+
+				csvWriter.close();
+				fw.close();
+			}
+			else
+			{
+				// !isRevealed && hasAnon && hasNormal: zip file
+				tempFile = File.createTempFile("gradebookTemplate", ".zip");
+				FileOutputStream fos = new FileOutputStream(tempFile);
+				ZipOutputStream zos = new ZipOutputStream(fos);
+
+				ZipEntry normalEntry = new ZipEntry("gradebookExport_normal.csv");
+				zos.putNextEntry(normalEntry);
+				CSVWriter normalWriter = new CSVWriter(new OutputStreamWriter(zos));
+				writeLines(normalWriter, getCSVContents(assignments, isCustomExport, false, false, isCourseGradePureAnon));
+				normalWriter.flush();
+				zos.closeEntry();
+
+				ZipEntry anonEntry = new ZipEntry("gradebookExport_anonymous.csv");
+				zos.putNextEntry(anonEntry);
+				CSVWriter anonWriter = new CSVWriter(new OutputStreamWriter(zos));
+				writeLines(anonWriter, getCSVContents(assignments, isCustomExport, false, true, isCourseGradePureAnon));
+				anonWriter.flush();
+				zos.closeEntry();
+
+				zos.close();
+			}
+
 		} catch (final IOException e) {
+			Session.get().error("Unable to create export file");
 			throw new RuntimeException(e);
 		}
 
 		return tempFile;
 	}
 
-	private String buildFileName() {
+	private void writeLines(final CSVWriter writer, List<List<String>> lines)
+	{
+		lines.stream().forEach(line ->
+		{
+			writer.writeNext(line.toArray(new String[] {}));
+		});
+	}
+
+	/**
+	 * Prepares a 2D List of CSV contents; outer list represents lines, inner list represents cells.
+	 * @param allAssignments all the assignments in the course
+	 * @param isCustomExport whether this is a custom export
+	 * @param isRevealed specifies we're preparing the CSV contents for the revealed export containing both normal and anonymous content
+	 * @param isContextAnonymous only considered if isRevealed is false.
+	 *    False = only normal content will be added to the CSV
+	 *    True = only anonymous content will be added to the CSV
+	 * @param isCourseGradePureAnon whether course grades should appear only in the anonymous context
+	 */
+	private List<List<String>> getCSVContents(List<Assignment> allAssignments, boolean isCustomExport, boolean isRevealed, boolean isContextAnonymous, boolean isCourseGradePureAnon)
+	{
+		List<List<String>> csvContents = new ArrayList<>();
+
+		// get a filtered list of the assignmnets for this CSV file
+		List<Assignment> assignments;
+		if (isRevealed)
+		{
+			assignments = allAssignments;
+		}
+		else if (isContextAnonymous)
+		{
+			assignments = allAssignments.stream().filter(Assignment::isAnon).collect(Collectors.toList());
+		}
+		else
+		{
+			assignments = allAssignments.stream().filter(assignment -> !assignment.isAnon()).collect(Collectors.toList());
+		}
+
+		final List<String> header = new ArrayList<>();
+		if (isRevealed || !isContextAnonymous)
+		{
+			if (!isCustomExport || this.includeStudentId) {
+				header.add(getString("importExport.export.csv.headers.studentId"));
+			}
+			if (!isCustomExport || this.includeStudentName) {
+				header.add(getString("importExport.export.csv.headers.studentName"));
+			}
+		}
+		else
+		{
+			header.add(getString("importExport.export.csv.headers.anonId"));
+		}
+
+		// build column header
+		assignments.forEach(assignment -> {
+			final String assignmentPoints = assignment.getPoints().toString();
+			if (!isCustomExport || this.includeGradeItemScores) {
+				header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
+			}
+			if (!isCustomExport || this.includeGradeItemComments) {
+				header.add("* " + assignment.getName());
+			}
+		});
+
+		// Course grade related headers
+		if (isRevealed || isContextAnonymous == isCourseGradePureAnon)
+		{
+			if (isCustomExport && this.includePoints) {
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.points")));
+			}
+			if (isCustomExport && this.includeCalculatedGrade) {
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.calculatedGrade")));
+			}
+			if (isCustomExport && this.includeCourseGrade) {
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.courseGrade")));
+			}
+			if (isCustomExport && this.includeGradeOverride) {
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.gradeOverride")));
+			}
+			if (isCustomExport && this.includeLastLogDate) {
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.lastLogDate")));
+			}
+		}
+
+		csvContents.add(header);
+
+		// get the grade matrix
+		// OWLTODO: add param to eliminate duplicate course grade retrieval
+		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForImportExport(assignments, isContextAnonymous);
+
+		//add grades
+		grades.forEach(studentGradeInfo -> {
+			final List<String> line = new ArrayList<>();
+			if (isRevealed || !isContextAnonymous)
+			{
+				if (!isCustomExport || this.includeStudentId) {
+					line.add(studentGradeInfo.getStudent().getEid());
+				}
+				if (!isCustomExport || this.includeStudentName) {
+					line.add(studentGradeInfo.getStudent().getLastName() + ", " + studentGradeInfo.getStudent().getFirstName());
+				}
+			}
+			else
+			{
+				// !isRevealed && isContextAnonymous: get Anon ID
+				line.add(studentGradeInfo.getStudent().getAnonId());
+			}
+			if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
+				assignments.forEach(assignment -> {
+					final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
+					if (gradeInfo != null)
+					{
+						if (!isCustomExport || this.includeGradeItemScores) {
+							line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
+						}
+						if (!isCustomExport || this.includeGradeItemComments) {
+							line.add(gradeInfo.getGradeComment());
+						}
+					} else {
+						// Need to account for no grades
+						if (!isCustomExport || this.includeGradeItemScores) {
+							line.add(null);
+						}
+						if (!isCustomExport || this.includeGradeItemComments) {
+							line.add(null);
+						}
+					}
+				});
+			}
+
+			if (isRevealed || isContextAnonymous == isCourseGradePureAnon)
+			{
+				final GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
+				final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
+
+				if (isCustomExport && this.includePoints) {
+					line.add(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()));
+				}
+				if (isCustomExport && includePoints) {
+					line.add(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()));
+				}
+				if (isCustomExport && includeCalculatedGrade) {
+					line.add(courseGrade.getCalculatedGrade());
+				}
+				if (isCustomExport && includeCourseGrade) {
+					line.add(courseGrade.getMappedGrade());
+				}
+				if (isCustomExport && includeGradeOverride) {
+					line.add(courseGrade.getEnteredGrade());
+				}
+				if (isCustomExport && includeLastLogDate) {
+					if (courseGrade.getDateRecorded() == null) {
+						line.add(null);
+					} else {
+						line.add(FormatHelper.formatDateTime(courseGrade.getDateRecorded()));
+					}
+				}
+			}
+
+			csvContents.add(line);
+		});
+
+
+		return csvContents;
+	}
+
+	private void buildFileName(String extension) {
 		final String prefix = "gradebook_export";
-		final String extension = exportFormat.toString().toLowerCase();
 		String gradebookName = businessService.getGradebook().getName();
 
 		if (StringUtils.trimToNull(gradebookName) == null) {
-			return String.format("%s.%s", gradebookName, extension);
+			this.fileNameModel.setObject(String.format("%s.%s", gradebookName, extension));
 		} else {
 			gradebookName = gradebookName.replaceAll("\\s", "_");
-			return String.format("%s-%s.%s", prefix, gradebookName, extension);
+			this.fileNameModel.setObject(String.format("%s-%s.%s", prefix, gradebookName, extension));
 		}
 	}
 }

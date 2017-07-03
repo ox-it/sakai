@@ -197,7 +197,7 @@ public class GradeImportUploadStep extends Panel {
 
 				//get existing data
 				final List<Assignment> assignments = businessService.getGradebookAssignments();
-				final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments);
+				final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, false);
 
 				// process file
 				List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(spreadsheetWrapper, assignments, grades);
