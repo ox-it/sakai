@@ -37,8 +37,12 @@
             <p><wicket:message key="importExport.selection.details" /></p>
 
             <div class="act">
-              <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back"/>
-              <input class="active" type="submit" wicket:id="nextbutton" wicket:message="value:importExport.button.next"/>
+                <button wicket:id="backbutton" wicket:message="value:importExport.button.back">
+                    Back
+                </button>
+                <button class="active" wicket:id="nextbutton" wicket:message="value:importExport.button.next">
+                    Next
+                </button>
             </div>
         </div>
     </form>

@@ -54,8 +54,12 @@
 
     <form wicket:id="form">
         <div class="act">
-            <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back"/>
-            <input class="active" type="submit" wicket:id="finishbutton" wicket:message="value:importExport.button.finish"/>
+            <button wicket:id="backbutton" wicket:message="value:importExport.button.back">
+                Back
+            </button>
+            <button class="active" wicket:id="finishbutton" wicket:message="value:importExport.button.finish">
+                Finish
+            </button>
         </div>
     </form>
 
