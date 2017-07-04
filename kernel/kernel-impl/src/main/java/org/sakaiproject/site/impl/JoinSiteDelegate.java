@@ -64,7 +64,7 @@ public class JoinSiteDelegate
     private static final String SAK_PROP_JOIN_EXCLUDE_FROM_PUBLIC_LIST 	= "sitemanage.join.excludeFromPublicList.enabled";
     private static final String SAK_PROP_SITE_BROWSER_JOIN_ENABLED		= "sitebrowser.join.enabled";
     private static final String SAK_PROP_UI_INSTITUTION					= "ui.institution";
-    private static final String SAK_PROP_SUPPORT_EMAIL					= "support.email";
+    private static final String SAK_PROP_SUPPORT_EMAIL					= "mail.support";
     
     // site properties
     private static final String EMAIL_TEMPLATE_KEY              = "sitemanage.joinNotification";			// The name (key) of the email template
