@@ -129,14 +129,17 @@ public class GbHeadersToolbar<S> extends GbBaseHeadersToolbar<S> {
 
 			categories = categories.stream().filter(c -> categoryCounts.get(c.getId()) > 0).collect(Collectors.toList());
 
+			final List<String> mixedCategoryNames = (List<String>)modelData.get("mixedCategoryNames");
+
 			categoriesRow.add(new ListView<CategoryDefinition>("categories", categories) {
 				private static final long serialVersionUID = 1L;
 
 				@Override
 				protected void populateItem(final ListItem<CategoryDefinition> categoryItem) {
 					final CategoryDefinition category = categoryItem.getModelObject();
-					// add colspan attribute + 1 to accound for the category average column
-					categoryItem.add(new AttributeModifier("colspan", categoryCounts.get(category.getId()) + 1));
+					// add colspan attribute + 1 to account for the category average column (but don't increment if context is anonymous and category is mixed)
+					int categoryCellIncrement = mixedCategoryNames.contains(category.getName()) ? 0 : 1;
+					categoryItem.add(new AttributeModifier("colspan", categoryCounts.get(category.getId()) + categoryCellIncrement));
 					categoryItem.add(new AttributeModifier("data-category-id", category.getId()));
 					final String color = settings.getCategoryColor(category.getName());
 					categoryItem.add(new AttributeModifier("style",

@@ -530,65 +530,75 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 			for (final CategoryDefinition category : categories) {
 				
-				// Get the assignmnet list for this category, but filter them removing assignments whose isAnon doesn't match the context
+				// Get the assignment list for this category, but filter them removing assignments whose isAnon doesn't match the context
 				List<Assignment> visibleAssignmentList = new ArrayList<>(category.getAssignmentList());
 				// Before we filter, note that the anonymous context should not display 'mixed' category columns.
 				// Mixed categories: categories containing both normal and anonymous items. Mixed category grades should only be displayed in the normal context
+				boolean anonAndMixed = false;
 				if (isContextAnonymous)
 				{
 					// Do not need to seek anonymous items; if no anonymous items exist, the category would have already been filtered. Just seek normal items, then we know it's mixed
 					if (visibleAssignmentList.stream().anyMatch(assignment->!assignment.isAnon()))
 					{
 						mixedCategoryNames.add(category.getName());
-						continue;
+						anonAndMixed = true;
 					}
 				}
 				// Now filter out assignments that do not match the context
 				visibleAssignmentList.removeIf(assignment -> assignment.isAnon() != isContextAnonymous);
 
-				if (visibleAssignmentList.isEmpty()) {
-					continue;
+				AbstractColumn column = null;
+
+				// skip score column if mixed
+				if (!anonAndMixed)
+				{
+					if (visibleAssignmentList.isEmpty()) {
+						continue;
+					}
+
+					column = new AbstractColumn(new Model(category)) {
+
+						@Override
+						public Component getHeader(final String componentId) {
+							final CategoryColumnHeaderPanel panel = new CategoryColumnHeaderPanel(componentId,
+									new Model<>(category));
+
+							panel.add(new AttributeModifier("data-category", category.getName()));
+
+							return panel;
+						}
+
+						@Override
+						public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
+							final GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
+
+							final Double score = studentGrades.getCategoryAverages().get(category.getId());
+
+							final Map<String, Object> modelData = new HashMap<>();
+							modelData.put("score", score);
+							modelData.put("studentUuid", studentGrades.getStudent().getUserUuid());
+							modelData.put("categoryId", category.getId());
+
+							cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
+							cellItem.setOutputMarkupId(true);
+						}
+
+						@Override
+						public String getCssClass() {
+							return "gb-category-item-column-cell";
+						}
+					};
 				}
-
-				final AbstractColumn column = new AbstractColumn(new Model(category)) {
-
-					@Override
-					public Component getHeader(final String componentId) {
-						final CategoryColumnHeaderPanel panel = new CategoryColumnHeaderPanel(componentId,
-								new Model<>(category));
-
-						panel.add(new AttributeModifier("data-category", category.getName()));
-
-						return panel;
-					}
-
-					@Override
-					public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
-						final GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
-
-						final Double score = studentGrades.getCategoryAverages().get(category.getId());
-
-						final Map<String, Object> modelData = new HashMap<>();
-						modelData.put("score", score);
-						modelData.put("studentUuid", studentGrades.getStudent().getUserUuid());
-						modelData.put("categoryId", category.getId());
-
-						cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
-						cellItem.setOutputMarkupId(true);
-					}
-
-					@Override
-					public String getCssClass() {
-						return "gb-category-item-column-cell";
-					}
-				};
 
 				if (settings.isCategoriesEnabled()) {
 					// insert category column after assignments in that category
 					currentColumnIndex = currentColumnIndex + visibleAssignmentList.size();
-					cols.add(currentColumnIndex, column);
-					currentColumnIndex = currentColumnIndex + 1;
-				} else {
+					if (!anonAndMixed)
+					{
+						cols.add(currentColumnIndex, column);
+						currentColumnIndex = currentColumnIndex + 1;
+					}
+				} else if (!anonAndMixed) {
 					// add to the end of the column list
 					cols.add(column);
 				}
@@ -645,6 +655,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		toolbarModelData.put("categoryType", this.businessService.getGradebookCategoryType());
 		toolbarModelData.put("categoriesEnabled", categoriesEnabled);
 		toolbarModelData.put("fixedColCount", fixedColCount);
+		toolbarModelData.put("mixedCategoryNames", mixedCategoryNames);
 
 		table.addTopToolbar(new GbHeadersToolbar(table, null, Model.ofMap(toolbarModelData)));
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
