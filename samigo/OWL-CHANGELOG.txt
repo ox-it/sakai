@@ -1,3 +1,5 @@
+2017.07.05:
+	- [OWL-2939] backport SAM-1261: remove struts from samigo-app
 2017.05.02:
 	- [OWL-2807] user activity report exposes IDs for anonymous grading
 2017.03.07:
