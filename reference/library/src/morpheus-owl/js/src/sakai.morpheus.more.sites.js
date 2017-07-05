@@ -310,6 +310,8 @@ $PBJQ(document).ready(function($){
     itemsBySiteId[$PBJQ(e).data('site-id')] = $PBJQ(e).parent();
   });
 
+  
+
   var button_states = {
     favorite: {
       markup: '<i class="site-favorite-icon site-favorite"></i>'
@@ -391,6 +393,63 @@ $PBJQ(document).ready(function($){
       return $PBJQ(this).data('site-id');
     }).toArray();
   }
+
+
+  /**
+   * @func syncFavoritesToServer
+   * @desc Reusable method to sync fav changes to the server
+   * @param {Array} favs  - List of SiteIds to be used as favourites
+   * @param {Function} onError  - Error function to be called on AJAX failure 
+   */
+  var syncFavoritesToServer = function(favs, onError) {
+  
+    if (!onError) {
+      onError = function (err) { };
+    }
+
+    $PBJQ.ajax({
+      url: '/portal/favorites/update',
+      method: 'POST',
+      data: {
+        favorites: favs.join(';')
+      },
+      error: onError
+    });
+
+    // Notify user and update the list
+    favoritesList = favs;
+    showRefreshNotification();
+  }
+
+  /**
+   * @func topNavFavorite
+   * @desc Toggles favouriting from the top navigation
+   * @param {*} event  - jQuery Event for item clicked
+   */
+  var topNavFavorite = function(event) {
+    var newFavId = $PBJQ(event.target).data("site-id")
+
+    getUserFavorites(function(list){
+        var favs = list; 
+        var ind = favs.indexOf(newFavId); 
+        
+        if(ind === -1) {
+          // Add Fav  
+          favs.push(newFavId)
+        } else {
+          // Remove Fav
+          favs.splice(ind,1)
+        }
+        syncFavoritesToServer(favs)
+    });
+  }
+
+
+
+  // Add the fav toggle to the top-nav buttons
+  $PBJQ(".Mrphs-sitesNav__favbtn").each(function(i, e) {
+    return $PBJQ(e).click(topNavFavorite)
+  })
 
   var loadFromServer = function () {
     getUserFavorites(renderFavorites);
