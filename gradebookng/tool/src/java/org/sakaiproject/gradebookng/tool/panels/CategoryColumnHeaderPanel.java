@@ -83,7 +83,7 @@ public class CategoryColumnHeaderPanel extends Panel {
 
 		add(title);
 
-		String categoryColor = settings.getCategoryColor(category.getName());
+		String categoryColor = settings.getCategoryColor(category.getName(), category.getId());
 
 		final Component colorSwatch = gradebookPage.buildFlagWithPopover("categorySwatch",
 				(new StringResourceModel("label.gradeitem.categoryaverage", this, null,

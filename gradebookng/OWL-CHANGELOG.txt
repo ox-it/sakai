@@ -1,3 +1,7 @@
+2016.07.06:
+	- [OWL-2739] make gradebookng category colours algorithm deterministic
+2017.06.29:
+	- [OWL-2676] improve performance of spreadsheet import for gradebookNG
 2017.06.16:
 	- [OWL-2926] fresh sites/gradebookNG instances with no gradebook items make it difficult to create new gradebook items
 2017.06.15:

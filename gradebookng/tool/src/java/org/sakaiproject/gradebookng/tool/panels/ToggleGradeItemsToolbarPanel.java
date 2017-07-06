@@ -31,8 +31,6 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
  */
 public class ToggleGradeItemsToolbarPanel extends Panel {
 
-	private static final long serialVersionUID = 1L;
-
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
@@ -51,33 +49,35 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 		super.onInitialize();
 
 		// setup
-		final List<String> categoryNames = new ArrayList<String>();
-		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
+		final Map<String, Long> categoryNameToIdMap = new HashMap<>();
+		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
 
-		final List<Assignment> assignments = (List<Assignment>) this.model.getObject();
+		final List<Assignment> assignments = (List<Assignment>) model.getObject();
 
 		// only deal with categories if categories are enabled
-		this.categoriesEnabled = this.businessService.categoriesAreEnabled();
+		categoriesEnabled = businessService.categoriesAreEnabled();
 
 		// iterate over assignments and build map of categoryname to list of assignments
 		for (final Assignment assignment : assignments) {
 
 			final String categoryName = getCategoryName(assignment);
+			final Long categoryID = assignment.getCategoryId();
 
 			if (!categoryNamesToAssignments.containsKey(categoryName)) {
-				categoryNames.add(categoryName);
-				categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
+				categoryNameToIdMap.put(categoryName, categoryID);
+				categoryNamesToAssignments.put(categoryName, new ArrayList<>());
 			}
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
 
+		List<String> categoryNames = new ArrayList<>(categoryNameToIdMap.keySet());
 		add(new ListView<String>("categoriesList", categoryNames) {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void populateItem(final ListItem<String> categoryItem) {
 				final String categoryName = categoryItem.getModelObject();
+				final Long categoryID = categoryNameToIdMap.get(categoryName);
 
 				WebMarkupContainer categoryFilter = new WebMarkupContainer("categoryFilter");
 				if (!ToggleGradeItemsToolbarPanel.this.categoriesEnabled) {
@@ -91,7 +91,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 				GradebookUiSettings settings = gradebookPage.getUiSettings();
 
 				final Label categoryLabel = new Label("category", categoryName);
-				categoryLabel.add(new AttributeModifier("data-category-color", settings.getCategoryColor(categoryName)));
+				categoryLabel.add(new AttributeModifier("data-category-color", settings.getCategoryColor(categoryName, categoryID)));
 				categoryFilter.add(categoryLabel);
 
 				final CheckBox categoryCheckbox = new CheckBox("categoryCheckbox");
@@ -100,7 +100,6 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 				categoryFilter.add(categoryCheckbox);
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryNamesToAssignments.get(categoryName)) {
-					private static final long serialVersionUID = 1L;
 
 					@Override
 					protected void populateItem(final ListItem<Assignment> assignmentItem) {
@@ -114,8 +113,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
 						assignmentItem.add(new Label("assignmentTitle", FormatHelper.abbreviateMiddle(assignment.getName())));
 
-						final CheckBox assignmentCheckbox = new AjaxCheckBox("assignmentCheckbox",
-								Model.of(Boolean.valueOf(settings.isAssignmentVisible(assignment.getId())))) {
+						final CheckBox assignmentCheckbox = new AjaxCheckBox("assignmentCheckbox", Model.of(settings.isAssignmentVisible(assignment.getId()))) {
 							@Override
 							protected void onUpdate(final AjaxRequestTarget target) {
 								GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -136,13 +134,11 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 				});
 
 				final WebMarkupContainer categoryScoreFilter = new WebMarkupContainer("categoryScore");
-				categoryScoreFilter.setVisible(categoryName != getString(GradebookPage.UNCATEGORISED));
+				categoryScoreFilter.setVisible(!categoryName.equals( getString(GradebookPage.UNCATEGORISED) ));
 				categoryScoreFilter.add(new Label("categoryScoreLabel",
 						new StringResourceModel("label.toolbar.categoryscorelabel", null, new Object[] { categoryName })));
 
-				final CheckBox categoryScoreCheckbox = new AjaxCheckBox("categoryScoreCheckbox",
-						new Model<Boolean>(settings.isCategoryScoreVisible(categoryName))) {// Model.of(Boolean.valueOf(settings.isCategoryScoreVisible(category))))
-					// {
+				final CheckBox categoryScoreCheckbox = new AjaxCheckBox("categoryScoreCheckbox", new Model<>(settings.isCategoryScoreVisible(categoryName))) {
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
 						GradebookUiSettings settings = gradebookPage.getUiSettings();

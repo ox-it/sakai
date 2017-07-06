@@ -195,9 +195,9 @@ public class GradebookUiSettings implements Serializable {
 		this.categoryColors.put(categoryName, rgbColorString);
 	}
 
-	public String getCategoryColor(final String categoryName) {
+	public String getCategoryColor(final String categoryName, final Long categoryID) {
 		if (!this.categoryColors.containsKey(categoryName)) {
-			setCategoryColor(categoryName, generateRandomRGBColorString());
+			setCategoryColor(categoryName, generateRandomRGBColorString(categoryID));
 		}
 
 		return this.categoryColors.get(categoryName);
@@ -207,7 +207,7 @@ public class GradebookUiSettings implements Serializable {
 		if (categories != null) {
 			for (CategoryDefinition category : categories) {
 				if (!this.categoryColors.containsKey(category.getName())) {
-					setCategoryColor(category.getName(), generateRandomRGBColorString());
+					setCategoryColor(category.getName(), generateRandomRGBColorString(category.getId()));
 				}
 			}
 		}
@@ -221,8 +221,12 @@ public class GradebookUiSettings implements Serializable {
 	/**
 	 * Helper to generate a RGB CSS color string with values between 180-250 to ensure a lighter color e.g. rgb(181,222,199)
 	 */
-	private String generateRandomRGBColorString() {
-		final Random rand = new Random();
+	private String generateRandomRGBColorString(Long categoryID) {
+		if (categoryID == null) {
+			categoryID = -1L;
+		}
+
+		final Random rand = new Random(categoryID);
 		final int min = 180;
 		final int max = 250;
 

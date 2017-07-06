@@ -5,12 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortStateLocator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IStyledColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -20,6 +19,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.table.columns.HandleColumn;
@@ -112,7 +112,7 @@ public class GbHeadersToolbar<S> extends GbBaseHeadersToolbar<S> {
 
 			Collections.sort(categories, CategoryDefinition.orderComparator);
 
-			final Map<Long, Integer> categoryCounts = new HashMap<Long, Integer>();
+			final Map<Long, Integer> categoryCounts = new HashMap<>();
 
 			for (final CategoryDefinition category : categories) {
 				categoryCounts.put(category.getId(), 0);
@@ -132,7 +132,6 @@ public class GbHeadersToolbar<S> extends GbBaseHeadersToolbar<S> {
 			final List<String> mixedCategoryNames = (List<String>)modelData.get("mixedCategoryNames");
 
 			categoriesRow.add(new ListView<CategoryDefinition>("categories", categories) {
-				private static final long serialVersionUID = 1L;
 
 				@Override
 				protected void populateItem(final ListItem<CategoryDefinition> categoryItem) {
@@ -141,9 +140,8 @@ public class GbHeadersToolbar<S> extends GbBaseHeadersToolbar<S> {
 					int categoryCellIncrement = mixedCategoryNames.contains(category.getName()) ? 0 : 1;
 					categoryItem.add(new AttributeModifier("colspan", categoryCounts.get(category.getId()) + categoryCellIncrement));
 					categoryItem.add(new AttributeModifier("data-category-id", category.getId()));
-					final String color = settings.getCategoryColor(category.getName());
-					categoryItem.add(new AttributeModifier("style",
-							String.format("background-color: %s;", color)));
+					final String color = settings.getCategoryColor(category.getName(), category.getId());
+					categoryItem.add(new AttributeModifier("style", String.format("background-color: %s;", color)));
 					categoryItem.add(new Label("name", category.getName()));
 					categoryItem.add(((BasePage) page).buildFlagWithPopover("extraCreditCategoryFlag",
 							getString("label.gradeitem.extracreditcategory")).setVisible(category.isExtraCredit()));
@@ -159,7 +157,6 @@ public class GbHeadersToolbar<S> extends GbBaseHeadersToolbar<S> {
 						categoryItem.add(new AttributeModifier("title",
 							new StringResourceModel("label.gradeitem.categoryheadertooltip", null,
 								new Object[] {category.getName()})));
-
 					}
 				}
 			});
@@ -167,8 +164,7 @@ public class GbHeadersToolbar<S> extends GbBaseHeadersToolbar<S> {
 			if (categoryCounts.get(null) > 0) {
 				final WebMarkupContainer uncategorizedHeader = new WebMarkupContainer("uncategorized");
 				uncategorizedHeader.add(new AttributeModifier("colspan", categoryCounts.get(null)));
-				uncategorizedHeader.add(new AttributeModifier("title",
-					getString("gradebookpage.uncategorised")));
+				uncategorizedHeader.add(new AttributeModifier("title", getString("gradebookpage.uncategorised")));
 				categoriesRow.add(uncategorizedHeader);
 			} else {
 				categoriesRow.add(new WebMarkupContainer("uncategorized").setVisible(false));
