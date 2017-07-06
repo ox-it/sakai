@@ -30,6 +30,7 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeStatistics;
 import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmissionPresenter;
 import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmitter;
+import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmitter.GradeChangeReport;
 import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmitter.SubmissionHistoryRow;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -67,6 +68,8 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	private boolean hasAssignmentsAndGrades;
 
 	private Form<Void> form;
+	
+	private WebMarkupContainer spreadsheet;
 
 	private List<PermissionDefinition> permissions = new ArrayList<>();
 	private boolean showGroupFilter = true;
@@ -205,10 +208,16 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
 		table.add(new AttributeModifier("data-gradestimestamp", gradesTimestamp.getTime()));
 		
-		form.add(table);
+		spreadsheet = new WebMarkupContainer("spreadsheet");
+		spreadsheet.setOutputMarkupId(true);
+		//form.add(table);
+		spreadsheet.add(table);
 		
 		final GbBaseGradesDisplayToolbar toolbar = new GbBaseGradesDisplayToolbar("toolbar", table, sections);
-		form.add(toolbar);
+		//form.add(toolbar);
+		spreadsheet.add(toolbar);
+		
+		form.add(spreadsheet);
 	}
 	
 	public List<GbGroup> getSections()
@@ -256,7 +265,8 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		// need to be the one that displays this message (Wicket will handle
 		// the 'saved' and 'error' messages when a grade is changed
 		liveGradingFeedback.add(new AttributeModifier("data-saving-message", getString("feedback.saving")));
-		form.addOrReplace(liveGradingFeedback);
+		//form.addOrReplace(liveGradingFeedback);
+		spreadsheet.addOrReplace(liveGradingFeedback);
 	}
 
 	@Override
@@ -313,12 +323,14 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	{
 		if (target != null)
 		{
-			target.add(form); // OWLTODO: it may be possible to re-render only some components of the form instead of the whole thing
+			//target.add(form); // OWLTODO: it may be possible to re-render only some components of the form instead of the whole thing
+			target.add(spreadsheet);
 			
 			// OWLTODO: constants, maybe in GbJsConstants class or something...
-			target.appendJavaScript("sakai.gradebookng.spreadsheet.$spreadsheet = $(\"#gradebookGrades\");");
-			target.appendJavaScript("sakai.gradebookng.spreadsheet.$table = $(\"#gradebookGradesTable\");");
-			target.appendJavaScript("sakai.gradebookng.spreadsheet.initTable();");
+			//target.appendJavaScript("sakai.gradebookng.spreadsheet.$spreadsheet = $(\"#gradebookGrades\");");
+			//target.appendJavaScript("sakai.gradebookng.spreadsheet.$table = $(\"#gradebookGradesTable\");");
+			target.appendJavaScript("reinitSpreadsheet();");
+			//target.appendJavaScript("sakai.gradebookng.spreadsheet.initTable();");
 		}
 	}
 	
@@ -338,12 +350,14 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		
 		// 3
 		CourseGradeStatistics stats = new CourseGradeStatistics(courseGrades);
+		submitter.setStats(stats);
 		int missing = submitter.getMissingGradeCount();  // requires a refresh but this was done above
 		data.setStats(new SectionStats(stats, missing));
 		
 		// 4
 		List<SubmissionHistoryRow> history = submitter.getSubmissionHistoryRowsForSelectedSection();
-		String status = submitter.getGradeChangeReport(courseGrades).getCurrentStatusMessage();
+		GradeChangeReport report = submitter.getGradeChangeReport(courseGrades);
+		String status = history.isEmpty() ? report.getFirstSubmissionMessage() : report.getCurrentStatusMessage();
 		data.setHistory(new SubmissionHistory(history, status));
 		
 		// 5
@@ -356,6 +370,8 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		SubmitAndApproveStatus sas = SubmitAndApproveStatus.builder().canSubmit(isSubmitter).canApprove(isApprover)
 				.submitReady(canSubmit).approveReady(canApprove).statusMsg(status).build();
 		data.setButtonStatus(sas);
+		
+		data.setSectionExcluded(submitter.isSectionInExcludePrefixList());
 	}
 	
 	private void redrawStatsAndHistory(AjaxRequestTarget target)
@@ -409,7 +425,8 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	public void redrawForGroupChange(AjaxRequestTarget target)
 	{
 		redrawSpreadsheet(target);
-		redrawStatsAndHistory(target);
+		updateStatsAndHistoryModel(submissionPanel.getData());
+		submissionPanel.redrawForSectionChange(target);
 	}
 	
 	@Override

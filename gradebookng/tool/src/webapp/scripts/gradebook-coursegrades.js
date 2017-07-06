@@ -42,6 +42,7 @@ GradebookSpreadsheet.prototype.initTable = function()
 {
     GradebookSpreadsheet.prototype._callbacks = [];
     
+    this._GRADE_CELLS = {};
     this.setupGradeItemCellModels();
     
     var self = this;
@@ -1246,5 +1247,12 @@ $(function() {
     spreadsheet: new GradebookSpreadsheet($("#gradebookGrades"))
   };
 });
+
+function reinitSpreadsheet()
+{
+    sakai.gradebookng.spreadsheet.$spreadsheet = $("#gradebookGrades");
+    sakai.gradebookng.spreadsheet.$table = $("#gradebookGradesTable");
+    sakai.gradebookng.spreadsheet.initTable();
+}
 
 

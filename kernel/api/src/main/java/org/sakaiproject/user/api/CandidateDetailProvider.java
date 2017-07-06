@@ -43,6 +43,8 @@ public interface CandidateDetailProvider {
 	 
 	 Optional<String> getInstitutionalNumericId(User user, Site site);
 	 
+	 Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site);
+	 
 	 boolean isInstitutionalNumericIdEnabled();
 	 
 	 boolean canUserViewInstitutionalNumericIds(User user, Site site);

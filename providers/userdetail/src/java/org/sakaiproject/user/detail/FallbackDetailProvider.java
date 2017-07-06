@@ -70,7 +70,7 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 		return false;
 	}
 	
-		@Override
+	@Override
 	public Optional<String> getInstitutionalNumericId(User user, Site site)
 	{
 		log.debug("Getting student number from fallback provider");
@@ -80,6 +80,12 @@ public class FallbackDetailProvider implements CandidateDetailProvider {
 		}
 		
 		return Optional.empty();
+	}
+	
+	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		return getInstitutionalNumericId(candidate, site);
 	}
 	
 	@Override

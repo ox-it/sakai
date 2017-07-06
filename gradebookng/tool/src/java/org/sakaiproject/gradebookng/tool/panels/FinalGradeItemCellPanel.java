@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
@@ -22,7 +23,9 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
 import org.sakaiproject.gradebookng.tool.behavior.RevertScoreBehavior;
 import org.sakaiproject.gradebookng.tool.behavior.ScoreChangeBehavior;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.table.columns.FinalGradeColumn;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.CourseGradesPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
@@ -201,6 +204,25 @@ public class FinalGradeItemCellPanel extends Panel
 		
 		refreshNotifications();
 		styleGradeCell(this);
+		
+		// menu
+		final WebMarkupContainer menu = new WebMarkupContainer("menu");
+		menu.add(new GbAjaxLink<String>("finalGradeOverrideLog", Model.of(studentUuid)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(final AjaxRequestTarget target) {
+				final GbModalWindow window = page.getUpdateCourseGradeDisplayWindow();
+				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				CourseGradeOverrideLogPanel.ModelData data = new CourseGradeOverrideLogPanel.ModelData();
+				data.forFinalGrades = true;
+				data.studentUuid = getDefaultModelObjectAsString();
+				window.setContent(new CourseGradeOverrideLogPanel(window.getContentId(), Model.of(data), window));
+				window.showUnloadConfirmation(false);
+				window.show(target);
+			}
+		});
+		add(menu);
 	}
 	
 	/**

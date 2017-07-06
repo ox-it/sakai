@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
 /**
@@ -37,7 +39,7 @@ public class CourseGradeOverrideLogPanel extends Panel {
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	public CourseGradeOverrideLogPanel(final String id, final IModel<String> model, final ModalWindow window) {
+	public CourseGradeOverrideLogPanel(final String id, final IModel<ModelData> model, final ModalWindow window) {
 		super(id, model);
 		this.window = window;
 	}
@@ -47,27 +49,11 @@ public class CourseGradeOverrideLogPanel extends Panel {
 		super.onInitialize();
 
 		// unpack model
-		final String studentUuid = (String) getDefaultModelObject();
-
-		GradebookUiSettings settings = ((GradebookPage)getPage()).getUiSettings();
-		boolean isContextAnonymous = settings.isContextAnonymous();
+		ModelData data = (ModelData) getDefaultModelObject();
+		final String studentUuid = data.studentUuid;
 
 		// heading
-		// TODO if user has been deleted since rendering the GradebookPage, handle a null here gracefully
-		final GbUser user = this.businessService.getUser(studentUuid);
-		StringResourceModel titleModel;
-		if (isContextAnonymous)
-		{
-			titleModel = new StringResourceModel("heading.coursegradelog.anonymous", null,
-				new Object[] { user.getAnonId(settings) });
-		}
-		else
-		{
-			titleModel = new StringResourceModel("heading.coursegradelog", null,
-				new Object[] { user.getDisplayName(), user.getDisplayId() });
-		}
-
-		CourseGradeOverrideLogPanel.this.window.setTitle(titleModel.getString());
+		CourseGradeOverrideLogPanel.this.window.setTitle(getTitleModel().getString());
 
 		// get the course grade
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
@@ -99,7 +85,8 @@ public class CourseGradeOverrideLogPanel extends Panel {
 		add(listView);
 
 		// no entries
-		final Label emptyLabel = new Label("empty", new ResourceModel("coursegrade.log.none"));
+		String noEntriesKey = data.forFinalGrades ? "finalgrades.log.none" : "coursegrade.log.none";
+		final Label emptyLabel = new Label("empty", new ResourceModel(noEntriesKey));
 		emptyLabel.setVisible(gradeLog.isEmpty());
 		add(emptyLabel);
 
@@ -130,16 +117,45 @@ public class CourseGradeOverrideLogPanel extends Panel {
 		final String graderDisplayId = (grader != null) ? grader.getDisplayId() : getString("unknown.user.id");
 
 		String rval;
+		
+		ModelData data = (ModelData) getDefaultModelObject();
+		String setKey = data.forFinalGrades ? "finalgrades.log.entry.set" : "coursegrade.log.entry.set";
+		String unsetKey = data.forFinalGrades ? "finalgrades.log.entry.unset" : "coursegrade.log.entry.unset";
 
 		// if no grade, it is a reset
 		if (StringUtils.isNotBlank(grade)) {
-			rval = new StringResourceModel("coursegrade.log.entry.set", null, new Object[] { logDate, grade, graderDisplayId }).getString();
+			rval = new StringResourceModel(setKey, null, new Object[] { logDate, grade, graderDisplayId }).getString();
 		} else {
-			rval = new StringResourceModel("coursegrade.log.entry.unset", null, new Object[] { logDate, graderDisplayId }).getString();
+			rval = new StringResourceModel(unsetKey, null, new Object[] { logDate, graderDisplayId }).getString();
 		}
 
 		return rval;
 
 	}
+	
+	private StringResourceModel getTitleModel()
+	{
+		ModelData data = (ModelData) getDefaultModelObject();
+		String key = data.forFinalGrades ? "finalgrades.heading.gradelog" : "heading.coursegradelog";
+		String anonKey = data.forFinalGrades ? "finalgrades.heading.gradelog.anonymous" : "heading.coursegradelog.anonymous";
+		
+		GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
+		GbUser user = businessService.getUser(data.studentUuid);
+		if (user == null)
+		{
+			user = GbUser.forDisplayOnly("", "");
+		}
+		if (settings.isContextAnonymous())
+		{
+			return new StringResourceModel(anonKey, null, new Object[] { user.getAnonId(settings) });
+		}
 
+		return new StringResourceModel(key, null, new Object[] { user.getDisplayName(), user.getDisplayId() });
+	}
+	
+	public static class ModelData implements Serializable
+	{
+		public String studentUuid = "";
+		public boolean forFinalGrades = false;
+	}
 }

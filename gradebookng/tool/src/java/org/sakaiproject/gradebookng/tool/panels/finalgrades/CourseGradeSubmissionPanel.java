@@ -4,8 +4,10 @@ import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.SectionStatisticsPanel.SectionStats;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.SubmissionHistoryPanel.SubmissionHistory;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.SubmitAndApprovePanel.SubmitAndApproveStatus;
@@ -19,6 +21,7 @@ public class CourseGradeSubmissionPanel extends Panel
 	private SectionStatisticsPanel statsPanel;
 	private SubmissionHistoryPanel historyPanel;
 	private SubmitAndApprovePanel submitPanel;
+	private Label sectionExcludedMsg;
 	
 	public CourseGradeSubmissionPanel(String id, IModel<CourseGradeSubmissionData> model)
 	{
@@ -33,10 +36,24 @@ public class CourseGradeSubmissionPanel extends Panel
 		IModel<CourseGradeSubmissionData> dataModel = getDataModel();
 		add(statsPanel = new SectionStatisticsPanel("sectionStatisticsPanel", dataModel));
 		add(historyPanel = new SubmissionHistoryPanel("submissionHistoryPanel", dataModel));
-		historyPanel.setOutputMarkupId(true);
+		historyPanel.setOutputMarkupPlaceholderTag(true);
 		add(submitPanel = new SubmitAndApprovePanel("submitAndApprovePanel", dataModel));
-		submitPanel.setOutputMarkupId(true);
+		submitPanel.setOutputMarkupPlaceholderTag(true);
+		add(sectionExcludedMsg = new Label("sectionExcludedMsg",
+				new StringResourceModel("finalgrades_submission_disabled", this, null)));
+		sectionExcludedMsg.setOutputMarkupPlaceholderTag(true);
+		
+		refreshVisibility();
 	}
+	
+	private void refreshVisibility()
+	{
+		boolean excluded = getData().isSectionExcluded();
+		historyPanel.setVisible(!excluded);
+		submitPanel.setVisible(!excluded);
+		sectionExcludedMsg.setVisible(excluded);
+	}
+	
 	
 	public CourseGradeSubmissionData getData()
 	{
@@ -71,6 +88,15 @@ public class CourseGradeSubmissionPanel extends Panel
 		submitPanel.redrawFeedback(target);
 	}
 	
+	public void redrawForSectionChange(AjaxRequestTarget target)
+	{
+		refreshVisibility();
+		redrawButtons(target);
+		redrawStats(target);
+		redrawHistory(target);
+		target.add(sectionExcludedMsg);
+	}
+	
 	public static class CourseGradeSubmissionData implements Serializable
 	{
 		@Getter @Setter
@@ -81,5 +107,8 @@ public class CourseGradeSubmissionPanel extends Panel
 		
 		@Getter @Setter
 		private SubmitAndApproveStatus buttonStatus;
+		
+		@Getter @Setter
+		private boolean sectionExcluded;
 	}
 }

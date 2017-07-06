@@ -902,9 +902,10 @@ public class GradebookPage extends BasePage implements IGradesPage
 			Component togglePanel = this.get("gradeItemsTogglePanelContainer");
 			target.add(togglePanel);
 			
-			target.appendJavaScript("sakai.gradebookng.spreadsheet.$spreadsheet = $(\"#gradebookGrades\");");
+			/*target.appendJavaScript("sakai.gradebookng.spreadsheet.$spreadsheet = $(\"#gradebookGrades\");");
 			target.appendJavaScript("sakai.gradebookng.spreadsheet.$table = $(\"#gradebookGradesTable\");");
-			target.appendJavaScript("sakai.gradebookng.spreadsheet.initTable();");
+			target.appendJavaScript("sakai.gradebookng.spreadsheet.initTable();");*/
+			target.appendJavaScript("REINIT.spreadsheet();");
 		}
 	}
 	

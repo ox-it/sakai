@@ -87,10 +87,10 @@ public class CourseGradeSubmitter implements Serializable
     private static final String EMAIL_NO_APPROVERS_NOTIFICATION_LIST = "gradebook.courseGradeSubmission.email.noApproversNotificationList";
     private static final List<String> emailNoApproversNotificationList = readListFromProperty(EMAIL_NO_APPROVERS_NOTIFICATION_LIST);
     
-    private static final String STUDENT_NUMBER_SAKAI_PROPERTY = "gradebook.empNumKey";
+    //private static final String STUDENT_NUMBER_SAKAI_PROPERTY = "gradebook.empNumKey";
     
     private static final String SUPPORT_EMAIL_SAKAI_PROPERTY = "mail.support";
-    private static final String SUPPORT_EMAIL = ServerConfigurationService.getString(SUPPORT_EMAIL_SAKAI_PROPERTY, "");
+    public static final String SUPPORT_EMAIL = ServerConfigurationService.getString(SUPPORT_EMAIL_SAKAI_PROPERTY, "");
     
     private static final String EMAIL_SFTP_ERROR_TEMPLATE = "gradebook.courseGradeSubmission.sftpError";
     private static final String EMAIL_SFTP_ERROR_KEY_SUBMISSION_ID = "submissionId";
@@ -219,9 +219,9 @@ public class CourseGradeSubmitter implements Serializable
         return sectionStats;
     }
 	
-	public void clearStats()
+	public void setStats(CourseGradeStatistics stats)
 	{
-		sectionStats = null;
+		sectionStats = stats;
 	}
     
     public int getMissingGradeCount()
@@ -542,18 +542,18 @@ public class CourseGradeSubmitter implements Serializable
         csv.setSectionEid(existingSubmission.getSectionEid());
         
         // is this a revised approval?
-        OwlGradeSubmission previousApprovedSubmission = findPreviousApproval(existingSubmission.getPrevSubmission());
+        Optional<OwlGradeSubmission> previousApprovedSubmission = findPreviousApproval(existingSubmission.getPrevSubmission());
         boolean gradesAdded;
         boolean uploaded = false;
         boolean skipUpload = false;
         boolean sftpEnabled = ServerConfigurationService.getBoolean(SFTP_ENABLED_SAKAI_PROPERTY, false);
-        if (previousApprovedSubmission == null)
+        if (!previousApprovedSubmission.isPresent())
         {
             gradesAdded = csv.addGrades(existingSubmission.getGradeData());
         }
         else
         {
-            gradesAdded = csv.addRevisedGrades(existingSubmission.getGradeData(), previousApprovedSubmission.getGradeData());
+            gradesAdded = csv.addRevisedGrades(existingSubmission.getGradeData(), previousApprovedSubmission.get().getGradeData());
         }
                 
         /* 2. sftp csv to registrar */
@@ -1026,8 +1026,9 @@ public class CourseGradeSubmitter implements Serializable
                 }
                 else
                 {
-                    grade.setStudentNumber(student.getStudentNumber());
+                    grade.setStudentNumber(getStudentNumber(student));
                 }
+				
                 grade.setGrade(courseGradeToRegistrarGrade(record));
                 finalGrades.add(grade);
             }
@@ -1084,15 +1085,20 @@ public class CourseGradeSubmitter implements Serializable
         return official;
     }
     
-    private String getStudentNumber(User student) throws MissingStudentNumberException
+    private String getStudentNumber(GbUser student) throws MissingStudentNumberException
     {
-        String studentNumberProperty = ServerConfigurationService.getString(STUDENT_NUMBER_SAKAI_PROPERTY);
-        String number = student.getProperties().getProperty(studentNumberProperty); 
-        if (number == null || number.trim().isEmpty())
-        {
-            throw new MissingStudentNumberException("Couldn't find student number for user: " + student.getEid());
-        }
-
+		String number = student.getStudentNumber();
+		
+		if (number.isEmpty())
+		{
+			// student's number just may not be visible to end users, reveal it if it exists
+			number = bus.revealStudentNumber(student);
+			if (number.isEmpty())
+			{
+				throw new MissingStudentNumberException("Couldn't find student number for user: " + student.getEid());
+			}
+		}
+		
         return number;
     }
     
@@ -1419,7 +1425,9 @@ public class CourseGradeSubmitter implements Serializable
         
         // bjones86 - grade submission/approval exclude prefixes
         if( isSectionInExcludePrefixList() )
+		{
         	return submit;
+		}
         
         if (userEid != null && !userEid.isEmpty() && members != null && !members.isEmpty())
         {
@@ -1447,7 +1455,9 @@ public class CourseGradeSubmitter implements Serializable
         
         // bjones86 - grade submission/approval exclude prefixes
         if( isSectionInExcludePrefixList() )
+		{
         	return approve;
+		}
         
         if (userEid != null && !userEid.isEmpty() && members != null && !members.isEmpty())
         {
@@ -1491,27 +1501,25 @@ public class CourseGradeSubmitter implements Serializable
     /**
      * 
      * @param previousSub the current submission's previous submission. Can be null.
-     * @return the most recent approved previous submission, or null if there was no previous approval
+     * @return the most recent approved previous submission, or empty if there was no previous approval
      */
-    private OwlGradeSubmission findPreviousApproval(OwlGradeSubmission previousSub)
-    {
-        if (previousSub == null)
+	public static Optional<OwlGradeSubmission> findPreviousApproval(OwlGradeSubmission previousSub)
+	{
+		if (previousSub == null)
         {
-            return null;
+            return Optional.empty();
         }
         else if (previousSub.hasApproval())
         {
-            return previousSub;
+            return Optional.of(previousSub);
         }
         else if (previousSub.hasPrevSubmission() == false)
         {
-            return null;
+            return Optional.empty();
         }
-        else
-        {
-            return findPreviousApproval(previousSub.getPrevSubmission());
-        }
-    }
+
+        return findPreviousApproval(previousSub.getPrevSubmission());
+	}
     
     private static List<String> readListFromProperty(String propName)
     {
@@ -1549,6 +1557,9 @@ public class CourseGradeSubmitter implements Serializable
     
     public class SubmissionHistoryRow implements Serializable
     {
+		public static final String APPROVED_STATUS = "Approved";
+		public static final String PENDING_STATUS = "Pending Approval";
+		
 		@Getter
         private final OwlGradeSubmission sub;
 		@Getter
@@ -1565,7 +1576,7 @@ public class CourseGradeSubmitter implements Serializable
 
 			if (sub.hasApproval())
 			{
-				status = "Approved";
+				status = APPROVED_STATUS;
 				OwlGradeApproval app = sub.getApproval();
 				appDate = formatter.format(app.getApprovalDate());
 				appByEid = app.getUserEid();
@@ -1573,7 +1584,7 @@ public class CourseGradeSubmitter implements Serializable
 			}
 			else
 			{
-				status = "Pending Approval";
+				status = PENDING_STATUS;
 				appDate = appByName = appByEid = "-";
 			}
 			
@@ -1583,52 +1594,6 @@ public class CourseGradeSubmitter implements Serializable
         {
             return sub.hasApproval();
         }
-        
-        /*public void showPdf()
-        {
-            // check the current user's permissions
-            refreshCurrentProvidedMembers();
-            if (isUserAbleToSubmit(userEid, currentSectionProvidedMembers) || isUserAbleToApprove(userEid, currentSectionProvidedMembers))
-            {
-            
-                //Get an HttpServletResponse so that we can throw the PDF into its outputstream
-                HttpServletResponse response = CourseGradeSubmissionPresenter.getServletResponse();
-                try
-                {
-                    OutputStream out = response.getOutputStream();
-
-                    //render the pdf, and setup the response's header
-                    CourseGradePdfGenerator pdfGen = new CourseGradePdfGenerator(sub);
-
-                    // see if we have a previously approved submission
-                    OwlGradeSubmission previouslyApprovedSubmission = findPreviousApproval(sub.getPrevSubmission());
-                    if (previouslyApprovedSubmission != null)
-                    {
-                        pdfGen.setPreviousApprovedGrades(previouslyApprovedSubmission.getGradeData());
-                    }
-
-                    pdfGen.generateIntoOutputStream(out);
-
-                    response.setContentType("application/pdf");
-                    response.addHeader("Content-Disposition", "attachment; filename=\"" + pdfGen.getFilename() + "\"");
-
-                    //send it off
-                    out.flush();
-                    out.close();
-                    CourseGradeSubmissionPresenter.completeResponse();
-                }
-                catch(IOException e)
-                {
-                    LOG.error(LOG_PREFIX + "Could not generate PDF for submission id = " + sub.getId(), e);
-                    presenter.presentError("Unable to generate PDF file. Please try again later. If the problem persists, contact " + SUPPORT_EMAIL);
-                }
-            }
-            else
-            {
-                presenter.presentError("You do not have permission to view this report.");
-            }
-
-         }*/
         
     } // end class SubmissionHistoryRow
     

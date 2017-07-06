@@ -64,6 +64,15 @@ GradebookSpreadsheet.prototype.initTable = function()
 {
     GradebookSpreadsheet.prototype._callbacks = [];
     
+    // all the Grade Item cell models keyed on studentUuid, then assignmentId
+    this._GRADE_CELLS = {};
+
+    // categories and ordering
+    this._CATEGORIES_MAP = {}; // header models keyed on their category
+    this._ALL_CATEGORIES = []; // category strings in an alpha sorted list
+    this._COLUMN_ORDER = [];   // the order of the columns when categories aren't enabled
+    this._CATEGORY_DATA = {}; // info about each category including weighting and color
+    
     this.setupGradeItemCellModels();
     this._refreshColumnOrder();
     this.setupToolbar();
@@ -2784,3 +2793,11 @@ $(function() {
     spreadsheet: new GradebookSpreadsheet($("#gradebookGrades"))
   };
 });
+
+var REINIT = {};
+REINIT.spreadsheet = function ()
+{
+    sakai.gradebookng.spreadsheet.$spreadsheet = $("#gradebookGrades");
+    sakai.gradebookng.spreadsheet.$table = $("#gradebookGradesTable");
+    sakai.gradebookng.spreadsheet.initTable();
+}

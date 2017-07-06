@@ -67,17 +67,7 @@ public class CourseGradeColumn extends AbstractColumn
 		modelData.put("showLetterGrade", false);
 		modelData.put("courseGradeVisible", courseGradeVisible);
 		
-		cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData)));
+		cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData), false));
 		cellItem.setOutputMarkupId(true);
-		
-		// OWLTODO: remove editable course grade code/panel
-		/*CourseGradeItemEditableCellPanel.EditableCourseGradeModelData modelData;
-		modelData = new CourseGradeItemEditableCellPanel.EditableCourseGradeModelData();
-		modelData.setGbCourseGrade(studentGradeInfo.getCourseGrade());
-		modelData.setStudentUuid(studentGradeInfo.getStudentUuid());
-		modelData.setShowPoints(page.getUiSettings().getShowPoints());
-
-		cellItem.add(new CourseGradeItemEditableCellPanel(componentId, Model.of(modelData)));
-		cellItem.setOutputMarkupId(true);*/
 	}
 }

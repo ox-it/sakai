@@ -114,7 +114,18 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	@Override
 	public Optional<String> getInstitutionalNumericId(User user, Site site)
 	{
-		if (user == null || !secServ.unlock(user, USER_PERM_STUDENT_NUMBER_VISIBLE, site.getReference()))
+		return getNumericId(user, site, true);
+	}
+	
+	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		return getNumericId(candidate, site, false);
+	}
+	
+	private Optional<String> getNumericId(User user, Site site, boolean checkVisibilityPermission)
+	{
+		if (user == null || (checkVisibilityPermission && !secServ.unlock(user, USER_PERM_STUDENT_NUMBER_VISIBLE, site.getReference())))
 		{
 			return Optional.empty();
 		}

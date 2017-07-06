@@ -6,6 +6,16 @@
 
 	<span wicket:id="warningNotification" class="gb-cell-notification gb-cell-notification-warning"></span>
 	<span wicket:id="errorNotification" class="gb-cell-notification gb-cell-notification-error"></span>
+	
+	<!-- dropdown -->
+	<div class="btn-group" wicket:id="menu">
+		<a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:coursegrade.cell.menulabel">
+			<span class="caret"></span>
+		</a>
+		<ul class="dropdown-menu dropdown-menu-right" role="menu">
+			<li><a wicket:id="finalGradeOverrideLog" href="#" role="menuitem"><wicket:message key="finalgrades.overridelog" /></a></li>
+		</ul>
+	</div> 
 </wicket:panel>
 </body>
 </html>

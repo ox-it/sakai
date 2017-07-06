@@ -4,6 +4,13 @@
 <wicket:extend>
   <form wicket:id="form" id="gradebookSpreadsheet" class="finalGradesForm">
 	  
+	<div wicket:id="updateUngradedItemsWindow" />
+	<div wicket:id="studentGradeSummaryWindow" />
+	<!--<div wicket:id="gradeLogWindow" />
+	<div wicket:id="gradeCommentWindow" />
+	<div wicket:id="gradeStatisticsWindow" />-->
+	<div wicket:id="updateCourseGradeDisplayWindow" />
+	  
 	<div id="gb-course-grade-submission">
 		<div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
 
@@ -16,18 +23,11 @@
 		<div wicket:id="courseGradeSubmissionPanel"></div>
 	</div>
 	  
-	<div id="gb-final-grades-table">
+	<div wicket:id="spreadsheet" class="gb-final-grades-table">
 
 		<div class="gbcg-feedback">
 			<div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
 		</div>
-
-		<div wicket:id="updateUngradedItemsWindow" />
-		<div wicket:id="studentGradeSummaryWindow" />
-		<!--<div wicket:id="gradeLogWindow" />
-		<div wicket:id="gradeCommentWindow" />
-		<div wicket:id="gradeStatisticsWindow" />-->
-		<div wicket:id="updateCourseGradeDisplayWindow" />
 
 		<div wicket:id="toolbar" id="gradebookGradesToolbar"></div>
 

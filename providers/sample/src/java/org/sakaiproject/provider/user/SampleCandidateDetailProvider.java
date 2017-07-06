@@ -248,6 +248,12 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	}
 	
 	@Override
+	public Optional<String> getInstitutionalNumericIdIgnoringCandidatePermissions(User candidate, Site site)
+	{
+		return getInstitutionalNumericId(candidate, site);
+	}
+	
+	@Override
 	public boolean isInstitutionalNumericIdEnabled() {
 		try {
 			return (serverConfigurationService.getBoolean(SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID, false));

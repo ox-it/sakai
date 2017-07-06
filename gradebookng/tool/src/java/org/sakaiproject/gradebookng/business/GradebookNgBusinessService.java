@@ -871,7 +871,7 @@ public class GradebookNgBusinessService {
 
 		// ------------- Get Users -------------
 
-		final List<GbUser> gbStudents = getGbUsersForUiSettings(getGradeableUsers(), settings);
+		final List<GbUser> gbStudents = getGbUsersForUiSettings(getGradeableUsers(settings.getGroupFilter()), settings);
 		stopwatch.timeWithContext("buildGradeMatrix", "getGbUsersForUiSettings", stopwatch.getTime());
 
 		// ------------- Course Grades -------------
@@ -2157,7 +2157,7 @@ public class GradebookNgBusinessService {
 	public GbUser getUser(final String userUuid) {
 		try {
 			final User u = this.userDirectoryService.getUser(userUuid);
-			return GbUser.fromUserAcquiringStudentNumberAndAnonIdMap(u, this);
+			return GbUser.fromUserAcquiringStudentNumberAndAnonIdMap(u, this); // OWLTODO: probably doesn't need anon id map by default
 		} catch (final UserNotDefinedException e) {
 			return null;
 		}
@@ -2493,6 +2493,30 @@ public class GradebookNgBusinessService {
 			return "";
 		}
 		return candidateDetailProvider.getInstitutionalNumericId(u, site).orElse("");
+	}
+	
+	/**
+	 * Retrieves the student number for this student, regardless of the student's number visibility permissions
+	 * @param user the student
+	 * @return the student number, or empty string if not found
+	 */
+	public String revealStudentNumber(GbUser user)
+	{	
+		Optional<Site> site = getCurrentSite();
+		if (!site.isPresent())
+		{
+			return "";
+		}
+		
+		try
+		{
+			User u = userDirectoryService.getUser(user.getUserUuid());
+			return candidateDetailProvider.getInstitutionalNumericIdIgnoringCandidatePermissions(u, site.get()).orElse("");
+		}
+		catch (UserNotDefinedException e)
+		{
+			return "";
+		}
 	}
 
 	/**

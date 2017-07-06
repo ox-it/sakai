@@ -8,12 +8,14 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.Session;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.sakaiproject.gradebookng.business.finalgrades.CourseGradePdfGenerator;
+import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmitter;
+import org.sakaiproject.gradebookng.tool.pages.CourseGradesPage;
 import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmission;
 
 /**
@@ -38,6 +40,9 @@ public class DownloadLinkPanel extends Panel
 		DownloadLink dl = new DownloadLink("downloadLink", new PdfReportModel(sub),
 						new PdfFileNameModel("sectionName?", sub.getSectionEid(), sub.getSubmissionDate()));
 		dl.setDeleteAfterDownload(true);
+		CourseGradesPage page = (CourseGradesPage) getPage();
+		CourseGradeSubmitter submitter = page.getSubmitter();
+		dl.setEnabled(submitter.isCurrentUserAbleToSubmit() || submitter.isCurrentUserAbleToApprove());
 		add(dl);
 	}
 	
@@ -54,22 +59,31 @@ public class DownloadLinkPanel extends Panel
 		@Override
 		protected File load()
 		{
+			CourseGradesPage page = (CourseGradesPage) DownloadLinkPanel.this.getPage();
 			try
 			{
-				// OWLTODO: permission check? see submitter.showPdf()
-				CourseGradePdfGenerator pdfGen = new CourseGradePdfGenerator(sub);
-				File tempFile = File.createTempFile("pdf", null);
-				FileOutputStream fos = new FileOutputStream(tempFile);
-				pdfGen.generateIntoOutputStream(fos);
-				fos.flush();
-				fos.close();
-				return tempFile;
+				// OWLTODO: this permission check is probably redundant but shouldn't hurt performance too much...
+				CourseGradeSubmitter submitter = page.getSubmitter();
+				if (submitter.isCurrentUserAbleToSubmit() || submitter.isCurrentUserAbleToApprove())
+				{
+					CourseGradePdfGenerator pdfGen = new CourseGradePdfGenerator(sub);
+					CourseGradeSubmitter.findPreviousApproval(sub).ifPresent(approval -> pdfGen.setPreviousApprovedGrades(approval.getGradeData()));
+					File tempFile = File.createTempFile("pdf", null);
+					FileOutputStream fos = new FileOutputStream(tempFile);
+					pdfGen.generateIntoOutputStream(fos);
+					fos.flush();
+					fos.close();
+					return tempFile;
+				}
+				
+				Session.get().error("You don't have permission to view this report");
+				return null;
 			}
 			catch (IOException e)
 			{
 				LOG.error("Could not generate PDF for submission id = " + sub.getId(), e);
-				// OWLTODO: message to user
-				//CourseGradeSubmissionPresenter.presentError("Unable to generate PDF file. Please try again later. If the problem persists, contact " + SUPPORT_EMAIL);
+				Session.get().error("Unable to generate PDF file. Please try again later. If the problem persists, contact "
+						+ CourseGradeSubmitter.SUPPORT_EMAIL);
 				return null;
 			}
 			
@@ -82,7 +96,6 @@ public class DownloadLinkPanel extends Panel
 		
 		public PdfFileNameModel(String sectionName, String sectionEid, Date submissionDate)
 		{
-
 			DateFormat formatter = new SimpleDateFormat("MM_dd_yyyy-HH_mm_ss");
 
 			filename = sectionName + "-" + sectionEid + "-" + formatter.format(submissionDate) + ".pdf";

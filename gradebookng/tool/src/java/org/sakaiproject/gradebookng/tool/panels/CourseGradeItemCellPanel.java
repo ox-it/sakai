@@ -36,10 +36,20 @@ public class CourseGradeItemCellPanel extends Panel {
 	protected GradebookNgBusinessService businessService;
 
 	IModel<Map<String, Object>> model;
+	
+	private final boolean hasMenu;
 
 	public CourseGradeItemCellPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
 		this.model = model;
+		hasMenu = true;
+	}
+	
+	public CourseGradeItemCellPanel(final String id, final IModel<Map<String, Object>> model, boolean hasMenu)
+	{
+		super(id, model);
+		this.model = model;
+		this.hasMenu = hasMenu;
 	}
 
 	@Override
@@ -120,7 +130,7 @@ public class CourseGradeItemCellPanel extends Panel {
 
 			@Override
 			public boolean isVisible() {
-				return role == GbRole.INSTRUCTOR;
+				return hasMenu && role == GbRole.INSTRUCTOR;
 			}
 		};
 		menu.add(new GbAjaxLink("courseGradeOverride", Model.of(studentUuid)) {
@@ -142,7 +152,10 @@ public class CourseGradeItemCellPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 				final GbModalWindow window = gradebookPage.getUpdateCourseGradeDisplayWindow();
 				window.setComponentToReturnFocusTo(getParentCellFor(this));
-				window.setContent(new CourseGradeOverrideLogPanel(window.getContentId(), getModel(), window));
+				CourseGradeOverrideLogPanel.ModelData data = new CourseGradeOverrideLogPanel.ModelData();
+				data.forFinalGrades = false;
+				data.studentUuid = getDefaultModelObjectAsString();
+				window.setContent(new CourseGradeOverrideLogPanel(window.getContentId(), Model.of(data), window));
 				window.showUnloadConfirmation(false);
 				window.show(target);
 			}

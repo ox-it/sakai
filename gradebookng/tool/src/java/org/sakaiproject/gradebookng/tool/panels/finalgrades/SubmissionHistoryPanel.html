@@ -8,7 +8,7 @@
 		<div class="submissionStatus">
 			<span wicket:id="currentStatus">Since last submission, 0 grades have been revised, 0 grades have been added, and 1 grade has been removed.</span>
 		</div>
-		<div class="submissionHistoryContainer">
+		<div wicket:id="submissionHistoryContainer" class="submissionHistoryContainer">
 			<table>
 				<thead>
 					<tr>
@@ -22,6 +22,7 @@
 				</tbody>
 			</table>
 		</div>
+		<div wicket:id="noHistoryMsg" class="noSubmissionsListedMessage"><wicket:message key="finalgrades_no_submission_history"></wicket:message></div>
 	 </div>
 </wicket:panel>
 </body>

@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -99,7 +100,7 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	
 	public static GbUser forDisplayOnly(final String displayId, final String displayName)
 	{
-		return new GbUser("", "", displayId, displayName, "", "", "", new LinkedHashMap<>());
+		return new GbUser("", "", displayId, displayName, "", "", "", Collections.emptyMap());
 	}
 
 	public boolean isValid() {

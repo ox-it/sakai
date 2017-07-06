@@ -1481,7 +1481,7 @@ and (max-device-width : 736px) {
 }
 
 
-#gb-final-grades-table #gradebookGradesToolbar
+.gb-final-grades-table #gradebookGradesToolbar
 {
 	width: 635px;
 }
@@ -1500,7 +1500,7 @@ and (max-device-width : 736px) {
 		justify-content: flex-end;
 	}
 	
-	#gb-final-grades-table
+	.gb-final-grades-table
 	{
 		margin-right: 2em;
 	}
@@ -1525,5 +1525,10 @@ and (max-device-width : 736px) {
 .submitAndApprove .submissionStatus
 {
 	margin-bottom: 0.5em;
+}
+
+.submissionHistoryContainer tr.approved td
+{
+	background-color: #bbdcbc;
 }
 
