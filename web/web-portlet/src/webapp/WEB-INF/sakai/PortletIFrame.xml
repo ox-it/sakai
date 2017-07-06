@@ -95,4 +95,22 @@
 
     </tool>
 
+	<tool
+			id="sakai.iframe.recorded.lectures"
+			title="Recorded Lectures"
+			description="For accessing all recorded lectures relevant to the student.">
+		<category name="myworkspace" />
+		<configuration name="source" value="/access/content/public/recorded-lectures.html" type="final"/>
+		<configuration name="height" value="600px" />
+
+		<configuration name="reset.button" value="false" type="final" />
+
+		<!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+		<configuration name="webcontent.read" value="webcontent.recorded.lec.read" />
+
+		<!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+		<configuration name="webcontent.revise" value="webcontent.recorded.lec.read" />
+		
+
+	</tool>
 </registration>
