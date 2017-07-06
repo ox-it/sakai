@@ -113,7 +113,8 @@
 	#footer-links
 	{
 		list-style: none;
-		margin: -100px 0 0 0;		//OWLTODO: find a better way to do this
+	//	margin: -100px 0 0 0;		//OWLTODO: find a better way to do this
+		margin: 0;
 		padding: 0 0 0 0;
 		//text-align: center;
 		
@@ -138,17 +139,12 @@
 	.#{$namespace}footer--nav.Mrphs-footer--nav__project 
 	{
 		align-self: flex-end;
-		order: -1;
-		margin: 0;
+		order: 4;
+		margin: -100px 0 0 0;			//OWLTODO: height of the image; causes gap below footer if image is missing
 		padding: 0;
 		list-style: none;
 	}
-	
-	.#{$namespace}footer--nav__build__panel 
-	{
-		margin: 0 110px 0 0;			//OWLTODO: making room for logo; need a better way
-	}
-	
+		
 	##{$namespace}footer--nav__project--sakai
 	{
 		display: block;
