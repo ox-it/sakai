@@ -305,7 +305,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : Portal";
 
 		// start the response
-		PortalRenderContext rcontext = startPageContext("", title, null, req);
+		PortalRenderContext rcontext = startPageContext("", title, null, req, null);
 
 		showSession(rcontext, true);
 
@@ -540,7 +540,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			siteSkin = site.getSkin();
 		}
 
-		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req);
+		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req, site);
 
 		// Make the top Url where the "top" url is
 		String portalTopUrl = Web.serverUrl(req)
@@ -1033,7 +1033,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 	public PortalRenderContext startPageContext(String siteType, String title,
-			String skin, HttpServletRequest request)
+			String skin, HttpServletRequest request, Site site)
 	{
 		PortalRenderEngine rengine = portalService
 		.getRenderEngine(portalContext, request);
@@ -1108,7 +1108,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("toolParamResetState", portalService.getResetStateParam());
 
                 // Get the tool header properties
-                Properties props = toolHeaderProperties(request, skin);
+                Properties props = toolHeaderProperties(request, skin, site, null);
                 for(Object okey : props.keySet() ) 
                 {
                         String key = (String) okey;
@@ -1299,17 +1299,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	}
 
-	// NOTE: This code is duplicated in ToolPortal.java - make sure to change 
-	// both places
-	public Properties toolHeaderProperties(HttpServletRequest req, String skin)
-	{
-		return toolHeaderProperties(req, skin, null);
-	}
-	
 	// Note - When modifying this code, make sure to review
-	// org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine.java
-	// as it has its own setupForward that tweaks these values
-	public Properties toolHeaderProperties(HttpServletRequest req, String skin, Placement placement) 
+	// org.sakaiproject.editor.EditorServlet.java
+	// as it includes these values when it is running in its own frame
+	public Properties toolHeaderProperties(HttpServletRequest req, String skin, Site site, Placement placement) 
 	{
 		Properties retval = new Properties();
 
@@ -1334,24 +1327,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				+ "\"></script>\n";
 		
 		StringBuilder headJs = new StringBuilder();
-        
-        // SAK-22384
-        if (placement != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
-        {  
-            ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
-            if (toolConfig != null) {
-                String siteId = toolConfig.getSiteId();
-                Site site;
-                try {
-                    site = SiteService.getSiteVisit(siteId);
-                }
-                catch (IdUnusedException e) {
-                    site = null;
-                }
-                catch (PermissionException e) {
-                    site = null;
-                }
 
+        // SAK-22384
+        if (site != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
+        {
                 if (site != null)
                 {                           
                     String strMathJaxEnabled = site.getProperties().getProperty(MATHJAX_ENABLED);                    
@@ -1368,9 +1347,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         }                     
                     }
                 }
-            }
         }
-                
+
+		String contentItemUrl = portalService.getContentItemUrl(site);
 		headJs.append("<script type=\"text/javascript\" src=\"");
 		headJs.append(PortalUtils.getCDNPath());
 		headJs.append("/library/js/headscripts.js");
@@ -1388,6 +1367,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			headJs.append("sakai.editor.placementToolId = '" + placement.getToolId() + "';\n");
 		}
 		headJs.append("sakai.editor.enableResourceSearch = " + EditorConfiguration.enableResourceSearch() + ";\n");
+		if ( contentItemUrl != null ) {
+			headJs.append("sakai.editor.contentItemUrl = '" + contentItemUrl + "';\n");
+		} else {
+			headJs.append("sakai.editor.contentItemUrl = false;\n");
+		}
 		headJs.append("sakai.editor.siteToolSkin = '" + CSSUtils.getCssToolSkin(skin) + "';\n");
 		headJs.append("sakai.editor.sitePrintSkin = '" + CSSUtils.getCssPrintSkin(skin) + "';\n");
 		headJs.append("sakai.editor.editors.ckeditor.browser = '"+ EditorConfiguration.getCKEditorFileBrowser()+ "';\n");
@@ -1421,8 +1405,18 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void setupForward(HttpServletRequest req, HttpServletResponse res,
 			Placement p, String skin) throws ToolException
         {
+                Site site = null;
+		if ( p != null ) {
+			try {
+				site = SiteService.getSite(p.getContext());
+			}
+			catch (IdUnusedException ex) {
+				log.debug(ex.getMessage());
+			}
+                }
+
 		// Get the tool header properties
-		Properties props = toolHeaderProperties(req, skin, p);
+		Properties props = toolHeaderProperties(req, skin, site, p);
 		for(Object okey : props.keySet() ) 
 		{
 			String key = (String) okey;
@@ -2240,7 +2234,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	protected void sendPortalRedirect(HttpServletResponse res, String url)
 	throws IOException
 	{
-		PortalRenderContext rcontext = startPageContext("", null, null, null);
+		PortalRenderContext rcontext = startPageContext("", null, null, null, null);
 		rcontext.put("redirectUrl", url);
 		sendResponse(rcontext, res, "portal-redirect", null);
 	}

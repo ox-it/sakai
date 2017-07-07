@@ -230,8 +230,15 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['AudioRecorder','ResourceSearch', 'Image','Html5video','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
-                : ['AudioRecorder','Image','Html5video','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']),
+                ? ( sakai.editor.contentItemUrl
+                ? ['ContentItem', 'AudioRecorder','ResourceSearch', 'Image','Html5video','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
+                : ['AudioRecorder','ResourceSearch', 'Image','Html5video','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
+                )
+                : ( sakai.editor.contentItemUrl
+                ? ['ContentItem', 'AudioRecorder', 'Image','Html5video','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
+                : ['AudioRecorder', 'Image','Html5video','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
+                )
+            ),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
@@ -272,6 +279,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js');
             CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js');
             CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js');
+            CKEDITOR.plugins.addExternal('contentitem',basePath+'contentitem/', 'plugin.js');
+
             CKEDITOR.plugins.addExternal('image2',basePath+'image2/', 'plugin.js');
             //Autosave has a dependency on notification
             CKEDITOR.plugins.addExternal('autosave',webJars+'autosave/8541f541d9985cfd0859c7d8eb6be404afe95a2d/', 'plugin.js');
@@ -297,7 +306,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             //ckconfig.extraPlugins+="atd-ckeditor,";
             //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-            ckconfig.extraPlugins+="image2,audiorecorder,html5video,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification,a11ychecker";
+            ckconfig.extraPlugins+="image2,audiorecorder,contentitem,html5video,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification,a11ychecker";
 
             //SAK-29648
             ckconfig.contentsCss = [basePath+'/fontawesome/font-awesome/css/font-awesome.min.css'];
