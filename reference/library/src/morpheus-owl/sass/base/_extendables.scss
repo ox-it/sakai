@@ -89,7 +89,8 @@
 
 }
 
-.select{
+.select
+{
 	background-color: $button-background-color;
 	background-image: url("images/icon-arrow-down.png");
 	background-position: right 50%;
@@ -103,9 +104,30 @@
 	max-width: 100%;
 	@include appearance(none);
 	@include border-radius(3px);
-	&::-ms-expand {
+	
+	&::-ms-expand 
+	{
 	    display: none;
 	}
+	
+	&[disabled="disabled"], &[disabled], &[disabled="true"], &.fakeDisabledSelect
+	{
+		background-color: $button-disabled-background-color;
+		color: $button-disabled-text-color;
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+	
+	&.fakeDisabledSelect
+	{
+		background-image: url("images/icon-arrow-down-disabled.png");
+	}
+	
+	&[multiple], &[size] 
+	{
+		background-image: none;		// hide the down arrow for multi-select
+	}
+	
 }
 
 .form-required{
