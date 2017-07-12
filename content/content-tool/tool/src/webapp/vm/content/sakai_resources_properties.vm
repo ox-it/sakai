@@ -105,8 +105,8 @@
     var submitButton = document.querySelector("#finish_button");
     submitButton.addEventListener("click", function()
     {
-        var selectElement = document.getElementById('copyright');
-        if (selectElement.selectedIndex < 1)
+        var copyrightSelect = document.getElementById('copyright');
+        if (copyrightSelect !== null && copyrightSelect.selectedIndex < 1)
         {
             // OWLTODO: internationalize this
             $('.alertMessage').html('Alert: Please choose a valid copyright status. Your selected copyright status cannot be assigned.');
