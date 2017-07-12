@@ -1,3 +1,5 @@
+2017.07.12:
+	- [OWL-2612] spinner not being applied on inputs of type="button"
 2017.07.11:
 	- [OWL-2967] Added a disabled state for select dropdown elements; fixed the image appearing for multi-selects
 2017.06.23:
