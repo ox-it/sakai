@@ -6,61 +6,25 @@
 	  
 	<div wicket:id="updateUngradedItemsWindow" />
 	<div wicket:id="studentGradeSummaryWindow" />
-	<!--<div wicket:id="gradeLogWindow" />
-	<div wicket:id="gradeCommentWindow" />
-	<div wicket:id="gradeStatisticsWindow" />-->
 	<div wicket:id="updateCourseGradeDisplayWindow" />
 	  
 	<div id="gb-course-grade-submission">
-		<div wicket:id="noStudents" class="messageInformation"><wicket:message key="no-students.label" /></div>
-
 		<div id="gbConnectionTimeoutFeedback" class="messageWarning" style="display:none;">
 			<wicket:message key="feedback.connectiontimeout" />
 		</div>
-
-		<div wicket:id="courseSummaryPanel"></div>
 
 		<div wicket:id="courseGradeSubmissionPanel"></div>
 	</div>
 	  
 	<div wicket:id="spreadsheet" class="gb-final-grades-table">
-
-		<div class="gbcg-feedback">
-			<div wicket:id="liveGradingFeedback" class="gb-live-feedback"></div>
-		</div>
-
 		<div wicket:id="toolbar" id="gradebookGradesToolbar"></div>
 
 		<div id="gradebookGrades" class="gb-course-grades-container">
-		  <!--<div id="gradebookHorizontalOverflowWrapper">
-			  <div id="gradebookVerticalOverflowWrapper">-->
-				  <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
-			  <!--</div>
-		  </div>-->
+			<table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
 		</div>
 	</div>
 		
   </form>
-  
-  <div id="gradeItemsConcurrentUserWarning" style="display: none;">
-    <ul class="gb-popover-notifications">
-      <li class="gb-popover-notification-concurrentedit text-danger">
-        <wicket:message key="grade.notifications.concurrenteditbyuser" />
-      </li>
-    </ul>
-  </div>
-
-	<!--<div id="gradeItemCellDropdownMenu" style="display:none">
-		<div class="btn-group">
-			<a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:grade.menulabel">
-				<span class="caret"></span>
-			</a>
-			<ul class="dropdown-menu dropdown-menu-right" role="menu">
-				<li><a class="gb-view-log" href="#" role="menuitem"><wicket:message key="grade.option.viewlog" /></a></li>
-				<li><a class="gb-edit-comments" href="#" role="menuitem"><wicket:message key="comment.option.edit" /></a></li>
-			</ul>
-		</div>
-	</div>-->
 </wicket:extend>
 </body>
 </html>

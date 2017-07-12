@@ -26,7 +26,6 @@ function GradebookSpreadsheet($spreadsheet) {
   this.onReady(function() {
     self.setupKeyboadNavigation();
     self.setupRowSelector();
-    self.setupConcurrencyCheck();
     self.setupStudentFilter();
     self.setupMenusAndPopovers();
   });
@@ -48,7 +47,6 @@ GradebookSpreadsheet.prototype.initTable = function()
     var self = this;
     self.setupKeyboadNavigation();
     self.setupRowSelector();
-    self.setupConcurrencyCheck();
     self.setupStudentFilter();
     self.setupMenusAndPopovers();
     
@@ -92,45 +90,6 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
     // lazy load model
     self.getCellModel($(event.target).closest("td"));
   });
-
-  /*self.$table.on("focus", "td.gb-grade-item-cell :text", function(event) {
-    // lazy load model
-    self.getCellModel($(event.target).closest("td"));
-  });
-
-  function setupContextMenu($cell) {
-    // ensure model
-    self.getCellModel($cell);
-
-    // append menu
-    $cell.find("> div:first").append($("#gradeItemCellDropdownMenu").html());
-
-    // setup tooltip
-    var $dropdown = $cell.find(".dropdown-toggle");
-    var tooltip = $dropdown.attr("title");
-    tooltip = tooltip.replace("{0}", self.getCellModel($cell).getRow().find(".gb-student-cell:first").attr("abbr"));
-    tooltip = tooltip.replace("{1}", self.getCellModel($cell).header.$cell.attr("abbr"));
-    $dropdown.attr("title", tooltip);
-
-    $cell.data("has-dropdown", true);
-  };
-
-  self.$table.on("focus", "td.gb-grade-item-cell", function(event) {
-    var $cell = $(event.target).closest(".gb-grade-item-cell");
-    if (!$cell.data("has-dropdown")) {
-      setupContextMenu($cell);
-    }
-    return true;
-  });
-
-  self.$table.find(".gb-grade-item-cell, .gb-grade-item-cell :text").hover(function(event) {
-    var $cell = $(event.target).closest(".gb-grade-item-cell");
-    if (!$cell.data("has-dropdown")) {
-      setupContextMenu($cell);
-    }
-  }, function() {
-    
-  })*/
 };
 
 
@@ -390,71 +349,6 @@ GradebookSpreadsheet.prototype.setupRowSelector = function() {
     $(this).next().focus();
   });
 };
-
-GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
-  var self = this;
-
-  function showConcurrencyNotification(data) {
-    $.each(data, function(i, conflict) {
-      var model = self.getCellModelForStudent(conflict.studentUuid);
-      var $notification = model.$cell.find(".gb-cell-notification-out-of-date");
-      if ($notification.length === 0) {
-        $notification = $("<span>").addClass("gb-cell-notification").addClass("gb-cell-notification-out-of-date");
-        model.$cell.find("> div").prepend($notification);
-      
-        var $message = $("#gradeItemsConcurrentUserWarning").clone();
-        $message.find(".gb-concurrent-edit-user").html(conflict.lastUpdatedBy);
-        $message.find(".gb-concurrent-edit-time").html(new Date(conflict.lastUpdated).toLocaleTimeString());
-
-        model.$cell.addClass("gb-cell-out-of-date");
-
-        $notification.
-          attr("data-toggle", "popover").
-          data("content", $message.html()).
-          data("placement", "bottom").
-          data("trigger", "focus").
-          data("html", "true").
-          attr("tabindex", 0).
-          data("container", "#gradebookGrades");
-
-        self.enablePopovers(model.$cell);
-      }
-    });
-  };
-
-  function hideConcurrencyNotification() {
-    self.$table.find(".gb-cell-out-of-date").removeClass("gb-cell-out-of-date");
-  };
-
-  function handleConcurrencyCheck(data) {
-    if ($.isEmptyObject(data) || $.isEmptyObject(data.gbng_collection)) {
-      // nobody messing with my..
-      hideConcurrencyNotification();
-      return;
-    }
-
-    // there are *other* people doing things!
-    showConcurrencyNotification(data.gbng_collection);
-  };
-
-  function performConcurrencyCheck() {
-    GradebookAPI.isAnotherUserEditing(self.$table.data("siteid"), self.$table.data("gradestimestamp"), handleConcurrencyCheck);
-  };
-
-  // Check for concurrent editors.. and again every 10 seconds
-  // (note: there's a 10 second cache)
-  performConcurrencyCheck();
-  var concurrencyCheckInterval = setInterval(performConcurrencyCheck, 10 * 1000);
-
-
-  $("#gradeItemsConcurrentUserWarning").on("click", ".gb-message-close", function() {
-    // dismiss the message
-    $("#gradeItemsConcurrentUserWarning").addClass("hide");
-    // and stop checking (they know!)
-    clearInterval(concurrencyCheckInterval);
-  });
-};
-
 
 GradebookSpreadsheet.prototype.setupStudentFilter = function() {
   var self = this;
@@ -726,22 +620,6 @@ var GradebookAbstractCell = {
     this.$cell.hide();
   }
 };
-
-
-/*GradebookSpreadsheet.prototype.getWidth = function() {
-  if (this.width) {
-    return this.width;
-  }
-
-  return this.refreshWidth();
-};
-
-
-GradebookSpreadsheet.prototype.refreshWidth = function() {
-  this.width = this.$spreadsheet.width();
-  return this.width;
-};*/
-
 
 GradebookSpreadsheet.prototype.setupConnectionPoll = function() {
   this.ping = new ConnectionPoll($("#gbConnectionTimeoutFeedback"));
@@ -1077,67 +955,6 @@ GradebookHeaderCell.prototype.setupTooltip = function() {
   }
 };
 
-
-/**************************************************************************************
- * GradebookAPI - all the backend calls in one happy place
- */
-GradebookAPI = {};
-
-
-GradebookAPI.isAnotherUserEditing = function(siteId, timestamp, onSuccess, onError) {
-  var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
-  var params = {
-    since: timestamp,
-    auto: true // indicate that the request is automatic, not from a user action
-  };
-  GradebookAPI._GET(endpointURL, params, onSuccess, onError);
-};
-
-
-GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuccess, onError) {
-  GradebookAPI._POST("/direct/gbng/assignment-order", {
-                                                        siteId: siteId,
-                                                        assignmentId: assignmentId,
-                                                        order: order
-                                                      })
-};
-
-
-GradebookAPI.updateCategorizedAssignmentOrder = function(siteId, assignmentId, categoryId, order, onSuccess, onError) {
-  GradebookAPI._POST("/direct/gbng/categorized-assignment-order", {
-                                                        siteId: siteId,
-                                                        assignmentId: assignmentId,
-                                                        categoryId: categoryId,
-                                                        order: order
-                                                      })
-};
-
-
-GradebookAPI._GET = function(url, data, onSuccess, onError, onComplete) {
-  $.ajax({
-    type: "GET",
-    url: url,
-    data: data,
-    cache: false,
-    success: onSuccess || $.noop,
-    error: onError || $.noop,
-    complete: onComplete || $.noop
-  });
-};
-
-
-GradebookAPI._POST = function(url, data, onSuccess, onError, onComplete) {
-  $.ajax({
-    type: "POST",
-    url: url,
-    data: data,
-    success: onSuccess || $.noop,
-    error: onError || $.noop,
-    complete: onComplete || $.noop
-  });
-};
-
-
 /**************************************************************************************
  * GradebookWicketEventProxy - proxy any Wicket events to the Gradebook Spreadsheet
  */
@@ -1164,38 +981,11 @@ GradebookWicketEventProxy = {
   }
 };
 
-
-/**************************************************************************************
- * jQuery extension to support case-insensitive :contains
- */
-(function( $ ) {
-  function icontains( elem, text ) {
-      return (
-          elem.textContent ||
-          elem.innerText ||
-          $( elem ).text() ||
-          ""
-      ).toLowerCase().indexOf( (text || "").toLowerCase() ) > -1;
-  };
-
-  $.expr[':'].icontains = $.expr.createPseudo ?
-      $.expr.createPseudo(function( text ) {
-          return function( elem ) {
-              return icontains( elem, text );
-          };
-      }) :
-      function( elem, i, match ) {
-          return icontains( elem, match[3] );
-      };
-
-})( jQuery );
-
-
 /**************************************************************************************
  *                    Connection Poll Javascript                                       
  *************************************************************************************/
 function ConnectionPoll($message) {
-    this.PING_INTERVAL = 1000*5; // 5 seconds
+    this.PING_INTERVAL = 1000*30; // 30 seconds
     this.PING_TIMEOUT = 1000*10; // 10 seconds
     this.PING_URL = "/direct/gbng/ping";
 
@@ -1254,5 +1044,3 @@ function reinitSpreadsheet()
     sakai.gradebookng.spreadsheet.$table = $("#gradebookGradesTable");
     sakai.gradebookng.spreadsheet.initTable();
 }
-
-

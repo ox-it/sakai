@@ -48,7 +48,6 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.GbBaseGradesDisplayToolbar;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.CourseGradeSubmissionPanel;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.CourseGradeSubmissionPanel.CourseGradeSubmissionData;
-import org.sakaiproject.gradebookng.tool.panels.finalgrades.CourseSummaryPanel;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.SectionStatisticsPanel.SectionStats;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.SubmissionHistoryPanel.SubmissionHistory;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.SubmitAndApprovePanel.SubmitAndApproveStatus;
@@ -64,8 +63,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 {
 	private static final String SETTINGS_KEY = "GBNG_CG_UI_SETTINGS";
 	
-	private Label liveGradingFeedback;
-	private boolean hasAssignmentsAndGrades;
+	private GbBaseGradesDisplayToolbar toolbar;
 
 	private Form<Void> form;
 	
@@ -103,12 +101,6 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		form = new Form<>("form");
 		form.setOutputMarkupId(true);
 		add(form);
-
-		final WebMarkupContainer noStudents = new WebMarkupContainer("noStudents");
-		noStudents.setVisible(false);
-		form.add(noStudents);
-		
-		form.add(new CourseSummaryPanel("courseSummaryPanel"));
 		
 		sections = businessService.getSiteSections();
 		
@@ -130,8 +122,6 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		
 		final GradebookUiSettings settings = getUiSettings();
 		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForFinalGrades(settings);
-
-		this.hasAssignmentsAndGrades = !grades.isEmpty();
 
 		// mark the current timestamp so we can use this date to check for any changes since now
 		final Date gradesTimestamp = new Date();
@@ -156,7 +146,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		
 		cols.add(new FinalGradeColumn(this));
 		
-		int pageSize = 100;  // OWLTODO: fix
+		int pageSize = settings.getGradesPageSize();
 		table = new SakaiDataTable("table", cols, studentGradeMatrix, true, pageSize)
 		{
 			@Override
@@ -213,7 +203,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		//form.add(table);
 		spreadsheet.add(table);
 		
-		final GbBaseGradesDisplayToolbar toolbar = new GbBaseGradesDisplayToolbar("toolbar", table, sections);
+		toolbar = new GbBaseGradesDisplayToolbar("toolbar", table, sections, !grades.isEmpty());
 		//form.add(toolbar);
 		spreadsheet.add(toolbar);
 		
@@ -250,31 +240,12 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-grade-summary.js?version=%s", version)));
 		response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/gradebook-update-ungraded.js?version=%s", version)));
 	}
-	
-	@Override
-	public void onBeforeRender()
-	{
-		super.onBeforeRender();
-
-		// add simple feedback nofication to sit above the table
-		// which is reset every time the page renders
-		liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
-		liveGradingFeedback.setVisible(hasAssignmentsAndGrades).setOutputMarkupId(true);
-
-		// add the 'saving...' message to the DOM as the JavaScript will
-		// need to be the one that displays this message (Wicket will handle
-		// the 'saved' and 'error' messages when a grade is changed
-		liveGradingFeedback.add(new AttributeModifier("data-saving-message", getString("feedback.saving")));
-		//form.addOrReplace(liveGradingFeedback);
-		spreadsheet.addOrReplace(liveGradingFeedback);
-	}
 
 	@Override
 	public Component updateLiveGradingMessage(final String message)
 	{
-		liveGradingFeedback.setDefaultModel(Model.of(message));
-
-		return liveGradingFeedback;
+		
+		return toolbar.updateLiveGradingMessage(message);
 	}
 	
 	/**
@@ -323,14 +294,8 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	{
 		if (target != null)
 		{
-			//target.add(form); // OWLTODO: it may be possible to re-render only some components of the form instead of the whole thing
 			target.add(spreadsheet);
-			
-			// OWLTODO: constants, maybe in GbJsConstants class or something...
-			//target.appendJavaScript("sakai.gradebookng.spreadsheet.$spreadsheet = $(\"#gradebookGrades\");");
-			//target.appendJavaScript("sakai.gradebookng.spreadsheet.$table = $(\"#gradebookGradesTable\");");
 			target.appendJavaScript("reinitSpreadsheet();");
-			//target.appendJavaScript("sakai.gradebookng.spreadsheet.initTable();");
 		}
 	}
 	
@@ -372,14 +337,6 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		data.setButtonStatus(sas);
 		
 		data.setSectionExcluded(submitter.isSectionInExcludePrefixList());
-	}
-	
-	private void redrawStatsAndHistory(AjaxRequestTarget target)
-	{
-		updateStatsAndHistoryModel(submissionPanel.getData());
-		submissionPanel.redrawStats(target);
-		submissionPanel.redrawHistory(target);
-		submissionPanel.redrawButtons(target);
 	}
 	
 	public void submitGrades(AjaxRequestTarget target)

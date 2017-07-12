@@ -401,6 +401,13 @@
   background-color: transparent;
   font-size: inherit;
 }
+
+#gradebookGrades .gb-cell-editing .gb-grade-item-cell input,
+#gradebookGrades .gb-cell-editing .gb-editable-final-grade
+{
+	border: 1px solid #ccc;
+} 
+
 #gradebookGrades .gb-editable-final-grade
 {
 	width: 40px;
@@ -447,7 +454,8 @@
 #gradebookGrades .gb-course-grade > div,
 #gradebookGrades .gb-category-item-column-cell > div,
 #gradebookGrades .gb-student-number-cell > div,
-#gradebookGrades .gb-student-cell-anon > div
+#gradebookGrades .gb-student-cell-anon > div,
+#gradebookGrades .gb-final-grade > div
 {
   line-height: 2.6em;
 }
@@ -610,10 +618,35 @@
 	flex-direction: column;
 	align-items: center;
 }
-.gb-pager .gbSakaiPagerContainer input, .gb-pager .gbSakaiPagerContainer select
+.gb-pager .gbSakaiPagerContainer button, .gb-pager .gbSakaiPagerContainer .pagerDropDown
 {
 	margin: 0 0.25em 0 0.25em;
 }
+
+.gb-pager .gbSakaiPagerContainer button:last-child
+{
+	margin-right: 0;
+}
+
+span.gb-spinner-dropdown-container::after
+{
+	left: initial;
+	right: 8px;
+	width: 16px;
+}
+
+.sakai-spinner-label
+{
+	display: none;
+}
+
+span.sakai-spinner-internal-use::after
+{
+	left: initial;
+	right: 7px;
+	width: 16px;
+}
+
 #gradebookGradesToolbar ul {
   list-style: none;
   margin: 0;
@@ -649,9 +682,6 @@
 #toggleCategories.on:before,
 #toggleCategoriesToolbarItem.on:before {
   content: '\f046';
-}
-#filterByGroup {
-  line-height: 1em;
 }
 #gradebookGradesToolbar .gb-item-summary.warn-items-hidden .gb-item-summary-counts {
   color: #CA7311;
@@ -1041,6 +1071,7 @@ div.wicket-modal div.w_right > div {
   line-height: 1.1em;
   top: 50%;
   margin-top: -0.55em;
+  font-weight: normal;
 }
 .grade-save-success .gb-cell-notification {
     display: none;

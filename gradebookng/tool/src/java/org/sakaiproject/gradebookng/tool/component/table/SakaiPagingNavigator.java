@@ -18,34 +18,41 @@
  */
 package org.sakaiproject.gradebookng.tool.component.table;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxChannel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationIncrementLink;
+
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigationLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.IPageable;
 import org.apache.wicket.markup.html.navigation.paging.IPagingLabelProvider;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigation;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.gradebookng.tool.component.SakaiSpinnerAjaxCallListener;
+import org.sakaiproject.gradebookng.tool.component.dropdown.SakaiSpinnerDropDownChoice;
+import org.sakaiproject.gradebookng.tool.component.dropdown.SakaiSpinningSelectOnChangeBehavior;
+import org.sakaiproject.gradebookng.tool.component.dropdown.SakaiStringResourceChoiceRenderer;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 public class SakaiPagingNavigator extends AjaxPagingNavigator {
 
 	private static final long serialVersionUID = 1L;
+	
+	// OWLTODO: maybe this is better represented as an enum with helper methods to keep all the special cases in one place
+	public static final String PAGE_SIZE_ALL_STR = "ALL";
+	public static final int PAGE_SIZE_ALL = Integer.MAX_VALUE;
+	public static final List<String> STANDARD_PAGE_SIZES = Arrays.asList( new String[] { "5", "10", "20", "50", "100", "200", "500", "1000", PAGE_SIZE_ALL_STR} );
 
 	/**
 	 * Constructor.
@@ -94,34 +101,6 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 		replace(newPagingNavigationLink("last", getPageable(), -1));
 	}
 
-	/*@Override
-	protected void onBeforeRender()
-	{
-		Component select = get("rowNumberSelector");
-		if (get("rowNumberSelector") == null)
-		{
-			setDefaultModel(new CompoundPropertyModel(this));
-			
-			// Get the row number selector
-			add(newRowNumberSelector(getPageable()));
-
-			// Add additional page links
-			replace(newPagingNavigationLink("first", getPageable(), 0));
-			replace(newPagingNavigationIncrementLink("prev", getPageable(), -1));
-			replace(newPagingNavigationIncrementLink("next", getPageable(), 1));
-			replace(newPagingNavigationLink("last", getPageable(), -1));
-		}
-		else
-		{
-			// probably re-rendering for ajax refresh, update model of row number selector
-			// OWLTODO: this seems hacky
-			String pageSize = getRowNumberSelector();
-			select.setDefaultModel(Model.of(pageSize));
-			
-		}
-		super.onBeforeRender();
-	}*/
-
 	/**
 	 * Create a new increment link. May be subclassed to make use of specialized links, e.g. Ajaxian
 	 * links.
@@ -134,9 +113,21 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 	 *            the increment
 	 * @return the increment link
 	 */
+	@Override
 	protected Link newPagingNavigationIncrementLink(String id, IPageable pageable, int increment)
 	{
-		return new AjaxPagingNavigationIncrementLink(id, pageable, increment);
+		return new AjaxPagingNavigationIncrementLink(id, pageable, increment)
+		{
+			@Override
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
+			{
+				super.updateAjaxAttributes(attributes);
+				attributes.setChannel(new AjaxChannel("blocking", AjaxChannel.Type.ACTIVE));
+		
+				AjaxCallListener listener = new SakaiSpinnerAjaxCallListener(getMarkupId(), true);
+				attributes.getAjaxCallListeners().add(listener);
+			}
+		};
 	}
 
 	/**
@@ -153,55 +144,73 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 	 */
 	protected Link newPagingNavigationLink(String id, IPageable pageable, int pageNumber)
 	{
-		return new AjaxPagingNavigationLink(id, pageable, pageNumber);
-	}
-	
-	protected DropDownChoice newRowNumberSelector(final IPageable pageable)
-	{
-		List<String> choices = new ArrayList<>();
-		choices.add("5");
-		choices.add("10");
-		choices.add("20");
-		choices.add("50");
-		choices.add("100");
-		choices.add("200");
-		DropDownChoice<String> rowNumberSelector = new IndicatingAjaxDropDownChoice<>("rowNumberSelector", choices,
-				new IChoiceRenderer<String>()
-				{
-					@Override
-					public Object getDisplayValue(String object)
-					{
-						return new StringResourceModel("pager_textPageSize", getParent(), null, new Object[] { object }).getString();
-					}
-
-					@Override
-					public String getIdValue(String object, int index)
-					{
-						return object;
-					}
-				});
-		rowNumberSelector.add(new AjaxFormComponentUpdatingBehavior("onchange")
+		return new AjaxPagingNavigationLink(id, pageable, pageNumber)
 		{
 			@Override
-			protected void onUpdate(AjaxRequestTarget target)
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
 			{
-				int pageSize = NumberUtils.toInt(getFormComponent().getDefaultModelObjectAsString(), GradebookUiSettings.DEFAULT_GRADES_PAGE_SIZE);
-				
-				final IGradesPage page = (IGradesPage) getPage();
-				
-				page.updatePageSize(pageSize, target);
+				super.updateAjaxAttributes(attributes);
+				attributes.setChannel(new AjaxChannel("blocking", AjaxChannel.Type.ACTIVE));
+		
+				AjaxCallListener listener = new SakaiSpinnerAjaxCallListener(getMarkupId(), true);
+				attributes.getAjaxCallListeners().add(listener);
 			}
-		});
-
-		return rowNumberSelector;
+		};
 	}
 	
-	public String getRowNumberSelector() {
-		long items = ((DataTable) getPageable()).getItemsPerPage();
-		return String.valueOf(((DataTable) getPageable()).getItemsPerPage());
+	protected SakaiSpinnerDropDownChoice<String> newRowNumberSelector(final IPageable pageable)
+	{
+		IModel<String> choiceModel = new PropertyModel<>(this, "rowNumberSelector");
+		IModel<String> labelModel = new StringResourceModel("pager_select_label", this, null);
+		SakaiSpinnerDropDownChoice<String> ddc = new SakaiSpinnerDropDownChoice<>("rowNumberSelector", choiceModel, STANDARD_PAGE_SIZES,
+			new SakaiStringResourceChoiceRenderer("pager_textPageSize", this)
+			{
+				@Override
+				public Object getDisplayValue(String object)
+				{
+					if (PAGE_SIZE_ALL_STR.equals(object))
+					{
+						return new StringResourceModel("pager_textPageSizeAll", SakaiPagingNavigator.this, null).getString();
+					}
+					
+					return super.getDisplayValue(object);
+				}
+			},
+			labelModel,
+			new SakaiSpinningSelectOnChangeBehavior()
+			{
+				@Override
+				protected void onUpdate(AjaxRequestTarget target)
+				{
+					String pageSizeStr = getFormComponent().getDefaultModelObjectAsString();
+					int pageSize = PAGE_SIZE_ALL_STR.equals(pageSizeStr) ?
+							PAGE_SIZE_ALL : NumberUtils.toInt(pageSizeStr, GradebookUiSettings.DEFAULT_GRADES_PAGE_SIZE);
+
+					final IGradesPage page = (IGradesPage) getPage();
+
+					page.updatePageSize(pageSize, target);
+				}
+			});
+		
+		return ddc;
 	}
-	public void setRowNumberSelector(String value) {
-		((DataTable) getPageable()).setItemsPerPage(Integer.valueOf(value));
+	
+	public String getRowNumberSelector()
+	{
+		long items = ((DataTable) getPageable()).getItemsPerPage();
+		return items == PAGE_SIZE_ALL ? PAGE_SIZE_ALL_STR : String.valueOf(items);
+	}
+	public void setRowNumberSelector(String value)
+	{
+		try
+		{
+			int val = PAGE_SIZE_ALL_STR.equals(value) ? PAGE_SIZE_ALL : Integer.parseInt(value);
+			((DataTable) getPageable()).setItemsPerPage(val);
+		}
+		catch (NumberFormatException e)
+		{
+			// do nothing, ignore invalid input
+		}
 	}
 
 	/**
@@ -227,4 +236,6 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 			}
 		};
 	}
+	
+	
 }
