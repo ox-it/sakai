@@ -21,7 +21,6 @@ package org.sakaiproject.signup.tool.downloadEvents;
 
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.hssf.usermodel.HSSFHyperlink;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SakaiFacade;
@@ -32,7 +31,6 @@ import org.sakaiproject.signup.model.SignupGroup;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.signup.model.SignupTimeslot;
-import org.sakaiproject.signup.tool.jsf.HtmlSortHeaderRenderer;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.site.api.Site;
@@ -50,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Iterator;
+import org.apache.poi.common.usermodel.HyperlinkType;
 
 /*
  * <p> This class will provides formatting data to Excel style functionality.
@@ -1063,8 +1062,8 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		return title;
 	}
 
-	private HSSFHyperlink setAttachmentURLLinks(SignupAttachment attach) {
-		HSSFHyperlink hsHyperlink = new HSSFHyperlink(HSSFHyperlink.LINK_URL);
+	private Hyperlink setAttachmentURLLinks(SignupAttachment attach) {
+		Hyperlink hsHyperlink = wb.getCreationHelper().createHyperlink(HyperlinkType.URL);
 		String link = this.sakaiFacade.getServerConfigurationService().getServerUrl()
 				+ attach.getLocation();
 		hsHyperlink.setAddress(link);
