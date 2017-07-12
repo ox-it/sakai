@@ -159,7 +159,7 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
     // setup tooltip
     var $dropdown = $cell.find(".dropdown-toggle");
     var tooltip = $dropdown.attr("title");
-    tooltip = tooltip.replace("{0}", self.getCellModel($cell).getRow().find(".gb-student-cell:first").attr("abbr"));
+    tooltip = tooltip.replace("{0}", self.getCellModel($cell).getRow().find('td[class^="gb-student-cell"]:first').attr("abbr"));
     tooltip = tooltip.replace("{1}", self.getCellModel($cell).header.$cell.attr("abbr"));
     $dropdown.attr("title", tooltip);
 

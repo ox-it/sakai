@@ -78,4 +78,11 @@ public class ImportWizardModel implements Serializable {
 	@Getter
 	@Setter
 	private UserIdentificationReport userReport;
+
+	/**
+	 * Whether the imported spreadsheet represents users as anonymous grading IDs
+	 */
+	@Getter
+	@Setter
+	private boolean isContextAnonymous;
 }

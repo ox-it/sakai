@@ -58,7 +58,12 @@ public class StudentNameColumn extends AbstractColumn
 		if (settings.isContextAnonymous())
 		{
 			String anonId = student.getAnonId(settings);
-			cellItem.add(new Label(componentId, Model.of(anonId)));
+			Model<String> anonIdModel = Model.of(anonId);
+			cellItem.add(new Label(componentId, anonIdModel));
+			// consumed by gradebook-grades.js to populate the dropdown tooltips
+			cellItem.add(new AttributeModifier("data-studentUuid", student.getUserUuid()));
+			cellItem.add(new AttributeModifier("abbr", anonIdModel));
+			cellItem.add(new AttributeModifier("aria-label", anonIdModel));
 		}
 		else
 		{

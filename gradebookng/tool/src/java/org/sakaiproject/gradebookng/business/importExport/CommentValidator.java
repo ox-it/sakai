@@ -21,7 +21,7 @@ public class CommentValidator
 
     public CommentValidator() {}
 
-    public CommentValidationReport validate( List<ImportedRow> rows, List<ImportedColumn> columns )
+    public CommentValidationReport validate( List<ImportedRow> rows, List<ImportedColumn> columns, boolean isContextAnonymous )
     {
         report = new CommentValidationReport();
 
@@ -35,7 +35,8 @@ public class CommentValidator
                     ImportedCell cell = row.getCellMap().get( columnTitle );
                     if( cell != null )
                     {
-                        validateComment( columnTitle, row.getStudentEid(), cell.getComment() );
+                        String studentIdentifier = isContextAnonymous ? row.getAnonID() : row.getStudentEid();
+                        validateComment( columnTitle, studentIdentifier, cell.getComment() );
                     }
                 }
             }

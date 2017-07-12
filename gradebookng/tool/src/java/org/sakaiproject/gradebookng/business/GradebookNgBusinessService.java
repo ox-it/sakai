@@ -3039,4 +3039,18 @@ public class GradebookNgBusinessService {
 
 		return userStudentNumMap;
 	}
+
+	/**
+	 * Create a map of GradingIDs to their associated GbUser objects. 
+	 * NB: This should be avoided as GradingIDs can collide in crosslisted sections.
+	 * But there are scenarios (Ie. anonymous spreadsheet imports) where it is necessary
+	 */
+	public Map<String, GbUser> getAnonIDUserMap()
+	{
+		final List<GbUser> users = getGbUsersFilteredIfAnonymous(getGradeableUsers(), true);
+		final Map<String, GbUser> anonIdUserMap = new HashMap<String, GbUser>();
+		users.stream().forEach(user -> anonIdUserMap.put(String.valueOf(user.getAnonId()), user));
+
+		return anonIdUserMap;
+	}
 }

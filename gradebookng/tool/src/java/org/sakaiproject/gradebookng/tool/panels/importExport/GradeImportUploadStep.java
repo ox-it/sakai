@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,6 +24,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
+import org.sakaiproject.gradebookng.business.importExport.AnonIdentifier;
 import org.sakaiproject.gradebookng.business.importExport.CommentValidationReport;
 import org.sakaiproject.gradebookng.business.importExport.CommentValidator;
 import org.sakaiproject.gradebookng.business.importExport.GradeValidationReport;
@@ -113,16 +116,23 @@ public class GradeImportUploadStep extends Panel {
 				ImportedSpreadsheetWrapper spreadsheetWrapper;
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), businessService);
+				} catch (final GbImportExportInvalidFileTypeException e) {
+					error(getString("importExport.error.incorrecttype"));
+					target.add(page.feedbackPanel);
+					return;
 				} catch (final InvalidFormatException e) {
 					error(getString("importExport.error.incorrecttype"));
+					target.add(page.feedbackPanel);
 					return;
 				} catch (final IOException e) {
 					error(getString("importExport.error.unknown"));
+					target.add(page.feedbackPanel);
 					return;
 				}
 
 				if(spreadsheetWrapper == null) {
 					error(getString("importExport.error.unknown"));
+					target.add(page.feedbackPanel);
 					return;
 				}
 
@@ -151,11 +161,21 @@ public class GradeImportUploadStep extends Panel {
 					hasValidationErrors = true;
 				}
 
+				boolean isContextAnonymous = spreadsheetWrapper.getUserIdentifier() instanceof AnonIdentifier;
+
 				// If there are duplicate student entires, tell the user now (we can't make the decision about which entry takes precedence)
 				UserIdentificationReport userReport = spreadsheetWrapper.getUserIdentifier().getReport();
 				SortedSet<GbUser> duplicateStudents = userReport.getDuplicateUsers();
 				if (!duplicateStudents.isEmpty()) {
-					String duplicates = StringUtils.join(duplicateStudents, ", ");
+					String duplicates;
+					if (isContextAnonymous)
+					{
+						duplicates = StringUtils.join(duplicateStudents.stream().map(GbUser::getAnonId).collect(Collectors.toList()), ", ");
+					}
+					else
+					{
+						duplicates = StringUtils.join(duplicateStudents, ", ");
+					}
 					error(MessageHelper.getString("importExport.error.duplicateStudents", duplicates));
 					hasValidationErrors = true;
 				}
@@ -164,7 +184,8 @@ public class GradeImportUploadStep extends Panel {
 				boolean isSourceDPC = spreadsheetWrapper.isDPC();
 				List<ImportedColumn> columns = spreadsheetWrapper.getColumns();
 				List<ImportedRow> rows = spreadsheetWrapper.getRows();
-				GradeValidationReport gradeReport = new GradeValidator().validate(rows, columns, isSourceDPC);
+				GradeValidationReport gradeReport = new GradeValidator().validate(rows, columns, isSourceDPC, isContextAnonymous);
+				// maps columnTitle -> (userEid -> grade)
 				SortedMap<String, SortedMap<String, String>> invalidGradesMap = gradeReport.getInvalidNumericGrades();
 				if (!invalidGradesMap.isEmpty()) {
 					Collection<SortedMap<String, String>> invalidGrades = invalidGradesMap.values();
@@ -180,7 +201,7 @@ public class GradeImportUploadStep extends Panel {
 
 				// Perform comment validation if the file is not a DPC; present error message with invalid comments on current page
 				if (!isSourceDPC) {
-					CommentValidationReport commentReport = new CommentValidator().validate(rows, columns);
+					CommentValidationReport commentReport = new CommentValidator().validate(rows, columns, isContextAnonymous);
 					SortedMap<String, SortedMap<String, String>> invalidCommentsMap = commentReport.getInvalidComments();
 					if (!invalidCommentsMap.isEmpty()) {
 						Collection<SortedMap<String, String>> invalidComments = invalidCommentsMap.values();
@@ -197,7 +218,7 @@ public class GradeImportUploadStep extends Panel {
 
 				//get existing data
 				final List<Assignment> assignments = businessService.getGradebookAssignments();
-				final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, false);
+				final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, isContextAnonymous);
 
 				// process file
 				List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(spreadsheetWrapper, assignments, grades);
@@ -243,6 +264,7 @@ public class GradeImportUploadStep extends Panel {
 				final ImportWizardModel importWizardModel = new ImportWizardModel();
 				importWizardModel.setProcessedGradeItems(processedGradeItems);
 				importWizardModel.setUserReport(userReport);
+				importWizardModel.setContextAnonymous(isContextAnonymous);
 				final Component newPanel = new GradeItemImportSelectionStep(GradeImportUploadStep.this.panelId, Model.of(importWizardModel));
 				newPanel.setOutputMarkupId(true);
 

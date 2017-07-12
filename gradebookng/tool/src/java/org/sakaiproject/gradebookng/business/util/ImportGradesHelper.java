@@ -91,9 +91,9 @@ public class ImportGradesHelper {
 
 		// It would be great if we could depend on the browser mimetype, but Windows + Excel will always send an Excel mimetype
 		if (StringUtils.endsWithAny(filename, CSV_FILE_EXTS) || ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
-			rval = parseCsv(is, businessService.getUserEidMap());
+			rval = parseCsv(is, businessService);
 		} else if (StringUtils.endsWithAny(filename, XLS_FILE_EXTS) || ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
-			rval = parseXls(is, businessService.getUserEidMap());
+			rval = parseXls(is, businessService);
 		} else if (StringUtils.endsWithAny(filename, DPC_FILE_EXTS)) {
 			rval = parseDPC(is, businessService.getUserStudentNumMap());
 		} else {
@@ -109,7 +109,10 @@ public class ImportGradesHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final Map<String, GbUser> userEidMap) throws IOException {
+	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final GradebookNgBusinessService businessService) throws IOException {
+
+		// Maps a String user identifier to its associated GbUser object. The key can be the eid (in a normal export), or the grading ID (in an anonymous export)
+		Map<String, GbUser> idUserMap = null;
 
 		// manually parse method so we can support arbitrary columns
 		final CSVReader reader = new CSVReader(new InputStreamReader(is));
@@ -125,9 +128,11 @@ public class ImportGradesHelper {
 				if (lineCount == 0) {
 					// header row, capture it
 					mapping = mapHeaderRow(nextLine, importedGradeWrapper.getHeadingReport());
-				} else {
+					boolean isContextAnonymous = !mapping.isEmpty() && ImportedColumn.Type.ANONYMOUS_ID.equals(mapping.get(0).getType());
+					idUserMap = isContextAnonymous ? businessService.getAnonIDUserMap() : businessService.getUserEidMap();
+				} else if (idUserMap != null) {
 					// map the fields into the object
-					final ImportedRow importedRow = mapLine(nextLine, mapping, userEidMap);
+					final ImportedRow importedRow = mapLine(nextLine, mapping, idUserMap);
 					if(importedRow != null) {
 						list.add(importedRow);
 					}
@@ -143,7 +148,7 @@ public class ImportGradesHelper {
 		}
 
 		importedGradeWrapper.setColumns(new ArrayList<>(mapping.values()));
-		importedGradeWrapper.setRows(list, userEidMap);
+		importedGradeWrapper.setRows(list, idUserMap);
 		return importedGradeWrapper;
 	}
 
@@ -217,7 +222,9 @@ public class ImportGradesHelper {
 	 * @throws IOException
 	 * @throws InvalidFormatException
 	 */
-	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final Map<String, GbUser> userEidMap) throws InvalidFormatException, IOException {
+	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final GradebookNgBusinessService businessService) throws InvalidFormatException, IOException {
+		// Maps a String user identifier to its associated GbUser object. The key can be the eid (in a normal export), or the grading ID (in an anonymous export)
+		Map<String, GbUser> idUserMap = null;
 
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
@@ -233,9 +240,12 @@ public class ImportGradesHelper {
 			if (lineCount == 0) {
 				// header row, capture it
 				mapping = mapHeaderRow(r, importedGradeWrapper.getHeadingReport());
+				boolean isContextAnonymous = !mapping.isEmpty() && ImportedColumn.Type.ANONYMOUS_ID.equals(mapping.get(0).getType());
+				idUserMap = isContextAnonymous ? businessService.getAnonIDUserMap() : businessService.getUserEidMap();
+
 			} else {
 				// map the fields into the object
-				final ImportedRow importedRow = mapLine(r, mapping, userEidMap);
+				final ImportedRow importedRow = mapLine(r, mapping, idUserMap);
 				if(importedRow != null) {
 					list.add(importedRow);
 				}
@@ -244,7 +254,7 @@ public class ImportGradesHelper {
 		}
 
 		importedGradeWrapper.setColumns(new ArrayList<>(mapping.values()));
-		importedGradeWrapper.setRows(list, userEidMap);
+		importedGradeWrapper.setRows(list, idUserMap);
 		return importedGradeWrapper;
 	}
 
@@ -295,7 +305,7 @@ public class ImportGradesHelper {
 						row.setAnonID(lineVal);
 						break;
 					default:
-						row.setStudentEid(lineVal);
+						// set eid (handled a couple lines below)
 						break;
 				}
 
@@ -303,6 +313,7 @@ public class ImportGradesHelper {
 				GbUser user = userMap.get(lineVal);
 				if (user != null) {
 					row.setStudentUuid(user.getUserUuid());
+					row.setStudentEid(user.getEid());
 				}
 
 			} else if (column.getType() == ImportedColumn.Type.USER_NAME) {
@@ -492,12 +503,12 @@ public class ImportGradesHelper {
 				if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
 					final String trimmedImportedScore = StringUtils.removeEnd(importedScore, ".0");
 					final String trimmedActualScore = StringUtils.removeEnd(actualScore, ".0");
-					if (trimmedImportedScore != null && !trimmedImportedScore.equals(trimmedActualScore)) {
+					if (trimmedImportedScore == null ? trimmedActualScore != null : !trimmedImportedScore.equals(trimmedActualScore)) {
 						status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
 						break;
 					}
 				} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-					if (importedComment != null && !importedComment.equals(actualComment)) {
+					if (importedComment == null ? actualComment != null : importedComment.equals(actualComment)) {
 						status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
 						break;
 					}
@@ -554,6 +565,8 @@ public class ImportGradesHelper {
 		// retain order
 		final Map<Integer, ImportedColumn> mapping = new LinkedHashMap<>();
 
+		boolean isContextAnonymous = false;
+
 		for (int i = 0; i < line.length; i++) {
 
 			ImportedColumn column = new ImportedColumn();
@@ -562,8 +575,16 @@ public class ImportGradesHelper {
 			log.debug("line[i]: " + line[i]);
 
 			if(i == USER_ID_POS) {
-				column.setType(ImportedColumn.Type.USER_ID);
-			} else if(i == USER_NAME_POS) {
+				if (MessageHelper.getString("importExport.export.csv.headers.anonId").equals(line[i]))
+				{
+					column.setType(ImportedColumn.Type.ANONYMOUS_ID);
+					isContextAnonymous = true;
+				}
+				else
+				{
+					column.setType(ImportedColumn.Type.USER_ID);
+				}
+			} else if(!isContextAnonymous && i == USER_NAME_POS) {
 				column.setType(ImportedColumn.Type.USER_NAME);
 			} else {
 				column = parseHeaderToColumn(StringUtils.trimToNull(line[i]), headingReport);
@@ -640,14 +661,15 @@ public class ImportGradesHelper {
 	 */
 	private static String[] convertRow(final Row row) {
 
-		final int numCells = row.getPhysicalNumberOfCells();
+		// Gets the index of the last cell in this row *plus one* (https://poi.apache.org/apidocs/org/apache/poi/ss/usermodel/Row.html#getLastCellNum())
+		final int numCells = row.getLastCellNum();
 		final String[] s = new String[numCells];
-
+		// All initialized to null; populate only existing cells
 		int i = 0;
 		for (final Cell cell : row) {
 			// force cell to String
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			s[i] = StringUtils.trimToNull(cell.getStringCellValue());
+			s[cell.getColumnIndex()] = StringUtils.trimToNull(cell.getStringCellValue());
 			i++;
 		}
 

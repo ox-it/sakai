@@ -19,18 +19,18 @@ public class CommentValidationReport
         invalidComments = new ConcurrentSkipListMap<>();
     }
 
-    public void addInvalidComment( String columnTitle, String userEID, String comment )
+    public void addInvalidComment( String columnTitle, String userIdentifier, String comment )
     {
         SortedMap<String, String> columnInvalidCommentsMap = invalidComments.get( columnTitle );
         if( columnInvalidCommentsMap == null )
         {
             columnInvalidCommentsMap = new ConcurrentSkipListMap<>();
-            columnInvalidCommentsMap.put( userEID, comment );
+            columnInvalidCommentsMap.put( userIdentifier, comment );
             invalidComments.put( columnTitle, columnInvalidCommentsMap );
         }
         else
         {
-            columnInvalidCommentsMap.put( userEID, comment );
+            columnInvalidCommentsMap.put( userIdentifier, comment );
         }
     }
 }

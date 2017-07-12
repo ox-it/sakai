@@ -15,6 +15,9 @@ public class GradeValidationReport
     //@Getter
     //private final SortedMap<String, SortedMap<String, String>> invalidLetterGrades;
 
+    /**
+     * maps columnTitle -> (userEid -> grade)
+     */
     @Getter
     private final SortedMap<String, SortedMap<String, String>> invalidNumericGrades;
 
@@ -28,18 +31,18 @@ public class GradeValidationReport
     //{
     //}
 
-    public void addInvalidNumericGrade( String columnTitle, String userEID, String grade )
+    public void addInvalidNumericGrade( String columnTitle, String studentIdentifier, String grade )
     {
         SortedMap<String, String> columnInvalidGradesMap = invalidNumericGrades.get( columnTitle );
         if( columnInvalidGradesMap == null )
         {
             columnInvalidGradesMap = new ConcurrentSkipListMap<>();
-            columnInvalidGradesMap.put( userEID, grade );
+            columnInvalidGradesMap.put( studentIdentifier, grade );
             invalidNumericGrades.put( columnTitle, columnInvalidGradesMap );
         }
         else
         {
-            columnInvalidGradesMap.put( userEID, grade );
+            columnInvalidGradesMap.put( studentIdentifier, grade );
         }
     }
 }

@@ -31,9 +31,10 @@ public class GradeValidator
      * @param rows the list of data parsed from the input file
      * @param columns the list of parsed columns, so we can access the column type for non-DPC validation
      * @param isSourceDPC true if the input file was DPC, false otherwise
+     * @param isContextAnonymous true if input file uses GradingIDs to indentify students; ignored if isSourceDPC is true
      * @return the {@link GradeValidationReport}
      */
-    public GradeValidationReport validate( List<ImportedRow> rows, List<ImportedColumn> columns, boolean isSourceDPC )
+    public GradeValidationReport validate( List<ImportedRow> rows, List<ImportedColumn> columns, boolean isSourceDPC, boolean isContextAnonymous )
     {
         report = new GradeValidationReport();
 
@@ -58,7 +59,8 @@ public class GradeValidator
                         ImportedCell cell = row.getCellMap().get( columnTitle );
                         if( cell != null )
                         {
-                            validateGrade( columnTitle, row.getStudentEid(), cell.getScore() );
+                            String studentIdentifier = isContextAnonymous ? row.getAnonID() : row.getStudentEid();
+                            validateGrade( columnTitle, studentIdentifier, cell.getScore() );
                         }
                     }
                 }

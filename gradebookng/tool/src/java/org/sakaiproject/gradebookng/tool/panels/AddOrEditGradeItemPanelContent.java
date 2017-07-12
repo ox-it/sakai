@@ -51,6 +51,8 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 	private boolean categoriesEnabled;
 
+	private boolean isAnonymousLocked = false;
+
 	public AddOrEditGradeItemPanelContent(final String id, final Model<Assignment> assignmentModel) {
 		super(id, assignmentModel);
 
@@ -240,11 +242,19 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		};
 
 		anonymous = new AjaxCheckBox("anonymous", new PropertyModel<>(assignmentModel, "anon")) {
+
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
 				setOutputMarkupId(true);
-				setEnabled(assignment == null || assignment.getId() == null);
+				if (isAnonymousLocked())
+				{
+					setEnabled(false);
+				}
+				else
+				{
+					setEnabled(assignment == null || assignment.getId() == null);
+				}
 			}
 
 			@Override
@@ -296,5 +306,19 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 				}
 			}
 		});
+	}
+
+	public boolean isAnonymousLocked()
+	{
+		return isAnonymousLocked;
+	}
+
+	/**
+	 * Use case: newly imported items. The anonymity needs to match the type of spreadsheet that was imported.
+	 */
+	public void lockAnonymousToValue(boolean isItemAnonymous)
+	{
+		anonymous.setModelObject(isItemAnonymous);
+		isAnonymousLocked = true;
 	}
 }

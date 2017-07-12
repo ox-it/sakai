@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -61,8 +62,20 @@ public class PreviewImportedGradesPanel extends Panel
             }
         });
 
+        final boolean isContextAnonymous = importWizardModel.isContextAnonymous();
+
         // Create and populate the list of grades that will be imported for the current item
         final WebMarkupContainer previewGradesContainer = new WebMarkupContainer( "previewGradesContainer" );
+
+        String studentIdHeaderKey = isContextAnonymous ? "importExport.selection.previewGrades.anonId.heading" : "importExport.selection.previewGrades.studentID.heading";
+        Label studentIdHeading = new Label("studentIdHeading", new ResourceModel(studentIdHeaderKey));
+        Label studentNameHeading = new Label("studentNameHeading", new ResourceModel("importExport.selection.previewGrades.studentName.heading"));
+        Label studentGradeHeading = new Label("studentGradeHeading", new ResourceModel("importExport.selection.previewGrades.grade.heading"));
+        studentNameHeading.setVisible(!isContextAnonymous);
+        previewGradesContainer.add(studentIdHeading);
+        previewGradesContainer.add(studentNameHeading);
+        previewGradesContainer.add(studentGradeHeading);
+
         final ListView<ProcessedGradeItemDetail> previewGrades = new ListView<ProcessedGradeItemDetail>( "previewGrades", processedGradeItem.getProcessedGradeItemDetails() )
         {
             @Override
@@ -70,8 +83,11 @@ public class PreviewImportedGradesPanel extends Panel
             {
                 final ProcessedGradeItemDetail details = item.getModelObject();
                 final GbUser user = details.getUser();
-                item.add( new Label( "studentID", user.getDisplayId() ) );
-                item.add( new Label( "studentName", user.getDisplayName() ) );
+                String studentId = isContextAnonymous ? user.getAnonId() : user.getDisplayId();
+                item.add( new Label( "studentID", studentId ) );
+                Label lblStudentName = new Label("studentName", user.getDisplayName());
+                lblStudentName.setVisible(!isContextAnonymous);
+                item.add( lblStudentName );
                 item.add( new Label( "studentGrade", details.getGrade() ) );
             }
         };

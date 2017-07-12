@@ -16,28 +16,16 @@
                             <table class="table table-striped table-bordered table-hover">
                                 <thead>
                                     <tr>
-                                        <th>
-                                            <wicket:message key="importExport.selection.previewGrades.studentID.heading">Student ID</wicket:message>
-                                        </th>
-                                        <th>
-                                            <wicket:message key="importExport.selection.previewGrades.studentName.heading">Student Name</wicket:message>
-                                        </th>
-                                        <th>
-                                            <wicket:message key="importExport.selection.previewGrades.grade.heading">Grade</wicket:message>
-                                        </th>
+                                        <th wicket:id="studentIdHeading">Student ID</th>
+                                        <th wicket:id="studentNameHeading">Student Name</th>
+                                        <th wicket:id="studentGradeHeading">Grade</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr wicket:id="previewGrades">
-                                        <td>
-                                            <span wicket:id="studentID">student0001</span>
-                                        </td>
-                                        <td>
-                                            <span wicket:id="studentName">firstName lastName</span>
-                                        </td>
-                                        <td>
-                                            <span wicket:id="studentGrade">85</span>
-                                        </td>
+                                        <td wicket:id="studentID">student0001</td>
+                                        <td wicket:id="studentName">firstName lastName</td>
+                                        <td wicket:id="studentGrade">85</td>
                                     </tr>
                                 </tbody>
                             </table>

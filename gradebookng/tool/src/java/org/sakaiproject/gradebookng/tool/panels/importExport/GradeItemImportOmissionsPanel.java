@@ -108,6 +108,8 @@ public class GradeItemImportOmissionsPanel extends Panel
         List<String> unknownUsersSorted = new ArrayList<>( report.getUnknownUsers() );
         Collections.sort( missingUsersSorted );
         Collections.sort( unknownUsersSorted );
+        
+        final boolean isContextAnonymous = model.getObject().isContextAnonymous();
 
         // Create and populate the list of missing users
         final ListView<GbUser> missingUsers = new ListView<GbUser>( "missingUsers", missingUsersSorted )
@@ -116,7 +118,8 @@ public class GradeItemImportOmissionsPanel extends Panel
             protected void populateItem( final ListItem<GbUser> item )
             {
                 final GbUser user = item.getModelObject();
-                item.add( new Label( "missingUser", user.getDisplayId() + " (" + user.getDisplayName() + ")" ) );
+                String userDisplay = isContextAnonymous ? user.getAnonId() : user.getDisplayId() + " (" + user.getDisplayName() + ")";
+                item.add( new Label( "missingUser", userDisplay ) );
             }
         };
 
