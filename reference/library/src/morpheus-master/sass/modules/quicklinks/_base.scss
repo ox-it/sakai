@@ -120,8 +120,9 @@
         top: 1px;
         position: relative;
         display: inline-block;
-        background-repeat: initial;
-        background-position: center;
+        background-repeat: no-repeat;
+        background-position: left;
+        font-size: 18px; // Sizes font awesome icons.
       }
 
       .#{$namespace}quickLinks__submenuitem--title {
