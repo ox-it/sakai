@@ -10,8 +10,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
@@ -25,12 +29,15 @@ import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
+import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 
 /**
  * Tests for the ImportGradesHelper class.
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(MessageHelper.class)
 public class TestImportGradesHelper {
 
 	private final Map<String, GbUser> USER_MAP = mockUserMap();
@@ -41,6 +48,9 @@ public class TestImportGradesHelper {
 		service = Mockito.mock(GradebookNgBusinessService.class);
 		Assert.assertNotNull(service);
 		Mockito.when(service.getUserEidMap()).thenReturn(USER_MAP);
+
+		PowerMockito.mockStatic(MessageHelper.class);
+		PowerMockito.when(MessageHelper.getString("importExport.export.csv.headers.anonId")).thenReturn("Grading ID");
 	}
 
 	@Test
