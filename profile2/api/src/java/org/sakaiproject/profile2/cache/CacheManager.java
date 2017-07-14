@@ -30,5 +30,6 @@ public interface CacheManager {
 	 * @param cacheName
 	 * @return
 	 */
-	public Cache createCache(String cacheName);
+	<K, V>Cache<K, V> createCache(String cacheName);
+
 }

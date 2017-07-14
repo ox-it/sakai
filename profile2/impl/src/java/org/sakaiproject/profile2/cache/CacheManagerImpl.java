@@ -28,10 +28,8 @@ import org.sakaiproject.memory.api.MemoryService;
  */
 public class CacheManagerImpl implements CacheManager {
 
-	/**
- 	* {@inheritDoc}
- 	*/
-	public Cache createCache(String cacheName) {
+	@Override
+	public <K, V>Cache<K, V> createCache(String cacheName) {
 		return memoryService.newCache(cacheName);
 	}
 
