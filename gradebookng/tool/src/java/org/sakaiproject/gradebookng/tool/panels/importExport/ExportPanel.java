@@ -29,6 +29,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
@@ -50,10 +51,10 @@ public class ExportPanel extends Panel {
 	boolean includeStudentId = true;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
-	boolean includeCourseGrade = false;
+	boolean includeFinalGrade = false;
 	boolean includePoints = false;
 	boolean includeLastLogDate = false;
-	boolean includeCalculatedGrade = false;
+	boolean includeCourseGrade = false;
 	boolean includeGradeOverride = false;
 
 	// Model for file names; gets updated by buildFileName(), which is invoked by buildFile for effiency with determining csv vs zip wrt anonymity
@@ -122,20 +123,20 @@ public class ExportPanel extends Panel {
 				setDefaultModelObject(ExportPanel.this.includeLastLogDate);
 			}
 		});
+		add(new AjaxCheckBox("includeFinalGrade", Model.of(includeFinalGrade)) {
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeFinalGrade = !ExportPanel.this.includeFinalGrade;
+				setDefaultModelObject(ExportPanel.this.includeFinalGrade);
+			}
+		});
 		add(new AjaxCheckBox("includeCourseGrade", Model.of(includeCourseGrade)) {
 
 			@Override
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
 				ExportPanel.this.includeCourseGrade = !ExportPanel.this.includeCourseGrade;
 				setDefaultModelObject(ExportPanel.this.includeCourseGrade);
-			}
-		});
-		add(new AjaxCheckBox("includeCalculatedGrade", Model.of(includeCalculatedGrade)) {
-
-			@Override
-			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
-				ExportPanel.this.includeCalculatedGrade = !ExportPanel.this.includeCalculatedGrade;
-				setDefaultModelObject(ExportPanel.this.includeCalculatedGrade);
 			}
 		});
 		add(new AjaxCheckBox("includeGradeOverride", Model.of(includeGradeOverride)) {
@@ -414,15 +415,15 @@ public class ExportPanel extends Panel {
 					CUSTOM_EXPORT_COLUMN_PREFIX,
 					getString("importExport.export.csv.headers.points")));
 			}
-			if (isCustomExport && this.includeCalculatedGrade) {
-				header.add(String.format("%s%s",
-					CUSTOM_EXPORT_COLUMN_PREFIX,
-					getString("importExport.export.csv.headers.calculatedGrade")));
-			}
 			if (isCustomExport && this.includeCourseGrade) {
 				header.add(String.format("%s%s",
 					CUSTOM_EXPORT_COLUMN_PREFIX,
 					getString("importExport.export.csv.headers.courseGrade")));
+			}
+			if (isCustomExport && this.includeFinalGrade) {
+				header.add(String.format("%s%s",
+					CUSTOM_EXPORT_COLUMN_PREFIX,
+					getString("importExport.export.csv.headers.finalGrade")));
 			}
 			if (isCustomExport && this.includeGradeOverride) {
 				header.add(String.format("%s%s",
@@ -493,11 +494,11 @@ public class ExportPanel extends Panel {
 				if (isCustomExport && includePoints) {
 					line.add(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()));
 				}
-				if (isCustomExport && includeCalculatedGrade) {
+				if (isCustomExport && includeCourseGrade) {
 					line.add(courseGrade.getCalculatedGrade());
 				}
-				if (isCustomExport && includeCourseGrade) {
-					line.add(courseGrade.getMappedGrade());
+				if (isCustomExport && includeFinalGrade) {
+					line.add(FinalGradeFormatter.format(gbCourseGrade));
 				}
 				if (isCustomExport && includeGradeOverride) {
 					line.add(courseGrade.getEnteredGrade());
@@ -513,7 +514,6 @@ public class ExportPanel extends Panel {
 
 			csvContents.add(line);
 		});
-
 
 		return csvContents;
 	}

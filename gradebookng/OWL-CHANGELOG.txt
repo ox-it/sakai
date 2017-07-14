@@ -1,4 +1,6 @@
-2016.07.06:
+2017.07.14:
+	- [OWL-2975] custom gradebook exports don't include the override/threshold
+2017.07.06:
 	- [OWL-2739] make gradebookng category colours algorithm deterministic
 2017.06.29:
 	- [OWL-2676] improve performance of spreadsheet import for gradebookNG
