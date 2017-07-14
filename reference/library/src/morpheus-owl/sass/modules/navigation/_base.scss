@@ -650,14 +650,23 @@ body.is-logged-out{
 				@extend .fa-star;
 				@extend .fa;
 
-				&.fav {
-					
-				}
-
 				&.non-fav {
 					@extend .fa-star-o;
 					@extend .fa;
 				}	
+			}
+			.#{$namespace}sitesNav__gateway {
+				text-align: right;
+				margin-left: 0.2em;
+				position: absolute;
+				left: 6px;
+				top: 50%;
+				transform: translate(0%,-50%);
+				text-decoration: none;
+				z-index: 1000;
+
+				@extend .fa-university;
+				@extend .fa;
 			}
 
 			ul{
