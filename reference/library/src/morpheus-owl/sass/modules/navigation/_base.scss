@@ -896,23 +896,31 @@ body.is-logged-out{
 	padding-left:5px;
 }
 
-.#{$namespace}siteStatus{
-	&.is-unpublished{
-		margin-left:0em;
+.#{$namespace}siteStatus
+{
+	&.is-unpublished
+	{
+		display:flex;
+		align-items: center;
+		justify-content: center;
 		width: 100%;
-		padding: 3px;
-		color :$background-color-secondary;
-		display:block;
-		text-align:center;
-		background-color: $warn-background-color;
-		border-bottom: 1px solid $warn-color;
-		h4{
-			padding: 3px;
+		margin:0 $standard-padding $standard-padding $standard-padding;
+		padding: $standard-padding;
+		background-color: $siteUnpublished-background;
+		color: $siteUnpublished-color;
+		text-align: center;
+		
+		h4
+		{
 			display: inline-block;
 			vertical-align: top;
+			margin: 0;
+			padding: $standard-padding;
 		}
-		button{
+		button
+		{
 			@extend .button;
+			margin: 0;
 		}
 	}
 }
