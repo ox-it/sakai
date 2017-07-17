@@ -1,5 +1,6 @@
 2017.07.17:
 	- [OWL-2730] Fixed the alignment of the Unpublished Site banner and styled the banner
+	- [OWL-2832] Made the space for name and username wider in the Account Menu to accomodate longer names
 2017.07.12:
 	- [OWL-2612] spinner not being applied on inputs of type="button"
 2017.07.11:
