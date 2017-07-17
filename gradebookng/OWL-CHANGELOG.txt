@@ -1,3 +1,5 @@
+2017.07.17:
+	- [OWL-2977] custom export 'total points' selection results in duplicate column
 2017.07.14:
 	- [OWL-2975] custom gradebook exports don't include the override/threshold
 2017.07.06:

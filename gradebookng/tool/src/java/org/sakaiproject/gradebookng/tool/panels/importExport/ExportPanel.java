@@ -488,9 +488,6 @@ public class ExportPanel extends Panel {
 				final GbCourseGrade gbCourseGrade = studentGradeInfo.getCourseGrade();
 				final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
 
-				if (isCustomExport && this.includePoints) {
-					line.add(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()));
-				}
 				if (isCustomExport && includePoints) {
 					line.add(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned()));
 				}
