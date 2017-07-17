@@ -127,6 +127,10 @@ public class GbBaseGradesDisplayToolbar extends Panel
 	protected boolean showGroupFilter()
 	{
 		showGroupFilter = groups.size() > 1;
+		if (showGroupFilter)
+		{
+			showGroupFilter = !((IGradesPage) getPage()).getUiSettings().isContextAnonymous();
+		}
 		return showGroupFilter;
 	}
 	
