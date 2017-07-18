@@ -457,10 +457,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
 
-		String siteTitle = getUserSpecificSiteTitle( s, false, true, siteProviders );
-		m.put("siteTitle", siteTitle);
-		m.put("fullTitle", siteTitle);
-		
+		String siteTitleNotTruncated = getUserSpecificSiteTitle( s, false, true, siteProviders );
+		String siteTitleTruncated = getUserSpecificSiteTitle( s, true, true, siteProviders );
+		m.put("siteTitle", siteTitleTruncated);
+		m.put("fullTitle", siteTitleNotTruncated);
+		m.put("siteTitleNotTruncated", siteTitleNotTruncated);
 		m.put("siteDescription", s.getHtmlDescription());
 
 		if ( s.getShortDescription() !=null && s.getShortDescription().trim().length()>0 ){

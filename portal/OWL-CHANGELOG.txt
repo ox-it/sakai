@@ -1,3 +1,5 @@
+2017.07.18:
+	- [OWL-2978] fix site drawer hover tool tip text
 2017.02.27:
 	- [OWL-2575] port OWL-501 to 11.3 (force Home tool to top of tool list)
 	- forked from https://github.com/sakaiproject/sakai/tree/11.3
