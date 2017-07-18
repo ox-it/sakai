@@ -944,6 +944,14 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	 * Convenience method; use isCourseGradePureAnonForAllAssignments if you already have access to the assignment list
+	 */
+	public boolean isCourseGradePureAnon()
+	{
+		return isCourseGradePureAnonForAllAssignments(getGradebookAssignments());
+	}
+
+	/**
 	 * Returns true if all items counting toward the course grade are anonymous in the specified list of assignments. If no assignments count toward the course grade, it is not considered pure anonymous.
 	 * @param allAssignments for performance purposes; it is expected to be the complete list of assignments in the course (or at least the entire list of assignments that count toward the course grade).
 	 * To guarantee accuracy, pass the complete unfiltered list of assignments in the course

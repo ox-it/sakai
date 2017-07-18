@@ -121,6 +121,8 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		form.add(updateUngradedItemsWindow);
 		
 		final GradebookUiSettings settings = getUiSettings();
+		settings.setContextAnonymous(businessService.isCourseGradePureAnon());
+
 		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForFinalGrades(settings);
 
 		// mark the current timestamp so we can use this date to check for any changes since now
