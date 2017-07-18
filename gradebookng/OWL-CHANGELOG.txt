@@ -1,3 +1,5 @@
+2017.07.18:
+	- [OWL-2979] add student number support to gradebook exports
 2017.07.17:
 	- [OWL-2977] custom export 'total points' selection results in duplicate column
 2017.07.14:

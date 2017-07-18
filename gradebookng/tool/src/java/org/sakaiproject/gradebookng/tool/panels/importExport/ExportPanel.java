@@ -49,6 +49,7 @@ public class ExportPanel extends Panel {
 	ExportFormat exportFormat = ExportFormat.CSV;
 	boolean includeStudentName = true;
 	boolean includeStudentId = true;
+	boolean includeStudentNumber = true;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
 	boolean includeFinalGrade = false;
@@ -82,6 +83,14 @@ public class ExportPanel extends Panel {
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
 				ExportPanel.this.includeStudentId = !ExportPanel.this.includeStudentId;
 				setDefaultModelObject(ExportPanel.this.includeStudentId);
+			}
+		});
+		add(new AjaxCheckBox("includeStudentNumber", Model.of(includeStudentNumber)) {
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeStudentNumber = !ExportPanel.this.includeStudentNumber;
+				setDefaultModelObject(ExportPanel.this.includeStudentNumber);
 			}
 		});
 		add(new AjaxCheckBox("includeGradeItemScores", Model.of(includeGradeItemScores)) {
@@ -160,7 +169,6 @@ public class ExportPanel extends Panel {
 		boolean siteHasAnonIDs = !businessService.getAnonGradingIDsForCurrentSite().isEmpty();
 
 		add(new DownloadLink("downloadFullGradebookRevealed", new LoadableDetachableModel<File>() {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected File load() {
@@ -181,7 +189,6 @@ public class ExportPanel extends Panel {
 		}, fileNameModel).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
 
 		add(new DownloadLink("downloadCustomGradebookRevealed", new LoadableDetachableModel<File>() {
-			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected File load() {
@@ -195,14 +202,15 @@ public class ExportPanel extends Panel {
 
 	/**
 	 * Builds the export file. Will produce a zip if the anonymity is mixed; preduces a csv otherwise
-	 * @param isCustomExport - whether the custom 
+	 * @param isCustomExport - whether the custom
+	 * @param isRevealed - for anonymous exports
 	 */
 	private File buildFile(final boolean isCustomExport, final boolean isRevealed) {
 		// The temporary file that will be returned. May be .csv, or .zip in the case of mixed anonymous content
 		File tempFile;
 
 		// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+		final List<Assignment> assignments = businessService.getGradebookAssignments();
 
 		// Determine what kind of content we're working with - all normal / all anonymous / mixed, and build the file name with the appropriate extension
 		boolean hasNormal = false;
@@ -293,47 +301,44 @@ public class ExportPanel extends Panel {
 			{
 				// Non mixed scenarios (Ie. csv scenarios)
 				tempFile = File.createTempFile("gradebookTemplate", ".csv");
-				final FileWriter fw = new FileWriter(tempFile);
-				final CSVWriter csvWriter = new CSVWriter(fw);
-				// Write an appropriate CSV via getCSVContents
-				if (isRevealed)
-				{
-					writeLines(csvWriter, getCSVContents(assignments, isCustomExport, true, false, false));
-				}
-				else if (hasAnon)
-				{
-					writeLines(csvWriter, getCSVContents(assignments, isCustomExport, false, true, isCourseGradePureAnon));
-				}
-				else
-				{
-					writeLines(csvWriter, getCSVContents(assignments, isCustomExport, false, false, isCourseGradePureAnon));
-				}
+				try (FileWriter fw = new FileWriter(tempFile); CSVWriter csvWriter = new CSVWriter(fw)){
+					// Write an appropriate CSV via getCSVContents
+					if (isRevealed)
+					{
+						writeLines(csvWriter, getCSVContents(assignments, isCustomExport, true, false, false));
+					}
+					else if (hasAnon)
+					{
+						writeLines(csvWriter, getCSVContents(assignments, isCustomExport, false, true, isCourseGradePureAnon));
+					}
+					else
+					{
+						writeLines(csvWriter, getCSVContents(assignments, isCustomExport, false, false, isCourseGradePureAnon));
+					}
 
-				csvWriter.close();
-				fw.close();
+				}
 			}
 			else
 			{
 				// !isRevealed && hasAnon && hasNormal: zip file
 				tempFile = File.createTempFile("gradebookTemplate", ".zip");
 				FileOutputStream fos = new FileOutputStream(tempFile);
-				ZipOutputStream zos = new ZipOutputStream(fos);
+				try (ZipOutputStream zos = new ZipOutputStream(fos))
+				{
+					ZipEntry normalEntry = new ZipEntry("gradebookExport_normal.csv");
+					zos.putNextEntry(normalEntry);
+					CSVWriter normalWriter = new CSVWriter(new OutputStreamWriter(zos));
+					writeLines(normalWriter, getCSVContents(assignments, isCustomExport, false, false, isCourseGradePureAnon));
+					normalWriter.flush();
+					zos.closeEntry();
 
-				ZipEntry normalEntry = new ZipEntry("gradebookExport_normal.csv");
-				zos.putNextEntry(normalEntry);
-				CSVWriter normalWriter = new CSVWriter(new OutputStreamWriter(zos));
-				writeLines(normalWriter, getCSVContents(assignments, isCustomExport, false, false, isCourseGradePureAnon));
-				normalWriter.flush();
-				zos.closeEntry();
-
-				ZipEntry anonEntry = new ZipEntry("gradebookExport_anonymous.csv");
-				zos.putNextEntry(anonEntry);
-				CSVWriter anonWriter = new CSVWriter(new OutputStreamWriter(zos));
-				writeLines(anonWriter, getCSVContents(assignments, isCustomExport, false, true, isCourseGradePureAnon));
-				anonWriter.flush();
-				zos.closeEntry();
-
-				zos.close();
+					ZipEntry anonEntry = new ZipEntry("gradebookExport_anonymous.csv");
+					zos.putNextEntry(anonEntry);
+					CSVWriter anonWriter = new CSVWriter(new OutputStreamWriter(zos));
+					writeLines(anonWriter, getCSVContents(assignments, isCustomExport, false, true, isCourseGradePureAnon));
+					anonWriter.flush();
+					zos.closeEntry();
+				}
 			}
 
 		} catch (final IOException e) {
@@ -362,7 +367,8 @@ public class ExportPanel extends Panel {
 	 *    True = only anonymous content will be added to the CSV
 	 * @param isCourseGradePureAnon whether course grades should appear only in the anonymous context
 	 */
-	private List<List<String>> getCSVContents(List<Assignment> allAssignments, boolean isCustomExport, boolean isRevealed, boolean isContextAnonymous, boolean isCourseGradePureAnon)
+	private List<List<String>> getCSVContents(List<Assignment> allAssignments, boolean isCustomExport, boolean isRevealed, boolean isContextAnonymous,
+												boolean isCourseGradePureAnon)
 	{
 		List<List<String>> csvContents = new ArrayList<>();
 
@@ -384,11 +390,14 @@ public class ExportPanel extends Panel {
 		final List<String> header = new ArrayList<>();
 		if (isRevealed || !isContextAnonymous)
 		{
-			if (!isCustomExport || this.includeStudentId) {
+			if (!isCustomExport || includeStudentId) {
 				header.add(getString("importExport.export.csv.headers.studentId"));
 			}
-			if (!isCustomExport || this.includeStudentName) {
+			if (!isCustomExport || includeStudentName) {
 				header.add(getString("importExport.export.csv.headers.studentName"));
+			}
+			if (!isCustomExport || includeStudentNumber) {
+				header.add(String.format("%s%s", CUSTOM_EXPORT_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
 			}
 		}
 		else
@@ -399,10 +408,10 @@ public class ExportPanel extends Panel {
 		// build column header
 		assignments.forEach(assignment -> {
 			final String assignmentPoints = assignment.getPoints().toString();
-			if (!isCustomExport || this.includeGradeItemScores) {
+			if (!isCustomExport || includeGradeItemScores) {
 				header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
 			}
-			if (!isCustomExport || this.includeGradeItemComments) {
+			if (!isCustomExport || includeGradeItemComments) {
 				header.add("* " + assignment.getName());
 			}
 		});
@@ -410,27 +419,27 @@ public class ExportPanel extends Panel {
 		// Course grade related headers
 		if (isRevealed || isContextAnonymous == isCourseGradePureAnon)
 		{
-			if (isCustomExport && this.includePoints) {
+			if (isCustomExport && includePoints) {
 				header.add(String.format("%s%s",
 					CUSTOM_EXPORT_COLUMN_PREFIX,
 					getString("importExport.export.csv.headers.points")));
 			}
-			if (isCustomExport && this.includeCourseGrade) {
+			if (isCustomExport && includeCourseGrade) {
 				header.add(String.format("%s%s",
 					CUSTOM_EXPORT_COLUMN_PREFIX,
 					getString("importExport.export.csv.headers.courseGrade")));
 			}
-			if (isCustomExport && this.includeFinalGrade) {
+			if (isCustomExport && includeFinalGrade) {
 				header.add(String.format("%s%s",
 					CUSTOM_EXPORT_COLUMN_PREFIX,
 					getString("importExport.export.csv.headers.finalGrade")));
 			}
-			if (isCustomExport && this.includeGradeOverride) {
+			if (isCustomExport && includeGradeOverride) {
 				header.add(String.format("%s%s",
 					CUSTOM_EXPORT_COLUMN_PREFIX,
 					getString("importExport.export.csv.headers.gradeOverride")));
 			}
-			if (isCustomExport && this.includeLastLogDate) {
+			if (isCustomExport && includeLastLogDate) {
 				header.add(String.format("%s%s",
 					CUSTOM_EXPORT_COLUMN_PREFIX,
 					getString("importExport.export.csv.headers.lastLogDate")));
@@ -441,18 +450,21 @@ public class ExportPanel extends Panel {
 
 		// get the grade matrix
 		// OWLTODO: add param to eliminate duplicate course grade retrieval
-		final List<GbStudentGradeInfo> grades = this.businessService.buildGradeMatrixForImportExport(assignments, isContextAnonymous);
+		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, isContextAnonymous);
 
 		//add grades
 		grades.forEach(studentGradeInfo -> {
 			final List<String> line = new ArrayList<>();
 			if (isRevealed || !isContextAnonymous)
 			{
-				if (!isCustomExport || this.includeStudentId) {
+				if (!isCustomExport || includeStudentId) {
 					line.add(studentGradeInfo.getStudent().getEid());
 				}
-				if (!isCustomExport || this.includeStudentName) {
+				if (!isCustomExport || includeStudentName) {
 					line.add(studentGradeInfo.getStudent().getLastName() + ", " + studentGradeInfo.getStudent().getFirstName());
+				}
+				if (!isCustomExport || includeStudentNumber) {
+					line.add(studentGradeInfo.getStudent().getStudentNumber());
 				}
 			}
 			else
@@ -460,23 +472,23 @@ public class ExportPanel extends Panel {
 				// !isRevealed && isContextAnonymous: get Anon ID
 				line.add(studentGradeInfo.getStudent().getAnonId());
 			}
-			if (!isCustomExport || this.includeGradeItemScores || this.includeGradeItemComments) {
+			if (!isCustomExport || includeGradeItemScores || includeGradeItemComments) {
 				assignments.forEach(assignment -> {
 					final GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
 					if (gradeInfo != null)
 					{
-						if (!isCustomExport || this.includeGradeItemScores) {
+						if (!isCustomExport || includeGradeItemScores) {
 							line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
 						}
-						if (!isCustomExport || this.includeGradeItemComments) {
+						if (!isCustomExport || includeGradeItemComments) {
 							line.add(gradeInfo.getGradeComment());
 						}
 					} else {
 						// Need to account for no grades
-						if (!isCustomExport || this.includeGradeItemScores) {
+						if (!isCustomExport || includeGradeItemScores) {
 							line.add(null);
 						}
-						if (!isCustomExport || this.includeGradeItemComments) {
+						if (!isCustomExport || includeGradeItemComments) {
 							line.add(null);
 						}
 					}
@@ -520,10 +532,10 @@ public class ExportPanel extends Panel {
 		String gradebookName = businessService.getGradebook().getName();
 
 		if (StringUtils.trimToNull(gradebookName) == null) {
-			this.fileNameModel.setObject(String.format("%s.%s", gradebookName, extension));
+			fileNameModel.setObject(String.format("%s.%s", gradebookName, extension));
 		} else {
 			gradebookName = gradebookName.replaceAll("\\s", "_");
-			this.fileNameModel.setObject(String.format("%s-%s.%s", prefix, gradebookName, extension));
+			fileNameModel.setObject(String.format("%s-%s.%s", prefix, gradebookName, extension));
 		}
 	}
 }
