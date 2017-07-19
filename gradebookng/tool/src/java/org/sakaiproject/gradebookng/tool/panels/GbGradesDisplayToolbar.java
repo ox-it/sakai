@@ -4,12 +4,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.IModel;
@@ -19,7 +16,6 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
-import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -50,7 +46,6 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 		Map<String, Object> model = (Map<String, Object>) getDefaultModelObject();
 		final List<Assignment> assignments = (List<Assignment>) model.get("assignments");
 		final List<CategoryDefinition> categories = (List<CategoryDefinition>) model.get("categories");
-		final boolean categoriesEnabled = (Boolean) model.get("categoriesEnabled");
 		
 		final Label gradeItemSummary = new Label("gradeItemSummary",
 				new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size() + categories.size(),
@@ -80,34 +75,6 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
 		toggleGradeItemsToolbarItem.setVisible(hasAssignmentsAndGrades);
 		add(toggleGradeItemsToolbarItem);
-		
-		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
-			@Override
-			protected void onInitialize() {
-				super.onInitialize();
-				if (categoriesEnabled) {
-					add(new AttributeAppender("class", " on"));
-				}
-				add(new AttributeModifier("aria-pressed", categoriesEnabled));
-			}
-
-			@Override
-			public void onSubmit() {
-				GradebookUiSettings settings = page.getUiSettings();
-				settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
-				page.setUiSettings(settings);
-
-				// refresh
-				setResponsePage(GradebookPage.class);
-			}
-
-			@Override
-			public boolean isVisible() {
-				//return categoriesEnabled && !assignments.isEmpty();
-				return false;
-			}
-		};
-		add(toggleCategoriesToolbarItem);
 
 		// hide/show components
 

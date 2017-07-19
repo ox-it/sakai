@@ -24,6 +24,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
@@ -37,6 +38,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 	IModel<List<? extends Assignment>> model;
 	List<String> mixedCategoryNames;
 	boolean categoriesEnabled = false;
+	boolean groupByCategories = false;
 
 	public ToggleGradeItemsToolbarPanel(final String id, final IModel<List<? extends Assignment>> model, List<String> mixedCategoryNames) {
 		super(id, model);
@@ -55,7 +57,9 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 		final List<Assignment> assignments = (List<Assignment>) model.getObject();
 
 		// only deal with categories if categories are enabled
+		final IGradesPage gradebookPage = (IGradesPage) getPage();
 		categoriesEnabled = businessService.categoriesAreEnabled();
+		groupByCategories = gradebookPage.getUiSettings().isCategoriesEnabled();
 
 		// iterate over assignments and build map of categoryname to list of assignments
 		for (final Assignment assignment : assignments) {
@@ -70,6 +74,36 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
+
+		final AjaxCheckBox toggleCategories = new AjaxCheckBox("toggleCategoriesToolbarItem", Model.of(groupByCategories)) {
+			@Override
+			protected void onInitialize() {
+				super.onInitialize();
+				if (ToggleGradeItemsToolbarPanel.this.groupByCategories) {
+					add(new AttributeAppender("class", "on"));
+				}
+				add(new AttributeModifier("aria-pressed", ToggleGradeItemsToolbarPanel.this.groupByCategories));
+			}
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+
+				// Update the settings
+				GradebookUiSettings settings = gradebookPage.getUiSettings();
+				settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
+				gradebookPage.setUiSettings(settings);
+
+				// Redraw the table
+				gradebookPage.addOrReplaceTable(null);
+				gradebookPage.redrawSpreadsheet(target);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return ToggleGradeItemsToolbarPanel.this.categoriesEnabled && !assignments.isEmpty();
+			}
+		};
+		add(toggleCategories);
 
 		List<String> categoryNames = new ArrayList<>(categoryNameToIdMap.keySet());
 		add(new ListView<String>("categoriesList", categoryNames) {

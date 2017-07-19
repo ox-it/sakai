@@ -672,15 +672,13 @@ span.sakai-spinner-internal-use::after
 #toggleGradeItemsToolbarItem.on:after {
   content: '\f077';
 }
-#toggleCategories:before,
-#toggleCategoriesToolbarItem:before {
+#toggleCategories:before {
   font-family: 'gradebook-icons';
   content: '\f096';
   font-size: 0.9em;
   margin-right: 6px
 }
-#toggleCategories.on:before,
-#toggleCategoriesToolbarItem.on:before {
+#toggleCategories.on:before {
   content: '\f046';
 }
 #gradebookGradesToolbar .gb-item-summary.warn-items-hidden .gb-item-summary-counts {
@@ -746,12 +744,11 @@ span.sakai-spinner-internal-use::after
 #gradeItemsTogglePanel .gb-item-filter,
 #gradeItemsTogglePanel .gb-item-category-score-filter {
   clear: both;
-  margin-left: 10px;
   position: relative;
 }
 #gradeItemsTogglePanel .gb-item-filter,
 #gradeItemsTogglePanel .gb-item-category-score-filter {
-  margin-left: 20px;
+  margin-left: 15px;
 }
 #gradeItemsTogglePanel .gb-no-categories .gb-item-filter {
   margin-left: 10px;
@@ -772,15 +769,8 @@ span.sakai-spinner-internal-use::after
   border-bottom: 1.2em solid;
   border-bottom-color: inherit;
 }
-#gradeItemsTogglePanel #showAllGradeItems,
-#gradeItemsTogglePanel #hideAllGradeItems {
-  float: right;
-  font-size: 0.9em;
-  margin: 0 5px 0;
-  border-bottom: none;
-}
 #gradeItemsTogglePanel .gb-item-filter-group {
-  border-bottom: 1px dotted #DDD;
+  border-bottom: 1px solid #eee;
   padding-bottom: 5px;
   margin-bottom: 5px;
 }
@@ -1563,3 +1553,49 @@ and (max-device-width : 736px) {
 	background-color: #bbdcbc;
 }
 
+#gradeItemsToolbarItemPanel {
+	min-width: 350px;
+	padding: 1em;
+}
+
+.gb-all-item-controls {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #eee;
+}
+
+#gradeItemsTogglePanel .gb-all-item-controls label {
+	font-weight: normal;
+	display: flex;
+	width: auto;
+	padding: 0;
+	font-size: 0.9em;
+}
+
+ #gradeItemsTogglePanel .gb-all-item-controls label:hover {
+	background-color: transparent;
+}
+
+#gradeItemsTogglePanel .gb-all-item-controls input[type=checkbox] {
+	position: static;
+	left: auto;
+	margin: 0 0.25em 0 0px;
+	font-size: 0.9em;
+}
+
+.gb-all-item-controls-buttons {
+	padding: 0.5em 0;
+}
+
+.gb-all-item-controls-buttons a[href] {
+	font-size: 0.9em;
+	margin: 0;
+	padding: 0.25em 0.5em;
+	color: #000;
+}
+
+.gb-all-item-controls-buttons a[href]:focus, .gb-all-item-controls-buttons a[href]:hover, .gb-all-item-controls-buttons a[href]:active {
+	color: #000;
+	text-decoration: none;
+}

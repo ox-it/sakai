@@ -5,14 +5,32 @@
 <wicket:panel>
 
 <div id="gradeItemsToolbarItemPanel" role="menu">
-  <a href="javascript:void(0)" id="hideAllGradeItems" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhideall">Hide All</span></a>
-  <a href="javascript:void(0)" id="showAllGradeItems" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowall">Show All</span></a>
+  <div class="gb-all-item-controls">
+    <label>
+      <input wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" type="checkbox" />
+      <span>
+        <wicket:message key="table.toolbar.categorytoggle" />
+      </span>
+    </label>
+    <div class="gb-all-item-controls-buttons">
+      <a href="javascript:void(0)" id="hideAllGradeItems" role="menuitem" class="button">
+        <span wicket:message="value:label.toolbar.gradeitemhideall">
+          <wicket:message key="label.toolbar.gradeitemhideall" />
+        </span>
+      </a>
+      <a href="javascript:void(0)" id="showAllGradeItems" role="menuitem" class="button">
+        <span wicket:message="value:label.toolbar.gradeitemshowall">
+          <wicket:message key="label.toolbar.gradeitemshowall" />
+        </span>
+      </a>
+    </div>
+  </div>
   <div wicket:id="categoriesList" class="gb-item-filter-group">
     <div wicket:id="categoryFilter" class="gb-item-category-filter">
       <label tabindex="0" role="menuitem">
         <span wicket:id="category"></span>
         <span class="gb-item-category-filter-signal"></span>
-        <input wicket:id="categoryCheckbox" type="checkbox">
+        <input wicket:id="categoryCheckbox" type="checkbox" />
       </label>
       <div class="btn-group">
         <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.categorygroup.menulabel">
@@ -29,7 +47,7 @@
       <label tabindex="0" role="menuitem">
         <span wicket:id="assignmentTitle"></span>
         <span class="gb-item-category-filter-signal"></span>
-        <input wicket:id="assignmentCheckbox" type="checkbox">
+        <input wicket:id="assignmentCheckbox" type="checkbox" />
       </label>
       <div class="btn-group">
         <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.gradeitem.menulabel">
@@ -46,7 +64,7 @@
       <label tabindex="0" role="menuitem">
           <span wicket:id="categoryScoreLabel"></span>
           <span class="gb-item-category-filter-signal"></span>
-          <input wicket:id="categoryScoreCheckbox" type="checkbox">
+          <input wicket:id="categoryScoreCheckbox" type="checkbox" />
       </label>
       <div class="btn-group">
           <a class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" wicket:message="title:label.toolbar.categoryaverage.menulabel">
