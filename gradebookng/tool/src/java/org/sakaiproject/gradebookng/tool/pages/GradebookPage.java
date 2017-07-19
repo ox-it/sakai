@@ -229,6 +229,9 @@ public class GradebookPage extends BasePage implements IGradesPage
 		// visibility is handled in addOrReplaceTable
 		form.add(anonymousToggle);
 
+		// Group filter is hidden in anonymous contexts
+		settings.setGroupFilterVisibilityForced(false);
+
 		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
 		noAssignments.setVisible(false);
 		this.form.add(noAssignments);

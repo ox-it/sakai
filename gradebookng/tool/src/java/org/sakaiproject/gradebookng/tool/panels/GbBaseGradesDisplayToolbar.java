@@ -67,7 +67,7 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		addOrReplace(liveGradingFeedback);
 		
 		// section and group dropdown
-		if(showGroupFilter() || settings.isContextAnonymous())
+		if(showGroupFilter())
 		{
 			handleShowGroupFilter();
 		}
@@ -129,7 +129,8 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		showGroupFilter = groups.size() > 1;
 		if (showGroupFilter)
 		{
-			showGroupFilter = !((IGradesPage) getPage()).getUiSettings().isContextAnonymous();
+			GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
+			showGroupFilter = settings.isGroupFilterVisibilityForced() || !settings.isContextAnonymous();
 		}
 		return showGroupFilter;
 	}

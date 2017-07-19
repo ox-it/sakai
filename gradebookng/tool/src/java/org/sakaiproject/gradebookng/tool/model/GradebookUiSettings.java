@@ -43,6 +43,13 @@ public class GradebookUiSettings implements Serializable {
 	private GbGroup groupFilter;
 
 	/**
+	 * Determines if the group filter must be displayed (Ie. for course grade submissions on the Final Grades page)
+	 */
+	@Getter
+	@Setter
+	private boolean isGroupFilterVisibilityForced;
+
+	/**
 	 * For sorting based on assignment grades
 	 */
 	@Getter
