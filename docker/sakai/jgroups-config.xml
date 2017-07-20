@@ -27,7 +27,7 @@
 
     <MERGE2 max_interval="30000"
             min_interval="10000"/>
-    <FD_SOCK/>
+    <FD_SOCK start_port="7801" port_range="1"/>
     <VERIFY_SUSPECT timeout="1500"  />
     <BARRIER />
     <pbcast.NAKACK use_mcast_xmit="false"
