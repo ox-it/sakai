@@ -1560,9 +1560,17 @@ and (max-device-width : 736px) {
 
 .gb-all-item-controls {
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
 	border-bottom: 1px solid #eee;
+	margin-bottom: 5px;
+}
+
+.space-between {
+	justify-content: space-between;
+}
+
+.flex-end {
+	justify-content: flex-end;
 }
 
 #gradeItemsTogglePanel .gb-all-item-controls label {
@@ -1580,7 +1588,7 @@ and (max-device-width : 736px) {
 #gradeItemsTogglePanel .gb-all-item-controls input[type=checkbox] {
 	position: static;
 	left: auto;
-	margin: 0 0.25em 0 0px;
+	margin: 0 0 0 0px;
 	font-size: 0.9em;
 }
 

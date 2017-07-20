@@ -1,3 +1,5 @@
+2017.07.20:
+	- [OWL-2984] group by category label is visible when no categories are present
 2017.07.19:
 	- [OWL-2948] restore the group by category feature
 2017.07.18:

@@ -18,6 +18,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -103,7 +104,17 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 				return ToggleGradeItemsToolbarPanel.this.categoriesEnabled && !assignments.isEmpty();
 			}
 		};
-		add(toggleCategories);
+
+		Label toggleCategoriesLabel = new Label("toggleCategoriesLabel", new ResourceModel("table.toolbar.categorytoggle"));
+		toggleCategoriesLabel.add(new AttributeModifier("for", toggleCategories.getMarkupId()));
+		toggleCategoriesLabel.setVisible(categoriesEnabled && !assignments.isEmpty());
+
+		WebMarkupContainer allItemControls = new WebMarkupContainer("allItemControls");
+		String className = (categoriesEnabled && !assignments.isEmpty()) ? " space-between" : " flex-end";
+		allItemControls.add(new AttributeAppender("class", className));
+		allItemControls.add(toggleCategories);
+		allItemControls.add(toggleCategoriesLabel);
+		add(allItemControls);
 
 		List<String> categoryNames = new ArrayList<>(categoryNameToIdMap.keySet());
 		add(new ListView<String>("categoriesList", categoryNames) {
