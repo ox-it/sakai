@@ -197,8 +197,8 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
         heartbeatMap = new ConcurrentHashMap<String,UserMessage>(heartbeatMapSize,0.75F,64);
     }
     
-    public void destroy() {
-    	
+    public void destroy() throws Exception {
+    	super.destroy();
     	if (clusterChannel != null && clusterChannel.isConnected()) {
     		// This calls disconnect() first
     		clusterChannel.close();
