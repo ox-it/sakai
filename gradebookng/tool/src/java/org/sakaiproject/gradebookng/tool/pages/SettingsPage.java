@@ -2,8 +2,10 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import java.math.BigDecimal;
 import java.util.List;
+import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -16,6 +18,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.SettingsCategoryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
@@ -37,6 +40,7 @@ public class SettingsPage extends BasePage {
 	private boolean gradeReleaseExpanded = false;
 	private boolean categoryExpanded = false;
 	private boolean gradingSchemaExpanded = false;
+	private boolean noExistingCategories = false;
 
 	private boolean hideGradeEntryFromNonAdmins;
 	private static final String SAK_PROP_HIDE_GRADE_ENTRY_FROM_NON_ADMINS = "gradebook.settings.gradeEntry.hideFromNonAdmins";
@@ -75,7 +79,8 @@ public class SettingsPage extends BasePage {
 
 		// setup page model
 		final GbSettings gbSettings = new GbSettings(settings);
-		final CompoundPropertyModel<GbSettings> formModel = new CompoundPropertyModel<GbSettings>(gbSettings);
+		final CompoundPropertyModel<GbSettings> formModel = new CompoundPropertyModel<>(gbSettings);
+		noExistingCategories = CollectionUtils.isEmpty(settings.getCategories());
 
 		gradeEntryPanel = new SettingsGradeEntryPanel("gradeEntryPanel", formModel, gradeEntryExpanded);
 		gradeReleasePanel = new SettingsGradeReleasePanel("gradeReleasePanel", formModel, gradeReleaseExpanded);
@@ -164,7 +169,17 @@ public class SettingsPage extends BasePage {
 
 				// update settings
 				try {
-					SettingsPage.this.businessService.updateGradebookSettings(model.getGradebookInformation());
+					GradebookInformation gbInfo = model.getGradebookInformation();
+					SettingsPage.this.businessService.updateGradebookSettings(gbInfo);
+
+					// If there were no categories prior to saving, and new categories were created, enable group by category by default
+					if (SettingsPage.this.noExistingCategories && CollectionUtils.isNotEmpty(gbInfo.getCategories())) {
+						final GradebookUiSettings settings = getUiSettings();
+						settings.setCategoriesEnabled(true);
+						settings.setCategoryColors(gbInfo.getCategories());
+						setUiSettings(settings);
+					}
+
 					getSession().success(getString("settingspage.update.success"));
 				} catch (final ConflictingCategoryNameException e) {
 					getSession().error(getString("settingspage.update.failure.categorynameconflict"));
@@ -237,5 +252,14 @@ public class SettingsPage extends BasePage {
 
 	public SettingsCategoryPanel getSettingsCategoryPanel() {
 		return this.categoryPanel;
+	}
+
+	private GradebookUiSettings getUiSettings() {
+		GradebookUiSettings settings = (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
+		return settings == null ? new GradebookUiSettings() : settings;
+	}
+
+	private void setUiSettings(final GradebookUiSettings settings) {
+		Session.get().setAttribute("GBNG_UI_SETTINGS", settings);
 	}
 }
