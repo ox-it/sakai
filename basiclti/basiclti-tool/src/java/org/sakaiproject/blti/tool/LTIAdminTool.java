@@ -1744,13 +1744,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 					} else {
 						returnUrl += "?ltiItemId=/blti/" + retval;
 					}
-					switchPanel(state, "Redirect");
+					if ( returnUrl.indexOf("panel=CKEditorPostConfig") > 0 ) {
+						switchPanel(state, "Forward");
+					} else {
+						switchPanel(state, "Redirect");
+					}
 				}
 			}
 			state.setAttribute(STATE_REDIRECT_URL,returnUrl);
 			return;
 		}
-		
+
 		String success = null;
 		if ( id == null )
 		{
@@ -2042,16 +2046,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		   }
 		} */
 
-		String title = getString(item,"title");
-		String text = getString(item,"text");
-		String url = getString(item,"url");
+		String title = getString(item,ContentItem.TITLE);
+		String text = getString(item,ContentItem.TEXT);
+		String url = getString(item,ContentItem.URL);
 		// If the URL is empty, assume it is the same as the launch URL
 		if ( url == null ) {
 			url = (String) tool.get(LTIService.LTI_LAUNCH);
 		}
 
-		JSONObject lineItem = getObject(item,"lineItem");
-		JSONObject custom = getObject(item,"custom");
+		JSONObject lineItem = getObject(item,ContentItem.LINEITEM);
+		JSONObject custom = getObject(item,ContentItem.CUSTOM);
 		String custom_str = "";
 		if ( custom != null ) {
 			Iterator<String> i = custom.keySet().iterator();
@@ -2063,7 +2067,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 
 		// Much prefer this be an icon style like LTI 2.0
-		JSONObject iconObject = getObject(item, "icon");
+		JSONObject iconObject = getObject(item, ContentItem.ICON);
 		String icon = getString(iconObject, "fa_icon");
 		if ( icon == null ) {
 			icon = getString(iconObject, LTI2Constants.JSONLD_ID);
@@ -2130,8 +2134,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	}
 
 	// Special panel for Lesson Builder
-	// Add New: panel=Config&tool_id=14
-	// Edit existing: panel=Config&id=12
+	// Add New: panel=ContentConfig&tool_id=14
+	// Edit existing: panel=ContentConfig&id=12
 	public String buildContentConfigPanelContext(VelocityPortlet portlet, Context context,
 			RunData data, SessionState state)
 	{
@@ -2279,23 +2283,42 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		Placement placement = toolManager.getCurrentPlacement();
 
-		List<Map<String, Object>> toolsEditItem = ltiService.getToolsContentEditor(placement.getContext());
-		if ( toolsEditItem.size() < 1 ) {
+		// Get the lauchable and content editor tools...
+		List<Map<String, Object>> toolsLaunch = ltiService.getToolsLaunch(placement.getContext());
+		List<Map<String, Object>> toolsCI = ltiService.getToolsContentEditor(placement.getContext());
+
+		// If we have not tools at all, tell the user...
+		if ( (toolsLaunch.size() + toolsCI.size()) < 1 ) {
 			return "lti_editor_select";
 		}
 
 		// If there is only one - pick it
 		Map<String,Object> tool = null;
-		if ( toolsEditItem.size() == 1 ) {
-			tool  = toolsEditItem.get(0);
+		boolean doContent = false;
+		if ( toolsCI.size() == 1 && toolsLaunch.size() == 0 ) {
+			doContent = true;
+			tool  = toolsCI.get(0);
 		}
 
-		// See if the user selected a tool...
+		// See if the user selected a Content Item tool...
 		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 		if ( toolKey != null && tool == null ) {
-			for (Map<String,Object> t : toolsEditItem) {
+			for (Map<String,Object> t : toolsCI) {
 				Long editKey = foorm.getLongNull(t.get(LTIService.LTI_ID));
 				if ( toolKey.equals(editKey) ) {
+					doContent = true;
+					tool = t;
+					break;
+				}
+			}
+		}
+
+		// See if the user selected a regular tool...
+		if ( toolKey != null && tool == null ) {
+			for (Map<String,Object> t : toolsLaunch) {
+				Long editKey = foorm.getLongNull(t.get(LTIService.LTI_ID));
+				if ( toolKey.equals(editKey) ) {
+					// Leave doContent = false;
 					tool = t;
 					break;
 				}
@@ -2304,8 +2327,23 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Must have more than one and need to select
 		if ( tool == null ) {
-			context.put("tools", toolsEditItem);
+			context.put("toolsLaunch", toolsLaunch);
+			context.put("toolsCI", toolsCI);
 			return "lti_editor_select";
+		}
+
+		// Add New: panel=Config&tool_id=14
+		if ( ! doContent ) {
+			String returnUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId() +
+				"/sakai.basiclti.admin.helper.helper" +
+				"?panel=CKEditorPostConfig" ;
+			String configUrl = serverConfigurationService.getToolUrl() + "/" + placement.getId() +
+				"/sakai.basiclti.admin.helper.helper" +
+				"?panel=ContentConfig" +
+				"&returnUrl=" + URLEncoder.encode(returnUrl) +
+				"&tool_id=" + tool.get(LTIService.LTI_ID);
+			context.put("forwardUrl",configUrl);
+			return "lti_content_redirect";
 		}
 
                 String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId() +
@@ -2334,6 +2372,49 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		M_log.debug("Forwarding frame to="+contentLaunch);
 		context.put("forwardUrl",contentLaunch);
 		return "lti_content_redirect";
+	}
+
+	public String buildCKEditorPostConfigPanelContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		state.removeAttribute(STATE_SUCCESS);
+
+		String id = data.getParameters().getString("ltiItemId");
+		Long contentKey = null;
+		if ( id != null && id.startsWith("/blti/") ) {
+			String cid = id.substring(6);
+			contentKey = foorm.getLongNull(cid);
+		}
+
+		String contentUrl = null;
+		Map<String,Object> content = ltiService.getContent(contentKey, getSiteId(state));
+		if ( content != null ) {
+			contentUrl = ltiService.getContentLaunch(content);
+			if ( contentUrl != null && contentUrl.startsWith("/") ) contentUrl = SakaiBLTIUtil.getOurServerUrl() + contentUrl;
+		}
+
+		if ( contentUrl == null ) {
+			M_log.error("Unable to get launch url from contentitem content="+contentKey);
+			addAlert(state, rb.getString("error.contentitem.content.launch"));
+			return "lti_error";
+		}
+
+		JSONArray new_content = new JSONArray();
+
+		JSONObject item = (JSONObject) new JSONObject();
+		item.put(LTI2Constants.TYPE, ContentItem.TYPE_LTILINKITEM);
+		item.put("launch", contentUrl);
+		String title = (String) content.get(LTIService.LTI_TITLE);
+		if ( title == null ) title = rb.getString("contentitem.generic.title");
+		item.put(ContentItem.TITLE, title);
+
+		new_content.add(item);
+
+		context.put("new_content", new_content);
+		context.put("goodcount", new Integer(1));
+		return "lti_editor_done";
 	}
 
 	public String buildContentDeletePanelContext(VelocityPortlet portlet, Context context,
