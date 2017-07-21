@@ -14,18 +14,12 @@
       <id name="id" type="string">
          <column name="ID" />
       </id>
-      <property name="siteId" type="string" length="64">
-        <!-- The index creation doesn't work but is here for reference -->
-        <column name="siteId" index="portal_node_site_id_idx"/>
-      </property>
+      <property name="siteId" type="string" length="64" index="portal_node_site_id_idx"/>
       <property name="managementSiteId" type="string" length="64" />
       <property name="name" type="string" length="64" />
       <property name="path" type="string" not-null="true" />
-      <property name="pathHash" type="string">
-        <!-- This should be unique but then hibernate creates an index with the wrong name. -->
-        <!-- The index creation doesn't work but is here for reference -->
-        <column name="pathHash" index="portal_node_path_hash_idx"  not-null="true" />
-      </property>
+      <!-- The unique-key value isn't used in the index name, but the index is correctly created -->
+      <property name="pathHash" type="string" unique-key="portal_node_path_hash_idx" not-null="true"/>
       <property name="redirectUrl" type="text" />
       <property name="redirectTitle" type="string" length="99"/>
       <property name="appendPath" type="boolean" not-null="true"/>

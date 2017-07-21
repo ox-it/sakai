@@ -7,12 +7,6 @@
          class="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistentNodeDaoHibernate"
          init-method="init">
       <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-      <property name="ddl">
-          <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService" factory-method="getBoolean">
-            <constructor-arg value="auto.ddl"/>
-            <constructor-arg value="true"/>
-          </bean>
-      </property>
    </bean>
 
    <bean id="org.sakaiproject.hierarchy.impl.portal.dao.PortalPersistenNodeDao" 

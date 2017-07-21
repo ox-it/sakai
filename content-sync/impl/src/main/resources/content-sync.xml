@@ -32,9 +32,6 @@
 					<ref
 						bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 				</property>
-				<property name="serverConfigurationService">
-					<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
-				</property>
 			</bean>
 		</property>
 		<property name="transactionAttributes">
