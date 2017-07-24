@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.event.IEvent;
@@ -22,6 +21,7 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
+import org.sakaiproject.gradebookng.tool.util.GbUtils;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
@@ -31,6 +31,8 @@ import org.sakaiproject.tool.gradebook.Gradebook;
 public class CourseGradeItemCellPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final String PARENT_ID = "cells";
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -38,6 +40,9 @@ public class CourseGradeItemCellPanel extends Panel {
 	IModel<Map<String, Object>> model;
 	
 	private final boolean hasMenu;
+	
+	private final CourseGradeFormatter.FormatterConfig config = new CourseGradeFormatter.FormatterConfig();
+	private CourseGradeFormatter courseGradeFormatter;
 
 	public CourseGradeItemCellPanel(final String id, final IModel<Map<String, Object>> model) {
 		super(id, model);
@@ -56,7 +61,7 @@ public class CourseGradeItemCellPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		getParentCellFor(this).setOutputMarkupId(true);
+		GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.setOutputMarkupId(true));
 
 		// unpack model
 
@@ -70,7 +75,7 @@ public class CourseGradeItemCellPanel extends Panel {
 		// showOverride
 		// courseGradeVisible
 		final Map<String, Object> modelData = this.model.getObject();
-		final String courseGradeDisplay = (String) modelData.get("courseGradeDisplay");
+		
 		final String studentUuid = (String) modelData.get("studentUuid");
 
 		final GbRole role = (GbRole) modelData.get("currentUserRole");
@@ -82,10 +87,19 @@ public class CourseGradeItemCellPanel extends Panel {
 
 		final boolean hasCourseGradeOverride = (boolean) modelData.get("hasCourseGradeOverride");
 
-		if (showOverride && hasCourseGradeOverride) {
-			getParentCellFor(this).add(new AttributeAppender("class", " gb-cg-override"));  // OWLTODO: constant
+		if (showOverride && hasCourseGradeOverride)
+		{
+			GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.add(new AttributeAppender("class", " gb-cg-override")));
 		}
-
+		
+		GbCourseGrade gbcg = (GbCourseGrade) modelData.get("courseGrade");
+		config.isCourseGradeVisible = courseGradeVisible;
+		config.showPoints = showPoints;
+		config.showOverride = showOverride;
+		config.showLetterGrade = showLetterGrade;
+		courseGradeFormatter = new CourseGradeFormatter(gradebook, role, config);
+		final String courseGradeDisplay = courseGradeFormatter.format(gbcg.getCourseGrade());
+		
 		// the model map contains a lot of additional info we need for the course grade label, this is passed through
 
 		final IGradesPage gradebookPage = (IGradesPage) getPage();
@@ -103,17 +117,16 @@ public class CourseGradeItemCellPanel extends Panel {
 					// TODO is this check ever not satisfied now that this has been refactroed?
 					if (StringUtils.equals(studentUuid, scoreChangedEvent.getStudentUuid())) {
 
-						final String newCourseGradeDisplay = refreshCourseGrade(studentUuid, gradebook, role, courseGradeVisible,
-								showPoints, showOverride, showLetterGrade);
+						final String newCourseGradeDisplay = refreshCourseGrade(studentUuid);
 
 						// if course grade has changed, then refresh it
 						if (!newCourseGradeDisplay.equals(getDefaultModelObject())) {
 							setDefaultModel(Model.of(newCourseGradeDisplay));
 
-							scoreChangedEvent.getTarget().add(this);
-							scoreChangedEvent.getTarget().add(getParentCellFor(this));
-							scoreChangedEvent.getTarget().appendJavaScript(
-								String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');", this.getMarkupId()));
+							AjaxRequestTarget target = scoreChangedEvent.getTarget();
+							target.add(this);
+							GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(target::add);
+							target.appendJavaScript(String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');", this.getMarkupId()));
 						}
 					}
 				}
@@ -133,13 +146,14 @@ public class CourseGradeItemCellPanel extends Panel {
 				return hasMenu && role == GbRole.INSTRUCTOR;
 			}
 		};
-		menu.add(new GbAjaxLink("courseGradeOverride", Model.of(studentUuid)) {
+		menu.add(new GbAjaxLink("courseGradeOverride", Model.of(studentUuid))
+		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
 				final GbModalWindow window = gradebookPage.getUpdateCourseGradeDisplayWindow();
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(this, PARENT_ID).orElse(null));
 				window.setContent(new CourseGradeOverridePanel(window.getContentId(), getModel(), window));
 				window.showUnloadConfirmation(false);
 				window.show(target);
@@ -151,31 +165,30 @@ public class CourseGradeItemCellPanel extends Panel {
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
 				final GbModalWindow window = gradebookPage.getUpdateCourseGradeDisplayWindow();
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(this, PARENT_ID).orElse(null));
 				CourseGradeOverrideLogPanel.ModelData data = new CourseGradeOverrideLogPanel.ModelData();
-				data.forFinalGrades = false;
 				data.studentUuid = getDefaultModelObjectAsString();
 				window.setContent(new CourseGradeOverrideLogPanel(window.getContentId(), Model.of(data), window));
 				window.showUnloadConfirmation(false);
 				window.show(target);
 			}
 		});
-		add(menu);
-	}
+		
+		add(new GbAjaxLink("courseGradeOverrideLink", Model.of(studentUuid))
+		{
+			private static final long serialVersionUID = 1L;
 
-	/**
-	 * Helper to get the parent cell for the given component TODO move this and all other instances of the same method to a common helper
-	 * class
-	 *
-	 * @param component
-	 * @return
-	 */
-	private Component getParentCellFor(final Component component) {
-		if (StringUtils.equals(component.getMarkupAttributes().getString("wicket:id"), "cells")) {
-			return component;
-		} else {
-			return getParentCellFor(component.getParent());
-		}
+			@Override
+			public void onClick(final AjaxRequestTarget target) {
+				final GbModalWindow window = gradebookPage.getUpdateCourseGradeDisplayWindow();
+				window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(this, PARENT_ID).orElse(null));
+				window.setContent(new CourseGradeOverridePanel(window.getContentId(), getModel(), window));
+				window.showUnloadConfirmation(false);
+				window.show(target);
+			}
+		}.setVisible(!hasMenu && showOverride));
+		
+		add(menu);
 	}
 
 	/**
@@ -190,40 +203,32 @@ public class CourseGradeItemCellPanel extends Panel {
 	 * @param showOverride
 	 * @return
 	 */
-	private String refreshCourseGrade(final String studentUuid, final Gradebook gradebook, final GbRole role,
-			final boolean courseGradeVisible, final boolean showPoints, final boolean showOverride, final boolean showLetterGrade) {
-
-		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
-				gradebook,
-				role,
-				courseGradeVisible,
-				showPoints,
-				showOverride,
-				showLetterGrade);
+	private String refreshCourseGrade(final String studentUuid)
+	{
 
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
 		GbCourseGrade gbcg = new GbCourseGrade(courseGrade);
 		if (gbcg.getOverride().isPresent())
 		{
-			getParentCellFor(this).add(new AttributeModifier("class", "gb-cg-override")
+			GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.add(new AttributeModifier("class", "gb-cg-override")
 			{
 				@Override
 				protected String newValue(String currentValue, String value)
 				{
 					return currentValue.replaceAll(value, "") + " " + value;
 				}
-			});
+			}));
 		}
 		else
 		{
-			getParentCellFor(this).add(new AttributeModifier("class", "gb-cg-override")
+			GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.add(new AttributeModifier("class", "gb-cg-override")
 			{
 				@Override
 				protected String newValue(String currentValue, String value)
 				{
 					return currentValue.replaceAll(value, "");
 				}
-			});
+			}));
 		}
 
 		return courseGradeFormatter.format(courseGrade);

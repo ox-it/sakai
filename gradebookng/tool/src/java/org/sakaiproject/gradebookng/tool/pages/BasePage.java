@@ -23,6 +23,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
+import org.sakaiproject.gradebookng.business.GbSiteType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -58,6 +59,8 @@ public class BasePage extends WebPage {
 	protected GbRole role;
 	
 	protected final Gradebook gradebook;
+	
+	protected GbSiteType siteType;
 
 	public BasePage() {
 		log.debug("BasePage()");
@@ -66,6 +69,9 @@ public class BasePage extends WebPage {
 		currentUserUuid = businessService.getCurrentUser().getId();
 		role = businessService.getUserRole();
 		gradebook = businessService.getGradebook();
+		siteType = businessService.getCurrentSite()
+				.map(s -> GbSiteType.COURSE.name().equalsIgnoreCase(s.getType()))
+				.orElse(false) ? GbSiteType.COURSE : GbSiteType.PROJECT;
 
 		// set locale
 		setUserPreferredLocale();
@@ -97,7 +103,7 @@ public class BasePage extends WebPage {
 		gradebookPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		nav.add(gradebookPageLink);
 		
-		// course grades page
+		// final grades page
 		courseGradesPageLink = new Link<Void>("courseGradesPageLink") {
 
 			@Override
@@ -109,13 +115,15 @@ public class BasePage extends WebPage {
 			protected void onInitialize()
 			{
 				super.onInitialize();
-				setVisible(role == GbRole.INSTRUCTOR && businessService.getCurrentSite()
-						.map(s -> "course".equals(s.getType())).orElse(false));
+				setVisible(role == GbRole.INSTRUCTOR);
 			}
 
 		};
 		courseGradesPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
-		nav.add(courseGradesPageLink);
+		WebMarkupContainer courseGradesPageTab = new WebMarkupContainer("courseGradesPageTab");
+		courseGradesPageTab.setVisible(role == GbRole.INSTRUCTOR && siteType == GbSiteType.COURSE);
+		courseGradesPageTab.add(courseGradesPageLink);
+		nav.add(courseGradesPageTab);
 
 		// import/export page
 		importExportPageLink = new Link<Void>("importExportPageLink") {

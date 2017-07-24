@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.core.util.string.ComponentRenderer;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextField;
@@ -15,7 +17,6 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
@@ -29,17 +30,20 @@ import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.CourseGradesPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
+import org.sakaiproject.gradebookng.tool.panels.FinalGradeItemPopoverPanel.FinalGradePopoverData;
+import org.sakaiproject.gradebookng.tool.util.GbUtils;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 /**
  *
  * @author plukasew
  */
-// OWLTODO: authorize instantiation to instructor only?
 public class FinalGradeItemCellPanel extends Panel
 {
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
+	
+	private static final String PARENT_ID = "cells";
 	
 	TextField<String> gradeField;
 	private String originalGrade;
@@ -49,9 +53,27 @@ public class FinalGradeItemCellPanel extends Panel
 	
 	private final IModel<? extends GbStudentGradeInfo> model;
 	
-	final List<GradeItemCellPanel.GradeCellNotification> notifications = new ArrayList<>();
+	final List<FinalGradeCellNotification> notifications = new ArrayList<>();
 	
 	IGradesPage page;
+	
+	public enum FinalGradeCellNotification implements Serializable
+	{
+		ERROR("grade.notifications.haserror"),
+		INVALID("finalgrades.notifications.invalid");
+		
+		private String key;
+		
+		FinalGradeCellNotification(final String messageKey)
+		{
+			key = messageKey;
+		}
+		
+		public String getMessageKey()
+		{
+			return key;
+		}
+	}
 	
 	public FinalGradeItemCellPanel(final String id, final IModel<? extends GbStudentGradeInfo> model)
 	{
@@ -68,7 +90,7 @@ public class FinalGradeItemCellPanel extends Panel
 		
 		GbCourseGrade gbCourseGrade = model.getObject().getCourseGrade();
 		final String studentUuid = model.getObject().getStudent().getUserUuid();
-		final String displayGrade = FinalGradeFormatter.format(gbCourseGrade);
+		final String displayGrade = formatGrade(gbCourseGrade);
 		
 		gradeField = new TextField<String>("editableFinalGrade", Model.of(displayGrade))
 		{
@@ -77,15 +99,14 @@ public class FinalGradeItemCellPanel extends Panel
 			{
 				super.onInitialize();
 				
-				final Component parentCell = getParentCellFor(this);
-				parentCell.add(new AttributeModifier("data-studentuuid", studentUuid));
-				parentCell.setOutputMarkupId(true);
+				GbUtils.getParentCellFor(this, PARENT_ID)
+						.ifPresent(p -> p.add(new AttributeModifier("data-studentuuid", studentUuid)).setOutputMarkupId(true));
 			}
 		};
 		gradeField.setOutputMarkupId(true);
 		add(gradeField);
 		
-		String cellMarkupId = getParentCellFor(this).getMarkupId(true);
+		String cellMarkupId = GbUtils.getParentCellFor(this, PARENT_ID).map(p -> p.getMarkupId(true)).orElse("");
 		gradeField.add(new ScoreChangeBehavior(studentUuid, cellMarkupId)
 		{
 			@Override
@@ -125,7 +146,8 @@ public class FinalGradeItemCellPanel extends Panel
 					{
 						// does the entered grade match the rounded final grade anyway? If so, remove the override
 						CourseGrade originalCourseGrade = businessService.getCourseGrade(studentUuid);
-						String formatted = FinalGradeFormatter.format(new GbCourseGrade(originalCourseGrade));
+						GbCourseGrade ogbcg = new GbCourseGrade(originalCourseGrade);
+						String formatted = formatGrade(ogbcg);
 						if (newGrade.equals(formatted))
 						{
 							saveGrade = "";
@@ -143,7 +165,7 @@ public class FinalGradeItemCellPanel extends Panel
 						CourseGrade newCourseGrade = businessService.getCourseGrade(studentUuid);
 						GbCourseGrade newGbCourseGrade = new GbCourseGrade(newCourseGrade);
 						model.getObject().setCourseGrade(newGbCourseGrade);
-						String displayGrade = FinalGradeFormatter.format(newGbCourseGrade);
+						String displayGrade = formatGrade(newGbCourseGrade);
 						gradeField.setModelObject(displayGrade);
 						target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
 						((CourseGradesPage) page).redrawForGradeChange(target);
@@ -163,7 +185,7 @@ public class FinalGradeItemCellPanel extends Panel
 				
 				// refresh the components we need
 				target.addChildren(getPage(), FeedbackPanel.class);
-				target.add(getParentCellFor(getComponent()));
+				GbUtils.getParentCellFor(getComponent(), PARENT_ID).ifPresent(target::add);
 				target.add(gradeField);
 			}
 		});
@@ -197,7 +219,7 @@ public class FinalGradeItemCellPanel extends Panel
 				refreshNotifications();
 
 				// tell the javascript to refresh the cell
-				target.add(getParentCellFor(getComponent()));
+				GbUtils.getParentCellFor(getComponent(), PARENT_ID).ifPresent(target::add);
 				target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
 			}
 		});
@@ -213,9 +235,8 @@ public class FinalGradeItemCellPanel extends Panel
 			@Override
 			public void onClick(final AjaxRequestTarget target) {
 				final GbModalWindow window = page.getUpdateCourseGradeDisplayWindow();
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(this, PARENT_ID).orElse(null));
 				CourseGradeOverrideLogPanel.ModelData data = new CourseGradeOverrideLogPanel.ModelData();
-				data.forFinalGrades = true;
 				data.studentUuid = getDefaultModelObjectAsString();
 				window.setContent(new CourseGradeOverrideLogPanel(window.getContentId(), Model.of(data), window));
 				window.showUnloadConfirmation(false);
@@ -225,20 +246,9 @@ public class FinalGradeItemCellPanel extends Panel
 		add(menu);
 	}
 	
-	/**
-	 * Get the parent container for the grade cell so we can style it
-	 *
-	 * @param gradeField
-	 * @return
-	 */
-	private Component getParentCellFor(final Component component)
+	protected String formatGrade(GbCourseGrade gbcg)
 	{
-		if ("cells".equals(component.getMarkupAttributes().getString("wicket:id")))
-		{
-			return component;
-		}
-		
-		return getParentCellFor(component.getParent());
+		return FinalGradeFormatter.format(gbcg);
 	}
 	
 	/**
@@ -260,7 +270,8 @@ public class FinalGradeItemCellPanel extends Panel
 		}
 
 		// replace the cell styles with the new set
-		getParentCellFor(gradeField).add(AttributeModifier.replace("class", StringUtils.join(cssClasses, " ")));
+		GbUtils.getParentCellFor(gradeField, PARENT_ID)
+				.ifPresent(p -> p.add(AttributeModifier.replace("class", StringUtils.join(cssClasses, " "))));
 	}
 	
 	private void markSuccessful(final Component gradeField)
@@ -273,15 +284,14 @@ public class FinalGradeItemCellPanel extends Panel
 	{
 		gradeSaveStyle = GradeItemCellPanel.GradeCellSaveStyle.ERROR;
 		styleGradeCell(gradeField);
-		notifications.add(GradeItemCellPanel.GradeCellNotification.ERROR);
+		notifications.add(FinalGradeCellNotification.ERROR);
 	}
 
 	private void markWarning(final Component gradeField)
 	{
-		// OWLTODO: switch to course grade appropriate messaging, ie. "message.addcoursegradeoverride.invalid"
 		gradeSaveStyle = GradeItemCellPanel.GradeCellSaveStyle.WARNING;
 		styleGradeCell(gradeField);
-		notifications.add(GradeItemCellPanel.GradeCellNotification.INVALID);
+		notifications.add(FinalGradeCellNotification.INVALID);
 	}
 	
 	private void refreshNotifications()
@@ -294,14 +304,15 @@ public class FinalGradeItemCellPanel extends Panel
 
 		if (!notifications.isEmpty())
 		{
-			if (notifications.contains(GradeItemCellPanel.GradeCellNotification.ERROR)) {
+			if (notifications.contains(FinalGradeCellNotification.ERROR))
+			{
 				errorNotification.setVisible(true);
 				addPopover(errorNotification, notifications);
-			} else if (notifications.contains(GradeItemCellPanel.GradeCellNotification.INVALID)
-					|| notifications.contains(GradeItemCellPanel.GradeCellNotification.CONCURRENT_EDIT)
-					|| notifications.contains(GradeItemCellPanel.GradeCellNotification.READONLY)) {
+			}
+			else if (notifications.contains(FinalGradeCellNotification.INVALID))
+			{
 				warningNotification.setVisible(true);
-				addPopover(warningNotification, this.notifications);
+				addPopover(warningNotification, notifications);
 			}
 		}
 
@@ -309,21 +320,20 @@ public class FinalGradeItemCellPanel extends Panel
 		addOrReplace(errorNotification);
 	}
 	
-	private void addPopover(final Component component, final List<GradeItemCellPanel.GradeCellNotification> notifications)
+	private void addPopover(final Component component, final List<FinalGradeCellNotification> notifications)
 	{
-		//final Map<String, Object> modelData = this.model.getObject();
-		//modelData.put("gradeable", true);
-		//final GradeItemCellPopoverPanel popover = new GradeItemCellPopoverPanel("popover", Model.ofMap(modelData), notifications);
-		//final String popoverString = ComponentRenderer.renderComponent(popover).toString();
-		
-		// OWLTODO: replace above with dedicated popover panel
+		FinalGradePopoverData data = new FinalGradePopoverData();
+		data.notifications = notifications;
+		data.studentUuid = model.getObject().getStudent().getUserUuid();
+		FinalGradeItemPopoverPanel popover = new FinalGradeItemPopoverPanel("popover", Model.of(data));
+		final String popoverString = ComponentRenderer.renderComponent(popover).toString();
 
 		component.add(new AttributeModifier("data-toggle", "popover"));
 		component.add(new AttributeModifier("data-trigger", "manual"));
 		component.add(new AttributeModifier("data-placement", "bottom"));
 		component.add(new AttributeModifier("data-html", "true"));
 		component.add(new AttributeModifier("data-container", "#gradebookGrades"));
-		//component.add(new AttributeModifier("data-content", popoverString));
+		component.add(new AttributeModifier("data-content", popoverString));
 		component.add(new AttributeModifier("tabindex", "0"));
 	}
 }

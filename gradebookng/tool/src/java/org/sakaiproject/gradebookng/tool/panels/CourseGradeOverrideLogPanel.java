@@ -21,7 +21,6 @@ import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 
@@ -85,8 +84,7 @@ public class CourseGradeOverrideLogPanel extends Panel {
 		add(listView);
 
 		// no entries
-		String noEntriesKey = data.forFinalGrades ? "finalgrades.log.none" : "coursegrade.log.none";
-		final Label emptyLabel = new Label("empty", new ResourceModel(noEntriesKey));
+		final Label emptyLabel = new Label("empty", new ResourceModel("coursegrade.log.none"));
 		emptyLabel.setVisible(gradeLog.isEmpty());
 		add(emptyLabel);
 
@@ -117,16 +115,11 @@ public class CourseGradeOverrideLogPanel extends Panel {
 		final String graderDisplayId = (grader != null) ? grader.getDisplayId() : getString("unknown.user.id");
 
 		String rval;
-		
-		ModelData data = (ModelData) getDefaultModelObject();
-		String setKey = data.forFinalGrades ? "finalgrades.log.entry.set" : "coursegrade.log.entry.set";
-		String unsetKey = data.forFinalGrades ? "finalgrades.log.entry.unset" : "coursegrade.log.entry.unset";
-
 		// if no grade, it is a reset
 		if (StringUtils.isNotBlank(grade)) {
-			rval = new StringResourceModel(setKey, null, new Object[] { logDate, grade, graderDisplayId }).getString();
+			rval = new StringResourceModel("coursegrade.log.entry.set", null, new Object[] { logDate, grade, graderDisplayId }).getString();
 		} else {
-			rval = new StringResourceModel(unsetKey, null, new Object[] { logDate, graderDisplayId }).getString();
+			rval = new StringResourceModel("coursegrade.log.entry.unset", null, new Object[] { logDate, graderDisplayId }).getString();
 		}
 
 		return rval;
@@ -136,26 +129,24 @@ public class CourseGradeOverrideLogPanel extends Panel {
 	private StringResourceModel getTitleModel()
 	{
 		ModelData data = (ModelData) getDefaultModelObject();
-		String key = data.forFinalGrades ? "finalgrades.heading.gradelog" : "heading.coursegradelog";
-		String anonKey = data.forFinalGrades ? "finalgrades.heading.gradelog.anonymous" : "heading.coursegradelog.anonymous";
 		
-		GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
 		GbUser user = businessService.getUser(data.studentUuid);
 		if (user == null)
 		{
 			user = GbUser.forDisplayOnly("", "");
 		}
+		
+		GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
 		if (settings.isContextAnonymous())
 		{
-			return new StringResourceModel(anonKey, null, new Object[] { user.getAnonId(settings) });
+			return new StringResourceModel("heading.coursegradelog.anonymous", null, new Object[] { user.getAnonId(settings) });
 		}
 
-		return new StringResourceModel(key, null, new Object[] { user.getDisplayName(), user.getDisplayId() });
+		return new StringResourceModel("heading.coursegradelog", null, new Object[] { user.getDisplayName(), user.getDisplayId() });
 	}
 	
 	public static class ModelData implements Serializable
 	{
 		public String studentUuid = "";
-		public boolean forFinalGrades = false;
 	}
 }

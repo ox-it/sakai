@@ -73,13 +73,15 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final String userId = (String) modelData.get("userId");
 
 		final Gradebook gradebook = this.businessService.getGradebook();
+		final CourseGradeFormatter.FormatterConfig config = new CourseGradeFormatter.FormatterConfig();
+		config.isCourseGradeVisible = gradebook.isCourseGradeDisplayed();
+		config.showPoints = gradebook.isCoursePointsDisplayed();
+		config.showOverride = false;
+		config.showLetterGrade = false;
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				GbRole.STUDENT,
-				gradebook.isCourseGradeDisplayed(),
-				gradebook.isCoursePointsDisplayed(),
-				true,
-				true);  // OWLTODO: test and fix configuration
+				config);
 
 		// build up table data
 		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);

@@ -75,14 +75,6 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		final boolean isContextAnonymous = gradebookPage.getUiSettings().isContextAnonymous();
 		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId).stream().filter(assignment -> isContextAnonymous == assignment.isAnon()).collect(Collectors.toList());
 
-		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
-				gradebook,
-				GbRole.INSTRUCTOR,
-				true,
-				gradebook.isCoursePointsDisplayed(),
-				true,
-				true);  // OWLTODO: test and configure this properly
-
 		// TODO catch if this is null, the get(0) will throw an exception
 		// TODO also catch the GbException
 		final GbStudentGradeInfo studentGradeInfo = this.businessService
@@ -133,6 +125,15 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 		// course grade, via the formatter
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
+		final CourseGradeFormatter.FormatterConfig config = new CourseGradeFormatter.FormatterConfig();
+		config.isCourseGradeVisible = true;
+		config.showPoints = true;
+		config.showOverride = false;
+		config.showLetterGrade = false;
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+				gradebook,
+				GbRole.INSTRUCTOR,
+				config);
 
 		addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 

@@ -1,6 +1,7 @@
 
 package org.sakaiproject.gradebookng.business.util;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,18 +39,14 @@ public class CourseGradeFormatter {
 	 * @param showLetterGrade if we are to show the letter grade
 	 * @return
 	 */
-	public CourseGradeFormatter(final Gradebook gradebook, final GbRole currentUserRole,
-			final boolean isCourseGradeVisible,
-			final boolean showPoints,
-			final boolean showOverride,
-			final boolean showLetterGrade) {
-
+	public CourseGradeFormatter(final Gradebook gradebook, final GbRole currentUserRole, final FormatterConfig config)
+	{
 		this.gradebook = gradebook;
 		this.currentUserRole = currentUserRole;
-		this.isCourseGradeVisible = isCourseGradeVisible;
-		this.showPoints = showPoints;
-		this.showOverride = showOverride;
-		this.showLetterGrade = showLetterGrade;
+		this.isCourseGradeVisible = config.isCourseGradeVisible;
+		this.showPoints = config.showPoints;
+		this.showOverride = config.showOverride;
+		this.showLetterGrade = config.showLetterGrade;
 	}
 
 	/**
@@ -127,7 +124,7 @@ public class CourseGradeFormatter {
 		return String.join(" ", parts);
 	}
 	
-	public String getLetterGrade(final CourseGrade courseGrade)
+	private String getLetterGrade(final CourseGrade courseGrade)
 	{
 		if (!showLetterGrade)
 		{
@@ -156,11 +153,22 @@ public class CourseGradeFormatter {
 
 			// if mapping doesn't exist for this grade override (mapping may have been changed!), map it to 0.
 			// TODO this should probably inform the instructor
-			Double mappedGrade = this.gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade());
+			/*Double mappedGrade = this.gradebook.getSelectedGradeMapping().getGradeMap().get(courseGrade.getEnteredGrade());
 			if(mappedGrade == null) {
 				mappedGrade = new Double(0);
 			}
-			calculatedGrade = FormatHelper.formatDoubleAsPercentage(mappedGrade);
+			calculatedGrade = FormatHelper.formatDoubleAsPercentage(mappedGrade);*/
+			
+			// OWL NOTE: we going to show the override and not the percentage
+			String override = courseGrade.getEnteredGrade();
+			if (override.matches("^\\d+$"))
+			{
+				calculatedGrade = FormatHelper.formatStringAsPercentage(override);
+			}
+			else
+			{
+				calculatedGrade = override;
+			}
 
 		} else {
 			calculatedGrade = FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade());
@@ -204,24 +212,11 @@ public class CourseGradeFormatter {
 		}
 	}
 	
-	/**
-	 * Formats the course grade for display without the letter grade portion. Assumes user is instructor role.
-	 * @param courseGrade
-	 * @return
-	 */
-	public GbEditableCourseGradeDisplay formatForEditing(final CourseGrade courseGrade)
-	{	
-		GbEditableCourseGradeDisplay display = new GbEditableCourseGradeDisplay();
-		display.letterGrade = getLetterGrade(courseGrade);
-		display.percentageAndPoints = build(courseGrade).replaceFirst(display.letterGrade, "").trim();
-		
-		return display;
-	}
-	
-	public class GbEditableCourseGradeDisplay
+	public static class FormatterConfig implements Serializable
 	{
-		public String letterGrade;
-		public String percentageAndPoints;
+		public boolean isCourseGradeVisible = false;
+		public boolean showPoints = false;
+		public boolean showOverride = false;
+		public boolean showLetterGrade = false;
 	}
-
 }

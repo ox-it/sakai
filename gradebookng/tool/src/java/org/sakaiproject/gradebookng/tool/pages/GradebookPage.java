@@ -49,6 +49,7 @@ import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.component.GbHeadersToolbar;
 import org.sakaiproject.gradebookng.tool.component.table.GbGradesDataProvider;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
+import org.sakaiproject.gradebookng.tool.component.table.columns.CourseGradeColumn;
 import org.sakaiproject.gradebookng.tool.component.table.columns.HandleColumn;
 import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNameColumn;
 import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNumberColumn;
@@ -57,8 +58,6 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
-import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
-import org.sakaiproject.gradebookng.tool.panels.CourseGradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.GbGradesDisplayToolbar;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
@@ -93,6 +92,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 	GbModalWindow deleteItemWindow;
 	GbModalWindow gradeStatisticsWindow;
 	GbModalWindow updateCourseGradeDisplayWindow;
+	GbModalWindow gradeOverrideLogWindow;
 
 	Label liveGradingFeedback;
 	boolean hasAssignmentsAndGrades;
@@ -176,6 +176,9 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 		this.updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
 		this.form.add(this.updateCourseGradeDisplayWindow);
+		
+		gradeOverrideLogWindow = new GbModalWindow("gradeOverrideLogWindow");
+		form.add(gradeOverrideLogWindow);
 
 		// first get any settings data from the session
 		final GradebookUiSettings settings = getUiSettings();
@@ -393,49 +396,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		{
 			// course grade column
 			final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(this.currentUserUuid);
-			final AbstractColumn courseGradeColumn = new AbstractColumn(new Model("")) {
-				@Override
-				public Component getHeader(final String componentId) {
-					return new CourseGradeColumnHeaderPanel(componentId, Model.of(settings.getShowPoints()));
-				}
-
-				@Override
-				public String getCssClass() {
-					final String cssClass = COURSE_GRADE_COL_CSS_CLASS;
-					if (settings.getShowPoints()) {
-						return cssClass + " points";
-					} else {
-						return cssClass;
-					}
-				}
-
-				@Override
-				public void populateItem(final Item cellItem, final String componentId, final IModel rowModel) {
-					final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
-
-					cellItem.add(new AttributeModifier("tabIndex", 0));
-
-					// setup model
-					// TODO we may not need to pass everything into this panel since we now use a display string
-					// however we do require that the label can receive events and update itself, although this could be recalculated for each
-					// event
-					final Map<String, Object> modelData = new HashMap<>();
-					modelData.put("courseGradeDisplay", studentGradeInfo.getCourseGrade().getDisplayString());
-					modelData.put("hasCourseGradeOverride", studentGradeInfo.getCourseGrade().getCourseGrade().getEnteredGrade() != null);
-					modelData.put("studentUuid", studentGradeInfo.getStudent().getUserUuid());
-					modelData.put("currentUserUuid", GradebookPage.this.currentUserUuid);
-					modelData.put("currentUserRole", GradebookPage.this.role);
-					modelData.put("gradebook", gradebook);
-					modelData.put("showPoints", settings.getShowPoints());
-					modelData.put("showOverride", true);
-					modelData.put("showLetterGrade", gradebook.isCourseLetterGradeDisplayed());  // OWLTODO: this is always true?
-					modelData.put("courseGradeVisible", courseGradeVisible);
-
-					cellItem.add(new CourseGradeItemCellPanel(componentId, Model.ofMap(modelData)));
-					cellItem.setOutputMarkupId(true);
-				}
-			};
-			cols.add(courseGradeColumn);
+			cols.add(new CourseGradeColumn(this, courseGradeVisible));
 		}
 
 		// build the rest of the columns based on the assignment list
@@ -752,6 +713,12 @@ public class GradebookPage extends BasePage implements IGradesPage
 	public GbModalWindow getUpdateCourseGradeDisplayWindow() {
 		return this.updateCourseGradeDisplayWindow;
 	}
+	
+	@Override
+	public GbModalWindow getGradeOverrideLogWindow()
+	{
+		return gradeOverrideLogWindow;
+	}
 
 	/**
 	 * Getter for the GradebookUiSettings. Used to store a few UI related settings for the current session only.
@@ -904,6 +871,9 @@ public class GradebookPage extends BasePage implements IGradesPage
 			
 			Component togglePanel = this.get("gradeItemsTogglePanelContainer");
 			target.add(togglePanel);
+			
+			// any input errors would not have been allowed to save, so we can clear this
+			updateLiveGradingMessage(getString("feedback.saved"));
 			
 			/*target.appendJavaScript("sakai.gradebookng.spreadsheet.$spreadsheet = $(\"#gradebookGrades\");");
 			target.appendJavaScript("sakai.gradebookng.spreadsheet.$table = $(\"#gradebookGradesTable\");");

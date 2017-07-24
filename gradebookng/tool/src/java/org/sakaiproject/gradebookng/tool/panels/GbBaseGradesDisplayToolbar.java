@@ -67,7 +67,8 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		addOrReplace(liveGradingFeedback);
 		
 		// section and group dropdown
-		if(showGroupFilter())
+		showGroupFilter = showGroupFilter();
+		if(showGroupFilter || settings.isContextAnonymous())
 		{
 			handleShowGroupFilter();
 		}
@@ -111,6 +112,15 @@ public class GbBaseGradesDisplayToolbar extends Panel
 
 				});
 				
+		configureGroupFilter(groupFilter, settings);
+
+		add(groupFilter);
+		
+		add(new GbSakaiPagerContainer("gradebookPager", table));
+	}
+	
+	protected void configureGroupFilter(SakaiSpinnerDropDownChoice<GbGroup> groupFilter, GradebookUiSettings settings)
+	{
 		if (!groups.isEmpty())
 		{
 			// set selected group, or first item in list
@@ -118,21 +128,17 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		}
 		groupFilter.select.setNullValid(false);
 		groupFilter.setVisible(showGroupFilter);
-
-		add(groupFilter);
-		
-		add(new GbSakaiPagerContainer("gradebookPager", table));
 	}
 	
 	protected boolean showGroupFilter()
 	{
-		showGroupFilter = groups.size() > 1;
-		if (showGroupFilter)
+		if (groups.size() > 1)
 		{
-			GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
-			showGroupFilter = settings.isGroupFilterVisibilityForced() || !settings.isContextAnonymous();
+			return true;
 		}
-		return showGroupFilter;
+		
+		GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
+		return settings.isGroupFilterVisibilityForced() || !settings.isContextAnonymous();
 	}
 	
 	protected void handleShowGroupFilter()

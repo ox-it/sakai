@@ -1,8 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -11,6 +9,7 @@ import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
+import org.sakaiproject.gradebookng.tool.util.GbUtils;
 
 /**
  *
@@ -18,6 +17,8 @@ import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
  */
 public class FinalGradeColumnHeaderPanel extends Panel
 {
+	private static final String PARENT_ID = "header";
+
 	public FinalGradeColumnHeaderPanel(final String id)
 	{
 		super(id);
@@ -30,7 +31,7 @@ public class FinalGradeColumnHeaderPanel extends Panel
 		
 		final IGradesPage gradebookPage = (IGradesPage) getPage();
 		
-		getParentCellFor(this).setOutputMarkupId(true);
+		GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.setOutputMarkupId(true));
 		
 		final GbAjaxLink<String> title = new GbAjaxLink<String>("title")
 		{
@@ -39,14 +40,14 @@ public class FinalGradeColumnHeaderPanel extends Panel
 			{
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
 
-				if (settings.getFinalGradeSortOrder() == null)
+				if (getSortOrder(settings) == null)
 				{
-					settings.setFinalGradeSortOrder(SortDirection.getDefault());
+					setSortOrder(SortDirection.getDefault(), settings);
 				}
 				else
 				{
-					final SortDirection sortOrder = settings.getFinalGradeSortOrder();
-					settings.setFinalGradeSortOrder(sortOrder.toggle());
+					final SortDirection sortOrder = getSortOrder(settings);
+					setSortOrder(sortOrder.toggle(), settings);
 				}
 
 				gradebookPage.setUiSettings(settings);
@@ -56,21 +57,28 @@ public class FinalGradeColumnHeaderPanel extends Panel
 		};
 		
 		final GradebookUiSettings settings = gradebookPage.getUiSettings();
-		title.add(new AttributeModifier("title", new ResourceModel("column.header.finalgrade")));
-		title.add(new Label("label", new ResourceModel("column.header.finalgrade")));
-		if (settings != null && settings.getFinalGradeSortOrder() != null) {
-			title.add(
-				new AttributeModifier("class", "gb-sort-" + settings.getFinalGradeSortOrder().toString().toLowerCase()));
+		ResourceModel rm = new ResourceModel(getTitleMsgKey());
+		title.add(new AttributeModifier("title", rm));
+		title.add(new Label("label", rm));
+		if (settings != null && getSortOrder(settings) != null)
+		{
+			title.add(new AttributeModifier("class", "gb-sort-" + getSortOrder(settings).toString().toLowerCase()));
 		}
 		add(title);
 	}
 	
-	private Component getParentCellFor(final Component component)
+	protected String getTitleMsgKey()
 	{
-		if (StringUtils.equals(component.getMarkupAttributes().getString("wicket:id"), "header")) {
-			return component;
-		} else {
-			return getParentCellFor(component.getParent());
-		}
+		return "column.header.finalgrade";
+	}
+	
+	protected SortDirection getSortOrder(GradebookUiSettings settings)
+	{
+		return settings.getFinalGradeSortOrder();
+	}
+	
+	protected void setSortOrder(SortDirection value, GradebookUiSettings settings)
+	{
+		settings.setFinalGradeSortOrder(value);
 	}
 }

@@ -3,9 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -23,13 +21,17 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
+import org.sakaiproject.gradebookng.tool.pages.CourseGradesPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
+import org.sakaiproject.gradebookng.tool.util.GbUtils;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
 public class CourseGradeColumnHeaderPanel extends Panel {
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
+	
+	private static final String PARENT_ID = "header";
 
 	IModel<Boolean> model;
 
@@ -44,7 +46,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		final IGradesPage gradebookPage = (IGradesPage) getPage();
 
-		getParentCellFor(this).setOutputMarkupId(true);
+		GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.setOutputMarkupId(true));
 
 		final GbAjaxLink<String> title = new GbAjaxLink<String>("title") {
 
@@ -72,8 +74,9 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		};
 
 		final GradebookUiSettings settings = gradebookPage.getUiSettings();
-		title.add(new AttributeModifier("title", new ResourceModel("column.header.coursegrade")));
-		title.add(new Label("label", new ResourceModel("column.header.coursegrade")));
+		ResourceModel titleModel = getTitleModel(gradebookPage);
+		title.add(new AttributeModifier("title", titleModel));
+		title.add(new Label("label", titleModel));
 		if (settings != null && settings.getCourseGradeSortOrder() != null) {
 			title.add(
 				new AttributeModifier("class", "gb-sort-" + settings.getCourseGradeSortOrder().toString().toLowerCase()));
@@ -115,7 +118,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 				final GbModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
 				window.setTitle(getString("heading.zeroungradeditems"));
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(this, PARENT_ID).orElse(null));
 				window.setContent(new ZeroUngradedItemsPanel(window.getContentId(), window));
 				window.showUnloadConfirmation(false);
 				window.show(target);
@@ -169,12 +172,14 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		add(menu);
 	}
-
-	private Component getParentCellFor(final Component component) {
-		if (StringUtils.equals(component.getMarkupAttributes().getString("wicket:id"), "header")) {
-			return component;
-		} else {
-			return getParentCellFor(component.getParent());
+	
+	private ResourceModel getTitleModel(IGradesPage page)
+	{
+		if (page instanceof CourseGradesPage)
+		{
+			return new ResourceModel("finalgrades.column.header.coursegrade");
 		}
+
+		return new ResourceModel("column.header.coursegrade");
 	}
 }

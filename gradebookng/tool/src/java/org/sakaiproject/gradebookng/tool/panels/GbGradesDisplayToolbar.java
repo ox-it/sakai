@@ -87,8 +87,7 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 	@Override
 	protected boolean showGroupFilter()
 	{	
-		// if only one group, just show the title
-		showGroupFilter = super.showGroupFilter();
+		boolean show = !groups.isEmpty();
 		
 		// otherwise add the 'all groups' option
 		// cater for the case where there is only one group visible to TA but they can see everyone.
@@ -96,18 +95,21 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 
 			//if only one group, hide the filter
 			if (groups.size() == 1) {
-				showGroupFilter = false;
 
 				// but need to double check permissions to see if we have any permissions with no group reference
-				permissions.forEach(p -> {
+				/*permissions.forEach(p -> {
 					if (!StringUtils.equalsIgnoreCase(p.getFunction(),GraderPermission.VIEW_COURSE_GRADE.toString()) && StringUtils.isBlank(p.getGroupReference())) {
 						showGroupFilter = true;
 					}
-				});
+				});*/
+				
+				// but need to double check permissions to see if we have any permissions with no group reference
+				show = permissions.stream().anyMatch(p -> !StringUtils.equalsIgnoreCase(p.getFunction(),GraderPermission.VIEW_COURSE_GRADE.toString())
+						&& StringUtils.isBlank(p.getGroupReference()));
 			}
 		}
 		
-		return showGroupFilter;
+		return show;
 	}
 	
 	@Override

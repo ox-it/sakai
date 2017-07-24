@@ -7,7 +7,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.gradebookng.tool.panels.FinalGradeColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.FinalGradeItemCellPanel;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -22,7 +21,7 @@ public class FinalGradeColumn<T extends GbStudentGradeInfo, S> extends AbstractC
 {
 	public static final String CSS_CLASS = "gb-final-grade";
 	
-	public FinalGradeColumn(final IGradesPage page)
+	public FinalGradeColumn()
 	{
 		super(Model.of(""));
 	}

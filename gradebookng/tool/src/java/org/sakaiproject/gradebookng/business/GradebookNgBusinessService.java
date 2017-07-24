@@ -34,6 +34,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
@@ -1046,13 +1047,15 @@ public class GradebookNgBusinessService {
 
 		// setup the course grade formatter
 		// TODO we want the override except in certain cases. Can we hard code this?
+		final CourseGradeFormatter.FormatterConfig config = new CourseGradeFormatter.FormatterConfig();
+		config.isCourseGradeVisible = isCourseGradeVisible;
+		config.showPoints = settings.getShowPoints();
+		config.showOverride = false;
+		config.showLetterGrade = false;
 		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
 				gradebook,
 				role,
-				isCourseGradeVisible,
-				settings.getShowPoints(),
-				true,    // show override
-				false);  // show letter grade
+				config);
 
 		for (final GbUser student : gbStudents)
 		{
@@ -1063,6 +1066,7 @@ public class GradebookNgBusinessService {
 			String uid = student.getUserUuid();
 			final CourseGrade courseGrade = courseGrades.get(uid);
 			final GbCourseGrade gbCourseGrade = new GbCourseGrade(courseGrades.get(uid));
+			// OWLTODO: do we still need to set the display string now that CourseGradeColumn does it? File exports?
 			gbCourseGrade.setDisplayString(courseGradeFormatter.format(courseGrade));
 			sg.setCourseGrade(gbCourseGrade);
 
@@ -1589,6 +1593,19 @@ public class GradebookNgBusinessService {
 			// sort
 			Collections.sort(items, comp);
 		}
+		
+		if (settings.getOverrideSortOrder() != null)
+		{
+			Comparator<GbStudentGradeInfo> comp = new OverrideComparator();
+
+			// reverse if required
+			if (settings.getOverrideSortOrder() == SortDirection.DESCENDING) {
+				comp = Collections.reverseOrder(comp);
+			}
+
+			// sort
+			Collections.sort(items, comp);
+		}
 
 		if (settings.getAnonIdSortOrder() != null) {
 			GbGroup group = settings.getGroupFilter();
@@ -1666,7 +1683,28 @@ public class GradebookNgBusinessService {
 	
 	public List<GbGroup> getSiteSections()
 	{
-		return getSiteSectionsAndGroups().stream().filter(GbGroup::isSection).collect(Collectors.toList());
+		List<GbGroup> providedGroups = getSiteSectionsAndGroups().stream().filter(GbGroup::isSection).collect(Collectors.toList());
+		
+		Set<String> secEids = providedGroups.stream().map(GbGroup::getProviderId).collect(Collectors.toSet());
+		List<String> secTitles = new ArrayList<>(secEids.size());
+		List<String> realSecEids = new ArrayList<>(secEids.size());
+		
+		for (String eid : secEids)
+		{
+			try
+			{
+				Section sec = courseManagementService.getSection(eid);
+				realSecEids.add(eid);
+				secTitles.add(sec.getTitle());
+			}
+			catch (IdNotFoundException e)
+			{
+				// crosslist or invalid eid, ignore and continue
+			}
+		}
+		
+		// filter out the non-section provided groups based on a simple title comparison
+		return providedGroups.stream().filter(g -> realSecEids.contains(g.getProviderId()) && secTitles.contains(g.getTitle())).collect(Collectors.toList());
 	}
 
 	/**
@@ -2919,7 +2957,7 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
-	 * Comparator class for sorting by OWL final grade
+	 * Comparator class for sorting by OWL final grade (course sites)
 	 *
 	 */
 	class FinalGradeComparator implements Comparator<GbStudentGradeInfo>
@@ -2927,8 +2965,24 @@ public class GradebookNgBusinessService {
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2)
 		{
-			String fg1 = FinalGradeFormatter.format(g1.getCourseGrade());
-			String fg2 = FinalGradeFormatter.format(g2.getCourseGrade());
+			String fg1 = FinalGradeFormatter.formatForRegistrar(g1.getCourseGrade());
+			String fg2 = FinalGradeFormatter.formatForRegistrar(g2.getCourseGrade());
+			
+			return fg1.compareTo(fg2);
+		}
+	}
+	
+	/**
+	 * Comparator class for sorting by OWL override (project sites)
+	 *
+	 */
+	class OverrideComparator implements Comparator<GbStudentGradeInfo>
+	{	
+		@Override
+		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2)
+		{
+			String fg1 = g1.getCourseGrade().getOverride().orElse("");
+			String fg2 = g2.getCourseGrade().getOverride().orElse("");
 			
 			return fg1.compareTo(fg2);
 		}

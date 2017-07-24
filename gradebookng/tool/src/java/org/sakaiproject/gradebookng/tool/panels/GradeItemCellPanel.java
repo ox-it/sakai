@@ -35,6 +35,7 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.util.GbUtils;
 
 /**
  * The panel for the cell of a grade item
@@ -45,6 +46,8 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 public class GradeItemCellPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final String PARENT_ID = "cells";
 
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
@@ -177,11 +180,11 @@ public class GradeItemCellPanel extends Panel {
 					// set original grade, once only
 					super.onInitialize();
 
-					final Component parentCell = getParentCellFor(this);
-					parentCell.add(new AttributeModifier("data-assignmentid", assignmentId));
-					parentCell.add(new AttributeModifier("data-studentuuid", studentUuid));
-					parentCell.add(new AttributeModifier("class", GradeCellStyle.NORMAL.getCss()));
-					parentCell.setOutputMarkupId(true);
+					GbUtils.getParentCellFor(this, PARENT_ID)
+							.ifPresent(p -> p.add(new AttributeModifier("data-assignmentid", assignmentId))
+									.add(new AttributeModifier("data-studentuuid", studentUuid))
+									.add(new AttributeModifier("class", GradeCellStyle.NORMAL.getCss()))
+									.setOutputMarkupId(true));
 
 					GradeItemCellPanel.this.showMenu = true;
 				}
@@ -261,7 +264,7 @@ public class GradeItemCellPanel extends Panel {
 
 					// refresh the components we need
 					target.addChildren(getPage(), FeedbackPanel.class);
-					target.add(getParentCellFor(getComponent()));
+					GbUtils.getParentCellFor(getComponent(), PARENT_ID).ifPresent(target::add);
 					target.add(gradeCell);
 				}
 
@@ -286,30 +289,30 @@ public class GradeItemCellPanel extends Panel {
 						@Override
 						public CharSequence getPrecondition(final Component component) {
 							return "return GradebookWicketEventProxy.updateGradeItem.handlePrecondition('"
-									+ getParentCellFor(component).getMarkupId() + "', attrs);";
+									+ GbUtils.getParentCellFor(component, PARENT_ID).map(p -> p.getMarkupId()).orElse("") + "', attrs);";
 						}
 
 						@Override
 						public CharSequence getBeforeSendHandler(final Component component) {
 							return "GradebookWicketEventProxy.updateGradeItem.handleBeforeSend('"
-									+ getParentCellFor(component).getMarkupId() + "', attrs, jqXHR, settings);";
+									+ GbUtils.getParentCellFor(component, PARENT_ID).map(p -> p.getMarkupId()).orElse("") + "', attrs, jqXHR, settings);";
 						}
 
 						@Override
 						public CharSequence getSuccessHandler(final Component component) {
-							return "GradebookWicketEventProxy.updateGradeItem.handleSuccess('" + getParentCellFor(component).getMarkupId()
+							return "GradebookWicketEventProxy.updateGradeItem.handleSuccess('" + GbUtils.getParentCellFor(component, PARENT_ID).map(p -> p.getMarkupId()).orElse("")
 									+ "', attrs, jqXHR, data, textStatus);";
 						}
 
 						@Override
 						public CharSequence getFailureHandler(final Component component) {
-							return "GradebookWicketEventProxy.updateGradeItem.handleFailure('" + getParentCellFor(component).getMarkupId()
+							return "GradebookWicketEventProxy.updateGradeItem.handleFailure('" + GbUtils.getParentCellFor(component, PARENT_ID).map(p -> p.getMarkupId()).orElse("")
 									+ "', attrs, jqXHR, errorMessage, textStatus);";
 						}
 
 						@Override
 						public CharSequence getCompleteHandler(final Component component) {
-							return "GradebookWicketEventProxy.updateGradeItem.handleComplete('" + getParentCellFor(component).getMarkupId()
+							return "GradebookWicketEventProxy.updateGradeItem.handleComplete('" + GbUtils.getParentCellFor(component, PARENT_ID).map(p -> p.getMarkupId()).orElse("")
 									+ "', attrs, jqXHR, textStatus);";
 						}
 					};
@@ -351,7 +354,7 @@ public class GradeItemCellPanel extends Panel {
 					refreshNotifications();
 
 					// tell the javascript to refresh the cell
-					target.add(getParentCellFor(getComponent()));
+					GbUtils.getParentCellFor(getComponent(), PARENT_ID).ifPresent(target::add);
 					target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
 				}
 
@@ -368,7 +371,7 @@ public class GradeItemCellPanel extends Panel {
 
 						@Override
 						public CharSequence getCompleteHandler(final Component component) {
-							return "GradebookWicketEventProxy.revertGradeItem.handleComplete('" + getParentCellFor(component).getMarkupId()
+							return "GradebookWicketEventProxy.revertGradeItem.handleComplete('" + GbUtils.getParentCellFor(component, PARENT_ID).map(p -> p.getMarkupId()).orElse("")
 									+ "', attrs, jqXHR, textStatus);";
 						}
 					};
@@ -384,7 +387,7 @@ public class GradeItemCellPanel extends Panel {
 					final GradebookPage gradebookPage = (GradebookPage) getPage();
 					final GbModalWindow window = gradebookPage.getGradeLogWindow();
 
-					window.setComponentToReturnFocusTo(getParentCellFor(GradeItemCellPanel.this.gradeCell));
+					window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(GradeItemCellPanel.this.gradeCell, PARENT_ID).orElse(null));
 					window.setContent(new GradeLogPanel(window.getContentId(), GradeItemCellPanel.this.model, window));
 					window.show(target);
 				}
@@ -402,7 +405,7 @@ public class GradeItemCellPanel extends Panel {
 					window.setContent(panel);
 					window.showUnloadConfirmation(false);
 					window.clearWindowClosedCallbacks();
-					window.setComponentToReturnFocusTo(getParentCellFor(GradeItemCellPanel.this.gradeCell));
+					window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(GradeItemCellPanel.this.gradeCell, PARENT_ID).orElse(null));
 					window.addWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 						private static final long serialVersionUID = 1L;
 
@@ -412,10 +415,10 @@ public class GradeItemCellPanel extends Panel {
 
 							refreshCommentFlag();
 
-							target.add(getParentCellFor(GradeItemCellPanel.this.gradeCell));
+							GbUtils.getParentCellFor(GradeItemCellPanel.this.gradeCell, PARENT_ID).ifPresent(target::add);
 							target.appendJavaScript("sakai.gradebookng.spreadsheet.setupCell('"
-									+ getParentCellFor(GradeItemCellPanel.this.gradeCell).getMarkupId() + "','" + assignmentId + "', '"
-									+ studentUuid + "');");
+									+ GbUtils.getParentCellFor(GradeItemCellPanel.this.gradeCell, PARENT_ID).map(p -> p.getMarkupId()).orElse("")
+									+ "','" + assignmentId + "', '"	+ studentUuid + "');");
 							refreshNotifications();
 						}
 					});
@@ -502,21 +505,8 @@ public class GradeItemCellPanel extends Panel {
 		}
 
 		// replace the cell styles with the new set
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", StringUtils.join(cssClasses, " ")));
-	}
-
-	/**
-	 * Get the parent container for the grade cell so we can style it
-	 *
-	 * @param gradeCell
-	 * @return
-	 */
-	private Component getParentCellFor(final Component component) {
-		if (StringUtils.equals(component.getMarkupAttributes().getString("wicket:id"), "cells")) {
-			return component;
-		} else {
-			return getParentCellFor(component.getParent());
-		}
+		GbUtils.getParentCellFor(gradeCell, PARENT_ID)
+				.ifPresent(p -> p.add(AttributeModifier.replace("class", StringUtils.join(cssClasses, " "))));
 	}
 
 	/**

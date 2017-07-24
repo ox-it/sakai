@@ -19,7 +19,6 @@ import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
@@ -76,6 +75,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	private CourseGradeSubmissionPanel submissionPanel;
 	
 	GbModalWindow updateCourseGradeDisplayWindow;
+	GbModalWindow gradeOverrideLogWindow;
 	GbModalWindow studentGradeSummaryWindow;
 	GbModalWindow updateUngradedItemsWindow;
 	
@@ -101,16 +101,18 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		form = new Form<>("form");
 		form.setOutputMarkupId(true);
 		add(form);
-		
+				
 		sections = businessService.getSiteSections();
-		
 		CourseGradeSubmissionData data = new CourseGradeSubmissionData();
 		updateStatsAndHistoryModel(data);
 		form.add(submissionPanel = new CourseGradeSubmissionPanel("courseGradeSubmissionPanel", Model.of(data)));
 		submissionPanel.setOutputMarkupId(true);
-		
+
 		updateCourseGradeDisplayWindow = new GbModalWindow("updateCourseGradeDisplayWindow");
 		form.add(updateCourseGradeDisplayWindow);
+		
+		gradeOverrideLogWindow = new GbModalWindow("gradeOverrideLogWindow");
+		form.add(gradeOverrideLogWindow);
 		
 		studentGradeSummaryWindow = new GbModalWindow("studentGradeSummaryWindow");
 		studentGradeSummaryWindow.setWidthUnit("%");
@@ -147,9 +149,9 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		}
 		
 		// course grade column
-		cols.add(new CourseGradeColumn(this, businessService.isCourseGradeVisible(currentUserUuid)));
+		cols.add(new CourseGradeColumn(this, businessService.isCourseGradeVisible(currentUserUuid), false));
 		
-		cols.add(new FinalGradeColumn(this));
+		cols.add(new FinalGradeColumn());
 		
 		int pageSize = settings.getGradesPageSize();
 		table = new SakaiDataTable("table", cols, studentGradeMatrix, true, pageSize)
@@ -195,8 +197,8 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		};
 
 		final Map<String, Object> modelData = new HashMap<>();
-		modelData.put("categoryType", this.businessService.getGradebookCategoryType());
-		modelData.put("categoriesEnabled", false);
+		/*modelData.put("categoryType", this.businessService.getGradebookCategoryType());
+		modelData.put("categoriesEnabled", false);*/
 		modelData.put("fixedColCount", businessService.isStudentNumberVisible() ? 4 : 3);
 
 		table.addTopToolbar(new GbBaseHeadersToolbar(table, null));
@@ -205,11 +207,9 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		
 		spreadsheet = new WebMarkupContainer("spreadsheet");
 		spreadsheet.setOutputMarkupId(true);
-		//form.add(table);
 		spreadsheet.add(table);
 		
 		toolbar = new GbBaseGradesDisplayToolbar("toolbar", table, sections, !grades.isEmpty());
-		//form.add(toolbar);
 		spreadsheet.add(toolbar);
 		
 		form.add(spreadsheet);
@@ -300,6 +300,10 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		if (target != null)
 		{
 			target.add(spreadsheet);
+			
+			// any input errors would not have been allowed to save, so we can clear this
+			updateLiveGradingMessage(getString("feedback.saved"));
+			
 			target.appendJavaScript("reinitSpreadsheet();");
 		}
 	}
@@ -395,6 +399,12 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	public GbModalWindow getUpdateCourseGradeDisplayWindow()
 	{
 		return updateCourseGradeDisplayWindow;
+	}
+	
+	@Override
+	public GbModalWindow getGradeOverrideLogWindow()
+	{
+		return gradeOverrideLogWindow;
 	}
 	
 	@Override

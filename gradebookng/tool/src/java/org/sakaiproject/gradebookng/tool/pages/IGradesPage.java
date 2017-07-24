@@ -37,6 +37,8 @@ public interface IGradesPage
 	public void redrawForGroupChange(AjaxRequestTarget target);
 	
 	public GbModalWindow getUpdateCourseGradeDisplayWindow();
+	
+	public GbModalWindow getGradeOverrideLogWindow();
 
 	public GbModalWindow getUpdateUngradedItemsWindow();
 

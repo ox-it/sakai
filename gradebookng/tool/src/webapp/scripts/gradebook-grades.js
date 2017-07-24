@@ -155,6 +155,28 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
 
     // append menu
     $cell.find("> div:first").append($("#gradeItemCellDropdownMenu").html());
+    
+    $cell.find("> div:first").find(".btn-group").on("shown.bs.dropdown", function(event)
+    {
+        $cell.focus();
+        
+        var dropdown = $(event.target).find(".dropdown-menu")[0];
+        var ddBottom = dropdown.getBoundingClientRect().top + dropdown.offsetHeight;
+        var vert = document.getElementById("gradebookVerticalOverflowWrapper");
+        var vBottom = vert.getBoundingClientRect().top + vert.clientHeight;
+        
+        var diff = ddBottom - vBottom;
+        if (diff > 0)
+        {
+            vert.scrollTop += diff;
+        }
+        
+        var diffToDoc = ddBottom - document.documentElement.clientHeight;
+        if (diffToDoc > 0)
+        {
+            window.scrollBy(0, diffToDoc);
+        }
+    });
 
     // setup tooltip
     var $dropdown = $cell.find(".dropdown-toggle");
@@ -657,7 +679,7 @@ GradebookSpreadsheet.prototype.setupScrollHandling = function() {
   self._frzContainer.addEventListener('scroll', function (e)
   {
     
-    var t0 = performance.now();
+    //var t0 = performance.now();
     
     var x = self._frzContainer.scrollLeft;
     var y = self._frzContainer.scrollTop;
@@ -691,8 +713,8 @@ GradebookSpreadsheet.prototype.setupScrollHandling = function() {
         self._frzTopHeaders[i].style.transform = tY;
     }
             
-    var t1 = performance.now();
-    console.log("scrollTime = " + (t1 - t0) + " ms.");
+    //var t1 = performance.now();
+    //console.log("scrollTime = " + (t1 - t0) + " ms.");
     //console.log("x: " + x + " y: " + y);
   });
   

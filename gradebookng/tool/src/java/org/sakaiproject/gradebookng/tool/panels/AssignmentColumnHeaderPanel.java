@@ -7,9 +7,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -32,6 +30,7 @@ import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
+import org.sakaiproject.gradebookng.tool.util.GbUtils;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
@@ -47,6 +46,8 @@ import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 public class AssignmentColumnHeaderPanel extends Panel {
 
 	public static final String ICON_SAKAI = "icon-sakai--";
+	
+	private static final String PARENT_ID = "header";
 
 	private final IModel<Assignment> modelData;
 	private final GbGradingType gradingType;
@@ -64,7 +65,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		getParentCellFor(this).setOutputMarkupId(true);
+		GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.setOutputMarkupId(true));
 
 		final Assignment assignment = modelData.getObject();
 
@@ -184,7 +185,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				final GbModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
 				window.setTitle(getString("heading.editgradeitem"));
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(this, PARENT_ID).orElse(null));
 				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, getModel()));
 				window.showUnloadConfirmation(false);
 				window.show(target);
@@ -202,7 +203,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			public void onClick(final AjaxRequestTarget target) {
 				final GradebookPage gradebookPage = (GradebookPage) getPage();
 				final GbModalWindow window = gradebookPage.getGradeStatisticsWindow();
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(this, PARENT_ID).orElse(null));
 				window.setContent(new GradeStatisticsPanel(window.getContentId(), getModel(), window));
 				window.show(target);
 			}
@@ -308,7 +309,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				final GbModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
 				final UpdateUngradedItemsPanel panel = new UpdateUngradedItemsPanel(window.getContentId(), getModel(), window);
 				window.setTitle(getString("heading.updateungradeditems"));
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(this, PARENT_ID).orElse(null));
 				window.setContent(panel);
 				window.showUnloadConfirmation(false);
 				window.show(target);
@@ -337,7 +338,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				final GbModalWindow window = gradebookPage.getDeleteItemWindow();
 				final DeleteItemPanel panel = new DeleteItemPanel(window.getContentId(), getModel(), window);
 				window.setTitle(getString("delete.label"));
-				window.setComponentToReturnFocusTo(getParentCellFor(this));
+				window.setComponentToReturnFocusTo(GbUtils.getParentCellFor(this, PARENT_ID).orElse(null));
 				window.setContent(panel);
 				window.showUnloadConfirmation(false);
 				window.show(target);
@@ -359,16 +360,8 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		add(menu);
 
 		// add abbreviation of header content to aid table accessibility
-		getParentCellFor(this).add(new AttributeModifier("abbr", assignment.getName()))
-				.add(new AttributeModifier("aria-label", assignment.getName()));
-	}
-
-	private Component getParentCellFor(final Component component) {
-		if (StringUtils.equals(component.getMarkupAttributes().getString("wicket:id"), "header")) {
-			return component;
-		} else {
-			return getParentCellFor(component.getParent());
-		}
+		GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.add(new AttributeModifier("abbr", assignment.getName()))
+				.add(new AttributeModifier("aria-label", assignment.getName())));
 	}
 
 	private String generateFlagPopover(final HeaderFlagPopoverPanel.Flag flag) {

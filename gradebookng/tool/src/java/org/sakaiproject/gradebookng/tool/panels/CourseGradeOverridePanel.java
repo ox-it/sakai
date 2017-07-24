@@ -22,10 +22,15 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter.FormatterConfig;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
+import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
+import org.sakaiproject.gradebookng.tool.util.GbUtils;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -65,15 +70,9 @@ public class CourseGradeOverridePanel extends Panel {
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(currentUserUuid);
 
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
-		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
-				gradebook,
-				currentUserRole,
-				courseGradeVisible,
-				false,
-				false,
-				false);  // OWLTODO: fix and configure this
 
-		GradebookUiSettings settings = ((GradebookPage)getPage()).getUiSettings();
+		IGradesPage gradebookPage = (IGradesPage) getPage();
+		GradebookUiSettings settings = gradebookPage.getUiSettings();
 		boolean isContextAnonymous = settings.isContextAnonymous();
 
 		StringResourceModel titleModel;
@@ -118,6 +117,13 @@ public class CourseGradeOverridePanel extends Panel {
 
 
 		form.add(new Label("points", formatPoints(courseGrade, gradebook)));
+		
+		final FormatterConfig config = new FormatterConfig();
+		config.isCourseGradeVisible = courseGradeVisible;
+		config.showPoints = false;
+		config.showOverride = false;
+		config.showLetterGrade = false;
+		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(gradebook, currentUserRole, config);
 		form.add(new Label("calculated", courseGradeFormatter.format(courseGrade)));
 
 		final TextField<String> overrideField = new TextField<>("overrideGrade", formModel);
@@ -173,6 +179,23 @@ public class CourseGradeOverridePanel extends Panel {
 		};
 		cancel.setDefaultFormProcessing(false);
 		form.add(cancel);
+		
+		// override log link
+		form.add(new GbAjaxLink<String>("courseGradeOverrideLog", Model.of(studentUuid)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick(final AjaxRequestTarget target) {
+				final GbModalWindow window = gradebookPage.getGradeOverrideLogWindow();
+				window.setComponentToReturnFocusTo(CourseGradeOverridePanel.this);
+				CourseGradeOverrideLogPanel.ModelData data = new CourseGradeOverrideLogPanel.ModelData();
+				data.studentUuid = getDefaultModelObjectAsString();
+				window.setContent(new CourseGradeOverrideLogPanel(window.getContentId(), Model.of(data), window));
+				window.showUnloadConfirmation(false);
+				window.show(target);
+			}
+		});
+		
 
 		// revert link
 		final AjaxSubmitLink revertLink = new AjaxSubmitLink("revertOverride", form) {
