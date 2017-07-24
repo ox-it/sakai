@@ -166,7 +166,13 @@ public class ExportPanel extends Panel {
 
 		}, fileNameModel).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
 
+		boolean isRevealedAllowed = false;
 		boolean siteHasAnonAssignments = businessService.getGradebookAssignments().stream().anyMatch(Assignment::isAnon);
+		if (siteHasAnonAssignments)
+		{
+			// is gradebook in approved state?
+			isRevealedAllowed = businessService.areAllSectionsApproved(businessService.getViewableSectionEids());
+		}
 
 		add(new DownloadLink("downloadFullGradebookRevealed", new LoadableDetachableModel<File>() {
 
@@ -177,7 +183,7 @@ public class ExportPanel extends Panel {
 		}, fileNameModel)
 			.setCacheDuration(Duration.NONE)
 			.setDeleteAfterDownload(true)
-			.setVisible(siteHasAnonAssignments));
+			.setVisible(isRevealedAllowed));
 
 		add(new DownloadLink("downloadCustomGradebook", new LoadableDetachableModel<File>() {
 
@@ -197,7 +203,7 @@ public class ExportPanel extends Panel {
 		}, fileNameModel)
 			.setCacheDuration(Duration.NONE)
 			.setDeleteAfterDownload(true)
-			.setVisible(siteHasAnonAssignments));
+			.setVisible(isRevealedAllowed));
 	}
 
 	/**
