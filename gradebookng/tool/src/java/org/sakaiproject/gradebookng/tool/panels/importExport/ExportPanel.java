@@ -166,7 +166,7 @@ public class ExportPanel extends Panel {
 
 		}, fileNameModel).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
 
-		boolean siteHasAnonIDs = !businessService.getAnonGradingIDsForCurrentSite().isEmpty();
+		boolean siteHasAnonAssignments = businessService.getGradebookAssignments().stream().anyMatch(Assignment::isAnon);
 
 		add(new DownloadLink("downloadFullGradebookRevealed", new LoadableDetachableModel<File>() {
 
@@ -177,7 +177,7 @@ public class ExportPanel extends Panel {
 		}, fileNameModel)
 			.setCacheDuration(Duration.NONE)
 			.setDeleteAfterDownload(true)
-			.setVisible(siteHasAnonIDs));
+			.setVisible(siteHasAnonAssignments));
 
 		add(new DownloadLink("downloadCustomGradebook", new LoadableDetachableModel<File>() {
 
@@ -197,7 +197,7 @@ public class ExportPanel extends Panel {
 		}, fileNameModel)
 			.setCacheDuration(Duration.NONE)
 			.setDeleteAfterDownload(true)
-			.setVisible(siteHasAnonIDs));
+			.setVisible(siteHasAnonAssignments));
 	}
 
 	/**
