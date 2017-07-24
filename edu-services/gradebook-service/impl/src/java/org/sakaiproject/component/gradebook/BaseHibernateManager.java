@@ -115,7 +115,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     }
 
     // OWL-883
-    protected List getAssignmentsAnonAware(Long gradebookId, Session session, boolean includeAnon) throws HibernateException
+    protected List<Assignment> getAssignmentsAnonAware(Long gradebookId, Session session, boolean includeAnon) throws HibernateException
     {
         String query = "from Assignment as asn where asn.gradebook.id=? and asn.removed=false";
         if (!includeAnon)
@@ -123,7 +123,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
             query += " and asn.anon=false";
         }
 
-        List assignments = session.createQuery(query)
+        List<Assignment> assignments = session.createQuery(query)
             .setLong(0, gradebookId.longValue()).
             list();
         return assignments;

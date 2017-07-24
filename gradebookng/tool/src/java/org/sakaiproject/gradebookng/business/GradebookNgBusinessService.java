@@ -493,7 +493,7 @@ public class GradebookNgBusinessService {
 		if (gradebook != null) {
 			// applies permissions (both student and TA) and default sort is
 			// SORT_BY_SORTING
-			assignments.addAll(this.gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid(), sortBy));
+			assignments.addAll(this.gradebookService.getViewableAssignmentsForCurrentUserAnonAware(gradebook.getUid(), sortBy, true));
 		}
 		return assignments;
 	}
@@ -1735,7 +1735,7 @@ public class GradebookNgBusinessService {
 
 			// Force the assignment to sit at the end of the list
 			if (assignment.getSortOrder() == null) {
-				final List<Assignment> allAssignments = this.gradebookService.getAssignments(gradebookId);
+				final List<Assignment> allAssignments = this.gradebookService.getAssignmentsAnonAware(gradebookId, true);
 				int nextSortOrder = allAssignments.size();
 				for (final Assignment anotherAssignment : allAssignments) {
 					if (anotherAssignment.getSortOrder() != null && anotherAssignment.getSortOrder() >= nextSortOrder) {
@@ -1923,8 +1923,8 @@ public class GradebookNgBusinessService {
 
 		final List<GbGradeCell> rval = new ArrayList<>();
 
-		final List<Assignment> assignments = this.gradebookService.getViewableAssignmentsForCurrentUser(gradebookUid,
-				SortType.SORT_BY_SORTING);
+		final List<Assignment> assignments = this.gradebookService.getViewableAssignmentsForCurrentUserAnonAware(gradebookUid,
+				SortType.SORT_BY_SORTING, true);
 		final List<Long> assignmentIds = assignments.stream().map(a -> a.getId()).collect(Collectors.toList());
 		if (CollectionUtils.isEmpty(assignmentIds)) {
 			return rval;

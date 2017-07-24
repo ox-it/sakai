@@ -176,16 +176,23 @@ public interface GradebookService {
 
 	/**
 	 * @return Returns a list of Assignment objects describing the assignments
-	 *         that are currently defined in the given gradebook.
+	 *         that are currently defined in the given gradebook. Excludes anonymous assignments
 	 */
 	public List<Assignment> getAssignments(String gradebookUid)
 			throws GradebookNotFoundException;
 	
 	/**
 	 * @return Returns a list of Assignment objects describing the assignments
-	 *         that are currently defined in the given gradebook, sorted by the given sort type.
+	 *         that are currently defined in the given gradebook, sorted by the given sort type. Excludes anonymous assignments
 	 */
 	public List<Assignment> getAssignments(String gradebookUid, SortType sortBy)
+			throws GradebookNotFoundException;
+
+	/**
+	 * @return Returns an unsorted list of assignment objects describing the assignments
+	 *         that are currently defined in the given gradebook. Includes anonymous assignments only if specified
+	 */
+	public List<Assignment> getAssignmentsAnonAware(String gradebookUid, boolean includeAnon)
 			throws GradebookNotFoundException;
 
 	/**
@@ -432,6 +439,20 @@ public interface GradebookService {
 	 * will return all released gb items.
 	 */
 	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, SortType sortBy);
+
+	/**
+	 * @param gradebookUid
+	 * @param includeAnon whether to include anonymous assignments
+	 * @return list of gb items that the current user is authorized to view.
+	 * If user has gradeAll permission, returns all gb items.
+	 * If user has gradeSection perm with no grader permissions,
+	 * returns all gb items.
+	 * If user has gradeSection with grader perms, returns only the items that
+	 * the current user is authorized to view or grade.
+	 * If user does not have grading privileges but does have viewOenGrades perm
+	 * will return all released gb items.
+	 */
+	public List<Assignment> getViewableAssignmentsForCurrentUserAnonAware(String gradebookUid, SortType sortBy, boolean includeAnon);
 
 	/**
 	 * 

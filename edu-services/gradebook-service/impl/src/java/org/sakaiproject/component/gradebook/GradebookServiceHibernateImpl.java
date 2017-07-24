@@ -152,7 +152,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 	
 	@Override
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignmentsAnonAware(String gradebookUid, final boolean includeAnon) throws GradebookNotFoundException {
+		return getAssignmentsAnonAware(gradebookUid, SortType.SORT_BY_NONE, includeAnon);
+	}
+	
+	@Override
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(String gradebookUid, SortType sortBy) throws GradebookNotFoundException {
+		return getAssignmentsAnonAware(gradebookUid, sortBy, false);
+	}
+
+	private List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignmentsAnonAware(String gradebookUid, SortType sortBy, final boolean includeAnon) throws GradebookNotFoundException {
 			if (!isUserAbleToViewAssignments(gradebookUid)) {
 				log.warn("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignments list");
 				throw new SecurityException("You do not have permission to perform this operation");
@@ -163,9 +172,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        @SuppressWarnings({ "unchecked", "rawtypes"})
 			List<Assignment> internalAssignments = (List<Assignment>)getHibernateTemplate().execute(new HibernateCallback() {
 	            public Object doInHibernate(Session session) throws HibernateException {
-	                // For anon grading in gradebook classic under OWL 10.3, the 'includeAnon' parameter was passed as 'false'. For OWL 11.3, I've set it to true here. 
-	                // It's more sensible in general to include everything and then filter if needed.
-	                return getAssignmentsAnonAware(gradebookId, session, true);  // OWL-883
+	                return getAssignmentsAnonAware(gradebookId, session, includeAnon);  // OWL-883
 	            }
 	        });
 	        
@@ -177,7 +184,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 			return assignments;
 		}
-	
+
 	@Override
 	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final Long assignmentId) throws AssessmentNotFoundException {
 		if (assignmentId == null || gradebookUid == null) {
@@ -348,7 +355,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
 		gradebookDefinition.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
 		gradebookDefinition.setSelectedGradingScaleBottomPercents(new HashMap<>(selectedGradeMapping.getGradeMap()));
-		gradebookDefinition.setAssignments(getAssignments(gradebookUid));
+		gradebookDefinition.setAssignments(getAssignmentsAnonAware(gradebookUid, true));
 		
 		gradebookDefinition.setGradeType(gradebook.getGrade_type());
 		gradebookDefinition.setCategoryType(gradebook.getCategory_type());	
@@ -1299,7 +1306,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY || gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY)
   	{
   		List records = getAllAssignmentGradeRecords(gradebook.getId(), studentUids);
-  		List assigns = getAssignments(gradebook.getId(), SortType.SORT_BY_SORTING, true);
+  		List assigns = getAssignmentsAnonAware(gradebook.getId(), SortType.SORT_BY_SORTING, true, true);
   		List filteredAssigns = new ArrayList();
   		for(Iterator iter = assigns.iterator(); iter.hasNext();)
   		{
@@ -1323,7 +1330,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	}
   	else
   	{
-    	List assigns = getAssignments(gradebook.getId(), SortType.SORT_BY_SORTING, true);
+    	List assigns = getAssignmentsAnonAware(gradebook.getId(), SortType.SORT_BY_SORTING, true, true);
     	List records = getAllAssignmentGradeRecords(gradebook.getId(), studentUids);
     	Set filteredAssigns = new HashSet();
     	for (Iterator iter = assigns.iterator(); iter.hasNext(); )
@@ -1454,7 +1461,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
   /**
-   * Get a list of assignments, sorted
+   * Get a list of assignments, sorted, excluding anonymous
    * @param gradebookId
    * @param sortBy
    * @param ascending
@@ -1464,9 +1471,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
    */
   @SuppressWarnings({ "rawtypes", "unchecked" })
   public List getAssignments(final Long gradebookId, final SortType sortBy, final boolean ascending) {
+  	return getAssignmentsAnonAware(gradebookId, sortBy, ascending, false);
+  }
+
+  public List getAssignmentsAnonAware(final Long gradebookId, final SortType sortBy, final boolean ascending, final boolean includeAnon) {
   	return (List)getHibernateTemplate().execute(new HibernateCallback() {
   		public Object doInHibernate(Session session) throws HibernateException {
-  			List assignments = getAssignments(gradebookId, session);
+  			List assignments = getAssignmentsAnonAware(gradebookId, session, includeAnon);
 
   			sortAssignments(assignments, sortBy, ascending);
   			return assignments;
@@ -1545,13 +1556,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return getViewableAssignmentsForCurrentUser(gradebookUid, SortType.SORT_BY_SORTING);
 	}
 
+  @Override
+  public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, SortType sortBy)
+  {
+      return getViewableAssignmentsForCurrentUserAnonAware(gradebookUid, sortBy, false);
+  }
+
   /*
    * (non-Javadoc)
    * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String, java.)
    */
   @Override
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, SortType sortBy)
+  public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUserAnonAware(String gradebookUid, SortType sortBy, boolean includeAnon)
   throws GradebookNotFoundException {
 
 	  List<Assignment> viewableAssignments = new ArrayList<>();
@@ -1561,23 +1578,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	  // will send back all assignments if user can grade all
 	  if (getAuthz().isUserAbleToGradeAll(gradebookUid)) {
-		  viewableAssignments = getAssignments(gradebook.getId(), sortBy, true);
+		  viewableAssignments = getAssignmentsAnonAware(gradebook.getId(), sortBy, true, includeAnon);
 	  } else if (getAuthz().isUserAbleToGrade(gradebookUid)) {
 		  // if user can grade and doesn't have grader perm restrictions, they
 		  // may view all assigns
 		  if (!getAuthz().isUserHasGraderPermissions(gradebookUid)) {
-			  viewableAssignments = getAssignments(gradebook.getId(), sortBy, true);
+			  viewableAssignments = getAssignmentsAnonAware(gradebook.getId(), sortBy, true, includeAnon);
 		  } else {
 			  // this user has grader perms, so we need to filter the items returned
 			  // if this gradebook has categories enabled, we need to check for category-specific restrictions
 			  if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
-				  assignmentsToReturn.addAll(getAssignments(gradebookUid, sortBy));
+				  assignmentsToReturn.addAll(getAssignmentsAnonAware(gradebookUid, sortBy, includeAnon));
 			  } else {
 				  String userUid = getUserUid();
 				  if (getGradebookPermissionService().getPermissionForUserForAllAssignment(gradebook.getId(), userUid)) {
-					  assignmentsToReturn.addAll(getAssignments(gradebookUid, sortBy));
+					  assignmentsToReturn.addAll(getAssignmentsAnonAware(gradebookUid, sortBy, includeAnon));
 				  } else {
-					  List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = getAssignments(gradebookUid, sortBy);
+					  List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = getAssignmentsAnonAware(gradebookUid, sortBy, includeAnon);
 					  List<Long> categoryIds = ((List<Category>)getCategories(gradebook.getId())).stream().map(Category::getId).collect(Collectors.toList());
 					  // categories are enabled, so we need to check the category restrictions
 					  if (!categoryIds.isEmpty()) {
@@ -1593,7 +1610,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  }
 	  } else if (getAuthz().isUserAbleToViewOwnGrades(gradebookUid)) {
 		  // if user is just a student, we need to filter out unreleased items
-		  List allAssigns = getAssignments(gradebook.getId(), null, true);
+		  List allAssigns = getAssignmentsAnonAware(gradebook.getId(), null, true, includeAnon);
 		  if (allAssigns != null) {
 			  for (Iterator aIter = allAssigns.iterator(); aIter.hasNext();) {
 				  Assignment assign = (Assignment) aIter.next();
@@ -2555,7 +2572,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        categoryDef.setDrop_lowest(category.getDrop_lowest());
 	        categoryDef.setDropHighest(category.getDropHighest());
 	        categoryDef.setKeepHighest(category.getKeepHighest());
-	        categoryDef.setAssignmentList(getAssignments(category.getGradebook().getUid(), category.getName()));
+	        categoryDef.setAssignmentList(getAssignmentsAnonAware(category.getGradebook().getUid(), category.getName(), true));
 	        categoryDef.setExtraCredit(category.isExtraCredit());
 	        categoryDef.setCategoryOrder(category.getCategoryOrder());
 	    }
@@ -2821,11 +2838,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * 
 	 * @param gradebookUid
 	 * @param categoryName
+	 * @param includeAnon - whether to include anonymous assignments
 	 * @return
 	 */
-	private List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(String gradebookUid, String categoryName) {
+	private List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignmentsAnonAware(String gradebookUid, String categoryName, boolean includeAnon) {
 		
-		List<org.sakaiproject.service.gradebook.shared.Assignment> allAssignments = getAssignments(gradebookUid);
+		List<org.sakaiproject.service.gradebook.shared.Assignment> allAssignments = getAssignmentsAnonAware(gradebookUid, includeAnon);
 		List<org.sakaiproject.service.gradebook.shared.Assignment> matchingAssignments = new ArrayList<>();
 		
 		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: allAssignments) {
@@ -2905,7 +2923,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 		
 		//get all assignments for this gradebook
-		List<Assignment> assignments = getAssignments(gradebookId, SortType.SORT_BY_SORTING, true);
+		List<Assignment> assignments = getAssignmentsAnonAware(gradebookId, SortType.SORT_BY_SORTING, true, true);
 		
 		//adjust order to be within bounds
 		if(order < 0) {
@@ -3509,7 +3527,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 
 		//get all assignments for this gradebook
-		List<Assignment> assignments = getAssignments(gradebookId, SortType.SORT_BY_CATEGORY, true);
+		List<Assignment> assignments = getAssignmentsAnonAware(gradebookId, SortType.SORT_BY_CATEGORY, true, true);
 		List<Assignment> assignmentsInNewCategory = new ArrayList<>();
 		for (Assignment assignment : assignments) {
 			if (assignment.getCategory() == null) {
