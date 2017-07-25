@@ -914,13 +914,13 @@ ul.calendarLegend li{
 #flashNotif  a.flashNotifClose {
     text-decoration: none;
     font-size:120%;
-    position:absolute;
-    top:5px;
-    right:5px;
 }
 #flashNotif {
-    position:absolute;
-    top:-475px;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    position:fixed;
+    top:0px;
     left:30%;
     right:30%;
     padding:15px;
@@ -931,4 +931,5 @@ ul.calendarLegend li{
     border-radius: 3px;
     box-shadow:2px 2px 2px #cccccc;
     vertical-align:middle;
+    z-index: 100000;
 }
