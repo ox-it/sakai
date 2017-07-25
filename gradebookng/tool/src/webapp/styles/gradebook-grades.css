@@ -119,6 +119,7 @@
 	line-height: 1;
 	border-top-left-radius: 0;
 	border-bottom-left-radius: 0;
+	height: 2em;
 }
 
 #gradebookGrades .gb-student-number-filter .studentNumberFilterClear,
@@ -136,6 +137,7 @@
 	border-right: 0 !important;
 	color: #666666;
 	background: #ffffff !important;
+	height: 2em;
 }
 
 #gradebookGrades .gb-student-number-filter .studentNumberFilterClear:active,

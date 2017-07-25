@@ -29,7 +29,7 @@ import org.sakaiproject.gradebookng.business.GbGradingType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -82,7 +82,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 		// modal window forms must be submitted via AJAX so we do not specify an onSubmit here
 		final Form<GradeOverride> form = new Form<>("form", formModel);
 
-		final GbAjaxButton submit = new GbAjaxButton("submit") {
+		final SakaiAjaxButton submit = new SakaiAjaxButton("submit") {
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
@@ -124,7 +124,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 		};
 		form.add(submit);
 
-		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
+		final SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {

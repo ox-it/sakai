@@ -29,7 +29,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
@@ -382,7 +382,7 @@ public class PermissionsPage extends BasePage {
 				item.add(groupChooser);
 
 				// remove button
-				final GbAjaxButton remove = new GbAjaxButton("remove") {
+				final SakaiAjaxButton remove = new SakaiAjaxButton("remove") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -409,7 +409,7 @@ public class PermissionsPage extends BasePage {
 		form.add(permissionsView);
 
 		// 'add a rule' button
-		final GbAjaxButton addRule = new GbAjaxButton("addRule") {
+		final SakaiAjaxButton addRule = new SakaiAjaxButton("addRule") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

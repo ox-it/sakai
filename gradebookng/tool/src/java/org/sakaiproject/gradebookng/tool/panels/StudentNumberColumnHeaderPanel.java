@@ -10,7 +10,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.SortDirection;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
@@ -76,7 +76,7 @@ public class StudentNumberColumnHeaderPanel extends Panel
 		final TextField<String> filterTextField = new TextField<>("studentNumberFilter", form.getModel());
 		form.add(filterTextField);
 		
-		final GbAjaxButton clear = new GbAjaxButton("studentNumberFilterClear")
+		final SakaiAjaxButton clear = new SakaiAjaxButton("studentNumberFilterClear")
 		{
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form)
@@ -100,7 +100,7 @@ public class StudentNumberColumnHeaderPanel extends Panel
 		};
 		form.add(clear);
 		
-		final GbAjaxButton submit = new GbAjaxButton("studentNumberFilterButton")
+		final SakaiAjaxButton submit = new SakaiAjaxButton("studentNumberFilterButton")
 		{
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form)

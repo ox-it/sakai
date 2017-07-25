@@ -17,7 +17,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
@@ -90,7 +90,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 		// form
 		final Form<Assignment> form = new Form<>("addOrEditGradeItemForm", formModel);
 
-		final GbAjaxButton submit = new GbAjaxButton("submit", form) {
+		final SakaiAjaxButton submit = new SakaiAjaxButton("submit", form) {
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
@@ -212,7 +212,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 		form.add(new GbFeedbackPanel("addGradeFeedback"));
 
 		// cancel button
-		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
+		final SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {

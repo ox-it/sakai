@@ -23,14 +23,12 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter.FormatterConfig;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
-import org.sakaiproject.gradebookng.tool.util.GbUtils;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -130,7 +128,7 @@ public class CourseGradeOverridePanel extends Panel {
 		overrideField.setOutputMarkupId(true);
 		form.add(overrideField);
 
-		final GbAjaxButton submit = new GbAjaxButton("submit") {
+		final SakaiAjaxButton submit = new SakaiAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -169,7 +167,7 @@ public class CourseGradeOverridePanel extends Panel {
 		form.add(new GbFeedbackPanel("feedback"));
 
 		// cancel button
-		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
+		final SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

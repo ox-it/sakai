@@ -11,7 +11,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -36,7 +36,7 @@ public class DeleteItemPanel extends Panel {
 
 		final Form<Long> form = new Form("form", Model.of(assignmentId));
 
-		final GbAjaxButton submit = new GbAjaxButton("submit") {
+		final SakaiAjaxButton submit = new SakaiAjaxButton("submit") {
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
@@ -62,7 +62,7 @@ public class DeleteItemPanel extends Panel {
 		};
 		form.add(submit);
 
-		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
+		final SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {

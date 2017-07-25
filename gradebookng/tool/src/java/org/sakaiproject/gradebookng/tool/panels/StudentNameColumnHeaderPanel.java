@@ -16,7 +16,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
@@ -111,7 +111,7 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		final TextField<String> filterTextField = new TextField<>("studentFilter", form.getModel());
 		form.add(filterTextField);
 		
-		final GbAjaxButton clear = new GbAjaxButton("studentFilterClear")
+		final SakaiAjaxButton clear = new SakaiAjaxButton("studentFilterClear")
 		{
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form)
@@ -135,7 +135,7 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		};
 		form.add(clear);
 		
-		final GbAjaxButton submit = new GbAjaxButton("studentFilterButton")
+		final SakaiAjaxButton submit = new SakaiAjaxButton("studentFilterButton")
 		{
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form)

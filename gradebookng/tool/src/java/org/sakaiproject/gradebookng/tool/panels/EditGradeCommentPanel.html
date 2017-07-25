@@ -9,8 +9,13 @@
 			<textarea wicket:id="comment" rows="4" class="form-control form-group"></textarea>
 			
 			<div class="">
-				<input type="submit" wicket:id="submit" wicket:message="value:button.savecomment" />
-				<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
+				<button wicket:id="submit">
+					<wicket:message key="button.savecomment" />
+				</button>
+				<button wicket:id="cancel">
+					<wicket:message key="button.cancel" />
+				</button>
+				
 			</div>
 		
 		</form>

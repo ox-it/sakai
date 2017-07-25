@@ -44,7 +44,7 @@ import org.apache.wicket.util.convert.IConverter;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -502,7 +502,7 @@ public class SettingsCategoryPanel extends Panel {
 				item.add(categoryKeepHighest);
 
 				// remove button
-				final GbAjaxButton remove = new GbAjaxButton("remove") {
+				final SakaiAjaxButton remove = new SakaiAjaxButton("remove") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -578,7 +578,7 @@ public class SettingsCategoryPanel extends Panel {
 		settingsCategoriesPanel.add(categoriesWrap);
 
 		// add category button
-		final GbAjaxButton addCategory = new GbAjaxButton("addCategory") {
+		final SakaiAjaxButton addCategory = new SakaiAjaxButton("addCategory") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

@@ -8,11 +8,6 @@
 		<a wicket:id="title"><wicket:container wicket:id="label" /></a>
 	</div>
 	
-	<!--<div class="gb-student-filter">
-	  <label for="studentFilterInput" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
-	  <input type="text" id="studentFilterInput" wicket:message="placeholder:filter.students" aria-controls="gradebookGradesTable" accesskey="f" />
-	  <a id="studentFilterClear" class="gb-student-filter-clear" href="javascript:void(0);" aria-controls="studentFilterInput" aria-label="Clear student filter"></a>
-	</div>-->
 	<div class="gb-student-filter">
 		<form wicket:id="studentFilterForm">
 			<div class="studentFilterInputGroup">
@@ -20,8 +15,8 @@
 				<input wicket:id="studentFilter" type="text" id="studentFilterInput" class="studentFilterInput" wicket:message="placeholder:filter.students"
 						 aria-controls="gradebookGradesTable" />
 			</div>
-			<input type="button" value="&#xf00d;" wicket:id="studentFilterClear" class="studentFilterClear" />
-			<input type="submit" value="&#xf002;" wicket:id="studentFilterButton" class="button_color studentFilterButton" />
+			<button wicket:id="studentFilterClear" class="studentFilterClear">&#xf00d;</button>
+			<button wicket:id="studentFilterButton" class="button_color studentFilterButton">&#xf002;</button>
 		</form>
 	</div>
 	

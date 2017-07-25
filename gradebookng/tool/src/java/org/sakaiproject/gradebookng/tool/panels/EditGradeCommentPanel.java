@@ -16,7 +16,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.StringValidator;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -67,7 +67,7 @@ public class EditGradeCommentPanel extends Panel {
 		// modal window forms must be submitted via AJAX so we do not specify an onSubmit here
 		final Form<GradeComment> form = new Form<GradeComment>("form", formModel);
 
-		final GbAjaxButton submit = new GbAjaxButton("submit") {
+		final SakaiAjaxButton submit = new SakaiAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -93,7 +93,7 @@ public class EditGradeCommentPanel extends Panel {
 		};
 		form.add(submit);
 
-		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
+		final SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override

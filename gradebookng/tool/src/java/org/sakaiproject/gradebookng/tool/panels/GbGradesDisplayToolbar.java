@@ -13,7 +13,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -53,7 +53,7 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 		gradeItemSummary.setEscapeModelStrings(false);
 		add(gradeItemSummary);
 		
-		final GbAjaxButton addGradeItem = new GbAjaxButton("addGradeItem") {
+		final SakaiAjaxButton addGradeItem = new SakaiAjaxButton("addGradeItem") {
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form form) {
 				final GbModalWindow window = page.getAddOrEditGradeItemWindow();
