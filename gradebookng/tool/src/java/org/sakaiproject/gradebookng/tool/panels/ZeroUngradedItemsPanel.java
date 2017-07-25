@@ -9,7 +9,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -36,7 +36,7 @@ public class ZeroUngradedItemsPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		final GbAjaxButton submit = new GbAjaxButton("submit") {
+		final SakaiAjaxButton submit = new SakaiAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -58,7 +58,7 @@ public class ZeroUngradedItemsPanel extends Panel {
 		};
 		add(submit);
 
-		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
+		final SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
 
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
