@@ -103,11 +103,11 @@ public class GradebookUiSettings implements Serializable {
 	private SortDirection finalGradeSortOrder;
 	
 	/**
-	 * For sorting based on OWL override column (project sites)
+	 * For sorting based on OWL calculated course grade column (Final Grades page)
 	 *
 	 */
 	@Getter
-	private SortDirection overrideSortOrder;
+	private SortDirection calculatedSortOrder;
 
 	/**
 	 * For sorting based on anonymousId
@@ -262,10 +262,10 @@ public class GradebookUiSettings implements Serializable {
 		finalGradeSortOrder = direction;
 	}
 	
-	public void setOverrideSortOrder(SortDirection direction)
+	public void setCalculatedSortOrder(SortDirection direction)
 	{
 		resetSortOrder();
-		overrideSortOrder = direction;
+		calculatedSortOrder = direction;
 	}
 
 	public void setCategorySortOrder(GbCategoryAverageSortOrder sortOrder) {
@@ -303,7 +303,7 @@ public class GradebookUiSettings implements Serializable {
 		this.studentNumberSortOrder = null;
 		this.anonIdSortOrder = null;
 		this.finalGradeSortOrder = null;
-		this.overrideSortOrder = null;
+		this.calculatedSortOrder = null;
 	}
 	
 	public void setStudentFilter(String value)

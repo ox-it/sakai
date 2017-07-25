@@ -1594,12 +1594,12 @@ public class GradebookNgBusinessService {
 			Collections.sort(items, comp);
 		}
 		
-		if (settings.getOverrideSortOrder() != null)
+		if (settings.getCalculatedSortOrder() != null)
 		{
-			Comparator<GbStudentGradeInfo> comp = new OverrideComparator();
+			Comparator<GbStudentGradeInfo> comp = new CalculatedCourseGradeComparator();
 
 			// reverse if required
-			if (settings.getOverrideSortOrder() == SortDirection.DESCENDING) {
+			if (settings.getCalculatedSortOrder() == SortDirection.DESCENDING) {
 				comp = Collections.reverseOrder(comp);
 			}
 
@@ -2973,18 +2973,18 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
-	 * Comparator class for sorting by OWL override (project sites)
+	 * Comparator class for sorting by calculated course grade only
 	 *
 	 */
-	class OverrideComparator implements Comparator<GbStudentGradeInfo>
+	class CalculatedCourseGradeComparator implements Comparator<GbStudentGradeInfo>
 	{	
 		@Override
 		public int compare(final GbStudentGradeInfo g1, final GbStudentGradeInfo g2)
 		{
-			String fg1 = g1.getCourseGrade().getOverride().orElse("");
-			String fg2 = g2.getCourseGrade().getOverride().orElse("");
+			Double cg1 = g1.getCourseGrade().getCalculatedGrade().orElse(Double.NEGATIVE_INFINITY);
+			Double cg2 = g2.getCourseGrade().getCalculatedGrade().orElse(Double.NEGATIVE_INFINITY);
 			
-			return fg1.compareTo(fg2);
+			return cg1.compareTo(cg2);
 		}
 	}
 	

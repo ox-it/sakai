@@ -23,9 +23,11 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
+import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeStatistics;
 import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmissionPresenter;
 import org.sakaiproject.gradebookng.business.finalgrades.CourseGradeSubmitter;
@@ -44,6 +46,7 @@ import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNameColu
 import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNumberColumn;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GbBaseGradesDisplayToolbar;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.CourseGradeSubmissionPanel;
 import org.sakaiproject.gradebookng.tool.panels.finalgrades.CourseGradeSubmissionPanel.CourseGradeSubmissionData;
@@ -149,7 +152,33 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		}
 		
 		// course grade column
-		cols.add(new CourseGradeColumn(this, businessService.isCourseGradeVisible(currentUserUuid), false));
+		cols.add(new CourseGradeColumn(this, businessService.isCourseGradeVisible(currentUserUuid), false)
+		{
+			@Override
+			public Component getHeader(final String componentId)
+			{
+				return new CourseGradeColumnHeaderPanel(componentId, Model.of(getUiSettings().getShowPoints()))
+				{
+					@Override
+					protected void toggleSortOrder(GradebookUiSettings settings)
+					{
+						// if null, set a default sort, otherwise toggle
+						if (settings.getCalculatedSortOrder() == null) {
+							settings.setCalculatedSortOrder(SortDirection.getDefault());
+						} else {
+							final SortDirection sortOrder = settings.getCalculatedSortOrder();
+							settings.setCalculatedSortOrder(sortOrder.toggle());
+						}
+					}
+
+					@Override
+					protected ResourceModel getTitleModel()
+					{
+						return new ResourceModel("finalgrades.column.header.coursegrade");
+					}
+				};
+			}
+		});
 		
 		cols.add(new FinalGradeColumn());
 		

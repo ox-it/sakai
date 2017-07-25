@@ -17,7 +17,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  *
  * @author Steve Seinsburg (steve.swinsburg@gmail.com)
  */
-public class CourseGradeFormatter {
+public class CourseGradeFormatter implements Serializable {
 
 	private final Gradebook gradebook;
 	private final GbRole currentUserRole;

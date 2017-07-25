@@ -21,7 +21,6 @@ import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
-import org.sakaiproject.gradebookng.tool.pages.CourseGradesPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.gradebookng.tool.util.GbUtils;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -55,14 +54,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 				// toggle the sort direction on each click
 				final GradebookUiSettings settings = gradebookPage.getUiSettings();
-
-				// if null, set a default sort, otherwise toggle, save, refresh.
-				if (settings.getCourseGradeSortOrder() == null) {
-					settings.setCourseGradeSortOrder(SortDirection.getDefault());
-				} else {
-					final SortDirection sortOrder = settings.getCourseGradeSortOrder();
-					settings.setCourseGradeSortOrder(sortOrder.toggle());
-				}
+				toggleSortOrder(settings);
 
 				// save settings
 				gradebookPage.setUiSettings(settings);
@@ -74,7 +66,7 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		};
 
 		final GradebookUiSettings settings = gradebookPage.getUiSettings();
-		ResourceModel titleModel = getTitleModel(gradebookPage);
+		ResourceModel titleModel = getTitleModel();
 		title.add(new AttributeModifier("title", titleModel));
 		title.add(new Label("label", titleModel));
 		if (settings != null && settings.getCourseGradeSortOrder() != null) {
@@ -173,13 +165,19 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		add(menu);
 	}
 	
-	private ResourceModel getTitleModel(IGradesPage page)
+	protected void toggleSortOrder(GradebookUiSettings settings)
 	{
-		if (page instanceof CourseGradesPage)
-		{
-			return new ResourceModel("finalgrades.column.header.coursegrade");
+		// if null, set a default sort, otherwise toggle
+		if (settings.getCourseGradeSortOrder() == null) {
+			settings.setCourseGradeSortOrder(SortDirection.getDefault());
+		} else {
+			final SortDirection sortOrder = settings.getCourseGradeSortOrder();
+			settings.setCourseGradeSortOrder(sortOrder.toggle());
 		}
-
+	}
+	
+	protected ResourceModel getTitleModel()
+	{
 		return new ResourceModel("column.header.coursegrade");
 	}
 }
