@@ -1,4 +1,5 @@
 2017.07.26: 
+	- [OWL-3001] Styled the synoptic calendar, which required some markup and Java changes
 	- [OWL-2158] Fixed some border issues in certain week-view cases in Calendar
 	- [OWL-2584] Ported my Schedule modifications from 10.3 from OWL-1963 and adapted them for Morpheus
 2017.07.17:

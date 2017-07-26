@@ -1,0 +1,195 @@
+@import "_calendar_variables";
+
+
+.#{$namespace}calendarSynoptic 
+{
+	th
+	{
+		text-align: center;
+	}
+
+	
+	.sectionContainerNav 
+	{
+		tr
+		{
+			display: flex;
+			justify-content: space-between;
+			flex-wrap: wrap;
+		}
+		
+		td
+		{
+			display: flex;
+			align-items: center;
+		}
+	}
+	
+	.calLeft {
+		vertical-align: middle;
+		text-align: left;
+		width: 50%;
+	}
+
+	.calRight {
+		justify-content: flex-end;
+		vertical-align: middle;
+		text-align: right;
+		
+		span
+		{
+			display: block;
+			white-space: nowrap;
+			text-align: right;
+		}
+	}
+
+	.calRight fieldset { 
+		 display:inline; 
+		 margin:0; 
+		 padding:0; 
+	   } 
+
+	.calRight legend { 
+		 display:inline; 
+		 margin:0; 
+		 padding:0; 
+		 position: absolute !important; 
+		 clip: rect(1px 1px 1px 1px); /* IE6, IE7 */ 
+		 clip: rect(1px, 1px, 1px, 1px); 
+	}
+
+	.calTop {
+		vertical-align: top;
+	}
+
+	.mainCalendar
+	{
+		border-collapse: collapse;
+		width: 100%;
+		text-align: center;
+	}
+	
+	.calHeader {
+		text-align: center;
+	}
+
+	.calDay 
+	{
+		width: 14%;
+		line-height: 3;		// trying to make the cell square-ish
+		margin: 0;
+		padding: 0;
+		border: 1px solid $calendar-day-border-color;
+		
+		> span
+		{
+			position: relative;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+			height: 100%;
+			border: 1px solid transparent;			// to make room for selected cell and the "today cell" borders
+			text-align: center;
+		}
+	}
+
+	//////
+	// CALENDAR: SELECTION STYLES 
+	//////
+	
+	.calToday {
+		border: 1px solid #000 !important;
+	}
+
+	.calSelectedDay {
+		border: 1px dashed #000 !important;
+	}
+
+	.calDayWithActivity {
+		// background-color will be overriden if:
+		// 1. colors specified for high/medium/low priority events in Options (user preferences)
+		// 2. default colors specified in sakai.properties
+		background-color: rgba(51,153,51,0.5);
+		font-weight: normal;
+		text-align: center;
+		
+		a
+		{
+			width: 100%;		// to maximize click area
+			height: 100%;
+			color: $text-color;
+			//text-shadow: 0 0 2px rgba(255, 255, 255, 1);			// to be able to see text on dark user-picked background colours */
+			text-decoration: none;
+			
+			&:hover, &:focus
+			{
+				text-decoration: underline;
+			}
+		}
+	}
+
+	.calDayWithoutActivity {
+		/*background-color: white;*/
+		text-align: center;
+	}
+
+	.calOtherDayWithNoActivity 
+	{
+		opacity: 0.25;		// reducing emphasis on previous and next month
+		color: #000;
+		
+		&:hover, &:focus 
+		{
+			opacity: 1;
+		}
+	}
+	
+	//////
+	// end of SELECTION STYLES
+	//////
+
+	//////
+	// CALENDAR: TOOLTIP STYLES 
+	//////
+	
+	.eventCount
+	{
+		position: absolute;
+		display: inline-block !important;
+		right: 1px;
+		top: 1px;
+		margin: 0;
+		padding: 0 4px;
+		border-radius: 2px;
+		background-color: #fff;
+		line-height: 1.5;
+		color: $calendar-column-heading-color;
+		font-size: 10px;
+		font-weight: normal;
+	}
+
+	#prefsForm{
+		width: 99%;
+	}
+	
+	//////
+	// end of TOOLTIP STYLES
+	//////
+	
+	.calendarEventList
+	{
+		width: 100%;
+		
+		td
+		{
+			line-height: 2;
+		}
+		
+		span.icon
+		{
+			margin-right: $standard-padding;
+		}
+	}
+}
