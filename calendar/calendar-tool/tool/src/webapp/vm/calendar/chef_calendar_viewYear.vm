@@ -25,7 +25,7 @@
 			</form>
 		</div>
 		<div class="listNav">
-			<div class="instruction">$year</div>
+			<div class="currentCalendar">$year</div>
 			<form action="#toolForm("$action")" method="post">
 				<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewy.lasy')" title="$tlang.getString('viewy.gotop')" />
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title="$tlang.getString('view.gotoday')" />
@@ -112,13 +112,16 @@
                               #end
                         </tr>
                         #end
-                 #if ($row == 4)
-                 		<tr>
-                    #foreach($u in [0..6])
-                             <td align="right"  class="borderGrayYear" >&nbsp;</td>
+                ## adds an extra row of empty cells to the bottom of each 4- or 5-week calendar to standardize month height to 6 rows each (e.g. Feb 2015)
+                #if ($row < 5)
+                    #foreach($blankweek in [$row..4])
+                        <tr>
+                           #foreach($u in [0..6])
+                           <td align="right"  class="borderGrayYear" >&nbsp;</td>
+                           #end
+                       </tr>
                     #end
-							</tr>
-                 #end
+                #end
                 </table>
 			</div>
         #end

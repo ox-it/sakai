@@ -40,30 +40,66 @@
 		}
 	}
 
-	table.calendar{
-		font-size: 0.8em;
-		background-color: lighten($calendar-event-background-color,40%);
+	table.calendar
+	{
+		table-layout: fixed;
+		border-collapse: collapse;
+		font-size: $default-font-size;
+		background-color: $calendar-table-background-color;
 
-		tr{
-			td, th{
-				text-align: center;
-				border-collapse: collapse;
+		td, th
+		{
+			text-align: center;
+			border-collapse: collapse;
+
+			a
+			{
+				color: $link-color;
+				text-decoration: none;
+
+				&:hover
+				{
+					text-decoration: underline;
+				}
+			}
+		}
+		
+		th
+		{
+		/*	vertical-align: bottom; */
+			color: $calendar-column-heading-color;
+			font-weight: normal;
+			
+			.viewLinkControl
+			{
+				text-align: left;
 			}
 		}
 
 		.event{
-			background-color: lighten($calendar-event-background-color,10%);
+			background-color: #f9f9f9;
 			border:  #bbb;
 
-			a {
+			a 
+			{
+				overflow-x: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
 				color: $calendar-event-text-color;
+			}
+		}
+		
+		&.calWeek
+		{
+			.event a
+			{
+				white-space: normal;
 			}
 		}
 
 		.bgActivity {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border: 1px solid #0064cd;
-		    text-align: right;
+		    background-color: $calendar-event-background-color;
+		    border: 1px double $calendar-event-border-color;
 		    a {
 				color: $calendar-event-text-color;
 			}
@@ -71,148 +107,160 @@
 
 		.bgWithoutActivity {
 		    background-color: #fff;
-		    border: 1px solid #bbb;
-		    text-align: right;
+		    border: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayYear {
-		    background-color: #eee;
-		    border: 1px solid #bbb;
-		    text-align: right;
+		  /*background-color: #eee;*/
+		    border: 1px solid $calendar-day-border-color;
+			opacity: 0; /* hides days in month calendar */
 		}
 
 		.borderGrayDayWeek {
-		    border-bottom: none;
 		    border-collapse: collapse;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+		    border: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayBackground {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border-bottom: #bbb;
-		    border-left: #bbb;
-		    border-right: #bbb;
-		    border-top: #bbb;
+		    background-color: $calendar-event-background-color;
+		    border-top: 1px solid $calendar-day-border-color;
+			border-right: 1px solid $calendar-day-border-color;
+			border-bottom: none;
+			border-left: 1px solid $calendar-day-border-color;
+
 		    a {
 				color: $calendar-event-text-color;
 			}
 		}
 
 		.borderGrayTodayBgCenter {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: #bbb;
+		    background-color: $calendar-event-background-color;
+		    border-left: 1px solid $calendar-event-border-color;
+		    border-right: 1px solid $calendar-event-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayEmptyMiddleBottom {
-		    background-color: white;
-		    border: 1px solid #bbb;
+		    background-color: $calendar-day-background-color;
+		    border: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayEmptyMiddleCenter {
-		    background-color: white;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+		    background-color: $calendar-day-background-color;
+		    border-left: 1px solid $calendar-day-border-color;
+		    border-right: 1px solid $calendar-day-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayLeftBottom {
-		    border-bottom: 1px solid #bbb;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+		    border-bottom: 1px solid $calendar-day-border-color;
+		    border-left: 1px double $calendar-day-today-border-color;
+		    border-right: 1px solid $calendar-day-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayLeftCenter {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+		    border-left: 1px double $calendar-day-today-border-color; /* using double here to resolve the border-collapse conflict */
+		    border-right: 1px solid $calendar-day-border-color;
+		    border-top: 1px double $calendar-day-border-color;
 		}
 
 		.borderGrayTodayMiddleCenter {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+		    border-left: 1px solid $calendar-day-border-color;
+		    border-right: 1px solid $calendar-day-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayRightBottom {
-		    border-bottom: 1px solid #bbb;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+		    border-bottom: 1px solid $calendar-day-border-color;
+		    border-left: 1px solid $calendar-day-border-color;
+		    border-right: 1px solid $calendar-event-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayRightCenter {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+		    border-left: 1px solid $calendar-day-border-color;
+		    border-right: 1px solid $calendar-day-today-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderOnlyLeftDay {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border-left: #bbb;
+		    background-color: $calendar-event-background-color;
+			border-right: 1px solid $calendar-day-border-color;
 		}
 
 		.borderOnlyLeft {
-		    border-left: 1px solid #bbb
+		    border-left: 1px solid $calendar-day-border-color;
 		}
 
-		.borderToday {
-			border: 2px solid $calendar-event-background-color;
-		}
-
-		.borderTodayCenter {
-			border: 1px solid #bbb;
-			background-color: lighten($calendar-event-background-color,45%);
-		}
-
-		.borderTodayTop {
-		    border-left: 1px solid #fff;
-		    border-right: 1px solid #fff;
-		    border-top: 1px solid #fff;
-		    background-color: lighten($calendar-event-background-color,35%);
-		}
-
-		.borderTodayWithActivity {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border: 2px solid $calendar-event-background-color;
-		    text-align: right;
-		    a {
-				color: $calendar-event-text-color;
+		.borderToday
+		{
+			background-color: $calendar-day-today-background-color;
+			border: 1px double $calendar-day-today-background-color;
+			
+			a
+			{
+				color: $calendar-day-today-text-color;
+			}
+			
+			&.event 
+			{
+				border: 1px double $calendar-today-event-border-color;
+				background-color: $calendar-today-event-background-color;
 			}
 		}
 
-		.borderTodayWithoutActivity {
-		    background-color: #777;
-		    border: 1px solid #bbb;
-		    text-align: right;
+		.borderTodayCenter {
+			border-bottom: 1px solid $calendar-day-border-color;
+			border-left: 1px double $calendar-day-today-border-color; /* using double here to resolve the border-collapse conflict */
+			border-right: 1px double $calendar-day-today-border-color;
+			border-top: 1px solid $calendar-day-border-color;
 		}
 
-		.borderTodayWithoutActivity a {
-		    color: #fff
+		.borderTodayTop {
+		    border-left: 1px double $calendar-day-today-border-color;		/* using double here to resolve the border-collapse conflict */
+		    border-right: 1px double $calendar-day-today-border-color;
+		    border-top: 1px double $calendar-day-today-border-color;
+		}
+
+		.borderTodayWithActivity {
+		    background-color: $calendar-today-event-background-color;
+		    border: 1px double $calendar-today-event-border-color;
+
+		    a {
+				color: $calendar-today-event-text-color;
+			}
+		}
+
+		.borderTodayWithoutActivity 
+		{
+		    background-color: $calendar-day-today-background-color;
+		    border: 1px double $calendar-day-today-border-color;
+			
+			a 
+			{
+		    	color: $calendar-day-today-text-color;
+			}
 		}
 
 		.borderTopLeft {
-		    background-color: lighten($calendar-event-background-color,10%);
-		    border-left: #bbb;
-		    border-right: #bbb;
-		    border-top: #bbb;
+		    background-color: $calendar-event-background-color;
+		    border-left: 1px solid $calendar-day-border-color;
+		    border-right: 1px solid $calendar-day-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		    a {
 				color: $calendar-event-text-color;
 			}
 		}
 
 		.borderTopLeftWhite {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+		    border-left: 1px solid $calendar-day-border-color;
+		    border-right: 1px solid $calendar-day-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderWhiteYear {
-		    background-color: lighten($calendar-event-background-color,10%);
+		    background-color: $calendar-event-background-color;
 		    border: 1px solid #fff;
 		    text-align: center;
 		}
@@ -225,31 +273,42 @@
 		}
 
 		.borderGrayTodayCenter, .borderOnlyLeftTodayCenter {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-top: 1px solid #bbb;
+			border-left: 1px double $calendar-day-today-border-color; /* using double here to resolve the border-collapse conflict */
+		    border-right: 1px solid $calendar-day-today-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		}
 
 		.borderGrayTodayEmptyRightBottom, .borderGrayTodayEmptyRightCenter {
-		    background-color: white;
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #000;
-		    border-top: 1px solid #bbb;
+		    background-color: $calendar-table-background-color;
+			border-bottom: 1px solid $calendar-day-border-color;
+		    border-left: 1px solid $calendar-day-border-color;
+		    border-right: 1px solid $calendar-day-today-border-color;
+		    border-top: 1px solid $calendar-day-border-color;
 		}
 
-		.borderGrayTodayMiddleBottom, .borderFullGray, .borderGrayMonth {
-		    border: 1px solid #bbb;
+		.borderGrayTodayMiddleBottom, .borderFullGray {
+		    border: 1px solid $calendar-day-border-color;
+		}
+		
+		.borderGrayMonth
+		{
+			border: 1px solid $calendar-day-border-color;
+			
+			&.event
+			{
+				border: 1px double $calendar-event-border-color;
+			}
 		}
 
 		.borderTodayBottom, .borderGrayTodayBottom, .borderOnlyLeftTodayBottom {
-		    border-left: 1px solid #bbb;
-		    border-right: 1px solid #bbb;
-		    border-bottom: 1px solid #bbb;
-			background-color: lighten($calendar-event-background-color,45%);
+		    border-bottom: 1px double $calendar-day-today-border-color; /* using double here to resolve the border-collapse conflict */
+			border-left: 1px double $calendar-day-today-border-color;
+		    border-right: 1px double $calendar-day-today-border-color;
+		    border-top: 1px solid $calendar-event-border-color;
 		}
 
 		.timeCells {
-		    background: #eee
+		    background: $calendar-event-background-color;
 		}
 	}
 
@@ -260,28 +319,119 @@
 		}
 	}
 
-	.viewLinkControl{
-		@extend .button;
-	}
-
-	.calendarLegend{
-		font-size: 0.8em;
-		margin: 0 0 1.5em 0;
-	}
-
 	#calendarForm{
 		.sectionContainerNav{
 			width: 93% !important;
 		}
 	}
+	
+	.calendarYearContainer
+	{
+		margin: 1em 0 1em -2em;		// to compensate for item padding (added below) to left-align properly
+	}
 
 	.calendarYearItem {
-		max-width: 20em;
+		max-width: 23em;
 		min-width: 17em;
 		display: inline-block;
-		padding: 4px;
+		padding: 2em;						// to space the calendars out from each other
+		
+		td
+		{
+			text-align: center;
+			
+			a, &.borderGrayYear
+			{
+				line-height: 2.5em;
+			}
+			a
+			{
+				padding: 0.5em;
+				text-align: center;
+			}
+		}
+	}
+	
+	.navPanel
+	{
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		margin: 0;
+		
+		.listNav
+		{
+			margin: 0;
+		}
+	}
+	
+	.listNav .currentCalendar
+	{
+		font-size:$default-font-size;
+		text-align:center;
+	}
+	
+	.calendarMonthView-date
+	{
+		display:block;
+		margin:0;
+		padding:3px;
+	}
+	
+	.calendarMonthView-event 
+	{
+		padding: $standard-padding;
+		text-align: left;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	
+	.calendarMonthView-event a
+	{
+		display:block;
+		font-size:$smaller-font-size;
+		line-height:2;
+	}
+	
+	.calendarMonthView-event br
+	{
+		display:none; /* new lines handled by the display:block on the links above */
+	}
+	
+	.calendarMonthView-notCurrentMonthDate 
+	{
+		opacity: 0.3;
+	}
+	
+	.calendarMonthView-notCurrentMonthDate:hover
+	{
+		opacity: 1;
+	}
+	
+	.calendarEventTypesLegend
+	{
+		margin: 2em;
+		
+		h4
+		{
+			margin: 0;
+			padding: $standard-padding;
+			border: 1px solid $calendar-day-border-color;
+			background-color: $calendar-event-background-color;
+			text-align: center;	
+		}
+		
+		.calendarLegend{
+			font-size: $smaller-font-size;
+			margin: 0 0 1.5em 0;
+		}
+		
+		
 	}
 }
+
+
 
 .#{$namespace}sakai-schedule, #calendarForm {
 	.icon{
