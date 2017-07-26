@@ -9,6 +9,7 @@ import lombok.ToString;
 /**
  * Status of an imported item
  * TODO this should not be a class. Instead the 'value' should be on ProcessedGradeItem as it just indicates if its external or not
+ * OWLTODO: actually no, this should be an enum
  */
 @ToString
 public class ProcessedGradeItemStatus implements Serializable {
@@ -46,6 +47,9 @@ public class ProcessedGradeItemStatus implements Serializable {
 	 * Title/points have been modified
 	 */
 	public static final int STATUS_MODIFIED = 5;
+	
+	public static final int STATUS_COURSE_GRADE = 6;
+	public static final String COURSE_GRADE_RESERVED_TITLE = "Course Grade";
 
 
 	@Getter

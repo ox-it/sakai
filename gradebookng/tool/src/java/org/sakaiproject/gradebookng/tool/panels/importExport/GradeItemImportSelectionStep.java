@@ -222,11 +222,20 @@ public class GradeItemImportSelectionStep extends Panel {
 				final ProcessedGradeItemStatus status = importedItem.getStatus();
 
 				// For external items, set a different label and disable the control
-				if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL) {
+				if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL)
+				{
 					itemStatus.setDefaultModel(new StringResourceModel("importExport.status." + status.getStatusCode(), Model.of(status), null, status.getStatusValue()));
 					item.setEnabled(false);
 					item.add(new AttributeModifier("class", "external"));
-				} else {
+				}
+				else if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_COURSE_GRADE)
+				{
+					itemStatus.setDefaultModel(new ResourceModel("importExport.status." + status.getStatusCode()));
+					checkbox.setVisible(false);
+					item.add(new AttributeAppender("class", Model.of("no_changes"), " "));
+				}
+				else
+				{
 
 					itemStatus.setDefaultModel(new ResourceModel("importExport.status." + status.getStatusCode()));
 

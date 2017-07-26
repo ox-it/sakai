@@ -17,6 +17,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 
 /**
@@ -66,13 +67,12 @@ public class CreateGradeItemStep extends Panel {
         @SuppressWarnings("unchecked")
         final Form<Assignment> form = new Form("form", assignmentModel);
         add(form);
-
+		
         final SakaiAjaxButton nextButton = new SakaiAjaxButton("nextbutton") {
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-
                 final Assignment a = (Assignment) form.getDefaultModel().getObject();
-
+				
                 //add to model
                 importWizardModel.getAssignmentsToCreate().put(processedGradeItem, a);
 
@@ -104,6 +104,14 @@ public class CreateGradeItemStep extends Panel {
                 container.addOrReplace(newPanel);
                 target.add(newPanel);
             }
+			
+			@Override
+			protected void onError(AjaxRequestTarget target, Form<?> form)
+			{
+				final ImportExportPage page = (ImportExportPage) getPage();
+				target.add(page.feedbackPanel);
+			}
+					
         };
         form.add(nextButton);
 

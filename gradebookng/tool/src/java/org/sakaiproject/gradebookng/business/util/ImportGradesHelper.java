@@ -469,9 +469,14 @@ public class ImportGradesHelper {
 			final ImportedSpreadsheetWrapper importedGradeWrapper, final Map<Long, AssignmentStudentGradeInfo> gradeMap) {
 
 		//TODO - really? an arbitrary value? How about null... Remove this
+		// OWLTODO: null is a bad idea. keep this, change the default value to NA
 		ProcessedGradeItemStatus status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UNKNOWN);
 
-		if (assignment == null) {
+		if (ProcessedGradeItemStatus.COURSE_GRADE_RESERVED_TITLE.equalsIgnoreCase(column.getColumnTitle()))
+		{
+			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_COURSE_GRADE);
+		}
+		else if (assignment == null) {
 			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NEW);
 		} else if (assignment.getExternalId() != null) {
 			status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_EXTERNAL, assignment.getExternalAppName());

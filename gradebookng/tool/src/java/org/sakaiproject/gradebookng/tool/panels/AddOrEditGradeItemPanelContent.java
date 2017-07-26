@@ -1,7 +1,9 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,11 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.validation.IErrorMessageSource;
+import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidationError;
+import org.apache.wicket.validation.IValidator;
+import org.apache.wicket.validation.ValidationError;
 
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbGradingType;
@@ -80,11 +86,49 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			}
 
 			@Override
-			public void error(IValidationError error) {
-				// Use our fancy error message for all validation errors
-				error(getString("error.addgradeitem.title"));
+			public void error(IValidationError error)
+			{
+				Serializable msg;
+				if (error instanceof GradeItemValidationError)
+				{
+					msg = error.getErrorMessage(new ResourceErrorMessageSource());
+				}
+				else
+				{
+					msg = getString(GradeItemValidationError.TITLE_ERROR_KEY);
+				}
+				
+				error(msg);
 			}
 		};
+		title.add(new IValidator<String>()
+		{ 
+			@Override
+			public void validate(IValidatable<String> validatable)
+			{
+				String titleValue = validatable.getValue();
+				String errorKey = "";
+				if ("Course Grade".equalsIgnoreCase(titleValue))
+				{
+					errorKey = GradeItemValidationError.COURSE_GRADE_ERROR_KEY;
+				}
+				else
+				{
+					// new assignment, or existing assignment but name could have changed, check for other with same title
+					Assignment other = businessService.getAssignment(titleValue);
+					if (other != null && !other.getId().equals(assignment.getId()))
+					{
+						errorKey = GradeItemValidationError.TITLE_ERROR_KEY;
+					}
+				}
+				
+				if (!errorKey.isEmpty())
+				{
+					IValidationError error = new GradeItemValidationError(errorKey);
+					validatable.error(error);
+				}
+			}
+		});
 		add(title);
 
 		// points
@@ -113,6 +157,19 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 				error(getString("error.addgradeitem.points"));
 			}
 		};
+		points.add(new IValidator<Double>()
+		{ 
+			@Override
+			public void validate(IValidatable<Double> validatable)
+			{
+				Double pointsValue = validatable.getValue();
+				if (pointsValue == null || pointsValue < 0)
+				{
+					IValidationError error = new ValidationError();
+					validatable.error(error);
+				}
+			}
+		});
 		add(points);
 
 		// due date
@@ -320,5 +377,33 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 	{
 		anonymous.setModelObject(isItemAnonymous);
 		isAnonymousLocked = true;
+	}
+	
+	public static class GradeItemValidationError implements IValidationError
+	{
+		private static final String COURSE_GRADE_ERROR_KEY = "error.addgradeitem.coursegrade";
+		private static final String TITLE_ERROR_KEY = "error.addgradeitem.title";
+
+		private String key = "";
+		
+		public GradeItemValidationError(String key)
+		{
+			this.key = key;
+		}
+		
+		@Override
+		public Serializable getErrorMessage(IErrorMessageSource iems)
+		{
+			return iems.getMessage(key, Collections.emptyMap());
+		}
+	}
+	
+	public static class ResourceErrorMessageSource implements IErrorMessageSource
+	{
+		@Override
+		public String getMessage(String key, Map<String, Object> vars)
+		{
+			return new ResourceModel(key).getObject();
+		}
 	}
 }
