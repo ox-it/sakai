@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -112,7 +113,7 @@ public class ImportGradesHelper {
 	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final GradebookNgBusinessService businessService) throws IOException {
 
 		// Maps a String user identifier to its associated GbUser object. The key can be the eid (in a normal export), or the grading ID (in an anonymous export)
-		Map<String, GbUser> idUserMap = null;
+		Map<String, GbUser> idUserMap = Collections.emptyMap();
 
 		// manually parse method so we can support arbitrary columns
 		final CSVReader reader = new CSVReader(new InputStreamReader(is));
@@ -224,7 +225,7 @@ public class ImportGradesHelper {
 	 */
 	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final GradebookNgBusinessService businessService) throws InvalidFormatException, IOException {
 		// Maps a String user identifier to its associated GbUser object. The key can be the eid (in a normal export), or the grading ID (in an anonymous export)
-		Map<String, GbUser> idUserMap = null;
+		Map<String, GbUser> idUserMap = Collections.emptyMap();
 
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
