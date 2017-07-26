@@ -8,11 +8,13 @@
             <thead>
               <tr>
                 <th><wicket:message key="importExport.confirmation.update.heading" /></th>
+				<th><wicket:message key="importExport.confirmation.points" /></th>
               </tr>
             </thead>
             <tbody>
                 <tr wicket:id="grades_update">
                     <td><span wicket:id="itemTitle">[assignment 1]</span></td>
+					<td><span wicket:id="itemPointValue">[50]</span></td>
                 </tr>
             </tbody>
         </table>
@@ -23,11 +25,13 @@
             <thead>
                 <tr>
                     <th><wicket:message key="importExport.confirmation.create.heading" /></th>
+					<th><wicket:message key="importExport.confirmation.points" /></th>
                 </tr>
             </thead>
             <tbody>
                 <tr wicket:id="grades_create">
                     <td><span wicket:id="itemTitle">[assignment 1]</span></td>
+					<td><span wicket:id="itemPointValue">[50]</span></td>
                 </tr>
             </tbody>
         </table>
@@ -58,7 +62,7 @@
                 <wicket:message key="importExport.button.back" />
             </button>
             <button class="active" wicket:id="finishbutton">
-                <wicket:message key="importExport.button.finish />
+                <wicket:message key="importExport.button.finish" />
             </button>
         </div>
     </form>

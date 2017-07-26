@@ -1,5 +1,6 @@
 2017.07.25:
         - [OWL-2565] Port gradebook modifications to 11.3
+        - [OWL-2995] DPC import fails with Wicket error about component id itemPointValue
 2017.07.20:
 	- [OWL-2984] group by category label is visible when no categories are present
 	- [OWL-2985] enable group by category by default when no categories exist and user creates at least one category
