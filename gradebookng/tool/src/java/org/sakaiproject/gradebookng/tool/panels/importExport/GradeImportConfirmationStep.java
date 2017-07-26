@@ -69,7 +69,7 @@ public class GradeImportConfirmationStep extends Panel {
 		final List<ProcessedGradeItem> itemsToCreate = importWizardModel.getItemsToCreate();
 		final List<ProcessedGradeItem> itemsToUpdate = importWizardModel.getItemsToUpdate();
 		final List<ProcessedGradeItem> itemsToModify = importWizardModel.getItemsToModify();
-		final List<Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
+		final Map<ProcessedGradeItem, Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
 
 		final Form<?> form = new Form("form");
 		add(form);
@@ -112,7 +112,7 @@ public class GradeImportConfirmationStep extends Panel {
 				final List<ProcessedGradeItem> itemsToSave = new ArrayList<>();
 
 				// Create new GB items
-				for (Assignment assignment : assignmentsToCreate) {
+				for (Assignment assignment : assignmentsToCreate.values()) {
 
 					Long assignmentId = null;
 					try {

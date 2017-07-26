@@ -49,10 +49,16 @@ public class CreateGradeItemStep extends Panel {
         final ProcessedGradeItem processedGradeItem = importWizardModel.getItemsToCreate().get(step - 1);
 
         // setup new assignment for populating
-        final Assignment assignment = new Assignment();
-        assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
-        if(StringUtils.isNotBlank(processedGradeItem.getItemPointValue())) {
-            assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
+        Assignment assignmentFromModel = importWizardModel.getAssignmentsToCreate().get(processedGradeItem);
+        boolean useSpreadsheetData = assignmentFromModel == null;
+        // if using spreadsheet data, we'll create a blank assignment and fill the fields accordingly; otherwise, the assignment is already in the wizard (Ie. back button)
+        final Assignment assignment = useSpreadsheetData ? new Assignment() : assignmentFromModel;
+        if (useSpreadsheetData)
+        {
+            assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
+            if(StringUtils.isNotBlank(processedGradeItem.getItemPointValue())) {
+                assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
+            }
         }
 
         final Model<Assignment> assignmentModel = new Model<>(assignment);
@@ -68,7 +74,7 @@ public class CreateGradeItemStep extends Panel {
                 final Assignment a = (Assignment) form.getDefaultModel().getObject();
 
                 //add to model
-                importWizardModel.getAssignmentsToCreate().add(a);
+                importWizardModel.getAssignmentsToCreate().put(processedGradeItem, a);
 
                 log.debug("Assignment: {}", assignment);
 
