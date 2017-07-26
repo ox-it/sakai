@@ -1,3 +1,6 @@
+2017.07.26: 
+	- [OWL-2158] Fixed some border issues in certain week-view cases in Calendar
+	- [OWL-2584] Ported my Schedule modifications from 10.3 from OWL-1963 and adapted them for Morpheus
 2017.07.17:
 	- [OWL-2730] Fixed the alignment of the Unpublished Site banner and styled the banner
 	- [OWL-2832] Made the space for name and username wider in the Account Menu to accomodate longer names

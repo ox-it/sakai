@@ -147,8 +147,6 @@
 
 		.borderGrayTodayEmptyMiddleCenter {
 		    background-color: $calendar-day-background-color;
-		    border-left: 1px solid $calendar-day-border-color;
-		    border-right: 1px solid $calendar-day-border-color;
 		    border-top: 1px solid $calendar-day-border-color;
 		}
 
@@ -160,12 +158,14 @@
 		}
 
 		.borderGrayTodayLeftCenter {
+			border-bottom: 1px solid $calendar-day-border-color;
 		    border-left: 1px double $calendar-day-today-border-color; /* using double here to resolve the border-collapse conflict */
 		    border-right: 1px solid $calendar-day-border-color;
 		    border-top: 1px double $calendar-day-border-color;
 		}
 
 		.borderGrayTodayMiddleCenter {
+			border-bottom: 1px solid $calendar-day-border-color;
 		    border-left: 1px solid $calendar-day-border-color;
 		    border-right: 1px solid $calendar-day-border-color;
 		    border-top: 1px solid $calendar-day-border-color;
@@ -281,7 +281,6 @@
 		.borderGrayTodayEmptyRightBottom, .borderGrayTodayEmptyRightCenter {
 		    background-color: $calendar-table-background-color;
 			border-bottom: 1px solid $calendar-day-border-color;
-		    border-left: 1px solid $calendar-day-border-color;
 		    border-right: 1px solid $calendar-day-today-border-color;
 		    border-top: 1px solid $calendar-day-border-color;
 		}
