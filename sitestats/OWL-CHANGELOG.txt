@@ -1,3 +1,5 @@
+2017.07.27:
+	- [OWL-3007] Fixed the User Activity tab layout that was missing the portletBody container
 2017.02.17:
 	- [OWL-2589] port sitestats modificatoins to 11.3
 	- forked from https://github.com/sakaiproject/sakai/tree/11.3
