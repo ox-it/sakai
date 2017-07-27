@@ -127,6 +127,7 @@ public class CourseGradeItemCellPanel extends Panel {
 							target.add(this);
 							GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(target::add);
 							target.appendJavaScript(String.format("$('#%s').closest('td').addClass('gb-score-dynamically-updated');", this.getMarkupId()));
+							target.appendJavaScript(String.format("sakai.gradebookng.spreadsheet._frzLeftHeaders.push($('#%s').closest('td')[0]);", this.getMarkupId()));
 						}
 					}
 				}
