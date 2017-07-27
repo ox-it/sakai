@@ -425,8 +425,18 @@
 			font-size: $smaller-font-size;
 			margin: 0 0 1.5em 0;
 		}
-		
-		
+	}
+	
+	.portletBody > ul:nth-of-type(2) a		// to override the navIntraTool bar styles - OWLTODO: change the markup to not be a navIntraTool bar
+	{
+		@include sakai_button( $button-background-color, $button-border-color, $button-text-color, $button-background-secondary-color );
+
+		&:hover::before
+		{
+			content: "";
+			display: none;
+			border: 0 none;
+		}
 	}
 }
 
