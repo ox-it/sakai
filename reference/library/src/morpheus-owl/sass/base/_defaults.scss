@@ -41,8 +41,25 @@ a{
 		&.btn{
 			text-decoration: none;
 		}
-		&.btn-primary{
-			@include sakai_button_color( $button-color-background-color, $button-color-border-color, $button-color-text-color, $button-color-background-secondary-color );
+		&.btn-primary			// OWLTODO: consolidate all of the 
+		{
+			@include sakai_button_color( $button-primary-background-secondary-color, $button-primary-border-color, $button-primary-text-color, $button-primary-background-color );
+			box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+			
+			&:hover, &:focus
+			{
+				border-color: $button-primary-border-color; // needed to override default button hover/focus border
+				background: linear-gradient($button-primary-background-tertiary-color 0%,$button-primary-background-color 80%);
+				box-shadow: 0 1px 0 rgba(255, 255, 255, 0.15) inset;
+			}
+
+			&:active
+			{
+				border-color: $button-primary-border-color; // needed to override default button hover/focus border
+				color: $button-primary-text-color;
+				background: linear-gradient($button-primary-background-tertiary-color 0%,$button-primary-background-color 80%);
+				box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.6) inset;
+			}
 		}
 		text-decoration:underline;	
 	}

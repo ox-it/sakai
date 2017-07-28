@@ -1,0 +1,4 @@
+2017.07.28:
+	- [OWL-3012] Tweaked the Tutorial to make the final button active (and with new wording) and enabled the close-early panel
+2017.01.23:
+	- forked from https://github.com/sakaiproject/sakai/tree/11.3
