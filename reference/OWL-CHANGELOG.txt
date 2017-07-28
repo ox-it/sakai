@@ -1,4 +1,5 @@
 2017.07.27:
+	- [OWL-2666] Re-implemented the old indnt classes from 1 to 10 for the site-setup process to temporarily fix the layout
 	- [OWL-3004] Re-styled the synoptic calendar to match the look of Month view of Calendar
 2017.07.26: 
 	- [OWL-3000] Styled the Calendar's second row of tabs to look like buttons
