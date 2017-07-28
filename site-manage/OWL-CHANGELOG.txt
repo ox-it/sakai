@@ -1,5 +1,7 @@
+2017.07.27:
+	- [OWL-2666] Adjusted some indents in the site setup process to fix layout hierachy
 2017.07.06:
-        - [OWL-2606] Instructors can change course site title during initial creation
+    - [OWL-2606] Instructors can change course site title during initial creation
 2017.06.08:
 	- [OWL-2880] port OWL-2323 to 11.3
 2017.04.20:

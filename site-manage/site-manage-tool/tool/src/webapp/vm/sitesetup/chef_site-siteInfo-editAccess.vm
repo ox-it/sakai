@@ -241,7 +241,7 @@
 			</div>
 			<div id="joinerrole" #if ($joinable) style="display: block;" #else  style="display: none;" #end>
 				<div class="messageWarning indnt3" style="width:60%">$tlang.getString("ediacc.yousitcan.warn")</div>
-				<p class="checkbox indnt3">
+				<p class="checkbox indnt1">
 					<label for="joinerRole">
 							<span class="reqStar" id="joinreqStar">*</span>
 							#if ($alertMessage)<span class="highlight"> $tlang.getString("ediacc.rolforpep")</span> #else  $tlang.getString("ediacc.rolforpep") #end
@@ -271,7 +271,7 @@
 				
 				## SAK-24423 - joinable site settings - joiner group
 				#if( $joinGroupEnabled || $joinGroupEnabledLocalDisabledGlobal )
-					<p class="checkbox indnt6">
+					<p class="checkbox indnt3">
 						<label for="selectJoinerGroup" #if( !$joinGroupEnabled || $joinGroupEnabledLocalDisabledGlobal ) class="instruction" #end>
 							$tlang.getString( "ediacc.joinToGroup" )
 						</label>
