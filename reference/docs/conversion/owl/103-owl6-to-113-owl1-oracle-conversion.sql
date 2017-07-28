@@ -537,7 +537,7 @@ ALTER TABLE CITATION_COLLECTION_ORDER MODIFY ( CITATION_ID VARCHAR(36) NULL);
 -- End SAK-29974
 
 -- SAK-29740 update gradebook settings
-ALTER TABLE gb_gradebook_t ADD course_letter_grade_displayed NUMBER(1,0) DEFAULT 1 NOT NULL;
+ALTER TABLE gb_gradebook_t ADD course_letter_grade_displayed NUMBER(1,0) DEFAULT 0 NOT NULL;
 
 -- SAK-29401/SAK-29977 Role based access to sites --
 INSERT INTO SAKAI_REALM_ROLE VALUES (SAKAI_REALM_ROLE_SEQ.nextval, '.default');

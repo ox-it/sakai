@@ -114,7 +114,8 @@ public class SettingsGradeReleasePanel extends Panel {
 		settingsGradeReleasePanel.add(courseGradeType);
 
 		// letter grade
-		final AjaxCheckBox letterGrade = new AjaxCheckBox("letterGrade",
+		// OWL-2994 --plukasew
+		/*final AjaxCheckBox letterGrade = new AjaxCheckBox("letterGrade",
 				new PropertyModel<Boolean>(this.model, "gradebookInformation.courseLetterGradeDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
@@ -126,7 +127,7 @@ public class SettingsGradeReleasePanel extends Panel {
 			}
 		};
 		letterGrade.setOutputMarkupId(true);
-		courseGradeType.add(letterGrade);
+		courseGradeType.add(letterGrade);*/
 
 		// percentage
 		final AjaxCheckBox percentage = new AjaxCheckBox("percentage",
