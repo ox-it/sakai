@@ -1150,9 +1150,9 @@ ALTER TABLE VALIDATIONACCOUNT_ITEM ADD COLUMN EID VARCHAR(255);
 
 -- SAK-31468 rename existing gradebooks to 'Gradebook Classic'
 -- This will not change any tool placements. To do that, uncomment the following line:
--- UPDATE SAKAI_SITE_TOOL SET REGISTRATION='sakai.gradebookng' WHERE REGISTRATION='sakai.gradebook.tool';
-UPDATE SAKAI_SITE_TOOL SET TITLE='Gradebook Classic' WHERE TITLE='Gradebook';
-UPDATE SAKAI_SITE_PAGE SET TITLE='Gradebook Classic' WHERE TITLE='Gradebook';
+UPDATE SAKAI_SITE_TOOL SET REGISTRATION='sakai.gradebookng' WHERE REGISTRATION='sakai.gradebook.tool';
+-- UPDATE SAKAI_SITE_TOOL SET TITLE='Gradebook Classic' WHERE TITLE='Gradebook';
+-- UPDATE SAKAI_SITE_PAGE SET TITLE='Gradebook Classic' WHERE TITLE='Gradebook';
 
 
 -- 11.0 -> 11.1 -------------------------------------------------------
