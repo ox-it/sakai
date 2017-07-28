@@ -1,5 +1,6 @@
 2017.07.28:
         - [OWL-2994] Remove the letter grade option for displaying course grade to students
+        - [OWL-3017] GBNG+ Settings page needs an .act class on the buttons div
 2017.07.26:
         - [OWL-2992] Making a score change in a cell breaks the horizontal scroll for that cell's row
 2017.07.25:
