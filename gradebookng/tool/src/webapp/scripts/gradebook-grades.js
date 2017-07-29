@@ -152,9 +152,16 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
   function setupContextMenu($cell) {
     // ensure model
     self.getCellModel($cell);
-
+    
     // append menu
     $cell.find("> div:first").append($("#gradeItemCellDropdownMenu").html());
+    
+    var isFirstCell = $cell.prev().hasClass("gb-course-grade");
+    if (isFirstCell)
+    {
+        // adjust the dropdown menu to avoid overlap with course grade column
+        $cell.find(".dropdown-menu").removeClass("dropdown-menu-right");
+    }
     
     $cell.find("> div:first").find(".btn-group").on("shown.bs.dropdown", function(event)
     {
