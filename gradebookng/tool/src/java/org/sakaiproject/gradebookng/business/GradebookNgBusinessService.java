@@ -2547,18 +2547,32 @@ public class GradebookNgBusinessService {
 	{
 		User user = getCurrentUser();
 		Optional<Site> site = getCurrentSite();
-		return user != null && site.isPresent() && candidateDetailProvider.isInstitutionalNumericIdEnabled()
-				&& candidateDetailProvider.canUserViewInstitutionalNumericIds(user, site.get());
+		return isStudentNumberVisible(user, site.orElse(null));
+	}
+	
+	public boolean isStudentNumberVisible(User user, Site site)
+	{
+		return user != null && site != null && candidateDetailProvider.isInstitutionalNumericIdEnabled()
+				&& candidateDetailProvider.canUserViewInstitutionalNumericIds(user, site);
 	}
 	
 	public String getStudentNumber(User u, Site site)
 	{
-		if (site == null || !site.getType().startsWith("c"))
+		if (site == null || !isStudentNumberVisible(getCurrentUser(), site))
 		{
 			return "";
 		}
 		return candidateDetailProvider.getInstitutionalNumericId(u, site)
-				.orElseGet(() -> revealStudentNumberIfInRoster(GbUser.fromUser(u), getSiteSections()));
+				.orElseGet(() ->
+				{
+					String num = revealStudentNumber(u, site);
+					if (!num.isEmpty() && isStudentInARoster(u, getSiteSections())) // check for presence of number before hitting CM tables
+					{
+						return num;
+					}
+					
+					return "";
+				});
 	}
 	
 	/**
@@ -2577,7 +2591,7 @@ public class GradebookNgBusinessService {
 		try
 		{
 			User u = userDirectoryService.getUser(user.getUserUuid());
-			return candidateDetailProvider.getInstitutionalNumericIdIgnoringCandidatePermissions(u, site.get()).orElse("");
+			return revealStudentNumber(u, site.get());
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -2585,18 +2599,20 @@ public class GradebookNgBusinessService {
 		}
 	}
 	
-	private String revealStudentNumberIfInRoster(GbUser user, List<GbGroup> sections)
+	private String revealStudentNumber(User user, Site site)
+	{
+		return candidateDetailProvider.getInstitutionalNumericIdIgnoringCandidatePermissions(user, site).orElse("");
+	}
+	
+	private boolean isStudentInARoster(User user, List<GbGroup> sections)
 	{	
 		for (GbGroup sec : sections)
 		{
 			Set<Membership> members = courseManagementService.getSectionMemberships(sec.getProviderId());
-			if (members.stream().anyMatch(m -> m.getUserId().equals(user.getEid()) && "S".equals(m.getRole())))
-			{
-				return revealStudentNumber(user);
-			}
+			return members.stream().anyMatch(m -> m.getUserId().equals(user.getEid()) && "S".equals(m.getRole()));
 		}
 		
-		return "";
+		return false;
 	}
 
 	/**
