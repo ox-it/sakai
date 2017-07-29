@@ -1,3 +1,5 @@
+2017.07.29:
+        - [OWL-3011] missing message bundle
 2017.02.24:
 	- [OWL-2568] port lessons modifications to 11.3
 	- forked from https://github.com/sakaiproject/sakai/tree/11.3
