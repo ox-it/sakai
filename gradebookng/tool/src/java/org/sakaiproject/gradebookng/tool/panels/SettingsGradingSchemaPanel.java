@@ -152,7 +152,8 @@ public class SettingsGradingSchemaPanel extends Panel implements IFormModelUpdat
 				final TextField<Double> minPercent = new TextField<>("minPercent", new PropertyModel<>(entry, "minPercent"));
 
 				// if grade is F or NP, set disabled
-				if (ArrayUtils.contains(new String[] { "F", "NP" }, entry.getGrade()))
+				// Also for OWL, if 0 set disabled  --plukasew
+				if (ArrayUtils.contains(new String[] { "F", "NP", "0" }, entry.getGrade()))
 				{
 					minPercent.setEnabled(false);
 				}

@@ -3266,6 +3266,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		
 		Map<String,Double> bottomPercents = gbInfo.getSelectedGradingScaleBottomPercents();
+		List<String> unmappedGrades = gbInfo.getSelectedGradingScaleUnmappedGrades();
 		
 		//Before we do any work, check if any existing course grade overrides might be left in an unmappable state
 		List<CourseGradeRecord> courseGradeOverrides = (List<CourseGradeRecord>)getHibernateTemplate().execute(new HibernateCallback() {
@@ -3274,8 +3275,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
                 return getCourseGradeOverrides(gradebook, session);
             }
 		});		
-		courseGradeOverrides.forEach(cgr -> {
-			if(!bottomPercents.containsKey(cgr.getEnteredGrade())) {
+		courseGradeOverrides.forEach(cgr ->
+		{
+			String override = cgr.getEnteredGrade();
+			if(!bottomPercents.containsKey(override) && !unmappedGrades.contains(override))
+			{
 				throw new UnmappableCourseGradeOverrideException("The grading schema could not be updated as it would leave some course grade overrides in an unmappable state.");
 			}
 		});

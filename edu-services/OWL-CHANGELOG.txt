@@ -1,3 +1,5 @@
+2017.07.29:
+        - [OWL-2932] Unable to save settings if gradebook has unmapped override
 2017.06.16:
 	- [OWL-2926] fresh sites/gradebookNG instances with no gradebook items make it difficult to create new gradebook items
 2017.06.05:
