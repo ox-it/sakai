@@ -1922,8 +1922,8 @@ public class GradebookNgBusinessService {
 		@Override
 		public int compare(final User u1, final User u2)
 		{
-			String stunum1 = candidateDetailProvider.getInstitutionalNumericId(u1, site).orElse("");
-			String stunum2 = candidateDetailProvider.getInstitutionalNumericId(u2, site).orElse("");
+			String stunum1 = getStudentNumber(u1, site);
+			String stunum2 = getStudentNumber(u2, site);
 			return stunum1.compareTo(stunum2);
 		}
 	}
@@ -2221,6 +2221,25 @@ public class GradebookNgBusinessService {
 		{
 			final User u = userDirectoryService.getUserByEid(eid);
 			return Optional.of(GbUser.fromUserAcquiringStudentNumber(u, this));
+		}
+		catch (final UserNotDefinedException e)
+		{
+			return Optional.empty();
+		}
+	}
+	
+	/**
+	 * Get the user given an eid. Does not attempt to acquire student number or anon id.
+	 *
+	 * @param eid
+	 * @return Optional<GbUser>, empty if not found
+	 */
+	public Optional<GbUser> getNonStudentUserByEid(final String eid)
+	{
+		try
+		{
+			final User u = userDirectoryService.getUserByEid(eid);
+			return Optional.of(GbUser.fromUser(u));
 		}
 		catch (final UserNotDefinedException e)
 		{
@@ -2534,11 +2553,12 @@ public class GradebookNgBusinessService {
 	
 	public String getStudentNumber(User u, Site site)
 	{
-		if (site == null)
+		if (site == null || !site.getType().startsWith("c"))
 		{
 			return "";
 		}
-		return candidateDetailProvider.getInstitutionalNumericId(u, site).orElse("");
+		return candidateDetailProvider.getInstitutionalNumericId(u, site)
+				.orElseGet(() -> revealStudentNumberIfInRoster(GbUser.fromUser(u), getSiteSections()));
 	}
 	
 	/**
@@ -2563,6 +2583,20 @@ public class GradebookNgBusinessService {
 		{
 			return "";
 		}
+	}
+	
+	private String revealStudentNumberIfInRoster(GbUser user, List<GbGroup> sections)
+	{	
+		for (GbGroup sec : sections)
+		{
+			Set<Membership> members = courseManagementService.getSectionMemberships(sec.getProviderId());
+			if (members.stream().anyMatch(m -> m.getUserId().equals(user.getEid()) && "S".equals(m.getRole())))
+			{
+				return revealStudentNumber(user);
+			}
+		}
+		
+		return "";
 	}
 
 	/**

@@ -6,7 +6,6 @@ import org.apache.wicket.model.IModel;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import java.util.List;
 import org.apache.wicket.model.Model;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 /**
@@ -43,4 +42,13 @@ public class GbGradesDataProvider extends SortableDataProvider<GbStudentGradeInf
 		return Model.of(gradeInfo);
 	}
 	
+	/**
+	 * Cheap check to see if there are any students. Does not refresh the data from the db, so could return
+	 * a false positive if the grades have not been prepopulated. Use with caution.
+	 * @return true if there are students in the provider data
+	 */
+	public boolean isEmpty()
+	{
+		return list.isEmpty();
+	}
 }

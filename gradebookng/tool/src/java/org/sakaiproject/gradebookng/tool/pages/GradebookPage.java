@@ -253,8 +253,10 @@ public class GradebookPage extends BasePage implements IGradesPage
 		if (assignments.isEmpty()) {
 			//noAssignments.setVisible(true);		OWL-2926: uncomment this to display the message (OWL-2927)
 		}
-		else if (studentGradeMatrix.size() == 0)
+		else if (studentGradeMatrix.isEmpty())
 		{
+			// addOrReplaceTable pre-populated the studentGradeMatrix so the above call is cheap and safe
+			
 			// no visible students, show table, show message
 			// don't want two messages though, hence the else
 			noStudents.setVisible(true);

@@ -1,5 +1,6 @@
 2017.07.29:
         - [OWL-2932] Unable to save settings if gradebook has unmapped override
+        - [OWL-2942] showing student numbers for faculty/staff if they are students in the roster
 2017.07.28:
         - [OWL-2994] Remove the letter grade option for displaying course grade to students
         - [OWL-3017] GBNG+ Settings page needs an .act class on the buttons div

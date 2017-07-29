@@ -1572,7 +1572,7 @@ public class CourseGradeSubmitter implements Serializable
             sub = submission;
 			subDate = formatter.format(sub.getSubmissionDate());
 			subByEid = sub.getUserEid();
-			subByName = bus.getUserByEid(subByEid).map(u -> u.getDisplayName()).orElse(subByEid);
+			subByName = bus.getNonStudentUserByEid(subByEid).map(u -> u.getDisplayName()).orElse(subByEid);
 
 			if (sub.hasApproval())
 			{
@@ -1580,7 +1580,7 @@ public class CourseGradeSubmitter implements Serializable
 				OwlGradeApproval app = sub.getApproval();
 				appDate = formatter.format(app.getApprovalDate());
 				appByEid = app.getUserEid();
-				appByName = bus.getUserByEid(appByEid).map(u -> u.getDisplayName()).orElse(appByEid);
+				appByName = bus.getNonStudentUserByEid(appByEid).map(u -> u.getDisplayName()).orElse(appByEid);
 			}
 			else
 			{
