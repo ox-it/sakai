@@ -1,5 +1,7 @@
+2017.07.31:
+	- [OWL-2980] Fixed the "View Site As" dropdown's height in Chrome; fixed icon and item alignment and spacing for each case
 2017.07.28:
-        - [OWL-2597] Handle transition of Gradebook from Classic to NG
+    - [OWL-2597] Handle transition of Gradebook from Classic to NG
 2017.07.27:
 	- [OWL-2666] Re-implemented the old indnt classes from 1 to 10 for the site-setup process to temporarily fix the layout
 	- [OWL-3004] Re-styled the synoptic calendar to match the look of Month view of Calendar

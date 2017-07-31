@@ -1,4 +1,5 @@
 2017-07-31:
+	- [OWL-2980] Changed "View Site As" icon from fa-user-secret to fa-eye; also added missing class to role switcher link
 	- [OWL-2989] Removed the Create New Site option from the Account menu
 2017.07.18:
 	- [OWL-2978] fix site drawer hover tool tip text

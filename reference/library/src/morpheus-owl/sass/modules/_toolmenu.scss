@@ -219,6 +219,7 @@ nav#subSites{
 			
 		li{
 			line-height: 0;
+			
 			&.#{$namespace}collapseTools
 			{
 				position: fixed;
@@ -265,7 +266,8 @@ nav#subSites{
 			.#{$namespace}toolsNav__menuitem--icon{
 				margin: 0;
 			}
-			a{
+			a, .#{$namespace}roleSwitch__anchor
+			{
 				position: relative;
 				display: flex;
 				align-items: center;
@@ -396,5 +398,11 @@ nav#subSites{
 				}
 			}
 		}
+	}
+
+	#roleSwitchSelect 
+	{
+		max-width: calc(#{$tool-menu-width} - 50px);		// subtracting room for padding, margin, and icon
+		margin: 0 1em;
 	}
 }
