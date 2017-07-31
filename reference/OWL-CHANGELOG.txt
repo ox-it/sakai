@@ -1,4 +1,5 @@
 2017.07.31:
+	- [OWL-3027] Modernized and aligned the styles for the Direct Link panel
 	- [OWL-3026] In the breadcrumbs, hid the site name and styled the tool reset; adjusted elements and spacing to align with breadcrumbs
 	- [OWL-2980] Fixed the "View Site As" dropdown's height in Chrome; fixed icon and item alignment and spacing for each case
 2017.07.28:

@@ -176,8 +176,10 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
                       <img rsf:id="directimage" src="/library/image/transparent.gif"/>
 	            </a>
 		    <div rsf:id="directurl-div" id="direct-dialog" role="dialog" class="portlet title-tools direct-url-wrap Mrphs-directUrl Mrphs-directUrl__dropDown">
-		      <input rsf:id="directurl-input" type="checkbox" class="portlet title-tools short-url"/>
-		      <span rsf:id="directurl-shorten">Short URL</span>
+                        <div class="Mrphs-directUrl__dropDown_controls">
+                            <input rsf:id="directurl-input" type="checkbox" class="portlet title-tools short-url"/>
+                            <span rsf:id="directurl-shorten">Short URL</span>
+                        </div>
 		      <textarea rsf:id="directurl-textarea" class="portlet title-tools"></textarea>
 		    </div>
                     <a role="button" href="#" rsf:id="helpbutton2" target="_blank" class="title-tools help Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup"><img rsf:id="helpimage2" src="/library/image/transparent.gif" /><span rsf:id="helpnewwindow2" class="offscreen"></span></a>

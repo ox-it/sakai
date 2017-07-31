@@ -1,4 +1,5 @@
 2017.07.31:
+	- [OWL-3027] Changed some markup while modernizing the Direct Link panel
 	- [OWL-3026] Removed some margin from the breadcrumbs in Lessons
 2017.07.29:
     - [OWL-3011] missing message bundle

@@ -26,8 +26,8 @@ $PBJQ(document).ready(function(){
     $PBJQ(this).siblings('.Mrphs-directUrl').toggleClass('active').css( { 'left' : origin.left + 'px' } );
     e.preventDefault();
   });
-  $PBJQ('.Mrphs-directUrl .dropDown_close').click( function( e ){
-    $PBJQ(this).parent().toggleClass('active');
+  $PBJQ('.Mrphs-directUrl .Mrphs-directUrl__dropDown_controls .dropDown_close').click( function( e ){
+    $PBJQ(this).parent().parent().toggleClass('active');
     e.preventDefault();
   });
 });
