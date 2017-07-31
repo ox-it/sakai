@@ -29,4 +29,6 @@
 .hierarchyWrap					// OWLTODO: best spot?
 {
 	display: flex;
+	flex-wrap: wrap;
+	padding-right: 425px;		// to make room for Print View/Index/Link/Help buttons - OWLTODO: revise
 }

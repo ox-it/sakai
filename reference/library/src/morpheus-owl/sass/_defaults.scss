@@ -24,7 +24,9 @@ $font-family-url: "//fonts.googleapis.com/css?family=Noto Sans:400,700" !default
 //Typography variables
 $font-family: "Helvetica Neue", "Nimbus Sans L", "Liberation Sans", Arial, sans-serif !default;
 $default-font-size: 14px !default;
-$smaller-font-size: 0.857em !default; // 12px
+$smaller-font-size: 0.857em !default; 	// 12px
+$larger-font-size: 1.1429em !default;	// 16px
+$xlarge-font-size: 1.429em !default;	// 20px
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $default-line-height: 1.55 !default; 									// http://practicaltypography.com/line-spacing.html
 $header-font-family: $font-family;
@@ -76,8 +78,8 @@ $top-header-background: #000 !default;
 $sites-nav-background: transparent !default;
 
 $breadcrumbs-color:			#717171 !default;
-$breadcrumbs-tool-color:	$breadcrumbs-color !default;
-$breadcrumbs-hover-color:	$primary-color !default;
+$breadcrumbs-tool-color:	$primary-color !default;
+$breadcrumbs-hover-color:	$breadcrumbs-tool-color !default;
 
 /* Link colors */
 $link-color: $primary-color !default;
@@ -174,7 +176,7 @@ $hierarchy-size: 3.5em;
 /* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
 $measure: 960px !default;
 
-$standard-padding: 0.5em;
+$standard-padding: 10px !default;
 
 /* Logo location */
 $logo: 'images/logo.png' !default;

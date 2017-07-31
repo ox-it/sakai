@@ -1,8 +1,8 @@
 .navIntraTool{
-	margin: -14px -14px 0 -14px;  		// OWLTODO: find a better way to accomplish this
+	margin: (-$standard-padding) (-$standard-padding) 0 (-$standard-padding);  		// OWLTODO: find a better way to accomplish this
 	background: $tool-background-color;
 	border-bottom: 1px solid $tool-border-color;
-	padding: 0 125px 0 1em;
+	padding: 0 0 0 4px;			// to show a bit of the bottom border of the tabs
 
 	&:after{
 		content: " ";

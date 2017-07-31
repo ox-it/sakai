@@ -30,7 +30,7 @@
 .#{$namespace}toolTitleNav
 {
 	position: absolute;
-	top: -2.5em;				// OWLTODO: is there a better way to do this? Lessons is different too
+	top: -3.8em;				// OWLTODO: is there a better way to do this? Lessons is different too
 	right: 0;
 	display: flex;
 	align-items: center;
@@ -169,7 +169,7 @@
 
 .portletBody{
 	background: $tool-background-color;
-	padding: $default-font-size;
+	padding: $standard-padding;
 
 	> * 
 	{

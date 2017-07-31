@@ -30,7 +30,6 @@
 		position: relative;
 		display: flex;
 		flex-direction: column;
-		justify-content: space-between;
 		width: 100%;
 	}
 	@media #{$phone}{
@@ -53,7 +52,7 @@
 	{
 		flex: 1;
 		display: inline-block;
-		margin: 0 0 0 1em;
+		margin: 0 0 0 $standard-padding;
 		vertical-align: top;
 		width: 46%;
 		
@@ -93,7 +92,9 @@
 	position: relative;
 }
 
-.#{$namespace}container--footer{
+.#{$namespace}container--footer
+{
+	margin-top: auto; 					// push the footer to the bottom of the page
 	background: $footer-background;
 }
 

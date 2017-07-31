@@ -1,8 +1,8 @@
 .#{$namespace}siteHierarchy{
 	$svg-gradient-shim-threshold: 1 !global;
 	background: $background-color;
-	/*box-shadow: inset 0px -1px 5px rgba(0,0,0,0.1);*/
 	min-height: $hierarchy-size;
+	font-size: $xlarge-font-size;
 	color: $breadcrumbs-color;
 
 	h1{
@@ -11,7 +11,6 @@
 		margin: 0 0 0 0;
 	}
 	a{
-		font-size: $smaller-font-size;
 		color: $breadcrumbs-color;
 		margin: 0 0.5em 0 0.5em;
 		padding: 0;
@@ -31,8 +30,13 @@
 		display: flex;
 		align-items: center;
 		min-height: initial;
-		margin: 0 0 0 calc(#{$tool-menu-width} + #{$standard-padding}); /* make room for tool menu - using variable fix from https://github.com/sass/sass/issues/818 */
-		padding: $standard-padding;
+		margin: 0;
+		padding: $standard-padding 160px $standard-padding $standard-padding;	// OWLTODO: space for Link/Help links; better way to do this?
+		
+		.#{$namespace}hierarchy--siteName, .#{$namespace}hierarchy--siteNameSeparator
+		{
+			display: none; 						// hide the site name in the breadcrumbs
+		}
 
 		.#{$namespace}hierarchy--siteName a, .#{$namespace}hierarchy--1 a{
 			/* Since we'll start on our own line, don't pad */
@@ -66,8 +70,8 @@
 			}
 		}
 
-		a.#{$namespace}hierarchy--toolName:hover{
-			border-bottom: 1px solid $breadcrumbs-hover-color;
+		a.#{$namespace}hierarchy--toolName:hover
+		{
 
 			.#{$namespace}breadcrumb--icon{
 				display: none;
@@ -77,6 +81,10 @@
 				width: 24px;
 				text-align: right;
 				display: inline-block;
+			}
+			.#{$namespace}breadcrumb--toolNameText
+			{
+				text-decoration: underline;
 			}
 		}
 

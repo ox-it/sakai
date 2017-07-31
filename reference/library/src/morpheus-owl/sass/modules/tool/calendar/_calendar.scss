@@ -379,7 +379,7 @@
 	
 	.calendarMonthView-event 
 	{
-		padding: $standard-padding;
+		padding: 0 $standard-padding $standard-padding $standard-padding;
 		text-align: left;
 		white-space: nowrap;
 		overflow: hidden;

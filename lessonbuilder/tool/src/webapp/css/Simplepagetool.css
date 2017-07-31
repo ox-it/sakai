@@ -1697,9 +1697,6 @@ span.nextprev {
 /* nothing - used to save information */
 }
 
-.Mrphs-siteHierarchy span:last-child {
-  margin-left: 6px;
-}
 .contentButton span a {
   height: 24px;
 }

@@ -751,7 +751,7 @@ body.is-logged-out{
 			{
 				.link-container
 				{
-					padding: $standard-padding; /* remove space allocated for down arrow for other sites */
+					padding: 0.5em; /* remove space allocated for down arrow for other sites */
 				}
 				
 				.#{$namespace}sitesNav__drop{
@@ -904,7 +904,7 @@ body.is-logged-out{
 		align-items: center;
 		justify-content: center;
 		width: 100%;
-		margin:0 $standard-padding $standard-padding $standard-padding;
+		margin: 0;
 		padding: $standard-padding;
 		background-color: $siteUnpublished-background;
 		color: $siteUnpublished-color;

@@ -72,11 +72,6 @@ body.#{$namespace}toolMenu-collapsed{
 			}
 		}
 	}
-	
-	.#{$namespace}siteHierarchy
-	{
-		margin: 0 0 0 calc(#{$tool-menu-collapsed-width} + #{$standard-padding}); /* make room for tool menu - using variable fix from https://github.com/sass/sass/issues/818 */
-	}
 }
 
 #toolMenuWrap .img_site_toolmenu{
@@ -97,7 +92,7 @@ body.#{$namespace}toolMenu-collapsed{
 	min-height: 100vh;
 	min-height: calc(100vh - #{$header-size});
 	@include flex-basis( #{$tool-menu-width} );
-	margin: -35px 0 0 0; // OWLTODO: remove the need for this negative margin by changing the markup
+	margin: 0;
 	border-right: 1px solid $tool-menu-border-color;
 	text-align: center;
 	@include transition( left 0.25s linear 0s );
@@ -402,7 +397,7 @@ nav#subSites{
 
 	#roleSwitchSelect 
 	{
-		max-width: calc(#{$tool-menu-width} - 50px);		// subtracting room for padding, margin, and icon
+		max-width: calc(#{$tool-menu-width} - 50px);		// subtracting room for padding, margin, and icon - using variable fix from https://github.com/sass/sass/issues/818
 		margin: 0 1em;
 	}
 }
