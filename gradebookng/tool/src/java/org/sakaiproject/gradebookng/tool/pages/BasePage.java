@@ -110,18 +110,10 @@ public class BasePage extends WebPage {
 			public void onClick() {
 				setResponsePage(CourseGradesPage.class);
 			}
-			
-			@Override
-			protected void onInitialize()
-			{
-				super.onInitialize();
-				setVisible(role == GbRole.INSTRUCTOR);
-			}
-
 		};
 		courseGradesPageLink.add(new Label("screenreaderlabel", getString("link.screenreader.tabnotselected")));
 		WebMarkupContainer courseGradesPageTab = new WebMarkupContainer("courseGradesPageTab");
-		courseGradesPageTab.setVisible(role == GbRole.INSTRUCTOR && siteType == GbSiteType.COURSE);
+		courseGradesPageTab.setVisible(siteType == GbSiteType.COURSE && businessService.currentUserCanSeeFinalGradesPage(businessService.getCurrentSiteId()));
 		courseGradesPageTab.add(courseGradesPageLink);
 		nav.add(courseGradesPageTab);
 

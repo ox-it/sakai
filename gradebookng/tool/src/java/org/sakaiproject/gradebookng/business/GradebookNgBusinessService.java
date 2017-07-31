@@ -38,7 +38,6 @@ import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
-import org.sakaiproject.gradebookng.business.exception.AnonymousConstraintViolationException;
 import org.sakaiproject.gradebookng.business.exception.GbException;
 import org.sakaiproject.gradebookng.business.finalgrades.GbStudentCourseGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
@@ -2338,6 +2337,34 @@ public class GradebookNgBusinessService {
 		}
 
 		return rval;
+	}
+	
+	/**
+	 * Return true if the current user has the submit or approve permissions. This is NOT complete check
+	 * of final submitter/approver status because we can't perform the full check with no section selected.
+	 * @return 
+	 */
+	public boolean currentUserCanSeeFinalGradesPage(final String siteId)
+	{
+		if (StringUtils.isBlank(siteId))
+		{
+			return false;
+		}
+		
+		final String userId = getCurrentUser().getId();
+
+		String siteRef;
+		try {
+			siteRef = this.siteService.getSite(siteId).getReference();
+		} catch (final IdUnusedException e) {
+			log.debug(e.getMessage());
+			return false;
+		}
+		
+		// OWLTODO: these OWL permissions have a public constant in AuthzSakai2Impl but it is not visible from NG
+		return securityService.unlock(userId, GbRole.INSTRUCTOR.getValue(), siteRef) 
+				&& (securityService.unlock(userId, "gradebook.submitCourseGrades", siteRef)
+				|| securityService.unlock(userId, "gradebook.approveCourseGrades", siteRef));
 	}
 
 	/**
