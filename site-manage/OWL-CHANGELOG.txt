@@ -1,3 +1,5 @@
+2017.07.31:
+	- [OWL-3025] Added a temporary indent fix for instance tools on the Manage Tools page
 2017.07.27:
 	- [OWL-2666] Adjusted some indents in the site setup process to fix layout hierachy
 2017.07.06:

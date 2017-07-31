@@ -247,6 +247,12 @@ dl.defList dd{
     padding: 0;
 }
 
+/* OWLTODO: temporary fix to show instance tools */
+#toolHolder .toolGroup .indnt3
+{
+    margin-left: 3em;
+}
+
 #toolHolder h4 {
     margin-top: 5px;
 }
