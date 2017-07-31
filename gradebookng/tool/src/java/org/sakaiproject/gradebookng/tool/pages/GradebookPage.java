@@ -46,6 +46,7 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
+import org.sakaiproject.gradebookng.tool.component.GbAddColumnButton;
 import org.sakaiproject.gradebookng.tool.component.GbHeadersToolbar;
 import org.sakaiproject.gradebookng.tool.component.table.GbGradesDataProvider;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
@@ -103,6 +104,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 	boolean showGroupFilter = true;
 	
 	SakaiDataTable table;
+	WebMarkupContainer vertWrap;
 	GbGradesDisplayToolbar toolbar;
 	final RadioGroup anonymousToggle;
 	ToggleGradeItemsToolbarPanel gradeItemsTogglePanel;
@@ -235,30 +237,18 @@ public class GradebookPage extends BasePage implements IGradesPage
 		// Group filter is hidden in anonymous contexts
 		settings.setGroupFilterVisibilityForced(false);
 
-		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
-		noAssignments.setVisible(false);
-		this.form.add(noAssignments);
+		addOrReplaceTable(stopwatch);
 
 		final WebMarkupContainer noStudents = new WebMarkupContainer("noStudents");
 		noStudents.setVisible(false);
-		this.form.add(noStudents);
-
-
-		addOrReplaceTable(stopwatch);
-
+		form.add(noStudents);
 
 		// hide/show components
-
-		// no assignments, hide table, show message
-		if (assignments.isEmpty()) {
-			//noAssignments.setVisible(true);		OWL-2926: uncomment this to display the message (OWL-2927)
-		}
-		else if (studentGradeMatrix.isEmpty())
+		if (studentGradeMatrix.isEmpty())
 		{
 			// addOrReplaceTable pre-populated the studentGradeMatrix so the above call is cheap and safe
 			
 			// no visible students, show table, show message
-			// don't want two messages though, hence the else
 			noStudents.setVisible(true);
 		}
 
@@ -630,8 +620,27 @@ public class GradebookPage extends BasePage implements IGradesPage
 		// enable drag and drop based on user role (note: entity provider has
 		// role checks on exposed API
 		table.add(new AttributeModifier("data-sort-enabled", this.businessService.getUserRole() == GbRole.INSTRUCTOR));
-
-		this.form.addOrReplace(table);
+		
+		vertWrap = new WebMarkupContainer("vertWrap");
+		vertWrap.add(table);
+		
+		final WebMarkupContainer noAssignments = new WebMarkupContainer("noAssignments");
+		noAssignments.add(new GbAddColumnButton("addColumnButton"));
+		noAssignments.setVisible(false);
+		vertWrap.add(noAssignments);
+		
+		// no assignments, hide table, show message
+		if (assignments.isEmpty())
+		{
+			noAssignments.setVisible(true);
+			vertWrap.add(AttributeModifier.append("class", "gbng-emptyWrapper"));
+			if (table.getColumns().size() == 4)  // typically only 3 columns, but could be 4 if student numbers are shown
+			{
+				noAssignments.add(AttributeModifier.append("class", "fourColumns"));
+			}
+		}
+		
+		this.form.addOrReplace(vertWrap);
 
 		// Populate the toolbar
 		this.hasAssignmentsAndGrades = !assignments.isEmpty() && !grades.isEmpty();

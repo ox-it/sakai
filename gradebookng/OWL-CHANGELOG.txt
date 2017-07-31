@@ -1,3 +1,5 @@
+2017.07.31:
+        - [OWL-2927] Style the gradebook empty state
 2017.07.29:
         - [OWL-2932] Unable to save settings if gradebook has unmapped override
         - [OWL-2942] showing student numbers for faculty/staff if they are students in the roster

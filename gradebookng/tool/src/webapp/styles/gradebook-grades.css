@@ -1697,3 +1697,53 @@ and (max-device-width : 736px) {
 {
 	z-index: 9;
 }
+
+#gradebookVerticalOverflowWrapper.gbng-emptyWrapper
+{
+	display: flex;
+}
+.norecords-td > div 
+{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 300px;
+	padding: 1em;
+	font-size: 16px;
+	color: #666;
+}
+.noGbItems 
+{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	width: 100%;
+	padding: 1em 1em 1em 354px; /* accomodates the 3 standard columns */
+	font-size: 20px;
+	text-align: center;
+	color: #666;
+}
+.noGbItems > i 
+{
+	display: block;
+	font-size: 3em;
+}
+.noGbItems.fourColumns 
+{
+	padding-left: 514px; /* add student number column width (160px) */
+}
+
+.norecords-td > div
+{
+	width: 514px;
+}
+.norecords-td[colspan="3"] > div
+{
+	width: 354px;
+}
+.norecords-td[colspan="5"] > div
+{
+	width: 634px;
+}
+

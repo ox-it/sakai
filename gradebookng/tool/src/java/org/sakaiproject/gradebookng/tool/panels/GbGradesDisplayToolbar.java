@@ -13,6 +13,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
+import org.sakaiproject.gradebookng.tool.component.GbAddColumnButton;
 import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
@@ -53,21 +54,7 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 		gradeItemSummary.setEscapeModelStrings(false);
 		add(gradeItemSummary);
 		
-		final SakaiAjaxButton addGradeItem = new SakaiAjaxButton("addGradeItem") {
-			@Override
-			public void onSubmit(final AjaxRequestTarget target, final Form form) {
-				final GbModalWindow window = page.getAddOrEditGradeItemWindow();
-				window.setTitle(getString("heading.addgradeitem"));
-				window.setComponentToReturnFocusTo(this);
-				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
-				window.show(target);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return page.getCurrentUserRole() == GbRole.INSTRUCTOR;
-			}
-		};
+		final GbAddColumnButton addGradeItem = new GbAddColumnButton("addGradeItem");
 		addGradeItem.setDefaultFormProcessing(false);
 		addGradeItem.setOutputMarkupId(true);
 		add(addGradeItem);
@@ -79,7 +66,10 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 		// hide/show components
 
 		// no assignments, hide
-		if (assignments.isEmpty()) {
+		if (assignments.isEmpty())
+		{
+			gradeItemSummary.setVisible(false);
+			addGradeItem.setVisible(false);
 			toggleGradeItemsToolbarItem.setVisible(false);
 		}
 	}
