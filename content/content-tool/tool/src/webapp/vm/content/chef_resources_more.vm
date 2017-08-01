@@ -71,7 +71,7 @@
 							#foreach( $copyrightType in $copyrightTypes )
 								#if( $item.copyrightStatus == $copyrightType.type )
 									#set( $found = true )
-									<span class="chefPre">$validator.escapeHtmlFixCopyright($copyrightType.text)</span>
+									<span class="chefPre">$validator.escapeHtml($copyrightType.text)</span>
 								#end
 							#end
 							#if( !$found )

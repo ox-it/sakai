@@ -1,3 +1,5 @@
+2017.08.01:
+	- [OWL-3022] don't call validator.escapeHtmlFixCopyright() as it no longer exists
 2017.07.14:
 	- [OWL-2971] hide the 'add details' link when creating folder(s) in resources
 2017.07.05:
