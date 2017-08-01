@@ -1,14 +1,14 @@
 @mixin align-items($p: center) {
-    align-items: $p;
     -webkit-align-items: $p; /* safari */
+    align-items: $p;
 }
 @mixin display-flex($p: flex) {
-    display: $p;
     display: -webkit-flex; /* safari */
+    display: $p;
 }
 @mixin flex-direction($p: row) {
-    flex-direction: $p;
     -webkit-flex-direction: $p; /* safari */
+    flex-direction: $p;
 }
 @mixin flex-shrink($p: 0) {
     -webkit-flex-shrink: $p;
@@ -25,6 +25,7 @@
 @mixin appearance($p: none) {
 	-moz-appearance: $p;
 	-webkit-appearance: $p;
+	appearance: $p;
 }
 @mixin border-radius($p: 0) {
     -moz-border-radius: $p;

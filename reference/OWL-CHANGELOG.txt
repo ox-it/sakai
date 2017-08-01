@@ -1,3 +1,5 @@
+2017.08.01: 
+	- [OWL-3014] Adjusted some of the compass mixins to contain the correct order for the browser prefixes
 2017.07.31:
 	- [OWL-3027] Modernized and aligned the styles for the Direct Link panel
 	- [OWL-3026] In the breadcrumbs, hid the site name and styled the tool reset; adjusted elements and spacing to align with breadcrumbs
