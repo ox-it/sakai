@@ -1483,7 +1483,7 @@ GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
   // Check for concurrent editors.. and again every 10 seconds
   // (note: there's a 10 second cache)
   performConcurrencyCheck();
-  var concurrencyCheckInterval = setInterval(performConcurrencyCheck, 10 * 1000);
+  var concurrencyCheckInterval = setInterval(performConcurrencyCheck, 20 * 1000);  // OWL-3020
 
 
   $("#gradeItemsConcurrentUserWarning").on("click", ".gb-message-close", function() {
@@ -2777,7 +2777,8 @@ GradebookWicketEventProxy = {
  *                    Connection Poll Javascript                                       
  *************************************************************************************/
 function ConnectionPoll($message) {
-    this.PING_INTERVAL = 1000*5; // 5 seconds
+    //this.PING_INTERVAL = 1000*5; // 5 seconds
+    this.PING_INTERVAL = 1000*30; // 30 seconds - OWL-3020
     this.PING_TIMEOUT = 1000*10; // 10 seconds
     this.PING_URL = "/direct/gbng/ping";
 

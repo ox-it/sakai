@@ -1,5 +1,6 @@
 2017.08.01:
         - [OWL-2912] getStringIgnoreSettings warning in logs every time you hit the Grades page
+        - [OWL-3020] tune gradebook concurrent editing and connection checks
 2017.07.31:
         - [OWL-2927] Style the gradebook empty state
 2017.07.29:
