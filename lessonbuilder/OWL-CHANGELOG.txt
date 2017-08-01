@@ -1,3 +1,5 @@
+2017.08.01:
+	- [OWL-2917] Adjusted the positioning of the top-right tooltitlenav buttons (Link, Help, etc)
 2017.07.31:
 	- [OWL-3027] Changed some markup while modernizing the Direct Link panel
 	- [OWL-3026] Removed some margin from the breadcrumbs in Lessons

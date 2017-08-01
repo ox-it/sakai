@@ -3,6 +3,7 @@
 	{
 		position: relative;
 		top: 0;			// OWLTODO: to overwrite the "minus top" below
+		right: 0;		// OWLTODO: to overwrite the "minus right" below
 		background-color: $tool-menu-background-color;
 		border-bottom: 1px solid $tool-sub-menu-border-color;
 		
@@ -30,8 +31,8 @@
 .#{$namespace}toolTitleNav
 {
 	position: absolute;
-	top: -3.8em;				// OWLTODO: is there a better way to do this? Lessons is different too
-	right: 0;
+	top: -2.8em;				// OWLTODO: is there a better way to do this? Lessons is different too
+	right: -0.5em;
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
@@ -41,6 +42,7 @@
 	@media #{$phone}
 	{
 		top: 0;					// OWLTODO: fix this too to reflect 10 lines above this
+		right: 0;
 	}
 		
 	.#{$namespace}toolTitleNav__title{
@@ -125,8 +127,8 @@
 	{
 		display: flex;
 		align-items: center;
-		margin: $standard-padding $standard-padding $standard-padding 0;
-		padding: $standard-padding;
+		margin: 5px 5px 5px 0;
+		padding: 5px;
 		border: 1px solid #e0e0e0;
 		border-radius: 3px;
 		background: $tool-tab-background-color;
@@ -151,7 +153,7 @@
 		}
 		&--help-popup{
 			@extend .fa;
-			@extend .fa-question;
+			@extend .fa-question-circle;
 			//@extend .fa-lg;
 			/*position: absolute;
 			right: 0;*/
@@ -173,7 +175,7 @@
 		}
 		.#{$namespace}itemTitle
 		{
-			margin-left: $standard-padding;
+			margin-left: 5px;
 			font-family: $font-family;
 			font-size: $smaller-font-size;
 			@media #{$tablet}{
