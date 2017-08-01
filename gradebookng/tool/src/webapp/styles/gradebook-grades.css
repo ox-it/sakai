@@ -151,7 +151,9 @@
 #gradebookGrades .studentNumberFilterInputGroup,
 #gradebookGrades .studentFilterInputGroup
 {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-align-items: center; 
 	align-items: center;
 }
 
@@ -168,7 +170,10 @@
 .gb-student-number-filter > div,
 .gb-student-filter > div
 {
+	
+	display: -webkit-flex;
 	display: flex;
+	-webkit-align-items: center;
 	align-items: center;
 	padding-right: 4px;
 }
@@ -600,8 +605,11 @@
 #gradebookGradesToolbar {
   font-size: 0.9em;
   white-space: nowrap; /* don't wrap so show/hide items panel contents stay on one line */
+  display: -webkit-flex;
   display: flex;
+  -webkit-justify-content: space-between;
   justify-content: space-between;
+  -webkit-align-items: flex-end;
   align-items: flex-end;
   margin-bottom: 0.5em;
   padding: 0;
@@ -609,14 +617,18 @@
 }
 .gb-section-group-filter
 {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-direction: column;
 	margin-top: 0.5em;
 }
 
 .finalGradesForm #gradebookGradesToolbar
 {
+	-webkit-flex-wrap: wrap-reverse;
 	flex-wrap: wrap-reverse;
+	-webkit-align-items: flex-start;
 	align-items: flex-start;
 }
 
@@ -627,13 +639,17 @@
 
 .finalGradesForm .gb-section-group-filter
 {
+	-webkit-flex-grow: 2;
 	flex-grow: 2;
 }
 
 .gb-column-display-settings
 {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-direction: column;
+	-webkit-align-items: center;
 	align-items: center;
 }
 .gb-column-display-settings .gb-column-display-button-group button
@@ -643,8 +659,11 @@
 
 .gb-column-display-button-group
 {
+	-webkit-flex-wrap: wrap;
 	flex-wrap: wrap;
+	display: -webkit-flex;
 	display: flex;
+	-webkit-justify-content: center;
 	justify-content: center;
 }
 
@@ -654,8 +673,11 @@
 }
 .gb-pager .gbSakaiPagerContainer
 {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-direction: column;
+	-webkit-align-items: center;
 	align-items: center;
 }
 .gb-pager .gbSakaiPagerContainer button, .gb-pager .gbSakaiPagerContainer .pagerDropDown
@@ -955,12 +977,14 @@ div.wicket-mask-dark {
 div.wicket-mask-transparent {
   opacity: 0.1; 
   background-color: black; 
+  -webkit-filter: alpha(opacity=10);
   filter: alpha(opacity=10); 
 }
 /* IE9-11 does not support a blur filter. As such, we fallback to an opaque mask */
 /* Note: IE8 and below are not supported as Bootstrap does not support IE8 */
 /* IE9 blur fallback */
 body:nth-child(n) div.wicket-mask-dark {
+  -webkit-filter: alpha(opacity=\95);
   filter: alpha(opacity=\95);
   background-color: \#000;
 }
@@ -1469,7 +1493,9 @@ and (max-device-width : 736px) {
 }
 .gb-add-grades
 {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-align-items: center;
 	align-items: center;
 }
 
@@ -1559,7 +1585,9 @@ and (max-device-width : 736px) {
 
 .finalGradesForm
 {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-flex-direction: column;
 	flex-direction: column;
 }
 
@@ -1567,7 +1595,9 @@ and (max-device-width : 736px) {
 {
 	.finalGradesForm
 	{
+		-webkit-flex-direction: row-reverse;
 		flex-direction: row-reverse;
+		-webkit-justify-content: flex-end;
 		justify-content: flex-end;
 	}
 	
@@ -1579,7 +1609,9 @@ and (max-device-width : 736px) {
 
 .submitAndApprove .submitAndApproveActions
 {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-align-items: center;
 	align-items: center;
 }
 
@@ -1609,22 +1641,27 @@ and (max-device-width : 736px) {
 }
 
 .gb-all-item-controls {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-align-items: center;
 	align-items: center;
 	border-bottom: 1px solid #eee;
 	margin-bottom: 5px;
 }
 
 .space-between {
+	-webkit-justify-content: space-between;
 	justify-content: space-between;
 }
 
 .flex-end {
+	-webkit-justify-content: flex-end;
 	justify-content: flex-end;
 }
 
 #gradeItemsTogglePanel .gb-all-item-controls label {
 	font-weight: normal;
+	display: -webkit-flex;
 	display: flex;
 	width: auto;
 	padding: 0;
@@ -1700,12 +1737,16 @@ and (max-device-width : 736px) {
 
 #gradebookVerticalOverflowWrapper.gbng-emptyWrapper
 {
+	display: -webkit-flex;
 	display: flex;
 }
 .norecords-td > div 
 {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-align-items: center;
 	align-items: center;
+	-webkit-justify-content: center;
 	justify-content: center;
 	height: 300px;
 	padding: 1em;
@@ -1714,9 +1755,13 @@ and (max-device-width : 736px) {
 }
 .noGbItems 
 {
+	display: -webkit-flex;
 	display: flex;
+	-webkit-justify-content: center;
 	justify-content: center;
+	-webkit-align-items: center;
 	align-items: center;
+	-webkit-flex-direction: column;
 	flex-direction: column;
 	width: 100%;
 	padding: 1em 1em 1em 354px; /* accomodates the 3 standard columns */
