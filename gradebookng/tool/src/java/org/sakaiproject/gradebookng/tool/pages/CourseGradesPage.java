@@ -24,6 +24,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbRole;
@@ -221,7 +222,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 
 			@Override
 			protected IModel<String> getCaptionModel() {
-				return Model.of(getString("gradespage.caption"));
+				return new StringResourceModel("gradespage.caption", this, null);
 			}
 		};
 

@@ -61,10 +61,17 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 
 	public AddOrEditGradeItemPanelContent(final String id, final Model<Assignment> assignmentModel) {
 		super(id, assignmentModel);
-
+	}
+	
+	@Override
+	protected void onInitialize()
+	{
+		super.onInitialize();
+		
 		final Gradebook gradebook = businessService.getGradebook();
 		final GbGradingType gradingType = GbGradingType.valueOf(gradebook.getGrade_type());
 
+		final Model<Assignment> assignmentModel = (Model<Assignment>) getDefaultModel();
 		final Assignment assignment = assignmentModel.getObject();
 
 		this.categoriesEnabled = true;
@@ -363,6 +370,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 				}
 			}
 		});
+		
 	}
 
 	public boolean isAnonymousLocked()

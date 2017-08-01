@@ -35,6 +35,7 @@ import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -601,7 +602,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 			@Override
 			protected IModel<String> getCaptionModel() {
-				return Model.of(getString("gradespage.caption"));
+				return new StringResourceModel("gradespage.caption", this, null);
 			}
 		};
 
