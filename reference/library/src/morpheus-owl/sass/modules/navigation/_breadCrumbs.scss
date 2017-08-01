@@ -31,7 +31,7 @@
 		align-items: center;
 		min-height: initial;
 		margin: 0;
-		padding: $standard-padding 160px $standard-padding $standard-padding;	// OWLTODO: space for Link/Help links; better way to do this?
+		padding: $standard-padding 125px $standard-padding $standard-padding;	// OWLTODO: space for Link/Help links; better way to do this?
 		
 		.#{$namespace}hierarchy--siteName, .#{$namespace}hierarchy--siteNameSeparator
 		{
