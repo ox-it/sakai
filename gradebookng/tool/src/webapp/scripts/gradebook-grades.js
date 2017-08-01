@@ -156,12 +156,19 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
     // append menu
     $cell.find("> div:first").append($("#gradeItemCellDropdownMenu").html());
     
-    var isFirstCell = $cell.prev().hasClass("gb-course-grade");
-    if (isFirstCell)
+    // adjust menu position on click, more expensive but should work with drag and drop
+    $cell.find("> div:first").find(".btn-group").on("show.bs.dropdown", function(event)
     {
-        // adjust the dropdown menu to avoid overlap with course grade column
-        $cell.find(".dropdown-menu").removeClass("dropdown-menu-right");
-    }
+        $prevCell = $cell.prev();
+        if ($prevCell.hasClass("gb-course-grade") || $prevCell.hasClass("gb-student-cell")) // for blended anon
+        {
+            $(event.target).find(".dropdown-menu").removeClass("dropdown-menu-right");
+        }
+        else
+        {
+            $(event.target).find(".dropdown-menu").addClass("dropdown-menu-right");
+        }
+    });
     
     $cell.find("> div:first").find(".btn-group").on("shown.bs.dropdown", function(event)
     {
