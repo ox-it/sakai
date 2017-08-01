@@ -1,0 +1,2 @@
+2017.08.01:
+        - [OWL-2881] missing released value in table

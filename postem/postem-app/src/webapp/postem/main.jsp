@@ -74,7 +74,8 @@
 								<h:graphicImage value="postem/images/sortdescending.gif"  rendered="#{PostemTool.releasedSort && !PostemTool.ascending}" alt="#{msgs.sort_released_desc}"/>
 							</h:commandLink>
 						</f:facet>
-
+						<h:outputText rendered="#{gradebook.release}" value="#{msgs.yes}"/>
+						<h:outputText rendered="#{!gradebook.release}" value="#{msgs.no}"/>
 					</h:column>
 					<%-- <h:column rendered="#{PostemTool.editable}">
 						<f:facet name="header">
