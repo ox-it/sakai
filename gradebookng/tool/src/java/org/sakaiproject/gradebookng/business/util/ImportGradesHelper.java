@@ -7,11 +7,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -21,17 +25,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.panel.Panel;
 
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
+import org.sakaiproject.gradebookng.business.importExport.AnonIdentifier;
+import org.sakaiproject.gradebookng.business.importExport.CommentValidationReport;
+import org.sakaiproject.gradebookng.business.importExport.CommentValidator;
 import org.sakaiproject.gradebookng.business.importExport.DataConverter;
+import org.sakaiproject.gradebookng.business.importExport.GradeValidationReport;
+import org.sakaiproject.gradebookng.business.importExport.GradeValidator;
 import org.sakaiproject.gradebookng.business.importExport.HeadingValidationReport;
+import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -43,6 +56,8 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
+import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
+import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
@@ -338,6 +353,201 @@ public class ImportGradesHelper {
 		}
 
 		return row;
+	}
+
+	/**
+	 * Validates and processes the spreadsheet provided by importWizardModel.getSpreadsheetWrapper(); prepares an ImportWizardModel appropriate for the selection step
+	 * @param sourcePage the ImportExportPage
+	 * @param sourcePanel panel on which to invoke error(), etc. with localized messages should we encounter any issues
+	 * @param spreadsheetWrapper the ImportedSpreadsheetWrapper to be processed
+	 * @param businessService
+	 * @param target
+	 * @return true if the model was successfully set up without errors; in case of errors, the feedback panels will be updated and false will be returned
+	 */
+	public static boolean setupImportWizardModelForSelectionStep(ImportExportPage sourcePage, Panel sourcePanel, ImportWizardModel importWizardModel, GradebookNgBusinessService businessService, AjaxRequestTarget target)
+	{
+
+		ImportedSpreadsheetWrapper spreadsheetWrapper = importWizardModel.getSpreadsheetWrapper();
+		if (spreadsheetWrapper == null)
+		{
+			sourcePanel.error(MessageHelper.getString("importExport.error.unknown"));
+			sourcePage.updateFeedback(target);
+			return false;
+		}
+
+		// Track selections if coming back from the item creation steps
+		List<ProcessedGradeItem> oldSelections = importWizardModel.getSelectedGradeItems();
+		final Set<String> selectedItemTitles;
+		if (oldSelections != null)
+		{
+			selectedItemTitles = oldSelections.stream().map(ProcessedGradeItem::getItemTitle).collect(Collectors.toSet());
+		}
+		else
+		{
+			selectedItemTitles = Collections.emptySet();
+		}
+
+		// If there are duplicate headings, tell the user now
+		boolean hasValidationErrors = false;
+		HeadingValidationReport headingReport = spreadsheetWrapper.getHeadingReport();
+		SortedSet<String> duplicateHeadings = headingReport.getDuplicateHeadings();
+		if (!duplicateHeadings.isEmpty()) {
+			String duplicates = StringUtils.join(duplicateHeadings, ", ");
+			sourcePanel.error(MessageHelper.getString("importExport.error.duplicateColumns", duplicates));
+			hasValidationErrors = true;
+		}
+
+		// If there are invalid headings, tell the user now
+		SortedSet<String> invalidHeadings = headingReport.getInvalidHeadings();
+		if (!invalidHeadings.isEmpty()) {
+			String invalids = StringUtils.join(invalidHeadings, ", ");
+			sourcePanel.error(MessageHelper.getString("importExport.error.invalidColumns", invalids));
+			hasValidationErrors = true;
+		}
+
+		// If there are blank headings, tell the user now
+		int blankHeadings = headingReport.getBlankHeaderTitleCount();
+		if (blankHeadings > 0) {
+			sourcePanel.error(MessageHelper.getString("importExport.error.blankHeadings", blankHeadings));
+			hasValidationErrors = true;
+		}
+
+		boolean isContextAnonymous = spreadsheetWrapper.getUserIdentifier() instanceof AnonIdentifier;
+
+		// If there are duplicate student entries, tell the user now (we can't make the decision about which entry takes precedence)
+		UserIdentificationReport userReport = spreadsheetWrapper.getUserIdentifier().getReport();
+		SortedSet<GbUser> duplicateStudents = userReport.getDuplicateUsers();
+		if (!duplicateStudents.isEmpty()) {
+			String duplicates;
+			if (isContextAnonymous)
+			{
+				duplicates = StringUtils.join(duplicateStudents.stream().map(GbUser::getAnonId).collect(Collectors.toList()), ", ");
+			}
+			else
+			{
+				duplicates = StringUtils.join(duplicateStudents, ", ");
+			}
+			sourcePanel.error(MessageHelper.getString("importExport.error.duplicateStudents", duplicates));
+			hasValidationErrors = true;
+		}
+
+		// Perform grade validation; present error message with invalid grades on current page
+		boolean isSourceDPC = spreadsheetWrapper.isDPC();
+		List<ImportedColumn> columns = spreadsheetWrapper.getColumns();
+		List<ImportedRow> rows = spreadsheetWrapper.getRows();
+		GradeValidationReport gradeReport = new GradeValidator().validate(rows, columns, isSourceDPC, isContextAnonymous);
+		// maps columnTitle -> (userEid -> grade)
+		SortedMap<String, SortedMap<String, String>> invalidGradesMap = gradeReport.getInvalidNumericGrades();
+		if (!invalidGradesMap.isEmpty()) {
+			Collection<SortedMap<String, String>> invalidGrades = invalidGradesMap.values();
+			List<String> badGradeEntries = new ArrayList<>(invalidGrades.size());
+			for (SortedMap<String, String> invalidGradeEntries : invalidGrades) {
+				badGradeEntries.add(StringUtils.join(invalidGradeEntries.entrySet(), ", "));
+			}
+
+			String badGrades = StringUtils.join(badGradeEntries, ", ");
+			sourcePanel.error(MessageHelper.getString("importExport.error.invalidGradeData", badGrades));
+			hasValidationErrors = true;
+		}
+
+		// Perform comment validation if the file is not a DPC; present error message with invalid comments on current page
+		if (!isSourceDPC) {
+			CommentValidationReport commentReport = new CommentValidator().validate(rows, columns, isContextAnonymous);
+			SortedMap<String, SortedMap<String, String>> invalidCommentsMap = commentReport.getInvalidComments();
+			if (!invalidCommentsMap.isEmpty()) {
+				Collection<SortedMap<String, String>> invalidComments = invalidCommentsMap.values();
+				List<String> badCommentEntries = new ArrayList<>(invalidComments.size());
+				for (SortedMap<String, String> invalidCommentEntries : invalidComments) {
+					badCommentEntries.add(StringUtils.join(invalidCommentEntries.entrySet(), ", "));
+				}
+
+				String badComments = StringUtils.join(badCommentEntries, ", ");
+				sourcePanel.error(MessageHelper.getString("importExport.error.invalidComments", CommentValidator.MAX_COMMENT_LENGTH, badComments));
+				hasValidationErrors = true;
+			}
+		}
+
+		// get existing data
+		final List<Assignment> assignments = businessService.getGradebookAssignments();
+		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, isContextAnonymous);
+
+		// process file
+		List<ProcessedGradeItem> processedGradeItems = processImportedGrades(spreadsheetWrapper, assignments, grades);
+
+		// If the file has orphaned comment columns, tell the user now
+		SortedSet<String> orphanedCommentColumns = headingReport.getOrphanedCommentHeadings();
+		if (!orphanedCommentColumns.isEmpty()) {
+			String invalids = StringUtils.join(orphanedCommentColumns, ", ");
+			sourcePanel.error(MessageHelper.getString("importExport.error.orphanedComments", invalids));
+			hasValidationErrors = true;
+		}
+
+		// if empty there are no users
+		if (processedGradeItems.isEmpty()) {
+			sourcePanel.error(MessageHelper.getString("importExport.error.empty"));
+			sourcePage.updateFeedback(target);
+		}
+
+		// If there are no valid user entries, tell the user now
+		boolean noValidUsers = true;
+		for (ProcessedGradeItem item : processedGradeItems) {
+			if (!item.getProcessedGradeItemDetails().isEmpty()) {
+				noValidUsers = false;
+				break;
+			}
+		}
+		if (noValidUsers) {
+			sourcePanel.error(MessageHelper.getString("importExport.error.noValidStudents"));
+			hasValidationErrors = true;
+		}
+
+		// Return errors before processing further
+		if (hasValidationErrors) {
+			sourcePage.updateFeedback(target);
+			return false;
+		}
+
+		// No validation errors were encountered; clear out previous errors and continue to the next step in the wizard
+		sourcePage.clearFeedback();
+		sourcePage.updateFeedback(target);
+
+		// If returning from the creation pages, the ProcessedGradeItems in importWizardModel are now stale. Update them mathing on getItemTitle()
+		if (!CollectionUtils.isEmpty(selectedItemTitles))
+		{
+			Map<String, Assignment> titlesToAssignments = new HashMap<>();
+			Map<ProcessedGradeItem, Assignment> staleAssignmentsToCreate = importWizardModel.getAssignmentsToCreate();
+			for (Map.Entry<ProcessedGradeItem, Assignment> entry : staleAssignmentsToCreate.entrySet())
+			{
+				titlesToAssignments.put(entry.getKey().getItemTitle(), entry.getValue());
+			}
+
+			List<ProcessedGradeItem> selectedGradeItems = new ArrayList<>();
+			Map<ProcessedGradeItem, Assignment> assignmentsToCreate = new LinkedHashMap<>();
+			for (ProcessedGradeItem item : processedGradeItems)
+			{
+				String title = item.getItemTitle();
+				if (selectedItemTitles.contains(title))
+				{
+					selectedGradeItems.add(item);
+				}
+
+				Assignment toCreate = titlesToAssignments.get(title);
+				if (toCreate != null)
+				{
+					assignmentsToCreate.put(item, toCreate);
+				}
+			}
+
+			importWizardModel.setSelectedGradeItems(selectedGradeItems);
+			importWizardModel.setAssignmentsToCreate(assignmentsToCreate);
+		}
+
+		// Setup and return the model
+		importWizardModel.setProcessedGradeItems(processedGradeItems);
+		importWizardModel.setUserReport(userReport);
+		importWizardModel.setContextAnonymous(isContextAnonymous);
+
+		return true;
 	}
 
 	/**

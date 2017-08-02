@@ -383,7 +383,8 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 	 */
 	public void lockAnonymousToValue(boolean isItemAnonymous)
 	{
-		anonymous.setModelObject(isItemAnonymous);
+		Assignment assignment = (Assignment) getDefaultModel().getObject();
+		assignment.setAnon(isItemAnonymous);
 		isAnonymousLocked = true;
 	}
 	

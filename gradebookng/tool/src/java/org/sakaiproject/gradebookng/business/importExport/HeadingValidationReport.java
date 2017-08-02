@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.business.importExport;
 
+import java.io.Serializable;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -10,7 +11,7 @@ import lombok.Getter;
  * 
  * @author plukasew, bjones86
  */
-public class HeadingValidationReport
+public class HeadingValidationReport implements Serializable
 {
     @Getter
     private final SortedSet<String> duplicateHeadings;

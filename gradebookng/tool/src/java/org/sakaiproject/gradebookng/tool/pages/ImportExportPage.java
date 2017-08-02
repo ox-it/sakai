@@ -1,10 +1,15 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.feedback.ExactLevelFeedbackMessageFilter;
+import org.apache.wicket.feedback.FeedbackMessage;
+import org.apache.wicket.feedback.IFeedbackMessageFilter;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.panels.importExport.GradeImportUploadStep;
 
 /**
@@ -17,6 +22,20 @@ public class ImportExportPage extends BasePage {
 
 	public WebMarkupContainer container;
 
+	// Confirmation page displays both SUCCESS and ERROR messages.
+	// GbFeedbackPanels are styled with a single uniform background colour to represent a single 'error level' state.
+	// Since multiple 'error level' states are present, it looks best separated as two different panels
+	public final GbFeedbackPanel nonErrorFeedbackPanel = (GbFeedbackPanel) new GbFeedbackPanel("nonErrorFeedbackPanel").setFilter(new IFeedbackMessageFilter()
+	{
+		@Override
+		public boolean accept(FeedbackMessage message)
+		{
+			return FeedbackMessage.ERROR != message.getLevel();
+		}
+	});
+
+	public final GbFeedbackPanel errorFeedbackPanel = (GbFeedbackPanel) new GbFeedbackPanel("errorFeedbackPanel").setFilter(new ExactLevelFeedbackMessageFilter(FeedbackMessage.ERROR));
+
 	public ImportExportPage() {
 		disableLink(this.importExportPageLink);
 
@@ -24,6 +43,11 @@ public class ImportExportPage extends BasePage {
 		container.setOutputMarkupId(true);
 		container.add(new GradeImportUploadStep("wizard"));
 		add(container);
+
+		// hide BasePage's feedback panel and use the error/nonError filtered feedback panels
+		feedbackPanel.setVisibilityAllowed(false);
+		add(nonErrorFeedbackPanel);
+		add(errorFeedbackPanel);
 	}
 
 	@Override
@@ -38,5 +62,19 @@ public class ImportExportPage extends BasePage {
 
 		// Gradebook Import/Export styles
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/gradebook-importexport.css?version=%s", version)));
+	}
+
+	@Override
+	public void clearFeedback()
+	{
+		feedbackPanel.clear();
+		nonErrorFeedbackPanel.clear();
+		errorFeedbackPanel.clear();
+	}
+
+	public void updateFeedback(AjaxRequestTarget target)
+	{
+		target.add(nonErrorFeedbackPanel);
+		target.add(errorFeedbackPanel);
 	}
 }

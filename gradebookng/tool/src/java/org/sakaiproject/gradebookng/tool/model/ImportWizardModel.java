@@ -2,7 +2,7 @@ package org.sakaiproject.gradebookng.tool.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
+import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -17,6 +18,13 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
  * Model object used for the import wizard panels
  */
 public class ImportWizardModel implements Serializable {
+
+	/**
+	 * Representation of the spreadsheet
+	 */
+	@Getter
+	@Setter
+	private ImportedSpreadsheetWrapper spreadsheetWrapper;
 
 	/**
 	 * List of items that have been uploaded
@@ -72,7 +80,7 @@ public class ImportWizardModel implements Serializable {
 	 */
 	@Getter
 	@Setter
-	private Map<ProcessedGradeItem, Assignment> assignmentsToCreate = new HashMap<>();
+	private Map<ProcessedGradeItem, Assignment> assignmentsToCreate = new LinkedHashMap<>();
 
 	/**
 	 * The {@link UserIdentificationReport} generated during parsing of the raw import file

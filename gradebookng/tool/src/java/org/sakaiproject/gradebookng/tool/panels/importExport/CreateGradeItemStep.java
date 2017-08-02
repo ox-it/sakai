@@ -8,7 +8,10 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
@@ -25,6 +28,9 @@ import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
  */
 @Slf4j
 public class CreateGradeItemStep extends Panel {
+
+    @SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+    protected GradebookNgBusinessService businessService;
 
     private final String panelId;
     private final IModel<ImportWizardModel> model;
@@ -96,7 +102,7 @@ public class CreateGradeItemStep extends Panel {
                 // clear any previous errors
                 final ImportExportPage page = (ImportExportPage) getPage();
                 page.clearFeedback();
-                target.add(page.feedbackPanel);
+                page.updateFeedback(target);
 
                 // AJAX the new panel into place
                 newPanel.setOutputMarkupId(true);
@@ -109,7 +115,7 @@ public class CreateGradeItemStep extends Panel {
 			protected void onError(AjaxRequestTarget target, Form<?> form)
 			{
 				final ImportExportPage page = (ImportExportPage) getPage();
-				target.add(page.feedbackPanel);
+				page.updateFeedback(target);
 			}
 					
         };
@@ -122,7 +128,7 @@ public class CreateGradeItemStep extends Panel {
                 // clear any previous errors
                 final ImportExportPage page = (ImportExportPage) getPage();
                 page.clearFeedback();
-                target.add(page.feedbackPanel);
+                page.updateFeedback(target);
 
                 // Create the previous panel
                 Component previousPanel;
@@ -131,6 +137,9 @@ public class CreateGradeItemStep extends Panel {
                     previousPanel = new CreateGradeItemStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 }
                 else {
+                    // Reload everything. Rationale: final step can have partial success and partial failure. If content was imported from the spreadsheet, the item selection page should reflect this when we return to it
+                    ImportGradesHelper.setupImportWizardModelForSelectionStep(page, CreateGradeItemStep.this, importWizardModel, businessService, target);
+
                     previousPanel = new GradeItemImportSelectionStep(CreateGradeItemStep.this.panelId, Model.of(importWizardModel));
                 }
 

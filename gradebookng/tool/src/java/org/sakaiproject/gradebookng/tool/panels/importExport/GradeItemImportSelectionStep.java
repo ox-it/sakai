@@ -111,7 +111,12 @@ public class GradeItemImportSelectionStep extends Panel {
 		};
 		add(hideNoChanges);
 
-		final CheckGroup<ProcessedGradeItem> group = new CheckGroup<>("group", new ArrayList<ProcessedGradeItem>());
+		List<ProcessedGradeItem> selections = importWizardModel.getSelectedGradeItems();
+		if (selections == null)
+		{
+			selections = new ArrayList<>();
+		}
+		final CheckGroup<ProcessedGradeItem> group = new CheckGroup<>("group", selections);
 
 		final Form<?> form = new Form("form");
 		add(form);
@@ -124,7 +129,7 @@ public class GradeItemImportSelectionStep extends Panel {
 				// clear any previous errors
 				final ImportExportPage page = (ImportExportPage) getPage();
 				page.clearFeedback();
-				target.add(page.feedbackPanel);
+				page.updateFeedback(target);
 
 				// Create the previous panel
 				final Component previousPanel = new GradeImportUploadStep(GradeItemImportSelectionStep.this.panelId);
@@ -150,13 +155,13 @@ public class GradeItemImportSelectionStep extends Panel {
 				final ImportExportPage page = (ImportExportPage) getPage();
 				if (selectedGradeItems.isEmpty()) {
 					error(getString("importExport.selection.noneselected"));
-					target.add(page.feedbackPanel);
+					page.updateFeedback(target);
 					return;
 				}
 
 				// clear any previous errors
 				page.clearFeedback();
-				target.add(page.feedbackPanel);
+				page.updateFeedback(target);
 
 				// Process the selected items into the create/update lists
 				final List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(selectedGradeItems,
@@ -181,6 +186,7 @@ public class GradeItemImportSelectionStep extends Panel {
 				importWizardModel.setItemsToCreate(itemsToCreate);
 				importWizardModel.setItemsToUpdate(itemsToUpdate);
 				importWizardModel.setItemsToModify(itemsToModify);
+				importWizardModel.getAssignmentsToCreate().keySet().retainAll(itemsToCreate);
 
 				// create those that need to be created. When finished all, continue.
 				if (itemsToCreate.size() > 0) {
