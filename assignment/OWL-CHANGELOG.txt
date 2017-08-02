@@ -1,3 +1,5 @@
+2017.08.02:
+	- [OWL-2747] paginator items per page spinner fix
 2017.05.19:
 	- [OWL-2665] display appropriate text for items pending originality reports on due date
 	- [OWL-1408] better icon for pending content review reports

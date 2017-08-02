@@ -321,3 +321,17 @@ fieldset .alertMessageInline,fieldset .alertMessage {
     font-style: italic !important;
     cursor: pointer !important;
 }
+
+div#pagingHeader {
+    height: 20px;
+    padding: 15px;
+    display: flex;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    justify-content: center;
+}
