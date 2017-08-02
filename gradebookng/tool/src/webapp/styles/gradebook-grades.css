@@ -615,6 +615,41 @@
   padding: 0;
   position: relative;
 }
+
+@media (max-width: 800px)
+{
+	#gradebookGradesToolbar
+	{
+		-webkit-flex-direction: column;
+		flex-direction: column;
+		-webkit-align-items: center;
+		align-items: center;
+	}
+	
+	.gb-pager
+	{
+		margin-bottom: 26px;
+	}
+	
+	#gradebookGradesToolbar .gb-live-feedback
+	{
+		top: initial;
+		bottom: 0;
+	}
+}
+
+.groupFilter
+{
+	max-width: 250px;
+}
+
+@media (max-width: 800px)
+{
+	.groupFilter
+	{
+		max-width: 350px;
+	}
+}
 .gb-section-group-filter
 {
 	display: -webkit-flex;
@@ -654,7 +689,7 @@
 }
 .gb-column-display-settings .gb-column-display-button-group button
 {
-	margin: 0 0.25em 0 0.25em;
+	margin: 0.25em 0.25em 0 0.25em;
 }
 
 .gb-column-display-button-group
@@ -669,7 +704,7 @@
 
 .gb-column-display-settings .gb-item-summary
 {
-	margin-bottom: 0.5em;
+	margin-bottom: 0.25em;
 }
 .gb-pager .gbSakaiPagerContainer
 {
@@ -689,6 +724,8 @@
 {
 	margin-right: 0;
 }
+
+
 
 span.gb-spinner-dropdown-container::after
 {

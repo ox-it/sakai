@@ -682,7 +682,14 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 };
 
 
-GradebookSpreadsheet.prototype.setupScrollHandling = function() {
+GradebookSpreadsheet.prototype.setupScrollHandling = function()
+{
+  // don't freeze the columns and headers on a small device, there isn't enough room  
+  if (document.documentElement.clientWidth < 800)
+  {
+      return;
+  }
+    
   var self = this;
   
   self._frzContainer = document.querySelector('#gradebookVerticalOverflowWrapper');
@@ -726,32 +733,7 @@ GradebookSpreadsheet.prototype.setupScrollHandling = function() {
     {
         self._frzTopHeaders[i].style.transform = tY;
     }
-            
-    //var t1 = performance.now();
-    //console.log("scrollTime = " + (t1 - t0) + " ms.");
-    //console.log("x: " + x + " y: " + y);
   });
-  
-  /*self._frzContainer.addEventListener('wheel', function (e)
-  {
-      console.log("wheelY: " + e.deltaY);
-      
-      var speed = 40;
-      if (e.deltaY < 0)
-      {
-          speed = -40;
-      }
-      self._frzContainer.scrollTop += speed;
-      
-      e.preventDefault();
-  });*/
-  
-
-  //$(document).on("scroll", $.proxy(self.handleScrollEvent, self));
-  //self.$horizontalOverflow.on("scroll", $.proxy(self.handleScrollEvent, self));
-
- 
-  //self.handleScrollEvent();
 };
 
 

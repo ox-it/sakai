@@ -1,3 +1,5 @@
+2017.08.02:
+        - [OWL-2981] Handle GBNG+ for mobile view
 2017.08.01:
         - [OWL-2912] getStringIgnoreSettings warning in logs every time you hit the Grades page
         - [OWL-3020] tune gradebook concurrent editing and connection checks
