@@ -1,3 +1,5 @@
+2017.08.02:
+	- [OWL-3021] add required field asterisk to copyright drop down in upload resources
 2017.08.01:
 	- [OWL-3022] don't call validator.escapeHtmlFixCopyright() as it no longer exists
 2017.07.14:

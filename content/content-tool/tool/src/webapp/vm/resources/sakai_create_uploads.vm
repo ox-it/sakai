@@ -8,7 +8,10 @@
 #macro(copyrightSelect)
 	#if($model.resourceTypeDef.hasRightsDialog())
 		#if ($!copyrightTypes)
-			<h4>$tlang.getString("cright.status.all")</h4>
+			<h4>
+				<span class="reqStar">*</span>
+				$tlang.getString("cright.status.all")
+			</h4>
 			<div class="form-group">
 				<select class="copyrightStatus" name="copyright" id="copyright">
 			#set ($noOneSelected=true)
