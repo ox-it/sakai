@@ -606,7 +606,7 @@ alter table qrtz_fired_triggers add sched_time NUMBER(19,0) not null;
 --    loop
 --        execute immediate 'alter table '||r.table_name||' drop constraint '||r.constraint_name;
 --    end loop;
---end;
+-- end;
 
 -- OWL NOTE: the above script doesn't run on Oracle. Instead we list the exact constraints we need to drop.
 -- If the following lines generate errors, run the select statement in the commented out loop above to find the
