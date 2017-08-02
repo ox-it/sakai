@@ -597,16 +597,26 @@ alter table qrtz_triggers add sched_name varchar(120) DEFAULT 'QuartzScheduler' 
 alter table qrtz_fired_triggers add sched_time NUMBER(19,0) not null;
 --
 -- drop all foreign key constraints, so that we can define new ones
---
-begin
-    for r in ( select table_name,constraint_name
-                from user_constraints
-                where table_name in (upper('qrtz_triggers'),upper('qrtz_blob_triggers'),upper('qrtz_cron_triggers'),upper('qrtz_simple_triggers'))
-                and constraint_type='R')
-    loop
-        execute immediate 'alter table '||r.table_name||' drop constraint '||r.constraint_name;
-    end loop;
-end;
+
+-- begin
+--     for r in ( select table_name,constraint_name
+--                from user_constraints
+--                where table_name in (upper('qrtz_triggers'),upper('qrtz_blob_triggers'),upper('qrtz_cron_triggers'),upper('qrtz_simple_triggers'))
+--                and constraint_type='R')
+--    loop
+--        execute immediate 'alter table '||r.table_name||' drop constraint '||r.constraint_name;
+--    end loop;
+--end;
+
+-- OWL NOTE: the above script doesn't run on Oracle. Instead we list the exact constraints we need to drop.
+-- If the following lines generate errors, run the select statement in the commented out loop above to find the
+-- correct constraint names and substitute them
+alter table qrtz_simple_triggers drop constraint sys_c0012275;
+alter table qrtz_cron_triggers drop constraint sys_c0012276;
+alter table qrtz_triggers drop constraint sys_c0012370;
+alter table qrtz_blob_triggers drop constraint sys_c0012371;
+
+
 --
 -- add all primary and foreign key constraints, based on new columns
 --
