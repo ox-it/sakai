@@ -2,14 +2,17 @@
 
 //.#{$namespace}
 .is-logged-out{
-	#content, .#{$namespace}container--footer{
-		margin: 0 0 0 0;
-		@media #{$phone}{
-			margin: 6.5em 0 0 0;
+	#content
+	{
+		@media #{$phone}
+		{
+			margin: 8em 0 0 0;
 		}
 	}
-	.#{$namespace}topHeader {
-		@media #{$phone}{
+	.#{$namespace}topHeader 
+	{
+		@media #{$phone}
+		{
 			&.moving{
 	    		top: -12em;
 	    	}
@@ -32,34 +35,46 @@
 		flex-direction: column;
 		width: 100%;
 	}
+	
+	@media #{$phone}{
+		min-height: 100vh;
+	}
+	
+	// OWLTODO: mobile needed?
+	/*
 	@media #{$phone}{
 		padding: 12px;
-	}
+	}*/
 }
 
-#content, .#{$namespace}container--footer
+#content
 {
 	display: flex;
 	flex-wrap: wrap;		// allows the site unpublished banner to be on its own line at 100%
 	margin: 0 0 0 0;
 	width: 100%;
 
-	@media #{$phone}{
-		margin: 6.5em 0 0 0;
+	@media #{$phone}
+	{
+		margin: 8em 0 0 0;
+	}
+	@media #{$tablet}
+	{
+		flex-direction: column;
 	}
 	
 	#col1of2, #col2of2
 	{
 		flex: 1;
 		display: inline-block;
-		margin: 0 0 0 $standard-padding;
+		margin: 0 0 $standard-padding $standard-padding;
 		vertical-align: top;
 		width: 46%;
 		
-		@media #{$phone}
+		@media #{$tablet}
 		{
 			display: block;
-			width: 100%;
+			width: 96%;			//OWLTODO: figure out why this can't be 100%
 		}
 	}
 	#col2of2
@@ -94,7 +109,10 @@
 
 .#{$namespace}container--footer
 {
-	margin-top: auto; 					// push the footer to the bottom of the page
+	display: flex;
+	flex-wrap: wrap;
+	width: 100%;
+	margin: auto 0 0 0; 					// push the footer to the bottom of the page
 	background: $footer-background;
 }
 

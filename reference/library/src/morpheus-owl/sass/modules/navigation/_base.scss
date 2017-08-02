@@ -910,6 +910,11 @@ body.is-logged-out{
 		color: $siteUnpublished-color;
 		text-align: center;
 		
+		@media #{$phone}
+		{
+			margin-top: 6.8em;
+		}
+		
 		h4
 		{
 			display: inline-block;

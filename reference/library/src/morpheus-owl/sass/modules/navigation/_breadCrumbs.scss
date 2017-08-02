@@ -107,10 +107,12 @@
 		background-image: none;
 		color: $background-color;
 		position: fixed;
-		top: 6.3em;
+		top: 6em;
 		width: 100%;
 		z-index: 2;
-		@include transition( top 0.25s linear 0s );
+		@include transition(top 0.25s linear);
+		font-size: $default-font-size;
+			
 		&.moving{
 			top: -22.2em;
 		}
@@ -120,11 +122,8 @@
 		a{
 			border-bottom: 0px none;
 			color: $background-color;
-			font-size: 0.9em;
-			.#{$namespace}breadcrumb--icon{
-				font-size: 0.95em;
-				vertical-align: 15%;
-			}
+			font-size: 1em;
+
 			&:hover{
 				color: $background-color;
 			}			

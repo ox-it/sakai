@@ -17,7 +17,7 @@
 			margin: 0px $standard-padding;
 			position: relative;
 			width: calc(100% - 90px);
-			z-index: 21;
+			//z-index: 21;		OWLTODO: needed mobile
 			a{
 				color: rgba(21,21,21,0.5);
 				font-weight: 400;
