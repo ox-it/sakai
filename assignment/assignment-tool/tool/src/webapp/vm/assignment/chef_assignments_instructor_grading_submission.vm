@@ -13,6 +13,9 @@
 			var $pan = $('#peerReviewInfo')
 			if ($pan.is(':visible') && ev.target.id !== 'peerReviewInfo' && ev.target.id !== 'infoImg' && ev.target.id !== 'grade') $pan.hide();
 		});
+		$(window).on('beforeunload', function() {
+			return ' ';
+		});
 		disableBackButton();
 	});
 </script>

@@ -1,5 +1,6 @@
 2017.08.03:
 	- [OWL-2751] don't put focus on the max points field if there are error messages at the top of the add/edit assignment UI
+	- [OWL-2829] implement onbeforeunload on submission grading UI
 2017.08.02:
 	- [OWL-2747] paginator items per page spinner fix
 2017.05.19:
