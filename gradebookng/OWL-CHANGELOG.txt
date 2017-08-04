@@ -1,3 +1,6 @@
+2017.08.04:
+	- [OWL-2999] Import grades improvements
+	- [OWL-3049] fixed stack trace when exporting total points when no items count toward course grade
 2017.08.02:
         - [OWL-2981] Handle GBNG+ for mobile view
 2017.08.01:
