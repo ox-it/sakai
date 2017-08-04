@@ -68,7 +68,7 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		
 		// section and group dropdown
 		showGroupFilter = showGroupFilter();
-		if(showGroupFilter || settings.isContextAnonymous())
+		if(showGroupFilter || !isGroupFilterAllowed())
 		{
 			handleShowGroupFilter();
 		}
@@ -129,16 +129,24 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		groupFilter.select.setNullValid(false);
 		groupFilter.setVisible(showGroupFilter);
 	}
+
+	/**
+	 * A preliminary check to determine if the group filter is visible.
+	 * For instance, it should be hidden on the grades page in the anonymous context, but always displayed on final grades where isGroupFilterVisibleForced is set
+	 */
+	protected boolean isGroupFilterAllowed()
+	{
+		GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
+		return settings.isGroupFilterVisibilityForced() || !settings.isContextAnonymous();
+	}
 	
 	protected boolean showGroupFilter()
 	{
 		if (groups.size() > 1)
 		{
-			return true;
+			return isGroupFilterAllowed();
 		}
-		
-		GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
-		return settings.isGroupFilterVisibilityForced() || !settings.isContextAnonymous();
+		return false;
 	}
 	
 	protected void handleShowGroupFilter()

@@ -77,6 +77,12 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 	@Override
 	protected boolean showGroupFilter()
 	{	
+		if (!isGroupFilterAllowed())
+		{
+			// don't show groups in anonymous contexts, unless it's the final grades page (in which groupFilterVisibilityForced is true)
+			return false;
+		}
+
 		boolean show = !groups.isEmpty();
 		
 		// otherwise add the 'all groups' option
