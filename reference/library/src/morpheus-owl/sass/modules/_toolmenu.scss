@@ -13,10 +13,6 @@ body.is-logged-out{
 
 body.#{$namespace}toolMenu-collapsed{
 
-	#content, .Mrphs-container--footer {
-	    margin: 0 0 0 0;
-	}
-
 	#toolMenuWrap{
 		max-width: $tool-menu-collapsed-width;
 		min-width: $tool-menu-collapsed-width;
