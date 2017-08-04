@@ -1,3 +1,5 @@
+2017.08.04:
+	- [OWL-3036] Fixed the styles on the sakai-iframe container
 2017.08.01: 
 	- [OWL-2917] Adjusted the positioning of the top-right tooltitlenav buttons (Link, Help, etc)
 	- [OWL-3014] Adjusted some of the compass mixins to contain the correct order for the browser prefixes
