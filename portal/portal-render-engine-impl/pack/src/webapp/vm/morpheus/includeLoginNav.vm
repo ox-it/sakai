@@ -120,6 +120,16 @@
 
                                     #end ## END of IF (${tabsSites.prefsToolUrl})
 
+                                    #if (${tabsSites.recordedLecturesToolUrl})
+            
+                                        <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">
+                                            <a role="menuitem" href="${tabsSites.recordedLecturesToolUrl}" class="Mrphs-userNav__submenuitem--recordedLectures">
+                                                <span>${rloader.sit_recordedlectures}</span>
+                                            </a>
+                                        </li>
+            
+                                    #end ## END of IF (${tabsSites.recordedLecturesToolUrl})
+
                                     #if (${tabsSites.tutorial})
 
                                         <li class="Mrphs-userNav__submenuitem Mrphs-userNav__submenuitem-indented">

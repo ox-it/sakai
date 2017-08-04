@@ -8,6 +8,7 @@
 		<tool id = "sakai.sitesetup" required = "true" />
 		<tool id = "sakai.membership" required="true" />
 		<tool id = "sakai.preferences" required="true" />
+		<tool id = "sakai.iframe.recorded.lectures" required="true" />
 
 	</category>
 

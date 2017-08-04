@@ -124,15 +124,18 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		String profileToolId = serverConfigurationService.getString("portal.profiletool","sakai.profile2");
 		String calendarToolId = serverConfigurationService.getString("portal.calendartool","sakai.schedule");
 		String preferencesToolId = serverConfigurationService.getString("portal.preferencestool","sakai.preferences");
+		String recordedLecturesToolId = serverConfigurationService.getString("sakai.iframe.recorded.lectures", "sakai.iframe.recorded.lectures");
 		String worksiteToolId = serverConfigurationService.getString("portal.worksitetool","sakai.sitesetup");
 
  		String profileToolUrl = null;
 		String calendarToolUrl = null;
  		String worksiteToolUrl = null;
+		String recordedLecturesToolUrl = null;
  		String prefsToolUrl = null;
  		String mrphs_profileToolUrl = null;
  		String mrphs_worksiteToolUrl = null;
  		String mrphs_prefsToolUrl = null;
+		String mrphs_recLecToolUrl = null;
  		String mrphs_worksiteUrl = null;
         if ( myWorkspaceSiteId != null ) {
             for (Iterator iSi = mySites.iterator(); iSi.hasNext();) {
@@ -154,6 +157,9 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
                             } else if ( preferencesToolId.equals(placement.getToolId()) ) {
                                 prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                                 mrphs_prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
+                            } else if ( recordedLecturesToolId.equals(placement.getToolId()) ) {
+                                recordedLecturesToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+                                mrphs_recLecToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
                             } else if ( worksiteToolId.equals(placement.getToolId()) ) {
                                 worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
                                 mrphs_worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
@@ -177,6 +183,10 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 		if ( prefsToolUrl != null ) {
 			renderContextMap.put("prefsToolUrl", prefsToolUrl);
 			renderContextMap.put("mrphs_prefsToolUrl", mrphs_prefsToolUrl);
+		}
+		if ( recordedLecturesToolUrl != null ) {
+			renderContextMap.put("recordedLecturesToolUrl", recordedLecturesToolUrl);
+			renderContextMap.put("mrphs_recLecToolUrl", mrphs_recLecToolUrl);
 		}
 		if ( worksiteToolUrl != null ) {
 			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
