@@ -35,7 +35,7 @@
 	right: -0.5em;
 	display: flex;
 	align-items: center;
-	justify-content: flex-end;
+	justify-content: space-between;	// OWLTODO: I had this as flex-end, but changed to space-between for synoptic tools with titles
 	margin: 0;
 	padding: 0;
 	
@@ -115,13 +115,6 @@
 		position: relative;
 		margin: 0;
 		z-index: 1;
-		@media #{$tablet}{
-			left: 0.35em;
-			//font-size: 1.5em; OWLTODO: needed?
-			margin: 0px 0 0px 0;
-			top: -4px;
-			z-index: 1;
-		}
 	}
 	.#{$namespace}toolTitleNav__link
 	{
@@ -142,7 +135,7 @@
 		}
 		@media #{$tablet}
 		{
-			// OWLTODO:
+			font-size: $xlarge-font-size;		//create bigger hit-area for link buttons when text isn't displayed
 		}
 		&--directurl{
 			@extend .fa;

@@ -1,3 +1,5 @@
+2017.08.07:
+	 -[OWL-2717] Fixed toolTitleNav links positioning in non-desktop views to fix overlap issue
 2017.08.04:
 	- [OWL-3038] Removed an old CSS rule that was causing the footer to jump up the page when the tool menu was collapsed
 	- [OWL-3036] Fixed the styles on the sakai-iframe container
