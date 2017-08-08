@@ -1283,6 +1283,11 @@ public class CourseGradeSubmitter implements Serializable
         DecimalFormat formatNoDecimals = new DecimalFormat("000");
         return formatNoDecimals.format(numericGrade);
     }*/
+	
+	public GbGroup getSelectedSection()
+	{
+		return presenter.getSelectedSection();
+	}
     
     private String getSelectedSectionEid()
     {

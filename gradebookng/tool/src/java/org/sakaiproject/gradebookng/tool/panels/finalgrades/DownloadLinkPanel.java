@@ -37,11 +37,12 @@ public class DownloadLinkPanel extends Panel
 		super.onInitialize();
 		
 		OwlGradeSubmission sub = (OwlGradeSubmission) getDefaultModelObject();
-		DownloadLink dl = new DownloadLink("downloadLink", new PdfReportModel(sub),
-						new PdfFileNameModel("sectionName?", sub.getSectionEid(), sub.getSubmissionDate()));
-		dl.setDeleteAfterDownload(true);
 		CourseGradesPage page = (CourseGradesPage) getPage();
 		CourseGradeSubmitter submitter = page.getSubmitter();
+		DownloadLink dl = new DownloadLink("downloadLink", new PdfReportModel(sub),
+						new PdfFileNameModel(submitter.getSelectedSection().getTitle(), sub.getSectionEid(), sub.getSubmissionDate()));
+		dl.setDeleteAfterDownload(true);
+
 		dl.setEnabled(submitter.isCurrentUserAbleToSubmit() || submitter.isCurrentUserAbleToApprove());
 		add(dl);
 	}

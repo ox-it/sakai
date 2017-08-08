@@ -1,3 +1,5 @@
+2017.08.08:
+        - [OWL-3043] Improve Grade Submission PDF file name
 2017.08.04:
 	- [OWL-2999] Import grades improvements
 	- [OWL-3049] fixed stack trace when exporting total points when no items count toward course grade

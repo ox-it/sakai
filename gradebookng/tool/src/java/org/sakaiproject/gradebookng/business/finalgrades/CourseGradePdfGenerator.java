@@ -96,23 +96,6 @@ public class CourseGradePdfGenerator
         previousApprovedGrades = value;
     }
     
-    public String getFilename()
-    {
-        String filename;
-        String sectionName = getSectionName();
-        
-        DateFormat formatter = new SimpleDateFormat("MM_dd_yyyy-HH_mm_ss");
-        
-        filename = sectionName + "-" + submission.getSectionEid() + "-" + formatter.format(submission.getSubmissionDate()) + ".pdf";
-        filename = filename.replaceAll("/", "-");
-	//in regex, slashes are escaped again, so this is actually one slash
-	String slash = "\\\\";
-        filename = filename.replaceAll(slash, "-");
-        filename = filename.replaceAll("\\s+", "_");
-        
-        return filename;    
-    }
-    
     private String[][] getTableContent()
     {
         // NOTE: This algorithm completely ignores students who were approved last time
@@ -256,7 +239,7 @@ public class CourseGradePdfGenerator
 
     private String getSectionName()
     {
-	String sectionName = "";
+		String sectionName = "";
         CourseManagementService cms = (CourseManagementService) ComponentManager.get(CourseManagementService.class);
         if (cms != null)
         {
@@ -269,7 +252,7 @@ public class CourseGradePdfGenerator
                 // don't care, do nothing
             }
         }
-	return sectionName;
+		return sectionName;
     }
         
     /**
