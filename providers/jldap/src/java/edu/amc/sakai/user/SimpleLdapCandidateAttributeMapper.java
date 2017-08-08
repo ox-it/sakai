@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.detail.ValueEncryptionUtilities;
@@ -59,6 +60,7 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 	private int candidateIdLength;
 	private int additionalInfoLength;
 	private int studentNumberLength;
+	private ServerConfigurationService scs;
 
 	public void setEncryption(ValueEncryptionUtilities encryption) {
 		this.encryption = encryption;
@@ -76,6 +78,11 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 	public void setStudentNumberLength(int value)
 	{
 		studentNumberLength = value;
+	}
+	
+	public void setServerConfigurationService(ServerConfigurationService value)
+	{
+		scs = value;
 	}
 
 	/**
@@ -188,10 +195,13 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 			
 			o_prop = userDataProperties.get(AttributeMappingConstants.STUDENT_NUMBER_ATTR_MAPPING_KEY);
 			if(o_prop != null) {
-				if(o_prop instanceof String) {
-					userEditProperties.addProperty(USER_PROP_STUDENT_NUMBER, encryption.encrypt((String)o_prop, studentNumberLength));
-				} else if(o_prop instanceof List) {
-					Set<String> propertySet = new HashSet<String>();
+				if(o_prop instanceof String)
+				{
+					addStudentNumberProperty((String) o_prop, userEditProperties);	
+				}
+				else if(o_prop instanceof List)
+				{
+					Set<String> propertySet = new HashSet<>();
 					//remove duplicate values
 					for(String value : (List<String>)o_prop) {
 						propertySet.add(value);
@@ -199,7 +209,7 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 					//add student number, if there is only one value
 					if(propertySet.size() == 1) {
 						for(String value : propertySet) {
-							userEditProperties.addProperty(USER_PROP_STUDENT_NUMBER, encryption.encrypt(value, studentNumberLength));
+							addStudentNumberProperty(value, userEditProperties);
 						}
 					}
 				}
@@ -215,12 +225,23 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 				userEditProperties.addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryption.encrypt(EMPTY, additionalInfoLength));
 			}
 			if (StringUtils.isEmpty(userEditProperties.getProperty(USER_PROP_STUDENT_NUMBER))) {
-				userEditProperties.addProperty(USER_PROP_STUDENT_NUMBER, encryption.encrypt(EMPTY, studentNumberLength));
+				//userEditProperties.addProperty(USER_PROP_STUDENT_NUMBER, encryption.encrypt(EMPTY, studentNumberLength));
+				addStudentNumberProperty(EMPTY, userEditProperties);
 			}
 
 		super.mapUserDataOntoUserEdit(userData, userEdit);
 
 		}
 
+	}
+	
+	private void addStudentNumberProperty(String number, ResourceProperties userEditProperties)
+	{
+		String studentNumber = number;
+		if (scs.getBoolean(AttributeMappingConstants.SYSTEM_PROP_ENCRYPT_NUMERIC_ID, true))
+		{
+			studentNumber = encryption.encrypt(studentNumber, studentNumberLength);
+		}
+		userEditProperties.addPropertyToList(USER_PROP_STUDENT_NUMBER, studentNumber);
 	}
 }

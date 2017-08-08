@@ -112,7 +112,9 @@ public abstract class AttributeMappingConstants {
 	
 	public static final String DEFAULT_CANDIDATE_ID_ATTR = "employeeNumber";
 	public static final String DEFAULT_ADDITIONAL_INFO_ATTR = "description";
-	public static final String DEFAULT_STUDENT_NUMBER_ATTR = "employeeNumber"; // OWLTODO...fix this
+	public static final String DEFAULT_STUDENT_NUMBER_ATTR = "employeeNumber";
+	
+	public final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 	
 	/**
 	 * Default set of user entry attribute mappings. Keys are

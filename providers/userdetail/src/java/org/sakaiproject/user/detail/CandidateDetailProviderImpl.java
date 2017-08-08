@@ -34,6 +34,7 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
+	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 
 	private static Logger log = LoggerFactory.getLogger(CandidateDetailProviderImpl.class);
 	
@@ -135,13 +136,14 @@ public class CandidateDetailProviderImpl implements CandidateDetailProvider {
 			if(isInstitutionalNumericIdEnabled())
 			{
 				String studentNumber = user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER);
+				if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_NUMERIC_ID, true))
+				{
+					studentNumber = encryptionUtilities.decrypt(studentNumber);
+				}
+				
 				if(StringUtils.isNotBlank(studentNumber))
 				{
-					// this property is encrypted, so we need to decrypt it
-					String decrypt = encryptionUtilities.decrypt(studentNumber);
-					if (StringUtils.isNotBlank(decrypt)) {
-						return Optional.ofNullable(decrypt);
-					}
+					return Optional.of(studentNumber);
 				}
 			}
 			

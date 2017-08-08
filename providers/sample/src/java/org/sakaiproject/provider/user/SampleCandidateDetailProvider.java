@@ -56,6 +56,7 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_ANONYMOUS_ID = "useInstitutionalAnonymousID";
 	private final static String SYSTEM_PROP_DISPLAY_ADDITIONAL_INFORMATION = "displayAdditionalInformation";
 	private final static String SYSTEM_PROP_USE_INSTITUTIONAL_NUMERIC_ID = "useInstitutionalNumericID";
+	private final static String SYSTEM_PROP_ENCRYPT_NUMERIC_ID = "encryptInstitutionalNumericID";
 
 	/** Our log (commons). */
 	private final Logger log = LoggerFactory.getLogger(SampleCandidateDetailProvider.class);
@@ -225,10 +226,14 @@ public class SampleCandidateDetailProvider implements CandidateDetailProvider
 			if(user != null) {
 				//check if numeric id is enabled system-wide
 				if(isInstitutionalNumericIdEnabled()) {
-					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER)) && StringUtils.isNotBlank(encryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER)))) {
+					if(user.getProperties() != null && StringUtils.isNotBlank(user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER))) {
 						log.debug("Using user studentNumber property for user {}", user.getId());
-						//this property is encrypted, so we need to decrypt it
-						return Optional.ofNullable(encryptionUtilities.decrypt(user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER)));
+						String studentNumber = user.getProperties().getProperty(USER_PROP_STUDENT_NUMBER);
+						if (serverConfigurationService.getBoolean(SYSTEM_PROP_ENCRYPT_NUMERIC_ID, true))
+						{
+							studentNumber = encryptionUtilities.decrypt(studentNumber);
+						}
+						return Optional.ofNullable(studentNumber);
 					} else {
 						int hashInt = user.getId().hashCode();
 						if(hashInt % 10 == 4){
