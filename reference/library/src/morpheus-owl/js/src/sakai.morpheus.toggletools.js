@@ -2,47 +2,29 @@
 * For toggling the Minimize and Maximize tools menu in Morpheus: Adds classes to the <body>
 */
 
-function toggleMinimizeNav(){
+portal = portal || {};
 
-  $PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
-
-  var el = $PBJQ(this);
-  el.toggleClass('min max').parent().toggleClass('min max');
-
-  if (collapsed) {
-    document.cookie = "sakai_nav_minimized=false; path=/";
-    collapsed = false;
-    el.attr('aria-pressed', false);
-  } else {
-    document.cookie = "sakai_nav_minimized=true; path=/";
-    collapsed = true;
-    el.attr('aria-pressed', true);
-  }
+if (portal.toolsCollapsed === undefined) {
+	portal.toolsCollapsed = false;
 }
 
-$PBJQ(".js-toggle-nav").on("click", toggleMinimizeNav);
-
-var collapsed = false;
+portal.updateToolsCollapsedPref = function (collapsed) {
+	var url = '/direct/userPrefs/updateKey/' + portal.user.id + '/sakai:portal:sitenav?toolsCollapsed=' + collapsed;
+	$PBJQ.ajax(url, {method: 'PUT', cache: false});
+};
 
 var $window = $PBJQ(window),
 	$tools	= $("#toolMenu"),
 	$bread = $(".Mrphs-siteHierarchy"),
-	padding	= $bread.height() 
+	padding	= $bread.height()
 		+ getNumPart($bread.css('padding-top'))
 		+ getNumPart($bread.css('padding-bottom'))
 		+ $(".Mrphs-topHeader").height();
 
-$PBJQ(document).ready(function(){
-	if(getCookieVal('sakai_nav_minimized') === 'true') {
-		$PBJQ(".js-toggle-nav").click();
-		collapsed = true;
-	}
-});
-
 $PBJQ(window).scroll(function(){
 	if($("#toolMenuWrap").attr("scrollingToolbarEnabled") != undefined){
 		var topPad = $(".pasystem-banner-alerts").height();
-		var follow = ($window.height()- (padding + topPad)) > $tools.height() 
+		var follow = ($window.height()- (padding + topPad)) > $tools.height()
 						&& ($window.scrollTop() > padding);
 		if($("#toolMenuWrap").css('position') !== 'fixed'
 			&& follow && $window.scrollTop() > 0) {
@@ -75,16 +57,27 @@ $PBJQ("#toggleSubsitesLink").click(function (e) {
   }
 });
 
-function getCookieVal(cookieName) {
-	var cks = document.cookie.split(';');
-	for (var i = 0; i < cks.length; ++i) {
-		var curCookie = (cks[i].substring(0,cks[i].indexOf('='))).trim();
-		if(curCookie === cookieName) {
-			return ((cks[i].split('='))[1]).trim();;
-		}
+portal.toggleMinimizeNav = function () {
+
+	$PBJQ('body').toggleClass('Mrphs-toolMenu-collapsed');
+	// Remove any popout div for subsites.  Popout only displayed when portal.showSubsitesAsFlyout is set to true.
+	$PBJQ('#subSites.floating').css({'display': 'none'});
+
+	var el = $PBJQ(this);
+	el.toggleClass('min max').children().toggleClass('min max');
+
+	if (portal.toolsCollapsed) {
+		portal.updateToolsCollapsedPref(false);
+		portal.toolsCollapsed = false;
+		el.attr('aria-pressed', false);
+	} else {
+		portal.updateToolsCollapsedPref(true);
+		portal.toolsCollapsed = true;
+		el.attr('aria-pressed', true);
 	}
-	return 'false';
-}
+};
+
+$PBJQ("#toolsNav-toggle-li").on("click", portal.toggleMinimizeNav);
 
 function getNumPart(val) {
 	for(var i = val.length - 1; i >= 0; i--) {
