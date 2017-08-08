@@ -77,7 +77,7 @@ portal.toggleMinimizeNav = function () {
 	}
 };
 
-$PBJQ("#toolsNav-toggle-li").on("click", portal.toggleMinimizeNav);
+$PBJQ("#toolsNav-toggle-li button").on("click", portal.toggleMinimizeNav);
 
 function getNumPart(val) {
 	for(var i = val.length - 1; i >= 0; i--) {

@@ -17,6 +17,8 @@ body.is-logged-out{
 	font-size: 1.0em;
 	margin: 0;
 	padding: 0;
+	width: 100%;
+	text-align: right;
 }
 
 body.#{$namespace}toolMenu-collapsed{
