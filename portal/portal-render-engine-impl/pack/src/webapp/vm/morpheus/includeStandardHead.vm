@@ -37,6 +37,7 @@
                 "siteId": "$!{siteId}",
                 "siteTitle": "$!{siteTitle}",
                 "shortDescription" : "$!{shortDescription}",
+                "toolsCollapsed": ${toolsCollapsed},
                 "locale": "$!{locale}",
                 "user": {
                     "id": "$!{userId}",
