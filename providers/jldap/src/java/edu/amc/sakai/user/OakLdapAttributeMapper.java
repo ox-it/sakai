@@ -1,14 +1,18 @@
 package edu.amc.sakai.user;
 
+import java.text.MessageFormat;
+import java.text.ParsePosition;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import org.sakaiproject.user.api.UserEdit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OakLdapAttributeMapper extends SimpleLdapCandidateAttributeMapper {
 
 	private String alternativeEmail;
-	
+	private Logger M_log = LoggerFactory.getLogger(OakLdapAttributeMapper.class);
+
 	public void setAlternativeEmail(String alternativeEmail) {
 		this.alternativeEmail = alternativeEmail;
 	}
@@ -79,10 +83,12 @@ public class OakLdapAttributeMapper extends SimpleLdapCandidateAttributeMapper {
      * This version is specific to Oxford as we can't search for oakPrimaryPersonIds and mails with wildcards.
      */
 	public String getFindUserByCrossAttributeSearchFilter(String criteria) {
-		String eidAttr = getAttributeMappings().get(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY);
-		String emailAttr = getAttributeMappings().get(AttributeMappingConstants.EMAIL_ATTR_MAPPING_KEY);
+
+
+
 		String givenNameAttr = getAttributeMappings().get(AttributeMappingConstants.FIRST_NAME_ATTR_MAPPING_KEY);
 		String lastNameAttr = getAttributeMappings().get(AttributeMappingConstants.LAST_NAME_ATTR_MAPPING_KEY);
+
 		
 		//This explicitly constructs the filter with wildcards in it.
 		//However, we escape the given criteria to prevent any other injection
@@ -90,38 +96,41 @@ public class OakLdapAttributeMapper extends SimpleLdapCandidateAttributeMapper {
 		
 		//(|(uid=criteria)(mail=criteria)(givenName=criteria*)(sn=criteria*))
 		StringBuilder sb = new StringBuilder();
-			sb.append("(|");
-			
-			sb.append("(");
-			sb.append(eidAttr);
-			sb.append("=");
-			sb.append(criteria);
-			sb.append(")");
-			
-			sb.append("(");
-			sb.append(emailAttr);
-			sb.append("=");
-			sb.append(criteria);
-			sb.append(")");
-			
-			sb.append("(");
-			sb.append(givenNameAttr);
-			sb.append("=");
-			sb.append(criteria);
-			sb.append("*)");
-			
-			sb.append("(");
-			sb.append(lastNameAttr);
-			sb.append("=");
-			sb.append(criteria);
-			sb.append("*)");
-			
-			sb.append(")");
+        sb.append("(|");
+
+		sb.append(buildSearch(criteria, AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY, false));
+		sb.append(buildSearch(criteria, AttributeMappingConstants.EMAIL_ATTR_MAPPING_KEY, false));
+		sb.append(buildSearch(criteria, AttributeMappingConstants.FIRST_NAME_ATTR_MAPPING_KEY, true));
+		sb.append(buildSearch(criteria, AttributeMappingConstants.LAST_NAME_ATTR_MAPPING_KEY, true));
+		sb.append(buildSearch(criteria, AttributeMappingConstants.DISPLAY_ID_ATTR_MAPPING_KEY, true));
+
+		sb.append(")");
 		
 		return sb.toString();
 	}
-    
-    /**
+
+	private String buildSearch(String criteria, String attrMappingKey, boolean wildcard) {
+		StringBuilder sb = new StringBuilder();
+		String eidAttr = getAttributeMappings().get(attrMappingKey);
+		MessageFormat format = getValueMappings().get(attrMappingKey);
+		String search = (wildcard) ? criteria + "*" : criteria;
+		if (format != null && criteria != null) {
+			format = (MessageFormat) format.clone();
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("mapLdapAttributeOntoUserData(): value mapper [attrValue = " +
+						criteria + "; format=" + format.toString() + "]");
+			}
+			search = format.format(new Object[]{criteria});
+		}
+		sb.append("(");
+		sb.append(eidAttr);
+		sb.append("=");
+		sb.append(search);
+		sb.append(")");
+		return sb.toString();
+	}
+
+	/**
      * eduPersonPrimaryOrgUnitDN: oakUnitCode=oucs,ou=units,dc=oak,dc=ox,dc=ac,dc=uk
      */
     private String primaryOrgUnitDN( LdapUserData ud ) {
