@@ -31,6 +31,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.impl.BaseGroup;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -1589,6 +1590,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 */
 		void refreshAuthzGroup(BaseAuthzGroup azGroup);
 
+		/**
+		 * Update the realm with info from the provider; not recommended unless a membership change is immediately required
+		 */
+		void refreshAuthzGroupInternal(BaseAuthzGroup azGroup);
+
         /**
          * Retrieve all maintain roles
          *
@@ -1721,4 +1727,34 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  	protected boolean isAllowedAuth() {
  		return serverConfigurationService().getBoolean("sitemanage.grant.auth", false);
  	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void refreshAuthzGroup(AuthzGroup azGroup)
+	{
+		if (azGroup == null)
+		{
+			return;
+		}
+
+		if (azGroup instanceof BaseAuthzGroup)
+		{
+			m_storage.refreshAuthzGroupInternal((BaseAuthzGroup) azGroup);
+		}
+		else if (azGroup instanceof BaseGroup)
+		{
+			BaseGroup grp = (BaseGroup) azGroup;
+			AuthzGroup grpAzg = grp.getAzg();
+			if (grpAzg != null && grpAzg instanceof BaseAuthzGroup)
+			{
+				m_storage.refreshAuthzGroupInternal((BaseAuthzGroup) grpAzg);
+			}
+		}
+		else
+		{
+			M_log.warn("refreshAuthzGroup invoked, but this type is not supported: " + azGroup.getClass());
+		}
+	}
 }

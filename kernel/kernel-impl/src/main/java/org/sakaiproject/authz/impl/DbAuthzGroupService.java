@@ -2595,7 +2595,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 * 
 		 * @param realm the realm to be refreshed
 		 */
-		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
+		public void refreshAuthzGroupInternal(BaseAuthzGroup realm)
 		{
 			if ((realm == null) || (m_provider == null)) return;
 			M_log.debug("Refreshing authz group: {}", realm);

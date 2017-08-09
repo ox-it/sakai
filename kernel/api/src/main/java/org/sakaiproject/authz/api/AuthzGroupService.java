@@ -457,6 +457,15 @@ public interface AuthzGroupService extends EntityProducer
 	void refreshUser(String userId);
 
 	/**
+	 * Refresh the external user - role membership for this AuthzGroup.
+	 * Refreshing from a provider can take longer than expected depending
+	 * on the provider's implementation, so *generally* we queue requests to refresh and
+	 * the actual refreshing is performed in a separate thread.
+	 * However! This method overrides this behaviour and forces the group to update immediately
+	 */
+	public void refreshAuthzGroup(AuthzGroup azGroup);
+
+	/**
 	 * Create a new AuthzGroup, as a copy of another AuthzGroup (except for id), and give a user "maintain" access based on the other's definition of "maintain", but do not store - it can be saved with a save() call
 	 * 
 	 * @param id

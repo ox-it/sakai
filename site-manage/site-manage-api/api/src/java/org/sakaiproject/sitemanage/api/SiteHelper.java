@@ -66,5 +66,11 @@ public interface SiteHelper {
 	 * this is a property name to indicate whether the Site Info tool should log the roster change events
 	 */
 	static final String WSETUP_TRACK_ROSTER_CHANGE = "wsetup.track.roster.change";
+
+	/**
+	 * When a section is added to a group, it will take up to 2 minutes for the memberships to be populated by the scheduled RefreshAuthzGroupTask thread.
+	 * This property determines whether to force section memberships to be refreshed immediately when a group's provided sections are modified
+	 */
+	static final String WSETUP_FORCE_REFRESH_GROUP_ON_SECTION_CHANGE = "wsetup.force.refresh.group.on.section.change";
 	
 }

@@ -808,6 +808,11 @@ public class SiteManageGroupSectionRoleHandler {
 				}
     			// reset the form params
     			resetParams();
+
+				if (serverConfigurationService.getBoolean(SiteHelper.WSETUP_FORCE_REFRESH_GROUP_ON_SECTION_CHANGE, false) &&  group.getId() != null)
+				{
+					authzGroupService.refreshAuthzGroup(group);
+				}
 	        } 
 	        catch (IdUnusedException | PermissionException e) {
 	        	M_log.error(this + ".processAddGroup: cannot find site " + site.getId(), e);
