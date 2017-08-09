@@ -81,7 +81,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 			protected void onInitialize() {
 				super.onInitialize();
 				if (ToggleGradeItemsToolbarPanel.this.groupByCategories) {
-					add(new AttributeAppender("class", "on"));
+					add(new AttributeAppender("class", " on"));
 				}
 				add(new AttributeModifier("aria-pressed", ToggleGradeItemsToolbarPanel.this.groupByCategories));
 			}

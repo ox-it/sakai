@@ -2635,7 +2635,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 GradebookToolbar.prototype.setupToggleCategories = function() {
   var self = this;
   self.gradebookSpreadsheet.onReady(function() {
-      if ($("#toggleCategoriesToolbarItem").hasClass("on")) {
+      if ($(".toggleCategoriesToolbarItem").hasClass("on")) {
         self.gradebookSpreadsheet.enableGroupByCategory();
       }
   });
