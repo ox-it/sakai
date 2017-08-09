@@ -11,16 +11,6 @@ body.is-logged-out{
 	}
 }
 
-.#{$namespace}collapseTools button.js-toggle-nav {
-	background: transparent;
-	border: 0;
-	font-size: 1.0em;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	text-align: right;
-}
-
 body.#{$namespace}toolMenu-collapsed{
 
 	#content, .Mrphs-container--footer {
@@ -68,7 +58,7 @@ body.#{$namespace}toolMenu-collapsed{
 					display: none;
 				}
 				&.#{$namespace}collapseTools{
-					.fa{
+					i{
 						@include transform( scaleX(-1) ); /* flip horizontally */
 					}
 				}

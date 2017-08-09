@@ -16,7 +16,8 @@ body.is-logged-out{
 	border: 0;
 	font-size: 1.0em;
 	margin: 0;
-	padding: 0;
+	padding: 0 1em;
+	height: 3em;
 	width: 100%;
 	text-align: right;
 }
@@ -233,7 +234,7 @@ nav#subSites{
 				justify-content:flex-end; /* right-align the arrows when expanded */
 				width: calc(#{$tool-menu-width} - 1px); /* width minus 1px border; using variable fix from https://github.com/sass/sass/issues/818 */;
 				height:3em;
-				padding: 0 1em;
+				padding: 0;
 				border-right: 1px solid $tool-menu-background-color;
 				cursor:pointer;
 				font-size: 1.2em;
