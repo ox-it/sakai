@@ -719,12 +719,12 @@ public class ImportGradesHelper {
 				if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
 					final String trimmedImportedScore = StringUtils.removeEnd(importedScore, ".0");
 					final String trimmedActualScore = StringUtils.removeEnd(actualScore, ".0");
-					if (trimmedImportedScore == null ? trimmedActualScore != null : !trimmedImportedScore.equals(trimmedActualScore)) {
+					if (!StringUtils.equals(trimmedActualScore, trimmedImportedScore)) {
 						status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
 						break;
 					}
 				} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-					if (importedComment == null ? actualComment != null : importedComment.equals(actualComment)) {
+					if (!StringUtils.equals(actualComment, importedComment)) {
 						status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
 						break;
 					}

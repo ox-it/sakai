@@ -1,3 +1,5 @@
+2017.08.09:
+	- [OWL-3065] enable gradebook import to work with only updated comment(s)
 2017.08.08:
         - [OWL-3043] Improve Grade Submission PDF file name
 2017.08.04:

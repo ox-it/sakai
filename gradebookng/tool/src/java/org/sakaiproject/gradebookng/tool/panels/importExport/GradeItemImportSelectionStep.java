@@ -226,6 +226,7 @@ public class GradeItemImportSelectionStep extends Panel {
 
 				// Determine status label
 				final ProcessedGradeItemStatus status = importedItem.getStatus();
+				final ProcessedGradeItemStatus commentStatus = importedItem.getCommentStatus();
 
 				// For external items, set a different label and disable the control
 				if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL)
@@ -246,11 +247,10 @@ public class GradeItemImportSelectionStep extends Panel {
 					itemStatus.setDefaultModel(new ResourceModel("importExport.status." + status.getStatusCode()));
 
 					// if no changes, grey it out and remove checkbox
-					if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
+					if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA && commentStatus.getStatusCode() == ProcessedGradeItemStatus.STATUS_NA) {
 						checkbox.setVisible(false);
 						item.add(new AttributeAppender("class", Model.of("no_changes"), " "));
 					}
-
 				}
 
 				final String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
@@ -259,8 +259,6 @@ public class GradeItemImportSelectionStep extends Panel {
 				}
 
 				// add an additional row for the comments for each
-				final ProcessedGradeItemStatus commentStatus = importedItem.getCommentStatus();
-
 				item.add(new Behavior() {
 
 					@Override
@@ -284,19 +282,15 @@ public class GradeItemImportSelectionStep extends Panel {
 											"<td class=\"item_points\">" + naString + "</td>" +
 											"<td class=\"item_status\">" + statusValue + "</td>" +
 											"</tr>"
-
 							);
 						}
 					}
 				});
-
 			}
-
 		};
 
 		gradeList.setReuseItems(true);
 		group.add(gradeList);
-
 	}
 
 	private List<ProcessedGradeItem> filterListByStatus(final List<ProcessedGradeItem> gradeList, final List<Integer> statuses) {
@@ -308,5 +302,4 @@ public class GradeItemImportSelectionStep extends Panel {
 		}
 		return filteredList;
 	}
-
 }
