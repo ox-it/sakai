@@ -560,19 +560,19 @@ public class ParticipantService implements Serializable
             }
         }
 
-        // Do the audit logging. Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
-        // but seems to be a better solution than call this multiple time for every update
-        if( !userAuditList.isEmpty() )
-        {
-            userAuditRegistration.addToUserAuditing( userAuditList );
-        }
-
         if (errors != null)
         {
             return errors.getObject();
         }
         else
         {
+            // Do the audit logging. Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
+            // but seems to be a better solution than call this multiple time for every update
+            if( !userAuditList.isEmpty() )
+            {
+                userAuditRegistration.addToUserAuditing( userAuditList );
+            }
+
             return null;
         }
     }
@@ -629,6 +629,7 @@ public class ParticipantService implements Serializable
 
                                             group.removeMember(groupMemberId);
                                             group.addMember(groupMemberId, siteRole.getId(), siteMember.isActive(), false);
+                                            authzGroupService.refreshAuthzGroup(group);
 
                                             // track the group membership change at individual level
                                             boolean trackIndividualChange = ServerConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false);
