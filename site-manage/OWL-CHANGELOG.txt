@@ -1,5 +1,6 @@
 2017.08.09:
 	- [OWL-2976] Manage Groups - group memberships will now immediately be updated if a section is added
+	- [OWL-2799] Manage Participants - Last updated time now appears at the top as well as the bottom
 2017.08.02:
 	- [OWL-2710] joinable set drop down is duplicated on save/cancel of group create/edit
 2017.07.31:

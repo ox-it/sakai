@@ -279,7 +279,8 @@ public class ParticipantListPanel extends Panel
 
         };
 
-        wmc.add(new Label("lastUpdateDate", dtModel));
+        manageParticipantForm.add(new Label("lastUpdateDateTop", dtModel));
+        wmc.add(new Label("lastUpdateDateBottom", dtModel));
         add(manageParticipantForm);
     }
 
