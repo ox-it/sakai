@@ -31,6 +31,7 @@ import org.apache.wicket.request.http.handler.RedirectRequestHandler;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.tool.helper.participantlist.providers.ParticipantsProvider;
 import org.sakaiproject.site.tool.helper.participantlist.model.Participant;
+import org.sakaiproject.site.tool.helper.participantlist.pages.BasePage;
 import org.sakaiproject.site.tool.helper.participantlist.service.ParticipantService;
 
 /**
@@ -214,13 +215,17 @@ public class ParticipantListPanel extends Panel
         // Add update buttons to form
         IndicatingAjaxButton btnUpdate1 = new IndicatingAjaxButton("btnUpdateParticipants1")
         {
-            private static final long serialVersionUID = 1L;
-
             @Override
             public void onSubmit(AjaxRequestTarget target, Form<?> form)
             {
                 updateParticipants(checkBoxGroup.getModelObject(), filterType, filterID);
                 target.add(wmc);
+                BasePage page = (BasePage) getPage();
+                if (!page.hasFeedbackMessage())
+                {
+                    page.clearFeedback(page.feedbackPanel);
+                }
+                target.add(page.feedbackPanel);
             }
         };
 
@@ -242,13 +247,17 @@ public class ParticipantListPanel extends Panel
 
         IndicatingAjaxButton btnUpdate2 = new IndicatingAjaxButton("btnUpdateParticipants2")
         {
-            private static final long serialVersionUID = 1L;
-
             @Override
             public void onSubmit(AjaxRequestTarget target, Form<?> form)
             {
                 updateParticipants(checkBoxGroup.getModelObject(), filterType, filterID);
                 target.add(wmc);
+                BasePage page = (BasePage) getPage();
+                if (!page.hasFeedbackMessage())
+                {
+                    page.clearFeedback(page.feedbackPanel);
+                }
+                target.add(page.feedbackPanel);
             }
         };
 

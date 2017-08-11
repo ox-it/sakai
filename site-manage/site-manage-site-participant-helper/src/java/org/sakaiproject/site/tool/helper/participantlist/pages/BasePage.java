@@ -25,7 +25,7 @@ import org.apache.wicket.model.Model;
  */
 public class BasePage extends WebPage implements IHeaderContributor
 {
-    FeedbackPanel feedbackPanel;
+    public final FeedbackPanel feedbackPanel;
 
     // Constructor
     public BasePage()
@@ -35,7 +35,6 @@ public class BasePage extends WebPage implements IHeaderContributor
         // Add a FeedbackPanel for displaying our messages
         feedbackPanel = new FeedbackPanel( "feedback" )
         {
-            private static final long serialVersionUID = -4665970672206692563L;
 
             @Override
             protected Component newMessageDisplayComponent( final String id, final FeedbackMessage message )
@@ -58,6 +57,7 @@ public class BasePage extends WebPage implements IHeaderContributor
             }
         };
 
+        feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);
     }
 

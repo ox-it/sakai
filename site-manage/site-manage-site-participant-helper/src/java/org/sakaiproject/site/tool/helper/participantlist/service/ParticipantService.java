@@ -409,7 +409,7 @@ public class ParticipantService implements Serializable
                             Role r = this.realm.getRole(roleName);
                             if(!getAllowedRoles().contains(r))
                             {
-                                StringResourceModel srm = StringResourceModelMigration.of("role.permission.error", new Model(), roleName);
+                                StringResourceModel srm = StringResourceModelMigration.of("role.permission.error", new Model(), null, roleName);
                                 return srm.getObject();
                             }
                         }
@@ -510,7 +510,7 @@ public class ParticipantService implements Serializable
                         Role role = this.realm.getRole(roleName);
                         if (role != null && role.isAllowed("site.upd"))
                         {
-                            StringResourceModel srm = StringResourceModelMigration.of("role.permission.error", new Model(), roleName);
+                            StringResourceModel srm = StringResourceModelMigration.of("role.permission.error", new Model(), null, roleName);
                             return srm.getObject();
                         }
                     }
@@ -519,7 +519,8 @@ public class ParticipantService implements Serializable
                 if (hadMaintainUser && this.realm.getUsersHasRole(maintainRoleString).isEmpty())
                 {
                     // if after update, the "had maintain type user" status changed, show alert message and don't save the update
-                    errors = new ResourceModel("sitegen.siteinfolist.nomaintainuser");
+                    StringResourceModel srm = StringResourceModelMigration.of("sitegen.siteinfolist.nomaintainuser", new Model(), null, maintainRoleString);
+                    return srm.getObject();
                 }
                 else
                 {
