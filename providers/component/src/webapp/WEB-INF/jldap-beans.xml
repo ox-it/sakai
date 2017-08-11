@@ -232,6 +232,9 @@
 		<property name="encryption">
 			<ref bean="org.sakaiproject.user.detail.ValueEncryptionUtilities" />
 		</property>
+		<property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        </property>
 		<property name="candidateIdLength"><value>10</value></property>
 		<property name="additionalInfoLength"><value>100</value></property>
 		<property name="studentNumberLength"><value>9</value></property>
