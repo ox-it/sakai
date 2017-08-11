@@ -1829,3 +1829,8 @@ and (max-device-width : 736px) {
 	width: 634px;
 }
 
+.wicket-modal .form-horizontal .form-group 
+{
+	margin-left: 0;     /* to override Bootstrap styles causing horizontal scrollbars */
+	margin-right: 0;
+}

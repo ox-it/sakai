@@ -1,3 +1,5 @@
+2017.08.11:
+	- [OWL-2624] Eliminated the horizontal scrollbars in GBNG+ modals by overriding Bootstrap 
 2017.08.09:
 	- [OWL-3065] enable gradebook import to work with only updated comment(s)
 	- [OWL-2940] change ID to class to fix category headers not resizing appropriately
