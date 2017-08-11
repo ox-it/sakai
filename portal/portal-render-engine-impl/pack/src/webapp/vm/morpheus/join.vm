@@ -35,7 +35,7 @@
                         <tr>
                             <td>
                             <span class="instruction">
-                                ${rloader.getString("join_instr")} <strong>${currentSite.siteTitle}</strong>
+                                ${rloader.getString("join_instr")} <strong>${currentSite.siteTitle}</strong>.
                             </span>
                             </td>
                         </tr>
