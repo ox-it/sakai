@@ -1,4 +1,5 @@
 2017.08.11:
+	- [OWL-935] Restyled the login page to align elements better; added action classes to primary buttons
 	- [OWL-3091] Set a min-width for the multi-selects when editing a group for empty state
 2017.08.09:
 	- [OWL-3060] Defined morpheus-owl skin in the SASS _default to fix Bootstrap link to Glyphicon fonts

@@ -22,12 +22,12 @@
     			#if (${loginAdvice})
     				<aside>${loginAdvice}</aside>
     			#end
-    			<p class="buttons">
+    			<p class="buttons act">
     			#if (${doCancel})
-    				<input name="submit" type="submit" id="submit" class="loginsubmit" value="${loginWording}"/>
+    				<input name="submit" type="submit" id="submit" class="loginsubmit active" value="${loginWording}"/>
     				<input name="cancel" type="submit" class="loginsubmit" value="${cancelWording}"/>
     			#else
-    				<input name="submit" type="submit" id="submit" value="${loginWording}"/>
+    				<input name="submit" type="submit" id="submit" class="active" value="${loginWording}"/>
     			#end
     			</p>
     			#if (${passwordResetUrl})

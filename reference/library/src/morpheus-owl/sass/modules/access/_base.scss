@@ -1,20 +1,21 @@
-##{$namespace}xlogin{
+##{$namespace}xlogin
+{
 	
 	position: fixed;
 	top: calc(50% - 15em);
 	left: calc(50% - 15em);
 	width: 29em;
 	min-height: 14em;
-
 	background: $background-color;
 	box-shadow: 0 0 5px rgba( $text-color , 0.25 );
-	.logo{
+	
+	.logo
+	{
 		background: $primary-color url($logo) no-repeat center center;
 		width: 100%;
 		height: 64px;
 		margin: 0 auto;
 		overflow: hidden;
-		@include border-radius( 0px );
 	}
 	h1{
 		padding: 0.6em;
@@ -22,38 +23,37 @@
   		color: $primary-color;
   		text-align: center;
 	}
-	.alertMessage{
+	.alertMessage
+	{
+		margin: $standard-padding $standard-padding 0 $standard-padding;
+		padding: $standard-padding;
 		background: $error-background-color;
-		border: $error-color;
+		border-color: $error-color;
 		color: $error-color;
-		padding: 0.8em;
 		text-align: center;
 	}
-	fieldset{
-		padding: 1em;
-		label{
-			font-size: 1.2em;
-			display: inline-block;
-			min-width: 38%;
-			min-height: 3em;
-			@media #{$phone}{
-				display: block;
-				min-height: 0.5em;
-			}
+	fieldset
+	{
+		padding: $standard-padding;
+		
+		label
+		{
+			display: block;
+			font-size: $larger-font-size;	//16px
 		}
-		input[type="text"],input[type="password"]{
-			display: inline-block;
-			min-width: 56%;
+		input[type="text"],input[type="password"]
+		{
+			display: block;
+			width: 100%;
 			border: 1px solid darken($background-color-secondary, 15%);
 			padding: 0.3em;
-			@media #{$phone}{
-				display: block;
-				width: 95%;
-			}
 		}
 		input[type="submit"]{
-			font-size: 1.1em;
-			margin: 0 0 1em 0;
+			font-size: $larger-font-size;	//16px
+		}
+		.buttons > input:last-of-type
+		{
+			margin-right: 0;
 		}
 		p{
 			text-align: right;
@@ -67,10 +67,12 @@
 		input[type="text"],input[type="password"]{
 			border: 1px solid $error-color;
 			background: $error-background-color;
+			color: #000;
 		}
 
 		input[type="password"].capsLockOnDisplay {
 			background: $error-background-color url("images/capsLock.png") no-repeat right;
+			color: #000;
 		}
 	}
 

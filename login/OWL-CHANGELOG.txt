@@ -1,3 +1,5 @@
+2017.08.11:
+	- [OWL-935] Restyled the login page to align elements better; added action classes to primary buttons
 2017.07.31:
 	- [OWL-917] Improved the message wording for failed login attempts
 2017.01.23:

@@ -119,7 +119,7 @@ $ok-background-color:        lighten($ok-color, 45%) !default;
 $warn-background-color:     #F6ECB7 !default;
 $warn-color:                darken($warn-background-color, 35%) !default;
 $error-background-color:    #f2dede !default;
-$error-color:               darken($error-background-color, 30%) !default;
+$error-color:               #900 !default;
 
 $swapped-view-primary: 		 #bf360c !default;
 $swapped-view-text-color:	 #414141 !default;
