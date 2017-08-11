@@ -1,3 +1,5 @@
+2017.08.11:
+        - [OWL-3096] Provide alternative method for contextual help linking
 2017.07.28:
 	- [OWL-3012] Tweaked the Tutorial to make the final button active (and with new wording) and enabled the close-early panel
 2017.01.23:

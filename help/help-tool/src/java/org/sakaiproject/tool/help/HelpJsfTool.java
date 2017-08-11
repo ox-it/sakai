@@ -50,6 +50,7 @@ public class HelpJsfTool extends JsfTool
   private static Logger M_log = LoggerFactory.getLogger(HelpJsfTool.class);
 
   private static String HELP_DOC_REGEXP = org.sakaiproject.api.app.help.HelpManager.HELP_DOC_REGEXP;
+  private static final String HELP_PATH_REGEXP = "^[/A-Za-z0-9._-]+$";
 
   private static final String TOC_PATH = "/TOCDisplay/main";
   private static final String SEARCH_PATH = "/search/main";
@@ -73,7 +74,7 @@ public class HelpJsfTool extends JsfTool
 	       String docId = req.getParameter("help");
 
 	       if (docId != null) {
-		       Pattern p = Pattern.compile(HELP_DOC_REGEXP);
+		       Pattern p = Pattern.compile(HELP_PATH_REGEXP); // OWL-3096 allow slash for external help
 		       Matcher m = p.matcher(docId);
 		       
 		       if (!m.matches()) {
