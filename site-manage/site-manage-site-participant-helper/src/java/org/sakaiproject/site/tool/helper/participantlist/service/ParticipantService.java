@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -326,6 +327,67 @@ public class ParticipantService implements Serializable
         return toolManager.getCurrentPlacement().getId();
     }
 
+    /**
+     * Iterate through the changed participants to see how many would have maintain role if all proposed changes went through.
+     *
+     * @param statusUpdates map of proposed status updates (active/inactive)
+     * @param roleUpdates map of proposed role updates
+     * @param removeUpdates list of proposed removals
+     * @param maintainRoleString the maintain role for the given site
+     * @return a list of participants with the maintain role if the proposed changes all went through
+     */
+    private List<Participant> testProposedUpdates(Map<String, Participant> statusUpdates, Map<String, Participant> roleUpdates, Collection<Participant> removeUpdates,
+                                                    String maintainRoleString)
+    {
+        // Get the list of all participants in the site, not using filters. We want to be sure
+        // that there is at least one maintainer in the entire site, not just for the current filter.
+        List<Participant> allParticipants = getParticipants( "", "" );
+
+        // Add all maintainers to the list
+        Map<String, Participant> maintainersAfterUpdates = new HashMap<>();
+        for( Participant participant : allParticipants )
+        {
+            if( StringUtils.equals( participant.getRole(), maintainRoleString ) )
+            {
+                maintainersAfterUpdates.put( participant.getUniqName(), participant );
+            }
+        }
+
+        // Remove any maintainers that are proposed to be removed from the site
+        for( Participant participant : removeUpdates )
+        {
+            if( StringUtils.equals( participant.getRole(), maintainRoleString ) )
+            {
+                maintainersAfterUpdates.remove( participant.getUniqName() );
+            }
+        }
+
+        // Remove any maintainers that are proposed to be deactivated
+        for( String uniqName : statusUpdates.keySet() )
+        {
+            Participant participant = statusUpdates.get( uniqName );
+            if( StringUtils.equals( participant.getRole(), maintainRoleString ) )
+            {
+                if( "false".equalsIgnoreCase( participant.getStatus() ) )
+                {
+                    maintainersAfterUpdates.remove( participant.getUniqName() );
+                }
+            }
+        }
+
+        // Remove any maintainers that are proposed to have their role changed
+        for( String uniqName : roleUpdates.keySet() )
+        {
+            Participant participant = roleUpdates.get( uniqName );
+            if( maintainersAfterUpdates.containsKey( uniqName ) && !StringUtils.equals( participant.getRole(), maintainRoleString ) )
+            {
+                maintainersAfterUpdates.remove( uniqName );
+            }
+        }
+
+        return new ArrayList<>( maintainersAfterUpdates.values() );
+    }
+
     public String updateParticipants(Map<String,Participant> statusUpdates, Map<String,Participant> roleUpdates, Collection<Participant> removeUpdates,
                                         String filterType, String filterID)
     {
@@ -345,10 +407,15 @@ public class ParticipantService implements Serializable
             {
                 // does site have maintain type user(s) before updating participants?
                 String maintainRoleString = this.realm.getMaintainRole();
-                boolean hadMaintainUser = !this.realm.getUsersHasRole(maintainRoleString).isEmpty();
-
-                // update participant roles
                 List<Participant> participants = getParticipants( filterType, filterID );
+                List<Participant> maintainersAfterChanges = testProposedUpdates(statusUpdates, roleUpdates, removeUpdates, maintainRoleString);
+
+                // If after the proposed changes there would be no maintainers in the site, show error message
+                if (maintainersAfterChanges.isEmpty())
+                {
+                    StringResourceModel srm = StringResourceModelMigration.of("sitegen.siteinfolist.nomaintainuser", new Model(), null, maintainRoleString);
+                    return srm.getObject();
+                }
 
                 // list of roles being added or removed
                 Set<String>roles = new HashSet<>();
@@ -516,36 +583,28 @@ public class ParticipantService implements Serializable
                     }
                 }
 
-                if (hadMaintainUser && this.realm.getUsersHasRole(maintainRoleString).isEmpty())
+                // No errors encountered, proceed with saving
+                authzGroupService.save(this.realm);
+
+                // then update all related group realms for the role
+                updateRelatedGroupParticipants();
+
+                // post event about the participant update
+                eventTrackingService.post(eventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmId, false));
+
+                // check the configuration setting, whether logging membership change at individual level is allowed
+                if (ServerConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false))
                 {
-                    // if after update, the "had maintain type user" status changed, show alert message and don't save the update
-                    StringResourceModel srm = StringResourceModelMigration.of("sitegen.siteinfolist.nomaintainuser", new Model(), null, maintainRoleString);
-                    return srm.getObject();
-                }
-                else
-                {
-                    authzGroupService.save(this.realm);
-
-                    // then update all related group realms for the role
-                    updateRelatedGroupParticipants();
-
-                    // post event about the participant update
-                    eventTrackingService.post(eventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmId, false));
-
-                    // check the configuration setting, whether logging membership change at individual level is allowed
-                    if (ServerConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false))
+                    // event for each individual update
+                    for (String userChangedRole : userUpdated)
                     {
-                        // event for each individual update
-                        for (String userChangedRole : userUpdated)
-                        {
-                            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_UPDATE, userChangedRole, true));
-                        }
+                        eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_UPDATE, userChangedRole, true));
+                    }
 
-                        // event for each individual remove
-                        for (String userDeleted : usersDeleted)
-                        {
-                            eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE, userDeleted, true));
-                        }
+                    // event for each individual remove
+                    for (String userDeleted : usersDeleted)
+                    {
+                        eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE, userDeleted, true));
                     }
                 }
             }
