@@ -474,6 +474,8 @@ class ConvertUserFavoriteSitesSakai11 {
             try {
                 InputSource inputSource = new InputSource(new StringReader(xml));
                 Document doc = documentBuilder.parse(inputSource);
+				
+				resetTutorial(doc); // OWL HACK!
 
                 List<String> orderSiteIds = parsePreferenceList(prefsPrefix + "/properties/property[@name='order']", doc);
                 List<String> hiddenSiteIds = parsePreferenceList(prefsPrefix + "/properties/property[@name='exclude']", doc);
@@ -569,6 +571,24 @@ class ConvertUserFavoriteSitesSakai11 {
                 existingSiteNavProperties.appendChild(newProperty);
             }
         }
+		
+		// OWL HACK: reset the tutorial while we're in here!
+		private void resetTutorial(Document doc)
+		{
+			try
+			{
+				Node tutorial = (Node) xpath.evaluate("/preferences/properties/property[@name='sakaiTutorialFlag']", doc, XPathConstants.NODE);
+				if (tutorial != null && tutorial.getNodeType() == Node.ELEMENT_NODE)
+				{
+					Element e = (Element) tutorial;
+					e.setAttribute("value", encodeBase64("0"));
+				}
+			}
+			catch (Exception e)
+			{
+				info("no tutorial setting for user, skipping");
+			}
+		}
 
         private List<String> parsePreferenceList(String xpathQuery, Document doc) throws Exception {
             List<String> result = new ArrayList<String>();
