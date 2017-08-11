@@ -17,6 +17,11 @@
 			}
 		}
 	}
+	
+	#groupMembers-selection, #siteMembers-selection 
+	{
+		min-width: 100%;			// to avoid the selects from collapsing when they contain no items
+	}
 }
 
 #toolSelectionList{
