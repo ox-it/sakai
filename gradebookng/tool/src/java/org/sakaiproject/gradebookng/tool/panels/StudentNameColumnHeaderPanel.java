@@ -18,6 +18,7 @@ import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
+import org.sakaiproject.gradebookng.tool.component.table.columns.GbColumnSortToggleLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
@@ -50,45 +51,25 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		final GbStudentNameSortOrder sortType = this.model.getObject();
 
 		// title
-		final GbAjaxLink<String> title = new GbAjaxLink<String>("title") {
-			private static final long serialVersionUID = 1L;
-
+		final GbColumnSortToggleLink title = new GbColumnSortToggleLink("title")
+		{	
 			@Override
-			public void onClick(AjaxRequestTarget target) {
-
-				// toggle the sort direction on each click
-				final GradebookUiSettings settings = gradebookPage.getUiSettings();
-
+			public SortDirection getSort(GradebookUiSettings settings)
+			{
+				return settings.isContextAnonymous() ? settings.getAnonIdSortOrder() : settings.getStudentSortOrder();
+			}
+			
+			@Override
+			public void setSort(GradebookUiSettings settings, SortDirection value)
+			{
 				if (settings.isContextAnonymous())
 				{
-					SortDirection anonDir = settings.getAnonIdSortOrder();
-					if (anonDir == null)
-					{
-						settings.setAnonIdSortOrder(SortDirection.getDefault());
-					}
-					else
-					{
-						
-						settings.setAnonIdSortOrder(anonDir.toggle());
-					}
+					settings.setAnonIdSortOrder(value);
 				}
 				else
 				{
-					// if null, set a default sort, otherwise toggle, save, refresh.
-					if (settings.getStudentSortOrder() == null) {
-						settings.setStudentSortOrder(SortDirection.getDefault());
-					} else {
-						final SortDirection sortOrder = settings.getStudentSortOrder();
-						settings.setStudentSortOrder(sortOrder.toggle());
-					}
+					settings.setStudentSortOrder(value);
 				}
-
-				// save settings
-				gradebookPage.setUiSettings(settings);
-
-				// refresh
-				//setResponsePage(GradebookPage.class);
-				gradebookPage.redrawSpreadsheet(target);
 			}
 		};
 
@@ -128,7 +109,7 @@ public class StudentNameColumnHeaderPanel extends Panel {
 				// target.add(gradebookPage.get("form"));
 				
 				// refresh
-				//setResponsePage(GradebookPage.class);
+				gradebookPage.resetPaging();
 				gradebookPage.redrawSpreadsheet(target);
 				
 			}
@@ -149,7 +130,7 @@ public class StudentNameColumnHeaderPanel extends Panel {
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				//setResponsePage(GradebookPage.class);
+				gradebookPage.resetPaging();
 				gradebookPage.redrawSpreadsheet(target);
 			}
 		};
@@ -174,9 +155,9 @@ public class StudentNameColumnHeaderPanel extends Panel {
 
 				// save settings
 				gradebookPage.setUiSettings(settings);
-
+				
 				// refresh
-				//setResponsePage(GradebookPage.class);
+				gradebookPage.resetPaging();
 				gradebookPage.redrawSpreadsheet(target);
 
 			}

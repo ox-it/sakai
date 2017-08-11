@@ -161,15 +161,15 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 				return new CourseGradeColumnHeaderPanel(componentId, Model.of(getUiSettings().getShowPoints()))
 				{
 					@Override
-					protected void toggleSortOrder(GradebookUiSettings settings)
+					protected SortDirection getSort(GradebookUiSettings settings)
 					{
-						// if null, set a default sort, otherwise toggle
-						if (settings.getCalculatedSortOrder() == null) {
-							settings.setCalculatedSortOrder(SortDirection.getDefault());
-						} else {
-							final SortDirection sortOrder = settings.getCalculatedSortOrder();
-							settings.setCalculatedSortOrder(sortOrder.toggle());
-						}
+						return settings.getCalculatedSortOrder();
+					}
+					
+					@Override
+					protected void setSort(GradebookUiSettings settings, SortDirection value)
+					{
+						settings.setCalculatedSortOrder(value);
 					}
 
 					@Override
@@ -480,6 +480,12 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		table.setCurrentPage(0);
 		
 		redrawSpreadsheet(target);
+	}
+	
+	@Override
+	public void resetPaging()
+	{
+		table.setCurrentPage(0);
 	}
 	
 	@Override

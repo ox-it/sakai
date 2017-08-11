@@ -2,7 +2,6 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -12,10 +11,9 @@ import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
+import org.sakaiproject.gradebookng.tool.component.table.columns.GbColumnSortToggleLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
@@ -40,15 +38,11 @@ public class CategoryColumnHeaderPanel extends Panel {
 
 		final CategoryDefinition category = this.modelData.getObject();
 
-		final GbAjaxLink<String> title = new GbAjaxLink<String>("title", Model.of(category.getName())) {
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-
-				// toggle the sort direction on each click
-				final IGradesPage gradebookPage = (IGradesPage) getPage();
-				final GradebookUiSettings settings = gradebookPage.getUiSettings();
-
+		final GbColumnSortToggleLink title = new GbColumnSortToggleLink("title", Model.of(category.getName()))
+		{
+			/*@Override
+			public void toggleSortOrder(GradebookUiSettings settings)
+			{
 				// if null, set a default sort, otherwise toggle, save, refresh.
 				if (settings.getCategorySortOrder() == null
 						|| !category.getId().equals(settings.getCategorySortOrder().getCategoryId())) {
@@ -60,12 +54,26 @@ public class CategoryColumnHeaderPanel extends Panel {
 					sortOrder.setDirection(direction);
 					settings.setCategorySortOrder(sortOrder);
 				}
+			}*/
+			
+			@Override
+			protected SortDirection getSort(GradebookUiSettings settings)
+			{
+				GbCategoryAverageSortOrder sort = settings.getCategorySortOrder();
+				if (sort == null || !category.getId().equals(sort.getCategoryId()))
+				{
+					// set to DESC because it will be toggled after
+					sort = new GbCategoryAverageSortOrder(category.getId(), SortDirection.DESCENDING);
+					settings.setCategorySortOrder(sort);
+				}
+				
+				return sort.getDirection();
+			}
 
-				// save settings
-				gradebookPage.setUiSettings(settings);
-
-				// refresh
-				gradebookPage.redrawSpreadsheet(target);
+			@Override
+			protected void setSort(GradebookUiSettings settings, SortDirection value)
+			{
+				settings.getCategorySortOrder().setDirection(value);
 			}
 
 		};

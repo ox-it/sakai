@@ -25,6 +25,7 @@ import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
+import org.sakaiproject.gradebookng.tool.component.table.columns.GbColumnSortToggleLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
@@ -77,7 +78,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		final IGradesPage gradebookPage = (IGradesPage) getPage();
 
-		final GbAjaxLink<String> title = new GbAjaxLink<String>("title", Model.of(assignment.getName())) {
+		/*final GbAjaxLink<String> title = new GbAjaxLink<String>("title", Model.of(assignment.getName())) {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -96,12 +97,37 @@ public class AssignmentColumnHeaderPanel extends Panel {
 					sortOrder.setDirection(direction);
 					settings.setAssignmentSortOrder(sortOrder);
 				}
-
+				
 				// save settings
 				gradebookPage.setUiSettings(settings);
 
+				// reset back to page one
+				gradebookPage.resetPaging();
+
 				// refresh
 				gradebookPage.redrawSpreadsheet(target);
+			}
+		};*/
+		final GbColumnSortToggleLink title = new GbColumnSortToggleLink("title", Model.of(assignment.getName()))
+		{	
+			@Override
+			protected SortDirection getSort(GradebookUiSettings settings)
+			{
+				GbAssignmentGradeSortOrder sort = settings.getAssignmentSortOrder();
+				if (sort == null || !assignment.getId().equals(sort.getAssignmentId()))
+				{
+					// set to DESC because it will be toggled after
+					sort = new GbAssignmentGradeSortOrder(assignment.getId(), SortDirection.DESCENDING);
+					settings.setAssignmentSortOrder(sort);
+				}
+				
+				return sort.getDirection();
+			}
+
+			@Override
+			protected void setSort(GradebookUiSettings settings, SortDirection value)
+			{
+				settings.getAssignmentSortOrder().setDirection(value);
 			}
 		};
 		title.add(new AttributeModifier("title", assignment.getName()));

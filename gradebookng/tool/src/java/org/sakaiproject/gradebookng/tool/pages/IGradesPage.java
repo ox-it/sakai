@@ -49,4 +49,6 @@ public interface IGradesPage
 	public void updatePageSize(int pageSize, AjaxRequestTarget target);
 
 	public void setFocusedAssignmentID(long focusedAssignmentID);
+	
+	public void resetPaging();
 }

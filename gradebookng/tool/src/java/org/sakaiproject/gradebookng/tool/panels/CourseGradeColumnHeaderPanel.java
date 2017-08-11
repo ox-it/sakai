@@ -18,6 +18,7 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
+import org.sakaiproject.gradebookng.tool.component.table.columns.GbColumnSortToggleLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
@@ -47,22 +48,19 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 
 		GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.setOutputMarkupId(true));
 
-		final GbAjaxLink<String> title = new GbAjaxLink<String>("title") {
-
+		final GbColumnSortToggleLink title = new GbColumnSortToggleLink("title")
+		{
 			@Override
-			public void onClick(AjaxRequestTarget target) {
-
-				// toggle the sort direction on each click
-				final GradebookUiSettings settings = gradebookPage.getUiSettings();
-				toggleSortOrder(settings);
-
-				// save settings
-				gradebookPage.setUiSettings(settings);
-
-				// refresh
-				gradebookPage.redrawSpreadsheet(target);
+			public SortDirection getSort(GradebookUiSettings settings)
+			{
+				return CourseGradeColumnHeaderPanel.this.getSort(settings);
 			}
-
+			
+			@Override
+			public void setSort(GradebookUiSettings settings, SortDirection value)
+			{
+				CourseGradeColumnHeaderPanel.this.setSort(settings, value);
+			}
 		};
 
 		final GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -165,15 +163,15 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		add(menu);
 	}
 	
-	protected void toggleSortOrder(GradebookUiSettings settings)
+	
+	protected SortDirection getSort(GradebookUiSettings settings)
 	{
-		// if null, set a default sort, otherwise toggle
-		if (settings.getCourseGradeSortOrder() == null) {
-			settings.setCourseGradeSortOrder(SortDirection.getDefault());
-		} else {
-			final SortDirection sortOrder = settings.getCourseGradeSortOrder();
-			settings.setCourseGradeSortOrder(sortOrder.toggle());
-		}
+		return settings.getCourseGradeSortOrder();
+	}
+
+	protected void setSort(GradebookUiSettings settings, SortDirection value)
+	{
+		settings.setCourseGradeSortOrder(value);
 	}
 	
 	protected ResourceModel getTitleModel()

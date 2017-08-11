@@ -11,7 +11,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
+import org.sakaiproject.gradebookng.tool.component.table.columns.GbColumnSortToggleLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
@@ -34,28 +34,18 @@ public class StudentNumberColumnHeaderPanel extends Panel
 		final IGradesPage gradebookPage = (IGradesPage) getPage();
 		
 		// title
-		final GbAjaxLink<String> title = new GbAjaxLink<String>("title")
+		final GbColumnSortToggleLink title = new GbColumnSortToggleLink("title")
 		{
 			@Override
-			public void onClick(AjaxRequestTarget target)
+			public SortDirection getSort(GradebookUiSettings settings)
 			{
-				// toggle the sort direction on each click
-				final GradebookUiSettings settings = gradebookPage.getUiSettings();
-
-				// if null, set a default sort, otherwise toggle, save, refresh.
-				if (settings.getStudentNumberSortOrder() == null) {
-					settings.setStudentNumberSortOrder(SortDirection.getDefault());
-				} else {
-					final SortDirection sortOrder = settings.getStudentNumberSortOrder();
-					settings.setStudentNumberSortOrder(sortOrder.toggle());
-				}
-
-				// save settings
-				gradebookPage.setUiSettings(settings);
-
-				// refresh
-				//setResponsePage(GradebookPage.class);
-				gradebookPage.redrawSpreadsheet(target);
+				return settings.getStudentNumberSortOrder();
+			}
+			
+			@Override
+			public void setSort(GradebookUiSettings settings, SortDirection value)
+			{
+				settings.setStudentNumberSortOrder(value);
 			}
 		};
 		
@@ -93,7 +83,7 @@ public class StudentNumberColumnHeaderPanel extends Panel
 				// target.add(gradebookPage.get("form"));
 				
 				// refresh
-				//setResponsePage(GradebookPage.class);
+				gradebookPage.resetPaging();
 				gradebookPage.redrawSpreadsheet(target);
 				
 			}
@@ -115,7 +105,7 @@ public class StudentNumberColumnHeaderPanel extends Panel
 				gradebookPage.setUiSettings(settings);
 
 				// refresh
-				//setResponsePage(GradebookPage.class);
+				gradebookPage.resetPaging();
 				gradebookPage.redrawSpreadsheet(target);
 			}
 		};

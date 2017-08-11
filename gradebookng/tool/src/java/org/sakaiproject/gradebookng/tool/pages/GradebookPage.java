@@ -874,6 +874,12 @@ public class GradebookPage extends BasePage implements IGradesPage
 	}
 	
 	@Override
+	public void resetPaging()
+	{
+		table.setCurrentPage(0);
+	}
+	
+	@Override
 	public void redrawSpreadsheet(AjaxRequestTarget target)
 	{
 		if (target != null)

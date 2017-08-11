@@ -1,12 +1,11 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.SortDirection;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
+import org.sakaiproject.gradebookng.tool.component.table.columns.GbColumnSortToggleLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.gradebookng.tool.util.GbUtils;
@@ -33,26 +32,18 @@ public class FinalGradeColumnHeaderPanel extends Panel
 		
 		GbUtils.getParentCellFor(this, PARENT_ID).ifPresent(p -> p.setOutputMarkupId(true));
 		
-		final GbAjaxLink<String> title = new GbAjaxLink<String>("title")
+		final GbColumnSortToggleLink title = new GbColumnSortToggleLink("title")
 		{
 			@Override
-			public void onClick(final AjaxRequestTarget target)
+			public SortDirection getSort(GradebookUiSettings settings)
 			{
-				final GradebookUiSettings settings = gradebookPage.getUiSettings();
-
-				if (getSortOrder(settings) == null)
-				{
-					setSortOrder(SortDirection.getDefault(), settings);
-				}
-				else
-				{
-					final SortDirection sortOrder = getSortOrder(settings);
-					setSortOrder(sortOrder.toggle(), settings);
-				}
-
-				gradebookPage.setUiSettings(settings);
-
-				gradebookPage.redrawSpreadsheet(target);
+				return FinalGradeColumnHeaderPanel.this.getSortOrder(settings);
+			}
+			
+			@Override
+			public void setSort(GradebookUiSettings settings, SortDirection value)
+			{
+				FinalGradeColumnHeaderPanel.this.setSortOrder(value, settings);
 			}
 		};
 		
