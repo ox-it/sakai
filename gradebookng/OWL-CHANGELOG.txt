@@ -1,5 +1,7 @@
+2017.08.12:
+        - [OWL-3102] Improve GbStopWatch and timing code
 2017.08.11:
-    - [OWL-3047] Sorting/filtering doesn't reset paging
+        - [OWL-3047] Sorting/filtering doesn't reset paging
 	- [OWL-2624] Eliminated the horizontal scrollbars in GBNG+ modals by overriding Bootstrap 
 2017.08.09:
 	- [OWL-3065] enable gradebook import to work with only updated comment(s)

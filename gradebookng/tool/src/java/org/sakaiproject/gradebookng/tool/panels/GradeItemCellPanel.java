@@ -32,6 +32,7 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -202,6 +203,9 @@ public class GradeItemCellPanel extends Panel {
 
 				@Override
 				protected void onUpdate(final AjaxRequestTarget target) {
+					
+					GbStopWatch stopwatch = new GbStopWatch();
+					
 					final String rawGrade = GradeItemCellPanel.this.gradeCell.getValue();
 					
 					final GradebookPage page = (GradebookPage) getPage();
@@ -266,6 +270,8 @@ public class GradeItemCellPanel extends Panel {
 					target.addChildren(getPage(), FeedbackPanel.class);
 					GbUtils.getParentCellFor(getComponent(), PARENT_ID).ifPresent(target::add);
 					target.add(gradeCell);
+					
+					stopwatch.timeWithContext("GradeItemCellPanel", "scorechange.sakai");
 				}
 
 				// TODO can this be moved out of this block?

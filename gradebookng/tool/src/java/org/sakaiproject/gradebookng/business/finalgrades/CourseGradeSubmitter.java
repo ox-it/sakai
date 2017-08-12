@@ -51,6 +51,7 @@ import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
+import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.owl.finalgrades.MissingCourseGradeException;
 import org.sakaiproject.site.api.Site;
@@ -942,6 +943,8 @@ public class CourseGradeSubmitter implements Serializable
 		
 		// OWL NOTE: refactored this method heavily for GBNG
 		
+		GbStopWatch stopwatch = new GbStopWatch("getCurrentCourseGrades");
+		
         Set<OwlGradeSubmissionGrades> finalGrades = new HashSet();
           
         // get all course grades from gradebook for the selected section
@@ -952,7 +955,9 @@ public class CourseGradeSubmitter implements Serializable
             return finalGrades;
         }
 		refreshCurrentProvidedMembers();
+		stopwatch.time("refreshCurrentProvidedMembers");
         List<GbStudentCourseGradeInfo> courseGrades = bus.getSectionCourseGrades(section);
+		stopwatch.time("bus.getSectionCourseGrades");
 		
         //Map currentCourseGrades = bean.findMatchingEnrollmentsForViewableCourseGrade(null, null); // no username filter, no section filter
 		// OWLTODO: so this is probably a map for enrollmentrecord -> gradepermission (ie. grade or view)
@@ -1051,7 +1056,8 @@ public class CourseGradeSubmitter implements Serializable
                             " in section " + getSelectedSectionEid() + " of site " + siteId, ige);
             }
         }
-        
+        stopwatch.time("convert course grades to Final Grades - method complete");
+		
         return finalGrades;
     }
     

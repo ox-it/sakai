@@ -8,13 +8,41 @@ import lombok.extern.slf4j.Slf4j;
  * Stopwatch extension that times pieces of the logic to determine impact on any modifications.
  */
 @Slf4j
-public class GbStopWatch extends StopWatch {
-
-	public void time(final String msg, final long time) {
-		log.debug("Time for [" + msg + "] was: " + time + "ms");
+public class GbStopWatch extends StopWatch
+{
+	private String context;
+	
+	public GbStopWatch()
+	{
+		this("");
+	}
+	
+	public GbStopWatch(String context)
+	{
+		this.context = context;
+		start();
+	}
+	
+	public void time(final String msg)
+	{
+		if (context.isEmpty())
+		{
+			stop();
+			log.debug("Time for [" + msg + "] was: " + getTime() + "ms");
+			reset();
+			start();
+		}
+		else
+		{
+			timeWithContext(context, msg);
+		}
 	}
 
-	public void timeWithContext(final String context, final String msg, final long time) {
-		log.debug("Time for [" + context + "].[" + msg + "] was: " + time + "ms");
+	public void timeWithContext(final String ctx, final String msg)
+	{
+		stop();
+		log.debug("Time for [" + ctx + "].[" + msg + "] was: " + getTime() + "ms");
+		reset();
+		start();
 	}
 }

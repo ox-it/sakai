@@ -100,6 +100,9 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	{
 		super.onInitialize();
 		
+		GbStopWatch stopwatch = new GbStopWatch();
+		stopwatch.time("Starting CourseGradesPage init");
+		
 		disableLink(courseGradesPageLink);
 		
 		form = new Form<>("form");
@@ -243,6 +246,8 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		spreadsheet.add(toolbar);
 		
 		form.add(spreadsheet);
+		
+		stopwatch.time("CourseGradesPage initialized");
 	}
 	
 	public List<GbGroup> getSections()

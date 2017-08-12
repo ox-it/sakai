@@ -142,8 +142,6 @@ public class GradebookPage extends BasePage implements IGradesPage
 		}
 
 		final GbStopWatch stopwatch = new GbStopWatch();
-		stopwatch.start();
-		stopwatch.time("GradebookPage init", stopwatch.getTime());
 
 		this.form = new Form<>("form");
 		form.setOutputMarkupId(true);
@@ -237,6 +235,8 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 		// Group filter is hidden in anonymous contexts
 		settings.setGroupFilterVisibilityForced(false);
+		
+		stopwatch.time("Gradebook Page constructor prior to addOrReplaceTable");
 
 		addOrReplaceTable(stopwatch);
 
@@ -253,7 +253,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 			noStudents.setVisible(true);
 		}
 
-		stopwatch.time("Gradebook page done", stopwatch.getTime());
+		stopwatch.time("Gradebook page constructor done");
 	}
 
 	/**
@@ -283,7 +283,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		// fetch the grades for each student for each assignment from
 		// the map
 		assignments = this.businessService.getGradebookAssignments(sortBy);
-		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
+		stopwatch.timeWithContext("GradebookPage.addOrReplaceTable", "getGradebookAssignments");
 
 		// The anonymous toggle should be visible if the site has anonymous IDs, and there is both anonymous and normal content to view.
 		boolean anonToggleVisible = false;
@@ -362,7 +362,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 		// mark the current timestamp so we can use this date to check for any changes since now
 		final Date gradesTimestamp = new Date();
 
-		stopwatch.time("buildGradeMatrix", stopwatch.getTime());
+		stopwatch.timeWithContext("GradebookPage.addOrReplaceTable", "buildGradeMatrix");
 
 		// categories enabled?
 
@@ -562,7 +562,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 			}
 		}
 
-		stopwatch.time("all Columns added", stopwatch.getTime());
+		stopwatch.timeWithContext("GradebookPage.addOrReplaceTable", "all Columns added");
 
 		int pageSize = settings.getGradesPageSize();
 		table = new SakaiDataTable("table", cols, studentGradeMatrix, true, pageSize) {
@@ -655,6 +655,8 @@ public class GradebookPage extends BasePage implements IGradesPage
 		gradeItemsTogglePanelContainer.setOutputMarkupId(true);
 		gradeItemsTogglePanelContainer.add(gradeItemsTogglePanel);
 		addOrReplace(gradeItemsTogglePanelContainer);
+		
+		stopwatch.timeWithContext("GradebookPage.addOrReplaceTable", "table add/replace complete");
 	}
 	
 	@Override

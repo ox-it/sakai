@@ -22,6 +22,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
+import org.sakaiproject.gradebookng.business.util.GbStopWatch;
 import org.sakaiproject.gradebookng.tool.behavior.RevertScoreBehavior;
 import org.sakaiproject.gradebookng.tool.behavior.ScoreChangeBehavior;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
@@ -119,6 +120,9 @@ public class FinalGradeItemCellPanel extends Panel
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target)
 			{
+				GbStopWatch stopwatch = new GbStopWatch();
+				stopwatch.start();
+				
 				String newGrade = StringUtils.trimToNull(gradeField.getValue());
 				
 				notifications.clear();
@@ -187,6 +191,8 @@ public class FinalGradeItemCellPanel extends Panel
 				target.addChildren(getPage(), FeedbackPanel.class);
 				GbUtils.getParentCellFor(getComponent(), PARENT_ID).ifPresent(target::add);
 				target.add(gradeField);
+				
+				stopwatch.timeWithContext("FinalGradeItemCellPanel", "ScoreChange onUpdate");
 			}
 		});
 		
@@ -195,9 +201,10 @@ public class FinalGradeItemCellPanel extends Panel
 			@Override
 			protected void onEvent(final AjaxRequestTarget target)
 			{
-				send(getPage(), Broadcast.BREADTH, new ScoreChangedEvent(studentUuid, -1L, target));
+				// OWLTODO: we don't do this anymore, remove the whole event?
+				//send(getPage(), Broadcast.BREADTH, new ScoreChangedEvent(studentUuid, -1L, target));
 
-				target.appendJavaScript(String.format("sakai.gradebookng.spreadsheet.refreshCourseGradeForStudent('%s')", studentUuid));
+				//target.appendJavaScript(String.format("sakai.gradebookng.spreadsheet.refreshCourseGradeForStudent('%s')", studentUuid));
 			}
 		});
 		
