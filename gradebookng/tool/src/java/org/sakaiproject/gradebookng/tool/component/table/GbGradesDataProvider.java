@@ -5,6 +5,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import java.util.List;
+import java.util.Objects;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
@@ -16,11 +17,14 @@ public class GbGradesDataProvider extends SortableDataProvider<GbStudentGradeInf
 {	
 	private List<GbStudentGradeInfo> list;
 	private final IGradesPage page;
+	private boolean primed;
 	
 	public GbGradesDataProvider(List<GbStudentGradeInfo> grades, IGradesPage page)
 	{
+		Objects.requireNonNull(grades);
 		list = grades;
 		this.page = page;
+		primed = !list.isEmpty();
 	}
 	
 	@Override
@@ -32,7 +36,15 @@ public class GbGradesDataProvider extends SortableDataProvider<GbStudentGradeInf
 	@Override
 	public long size()
 	{
-		list = page.refreshStudentGradeInfo();
+		if (primed) // save a refresh, the data we already have is fresh enough
+		{
+			primed = false;
+		}
+		else
+		{
+			list = page.refreshStudentGradeInfo();
+		}
+		
 		return list.size();
 	}
 	

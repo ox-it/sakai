@@ -33,7 +33,8 @@ public class FinalGradeFormatter
 	private static String format(GbCourseGrade gbcg, boolean forReg)
 	{	
 		return gbcg.getOverride().map(o -> forReg ? overrideToRegistrarFinal(o) : o)
-				.orElseGet(() -> gbcg.getCalculatedGrade().map(c -> forReg ? padNumeric(round(c)) : String.valueOf(round(c)))
+				.orElseGet(() -> gbcg.getCalculatedGrade()
+						.map(c -> forReg ? padNumeric(round(c)) : String.valueOf(round(c)))
 						.orElse(""));
 	}
 	

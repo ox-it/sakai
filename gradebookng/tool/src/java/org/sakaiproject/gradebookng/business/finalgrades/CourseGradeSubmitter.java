@@ -777,10 +777,10 @@ public class CourseGradeSubmitter implements Serializable
     }
 	
 	// OWLTODO: try to remove calls to this method, getCurrentCourseGrades() is slow, pass it in instead...
-	public boolean hasSubmittableGrades(StringBuilder messageRef)
+	/*public boolean hasSubmittableGrades(StringBuilder messageRef)
 	{
 		return hasSubmittableGrades(getCurrentCourseGrades(), messageRef);
-	}
+	}*/
     
     public boolean hasSubmittableGrades(Set<OwlGradeSubmissionGrades> currentGrades, StringBuilder messageRef)
     {	
@@ -892,10 +892,10 @@ public class CourseGradeSubmitter implements Serializable
         return withinRange;
     }
     
-    public boolean isSubmissionAllowed()
+    /*public boolean isSubmissionAllowed()
     {
         return isCurrentUserAbleToSubmit() && hasSubmittableGrades(new StringBuilder());
-    }
+    }*/
     
     public boolean isSectionReadyForApprovalByCurrentUser()
     {
@@ -959,33 +959,10 @@ public class CourseGradeSubmitter implements Serializable
         List<GbStudentCourseGradeInfo> courseGrades = bus.getSectionCourseGrades(section);
 		stopwatch.time("bus.getSectionCourseGrades");
 		
-        //Map currentCourseGrades = bean.findMatchingEnrollmentsForViewableCourseGrade(null, null); // no username filter, no section filter
-		// OWLTODO: so this is probably a map for enrollmentrecord -> gradepermission (ie. grade or view)
-		// what we actually want is, all the course grades for all the students
-		// businessService should have this no?
-		// something like bus.getCourseGrades(bus.getGradeableUsers(uiSettings.getGroupFilter()))
-		// or maybe the buildGradeMatrix output is better, so we have GbStudentGradeInfo objects
-		// with student numbers already populated?
-		// maybe take a best of both and write a custom method to return GbStudentGradeInfos for just course grade?
-        //Map currentCourseGrades = bean.findMatchingEnrollmentsForViewableCourseGrade(null, sectionUid);
-        /*List<EnrollmentRecord> allEnrollments = new ArrayList<>(currentCourseGrades.keySet());
-        Set<String> studentIds = new HashSet<>();
-        for (EnrollmentRecord record : allEnrollments)
-        {
-            if (record != null && record.getUser() != null)
-            {
-                String uid = record.getUser().getUserUid();
-                if (uid != null && !uid.trim().isEmpty())
-                studentIds.add(record.getUser().getUserUid().trim());
-            }
-        }
-        List<CourseGradeRecord> courseGradeRecords = bean.getGradebookManager().getPointsEarnedCourseGradeRecords(bean.getCourseGrade(), studentIds);
-        // might need to use With Stats so grade calculations can be done by CourseGradeRecord objects 
-        //List<CourseGradeRecord> courseGradeRecordsWithStats = bean.getGradebookManager().getPointsEarnedCourseGradeRecordsWithStats(bean.getCourseGrade(), studentIds);
-        */
-		
         // convert valid course grade records to Registrar format
-        int count = 0; 
+		Gradebook gb = bus.getGradebook(); // pay this cost up front, instead of once for each grade override
+        GradeMapping gradeMapping = gb.getSelectedGradeMapping();
+        int count = 0;
         for (GbStudentCourseGradeInfo record : courseGrades)
         {   
 			GbUser student = record.getStudent();
@@ -1016,7 +993,6 @@ public class CourseGradeSubmitter implements Serializable
 					LOG.error(LOG_PREFIX + "No last name found for user " + studentEid +
                             " in section " + getSelectedSectionEid() + " of site " + siteId);
 				}
-				
                 grade.setStudentFirstName(firstName);
                 grade.setStudentLastName(lastName);
                 if (localDebugModeEnabled)
@@ -1034,7 +1010,7 @@ public class CourseGradeSubmitter implements Serializable
                     grade.setStudentNumber(getStudentNumber(student));
                 }
 				
-                grade.setGrade(courseGradeToRegistrarGrade(record));
+                grade.setGrade(courseGradeToRegistrarGrade(record, gradeMapping));
                 finalGrades.add(grade);
             }
             catch (MissingStudentNumberException msne)
@@ -1174,17 +1150,16 @@ public class CourseGradeSubmitter implements Serializable
         return prefixMap;
     }
     
-    private String courseGradeToRegistrarGrade(GbStudentCourseGradeInfo record) throws InvalidGradeException, MissingCourseGradeException
+    private String courseGradeToRegistrarGrade(GbStudentCourseGradeInfo record, GradeMapping mapping) throws InvalidGradeException, MissingCourseGradeException
     {
 		// OWLTODO: revisit all this...
         String finalGrade;
 		GbCourseGrade gbcg = record.getCourseGrade();
-		CourseGrade cg = gbcg.getCourseGrade();
 		
 		Optional<String> override = gbcg.getOverride();
         if (override.isPresent()) // we have an overridden grade, as a string
         {
-            finalGrade = overriddenGradeAsGradeString(override.get());
+            finalGrade = overriddenGradeAsGradeString(override.get(), mapping);
         }
         else // we have a numeric grade, or no grade was recorded
         {
@@ -1204,8 +1179,8 @@ public class CourseGradeSubmitter implements Serializable
         return finalGrade;
     }
     
-    private String overriddenGradeAsGradeString(String grade) throws IllegalArgumentException, InvalidGradeException
-    {
+    private String overriddenGradeAsGradeString(String grade, GradeMapping gradeMapping) throws IllegalArgumentException, InvalidGradeException
+    {	
         if (grade == null)
         {
             throw new IllegalArgumentException("Grade cannot be null");
@@ -1217,8 +1192,7 @@ public class CourseGradeSubmitter implements Serializable
         // get the current grade mapping
         // OWLTODO: Figure out what to do if the grade mapping is not the standard one (ie. missing NGR, etc.)
         //Gradebook gb = bean.getGradebookManager().getGradebook(bean.getGradebookBean().getGradebookId());
-		Gradebook gb = bus.getGradebook();  // OWL-1585 unlike the commented out call above, this call caches the Gradebook object so future calls don't hit the db
-        GradeMapping gradeMapping = gb.getSelectedGradeMapping();
+		
 		// OWLTODO: double check this grade mapping stuff
         if (gradeMapping == null || gradeMapping.getGradeMap().isEmpty())
         {
@@ -1227,19 +1201,7 @@ public class CourseGradeSubmitter implements Serializable
         
         String finalGrade;
         String g = grade.trim();
-        /*if (registrarGradeCodes.contains(g)) // we have a Registrar's grade code (ie. NGR) or a letter grade (ie. A+)
-        {
-            finalGrade = g;
-            if (finalGrade.length() == 2)
-            {
-                finalGrade += " "; // pad the two-char codes with a trailing space to fill 3 characters
-            }
-            else if (finalGrade.length() == 1)
-            {
-                finalGrade += "  "; // add two trailing spaces
-            }
-        }
-        else */if (isNumber(g) || registrarGradeCodes.contains(g)) // we have a valid numeric grade
+		if (isNumber(g) || registrarGradeCodes.contains(g)) // we have a valid numeric grade
         {
             finalGrade = FinalGradeFormatter.overrideToRegistrarFinal(g);
         }

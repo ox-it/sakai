@@ -95,17 +95,19 @@ public class GradeLogPanel extends Panel {
 
 		// heading
 		// TODO if user has been deleted since rendering the GradebookPage, handle a null here gracefully
-		final GbUser user = this.businessService.getUser(studentUuid);
+		final GbUser user;
 		StringResourceModel titleModel;
 		GradebookPage page = (GradebookPage)getPage();
 		GradebookUiSettings settings = page.getUiSettings();
 		boolean isContextAnonymous = settings.isContextAnonymous();
 		if (isContextAnonymous)
 		{
+			user = this.businessService.getUserWithAnonId(studentUuid);
 			titleModel = new StringResourceModel("heading.gradelog.anonymous", null, new Object[]{ user.getAnonId(settings) });
 		}
 		else
 		{
+			user = this.businessService.getUser(studentUuid);
 			titleModel = new StringResourceModel("heading.gradelog", null, new Object[] { user.getDisplayName(), user.getDisplayId() });
 		}
 		GradeLogPanel.this.window.setTitle(titleModel.getString());

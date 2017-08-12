@@ -106,7 +106,7 @@ public class EditGradeCommentPanel extends Panel {
 
 		// heading
 		// TODO if user/assignment has been deleted since rendering the GradebookPage, handle nulls here gracefully
-		final GbUser user = this.businessService.getUser(studentUuid);
+		final GbUser user;
 		final Assignment assignment = this.businessService.getAssignment(assignmentId);
 
 		GradebookUiSettings settings = ((GradebookPage)getPage()).getUiSettings();
@@ -114,10 +114,12 @@ public class EditGradeCommentPanel extends Panel {
 		StringResourceModel titleModel;
 		if (settings.isContextAnonymous())
 		{
+			user = this.businessService.getUserWithAnonId(studentUuid);
 			titleModel = new StringResourceModel("heading.editcomment.anonymous", null, new Object[] { user.getAnonId(settings), assignment.getName() });
 		}
 		else
 		{
+			user = this.businessService.getUser(studentUuid);
 			titleModel = new StringResourceModel("heading.editcomment", null, new Object[] { user.getDisplayName(), user.getDisplayId(), assignment.getName() });
 		}
 		EditGradeCommentPanel.this.window.setTitle(titleModel.getString());

@@ -1,5 +1,6 @@
 2017.08.12:
         - [OWL-3102] Improve GbStopWatch and timing code
+        - [OWL-3088] Improve speed of Final Grades page
 2017.08.11:
         - [OWL-3047] Sorting/filtering doesn't reset paging
 	- [OWL-2624] Eliminated the horizontal scrollbars in GBNG+ modals by overriding Bootstrap 

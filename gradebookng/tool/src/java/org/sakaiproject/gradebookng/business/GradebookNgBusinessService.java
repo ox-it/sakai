@@ -582,6 +582,7 @@ public class GradebookNgBusinessService {
 	 */
 	public CourseGrade getCourseGrade(final String studentUuid) {
 
+		GbStopWatch sw = new GbStopWatch("bus");
 		final Gradebook gradebook = this.getGradebook();
 		final CourseGrade courseGrade = this.gradebookService.getCourseGradeForStudent(gradebook.getUid(), studentUuid);
 
@@ -591,6 +592,7 @@ public class GradebookNgBusinessService {
 			courseGrade.setPointsEarned(null);
 		}
 
+		sw.time("getCourseGrade");
 		return courseGrade;
 	}
 
@@ -2191,7 +2193,7 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the user given a uuid
+	 * Get the user given a uuid. Acquires student number but not anon id
 	 *
 	 * @param userUuid
 	 * @return GbUser or null if cannot be found
@@ -2199,7 +2201,24 @@ public class GradebookNgBusinessService {
 	public GbUser getUser(final String userUuid) {
 		try {
 			final User u = this.userDirectoryService.getUser(userUuid);
-			return GbUser.fromUserAcquiringStudentNumberAndAnonIdMap(u, this); // OWLTODO: probably doesn't need anon id map by default
+			return GbUser.fromUserAcquiringStudentNumber(u, this);
+		} catch (final UserNotDefinedException e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * Get the user given a uuid. Acquires student number and anon id map for the user.
+	 * This method is slow, use only when needed.
+	 * 
+	 * @param userUuid
+	 * @return GbUser with student number and anon ids, or null if cannot be found
+	 */
+	public GbUser getUserWithAnonId(final String userUuid)
+	{
+		try {
+			final User u = this.userDirectoryService.getUser(userUuid);
+			return GbUser.fromUserAcquiringStudentNumberAndAnonIdMap(u, this);
 		} catch (final UserNotDefinedException e) {
 			return null;
 		}
@@ -2717,11 +2736,13 @@ public class GradebookNgBusinessService {
 	 */
 	public boolean updateCourseGrade(final String studentUuid, final String grade) {
 
+		GbStopWatch sw = new GbStopWatch("bus");
 		final String siteId = getCurrentSiteId();
 		final Gradebook gradebook = getGradebook(siteId);
 
 		try {
 			this.gradebookService.updateCourseGradeForStudent(gradebook.getUid(), studentUuid, grade);
+			sw.time("updateCourseGrade");
 			return true;
 		} catch (final Exception e) {
 			log.error("An error occurred saving the course grade. " + e.getClass() + ": " + e.getMessage());
@@ -3121,7 +3142,11 @@ public class GradebookNgBusinessService {
 		// and buildgradematrix()
 		if (group.getType() == GbGroup.Type.SECTION)
 		{
-			Map<String, CourseGrade> courseGrades = getCourseGrades(getGradeableUsers(group));
+			GbStopWatch sw = new GbStopWatch("bus.getSectionCourseGrades");
+			List<String> users = getGradeableUsers(group);
+			sw.time("getGradableUsers");
+			Map<String, CourseGrade> courseGrades = getCourseGrades(users);
+			sw.time("getCourseGrades");
 			List<GbStudentCourseGradeInfo> secCourseGrades = new ArrayList<>(courseGrades.size());
 			for (Entry<String, CourseGrade> entry : courseGrades.entrySet())
 			{
@@ -3130,6 +3155,7 @@ public class GradebookNgBusinessService {
 				cgi.setCourseGrade(new GbCourseGrade(entry.getValue()));
 				secCourseGrades.add(cgi);
 			}
+			sw.time("create course grade infos");
 			
 			return secCourseGrades;
 		}

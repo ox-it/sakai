@@ -130,14 +130,25 @@ public class CourseGradeOverrideLogPanel extends Panel {
 	{
 		ModelData data = (ModelData) getDefaultModelObject();
 		
-		GbUser user = businessService.getUser(data.studentUuid);
+		GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
+		boolean anon = settings.isContextAnonymous();
+		
+		GbUser user;
+		if (anon)
+		{
+			user = businessService.getUserWithAnonId(data.studentUuid);
+		}
+		else
+		{
+			user = businessService.getUser(data.studentUuid);
+		}
+		
 		if (user == null)
 		{
 			user = GbUser.forDisplayOnly("", "");
 		}
 		
-		GradebookUiSettings settings = ((IGradesPage)getPage()).getUiSettings();
-		if (settings.isContextAnonymous())
+		if (anon)
 		{
 			return new StringResourceModel("heading.coursegradelog.anonymous", null, new Object[] { user.getAnonId(settings) });
 		}

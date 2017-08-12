@@ -374,7 +374,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		boolean isSubmitter = submitter.isCurrentUserAbleToSubmit();
 		boolean isApprover = submitter.isCurrentUserAbleToApprove();
 		// button enabled checks
-		boolean canSubmit = isSubmitter && submitter.hasSubmittableGrades(new StringBuilder()); // OWLTODO: we need this message?
+		boolean canSubmit = isSubmitter && submitter.hasSubmittableGrades(courseGrades, new StringBuilder());
 		boolean canApprove = isApprover && submitter.isSectionReadyForApprovalByCurrentUser();
 		SubmitAndApproveStatus sas = SubmitAndApproveStatus.builder().canSubmit(isSubmitter).canApprove(isApprover)
 				.submitReady(canSubmit).approveReady(canApprove).statusMsg(status).build();

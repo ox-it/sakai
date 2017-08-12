@@ -120,7 +120,7 @@ public class FinalGradeItemCellPanel extends Panel
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target)
 			{
-				GbStopWatch stopwatch = new GbStopWatch();
+				GbStopWatch stopwatch = new GbStopWatch("FinalGradeItemCellPanel");
 				
 				String newGrade = StringUtils.trimToNull(gradeField.getValue());
 				
@@ -150,10 +150,10 @@ public class FinalGradeItemCellPanel extends Panel
 						// does the entered grade match the rounded final grade anyway? If so, remove the override
 						CourseGrade originalCourseGrade = businessService.getCourseGrade(studentUuid);
 						GbCourseGrade ogbcg = new GbCourseGrade(originalCourseGrade);
-						String formatted = formatGrade(ogbcg);
+						String formatted = ogbcg.getCalculatedGrade().map(c -> String.valueOf(FinalGradeFormatter.round(c))).orElse("");
 						if (newGrade.equals(formatted))
 						{
-							saveGrade = "";
+							saveGrade = null;
 						}
 					}
 					// save
@@ -191,7 +191,7 @@ public class FinalGradeItemCellPanel extends Panel
 				GbUtils.getParentCellFor(getComponent(), PARENT_ID).ifPresent(target::add);
 				target.add(gradeField);
 				
-				stopwatch.timeWithContext("FinalGradeItemCellPanel", "ScoreChange onUpdate");
+				stopwatch.time("ScoreChange onUpdate");
 			}
 		});
 		

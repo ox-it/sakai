@@ -58,20 +58,20 @@ public class CourseGradeOverridePanel extends Panel {
 
 		// unpack model
 		final String studentUuid = (String) getDefaultModelObject();
+		
+		IGradesPage gradebookPage = (IGradesPage) getPage();
+		GradebookUiSettings settings = gradebookPage.getUiSettings();
+		boolean isContextAnonymous = settings.isContextAnonymous();
 
 		// get the rest of the data we need
 		// TODO this could all be passed in through the model if it was changed to a map, as per CourseGradeItemCellPanel...
-		final GbUser studentUser = this.businessService.getUser(studentUuid);
+		final GbUser studentUser = isContextAnonymous ? businessService.getUserWithAnonId(studentUuid) : businessService.getUser(studentUuid);
 		final String currentUserUuid = this.businessService.getCurrentUser().getId();
 		final GbRole currentUserRole = this.businessService.getUserRole();
 		final Gradebook gradebook = this.businessService.getGradebook();
 		final boolean courseGradeVisible = this.businessService.isCourseGradeVisible(currentUserUuid);
 
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(studentUuid);
-
-		IGradesPage gradebookPage = (IGradesPage) getPage();
-		GradebookUiSettings settings = gradebookPage.getUiSettings();
-		boolean isContextAnonymous = settings.isContextAnonymous();
 
 		StringResourceModel titleModel;
 		if (isContextAnonymous)
