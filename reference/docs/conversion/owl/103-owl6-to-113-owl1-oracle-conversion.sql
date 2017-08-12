@@ -1321,3 +1321,15 @@ UPDATE SAKAI_SITE_TOOL
 SET TITLE = 'Home'
 WHERE REGISTRATION = 'sakai.iframe.myworkspace';
 -- END SAK-32045
+
+-- BEING SAK-32046 -- Change text 'My Workspace' which still appears in My Home > Resources
+UPDATE CONTENT_COLLECTION
+SET BINARY_ENTITY = REPLACE(BINARY_ENTITY, 'Workspace', 'Home     ')
+WHERE IN_COLLECTION = '/user/';
+
+-- TXkgV29ya3NwYWNl is BASE64 for 'My Workspace'
+-- SG9tZQ== is BASE64 for 'Home'
+UPDATE CONTENT_COLLECTION
+SET XML = REPLACE(XML, 'TXkgV29ya3NwYWNl', 'SG9tZQ==')
+WHERE IN_COLLECTION = '/user/';
+-- END SAK-32046
