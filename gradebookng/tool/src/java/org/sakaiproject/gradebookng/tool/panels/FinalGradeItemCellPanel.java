@@ -121,7 +121,6 @@ public class FinalGradeItemCellPanel extends Panel
 			protected void onUpdate(final AjaxRequestTarget target)
 			{
 				GbStopWatch stopwatch = new GbStopWatch();
-				stopwatch.start();
 				
 				String newGrade = StringUtils.trimToNull(gradeField.getValue());
 				
