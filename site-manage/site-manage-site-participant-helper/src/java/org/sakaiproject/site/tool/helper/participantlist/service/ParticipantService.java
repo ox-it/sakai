@@ -588,7 +588,6 @@ public class ParticipantService implements Serializable
 
                 // then update all related group realms for the role
                 updateRelatedGroupParticipants();
-                siteService.save(this.site);
                 authzGroupService.refreshAuthzGroup(this.realm);
 
                 // post event about the participant update
@@ -610,12 +609,12 @@ public class ParticipantService implements Serializable
                     }
                 }
             }
-            catch (GroupNotDefinedException | IdUnusedException e)
+            catch (GroupNotDefinedException e)
             {
                 errors = new ResourceModel("java.problem2");
                 LOG.warn(this + ".doUpdate_participant: IdUnusedException " + siteTitle + "(" + realmId + "). ", e);
             }
-            catch (AuthzPermissionException | PermissionException e)
+            catch (AuthzPermissionException e)
             {
                 errors = new ResourceModel("java.changeroles");
                 LOG.warn(this + ".doUpdate_participant: PermissionException " + siteTitle + "(" + realmId + "). ", e);
