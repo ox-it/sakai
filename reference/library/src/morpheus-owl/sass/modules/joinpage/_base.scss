@@ -1,8 +1,9 @@
-.#{$namespace}joinpage{
+.#{$namespace}joinpage
+{
 	position: fixed;
 	width: 100%;
 	min-height: 14em;
-	background: $background-color;
+	
 	.join
 	{
 		margin: 5em auto;
@@ -44,8 +45,11 @@
 		border: 1px solid $primary-color;
 		border-collapse: collapse;
 	}
-	.portalBody.joinpage
-	{
-		background-color:#eee;
-	}
 }
+
+body.#{$namespace}joinpage		
+{
+	// to override body.Mrphs-portalBody
+	background-color:#eee;
+}
+

@@ -1,3 +1,5 @@
+2017.08.14:
+	- [OWL-2586] Set the background colour for the Join Page
 2017.08.11:
 	- [OWL-935] Restyled the login page to align elements better; added action classes to primary buttons
 	- [OWL-3091] Set a min-width for the multi-selects when editing a group for empty state
