@@ -414,11 +414,15 @@ public class ExportPanel extends Panel {
 		// build column header
 		assignments.forEach(assignment -> {
 			final String assignmentPoints = assignment.getPoints().toString();
+			String externalPrefix = "";
+			if (assignment.isExternallyMaintained()) {
+				externalPrefix = CUSTOM_EXPORT_COLUMN_PREFIX;
+			}
 			if (!isCustomExport || includeGradeItemScores) {
-				header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
+				header.add(externalPrefix + assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
 			}
 			if (!isCustomExport || includeGradeItemComments) {
-				header.add("* " + assignment.getName());
+				header.add(externalPrefix + "* " + assignment.getName());
 			}
 		});
 
