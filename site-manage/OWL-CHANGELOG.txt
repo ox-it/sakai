@@ -1,3 +1,5 @@
+2017.08.14:
+	- [OWL-3050] Fixed horizontal scrollbar on the Site Info main page caused by a non-wrapping table cell
 2017.08.09:
 	- [OWL-2976] Manage Groups - group memberships will now immediately be updated if a section is added
 	- [OWL-2799] Manage Participants - Last updated time now appears at the top as well as the bottom

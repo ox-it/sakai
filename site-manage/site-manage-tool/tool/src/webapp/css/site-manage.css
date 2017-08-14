@@ -593,8 +593,11 @@ input#btnSearch {
     border:none;
 }
 
-#summary th{
-    font-weight: bold;
+#summary th
+{
+    width: 30%;
+    white-space: normal;
+    font-weight: bold;    
 }
 
 #removeClass{
