@@ -1734,6 +1734,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	@Override
 	public void refreshAuthzGroup(AuthzGroup azGroup)
 	{
+		handleRefreshAuthzGroup(azGroup);
+	}
+
+	protected void handleRefreshAuthzGroup(AuthzGroup azGroup)
+	{
 		if (azGroup == null)
 		{
 			return;

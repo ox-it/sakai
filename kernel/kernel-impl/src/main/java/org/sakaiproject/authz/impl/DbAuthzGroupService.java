@@ -36,6 +36,7 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.impl.BaseGroup;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseDbFlatStorage;
@@ -657,6 +658,23 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	        rv.put(userId, new MemberWithRoleId(member));
 	    }
 	    return rv;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public void refreshAuthzGroup(AuthzGroup azGroup)
+	{
+		if (azGroup == null)
+		{
+			return;
+		}
+
+		// We're refreshing it now; no need to queue it
+		refreshQueue.remove(azGroup.getId());
+
+		handleRefreshAuthzGroup(azGroup);
 	}
 
 	/**
