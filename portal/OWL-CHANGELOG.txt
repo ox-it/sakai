@@ -1,5 +1,7 @@
+2017.08.15:
+	- [OWL-3056] Adjusted the container of the breadcrumbs to be able to style it better
 2017.08.11:
-        - [OWL-3096] Provide alternative method for contextual help linking
+    - [OWL-3096] Provide alternative method for contextual help linking
 2017.07.31:
 	- [OWL-3027] Changed some markup while modernizing the Direct Link panel
 	- [OWL-3026] Moved the breadcrumbs bar to a new location on the page as a new snippet

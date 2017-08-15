@@ -1,6 +1,7 @@
 ## Breadcrumb navigation for the top of the page
 
     <nav class="Mrphs-siteHierarchy">
+        <div class="Mrphs-hierarchy--sites">
 
         #if ( $portalBreadCrumbs or $portalPwd ) 
 
@@ -56,7 +57,7 @@
             #end
             #set($index = $index + 1 )
         #end
-
+        </div>
         
         #foreach( $page in $sitePages.pageNavTools )
             #if (${page.current})

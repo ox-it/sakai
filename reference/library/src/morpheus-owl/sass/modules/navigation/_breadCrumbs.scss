@@ -51,17 +51,23 @@
 		margin: 0;
 		padding: $standard-padding 125px $standard-padding $standard-padding;	// OWLTODO: space for Link/Help links; better way to do this?
 		
+		.#{$namespace}hierarchy--sites
+		{
+			width: 100%; 				// to drop it to a new line 	
+			line-height: 1;
+			font-size: 50%; 			// 10px, based on siteHierarchy's font size	
+		}
+		
 		.#{$namespace}hierarchy--siteName, .#{$namespace}hierarchy--siteNameSeparator
 		{
 			display: none; 						// hide the site name in the breadcrumbs
-		}
-		
+		}	
+	
 		.#{$namespace}hierarchy--parent-sites,
 			.#{$namespace}hierarchy--parent-sites + .#{$namespace}hierarchy--siteName
 		{
 			// when there are parent sites before, show these styles
 			display: inline-block;
-			font-size: 50%; 			// 10px, based on siteHierarchy's font size	
 			margin-bottom: $standard-padding;
 		}
 
@@ -90,7 +96,6 @@
 		a.#{$namespace}hierarchy--toolName{
 			display: flex;
 			align-items: center;
-			width: 100%; 				// to drop it to a new line
 			margin-left: 0;
 			color: $breadcrumbs-tool-color;
 			
