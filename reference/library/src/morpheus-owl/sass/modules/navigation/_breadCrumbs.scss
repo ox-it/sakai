@@ -12,16 +12,33 @@
 	}
 	a{
 		color: $breadcrumbs-color;
-		margin: 0 0.5em 0 0.5em;
+		margin: 0 0.5em 0 0;
 		padding: 0;
 		text-decoration: none;
-		&:hover{
+		&:hover, &:focus
+		{
 			text-decoration: none;
 		}
 	}
 
-	.Mrphs-hierarchy--parent-sites{
-		display: block;
+	.#{$namespace}hierarchy--parent-sites
+	{
+		display: inline-block;
+		
+		a:hover, a:focus
+		{
+			text-decoration: underline;
+			
+			@media #{$nonPhone}
+			{
+				color: $breadcrumbs-hover-color;
+			}
+		}
+	}
+	
+	.#{$namespace}hierarchy--separator
+	{
+		margin-right: 0.5em;
 	}
 
 	/* Show the breadcrumbs on multiple rows (when there are parent sites), and use hover animations */
@@ -29,6 +46,7 @@
 	{
 		display: flex;
 		align-items: center;
+		flex-wrap: wrap;
 		min-height: initial;
 		margin: 0;
 		padding: $standard-padding 125px $standard-padding $standard-padding;	// OWLTODO: space for Link/Help links; better way to do this?
@@ -37,15 +55,25 @@
 		{
 			display: none; 						// hide the site name in the breadcrumbs
 		}
+		
+		.#{$namespace}hierarchy--parent-sites,
+			.#{$namespace}hierarchy--parent-sites + .#{$namespace}hierarchy--siteName
+		{
+			// when there are parent sites before, show these styles
+			display: inline-block;
+			font-size: 50%; 			// 10px, based on siteHierarchy's font size	
+			margin-bottom: $standard-padding;
+		}
 
 		.#{$namespace}hierarchy--siteName a, .#{$namespace}hierarchy--1 a{
 			/* Since we'll start on our own line, don't pad */
 			margin-left: 0;
 		}
 
-		.#{$namespace}hierarchy--siteName a:hover{
+		.#{$namespace}hierarchy--siteName a:hover, .#{$namespace}hierarchy--siteName a:focus
+		{
 			color: $breadcrumbs-hover-color;
-			border-bottom: 1px solid $breadcrumbs-hover-color;
+			text-decoration: underline;
 		}
 
 		/*
@@ -62,6 +90,7 @@
 		a.#{$namespace}hierarchy--toolName{
 			display: flex;
 			align-items: center;
+			width: 100%; 				// to drop it to a new line
 			margin-left: 0;
 			color: $breadcrumbs-tool-color;
 			
@@ -75,7 +104,7 @@
 			}
 		}
 
-		a.#{$namespace}hierarchy--toolName:hover
+		a.#{$namespace}hierarchy--toolName:hover, a.#{$namespace}hierarchy--toolName:focus
 		{
 
 			.#{$namespace}breadcrumb--icon{
@@ -91,13 +120,6 @@
 			{
 				text-decoration: underline;
 			}
-		}
-
-		.#{$namespace}hierarchy--parent-sites{
-			display: block;
-			font-size: 90%;
-			font-weight: 200;
-			margin-bottom: 5px;
 		}
 	}
 
@@ -124,7 +146,8 @@
 			color: $background-color;
 			font-size: 1em;
 
-			&:hover{
+			&:hover, &:focus
+			{
 				color: $background-color;
 			}			
 		}
