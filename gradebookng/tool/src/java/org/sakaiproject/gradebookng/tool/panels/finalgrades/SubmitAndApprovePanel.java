@@ -4,6 +4,7 @@ import java.io.Serializable;
 import lombok.Builder;
 import lombok.Getter;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.feedback.ComponentFeedbackMessageFilter;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -53,6 +54,10 @@ public class SubmitAndApprovePanel extends Panel
 		};
 		submitButton.setWillRenderOnClick(true);
 		submitButton.setVisible(getData().isCanSubmit());
+		if (getData().isCanSubmit() && getData().isSubmitReady())
+		{
+			submitButton.add(AttributeAppender.append("class", " active"));
+		}
 		add(submitButton);
 		
 		final SakaiAjaxButton approveButton = new SakaiAjaxButton("approveFinalGrades")
@@ -72,6 +77,10 @@ public class SubmitAndApprovePanel extends Panel
 		};
 		approveButton.setWillRenderOnClick(true);
 		approveButton.setVisible(getData().isCanApprove());
+		if (getData().isCanApprove() && getData().isApproveReady())
+		{
+			submitButton.add(AttributeAppender.append("class", " active"));
+		}
 		add(approveButton);
 		
 		add(feedback = new GbFeedbackPanel("submitAndApproveFeedback"));
