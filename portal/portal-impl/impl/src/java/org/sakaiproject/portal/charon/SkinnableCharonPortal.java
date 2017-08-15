@@ -701,7 +701,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			else
 			{
-				if (helpDocId == null || helpDocId.length() == 0)
+				if (helpDocId == null || helpDocId.length() == 0 || "sakai.assignment".equals(helpDocId))
 				{
 					// OWLTODO: put this identifier change behind a property
 					// helpDocId = tool.getId();
