@@ -156,12 +156,22 @@
 				color: $background-color;
 			}			
 		}
+		.#{$namespace}hierarchy--sites
+		{
+			display: inline-block;
+		}
 		.#{$namespace}hierarchy--siteName a:hover{
 			text-decoration: underline;
 		}
 		
-		a.#{$namespace}hierarchy--toolName:hover{
-			border-bottom: 1px solid  $background-color;
+		a.#{$namespace}hierarchy--toolName
+		{
+			white-space: nowrap;		// to keep the icon from becoming separated from the tool name
+			
+			&:hover
+			{
+				border-bottom: 1px solid  $background-color;
+			}
 		}
 		
 		.#{$namespace}hierarchy--serviceName, .#{$namespace}hierarchy--serviceNameSeparator{
