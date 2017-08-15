@@ -2354,7 +2354,23 @@ public class GradebookNgBusinessService {
 
 		return rval;
 	}
-	
+
+	/**
+	 * Return true if the current user has the Instructor section role and/or the gradebook.editAssessment permission.
+	 *
+	 * @param gradebookID the ID of the gradebook in question (site ID)
+	 * @return true if the user has the ability, false otherwise
+	 */
+	public boolean currentUserHasEditPermission(final String gradebookID)
+	{
+		if (StringUtils.isBlank(gradebookID))
+		{
+			return false;
+		}
+
+		return gradebookService.currentUserHasEditPerm(gradebookID);
+	}
+
 	/**
 	 * Return true if the current user has the submit or approve permissions. This is NOT complete check
 	 * of final submitter/approver status because we can't perform the full check with no section selected.

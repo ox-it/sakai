@@ -1,3 +1,5 @@
+2017.08.15:
+	- [OWL-3076] hide grade override modal opportunity if user doesn't have appropriate permissions
 2017.08.14:
 	- [OWL-3109] external gradebook items should be marked with the 'ignore' prefix when exporting the gradebook
 2017.08.12:

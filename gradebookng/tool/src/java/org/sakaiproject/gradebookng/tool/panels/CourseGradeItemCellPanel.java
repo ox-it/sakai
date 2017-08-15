@@ -187,7 +187,7 @@ public class CourseGradeItemCellPanel extends Panel {
 				window.showUnloadConfirmation(false);
 				window.show(target);
 			}
-		}.setVisible(!hasMenu && showOverride));
+		}.setVisible(!hasMenu && showOverride && businessService.currentUserHasEditPermission(gradebook.getUid())));
 		
 		add(menu);
 	}
