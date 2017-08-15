@@ -961,7 +961,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 		
 		// set the session attribute with the roleid
 		sessionManager().getCurrentSession().setAttribute(ROLESWAP_PREFIX + azGroupId, role); 
-		resetSecurityCache(azGroupId);
+		resetSecurityCache(azGroupId, true);
 
 		return true;
 	}
@@ -984,7 +984,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	
 		// remove the attribute from the session
 		sessionManager().getCurrentSession().removeAttribute(ROLESWAP_PREFIX + azGroupId);
-		resetSecurityCache(azGroupId);
+		resetSecurityCache(azGroupId, true);
 		
 		return;
 	}
@@ -1016,14 +1016,21 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 	 * @param azGroupId
 	 *        The authz group id.
 	 */
-	protected void resetSecurityCache(String azGroupId) {
-		
+	public void resetSecurityCache(String azGroupId) {
+		resetSecurityCache(azGroupId, false);
+	}
+
+	public void resetSecurityCache(String azGroupId, boolean postRoleswapClearEvent)
+	{
 		// This will clear all cached security lookups involving this realm, thereby forcing the permissions to be rechecked.
 	
 		// We could turn this into a SessionStateBindingListener so it gets called automatically when
 		// the session is cleared.
 		String realmRef = org.sakaiproject.authz.api.AuthzGroupService.REFERENCE_ROOT + Entity.SEPARATOR + azGroupId;
-		eventTrackingService().post(eventTrackingService().newEvent(EVENT_ROLESWAP_CLEAR, realmRef, true));
+		if (postRoleswapClearEvent)
+		{
+			eventTrackingService().post(eventTrackingService().newEvent(EVENT_ROLESWAP_CLEAR, realmRef, true));
+		}
 
 		cacheRealmPermsChanged(realmRef, null, null);
 	}
@@ -1046,7 +1053,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 				M_log.warn("Security invalidation error when handling an event (" + event.getEvent() + "), for site " + event.getResource());
 			}
 			if (site != null) {
-				resetSecurityCache(site.getReference());
+				resetSecurityCache(site.getReference(), true);
 			}
 		}
 	}

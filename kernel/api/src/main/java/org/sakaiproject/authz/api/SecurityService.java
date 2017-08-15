@@ -186,5 +186,11 @@ public interface SecurityService
 	 * Clear all effective roles for this user. Should be called on logout.
 	 */
 	void clearUserEffectiveRoles();
+
+	/**
+	 * Clear the results of security lookups involving the given authz group from the security lookup cache.
+	 * @param azGroupId the authz group id
+	 */
+	void resetSecurityCache(String azGroupId);
 	
 }

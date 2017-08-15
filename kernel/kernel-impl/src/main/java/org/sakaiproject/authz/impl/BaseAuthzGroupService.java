@@ -1747,6 +1747,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		if (azGroup instanceof BaseAuthzGroup)
 		{
 			m_storage.refreshAuthzGroupInternal((BaseAuthzGroup) azGroup);
+			securityService().resetSecurityCache(azGroup.getId());
 		}
 		else if (azGroup instanceof BaseGroup)
 		{
@@ -1755,6 +1756,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			if (grpAzg != null && grpAzg instanceof BaseAuthzGroup)
 			{
 				m_storage.refreshAuthzGroupInternal((BaseAuthzGroup) grpAzg);
+				securityService().resetSecurityCache(azGroup.getId());
 			}
 		}
 		else

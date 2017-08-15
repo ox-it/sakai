@@ -156,5 +156,10 @@ public class MockSecurityService implements SecurityService
 		return null;
 	}
 
+	@Override
+	public void resetSecurityCache(String authzGroupId)
+	{
+
+	}
 
 }
