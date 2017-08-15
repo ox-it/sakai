@@ -1,3 +1,5 @@
+2017.08.15:
+	- [OWL-3121] Improved the styling for fieldset legends to override Bootstrap
 2017.08.14:
 	- [OWL-2586] Set the background colour for the Join Page
 2017.08.11:
