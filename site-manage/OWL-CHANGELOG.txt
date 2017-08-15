@@ -1,3 +1,5 @@
+2017.08.15:
+	- [OWL-2754] Moved the Unjoin button and Creation Date line on the Site Info page; changed the Unjoin button text
 2017.08.14:
 	- [OWL-3050] Fixed horizontal scrollbar on the Site Info main page caused by a non-wrapping table cell
 2017.08.09:
