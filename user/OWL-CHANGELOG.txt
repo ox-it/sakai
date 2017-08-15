@@ -1,3 +1,5 @@
+2017.08.12:
+	- [OWL-3093] add spinners to the Preferences pages
 2017.08.11:
 	- [OWL-3092] Made the Update Preferences button the primary button on the new Sites user preferences page
         - [OWL-3018] Reset the Tutorial for all users

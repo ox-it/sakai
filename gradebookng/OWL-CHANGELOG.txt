@@ -1,3 +1,5 @@
+2017.08.14:
+	- [OWL-3109] external gradebook items should be marked with the 'ignore' prefix when exporting the gradebook
 2017.08.12:
         - [OWL-3102] Improve GbStopWatch and timing code
         - [OWL-3088] Improve speed of Final Grades page

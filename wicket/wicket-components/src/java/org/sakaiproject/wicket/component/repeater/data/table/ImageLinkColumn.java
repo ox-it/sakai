@@ -41,6 +41,25 @@ public class ImageLinkColumn extends AbstractColumn
         this(displayModel, pageClass, paramPropertyExpressions, iconReference, null, sortProperty);
     }
 
+    /**
+     * Constructor for non-sortable column.
+     *
+     * All other constructors provide a sortable column.
+     * 
+     * @param displayModel
+     * @param pageClass
+     * @param paramPropertyExpressions
+     * @param iconReference
+     */
+    public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions, ResourceReference iconReference)
+    {
+        super(displayModel);
+        this.pageClass = pageClass;
+        this.paramPropertyExpressions = paramPropertyExpressions;
+        this.iconReference = iconReference;
+        this.popupWindowName = null;
+    }
+
     public ImageLinkColumn(IModel displayModel, Class<?> pageClass, String[] paramPropertyExpressions, String iconProperty,
             String sortProperty)
     {
