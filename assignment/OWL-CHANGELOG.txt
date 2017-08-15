@@ -1,3 +1,5 @@
+2017.08.15:
+	- [OWL-3118] disable onbeforeunload JavaScript event handler on user form submission
 2017.08.03:
 	- [OWL-2751] don't put focus on the max points field if there are error messages at the top of the add/edit assignment UI
 	- [OWL-2829] implement onbeforeunload on submission grading UI

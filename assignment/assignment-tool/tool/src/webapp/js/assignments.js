@@ -813,6 +813,9 @@ ASN.submitForm = function( formID, option, submissionID, view )
     var form = document.getElementById( formID );
     if( form !== null )
     {
+        // Disable onbeforeunload if any
+        $(window).unbind("beforeunload");
+
         // Apply the submission ID to the form's action if one is supplied
         if( submissionID !== null )
         {
