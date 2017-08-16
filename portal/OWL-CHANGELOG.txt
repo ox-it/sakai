@@ -1,3 +1,5 @@
+2017.08.16:
+	- [OWL-3029] Re-added the Home site's dropdown tool menu to the top sites bar
 2017.08.15:
 	- [OWL-3056] Adjusted the container of the breadcrumbs to be able to style it better
 2017.08.11:
