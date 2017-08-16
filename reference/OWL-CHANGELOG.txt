@@ -1,4 +1,5 @@
 2017.08.16:
+	- [OWL-3052] Fixed focus state of the navIntraTool bar items
 	- [OWL-3029] Re-added the Home site's dropdown tool menu to the top sites bar
 2017.08.15:
 	- [OWL-3056] Styled the Parent Sites to appear as a new bar with the tool name

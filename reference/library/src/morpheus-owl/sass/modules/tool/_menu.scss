@@ -30,7 +30,7 @@
 				color: $tool-nav-link-color;
 				text-decoration: none;
 				
-				&:hover, &:active
+				&:hover, &:focus
 				{
 					background-color: #eee;
 					color: $tool-nav-active-link-color;
