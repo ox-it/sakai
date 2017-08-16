@@ -35,6 +35,7 @@ $(document).ready(function(){
 	#set($timeSubmitted=$submission.TimeSubmitted)
 	#set($submitted=false)
 	#set($submitted=$submission.getSubmitted())
+	#set($isUserSubmission=$submission.isUserSubmission())
 	#set($returned=false)
 	#set($returned=$submission.getReturned())
 	#set($closeTime = false)
@@ -199,7 +200,7 @@ $(document).ready(function(){
 					</th>
 					<td>
 						#if ($!submission)
-							#if ($submitted && $!timeSubmitted)
+							#if ($submitted && $!timeSubmitted && $!isUserSubmission)
 								#if ($returned)
 									#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
 										$tlang.getString("gen.retu") $submission.TimeReturned.toStringLocalFull()
@@ -1112,7 +1113,7 @@ $(document).ready(function(){
 									onclick="ASN_SVS.confirmDiscardOrSubmit( '$name_submission_text', $!new_attachments ); return false;" />
 							#end
 
-                            #if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
+                            #if ($!submitted && $!isUserSubmission && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
                                 <span class="messageInformation">$tlang.getString("stuviewsubm.modifytoresubmit")</span>
                             #elseif ($submissionType == 5)
                                 <span class="messageInformation">$tlang.getString("stuviewsubm.reminder")</span>

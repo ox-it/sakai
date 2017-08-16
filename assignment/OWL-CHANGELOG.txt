@@ -1,3 +1,5 @@
+2017.08.16:
+	- [OWL-2744] added some missing isUserSubmission checks causing new submissions to look like resubmissions due to dummy submissions
 2017.08.15:
 	- [OWL-3118] disable onbeforeunload JavaScript event handler on user form submission
 2017.08.03:
