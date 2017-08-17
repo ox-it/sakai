@@ -11,11 +11,9 @@ import org.apache.wicket.AttributeModifier;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -213,7 +211,7 @@ public class ParticipantListPanel extends Panel
         manageParticipantForm.add(wmc);
 
         // Add update buttons to form
-        IndicatingAjaxButton btnUpdate1 = new IndicatingAjaxButton("btnUpdateParticipants1")
+        SakaiAjaxButton btnUpdate1 = new SakaiAjaxButton("btnUpdateParticipants1")
         {
             @Override
             public void onSubmit(AjaxRequestTarget target, Form<?> form)
@@ -233,10 +231,10 @@ public class ParticipantListPanel extends Panel
         btnUpdate1.add(new AttributeAppender("class", new Model<>("udpateButton"), " "));
         manageParticipantForm.add(btnUpdate1);
 
-        final Button btnCancel1 = new Button("btnCancel1")
+        final SakaiAjaxButton btnCancel1 = new SakaiAjaxButton("btnCancel1")
         {
             @Override
-            public void onSubmit()
+            public void onSubmit(AjaxRequestTarget target, Form<?> form)
             {
                 returnToSiteInfo();
             }
@@ -245,7 +243,7 @@ public class ParticipantListPanel extends Panel
         btnCancel1.setDefaultFormProcessing(false);
         manageParticipantForm.add(btnCancel1);
 
-        IndicatingAjaxButton btnUpdate2 = new IndicatingAjaxButton("btnUpdateParticipants2")
+        final SakaiAjaxButton btnUpdate2 = new SakaiAjaxButton("btnUpdateParticipants2")
         {
             @Override
             public void onSubmit(AjaxRequestTarget target, Form<?> form)
@@ -265,10 +263,10 @@ public class ParticipantListPanel extends Panel
         btnUpdate2.add(new AttributeAppender("class", new Model<>("udpateButton"), " "));
         manageParticipantForm.add(btnUpdate2);
 
-        final Button btnCancel2 = new Button("btnCancel2")
+        final SakaiAjaxButton btnCancel2 = new SakaiAjaxButton("btnCancel2")
         {
             @Override
-            public void onSubmit()
+            public void onSubmit(AjaxRequestTarget target, Form<?> form)
             {
                 returnToSiteInfo();
             }
