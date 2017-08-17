@@ -227,7 +227,6 @@ public class ParticipantListPanel extends Panel
             }
         };
 
-        btnUpdate1.add(AttributeModifier.replace("value", new ResourceModel("updateParticipants").getObject()));
         btnUpdate1.add(new AttributeAppender("class", new Model<>("udpateButton"), " "));
         manageParticipantForm.add(btnUpdate1);
 
@@ -259,7 +258,6 @@ public class ParticipantListPanel extends Panel
             }
         };
 
-        btnUpdate2.add(AttributeModifier.replace("value", new ResourceModel("updateParticipants").getObject()));
         btnUpdate2.add(new AttributeAppender("class", new Model<>("udpateButton"), " "));
         manageParticipantForm.add(btnUpdate2);
 
