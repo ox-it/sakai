@@ -225,8 +225,8 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 				userEditProperties.addPropertyToList(USER_PROP_ADDITIONAL_INFO, encryption.encrypt(EMPTY, additionalInfoLength));
 			}
 			if (StringUtils.isEmpty(userEditProperties.getProperty(USER_PROP_STUDENT_NUMBER))) {
-				//userEditProperties.addProperty(USER_PROP_STUDENT_NUMBER, encryption.encrypt(EMPTY, studentNumberLength));
-				addStudentNumberProperty(EMPTY, userEditProperties);
+				userEditProperties.addProperty(USER_PROP_STUDENT_NUMBER, encryption.encrypt(EMPTY, studentNumberLength));
+				//addStudentNumberProperty(EMPTY, userEditProperties);
 			}
 
 		super.mapUserDataOntoUserEdit(userData, userEdit);
@@ -242,6 +242,6 @@ public class SimpleLdapCandidateAttributeMapper extends SimpleLdapAttributeMappe
 		{
 			studentNumber = encryption.encrypt(studentNumber, studentNumberLength);
 		}
-		userEditProperties.addPropertyToList(USER_PROP_STUDENT_NUMBER, studentNumber);
+		userEditProperties.addProperty(USER_PROP_STUDENT_NUMBER, studentNumber);
 	}
 }
