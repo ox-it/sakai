@@ -1310,7 +1310,12 @@ ALTER TABLE OSP_WORKFLOW_PARENT RENAME TO OLD__OSP_WORKFLOW_PARENT;
 -- BEGIN SAK-32045 -- Update My Workspace to Home
 UPDATE SAKAI_SITE
 SET TITLE = 'Home', DESCRIPTION = 'Home'
-WHERE SITE_ID = '!user';
+WHERE SITE_ID LIKE '!user%'
+AND SITE_ID != '!user.pep';
+
+UPDATE SAKAI_SITE
+SET TITLE = 'Home', DESCRIPTION = '<p>Preceptor Education Program (PEP) Home Site</p>'
+WHERE SITE_ID = '!user.pep';
 
 UPDATE SAKAI_SITE
 SET TITLE = 'Home', DESCRIPTION = 'Home'
