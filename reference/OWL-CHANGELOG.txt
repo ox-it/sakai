@@ -1,3 +1,5 @@
+2017.08.18:
+	- [OWL-3147] update default text of Home's "Home Information Display"
 2017.08.16:
 	- [OWL-3052] Fixed focus state of the navIntraTool bar items
 	- [OWL-3029] Re-added the Home site's dropdown tool menu to the top sites bar
