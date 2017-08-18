@@ -116,7 +116,12 @@ public class GbBaseGradesDisplayToolbar extends Panel
 
 		add(groupFilter);
 		
-		add(new GbSakaiPagerContainer("gradebookPager", table));
+		add(pagerContainer());
+	}
+	
+	protected GbSakaiPagerContainer pagerContainer()
+	{
+		return new GbSakaiPagerContainer("gradebookPager", table);
 	}
 	
 	protected void configureGroupFilter(SakaiSpinnerDropDownChoice<GbGroup> groupFilter, GradebookUiSettings settings)

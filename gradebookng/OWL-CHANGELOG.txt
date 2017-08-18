@@ -1,6 +1,7 @@
 2017.08.18:
 	- [OWL-3142] remove maxlength attribute from course grade override modal
         - [OWL-2735] Error Page for GradebookNG for Users without Permissions
+        - [OWL-3128] Remove the "all" paging option from gradebook
 2017.08.16:
 	- [OWL-3094] more primary action buttons
 2017.08.15:

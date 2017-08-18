@@ -1,22 +1,20 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.component.GbAddColumnButton;
-import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
+import org.sakaiproject.gradebookng.tool.component.table.GbSakaiPagerContainer;
 import org.sakaiproject.gradebookng.tool.component.table.SakaiDataTable;
-import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -28,6 +26,8 @@ import org.sakaiproject.service.gradebook.shared.GraderPermission;
  */
 public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 {	
+	private static final List<String> GRADES_PAGE_SIZES = Arrays.asList( new String[] { "5", "10", "20", "50", "100", "200"} );
+	
 	public GbGradesDisplayToolbar(String id, final IModel<Map<String, Object>> model, SakaiDataTable table, final boolean hasAssignmentsAndGrades)
 	{
 		super(id, table, Collections.emptyList(), hasAssignmentsAndGrades);
@@ -72,6 +72,12 @@ public class GbGradesDisplayToolbar extends GbBaseGradesDisplayToolbar
 			addGradeItem.setVisible(false);
 			toggleGradeItemsToolbarItem.setVisible(false);
 		}
+	}
+	
+	@Override
+	protected GbSakaiPagerContainer pagerContainer()
+	{
+		return new GbSakaiPagerContainer("gradebookPager", table, GRADES_PAGE_SIZES);
 	}
 	
 	@Override
