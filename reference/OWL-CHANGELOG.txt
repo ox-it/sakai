@@ -1,4 +1,5 @@
 2017.08.18:
+	- [OWL-2921] Fixed the spacing and alignment of the tool options in Tool Order
 	- [OWL-3147] update default text of Home's "Home Information Display"
 2017.08.16:
 	- [OWL-3052] Fixed focus state of the navIntraTool bar items

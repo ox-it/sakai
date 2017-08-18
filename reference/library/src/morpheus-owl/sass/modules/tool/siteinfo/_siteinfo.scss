@@ -1,9 +1,30 @@
-.#{$namespace}sakai-siteinfo{
-	.open > .dropdown-menu{
+.#{$namespace}sakai-siteinfo
+{
+	.open > .dropdown-menu
+	{
 		left: -124px;
 		width: 160px;
-		> li > a {
+		margin: 0;		// to override default .dropdown-menu styles
+		padding: 0;		// to override default .dropdown-menu styles
+		
+		> li > a 
+		{
+			display: flex;
+			align-items: center;
+			padding: 5px;
+			line-height: 1.2;
 			white-space: normal;
+			
+			span
+			{
+				text-transform: capitalize;
+			}
+			
+			.glyphicon
+			{
+				padding-right: 10px;
+				text-transform: none;
+			}
 		}
 	}
 	
