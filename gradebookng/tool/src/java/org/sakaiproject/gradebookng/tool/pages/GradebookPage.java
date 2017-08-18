@@ -335,16 +335,16 @@ public class GradebookPage extends BasePage implements IGradesPage
 				// Case 1) Assignments are all normal / empty
 				// Force this just in case an anonymous item was recently deleted and everything remaining is normal
 				settings.setContextAnonymous(false);
-				// OWL-3069 also clear anonymous sorting if set
+				// OWL-3069 deletion of last anonymous column
+				// reset the toggle to normal so that if we add a new anonymous item from
+				// the normal view, the toggle is accurate
+				anonymousToggle.setModelObject(Boolean.FALSE);
+				// also clear anonymous sorting if set
 				if (settings.getAnonIdSortOrder() != null)
 				{
 					// last anonymous item was probably just deleted, reset sort to student asc
 					settings.setNameSortOrder(GbStudentNameSortOrder.LAST_NAME);
 					settings.setStudentSortOrder(SortDirection.ASCENDING);
-					// and reset the toggle to normal so that if we add a new anonymous item from
-					// the normal view, the toggle is accurate
-					anonymousToggle.setModelObject(Boolean.FALSE);
-					
 				}
 			}
 			else if (!hasNormal)
