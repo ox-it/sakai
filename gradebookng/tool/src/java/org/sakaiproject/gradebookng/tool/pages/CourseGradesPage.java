@@ -89,7 +89,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 	public CourseGradesPage()
 	{
 		// students and TAs cannot access this page, redirect them to Grades page
-		if (role == GbRole.STUDENT || role == GbRole.TA)
+		if (role != GbRole.INSTRUCTOR)
 		{
 			throw new RestartResponseException(GradebookPage.class);
 		}

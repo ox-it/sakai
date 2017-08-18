@@ -116,6 +116,14 @@ public class GradebookPage extends BasePage implements IGradesPage
 
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
+		
+		// OWL-2735
+		if (role == GbRole.NONE)
+		{
+			final PageParameters params = new PageParameters();
+			params.add("message", getString("role.none"));
+			throw new RestartResponseException(AccessDeniedPage.class, params);
+		}
 
 		// students cannot access this page, they have their own
 		if (this.role == GbRole.STUDENT) {

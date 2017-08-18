@@ -10,7 +10,8 @@ public enum GbRole {
 
 	STUDENT("section.role.student"),
 	TA("section.role.ta"),
-	INSTRUCTOR("section.role.instructor");
+	INSTRUCTOR("section.role.instructor"),
+	NONE("section.role.none");
 
 	private String value;
 

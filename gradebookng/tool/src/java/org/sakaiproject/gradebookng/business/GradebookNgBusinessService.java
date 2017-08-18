@@ -2349,7 +2349,7 @@ public class GradebookNgBusinessService {
 		} else if (this.securityService.unlock(userId, GbRole.STUDENT.getValue(), siteRef)) {
 			rval = GbRole.STUDENT;
 		} else {
-			throw new SecurityException("Current user does not have a valid section.role.x permission");
+			rval = GbRole.NONE;
 		}
 
 		return rval;
