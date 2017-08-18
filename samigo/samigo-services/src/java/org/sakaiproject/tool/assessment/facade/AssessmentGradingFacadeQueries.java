@@ -1282,6 +1282,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		}
 	    	}   
 	    }
+		
+		if (ag == null) // OWL-3082
+		{
+			return null;
+		}
 	    
 	    // get AssessmentGradingAttachments
 	    Map<Long, List<AssessmentGradingAttachment>> map = getAssessmentGradingAttachmentMap(publishedAssessmentId);
@@ -3521,10 +3526,19 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	try{
 	    		adata = (AssessmentGradingData) iter.next();
 	    		adata.setHasAutoSubmissionRun(Boolean.TRUE);
-	    		
-				Date endDate = new Date();
-				if (Boolean.FALSE.equals(adata.getForGrade())){
-
+				
+				// OWL-3082 revert to 10.3 logic (with extra check for existing submissions from UVA)
+				// only the "first" attempt on this quiz by this user (according to the sort order defined above)
+				// is considered for autosubmission, all subsequent attemps are marked as processed and ignored
+				if ((!lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
+	    						|| !lastAgentId.equals(adata.getAgentId()))
+					&& adata.getSubmittedDate() != null)  // skip attempts with no submission date to match 10.3 behaviour, while still marking the attempt as processed to avoid "orphaned" records
+				{
+					lastPublishedAssessmentId = adata.getPublishedAssessmentId();
+	    			lastAgentId = adata.getAgentId();
+					if (Boolean.FALSE.equals(adata.getForGrade())
+							&& getLastSubmittedAssessmentGradingByAgentId(lastPublishedAssessmentId, lastAgentId, null) == null)  // UVA check
+					{
 						adata.setForGrade(Boolean.TRUE);
 						if (adata.getTotalAutoScore() == null) {
 								adata.setTotalAutoScore(0d);
@@ -3541,39 +3555,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 										adata.getSubmittedDate().after(assessment.getDueDate())) {
 								adata.setIsLate(true);
 						}
-						// SAM-2729 user probably opened assessment and then never submitted a question
-						if (adata.getSubmittedDate() == null && adata.getAttemptDate() != null) {
-								adata.setSubmittedDate(endDate);
-						}
-
-    				autoSubmitCurrent = true;
-    				updateCurrentGrade = true;
-    				adata.setIsAutoSubmitted(Boolean.TRUE);
-    				if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId()) 
-    						&& lastAgentId.equals(adata.getAgentId())) {
-    					adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
-
-        				// Check: needed updating gradebook
-        				// If the assessment is configured with highest score and exists a previous submission with higher score 
-        				// this submission doesn't have to be sent to gradebook
-        				assessment = (PublishedAssessmentFacade)publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
-        				
-        				if (assessment.getEvaluationModel().getScoringType().equals(EvaluationModel.HIGHEST_SCORE)) {
-        					AssessmentGradingData assessmentGrading = 
-        							getHighestSubmittedAssessmentGrading(adata.getPublishedAssessmentId(), adata.getAgentId(), null);
-        					if (assessmentGrading.getTotalAutoScore() > adata.getTotalAutoScore()) {
-        						updateCurrentGrade = false;
-        					}
-        				}
-    				}
-    				else {
-    					adata.setStatus(AssessmentGradingData.SUBMITTED);
-    				}
-    				completeItemGradingData(adata, sectionSetMap);
-    			}
-
-	    		lastPublishedAssessmentId = adata.getPublishedAssessmentId();
-    			lastAgentId = adata.getAgentId();
+						
+						adata.setIsAutoSubmitted(Boolean.TRUE);
+						adata.setStatus(AssessmentGradingData.SUBMITTED);
+						completeItemGradingData(adata, sectionSetMap);
+						autoSubmitCurrent = true;
+						updateCurrentGrade = true;
+					}
+				}
 
 				PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(adata.getPublishedAssessmentId().toString());
 				// this call happens in a separate transaction, so a rollback only affects this iteration
