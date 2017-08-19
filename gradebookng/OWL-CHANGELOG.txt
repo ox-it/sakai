@@ -1,3 +1,5 @@
+2017.08.19:
+        - [OWL-3074] Anonymous Columns are visible in Student Review
 2017.08.18:
 	- [OWL-3142] remove maxlength attribute from course grade override modal
         - [OWL-2735] Error Page for GradebookNG for Users without Permissions

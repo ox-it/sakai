@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -20,7 +21,9 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -85,7 +88,18 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 		// build up table data
 		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
-		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId);
+		final List<Assignment> assignments;
+		if (businessService.getUserRole() == GbRole.STUDENT)
+		{
+			assignments = this.businessService.getGradebookAssignmentsForStudent(userId);
+		}
+		else
+		{
+			// filter out anonymous columns, there is never a scenario where non-students should see them on this panel
+			assignments = businessService.getGradebookAssignmentsForStudent(userId).stream()
+					.filter(asn -> asn.isAnon() == false).collect(Collectors.toList());
+		}
+
 
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
