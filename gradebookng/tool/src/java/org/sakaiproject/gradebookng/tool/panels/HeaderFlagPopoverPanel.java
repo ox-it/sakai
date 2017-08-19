@@ -29,6 +29,7 @@ public class HeaderFlagPopoverPanel extends Panel {
 		GRADE_ITEM_NOT_RELEASED("label.gradeitem.notreleased"),
 		GRADE_ITEM_COUNTED("label.gradeitem.counted"),
 		GRADE_ITEM_NOT_COUNTED("label.gradeitem.notcounted"),
+		GRADE_ITEM_NOT_COUNTED_UNCATEGORIZED("label.gradeitem.notcounted.uncategorized"),
 		COURSE_GRADE_RELEASED("label.coursegrade.released"),
 		COURSE_GRADE_NOT_RELEASED("label.coursegrade.notreleased");
 

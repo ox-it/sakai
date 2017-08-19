@@ -290,8 +290,17 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 			}
 		};
 
-		if (businessService.categoriesAreEnabled()) {
-			counted.setEnabled(assignment.getCategoryId() != null);
+		if (businessService.categoriesAreEnabled())
+		{
+			// validate counted state
+			// make sure uncategorized items are not displayed as counted even if they are set that way
+			// (categories could have been disabled previously and enabling categories does not affect the counted setting)
+			boolean categorized = assignment.getCategoryId() != null;
+			if (!categorized)
+			{
+				counted.setEnabled(false);
+				counted.setModelObject(false);
+			}
 		}
 
 		add(counted);
@@ -372,7 +381,7 @@ public class AddOrEditGradeItemPanelContent extends Panel {
 		});
 		
 	}
-
+	
 	public boolean isAnonymousLocked()
 	{
 		return isAnonymousLocked;

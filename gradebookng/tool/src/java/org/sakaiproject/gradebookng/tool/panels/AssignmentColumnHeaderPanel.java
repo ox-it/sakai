@@ -78,36 +78,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		final IGradesPage gradebookPage = (IGradesPage) getPage();
 
-		/*final GbAjaxLink<String> title = new GbAjaxLink<String>("title", Model.of(assignment.getName())) {
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-
-				// toggle the sort direction on each click
-				final GradebookUiSettings settings = gradebookPage.getUiSettings();
-
-				// if null, set a default sort, otherwise toggle, save, refresh.
-				if (settings.getAssignmentSortOrder() == null
-						|| !assignment.getId().equals(settings.getAssignmentSortOrder().getAssignmentId())) {
-					settings.setAssignmentSortOrder(new GbAssignmentGradeSortOrder(assignment.getId(), SortDirection.ASCENDING));
-				} else {
-					final GbAssignmentGradeSortOrder sortOrder = settings.getAssignmentSortOrder();
-					SortDirection direction = sortOrder.getDirection();
-					direction = direction.toggle();
-					sortOrder.setDirection(direction);
-					settings.setAssignmentSortOrder(sortOrder);
-				}
-				
-				// save settings
-				gradebookPage.setUiSettings(settings);
-
-				// reset back to page one
-				gradebookPage.resetPaging();
-
-				// refresh
-				gradebookPage.redrawSpreadsheet(target);
-			}
-		};*/
 		final GbColumnSortToggleLink title = new GbColumnSortToggleLink("title", Model.of(assignment.getName()))
 		{	
 			@Override
@@ -186,8 +156,15 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				.setVisible(assignment.isExtraCredit()));
 		add(bp.buildFlagWithPopover("isCountedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_COUNTED))
 				.setVisible(assignment.isCounted()));
-		add(bp.buildFlagWithPopover("notCountedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_COUNTED))
-				.setVisible(!assignment.isCounted()));
+		boolean showNotCountedFlag = !assignment.isCounted();
+		HeaderFlagPopoverPanel.Flag notCountedFlag = HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_COUNTED;
+		if (assignment.getCategoryId() == null && businessService.categoriesAreEnabled())
+		{
+			showNotCountedFlag = true;
+			notCountedFlag = HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_COUNTED_UNCATEGORIZED;
+		}
+		add(bp.buildFlagWithPopover("notCountedFlag", generateFlagPopover(notCountedFlag))
+				.setVisible(showNotCountedFlag));
 		add(bp.buildFlagWithPopover("isReleasedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_RELEASED))
 				.setVisible(assignment.isReleased()));
 		add(bp.buildFlagWithPopover("notReleasedFlag", generateFlagPopover(HeaderFlagPopoverPanel.Flag.GRADE_ITEM_NOT_RELEASED))
