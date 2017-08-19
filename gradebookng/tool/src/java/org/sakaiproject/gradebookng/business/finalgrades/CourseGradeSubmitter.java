@@ -1412,9 +1412,9 @@ public class CourseGradeSubmitter implements Serializable
             {
                 for (Membership m : members)
                 {
-                    if (userEid.equals(m.getUserId()) && !rolesToSubmit.contains(m.getRole()))
+                    if (userEid.equals(m.getUserId()))
                     {
-                        submit = true;
+                        submit = !rolesToSubmit.contains(m.getRole());
                         break;
                     }
                 }

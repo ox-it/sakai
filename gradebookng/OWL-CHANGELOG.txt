@@ -2,6 +2,7 @@
 	- [OWL-3153] Fixed the chunk in the Gradebook spinner caused by a height issue on some browsers
         - [OWL-3074] Anonymous Columns are visible in Student Review
         - [OWL-3078] Improve consistency around display of gradebook item counted status
+        - [OWL-1586] Improve performance of grade submission code
 2017.08.18:
 	- [OWL-3142] remove maxlength attribute from course grade override modal
         - [OWL-2735] Error Page for GradebookNG for Users without Permissions
