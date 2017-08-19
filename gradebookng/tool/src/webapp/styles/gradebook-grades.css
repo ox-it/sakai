@@ -744,6 +744,7 @@ span.sakai-spinner-internal-use::after
 	left: initial;
 	right: 7px;
 	width: 16px;
+        height: 16px;
 }
 
 #gradebookGradesToolbar ul {
