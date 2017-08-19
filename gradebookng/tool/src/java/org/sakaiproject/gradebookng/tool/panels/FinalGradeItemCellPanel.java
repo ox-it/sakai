@@ -10,7 +10,6 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.core.util.string.ComponentRenderer;
-import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -28,7 +27,6 @@ import org.sakaiproject.gradebookng.tool.behavior.ScoreChangeBehavior;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.component.table.columns.FinalGradeColumn;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
-import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.CourseGradesPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.gradebookng.tool.panels.FinalGradeItemPopoverPanel.FinalGradePopoverData;
@@ -120,7 +118,8 @@ public class FinalGradeItemCellPanel extends Panel
 			@Override
 			protected void onUpdate(final AjaxRequestTarget target)
 			{
-				GbStopWatch stopwatch = new GbStopWatch("FinalGradeItemCellPanel");
+				GbStopWatch stopwatch = new GbStopWatch("FinalGradeItemCellPanel onUpdate granular");
+				GbStopWatch sw2 = new GbStopWatch("FinalGradeItemCellPanel onUpdate coarse");
 				
 				String newGrade = StringUtils.trimToNull(gradeField.getValue());
 				
@@ -136,6 +135,7 @@ public class FinalGradeItemCellPanel extends Panel
 					final List<String> unmapped = gbInfo.getSelectedGradingScaleUnmappedGrades();
 					valid = schema.containsKey(newGrade) || unmapped.contains(newGrade);
 				}
+				stopwatch.time("validation complete");
 				
 				if (!valid)
 				{
@@ -156,8 +156,11 @@ public class FinalGradeItemCellPanel extends Panel
 							saveGrade = null;
 						}
 					}
+					stopwatch.time("new grade formatted");
+
 					// save
 					final boolean success = businessService.updateCourseGrade(studentUuid, saveGrade);
+					stopwatch.time("new grade saved");
 
 					gradeField.setDefaultModelObject(newGrade); // OWLTODO: only set this on success?
 					
@@ -171,7 +174,9 @@ public class FinalGradeItemCellPanel extends Panel
 						String displayGrade = formatGrade(newGbCourseGrade);
 						gradeField.setModelObject(displayGrade);
 						target.add(page.updateLiveGradingMessage(getString("feedback.saved")));
+						stopwatch.time("prepped for redraw");
 						((CourseGradesPage) page).redrawForGradeChange(target);
+						stopwatch.time("redraw for grade change complete");
 						// trigger async event that score has been updated and now displayed
 						target.appendJavaScript(String.format("$('#%s').trigger('scoreupdated.sakai')", gradeField.getMarkupId()));
 					}
@@ -191,7 +196,8 @@ public class FinalGradeItemCellPanel extends Panel
 				GbUtils.getParentCellFor(getComponent(), PARENT_ID).ifPresent(target::add);
 				target.add(gradeField);
 				
-				stopwatch.time("ScoreChange onUpdate");
+				stopwatch.time("refresh components");
+				sw2.time("complete");
 			}
 		});
 		

@@ -943,7 +943,7 @@ public class CourseGradeSubmitter implements Serializable
 		
 		// OWL NOTE: refactored this method heavily for GBNG
 		
-		GbStopWatch stopwatch = new GbStopWatch("getCurrentCourseGrades");
+		GbStopWatch stopwatch = new GbStopWatch("getCurrentCourseGradesTimer");
 		
         Set<OwlGradeSubmissionGrades> finalGrades = new HashSet();
           
@@ -954,6 +954,8 @@ public class CourseGradeSubmitter implements Serializable
             // no selected section, just return early
             return finalGrades;
         }
+		String selectedSectionEid = section.getProviderId();
+
 		refreshCurrentProvidedMembers();
 		stopwatch.time("refreshCurrentProvidedMembers");
         List<GbStudentCourseGradeInfo> courseGrades = bus.getSectionCourseGrades(section);
@@ -984,14 +986,14 @@ public class CourseGradeSubmitter implements Serializable
 				{
 					firstName = EMPTY_NAME_PLACEHOLDER;
 					LOG.error(LOG_PREFIX + "No first name found for user " + studentEid +
-                            " in section " + getSelectedSectionEid() + " of site " + siteId);
+                            " in section " + selectedSectionEid + " of site " + siteId);
 				}
 				String lastName = student.getLastName();
 				if (StringUtils.isBlank(lastName))
 				{
 					lastName = EMPTY_NAME_PLACEHOLDER;
 					LOG.error(LOG_PREFIX + "No last name found for user " + studentEid +
-                            " in section " + getSelectedSectionEid() + " of site " + siteId);
+                            " in section " + selectedSectionEid + " of site " + siteId);
 				}
                 grade.setStudentFirstName(firstName);
                 grade.setStudentLastName(lastName);
@@ -1001,7 +1003,7 @@ public class CourseGradeSubmitter implements Serializable
                     // we use this reasonable facsimile
                     grade.setStudentNumber("12345" + count);
                 }
-                else if (sectionAndUsernameMatchesPrefixList(student)) // OWL-1212 substitute username for student number in the database  --plukasew
+                else if (sectionAndUsernameMatchesPrefixList(student, selectedSectionEid)) // OWL-1212 substitute username for student number in the database  --plukasew
                 {
                     grade.setStudentNumber(studentEid);
                 }
@@ -1017,19 +1019,19 @@ public class CourseGradeSubmitter implements Serializable
             {
                 // skip students with no student number
                 LOG.error(LOG_PREFIX + "No student number found for user " + student.getUserUuid() +
-                            " in section " + getSelectedSectionEid() + " of site " + siteId);
+                            " in section " + selectedSectionEid + " of site " + siteId);
             }
             catch (MissingCourseGradeException mcge)
             {
                 // skip students with no grade entered (see OWL-245) 
                 LOG.info(LOG_PREFIX + "No course grade found for user " + student.getUserUuid() + " in section "
-                            + getSelectedSectionEid() + " of site " + siteId);
+                            + selectedSectionEid + " of site " + siteId);
             }
             catch (InvalidGradeException ige)
             {
                 // skip students with invalid grades (similar to above)
                 LOG.error(LOG_PREFIX + "Invalid grade found for user " + student.getUserUuid() +
-                            " in section " + getSelectedSectionEid() + " of site " + siteId, ige);
+                            " in section " + selectedSectionEid + " of site " + siteId, ige);
             }
         }
         stopwatch.time("convert course grades to Final Grades - method complete");
@@ -1057,9 +1059,10 @@ public class CourseGradeSubmitter implements Serializable
         {
             for (Membership m : members)
             {
-                if (eid.equals(m.getUserId()) && rolesToSubmit.contains(m.getRole()))
+                if (eid.equals(m.getUserId()))
                 {
-                    official = true;
+                    official = rolesToSubmit.contains(m.getRole());
+                    break;
                 }
             }
         }
@@ -1092,10 +1095,10 @@ public class CourseGradeSubmitter implements Serializable
      * @param user the user object to check username
      * @return true/false if section identifier starts with one of the prefixes AND username starts with one of the section prefix specific username prefix list
      */
-    private boolean sectionAndUsernameMatchesPrefixList( GbUser user )
+    private boolean sectionAndUsernameMatchesPrefixList( GbUser user, String sectionEID )
     {
         // Short circuit
-        String sectionEID = getSelectedSectionEid();
+        //String sectionEID = getSelectedSectionEid();
         if( sectionEID == null || sectionEID.isEmpty() || user == null )
             return false;
         

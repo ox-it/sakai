@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.gradebookng.business.exception.AnonymousConstraintViolationException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -78,6 +79,12 @@ public class GbUser implements Serializable, Comparable<GbUser> {
 	public static GbUser fromUserAcquiringStudentNumber(final User u, GradebookNgBusinessService businessService)
 	{
 		String num = businessService.getStudentNumber(u, businessService.getCurrentSite().orElse(null));
+		return fromUserWithStudentNumber(u, num);
+	}
+
+	public static GbUser fromUserAcquiringStudentNumberPreAuthorized(final User u, final Site site, GradebookNgBusinessService bus)
+	{
+		String num = bus.getStudentNumberPreAuthorized(u, site);
 		return fromUserWithStudentNumber(u, num);
 	}
 

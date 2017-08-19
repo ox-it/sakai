@@ -253,7 +253,9 @@ public class GradebookNgBusinessService {
 			return getUsers(userUuids);
 		}
 		
-		return getUsers(userUuids).stream().filter(u -> studentMatchesAnyFilter(u, site.orElse(null), studentFilter, studentNumberFilter))
+		// preauthorize current user for student number access to save checking for each user
+		boolean preAuth = site.isPresent() && isStudentNumberVisible(getCurrentUser(), site.get());
+		return getUsers(userUuids).stream().filter(u -> studentMatchesAnyFilter(u, site.orElse(null), studentFilter, studentNumberFilter, preAuth))
 				.collect(Collectors.toList());
 	}
 
@@ -288,9 +290,11 @@ public class GradebookNgBusinessService {
 		}
 
 		Site site = getCurrentSite().orElse(null);
+		// preauthorize current user for student number access to save checking for each user
+		final boolean preAuth = site != null && isStudentNumberVisible(getCurrentUser(), site);
 		for (User u : users)
 		{
-			String studentNumber = getStudentNumber(u, site);
+			String studentNumber = preAuth ? getStudentNumberPreAuthorized(u, site) : "";
 			Map<String, Integer> sectionAnonIdMap = getMapForKey(studentSectionAnonIdMap, u.getEid());
 			gbUsers.add(GbUser.fromUserWithStudentNumberAndAnonIdMap(u, studentNumber, sectionAnonIdMap));
 		}
@@ -324,6 +328,8 @@ public class GradebookNgBusinessService {
 
 		List<GbUser> gbUsers = new ArrayList<>(users.size());
 		Site site = getCurrentSite().orElse(null);
+		// preauthorize current user for student number access to save checking for each user in loops
+		final boolean preAuth = site != null && isStudentNumberVisible(getCurrentUser(), site);
 
 		// Sort by name / student number
 		if (!settings.isContextAnonymous())
@@ -342,10 +348,10 @@ public class GradebookNgBusinessService {
 			{
 				if (site != null)
 				{
-					Comparator<User> comp = new StudentNumberComparator(site);
+					Comparator<User> comp = new StudentNumberComparator(site, preAuth);
 					if (SortDirection.DESCENDING.equals(settings.getStudentNumberSortOrder()))
 					{
-						comp = Collections.reverseOrder(new StudentNumberComparator(site));
+						comp = Collections.reverseOrder(comp);
 					}
 					Collections.sort(users, comp);
 				}
@@ -354,7 +360,7 @@ public class GradebookNgBusinessService {
 
 		for (User u : users)
 		{
-			String studentNumber = getStudentNumber(u, site);
+			String studentNumber = preAuth ? getStudentNumberPreAuthorized(u, site) : "";
 			Map<String, Integer> sectionAnonIdMap = getMapForKey(studentSectionAnonIdMap, u.getEid());
 			gbUsers.add(GbUser.fromUserWithStudentNumberAndAnonIdMap(u, studentNumber, sectionAnonIdMap));
 		}
@@ -381,10 +387,10 @@ public class GradebookNgBusinessService {
 	}
 
 	// simple or match across all filters
-	private boolean studentMatchesAnyFilter(User user, Site site, String studentFilter, String studentNumberFilter)
+	private boolean studentMatchesAnyFilter(User user, Site site, String studentFilter, String studentNumberFilter, boolean preAuth)
 	{
 		boolean studentMatch = !studentFilter.isEmpty() && (StringUtils.containsIgnoreCase(user.getDisplayName(), studentFilter) || StringUtils.containsIgnoreCase(user.getEid(), studentFilter));		
-		boolean numberMatch = site != null && !studentNumberFilter.isEmpty() && StringUtils.containsIgnoreCase(getStudentNumber(user, site), studentNumberFilter);
+		boolean numberMatch = site != null && !studentNumberFilter.isEmpty() && preAuth && StringUtils.containsIgnoreCase(getStudentNumberPreAuthorized(user, site), studentNumberFilter);
 		
 		return studentMatch || numberMatch;
 	}
@@ -1916,12 +1922,17 @@ public class GradebookNgBusinessService {
 	class StudentNumberComparator implements Comparator<User>
 	{
 		private final Site site;
+		private final boolean preAuth;
 		
 		@Override
 		public int compare(final User u1, final User u2)
 		{
-			String stunum1 = getStudentNumber(u1, site);
-			String stunum2 = getStudentNumber(u2, site);
+			if (!preAuth)
+			{
+				return 0;
+			}
+			String stunum1 = getStudentNumberPreAuthorized(u1, site);
+			String stunum2 = getStudentNumberPreAuthorized(u2, site);
 			return stunum1.compareTo(stunum2);
 		}
 	}
@@ -2193,7 +2204,8 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
-	 * Get the user given a uuid. Acquires student number but not anon id
+	 * Get the user given a uuid. Acquires student number but not anon id.
+	 * Better to use getUserPreAuthorized() if possible for performance reasons
 	 *
 	 * @param userUuid
 	 * @return GbUser or null if cannot be found
@@ -2208,6 +2220,23 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
+	 * Gets the user given a uuid. Acquires student number but not anon id.
+	 * Assumes that the current user is allowed to see student numbers so skips the check.
+	 * @param userUuid the uuid of the user to get
+	 * @param site the site the user belongs to
+	 * @return GbUser populated with student number, or null if cannot be found 
+	 */
+	public GbUser getUserPreAuthorized(final String userUuid, Site site)
+	{
+		try {
+			final User u = this.userDirectoryService.getUser(userUuid);
+			return GbUser.fromUserAcquiringStudentNumberPreAuthorized(u, site, this);
+		} catch (final UserNotDefinedException e) {
+			return null;
+		}
+	}
+
+	/**
 	 * Get the user given a uuid. Acquires student number and anon id map for the user.
 	 * This method is slow, use only when needed.
 	 * 
@@ -2221,25 +2250,6 @@ public class GradebookNgBusinessService {
 			return GbUser.fromUserAcquiringStudentNumberAndAnonIdMap(u, this);
 		} catch (final UserNotDefinedException e) {
 			return null;
-		}
-	}
-	
-	/**
-	 * Get the user given an eid. Autopopulates student number.
-	 *
-	 * @param eid
-	 * @return Optional<GbUser>, empty if not found
-	 */
-	public Optional<GbUser> getUserByEid(final String eid)
-	{
-		try
-		{
-			final User u = userDirectoryService.getUserByEid(eid);
-			return Optional.of(GbUser.fromUserAcquiringStudentNumber(u, this));
-		}
-		catch (final UserNotDefinedException e)
-		{
-			return Optional.empty();
 		}
 	}
 	
@@ -2621,6 +2631,19 @@ public class GradebookNgBusinessService {
 		{
 			return "";
 		}
+
+		return getStudentNumberPreAuthorized(u, site);
+	}
+
+	/**
+	 * Gets student number without checking if the current user has permissions.
+	 * Use only if you have already checked isStudentNumberVisible().
+	 * @param u the user
+	 * @param site cannot be null
+	 * @return the student number
+	 */
+	public String getStudentNumberPreAuthorized(User u, Site site)
+	{
 		return candidateDetailProvider.getInstitutionalNumericId(u, site)
 				.orElseGet(() ->
 				{
@@ -3154,8 +3177,6 @@ public class GradebookNgBusinessService {
 	
 	public List<GbStudentCourseGradeInfo> getSectionCourseGrades(GbGroup group)
 	{
-		// OWLTODO: implement this, see getCourseGrades(bus.getGradeableUsers(uiSettings.getGroupFilter()))
-		// and buildgradematrix()
 		if (group.getType() == GbGroup.Type.SECTION)
 		{
 			GbStopWatch sw = new GbStopWatch("bus.getSectionCourseGrades");
@@ -3164,16 +3185,22 @@ public class GradebookNgBusinessService {
 			Map<String, CourseGrade> courseGrades = getCourseGrades(users);
 			sw.time("getCourseGrades");
 			List<GbStudentCourseGradeInfo> secCourseGrades = new ArrayList<>(courseGrades.size());
-			for (Entry<String, CourseGrade> entry : courseGrades.entrySet())
+			// before looping, get the current site and preauthorize the current user
+			Site site = getCurrentSite().orElse(null);
+			boolean canView = isStudentNumberVisible(getCurrentUser(), site);
+			if (site != null && canView)
 			{
-				GbUser student = getUser(entry.getKey());
-				GbStudentCourseGradeInfo cgi = new GbStudentCourseGradeInfo(student);
-				cgi.setCourseGrade(new GbCourseGrade(entry.getValue()));
-				secCourseGrades.add(cgi);
+				for (Entry<String, CourseGrade> entry : courseGrades.entrySet())
+				{
+					GbUser student = getUserPreAuthorized(entry.getKey(), site);
+					GbStudentCourseGradeInfo cgi = new GbStudentCourseGradeInfo(student);
+					cgi.setCourseGrade(new GbCourseGrade(entry.getValue()));
+					secCourseGrades.add(cgi);
+				}
+				sw.time("create course grade infos");
+
+				return secCourseGrades;
 			}
-			sw.time("create course grade infos");
-			
-			return secCourseGrades;
 		}
 		
 		return Collections.emptyList();
