@@ -28,6 +28,42 @@
 		}
 	}
 	
+	.tool_list .editable_item
+	{
+		margin: 0;
+	}
+	
+	.item_edit_box_confirm
+	{
+		display: flex;
+		align-items: center;
+		
+		a
+		{
+			margin-right: $standard-padding;
+			
+			span
+			{
+				font-size: 0;		// hide alternative text
+				
+				&::before
+				{
+					font-size: 16px;	// show icon
+				}
+			}
+			
+			.glyphicon-ok-sign
+			{
+				color: #04b13b;		// green
+			}
+			
+			.glyphicon-remove-sign
+			{
+				color: #f00; 		// red
+			}
+		}
+	}
+	
 	.groups-site{
 		list-style: none;
 		

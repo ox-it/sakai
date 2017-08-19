@@ -1,3 +1,5 @@
+2017.08.19:
+	- [OWL-2921] Changed markup and messaging on the Tool Order page to improve the interface
 2017.08.17:
 	- [OWL-3122] Turned Update and Cancel buttons into SakaiAjaxButtons
 2017.08.15:
