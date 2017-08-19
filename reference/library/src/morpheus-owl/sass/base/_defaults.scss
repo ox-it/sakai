@@ -138,21 +138,24 @@ input[type="checkbox"], input[type="radio"]{
 	width: 16px;
 	vertical-align: sub;
 	@include appearance(none);
-	&:checked{
-		border: 1px solid #60b3e3;
-	}
+
 	//SAK-30977
-	&[disabled],&[disabled="disabled"],&[disabled="true"]{
-		opacity: 0.8;
-		& + label{
-			color: lighten($text-color, 10%);
+	&[disabled],&[disabled="disabled"],&[disabled="true"]
+	{
+		opacity: 0.5;
+	
+		& + label
+		{
+			cursor: not-allowed;
+			color: $text-color-disabled;
 		}
 	}
 }
 
-label.disabled{
-	color: lighten($text-color, 10%);
+label.disabled
+{
 	cursor: not-allowed;
+	color: $text-color-disabled;
 }
 
 input[type="checkbox"]{
@@ -164,8 +167,11 @@ input[type="checkbox"]{
 }
 input[type="radio"]{
 	@include border-radius(24px);
-	&:checked{
-		background: radial-gradient(#60b3e3, #FFF 5px);
+	
+	&:checked
+	{
+		background: $text-color;		// fallback support
+		background: radial-gradient(circle at center, $text-color 0%, $text-color 48%, $background-color 58%);
 	}
 }
 
@@ -252,7 +258,8 @@ input[type="checkbox"].formButtonDisabled{
 input[type="radio"].formButtonDisabled{
 	@include border-radius(24px);
 	&:checked{
-		background: radial-gradient(#60b3e3, #FFF 5px) !important;
+		background: $text-color;		// fallback support
+		background: radial-gradient(circle at center, $text-color 0%, $text-color 48%, $background-color 58%) !important;
 	}
 }
 

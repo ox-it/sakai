@@ -1,4 +1,5 @@
 2017.08.19:
+	- [OWL-3080] and OWL-3030 - styled the checkmarks to not be blue and to have a disabled state; did the same for the radio buttons; styled the disabled labels too
 	- [OWL-3059] Fixed issues with IE11 and flex and min-height to fix the stacked column layout and top bar vertical alignment
 2017.08.18:
 	- [OWL-2921] Fixed the spacing and alignment of the tool options in Tool Order
