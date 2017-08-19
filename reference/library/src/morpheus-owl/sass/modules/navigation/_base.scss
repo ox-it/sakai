@@ -10,12 +10,15 @@ body.is-logged-out{
 	}
 	.#{$namespace}topHeader{
 		@media #{$phone}{
+			height: $header-size;			// because of IE11 bug with min-height and flex centering
 			min-height: $header-size;
 		}
 	}
 }
 
-.#{$namespace}mainHeader{
+.#{$namespace}mainHeader
+{
+	@include display-flex(flex);		// because of IE11 bug with min-height and flex centering
 	
 	.#{$namespace}headerLogo{
 		@include display-flex( flex );
@@ -26,7 +29,9 @@ body.is-logged-out{
 		min-width: $tool-menu-width;
 		@include flex-shrink( 0 );
 		@include transition( width 0.5s linear 0s );
-		.#{$namespace}headerLogo--institution{
+		
+		.#{$namespace}headerLogo--institution
+		{
 			background: url($logo) no-repeat center center;
 			width: 		$logo-width;
 			height: 	$logo-height;

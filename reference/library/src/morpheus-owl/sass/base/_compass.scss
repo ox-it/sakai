@@ -2,8 +2,12 @@
     -webkit-align-items: $p; /* safari */
     align-items: $p;
 }
-@mixin display-flex($p: flex) {
-    display: -webkit-flex; /* safari */
+@mixin display-flex($p: flex) 
+{
+	display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+	display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+	display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex; 	   /* safari */
     display: $p;
 }
 @mixin flex-direction($p: row) {
@@ -22,6 +26,14 @@
     -webkit-flex-basis: $p;
     flex-basis: $p;
 }
+@mixin flex-shorthand($f-grow:0, $f-shrink:1, $f-basis: auto)
+{
+	-webkit-box-flex: $f-grow;
+	-moz-box-flex: $f-grow;
+	-webkit-flex: $f-grow $f-shrink $f-basis;
+	-ms-flex: $f-grow $f-shrink $f-basis;
+	flex: $f-grow $f-shrink $f-basis;
+}
 @mixin appearance($p: none) {
 	-moz-appearance: $p;
 	-webkit-appearance: $p;
@@ -33,7 +45,6 @@
     border-radius: $p;
 }
 @mixin justify-content($p: flex-start) {
-	@include display-flex(flex);
 	-webkit-justify-content: $p;
 	justify-content: $p;
 }

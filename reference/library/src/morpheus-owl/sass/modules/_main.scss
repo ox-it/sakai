@@ -34,10 +34,10 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
-	}
-	
-	@media #{$phone}{
-		min-height: 100vh;
+		
+		@media #{$phone}{
+			min-height: 100vh;
+		}
 	}
 	
 	// OWLTODO: mobile needed?
@@ -49,7 +49,7 @@
 
 #content
 {
-	display: flex;
+	@include display-flex(flex);
 	flex-wrap: wrap;		// allows the site unpublished banner to be on its own line at 100%
 	margin: 0 0 0 0;
 	width: 100%;
@@ -65,7 +65,7 @@
 	
 	#col1of2, #col2of2
 	{
-		flex: 1;
+		@include flex-shorthand(1, 1, auto);		// flex: 1 1 auto; vs flex: 1; because of IE11 bug
 		display: inline-block;
 		margin: 0 0 $standard-padding $standard-padding;
 		vertical-align: top;

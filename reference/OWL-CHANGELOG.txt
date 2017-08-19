@@ -1,3 +1,5 @@
+2017.08.19:
+	- [OWL-3059] Fixed issues with IE11 and flex and min-height to fix the stacked column layout and top bar vertical alignment
 2017.08.18:
 	- [OWL-2921] Fixed the spacing and alignment of the tool options in Tool Order
 	- [OWL-3147] update default text of Home's "Home Information Display"
