@@ -148,9 +148,7 @@ $(document).ready(function() {
 
   <div class="row">
  	<div id="samigo-create-new-box" class="col-md-6">
-		<div class="lead">
-	  		<h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}" />
-    	</div>
+            <h4><h:outputText value="#{authorFrontDoorMessages.assessment_scratch}" rendered="#{authorization.createAssessment}" /></h4>
 
             <div class="form-group form-inline">
                 <h:outputLabel value="#{authorFrontDoorMessages.assessment_create}"/>

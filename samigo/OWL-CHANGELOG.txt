@@ -1,3 +1,5 @@
+2017.08.19:
+	- [OWL-3154] Fixed obvious visual issues with Samigo, mainly on the main page
 2017.08.18:
         - [OWL-3082] revert autosubmit logic to match 10.3
 2017.08.14:

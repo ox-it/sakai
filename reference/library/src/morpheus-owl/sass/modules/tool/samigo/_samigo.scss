@@ -7,11 +7,86 @@
 			}
 		}
 	}
+	.samigo-container > .row
+	{
+		margin-right: 0;		// reset Bootstrap's .row
+		margin-left: 0;			// reset Bootstrap's .row
+	}
 
-	#samigo-create-new-box, #samigo-create-import-box {
-		@extend .bs-callout-primary;
-		border-left-width: 1px;
-		margin-top: 0;
+	#samigo-create-new-box, #samigo-create-import-box 
+	{
+		padding: $standard-padding;
+		margin-bottom: $standard-padding;
+		border: 1px solid #ccc;
+		background: #eee;
+		
+		h4
+		{
+			margin: 0 0 15px 0;		// to match the .form-group spacing
+		}
+		
+		& > .form-group:last-of-type
+		{
+			margin-bottom: 0;
+		}
+	}
+	
+	#tabs 
+	{
+		// reset the jQuery element styles
+		
+		a, a:link, a:visited
+		{
+			color: $link-color;
+		}
+		
+		.ui-tabs-nav
+		{
+			padding: 0 $standard-padding;
+			border-top: 0 none;
+			border-left: 0 none;
+			border-right: 0 none;
+			border-bottom: 1px solid #888;
+			border-radius: 0;
+			background: transparent;
+			
+			li
+			{
+				margin-left: 5px;		// separate the tabs a bit
+			}
+		}
+		.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active
+		{
+			border: 1px solid #888;		// to match the ul above
+			border-bottom: 0 solid $background-color;		// to make it look like the tab is active/open
+			background: $background-color;
+		}
+		
+		.ui-tabs-panel
+		{
+			padding: 0 $standard-padding;
+			
+			table td
+			{
+				vertical-align: middle;
+			}
+		}
+		
+		.ui-tabs-anchor
+		{
+			cursor: pointer;
+			outline: none;
+		}
+		
+		.tablesorter-default td:first-of-type:last-of-type 
+		{
+			border-bottom: 0 none;
+		}
+		
+		#assessment-status-limiter 
+		{
+			margin: $standard-padding 0;
+		}
 	}
 
 	.samigo-question-callout {
