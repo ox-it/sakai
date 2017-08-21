@@ -1,5 +1,7 @@
 2017.08.21:
 	- [OWL-3152] hide the 'URL' label in Tool Order > Edit Tool Title when not needed
+	- [OWL-2664] The Manage Participants pager (SakaiPagingNavigator) now matches our implementation in GradebookNG
+	- [OWL-3129] Removed 'all' paging option from Manage Participants
 2017.08.19:
 	- [OWL-2921] Changed markup and messaging on the Tool Order page to improve the interface
 2017.08.17:

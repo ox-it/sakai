@@ -138,3 +138,8 @@ label.removeSelector {
 .navigatorContainer .wicket-ajax-indicator {
     right: 35px;
 }
+
+.sakai-spinner-label
+{
+    display: none;
+}

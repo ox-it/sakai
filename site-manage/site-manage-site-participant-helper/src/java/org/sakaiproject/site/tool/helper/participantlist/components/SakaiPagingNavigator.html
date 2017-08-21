@@ -1,20 +1,37 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
-    <body>
-        <wicket:panel>
-            <input type="submit" wicket:id="first" wicket:message="value:goToFirstParticipants"/>
-            <input type="submit" wicket:id="prev" wicket:message="value:goToPreviousParticipants"/>
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
 
-            <span wicket:id="navigation">
-                <a wicket:id="pageLink" href="#">
-                    <span wicket:id="pageNumber"></span>
-                </a>
-            </span>
+    $URL:$
+    $Id:$
 
-            <select wicket:id="rowNumberSelector"></select>
+    Copyright (c) 2006-2009 The Sakai Foundation
 
-            <input type="submit" wicket:id="next" wicket:message="value:goToNextParticipants"/>
-            <input type="submit" wicket:id="last" wicket:message="value:goToLastParticipants"/>
-        </wicket:panel>
-    </body>
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html xmlns:wicket>
+<body>
+  <wicket:panel>
+    <!-- <a wicket:id="first">&lt;&lt;</a>&nbsp;<a wicket:id="prev">&lt;</a> -->
+	<button wicket:id="first"><wicket:message key="pager_textFirst"></wicket:message></button>
+	<button wicket:id="prev"><wicket:message key="pager_textPrev"></wicket:message></button>
+    <span wicket:id="navigation">
+          <a wicket:id="pageLink" href="#"><span wicket:id="pageNumber">5</span></a>
+    </span>
+	<span class="pagerDropDown" wicket:id="rowNumberSelector"></span>
+	<button wicket:id="next"><wicket:message key="pager_textNext"></wicket:message></button>
+	<button wicket:id="last"><wicket:message key="pager_textLast"></wicket:message></button>
+    <!-- <a wicket:id="next">&gt;</a>&nbsp;<a wicket:id="last">&gt;&gt;</a> -->
+  </wicket:panel>
+</body>
 </html>
