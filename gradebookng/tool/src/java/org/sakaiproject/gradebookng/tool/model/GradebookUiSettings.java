@@ -147,6 +147,15 @@ public class GradebookUiSettings implements Serializable {
 	private boolean isContextAnonymous = false;
 
 	/**
+	 * Whether the gradebook has normal and anonymous content. There are a two cases:
+	 * 1) Both normal and anonymous items exist
+	 * 2) All items are anonymous, but none count toward the course grade, so the course grade is normal
+	 */
+	@Getter
+	@Setter
+	private boolean isGradebookMixed = false;
+
+	/**
 	 * For tracking which assignments are visible wrt isContextAnonymous.
 	 * Contains all assignments whose isAnon() matches isContextAnonymous
 	 */

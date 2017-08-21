@@ -1,5 +1,6 @@
 2017.08.21:
 	- [OWL-3155] update the tool description for GBNG+
+	- [OWL-3151] inform instructors on the Grade Summary panel that anonymous content is hidden
 2017.08.19:
 	- [OWL-3153] Fixed the chunk in the Gradebook spinner caused by a height issue on some browsers
         - [OWL-3074] Anonymous Columns are visible in Student Review

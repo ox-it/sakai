@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -15,6 +16,8 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 
 /**
  *
@@ -57,6 +60,11 @@ public class StudentGradeSummaryPanel extends Panel {
 				StudentGradeSummaryPanel.this.window.close(target);
 			}
 		});
+
+		GradebookUiSettings settings = ((IGradesPage) getPage()).getUiSettings();
+		Label lblAnonymousBlurb = new Label("anonBlurb", Model.of(getString("label.studentsummary.anonymousblurb")));
+		lblAnonymousBlurb.setVisible(settings.isGradebookMixed());
+		add(lblAnonymousBlurb);
 
 		final WebMarkupContainer studentNavigation = new WebMarkupContainer("studentNavigation");
 		studentNavigation.setOutputMarkupPlaceholderTag(true);

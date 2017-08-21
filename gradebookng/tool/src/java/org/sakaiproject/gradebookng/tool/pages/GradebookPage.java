@@ -293,8 +293,8 @@ public class GradebookPage extends BasePage implements IGradesPage
 		assignments = this.businessService.getGradebookAssignments(sortBy);
 		stopwatch.timeWithContext("GradebookPage.addOrReplaceTable", "getGradebookAssignments");
 
-		// The anonymous toggle should be visible if the site has anonymous IDs, and there is both anonymous and normal content to view.
-		boolean anonToggleVisible = false;
+		// The anonymous toggle should be visible if the gradebook is mixed. That is, if the site has anonymous IDs, and there is both anonymous and normal content to view.
+		boolean isGradebookMixed = false;
 		boolean siteHasAnonIds = !businessService.getAnonGradingIDsForCurrentSite().isEmpty();
 		if (siteHasAnonIds)
 		{
@@ -325,7 +325,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 				if (hasNormal && hasAnon)
 				{
 					// Case 2) mixed scenario
-					anonToggleVisible = true;
+					isGradebookMixed = true;
 					break;
 				}
 			}
@@ -356,7 +356,7 @@ public class GradebookPage extends BasePage implements IGradesPage
 					// All assignmnents are anonymous, but none of them count toward the course grade.
 					// Without counting items, the course grade is considered normal.
 					// Content is mixed; the toggle needs to be visible
-					anonToggleVisible = true;
+					isGradebookMixed = true;
 				}
 				else
 				{
@@ -366,8 +366,8 @@ public class GradebookPage extends BasePage implements IGradesPage
 				}
 			}
 		}
-		anonymousToggle.setVisible(anonToggleVisible);
-
+		anonymousToggle.setVisible(isGradebookMixed);
+		settings.setGradebookMixed(isGradebookMixed);
 		final boolean isContextAnonymous = settings.isContextAnonymous();
 
 		// populates settings.getAnonAwareAssignmentIDsForContext() and getCategoryIDsInAnonContext()
