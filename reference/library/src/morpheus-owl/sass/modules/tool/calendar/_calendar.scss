@@ -353,9 +353,9 @@
 	
 	.navPanel
 	{
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
+		@include display-flex(flex);
+		@include align-items(flex-start);
+		@include justify-content(space-between);
 		margin: 0;
 		
 		.listNav

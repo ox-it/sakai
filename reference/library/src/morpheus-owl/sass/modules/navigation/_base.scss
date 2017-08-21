@@ -901,9 +901,9 @@ body.is-logged-out{
 {
 	&.is-unpublished
 	{
-		display:flex;
-		align-items: center;
-		justify-content: center;
+		@include display-flex(flex);
+		@include align-items(center);
+		@include justify-content(center);
 		width: 100%;
 		margin: 0;
 		padding: $standard-padding;

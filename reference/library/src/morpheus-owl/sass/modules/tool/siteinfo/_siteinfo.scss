@@ -9,8 +9,8 @@
 		
 		> li > a 
 		{
-			display: flex;
-			align-items: center;
+			@include display-flex(flex);
+			@include align-items(center);
 			padding: 5px;
 			line-height: 1.2;
 			white-space: normal;
@@ -35,8 +35,8 @@
 	
 	.item_edit_box_confirm
 	{
-		display: flex;
-		align-items: center;
+		@include display-flex(flex);
+		@include align-items(center);
 		
 		a
 		{

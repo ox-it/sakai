@@ -9,9 +9,9 @@
 
 	.qtip-titlebar
 	{
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		@include display-flex(flex);
+		@include align-items(center);
+		@include justify-content(space-between);
 		padding: 4px 8px;
 		background: $alt-colour;
 		color: $background-color;
@@ -49,16 +49,16 @@
 	
 	.tut-footer
 	{
-		display: flex;
-		justify-content: space-between;
+		@include display-flex(flex);
+		@include justify-content(space-between);
 		margin-top:1em;
 		padding-top:1em;
 		border-top:1px solid #ccc;
 		
 		.qtipLinkButton
 		{
-			display:flex;
-			align-items:center;
+			@include display-flex(flex);
+			@include align-items(center);
 			font-size: inherit;
 			text-decoration:none;
 		}

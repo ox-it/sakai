@@ -31,8 +31,8 @@
 	> .#{$namespace}pagebody
 	{
 		position: relative;
-		display: flex;
-		flex-direction: column;
+		@include display-flex(flex);
+		@include flex-direction(column);
 		width: 100%;
 		
 		@media #{$phone}{
@@ -50,7 +50,7 @@
 #content
 {
 	@include display-flex(flex);
-	flex-wrap: wrap;		// allows the site unpublished banner to be on its own line at 100%
+	@include flex-wrap(wrap);		// allows the site unpublished banner to be on its own line at 100%
 	margin: 0 0 0 0;
 	width: 100%;
 
@@ -60,7 +60,7 @@
 	}
 	@media #{$tablet}
 	{
-		flex-direction: column;
+		@include flex-direction(column);
 	}
 	
 	#col1of2, #col2of2
@@ -109,8 +109,8 @@
 
 .#{$namespace}container--footer
 {
-	display: flex;
-	flex-wrap: wrap;
+	@include display-flex(flex);
+	@include flex-wrap(wrap);
 	width: 100%;
 	margin: auto 0 0 0; 					// push the footer to the bottom of the page
 	background: $footer-background;
@@ -118,9 +118,9 @@
 
 .#{$namespace}footer
 {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
+	@include display-flex(flex);
+	@include flex-direction(column);
+	@include align-items(flex-start);
 	padding: 1em;
 	font-size: $smaller-font-size;
 	color: $footer-color;
@@ -158,7 +158,7 @@
 	
 	.#{$namespace}footer--nav.Mrphs-footer--nav__project 
 	{
-		align-self: flex-end;
+		@include align-self(flex-end);
 		order: 4;
 		margin: -100px 0 0 0;			//OWLTODO: height of the image; causes gap below footer if image is missing
 		padding: 0;

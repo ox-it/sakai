@@ -42,8 +42,8 @@ body.#{$namespace}toolMenu-collapsed{
 						.#{$namespace}toolsNav__menuitem--title
 						{
 							position: absolute;
-							display: flex;
-							align-items: center;
+							@include display-flex(flex);
+							@include align-items(center);
 						//	float: right; 		OWLTODO: needed?
 							margin: 0 0 0 -1px;		// to cover the tool menu's border
 							background: inherit;
@@ -229,9 +229,9 @@ nav#subSites{
 				bottom: 0;
 				left: 0; // OWLTODO: get rid of this, but fix the width issue
 				z-index: 1;
-				display:flex;
-				align-items:center;
-				justify-content:flex-end; /* right-align the arrows when expanded */
+				@include display-flex(flex);
+				@include align-items(center);
+				@include justify-content(flex-end); /* right-align the arrows when expanded */
 				width: calc(#{$tool-menu-width} - 1px); /* width minus 1px border; using variable fix from https://github.com/sass/sass/issues/818 */;
 				height:3em;
 				padding: 0;
@@ -272,8 +272,8 @@ nav#subSites{
 			a, .#{$namespace}roleSwitch__anchor
 			{
 				position: relative;
-				display: flex;
-				align-items: center;
+				@include display-flex(flex);
+				@include align-items(center);
 			    min-height: 3.5em;
 				padding: 1em;
 				border-bottom: 1px solid $tool-sub-menu-border-color;

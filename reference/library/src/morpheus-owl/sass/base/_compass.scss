@@ -34,6 +34,12 @@
 	-ms-flex: $f-grow $f-shrink $f-basis;
 	flex: $f-grow $f-shrink $f-basis;
 }
+@mixin flex-wrap($p: nowrap)
+{
+	-moz-flex-wrap: $p;
+	-webkit-flex-wrap: $p;
+	flex-wrap: $p;
+}
 @mixin appearance($p: none) {
 	-moz-appearance: $p;
 	-webkit-appearance: $p;

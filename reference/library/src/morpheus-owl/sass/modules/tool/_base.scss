@@ -33,9 +33,9 @@
 	position: absolute;
 	top: -2.8em;				// OWLTODO: is there a better way to do this? Lessons is different too
 	right: -0.5em;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;	// OWLTODO: I had this as flex-end, but changed to space-between for synoptic tools with titles
+	@include display-flex(flex);
+	@include align-items(center);
+	@include justify-content(space-between);	// OWLTODO: I had this as flex-end, but changed to space-between for synoptic tools with titles
 	margin: 0;
 	padding: 0;
 	
@@ -53,9 +53,9 @@
 			
 			.#{$namespace}directUrl__dropDown_controls
 			{
-				display: flex;
-				align-items: center;
-				justify-content: flex-start;
+				@include display-flex(flex);
+				@include align-items(center);
+				@include justify-content(flex-start);
 			}
 			
 			.dropDown_close
@@ -110,16 +110,16 @@
 	}
 	.#{$namespace}toolTitleNav__button_container{
 		float: right;
-		display: flex;
-		align-items: center;
+		@include display-flex(flex);
+		@include align-items(center);
 		position: relative;
 		margin: 0;
 		z-index: 1;
 	}
 	.#{$namespace}toolTitleNav__link
 	{
-		display: flex;
-		align-items: center;
+		@include display-flex(flex);
+		@include align-items(center);
 		margin: 5px 5px 5px 0;
 		padding: 5px;
 		border: 1px solid #e0e0e0;

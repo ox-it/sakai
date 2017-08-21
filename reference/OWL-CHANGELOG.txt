@@ -1,3 +1,5 @@
+2017.08.21:
+	- [OWL-3015] Replaced all flex properties with the mixins
 2017.08.19:
 	- [OWL-3154] Fixed obvious visual issues with Samigo, mainly on the main page
 	- [OWL-3080] and OWL-3030 - styled the checkmarks to not be blue and to have a disabled state; did the same for the radio buttons; styled the disabled labels too
