@@ -2262,29 +2262,30 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   /* Note:
    * assessmentGrading contains set of itemGrading that are not saved in the DB yet
    */
-  public void updateAssessmentGradingScore(AssessmentGradingData adata, PublishedAssessmentIfc pub){
+  public void updateAssessmentGradingScore(AssessmentGradingData adata, PublishedAssessmentIfc pub, String newComment, String oldComment){
     try {
       Set itemGradingSet = adata.getItemGradingSet();
       Iterator iter = itemGradingSet.iterator();
       double totalAutoScore = 0;
-      double totalOverrideScore = adata.getTotalOverrideScore().doubleValue();
+      double totalOverrideScore = adata.getTotalOverrideScore();
       while (iter.hasNext()){
         ItemGradingData i = (ItemGradingData)iter.next();
         if (i.getAutoScore()!=null)
-          totalAutoScore += i.getAutoScore().doubleValue();
-        }
-        double oldAutoScore = adata.getTotalAutoScore().doubleValue();
-        double scoreDifference = totalAutoScore - oldAutoScore;
-        adata.setTotalAutoScore(Double.valueOf(totalAutoScore));
-        if (Double.compare((totalAutoScore+totalOverrideScore),Double.valueOf("0").doubleValue())<0){
-        	adata.setFinalScore(Double.valueOf("0"));
-        }else{
-        	adata.setFinalScore(Double.valueOf(totalAutoScore+totalOverrideScore));
-        }
-        saveOrUpdateAssessmentGrading(adata);
-        if (scoreDifference != 0){
-          notifyGradebookByScoringType(adata, pub);
-        }
+          totalAutoScore += i.getAutoScore();
+      }
+      double oldAutoScore = adata.getTotalAutoScore();
+      double scoreDifference = totalAutoScore - oldAutoScore;
+      adata.setTotalAutoScore(totalAutoScore);
+      if (Double.compare((totalAutoScore+totalOverrideScore),Double.valueOf("0"))<0){
+          adata.setFinalScore(Double.valueOf("0"));
+      }else{
+          adata.setFinalScore(totalAutoScore+totalOverrideScore);
+      }
+      saveOrUpdateAssessmentGrading(adata);
+
+      if (scoreDifference != 0 || !newComment.equals(oldComment)){
+        notifyGradebookByScoringType(adata, pub);
+      }
      } catch (GradebookServiceException ge) {
        log.error(ge.getMessage(), ge);
        throw ge;

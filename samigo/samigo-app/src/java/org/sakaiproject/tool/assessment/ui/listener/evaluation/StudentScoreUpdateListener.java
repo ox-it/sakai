@@ -273,7 +273,7 @@ public class StudentScoreUpdateListener
       }
 
       if (updateFlag) {
-    	  delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment());
+    	  delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment(), newComments, oldComments);
       }
       log.debug("Saved student scores.");
       
