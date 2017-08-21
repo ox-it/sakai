@@ -1,4 +1,5 @@
 2017.08.21:
+	- [OWL-3159] Added comma to broken Back to List button in Peer Review page
 	- [OWL-3010] Updated the Tutorial to reflect the changes made for this release, including adding a new panel for the stars
 2017.08.11:
         - [OWL-3096] Provide alternative method for contextual help linking
