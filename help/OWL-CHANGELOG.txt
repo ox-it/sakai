@@ -1,3 +1,5 @@
+2017.08.21:
+	- [OWL-3010] Updated the Tutorial to reflect the changes made for this release, including adding a new panel for the stars
 2017.08.11:
         - [OWL-3096] Provide alternative method for contextual help linking
 2017.07.28:
