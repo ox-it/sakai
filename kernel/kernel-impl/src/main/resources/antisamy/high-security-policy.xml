@@ -23,6 +23,7 @@
     <directive name="formatOutput" value="false" /><!-- default: true -->
     <directive name="preserveComments" value="false" /><!-- default: false -->
     <directive name="preserveSpace" value="false" /><!-- default: false -->
+    <directive name="allowDynamicAttributes" value="true" /><!-- default: false -->
   </directives>
 
   <common-regexps>
@@ -1414,8 +1415,24 @@
                 <regexp name="anything" />
             </regexp-list>
          </attribute>
-    </common-attributes>
 
+         <!-- KNL-1487 - Role tag, used by wiris and others -->
+         <attribute name="role">
+            <regexp-list>
+                <regexp name="anything" />
+            </regexp-list>
+         </attribute>
+         <attribute name="data-" description="Allows the HTML5 'data-' attribute to be added to elements">
+             <regexp-list>
+                 <regexp name="anything"/>
+             </regexp-list>
+         </attribute>
+         <attribute name="aria-" description="Allows the HTML5 'aria-' attribute to be added to elements">
+             <regexp-list>
+                 <regexp name="anything"/>
+             </regexp-list>
+         </attribute>
+    </common-attributes>
 
     <!--
     This requires normal updates as browsers continue to diverge from the W3C and each other. As long as the browser wars continue
@@ -1433,6 +1450,11 @@
         <attribute name="lang"/>
         <attribute name="dir"/>
     </global-tag-attributes>
+
+    <dynamic-tag-attributes>
+        <attribute name="data-"/> <!-- HTML5 "data-" tag -->
+        <attribute name="aria-"/> <!-- HTML5 "aria-" tag -->
+    </dynamic-tag-attributes>
 
     <!-- You can declare tags here that will not be removed, filtered, validated or truncated, but encoded using HTML entities -->
     <tags-to-encode>
@@ -2058,13 +2080,6 @@
                 <regexp-list>
                     <regexp name="number"/>
                 </regexp-list>
-            </attribute>
-
-            <!-- https://jira.sakaiproject.org/browse/KNL-1061 -->
-            <attribute name="data-mathml">
-              <regexp-list>
-                <regexp name="anything" />
-              </regexp-list>
             </attribute>
 
             <!-- KNL-1426 sharestream and kaltura -->
