@@ -4,6 +4,11 @@
 	border-bottom: 1px solid $tool-border-color;
 	padding: 0 0 0 4px;			// to show a bit of the bottom border of the tabs
 
+	@media #{$phone}
+	{
+		margin-right: 70px;		// OWLTODO: used to prevent the link/help links from overlapping; make this better
+	}
+		
 	&:after{
 		content: " ";
 		display: block;
