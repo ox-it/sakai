@@ -1,6 +1,7 @@
 2017.08.22:
         - [OWL-3063] Course Grade Override Button is Misplaced
         - [OWL-3149] Grading Id and Calculated Course Grade columns don't indicate sort direction
+        - [OWL-3148] Final Grades group selection doesn't persist between page loads
 2017.08.21:
 	- [OWL-3155] update the tool description for GBNG+
 	- [OWL-3151] inform instructors on the Grade Summary panel that anonymous content is hidden

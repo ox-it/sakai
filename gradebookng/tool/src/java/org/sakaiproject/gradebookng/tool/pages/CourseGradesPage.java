@@ -132,8 +132,10 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		final GradebookUiSettings settings = getUiSettings();
 		settings.setContextAnonymous(businessService.isCourseGradePureAnon());
 		settings.setGroupFilterVisibilityForced(true);
-		// OWLTODO: ensure this null works if we intend to support project sites
-		settings.setGroupFilter(sections.isEmpty() ? null : sections.get(0));
+		if (settings.getGroupFilter() == null)
+		{
+			settings.setGroupFilter(sections.isEmpty() ? null : sections.get(0));
+		}
 
 		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForFinalGrades(settings);
 
