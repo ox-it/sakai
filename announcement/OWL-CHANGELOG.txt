@@ -1,0 +1,4 @@
+2017.08.22:
+	- [OWL-2990] change synoptic header from h1 to h3
+2017.01.23:
+        - forked from https://github.com/sakaiproject/sakai/tree/11.3
