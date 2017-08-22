@@ -1741,7 +1741,7 @@ and (max-device-width : 736px) {
 	line-height: 1;
 	position: absolute;
 	right: 7px;
-	bottom: 0;
+	bottom: 3px;
 	text-decoration: none;
 	display: none;
 }
