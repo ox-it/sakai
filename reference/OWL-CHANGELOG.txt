@@ -1,5 +1,6 @@
 2017.08.22:
 	- [OWL-2644] resources > drag and drop > file name unreadable
+	- [OWL-2690] recolour 'Action' button for hidden resources
 2017.08.21:
 	- [OWL-3015] Replaced all flex properties with the mixins
 2017.08.19:
