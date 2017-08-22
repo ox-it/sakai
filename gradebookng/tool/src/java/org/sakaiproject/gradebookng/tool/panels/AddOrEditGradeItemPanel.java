@@ -209,7 +209,7 @@ public class AddOrEditGradeItemPanel extends Panel {
 		form.add(new AddOrEditGradeItemPanelContent("subComponents", formModel));
 
 		// feedback panel
-		form.add(new GbFeedbackPanel("addGradeFeedback"));
+		form.add(new GbFeedbackPanel("addGradeFeedback").setOutputMarkupId(true));
 
 		// cancel button
 		final SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
