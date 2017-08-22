@@ -37,8 +37,8 @@ public class SakaiDataTable extends AjaxFallbackDefaultDataTable
         addTopToolbar( new SakaiNavigationToolBar( this, provider.getFilterType(), provider.getFilterID(), rowsPerPage ) );
         addTopToolbar( new IndicatingAjaxFallbackToolBar( this, dataProvider ) );
         addBottomToolbar( new NoRecordsToolbar( this, new ResourceModel( "table.nodata" ) ) );
-        addBottomToolbar( new IndicatingAjaxFallbackToolBar( this, dataProvider ) );
-        addBottomToolbar( new SakaiNavigationToolBar( this, provider.getFilterType(), provider.getFilterID(), rowsPerPage ) );
+        //addBottomToolbar( new IndicatingAjaxFallbackToolBar( this, dataProvider ) );
+        //addBottomToolbar( new SakaiNavigationToolBar( this, provider.getFilterType(), provider.getFilterID(), rowsPerPage ) );
 
         showAll = false;
     }

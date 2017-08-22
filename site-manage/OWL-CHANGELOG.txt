@@ -1,3 +1,5 @@
+2017.08.22:
+	- [OWL-3166] remove bottom table header bar from Manage Participants
 2017.08.21:
 	- [OWL-3152] hide the 'URL' label in Tool Order > Edit Tool Title when not needed
 	- [OWL-2664] The Manage Participants pager (SakaiPagingNavigator) now matches our implementation in GradebookNG
