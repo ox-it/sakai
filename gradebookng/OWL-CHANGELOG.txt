@@ -3,6 +3,7 @@
         - [OWL-3149] Grading Id and Calculated Course Grade columns don't indicate sort direction
         - [OWL-3148] Final Grades group selection doesn't persist between page loads
         - [OWL-3150] Ajax errors when setting grades
+        - [OWL-3165] Submit is not a primary action
 2017.08.21:
 	- [OWL-3155] update the tool description for GBNG+
 	- [OWL-3151] inform instructors on the Grade Summary panel that anonymous content is hidden
