@@ -56,20 +56,13 @@ public class StudentNameColumnHeaderPanel extends Panel {
 			@Override
 			public SortDirection getSort(GradebookUiSettings settings)
 			{
-				return settings.isContextAnonymous() ? settings.getAnonIdSortOrder() : settings.getStudentSortOrder();
+				return StudentNameColumnHeaderPanel.this.getSort(settings);
 			}
 			
 			@Override
 			public void setSort(GradebookUiSettings settings, SortDirection value)
 			{
-				if (settings.isContextAnonymous())
-				{
-					settings.setAnonIdSortOrder(value);
-				}
-				else
-				{
-					settings.setStudentSortOrder(value);
-				}
+				StudentNameColumnHeaderPanel.this.setSort(settings, value);
 			}
 		};
 
@@ -78,9 +71,9 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		ResourceModel titleModel = new ResourceModel(titleKey);
 		title.add(new AttributeModifier("title", titleModel));
 		title.add(new Label("label", titleModel));
-		if (settings != null && settings.getStudentSortOrder() != null) {
+		if (getSort(settings) != null) {
 			title.add(
-				new AttributeModifier("class", "gb-sort-" + settings.getStudentSortOrder().toString().toLowerCase()));
+				new AttributeModifier("class", "gb-sort-" + getSort(settings).toString().toLowerCase()));
 		}
 		add(title);
 		
@@ -188,5 +181,22 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		studentDropdown.add(sortByName);
 		studentDropdown.setVisible(!isContextAnonymous);
 		add(studentDropdown);
+	}
+	
+	protected SortDirection getSort(GradebookUiSettings settings)
+	{
+		return settings.isContextAnonymous() ? settings.getAnonIdSortOrder() : settings.getStudentSortOrder();
+	}
+	
+	protected void setSort(GradebookUiSettings settings, SortDirection value)
+	{
+		if (settings.isContextAnonymous())
+		{
+			settings.setAnonIdSortOrder(value);
+		}
+		else
+		{
+			settings.setStudentSortOrder(value);
+		}
 	}
 }

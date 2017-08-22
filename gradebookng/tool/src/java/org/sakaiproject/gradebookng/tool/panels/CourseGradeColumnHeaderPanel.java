@@ -67,9 +67,9 @@ public class CourseGradeColumnHeaderPanel extends Panel {
 		ResourceModel titleModel = getTitleModel();
 		title.add(new AttributeModifier("title", titleModel));
 		title.add(new Label("label", titleModel));
-		if (settings != null && settings.getCourseGradeSortOrder() != null) {
+		if (settings != null && getSort(settings) != null) {
 			title.add(
-				new AttributeModifier("class", "gb-sort-" + settings.getCourseGradeSortOrder().toString().toLowerCase()));
+				new AttributeModifier("class", "gb-sort-" + getSort(settings).toString().toLowerCase()));
 		}
 		add(title);
 
