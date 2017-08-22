@@ -1,3 +1,5 @@
+2017.08.22:
+	- [OWL-2697] Fixed styles when changing the sequence in the Organize tab
 2017.08.21:
 	- [OWL-2738] Duplicated topics will now be created as drafts
 2017.07.05:
