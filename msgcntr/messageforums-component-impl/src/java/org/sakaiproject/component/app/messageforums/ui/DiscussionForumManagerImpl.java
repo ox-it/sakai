@@ -1216,11 +1216,13 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     boolean saveForum = topic.getId() == null;
     
     topic.setDraft(Boolean.valueOf(draft));
-    forumManager.saveDiscussionForumTopic(topic, false, currentUser, logEvent);
+    DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
+    forumManager.saveDiscussionForumTopic(topic, forum.getDraft(), currentUser, logEvent);
+    // refresh the forum for Hibernate
+    forum = (DiscussionForum) topic.getBaseForum();
     
     if (saveForum)
     {
-      DiscussionForum forum = (DiscussionForum) topic.getBaseForum();
       forum.addTopic(topic);
       forumManager.saveDiscussionForum(forum, forum.getDraft().booleanValue(), logEvent, currentUser);
       //sak-5146 forumManager.saveDiscussionForum(forum);

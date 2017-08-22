@@ -1004,7 +1004,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
                                   
           if(topic.getDraft().equals(Boolean.TRUE))
           {        	  
-	  	    saveDiscussionForum(discussionForum, discussionForum.getDraft().booleanValue(), logEvent, currentUser);
+	  	    saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
           }
           else
             saveDiscussionForum(discussionForum, parentForumDraftStatus, logEvent, currentUser);
