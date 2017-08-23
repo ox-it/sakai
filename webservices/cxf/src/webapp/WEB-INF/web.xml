@@ -9,11 +9,6 @@
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
     </filter>
 
-    <filter>
-        <filter-name>RemoteHostFilter</filter-name>
-        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
-    </filter>
-
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>
@@ -23,18 +18,6 @@
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>RemoteHostFilter</filter-name>
-        <servlet-name>
-            CXFServlet
-        </servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-        <dispatcher>FORWARD</dispatcher>
-        <dispatcher>INCLUDE</dispatcher>
-    </filter-mapping>
-
-
 
     <!-- Context Params -->
     <context-param>
