@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 
 import org.apache.wicket.Page;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.CssHeaderItem;
@@ -13,9 +14,11 @@ import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.model.GbSettings;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -53,6 +56,19 @@ public class SettingsPage extends BasePage {
 
 	public SettingsPage() {
 		disableLink(settingsPageLink);
+
+		if (role == GbRole.NONE)
+		{
+			final PageParameters params = new PageParameters();
+			params.add("message", getString("role.none"));
+			throw new RestartResponseException(AccessDeniedPage.class, params);
+		}
+
+		// students cannot access this page; redirect to the StudentPage
+		if (this.role == GbRole.STUDENT) {
+			throw new RestartResponseException(StudentPage.class);
+		}
+
 		setHideGradeEntryFromNonAdmins();
 	}
 

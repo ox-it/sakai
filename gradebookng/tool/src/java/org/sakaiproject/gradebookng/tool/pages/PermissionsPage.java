@@ -36,6 +36,8 @@ import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.wicket.RestartResponseException;
+import org.sakaiproject.gradebookng.business.GbRole;
 
 /**
  * Permissions page
@@ -57,6 +59,18 @@ public class PermissionsPage extends BasePage {
 
 	public PermissionsPage() {
 		disableLink(this.permissionsPageLink);
+
+		if (role == GbRole.NONE)
+		{
+			final PageParameters params = new PageParameters();
+			params.add("message", getString("role.none"));
+			throw new RestartResponseException(AccessDeniedPage.class, params);
+		}
+
+		// students cannot access this page; redirect to the StudentPage
+		if (this.role == GbRole.STUDENT) {
+			throw new RestartResponseException(StudentPage.class);
+		}
 	}
 
 	@Override
