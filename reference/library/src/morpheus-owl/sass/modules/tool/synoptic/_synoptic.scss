@@ -10,6 +10,11 @@
 .#{$namespace}sakai-iframe-site
 {
 	border: 1px solid $tool-sub-menu-border-color;
+
+	.siteDescription
+	{
+		overflow: auto;
+	}
 }
 
 body > .portletBody > #calendarForm
