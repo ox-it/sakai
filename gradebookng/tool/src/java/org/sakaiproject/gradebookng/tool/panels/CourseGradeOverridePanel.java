@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -141,7 +142,8 @@ public class CourseGradeOverridePanel extends Panel {
 					final GradebookInformation gbInfo = CourseGradeOverridePanel.this.businessService.getGradebookSettings();
 
 					final Map<String, Double> schema = gbInfo.getSelectedGradingScaleBottomPercents();
-					if (!schema.containsKey(newGrade)) {
+					final List<String> unmapped = gbInfo.getSelectedGradingScaleUnmappedGrades();
+					if (!schema.containsKey(newGrade) && !unmapped.contains(newGrade)) {
 						error(new ResourceModel("message.addcoursegradeoverride.invalid").getObject());
 						target.addChildren(form, FeedbackPanel.class);
 						return;
