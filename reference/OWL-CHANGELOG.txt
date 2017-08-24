@@ -1,5 +1,6 @@
 2017.08.24:
-        - [OWL-3184] sql script changes to fix anon forum bug
+    - [OWL-3184] sql script changes to fix anon forum bug
+	- [OWL-3169] Updated the content pages that show on the Gateway and elsewhere to be OWL-specific
 2017.08.22:
 	- [OWL-3010] Added a new class for the tutorial
 	- [OWL-2644] resources > drag and drop > file name unreadable
