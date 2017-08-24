@@ -1,3 +1,5 @@
+2017.08.24:
+        - [OWL-3163] revert group locking
 2017.08.09:
 	- [OWL-3073] grade logs (grading events) are not sorted by chronological order
 2017.07.29:

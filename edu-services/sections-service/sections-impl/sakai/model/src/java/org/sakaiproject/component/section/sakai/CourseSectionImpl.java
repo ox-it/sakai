@@ -76,7 +76,6 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
     protected List<Meeting> meetings;
     protected String title;
     protected String eid;
-    protected boolean isLocked;
     
     protected boolean lazy_eid = false;
     
@@ -127,7 +126,6 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 		this.course = new CourseImpl(group.getContainingSite());
 		this.title = group.getTitle();
 		this.description = group.getDescription();
-		this.isLocked = group.isLocked();
 
 		ResourceProperties props = group.getProperties();
 		this.category = props.getProperty(CourseSectionImpl.CATEGORY);
@@ -614,10 +612,6 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 
 	public void setMeetings(List<Meeting> meetings) {
 		this.meetings = meetings;
-	}
-
-	public boolean isLocked(){
-		return isLocked;
 	}
 
 	public Integer getMaxEnrollments() {

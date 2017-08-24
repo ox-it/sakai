@@ -1,3 +1,5 @@
+2017.08.24:
+        - [OWL-3163] revert group locking
 2017.08.22:
 	- [OWL-3166] remove bottom table header bar from Manage Participants
 2017.08.21:
