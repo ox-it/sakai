@@ -1,72 +1,105 @@
+<!DOCtype html>
 <html>
   <head>
     <meta http-equiv="Content-Style-Type" content="text/css" /> 
-    <title>multimedia.html</title>
+    <title>Multimedia</title>
     <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="/library/skin/morpheus-owl/tool.css" type="text/css" rel="stylesheet" media="all" />
     <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-    <style>body { padding: 5px !important; }</style>
+	<style type="text/css">
+		body 
+		{ 
+			padding: 5px !important;
+		}
+		h2
+		{
+			color:#4f2683;
+		}
+		hr 
+		{
+			border:none; 
+			border-top: 1px solid #000;
+		}
+
+		td
+		{
+			padding:1em;
+		}
+
+		.textblock 
+		{
+			margin-bottom:3em;
+			margin-right: 345px;
+			padding:0 1em;
+			border: 4px solid #ccc;
+			-moz-border-radius: 1em;
+			-webkit-border-radius: 1em;
+			border-radius: 1em;
+			background-color: #fff;
+		}
+
+		.textblock2 
+		{
+			background-color: #fff;
+		}
+		img 
+		{
+			display: block;
+			margin: 0 auto;
+			padding: 1em;
+			border: 1px solid #ccc;
+			border-radius: 6px;
+		}
+	</style>
+
   </head>
   <body>
-<style type="text/css">
-<style type="text/css">
- hr {border:none; border-top: dotted black 2px; margin-left:1em; margin-right: 1em}
-.textblock {
--moz-border-radius: 1em;
--webkit-border-radius: 1em;
-border-radius: 1em;
-padding:0em 1em 1em 1em;
-border: solid black 1px;
-background-color: #ffffdd;
-margin-right:345px;
-}
-</style>
-<blockquote>
-<p>[<a id="return"  href="general.html"> Back to main help screen</a>]</p>
-<script>
-   var a = document.getElementById('return');
-   if (window.location.search != '')
-      a.href=window.location.search.substring(1);
-</script>
-<h3>ADDING MULTIMEDIA CONTENT</h3>
-<div>
-<div style="width:335px; float: right; margin-left: 20px; valign:top">
-<p style="margin-top:1em">&nbsp; <img width="346" height="260" border="1" src="lbimages/LB_Help_Multimedia_Lesson.png" alt="Multimedia Lesson Example" /></p>
-<p>Sample page where <b>Embed Content on Page</b> has been used to add a Youtube video. For Youtube videos, you should go to a page showing the specific video  you want, and simply copy the URL from the address bar at the top of the  browser.</p>
-<hr />
-<p><img width="275" height="290" border="1" alt="Youtube Edit Dialog Box Example" src="lbimages/LB_Help_Multimedia_Youtube_Edit.png" /></p>
-<p>Sample of the dialog when you click on the <b>Edit</b> button.</p>
-</div>
-<div style="valign:top">
-<div class="textblock">
+	<p>[<a id="return"  href="general.html">Return to main help screen</a>]</p>
+	<script>
+	   var a = document.getElementById('return');
+	   if (window.location.search != '')
+		  a.href=window.location.search.substring(1);
+	</script>
+	<h3>ADDING MULTIMEDIA CONTENT</h3>
+	<div>
+		<div style="width:335px; float: right; margin-left: 20px;">
+			<p style="margin-top:1em">&nbsp; <img width="346" height="260" border="1" src="lbimages/LB_Help_Multimedia_Lesson.png" alt="Multimedia Lesson Example" /></p>
+			<p>Sample page where <b>Embed Content on Page</b> has been used to add a Youtube video. For Youtube videos, you should go to a page showing the specific video  you want, and simply copy the URL from the address bar at the top of the  browser.</p>
+			<hr />
+			<p><img width="275" height="290" border="1" alt="Youtube Edit Dialog Box Example" src="lbimages/LB_Help_Multimedia_Youtube_Edit.png" /></p>
+			<p>Sample of the dialog when you click on the <b>Edit</b> button.</p>
+		</div>
+		
+		<div>
+			<div class="textblock">
 
-<p> There are several different ways to use audio and video in Lessons.
+				<p> There are several different ways to use audio and video in Lessons.
 
-<ul>
-<li> Upload a file. In this case Lessons will choose a player to show
-the file. The player depends upon the type of file and the browser.
-In order to get the best results on a variety of devices, 
-we recommend using MP4 format. For best use on portable devices, the
-file should be prepared with software that specifically optimizes for
-those devices. For audio, we recommend MP3, although WAV is also widely
-supported.</li>
+					<ul>
+						<li> Upload a file. In this case Lessons will choose a player to show
+						the file. The player depends upon the type of file and the browser.
+						In order to get the best results on a variety of devices, 
+						we recommend using MP4 format. For best use on portable devices, the
+						file should be prepared with software that specifically optimizes for
+						those devices. For audio, we recommend MP3, although WAV is also widely
+						supported.</li>
 
-<li> Enter a URL for a file stored on the web. This should produce
-the same result as uploading the file through Lessons.</li>
+						<li> Enter a URL for a file stored on the web. This should produce
+						the same result as uploading the file through Lessons.</li>
 
-<li> Enter a URL for a video sharing site, e.g. Youtube. Lessons can
-recognize URLs for most common video sites, and add appropriate players.
-Most video sharing sites have options in the player to give you the 
-URL for the video. Simply using the URL that shows in the bar at
-the top of your browser may not work.</li>
+						<li> Enter a URL for a video sharing site, e.g. Youtube. Lessons can
+						recognize URLs for most common video sites, and add appropriate players.
+						Most video sharing sites have options in the player to give you the 
+						URL for the video. Simply using the URL that shows in the bar at
+						the top of your browser may not work.</li>
 
-<li> Enter an "embed code" or "widget code" for a video sharing site.
-Most video sharing sites have options in the player to give you an
-appropriate embed code. Many sites will give you both a URL and an
-embed code. You might try both to see which works better. Other things
-being equal, we recommend using the URL.</li>
-
-</ul>
-</p>
+						<li> Enter an "embed code" or "widget code" for a video sharing site.
+						Most video sharing sites have options in the player to give you an
+						appropriate embed code. Many sites will give you both a URL and an
+						embed code. You might try both to see which works better. Other things
+						being equal, we recommend using the URL.</li>
+					</ul>
+				</p>
 
 <p> These methods can all be used in the <b> Embed Content on Page </b> option of the "Add Content" pulldown.
 Embed Content will put a player in your page so that students see the video itself. If you prefer to insert
@@ -135,6 +168,6 @@ any URLs for yourself, you should be careful about this.
 </div>
 </div>
 </div>
-</blockquote>
+
   </body>
 </html>

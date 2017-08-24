@@ -1,3 +1,5 @@
+2017.08.24:
+	- [OWL-3171] Updated the placeholder instructions and the general instructions for Lessons in English
 2017.08.01:
 	- [OWL-2917] Adjusted the positioning of the top-right tooltitlenav buttons (Link, Help, etc)
 2017.07.31:
