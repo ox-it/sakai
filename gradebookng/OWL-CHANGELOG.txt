@@ -1,3 +1,5 @@
+2017.08.24:
+        - [OWL-3182] Convert edited cell in GBNG+ to yellow state when changes are made
 2017.08.23:
 	- [OWL-3185] grade override modal does not accept unmapped grading scale values
 	- [OWL-3186] add role detection and redirects for Settings, Import/Export and Permissions UIs

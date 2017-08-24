@@ -1835,3 +1835,29 @@ and (max-device-width : 736px) {
 	margin-left: 0;     /* to override Bootstrap styles causing horizontal scrollbars */
 	margin-right: 0;
 }
+
+#gradebookGrades table.table-striped > tbody > tr > td.gb-cell-saving
+{
+	background-color: #F6ECB7;
+}
+
+.gb-cell-saving > div
+{
+	background-color: #F6ECB7;
+}
+
+.gb-cell-saving > div::before
+{
+	content: "\f0c7";
+	position: absolute;
+	top: 50%;
+	left: 20px;
+	width: 1.1em;
+	height: 1.1em;
+	margin-top: -0.55em;
+	font-family: 'gradebook-icons';
+	font-size: 1.4em;
+	line-height: 1.1em;
+	font-weight: bold;
+	color: #dfc01c;
+}
