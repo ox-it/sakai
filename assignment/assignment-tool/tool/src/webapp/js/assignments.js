@@ -338,6 +338,7 @@ ASN.showOrHideAccessMessages = function(groupRadioSelected) {
     // Get the elements
     var container = document.getElementById("messages");
     var groupMsg = document.getElementById("msgSelectGroups");
+    var groupSubWarn = document.getElementById("msgGroupSubsWarning");
     var children = container.getElementsByTagName("div");
     
     // Show/hide the messages
@@ -348,6 +349,8 @@ ASN.showOrHideAccessMessages = function(groupRadioSelected) {
                 children[i].style.display = "none";
             }
         }
+
+        groupSubWarn.style.display = "block";
     } 
     else {
         for (i = 0; i < children.length; i++) {
@@ -355,6 +358,8 @@ ASN.showOrHideAccessMessages = function(groupRadioSelected) {
                 children[i].style.display = "block";
             }
         }
+
+        groupSubWarn.style.display = "none";
     }
 };
 

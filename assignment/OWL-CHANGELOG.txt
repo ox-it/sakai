@@ -1,5 +1,6 @@
 2017.08.24:
         - [OWL-3163] revert group locking
+	- [OWL-3187] add additional error message to assignment Add/Edit UI for groups
 2017.08.18:
 	- [OWL-3143] adjust wording for group submissions setting on add/edit UI
 2017.08.16:
