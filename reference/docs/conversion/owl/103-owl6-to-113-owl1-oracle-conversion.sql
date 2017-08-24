@@ -1340,3 +1340,9 @@ and pac.AUTOSUBMIT=1
 and (ag.ATTEMPTDATE is not null)
 and (ag.ATTEMPTDATE<=pac.RETRACTDATE or (pac.DUEDATE <= SYSDATE and pac.LATEHANDLING = 2)))
 
+-- OWL-3184 - change primary key on anon forums table
+alter table MFR_ANONYMOUS_MAPPING_T drop primary key;
+alter table MFR_ANONYMOUS_MAPPING_T drop unique(site_id, user_id);
+alter table MFR_ANONYMOUS_MAPPING_T drop column id;
+alter table MFR_ANONYMOUS_MAPPING_T add constraint mfr_anon_mapping_pk primary key (site_id, user_id);
+

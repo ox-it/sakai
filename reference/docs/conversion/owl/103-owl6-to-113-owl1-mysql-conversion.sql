@@ -1346,3 +1346,7 @@ UPDATE CONTENT_COLLECTION
 SET XML = REPLACE(XML, 'TXkgV29ya3NwYWNl', 'SG9tZQ==')
 WHERE IN_COLLECTION = '/user/';
 -- END SAK-32046
+
+-- OWL-3184 - change primary key on anon forums table
+alter table mfr_anonymous_mapping_t drop id, add primary key(site_id, user_id);
+
