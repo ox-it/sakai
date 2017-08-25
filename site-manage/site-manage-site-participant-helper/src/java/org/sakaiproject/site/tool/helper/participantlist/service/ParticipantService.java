@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -583,12 +584,37 @@ public class ParticipantService implements Serializable
                     }
                 }
 
+                // OWL-2652 - For all removed participants who are provided: we want to revert them to their provided roles
+                // They've already been removed from this.realm. This change isn't yet persisted, so we'll add them back with their provided role if appropriate
+                if (removeUpdates != null)
+                {
+                    // Maintain the removed users' isActive status by building a map to track the removed users' userId->isActive
+                    Map<String, Boolean> removedUserId_isActive = removeUpdates.stream().collect(Collectors.toMap(Participant::getUniqName, p -> "true".equals(p.getStatus())));
+                    authzGroupService.addUsersIfProvided(removedUserId_isActive, realm);
+                }
+
                 // No errors encountered, proceed with saving
                 authzGroupService.save(this.realm);
 
+                // membership modifications have been made; refresh to sync permissions, etc.
+                authzGroupService.refreshAuthzGroup(this.realm);
+
                 // then update all related group realms for the role
                 updateRelatedGroupParticipants();
-                authzGroupService.refreshAuthzGroup(this.realm);
+
+                if (removeUpdates != null)
+                {
+                    // when removeUpdates is not null, we called addUsersIfProvided. This may have reverted realm roles deep in kernel. The Participant models will need to be sync'd
+                    if (statusUpdates != null)
+                    {
+                        syncParticipantRoles(statusUpdates.values());
+                    }
+                    syncParticipantRoles(removeUpdates);
+                    if (roleUpdates != null)
+                    {
+                        syncParticipantRoles(roleUpdates.values());
+                    }
+                }
 
                 // post event about the participant update
                 eventTrackingService.post(eventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmId, false));
@@ -635,6 +661,27 @@ public class ParticipantService implements Serializable
             }
 
             return null;
+        }
+    }
+
+    /**
+     * Syncs the roles of these participants to the ones found for the members of this.realm
+     */
+    private void syncParticipantRoles(Collection<Participant> participants)
+    {
+        if (participants == null)
+        {
+            return;
+        }
+
+        for (Participant p : participants)
+        {
+            String userId = p.getUniqName();
+            Member m = realm.getMember(userId);
+            if (m != null)
+            {
+                p.setRole(m.getRole().getId());
+            }
         }
     }
 

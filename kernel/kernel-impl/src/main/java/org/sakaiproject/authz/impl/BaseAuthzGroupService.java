@@ -32,6 +32,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.impl.BaseGroup;
+import org.sakaiproject.site.impl.BaseSite;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -1118,6 +1119,38 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public void addUsersIfProvided(Map<String, Boolean> userId_isActive, AuthzGroup azg)
+	{
+		if (userId_isActive == null || userId_isActive.isEmpty() || azg == null)
+		{
+			return;
+		}
+
+		Map<String, String> target = m_provider.getUserRolesForGroup(azg.getProviderGroupId());
+		for (Map.Entry<String, Boolean> entry : userId_isActive.entrySet())
+		{
+			String userId = entry.getKey();
+			try
+			{
+				// Provider keys on EID
+				String eid = userDirectoryService().getUserEid(userId);
+				String roleName = target.get(eid);
+				if (roleName != null)
+				{
+					// Add the membership; params: userId, provided role, isActive status, isProvided.
+					azg.addMember(userId, roleName, entry.getValue(), true);
+				}
+			}
+			catch (UserNotDefinedException e)
+			{
+				M_log.warn("addUsersIfProvided: cannot find eid for user: " + userId);
+			}
+		}
+	}
+
+	/**
 	 * Update the site security based on the values in the AuthzGroup, if it is a site AuthzGroup.
 	 * 
 	 * @param azGroup
@@ -1746,7 +1779,9 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 
 		if (azGroup instanceof BaseAuthzGroup)
 		{
+			// this cache
 			m_storage.refreshAuthzGroupInternal((BaseAuthzGroup) azGroup);
+			// SecurityService cache (affects permissions)
 			securityService().resetSecurityCache(azGroup.getId());
 		}
 		else if (azGroup instanceof BaseGroup)
@@ -1756,7 +1791,16 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			if (grpAzg != null && grpAzg instanceof BaseAuthzGroup)
 			{
 				m_storage.refreshAuthzGroupInternal((BaseAuthzGroup) grpAzg);
+				securityService().resetSecurityCache(grpAzg.getId());
 				securityService().resetSecurityCache(azGroup.getId());
+			}
+		}
+		else if (azGroup instanceof BaseSite)
+		{
+			BaseSite site = (BaseSite) azGroup;
+			if (!site.equals(site.getAzg()))
+			{
+				handleRefreshAuthzGroup(site.getAzg());
 			}
 		}
 		else

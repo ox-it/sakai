@@ -187,6 +187,11 @@ public class MockAuthzGroupService implements AuthzGroupService {
 
 	}
 
+	public void addUsersIfProvided(Map<String, Boolean> userId_isActive, AuthzGroup azg)
+	{
+
+	}
+
 	public void removeAuthzGroup(AuthzGroup azGroup)
 			throws AuthzPermissionException {
 		// TODO Auto-generated method stub

@@ -457,6 +457,15 @@ public interface AuthzGroupService extends EntityProducer
 	void refreshUser(String userId);
 
 	/**
+	 * If the specified users are provided by azg's providerId(s), the users are added to the azg with their associated isActive status. 
+	 * This is done in memory; to persist changes, save(azg) must be invoked explicitly.
+	 * The intension is for this to be invoked after users are removed from an authz group so they can be reverted to their provided roles
+	 * @param userId_isActive mappings that represent users who are to be added if they are provided. Maps their userId to the isActive status they will assume if added
+	 * @param azg the AuthzGroup the users are to be added to if they are provided by this azg's provider(s)
+	 */
+	void addUsersIfProvided(Map<String, Boolean> userId_IsActive, AuthzGroup azg);
+
+	/**
 	 * Refresh the external user - role membership for this AuthzGroup.
 	 * Refreshing from a provider can take longer than expected depending
 	 * on the provider's implementation, so *generally* we queue requests to refresh and
