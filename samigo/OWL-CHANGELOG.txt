@@ -1,3 +1,5 @@
+2017.08.28:
+	- [OWL-3160] fix bug in SAM-3227: doubles used in determineRandomValuesForRanges
 2017.08.21:
 	- [OWL-3119] individual user-level comment doesn't get sync'd to gradebook
 2017.08.19:
