@@ -1,9 +1,9 @@
 package org.sakaiproject.calendar.entityproviders;
 
-import lombok.Setter;
+import java.util.*;
+
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventVector;
@@ -23,10 +23,12 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.util.CalendarEventType;
+
+import lombok.Setter;
+
 import org.sakaiproject.util.CalendarUtil;
 
-import java.io.IOException;
-import java.util.*;
 
 /**
  * The sakai entity used to access calendar events.
@@ -39,19 +41,7 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 		ActionsExecutable, Outputable, Sampleable {
 
 	String ENTITY_PREFIX = "calendar";
-	Properties config = new Properties();
-	Map<String, String> eventImageMap = Collections.emptyMap();
-	private static Log log = LogFactory.getLog(CalendarEventEntityProvider.class);
-
-	public void init(){
-		try {
-			config.load(getClass().getResourceAsStream("/org/sakaiproject/calendar/tool/calendar.config"));
-		} catch (IOException e) {
-			//config file is missing
-			log.warn("Calendar.config file is missing for CalendarEventEntityProvider.class : " + e.getMessage());
-		}
-	}
-
+	
 	/**
 	 * Calendar service.
 	 */
@@ -129,8 +119,7 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 					"siteId must be set in order to get the calendar feeds for a site, via the URL /calendar/site/siteId");
 		}
 
-		eventImageMap = new CalendarUtil().getEventImageMap(config);
-
+		Map<String, String> eventIconMap = CalendarEventType.getIcons();
 		// optional timerange
 		final TimeRange range = buildTimeRangeFromRequest(params);
 
@@ -299,13 +288,17 @@ public class CalendarEventEntityProvider extends AbstractEntityProvider
 	 * @param range
 	 * @return
 	 */
-	private List<CalendarEventDetails> getMergedCalendarEventsForSite(final String siteId, final TimeRange range) {
-		List<CalendarEventDetails> mergeCal = new ArrayList<CalendarEventDetails>();
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private List getMergedCalendarEventsForSite(final String siteId, final TimeRange range) {
+		final List mergeCal = new ArrayList<>();
+		Map<String, String> eventIconMap = CalendarEventType.getIcons();
+
 		CalendarEventVector calendarEventVector = calendarService.getEvents(calendarService.getCalendarReferences(siteId), range);
 		for (Object o : calendarEventVector) {
 			CalendarEvent event = (CalendarEvent) o;
 
 			CalendarEventDetails eventDetails = new CalendarEventDetails(event);
+			eventDetails.setEventIcon(eventIconMap.get(event.getType()));
 			//as event can be from different site , find sitId for the event
 			Reference reference = entityManager.newReference(event.getCalendarReference());
 			mergeCal.add(eventDetails);
