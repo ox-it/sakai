@@ -32,10 +32,12 @@ body.is-logged-out{
 		
 		.#{$namespace}headerLogo--institution
 		{
-			background: url($logo) no-repeat center center;
-			width: 		$logo-width;
-			height: 	$logo-height;
-			display:	inline-block;
+			display: inline-block;
+			width: $logoWithTextSmall-width;
+			height: $logoWithTextSmall-height;
+			background: url($logoWithTextSmall-fallback) center center no-repeat;		// png fallback
+			background: url($logoWithTextSmall) center center no-repeat;
+			background-size: auto $logoWithTextSmall-height;
 		}
 	}
 	

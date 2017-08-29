@@ -1,3 +1,5 @@
+2017.08.29:
+	- [OWL-822] Updated the logos to use the new 2017 OWL emblems
 2017.08.24:
     - [OWL-3184] sql script changes to fix anon forum bug
 	- [OWL-3169] Updated the content pages that show on the Gateway and elsewhere to be OWL-specific

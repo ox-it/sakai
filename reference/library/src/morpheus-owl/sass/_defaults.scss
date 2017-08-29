@@ -181,9 +181,18 @@ $measure: 960px !default;
 $standard-padding: 10px !default;
 
 /* Logo location */
-$logo: 'images/westernLogoWhite.png' !default;
-$logo-width: 135px !default;
-$logo-height: 32px !default;
+$logo: 'images/owlEmblem.svg' !default;
+$logo-fallback: 'images/owlEmblem.png' !default;
+$logo-width: 122px !default;
+$logo-height: 150px !default;
+$logoWithText: 'images/owlEmblemWithText.svg' !default;
+$logoWithText-fallback: 'images/owlEmblemWithText.png' !default;
+$logoWithText-width: 261px !default;
+$logoWithText-height: 90px !default;
+$logoWithTextSmall: 'images/owlEmblemWithText-small.svg' !default;
+$logoWithTextSmall-fallback: 'images/owlEmblemWithText-small.png' !default;
+$logoWithTextSmall-width: 116px !default;
+$logoWithTextSmall-height: 40px !default;
 
 /* Tool icons */
 $skin-with-icons: true !default;
