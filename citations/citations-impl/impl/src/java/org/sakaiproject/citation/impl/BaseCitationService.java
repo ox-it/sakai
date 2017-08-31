@@ -3239,13 +3239,15 @@ public abstract class BaseCitationService implements CitationService
 						BasicCitation newCitation = new BasicCitation();
 						newCitation.copy(oldCitation);
 						newCitation.m_temporary = isTemporary;
-						if (isTemporary){ // don't save the citation if it's just temporary
+						if (isTemporary){ // save the citation if it's not saved yet
 							this.saveCitation(newCitation);
 						}
 
 						// copy the citation's citationCollectionOrder
 						CitationCollectionOrder newCitationCollectionOrder = citationCollectionOrder.copy(this.getId(), newCitation.getId());
-						this.saveCitationCollectionOrder(newCitationCollectionOrder);
+						if (isTemporary){ // save the citationCollectionOrder if it's not saved yet
+							this.saveCitationCollectionOrder(newCitationCollectionOrder);
+						}
 						this.add(newCitationCollectionOrder);
 
 					} catch (IdUnusedException e) {
@@ -3255,7 +3257,9 @@ public abstract class BaseCitationService implements CitationService
 				else {
 					// copy the citationCollectionOrder
 					CitationCollectionOrder newCitationCollectionOrder = citationCollectionOrder.copy(this.getId());
-					this.saveCitationCollectionOrder(newCitationCollectionOrder);
+					if (isTemporary){ // save the citationCollectionOrder if it's not saved yet
+						this.saveCitationCollectionOrder(newCitationCollectionOrder);
+					}
 					this.add(newCitationCollectionOrder);
 				}
 			}
