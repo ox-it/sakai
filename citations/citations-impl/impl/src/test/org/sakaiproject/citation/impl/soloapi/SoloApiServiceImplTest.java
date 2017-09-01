@@ -341,7 +341,7 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		// Fails because it's described as a book, but is actually a journal
 		assertEquals("Transcatheter closure of a patent foramen ovale following mitral valve replacement", citation.getCitationProperty("title", false));
 		assertEquals("Annals of Thoracic Surgery", citation.getCitationProperty("sourceTitle", false));
-		assertEquals("[Skulski, Ryszard, Snider, John M., Buzzard, Carol J., Ling, Frederick S., Mendelsohn, Alan M.]", citation.getCitationProperty("creator", false).toString());
+		assertEquals("[Skulski, R., Snider, J.M., Buzzard, C.J., Ling, F.S., Mendelsohn, A.M.]", citation.getCitationProperty("creator", false).toString());
 		assertEquals("199908", citation.getCitationProperty("date", false));
 		assertEquals("68", citation.getCitationProperty("volume", false));
 		assertEquals("2", citation.getCitationProperty("issue", false));
