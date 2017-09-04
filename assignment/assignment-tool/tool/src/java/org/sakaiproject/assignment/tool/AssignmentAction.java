@@ -12955,92 +12955,124 @@ public class AssignmentAction extends PagedResourceActionII
 		// put the input value into the state attributes
 		state.setAttribute(NEW_ASSIGNMENT_TITLE, "");
 
+		// get the configured date offsets in seconds  
+		// defaults: visible date - now, open date - now, due date - seven days later,   
+		//           accept until date - eight days after now, peer eval date - fifteen days after now.  
+		// note that front-end javascript code rounds the time back to the nearest five minutes.
+		int visibleDateOffset = ServerConfigurationService.getInt("assignment.visibledate", 0);
+		int openDateOffset = ServerConfigurationService.getInt("assignment.opendate", 0);
+		int dueDateOffset = ServerConfigurationService.getInt("assignment.duedate", 604800);
+		int acceptUntilDateOffset = ServerConfigurationService.getInt("assignment.acceptuntildate", 691200);
+		int peerEvaluationDateOffset = ServerConfigurationService.getInt("assignment.peerevaluationdate", 1296000);
+
 		// get current time
 		Time t = TimeService.newTime();
-		TimeBreakdown tB = t.breakdownLocal();
-		int month = tB.getMonth();
-		int day = tB.getDay();
-		int year = tB.getYear();
-		int hour = tB.getHour();
-		int minute = tB.getMin();
+		TimeBreakdown tB;
+		int month;
+		int day;
+		int year;
+		int hour;
+		int minute;
+		
+		if (Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.visible.date.enabled", false))) {
+			t.setTime(t.getTime() + visibleDateOffset * 1000);
+			tB = t.breakdownLocal();
+			month = tB.getMonth();
+			day = tB.getDay();
+			year = tB.getYear();
+			hour = tB.getHour();
+			minute = tB.getMin();
+			state.setAttribute(NEW_ASSIGNMENT_VISIBLEMONTH, Integer.valueOf(month));
+			state.setAttribute(NEW_ASSIGNMENT_VISIBLEDAY, Integer.valueOf(day));
+			state.setAttribute(NEW_ASSIGNMENT_VISIBLEYEAR, Integer.valueOf(year));
+			state.setAttribute(NEW_ASSIGNMENT_VISIBLEHOUR, Integer.valueOf(hour));
+			state.setAttribute(NEW_ASSIGNMENT_VISIBLEMIN, Integer.valueOf(minute));
+			state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, false);
+		}
 
-		// set the visible time to be 12:00 PM
-                if (Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.visible.date.enabled", false))) {                
-                    state.setAttribute(NEW_ASSIGNMENT_VISIBLEMONTH, Integer.valueOf(month));
-                    state.setAttribute(NEW_ASSIGNMENT_VISIBLEDAY, Integer.valueOf(day));
-                    state.setAttribute(NEW_ASSIGNMENT_VISIBLEYEAR, Integer.valueOf(year));
-                    state.setAttribute(NEW_ASSIGNMENT_VISIBLEHOUR, Integer.valueOf(12));
-                    state.setAttribute(NEW_ASSIGNMENT_VISIBLEMIN, Integer.valueOf(0));
-                    state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, false);
-                }
-                
-		// set the open time to current time
+		// open date is shifted forward by the offset
+		t.setTime(t.getTime() + (openDateOffset - visibleDateOffset) * 1000);
+		tB = t.breakdownLocal();
+		month = tB.getMonth();
+		day = tB.getDay();
+		year = tB.getYear();
+		hour = tB.getHour();
+		minute = tB.getMin();
+
 		state.setAttribute(NEW_ASSIGNMENT_OPENMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_OPENDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_OPENYEAR, Integer.valueOf(year));
-		state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, Integer.valueOf(12));
-		state.setAttribute(NEW_ASSIGNMENT_OPENMIN, Integer.valueOf(0));
-		state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, hour);
-		state.setAttribute(NEW_ASSIGNMENT_OPENMIN, minute);
+		state.setAttribute(NEW_ASSIGNMENT_OPENHOUR, Integer.valueOf(hour));
+		state.setAttribute(NEW_ASSIGNMENT_OPENMIN, Integer.valueOf(minute));
 		
 		// set the all purpose item release time
 		state.setAttribute(ALLPURPOSE_RELEASE_MONTH, Integer.valueOf(month));
 		state.setAttribute(ALLPURPOSE_RELEASE_DAY, Integer.valueOf(day));
 		state.setAttribute(ALLPURPOSE_RELEASE_YEAR, Integer.valueOf(year));
-		state.setAttribute(ALLPURPOSE_RELEASE_HOUR, Integer.valueOf(12));
-		state.setAttribute(ALLPURPOSE_RELEASE_MIN, Integer.valueOf(0));
+		state.setAttribute(ALLPURPOSE_RELEASE_HOUR, Integer.valueOf(hour));
+		state.setAttribute(ALLPURPOSE_RELEASE_MIN, Integer.valueOf(minute));
 
-		// due date is shifted forward by 7 days
-		t.setTime(t.getTime() + 7 * 24 * 60 * 60 * 1000);
+		// due date is shifted forward by the offset
+		t.setTime(t.getTime() + (dueDateOffset - openDateOffset) * 1000);
 		tB = t.breakdownLocal();
 		month = tB.getMonth();
 		day = tB.getDay();
 		year = tB.getYear();
+		hour = tB.getHour();
+		minute = tB.getMin();
 
-		// set the due time to be 5:00pm
 		state.setAttribute(NEW_ASSIGNMENT_DUEMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_DUEDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_DUEYEAR, Integer.valueOf(year));
-		state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, Integer.valueOf(17));
-		state.setAttribute(NEW_ASSIGNMENT_DUEMIN, Integer.valueOf(0));
+		state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, Integer.valueOf(hour));
+		state.setAttribute(NEW_ASSIGNMENT_DUEMIN, Integer.valueOf(minute));
 		
 		// set the resubmit time to be the same as due time
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEMONTH, Integer.valueOf(month));
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEDAY, Integer.valueOf(day));
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEYEAR, Integer.valueOf(year));
-		state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, Integer.valueOf(17));
-		state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, Integer.valueOf(0));
+		state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, Integer.valueOf(hour));
+		state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, Integer.valueOf(minute));
 		state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, Integer.valueOf(1));
 
-		// Close date is shifted forward by one day after the due day
-		t.setTime(t.getTime() + 24 * 60 * 60 * 1000);
+		// Close date (accept until) is shifted forward by the offset
+		t.setTime(t.getTime() + (acceptUntilDateOffset - dueDateOffset) * 1000);
 		tB = t.breakdownLocal();
 		month = tB.getMonth();
 		day = tB.getDay();
 		year = tB.getYear();
+		hour = tB.getHour();
+		minute = tB.getMin();
 
 		// enable the close date by default
 		state.setAttribute(NEW_ASSIGNMENT_ENABLECLOSEDATE, Boolean.valueOf(true));
-		// set the close time to be 5:00 pm, same as the due time by default
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEYEAR, Integer.valueOf(year));
-		state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, Integer.valueOf(17));
-		state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, Integer.valueOf(0));
+		state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, Integer.valueOf(hour));
+		state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, Integer.valueOf(minute));
 		
 		// set the all purpose retract time
 		state.setAttribute(ALLPURPOSE_RETRACT_MONTH, Integer.valueOf(month));
 		state.setAttribute(ALLPURPOSE_RETRACT_DAY, Integer.valueOf(day));
 		state.setAttribute(ALLPURPOSE_RETRACT_YEAR, Integer.valueOf(year));
-		state.setAttribute(ALLPURPOSE_RETRACT_HOUR, Integer.valueOf(17));
-		state.setAttribute(ALLPURPOSE_RETRACT_MIN, Integer.valueOf(0));
+		state.setAttribute(ALLPURPOSE_RETRACT_HOUR, Integer.valueOf(hour));
+		state.setAttribute(ALLPURPOSE_RETRACT_MIN, Integer.valueOf(minute));
 
-		// set the peer period time to be 10 mins after accept until date
+		// Peer evaluation date is shifted forward by the offset
+		t.setTime(t.getTime() + (peerEvaluationDateOffset - acceptUntilDateOffset) * 1000);
+		tB = t.breakdownLocal();
+		month = tB.getMonth();
+		day = tB.getDay();
+		year = tB.getYear();
+		hour = tB.getHour();
+		minute = tB.getMin();
+
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODYEAR, Integer.valueOf(year));
-		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, Integer.valueOf(17));
-		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, Integer.valueOf(10));
+		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, Integer.valueOf(hour));
+		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, Integer.valueOf(minute));
 		
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, Boolean.TRUE.toString());
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS, Boolean.TRUE.toString());
