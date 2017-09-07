@@ -508,7 +508,7 @@ function showConfirmDeleteAttachment(deleteButton, msgs, event){
 function showConfirmDelete(deleteButton, msgs, event){
 	var title = $(deleteButton).parent().find(".editItemTitle").html();
 	$('<div></div>').appendTo('body')
-		.html('<div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
+		.html('<div><div class="messageError">' + msgs.noUndoWarning + '</div><h6>' + msgs.confirmDelete + " '" + title + "'?</h6></div>")
 		.dialog({
 			position: { my: 'left center', at: 'right center', of: $(deleteButton)},
 			modal: true, title: msgs.deleteItemTitle, zIndex: 10000, autoOpen: true,
