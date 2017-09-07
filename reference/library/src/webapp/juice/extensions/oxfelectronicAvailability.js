@@ -135,12 +135,12 @@ oxfelectronicAvailability.prototype.electronic_version = function(daia_doc){
         // To display feedback on the lack of online availability in the UI, assign an appropriate message to e_html here
     } else if (item_count > 1) {
         //Use SFX link
-        e_html += '<a href="' + daia_doc.id + '">Electronic version</a>';
+        e_html += '<a target="_blank" href="' + daia_doc.id + '">Electronic version</a>';
     } else {
         //Display the link from the single item
         $jq.each(daia_doc.item, function(index, daia_item) {
             if (daia_item) {
-                e_html += '<a href="' + This.item_href(daia_item) + '">Electronic version</a>';
+                e_html += '<a target="_blank" href="' + This.item_href(daia_item) + '">Electronic version</a>';
             }
         });
     }
