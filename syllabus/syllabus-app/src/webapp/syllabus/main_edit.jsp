@@ -355,7 +355,7 @@
 					 action="#{SyllabusTool.processListDelete}"
 					 title="#{msgs.update}"
 				     rendered="#{! SyllabusTool.displayNoEntryMsg}"
-					 accesskey="s" 	/>
+					 accesskey="s" styleClass="active"/>
 				<h:commandButton 
 				     value="#{msgs.reset}" 
 					 action="#{SyllabusTool.processMainEditCancel}"
