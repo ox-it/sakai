@@ -674,7 +674,7 @@ function printView(url) {
 										$tlang.getString("listsub.nosub")
 									#end
 									#if ($!submittedBy) 
-									<br /> $tlang.getString("listsub.submitted.by") $!submittedBy.sortName ($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($submitterSortName))
+									<br /> $tlang.getString("listsub.submitted.by") $!submittedBy.sortName ($tlang.getString("listsub.submitted.on.behalf") #if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterSortName)#end)
 									#end
 							</td>
 							<td headers="status">
