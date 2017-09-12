@@ -583,10 +583,15 @@
 				#end
 					<div>
 						<label for="$name_AllowStudentView">
-						#if ($!value_AllowStudentView.equals("true"))
-							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" checked="checked" />
+						#if ($forceAnonGrading)
+							## For submission type sites students must not be able to see the review service reports.
+							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" disabled="disabled"/>
 						#else
-							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" />
+							#if ($!value_AllowStudentView.equals("true"))
+								<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" checked="checked" />
+							#else
+								<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" />
+							#end
 						#end
 							$tlang.getString("review.allow")
 						</label>
