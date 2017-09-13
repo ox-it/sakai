@@ -230,8 +230,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
-                : ['AudioRecorder','Image','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']),
+                ? ['AudioRecorder','ResourceSearch', 'Image','Html5video','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
+                : ['AudioRecorder','Image','Html5video','Movie','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
@@ -280,6 +280,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             // Accessibility checker has a dependency on balloonpanel
             CKEDITOR.plugins.addExternal('a11ychecker',basePath+'a11ychecker/', 'plugin.js');
             CKEDITOR.plugins.addExternal('balloonpanel',basePath+'balloonpanel/', 'plugin.js');
+            CKEDITOR.plugins.addExternal('html5video',basePath+'html5video/', 'plugin.js');
             /*
                To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
                and to extraPlugins. This also needs extra stylesheets.
@@ -296,7 +297,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             //ckconfig.extraPlugins+="atd-ckeditor,";
             //ckconfig.contentsCss = [basePath+'atd-ckeditor/atd.css'];
 
-            ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification,a11ychecker";
+            ckconfig.extraPlugins+="image2,audiorecorder,html5video,movieplayer,wordcount,fmath_formula,autosave,fontawesome,notification,a11ychecker";
 
             //SAK-29648
             ckconfig.contentsCss = [basePath+'/fontawesome/font-awesome/css/font-awesome.min.css'];
