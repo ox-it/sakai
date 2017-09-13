@@ -20,3 +20,6 @@ docker/sakai/ssl-public.crt
 docker/sakai/ssl-chain.crt
 docker/sakai/sakai-keytab
 velocity.log
+docker/sakai/shibboleth/sp-cert.pem
+docker/sakai/shibboleth/sp-key.pem
+docker/sakai/.env

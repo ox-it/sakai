@@ -5,18 +5,24 @@ set -e
 # Entrypoint for webauth apache.
 # We need this file so that we can copy the keytab file into place and set the permissions correctly before starting apache.
 
+if [ -d /opt/shibboleth ]; then
+  cp /opt/shibboleth/* /etc/shibboleth
+  # This sets the $ENTITYID value
+  envsubst < /opt/shibboleth/shibboleth2.xml > /etc/shibboleth/shibboleth2.xml
+  chown root:www-data /etc/shibboleth/*
+  chmod 644 /etc/shibboleth/*
+  # Only enable webauth if keytab is present
+  a2enmod -q shib2
+fi
+
 (
 echo '<Proxy balancer://sakai>'
 echo ProxySet lbmethod=byrequests stickysession=JSESSIONID nofailover=on
-# In docker-compose v2 file format there's no nice way to find all the linked containers so we just jump through all the
-# IDs until we find one that isn't there.
-# https://github.com/jwilder/docker-gen - This looks to be a better way to generate config
-count=1
-while true
+# In docker compose v2 we look at all the aliases to find the lined containers
+getent hosts apps | cut -f 1 -d ' ' | while read app_server
 do
-  app_server=app_${count}
-  # Look for the hostname which is used in routing
-  if route=$(getent hosts ${app_server} | tr '[:space:]' '\n'| grep '^[0-9a-z]\{12\}$') ; then 
+  # Hash the IP of the container which is used for routing
+  if route=$(echo ${app_server} | md5sum | cut -c 1-8); then
     echo BalancerMember ajp://${app_server}:8009 retry=0 route=$route
   else
     echo Failed to find the ID of app server $app_server >&2
@@ -29,14 +35,6 @@ echo '</Proxy>'
 
 a2enconf sakai-balancer
 
-
-if [ -f "/opt/files/webauth-keytab" ]; then
-  cp /opt/files/webauth-keytab /etc/webauth/keytab
-  chown root:www-data /etc/webauth/keytab
-  chmod 640 /etc/webauth/keytab
-  # Only enable webauth if keytab is present
-  a2enmod -q webauth
-fi
 
 # Copy in the ssl public and private keys
 if [ -f "/opt/files/ssl-private" -a -f "/opt/files/ssl-public" ]; then

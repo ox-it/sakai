@@ -3,49 +3,48 @@
 # resources as we use in production.
 # It exposes the webserver publicly, but all the developer services (mysql, debug port, jmx) just on localhost.
 #
-app:
-  # If you want to test the production image swap the previous line with this one.
-  image: oxit/tomcat-sakai:11.x
+version: '2'
+services:
+  app:
+    # If you want to test the production image swap the previous line with this one.
+    image: oxit/tomcat-sakai:11.x
 
-  # Not too sure about this as there seem to be IO errors with using volumes like
-  # this, eg corrupt files and missing files.
-  # We use the sakai.properties from the production build
-  volumes:
-   - /opt/tomcat/sakai/files
-   - /opt/tomcat/sakai/deleted
-  command: /opt/tomcat/bin/catalina.sh jpda run
-  expose:
-   - "8009"
+    # Not too sure about this as there seem to be IO errors with using volumes like
+    # this, eg corrupt files and missing files.
+    # We use the sakai.properties from the production build
+    volumes:
+     - /opt/tomcat/sakai/files
+     - /opt/tomcat/sakai/deleted
+    command: /opt/tomcat/bin/catalina.sh jpda run
+    expose:
+     - "8009"
 
-# We're using our own image so that we can set the default character encoding.
-# The standard MySQL image doesn't allow this.
-# The standard dockerfile/mysql image doesn't allow autocation of user/db
-db:
-  image: mysql:5.6.27
-  environment:
-    MYSQL_ROOT_PASSWORD: 
-    MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-    MYSQL_USER: sakai
-    MYSQL_PASSWORD: sakai
-    MYSQL_DATABASE: sakai
-  command:
-   - --character-set-server=utf8
+  # We're using our own image so that we can set the default character encoding.
+  # The standard MySQL image doesn't allow this.
+  # The standard dockerfile/mysql image doesn't allow autocation of user/db
+  db:
+    image: mysql:5.6.27
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_USER: sakai
+      MYSQL_PASSWORD: sakai
+      MYSQL_DATABASE: sakai
+    command:
+     - --character-set-server=utf8
 
-web:
-  build: ../apache
-  environment:
-    SERVERNAME:
-  volumes:
-   - ./webauth-keytab:/opt/files/webauth-keytab
-   - ./ssl-private.key:/opt/files/ssl-private
-   - ./ssl-public.crt:/opt/files/ssl-public
-   - ./ssl-chain.crt:/opt/files/ssl-chain
-  ports:
-   - "80"
-   - "443"
+  web:
+    build: ../apache
+    environment:
+      SERVERNAME:
+      ENTITYID:
+    volumes:
+     - ./ssl-private.key:/opt/files/ssl-private
+     - ./ssl-public.crt:/opt/files/ssl-public
+     - ./ssl-chain.crt:/opt/files/ssl-chain
 
-solr:
-  build: ../solr
-  ports:
-   - "127.0.0.1:8983:8983"
+  solr:
+    build: ../solr
+    ports:
+     - "127.0.0.1:8983:8983"
 

@@ -9,7 +9,7 @@ Layout
 tomcat - This is an Docker image ready for a copy of Sakai. It containts Java and Tomcat. This image 
 available from the Docker Hub as https://hub.docker.com/r/buckett/sakai-tomcat/
 sakai - This is the main docker and docker-compose folder
-apache - This ia a copy of apache that has WebAuth enabled for it.
+apache - This ia a copy of apache that has Shibboleth enabled for it.
 
 Setup
 =====

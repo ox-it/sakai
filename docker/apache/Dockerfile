@@ -6,9 +6,10 @@ FROM ubuntu:14.04
 MAINTAINER Matthew Buckett <matthew.buckett@it.ox.ac.uk>
 
 # Install apache2 and webauth
+# Gettext is needed for envsubst to make expanding config files easier
 RUN \
   apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y apache2 libapache2-mod-webauth && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y apache2 libapache2-mod-shib2 gettext && \
   rm -rf /var/lib/apt/lists/* 
 
 # Copy in the apache config
@@ -19,13 +20,6 @@ RUN \
   a2ensite sakai && \
   a2dissite 000-default
 
-# For webauth we need a keytab and to set WebAuthWebKdcPrincipal
-# Mount files under /etc/webauth/
-RUN \ 
-  touch /etc/webauth/keytab && \
-  chown root:www-data /etc/webauth/keytab && \
-  chmod 640 /etc/webauth/keytab
-
 # For ssl we need a hostname, private key and public key
 RUN \
   mkdir -p /opt/files && \
@@ -34,11 +28,11 @@ RUN \
 
 RUN sed -i 's@^ErrorLog.*@ErrorLog "| /bin/cat"@' /etc/apache2/apache2.conf
 
-COPY entrypoint.sh /opt/scripts/entrypoint.sh
-RUN chmod 755 /opt/scripts/entrypoint.sh
+COPY entrypoint.sh shibd-entrypoint.sh /opt/scripts/
+RUN chmod 755 /opt/scripts/*.sh
 
 # We're doing standard ports
-EXPOSE 80 443
+# EXPOSE 80 443
 
 # Apache likes sigquit to stop 
 # Only supported on docker 1.9
