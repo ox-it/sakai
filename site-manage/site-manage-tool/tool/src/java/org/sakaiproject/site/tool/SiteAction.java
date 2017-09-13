@@ -2227,7 +2227,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (!isMyWorkspace) {
 						// if the add participant helper is available, not
 						// stealthed and not hidden, show the link
-						if (notStealthOrHiddenTool("sakai-site-manage-participant-helper")) {
+						if (notStealthOrHiddenTool(getAddUserHelper(site))) {
 							b.add(new MenuEntry(rb.getString("java.addp"),
 									"doParticipantHelper"));
 						}
@@ -3982,7 +3982,28 @@ public class SiteAction extends PagedResourceActionII {
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 	}
-	
+
+	/**
+	 * Finds the tool ID to use for the adding participants to the site.
+	 * Also checks that the configured tool is a valid helper.
+	 * @param site The site to add users to.
+	 * @return The tool ID.
+	 */
+	private String getAddUserHelper(Site site) {
+		String helperId = site.getProperties().getProperty("sitemanage.add.user.tool");
+		if (helperId == null) {
+			helperId = ServerConfigurationService.getString(
+					"sitemanage.add.user.tool", "sakai-site-manage-participant-helper"
+			);
+		}
+		// Validate it's a helpers before attempting to use it.
+		Tool tool = ToolManager.getTool(helperId);
+		if (tool == null || !tool.getCategories().contains("sakai.helper")) {
+			helperId = "sakai-site-manage-participant-helper";
+		}
+		return helperId;
+	}
+
 
 	/**
 	 * Is this site not secure or is the user an admin user.
@@ -4673,7 +4694,7 @@ public class SiteAction extends PagedResourceActionII {
 				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
 
 		// launch the helper
-		startHelper(data.getRequest(), "sakai-site-manage-participant-helper");
+		startHelper(data.getRequest(), getAddUserHelper(getStateSite(state)));
 	}
 	
 	/**
