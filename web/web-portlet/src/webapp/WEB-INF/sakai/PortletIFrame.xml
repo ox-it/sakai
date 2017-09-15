@@ -100,7 +100,7 @@
 			title="Recorded Lectures"
 			description="For accessing all recorded lectures relevant to the student.">
 		<category name="myworkspace" />
-		<configuration name="source" value="/access/content/public/recorded-lectures.html" type="final"/>
+		<configuration name="source" value="/access/content/public/misc/js-entity-broker/recorded-lectures.html"/>
 		<configuration name="height" value="600px" />
 
 		<configuration name="reset.button" value="false" type="final" />
