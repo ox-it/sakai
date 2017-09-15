@@ -20,32 +20,38 @@
 		list-style: none;
 		padding: 0 0 0 0;
 	}
+}
 
-	// Lessons tool calendar event pop-up.
-	div#calendarEventDialog {
-		label {
-			display: inline-block;
-			width: 30%;
-		}
+// Lessons tool calendar event pop-up.
+div#calendarEventDialog {
+	label {
+		display: inline-block;
+		width: 30%;
+		font-weight: bold;
+	}
 
-		span#event-type {
+	span#event-type {
+		padding-left: 10px;
+	}
+
+	#event-description p {
+		display: inline-block;
+	}
+
+	#event-attachments {
+		display: inline-block;
+	}
+
+	.eventAttachmentList {
+		list-style-type: none;
+		padding-left: 0;
+		.eventAttachmentFilename {
 			padding-left: 10px;
 		}
-
-		#event-description p {
-			display: inline-block;
-		}
-
-		#event-attachments {
-			display: inline-block;
-		}
-
-		.eventAttachmentList {
-			list-style-type: none;
-			padding-left: 0;
-			.eventAttachmentFilename {
-				padding-left: 10px;
-			}
-		}
+	}
+	
+	#fullDetails {
+		padding-left: 0.5em;
+		font-weight: bold;
 	}
 }
