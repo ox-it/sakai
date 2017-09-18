@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -z "$ENTITYID" ]; then 
+  echo '$ENTITYID is not set, not attempting to start shibd'
+  exit 1
+fi
 # Make sure permissions are correct
 chown -Rh _shibd /var/run/shibboleth
 

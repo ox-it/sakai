@@ -6,13 +6,17 @@ set -e
 # We need this file so that we can copy the keytab file into place and set the permissions correctly before starting apache.
 
 if [ -d /opt/shibboleth ]; then
-  cp /opt/shibboleth/* /etc/shibboleth
-  # This sets the $ENTITYID value
-  envsubst < /opt/shibboleth/shibboleth2.xml > /etc/shibboleth/shibboleth2.xml
-  chown root:www-data /etc/shibboleth/*
-  chmod 644 /etc/shibboleth/*
-  # Only enable webauth if keytab is present
-  a2enmod -q shib2
+  if [ ! -z "$ENTITYID" ]; then 
+    cp /opt/shibboleth/* /etc/shibboleth
+    # This sets the $ENTITYID value in the file
+    envsubst < /opt/shibboleth/shibboleth2.xml > /etc/shibboleth/shibboleth2.xml
+    chown root:www-data /etc/shibboleth/*
+    chmod 644 /etc/shibboleth/*
+    # Only enable webauth if keytab is present
+    a2enmod -q shib2
+  else
+    echo '$ENTITYID is not set shibboleth is disabled'
+  fi
 fi
 
 (
