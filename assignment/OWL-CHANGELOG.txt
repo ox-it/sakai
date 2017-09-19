@@ -1,3 +1,5 @@
+2017.09.19:
+	- [OWL-3218] don't show model answers set to display after submission if submission is draft
 2017.08.24:
         - [OWL-3163] revert group locking
 	- [OWL-3187] add additional error message to assignment Add/Edit UI for groups

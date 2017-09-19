@@ -49,7 +49,6 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -495,7 +494,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 					{
 						return true;
 					}
-					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_SUBMIT && s != null && s.isUserSubmission())
+					else if (show == AssignmentConstants.MODEL_ANSWER_SHOW_TO_STUDENT_AFTER_SUBMIT && s != null && s.isUserSubmission() && s.getSubmitted())
 					{
 						return true;
 					}
