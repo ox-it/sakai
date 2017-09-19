@@ -32,6 +32,9 @@ services:
     # This is needed to allow jmap (heap dumps_) to work, otherwise it fails
     security_opt:
     - seccomp:unconfined
+    ports:
+      # Allow debugger to connect.
+      - "127.0.0.1:8000:8000"
     environment:
      SENTRY_DSN:
      SENTRY_ENVIRONMENT:
