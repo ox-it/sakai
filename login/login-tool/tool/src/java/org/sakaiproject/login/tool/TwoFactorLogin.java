@@ -73,8 +73,6 @@ public class TwoFactorLogin extends HttpServlet
 
 	private TwoFactorAuthentication twoFactorAuthentication;
 
-	private String usernameSuffix = "@ox.ac.uk";
-
 	private long gracePeriod = 5000; // 5 seconds
 
 	/**
@@ -104,9 +102,6 @@ public class TwoFactorLogin extends HttpServlet
 		shibbolethUrl = config.getInitParameter("shibbolethUrl");
 		twoFactorAuthentication = (TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
 		
-		if (config.getInitParameter("usernameSuffix") != null) {
-			usernameSuffix = config.getInitParameter("usernameSuffix");
-		}
 		if (config.getInitParameter("gracePeriod") != null) {
 			gracePeriod = Long.parseLong(config.getInitParameter("gracePeriod"));
 		}
@@ -189,19 +184,14 @@ public class TwoFactorLogin extends HttpServlet
 		if (remoteUser == null) {
 			throw new RuntimeException("No username was passed");
 		}
-		String aid = remoteUser.replaceFirst(usernameSuffix, "");
-		if (remoteUser.equals(aid)) {
-			M_log.warn("Bad username of: "+ remoteUser);
-			throw new RuntimeException("Cannot handle your username, it should end with "+ usernameSuffix);
-		}
-		
+
 		boolean goodUser = false;
 		try {
-			User loginUser = UserDirectoryService.getUserByAid(aid);
+			User loginUser = UserDirectoryService.getUserByAid(remoteUser);
 			User currentUser = UserDirectoryService.getCurrentUser();
 			goodUser = loginUser.equals(currentUser);
 		} catch (UserNotDefinedException e) {
-			M_log.warn("Failed to find user to check two factor with: "+ aid);
+			M_log.warn("Failed to find user to check two factor with: "+ remoteUser);
 		}
 		if (!goodUser) {
 			throw new RuntimeException("You are not currently logged in or your usernames don't match.");
