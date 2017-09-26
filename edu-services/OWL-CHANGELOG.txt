@@ -1,3 +1,5 @@
+2017.09.26:
+	- [OWL-3253 move gb_gradable_object_t.is_anon SQL snippet from OWL-README.txt to dedicated .sql file
 2017.08.24:
         - [OWL-3163] revert group locking
 2017.08.09:
