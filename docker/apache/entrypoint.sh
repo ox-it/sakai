@@ -72,4 +72,8 @@ fi
 # apache2ctl would set these but we're calling apache directly to get better docker signals.
 source /etc/apache2/envvars
 
+if [ -f $APACHE_PID_FILE ] ; then
+  rm $APACHE_PID_FILE
+fi
+
 exec "$@"
