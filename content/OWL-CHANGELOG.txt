@@ -1,3 +1,5 @@
+2017.09.27:
+	- [OWL-3098] render drop box group filter conditionally based on permissions
 2017.08.12:
 	- [OWL-3099] backport SAK-32385: resources "Edit Details" UI needs improvement
 2017.08.02:
