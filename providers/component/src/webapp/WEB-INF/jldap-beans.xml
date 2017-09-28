@@ -291,9 +291,9 @@
 		<property name="userTypeMapper">
 			<!-- Select one of the following beans -->
 			<!-- ref bean="edu.amc.sakai.user.EmptyStringUserTypeMapper" /-->
-			<ref bean="edu.amc.sakai.user.EntryAttributeToUserTypeMapper" />
+			<!--<ref bean="edu.amc.sakai.user.EntryAttributeToUserTypeMapper" />-->
 			<!-- ref bean="edu.amc.sakai.user.EntryContainerRdnToUserTypeMapper" /-->
-			<!-- ref bean="edu.amc.sakai.user.StringUserTypeMapper" /-->
+			 <ref bean="edu.amc.sakai.user.StringUserTypeMapper" />
 		</property>
 		
 	</bean>
@@ -316,10 +316,9 @@
 	<bean id="edu.amc.sakai.user.StringUserTypeMapper"
 		class="edu.amc.sakai.user.StringUserTypeMapper">
 		
-		<!--  property name="userType">
-			<value>Registered</value>
-		</property -->
-		
+		<property name="userType">
+			<value>oxford</value>
+		</property>
 	</bean>
 		
 	<!-- EntryAttributeToUserTypeMapper calculates Sakai user
