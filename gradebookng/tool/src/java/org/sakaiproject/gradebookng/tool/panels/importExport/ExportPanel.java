@@ -21,13 +21,18 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.Session;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.time.Duration;
 
 import org.sakaiproject.gradebookng.business.GbCategoryType;
+import org.sakaiproject.gradebookng.business.GbSiteType;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
@@ -58,8 +63,11 @@ public class ExportPanel extends Panel {
 	boolean includeCourseGrade = false;
 	boolean includeGradeOverride = false;
 
+	private GbGroup selectedGroup;
+	private final List<Assignment> allAssignments = businessService.getGradebookAssignments();
+
 	// Model for file names; gets updated by buildFileName(), which is invoked by buildFile for effiency with determining csv vs zip wrt anonymity
-	private Model<String> fileNameModel = new Model<>();
+	private final Model<String> fileNameModel = new Model<>();
 
 	public ExportPanel(final String id) {
 		super(id);
@@ -68,6 +76,12 @@ public class ExportPanel extends Panel {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+		final GbCategoryType categoryType = businessService.getGradebookCategoryType();
+		final boolean studentNumbersVisible = businessService.isStudentNumberVisible();
+		final boolean canUserSeeFinalGradesPage = businessService.currentUserCanSeeFinalGradesPage(businessService.getCurrentSiteId());
+		final GbSiteType siteType = businessService.getCurrentSite()
+				.map(s -> GbSiteType.COURSE.name().equalsIgnoreCase(s.getType()))
+				.orElse(false) ? GbSiteType.COURSE : GbSiteType.PROJECT;
 
 		add(new AjaxCheckBox("includeStudentName", Model.of(includeStudentName)) {
 
@@ -91,6 +105,11 @@ public class ExportPanel extends Panel {
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
 				ExportPanel.this.includeStudentNumber = !ExportPanel.this.includeStudentNumber;
 				setDefaultModelObject(ExportPanel.this.includeStudentNumber);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return studentNumbersVisible;
 			}
 		});
 		add(new AjaxCheckBox("includeGradeItemScores", Model.of(includeGradeItemScores)) {
@@ -120,7 +139,6 @@ public class ExportPanel extends Panel {
 			@Override
 			public boolean isVisible() {
 				// only allow option if categories are not weighted
-				final GbCategoryType categoryType = ExportPanel.this.businessService.getGradebookCategoryType();
 				return categoryType != GbCategoryType.WEIGHTED_CATEGORY;
 			}
 		});
@@ -138,6 +156,11 @@ public class ExportPanel extends Panel {
 			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
 				ExportPanel.this.includeFinalGrade = !ExportPanel.this.includeFinalGrade;
 				setDefaultModelObject(ExportPanel.this.includeFinalGrade);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return siteType == GbSiteType.COURSE && canUserSeeFinalGradesPage;
 			}
 		});
 		add(new AjaxCheckBox("includeCourseGrade", Model.of(includeCourseGrade)) {
@@ -157,6 +180,40 @@ public class ExportPanel extends Panel {
 			}
 		});
 
+		// OWL-3255 - Group/Section filter
+		final List<GbGroup> groups = businessService.getSiteSectionsAndGroups();
+		DropDownChoice<GbGroup> groupFilter = new DropDownChoice<>("groupFilter", new Model<>(), groups,
+				new ChoiceRenderer<GbGroup>() {
+
+					@Override
+					public Object getDisplayValue(final GbGroup g) {
+						return g.getTitle();
+					}
+
+					@Override
+					public String getIdValue(final GbGroup g, final int index) {
+						return g.getId();
+					}
+		});
+		groupFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget target) {
+				final GbGroup selected = (GbGroup) groupFilter.getDefaultModelObject();
+				ExportPanel.this.selectedGroup = selected;
+			}
+		});
+
+		// Determine visibility of group filter based on if Gradebook has any anonymous gradebook items;
+		// do this before adding the 'All Students' group so that we don't end up with a drop down populated
+		// with only the 'all' selection
+		boolean siteHasAnonAssignments = allAssignments.stream().anyMatch(Assignment::isAnon);
+		groupFilter.setVisible(!siteHasAnonAssignments && !groups.isEmpty());
+		groups.add(0, GbGroup.all(getString("groups.all")));
+		groupFilter.setNullValid(false);
+		groupFilter.setModelObject(groupFilter.getChoices().get(0));
+		add(groupFilter);
+
 		add(new DownloadLink("downloadFullGradebook", new LoadableDetachableModel<File>() {
 
 			@Override
@@ -167,7 +224,6 @@ public class ExportPanel extends Panel {
 		}, fileNameModel).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
 
 		boolean isRevealedAllowed = false;
-		boolean siteHasAnonAssignments = businessService.getGradebookAssignments().stream().anyMatch(Assignment::isAnon);
 		if (siteHasAnonAssignments)
 		{
 			// is gradebook in approved state?
@@ -215,9 +271,6 @@ public class ExportPanel extends Panel {
 		// The temporary file that will be returned. May be .csv, or .zip in the case of mixed anonymous content
 		File tempFile;
 
-		// get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-		final List<Assignment> assignments = businessService.getGradebookAssignments();
-
 		// Determine what kind of content we're working with - all normal / all anonymous / mixed, and build the file name with the appropriate extension
 		boolean hasNormal = false;
 		boolean hasAnon = false;
@@ -240,7 +293,7 @@ public class ExportPanel extends Panel {
 
 				boolean hasCountingAnon = false;
 
-				for (Assignment assignment : assignments)
+				for (Assignment assignment : allAssignments)
 				{
 					if (assignment.isAnon())
 					{
@@ -293,14 +346,12 @@ public class ExportPanel extends Panel {
 			}
 		}
 
-
 		// Are course grades anonymous? (only matters for non-revealed)
 		boolean isCourseGradePureAnon = false;
 		if (!isRevealed)
 		{
-			isCourseGradePureAnon = businessService.isCourseGradePureAnonForAllAssignments(assignments);
+			isCourseGradePureAnon = businessService.isCourseGradePureAnonForAllAssignments(allAssignments);
 		}
-
 
 		try {
 			if (isRevealed || !(hasAnon && hasNormal))
@@ -311,17 +362,16 @@ public class ExportPanel extends Panel {
 					// Write an appropriate CSV via getCSVContents
 					if (isRevealed)
 					{
-						writeLines(csvWriter, getCSVContents(assignments, isCustomExport, true, false, false));
+						writeLines(csvWriter, getCSVContents(isCustomExport, true, false, false));
 					}
 					else if (hasAnon)
 					{
-						writeLines(csvWriter, getCSVContents(assignments, isCustomExport, false, true, isCourseGradePureAnon));
+						writeLines(csvWriter, getCSVContents(isCustomExport, false, true, isCourseGradePureAnon));
 					}
 					else
 					{
-						writeLines(csvWriter, getCSVContents(assignments, isCustomExport, false, false, isCourseGradePureAnon));
+						writeLines(csvWriter, getCSVContents(isCustomExport, false, false, isCourseGradePureAnon));
 					}
-
 				}
 			}
 			else
@@ -334,14 +384,14 @@ public class ExportPanel extends Panel {
 					ZipEntry normalEntry = new ZipEntry("gradebookExport_normal.csv");
 					zos.putNextEntry(normalEntry);
 					CSVWriter normalWriter = new CSVWriter(new OutputStreamWriter(zos));
-					writeLines(normalWriter, getCSVContents(assignments, isCustomExport, false, false, isCourseGradePureAnon));
+					writeLines(normalWriter, getCSVContents(isCustomExport, false, false, isCourseGradePureAnon));
 					normalWriter.flush();
 					zos.closeEntry();
 
 					ZipEntry anonEntry = new ZipEntry("gradebookExport_anonymous.csv");
 					zos.putNextEntry(anonEntry);
 					CSVWriter anonWriter = new CSVWriter(new OutputStreamWriter(zos));
-					writeLines(anonWriter, getCSVContents(assignments, isCustomExport, false, true, isCourseGradePureAnon));
+					writeLines(anonWriter, getCSVContents(isCustomExport, false, true, isCourseGradePureAnon));
 					anonWriter.flush();
 					zos.closeEntry();
 				}
@@ -365,7 +415,6 @@ public class ExportPanel extends Panel {
 
 	/**
 	 * Prepares a 2D List of CSV contents; outer list represents lines, inner list represents cells.
-	 * @param allAssignments all the assignments in the course
 	 * @param isCustomExport whether this is a custom export
 	 * @param isRevealed specifies we're preparing the CSV contents for the revealed export containing both normal and anonymous content
 	 * @param isContextAnonymous only considered if isRevealed is false.
@@ -373,8 +422,7 @@ public class ExportPanel extends Panel {
 	 *    True = only anonymous content will be added to the CSV
 	 * @param isCourseGradePureAnon whether course grades should appear only in the anonymous context
 	 */
-	private List<List<String>> getCSVContents(List<Assignment> allAssignments, boolean isCustomExport, boolean isRevealed, boolean isContextAnonymous,
-												boolean isCourseGradePureAnon)
+	private List<List<String>> getCSVContents(boolean isCustomExport, boolean isRevealed, boolean isContextAnonymous, boolean isCourseGradePureAnon)
 	{
 		List<List<String>> csvContents = new ArrayList<>();
 
@@ -460,7 +508,7 @@ public class ExportPanel extends Panel {
 
 		// get the grade matrix
 		// OWLTODO: add param to eliminate duplicate course grade retrieval
-		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, isContextAnonymous);
+		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, isContextAnonymous, selectedGroup);
 
 		//add grades
 		grades.forEach(studentGradeInfo -> {

@@ -87,7 +87,6 @@ public class ImportGradesHelper {
 	public  static final String DPC_DEFAULT_GRADE_ITEM_TITLE = "Gradebook Item Import";
 	private static final String DPC_DEFAULT_MAX_GRADE = "100";
 
-
 	/**
 	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
 	 * @param is
@@ -349,7 +348,6 @@ public class ImportGradesHelper {
 				cell.setComment(lineVal);
 				row.getCellMap().put(columnTitle, cell);
 			}
-
 		}
 
 		return row;
@@ -359,14 +357,14 @@ public class ImportGradesHelper {
 	 * Validates and processes the spreadsheet provided by importWizardModel.getSpreadsheetWrapper(); prepares an ImportWizardModel appropriate for the selection step
 	 * @param sourcePage the ImportExportPage
 	 * @param sourcePanel panel on which to invoke error(), etc. with localized messages should we encounter any issues
-	 * @param spreadsheetWrapper the ImportedSpreadsheetWrapper to be processed
+	 * @param importWizardModel
 	 * @param businessService
 	 * @param target
 	 * @return true if the model was successfully set up without errors; in case of errors, the feedback panels will be updated and false will be returned
 	 */
-	public static boolean setupImportWizardModelForSelectionStep(ImportExportPage sourcePage, Panel sourcePanel, ImportWizardModel importWizardModel, GradebookNgBusinessService businessService, AjaxRequestTarget target)
+	public static boolean setupImportWizardModelForSelectionStep(ImportExportPage sourcePage, Panel sourcePanel, ImportWizardModel importWizardModel,
+																		GradebookNgBusinessService businessService, AjaxRequestTarget target)
 	{
-
 		ImportedSpreadsheetWrapper spreadsheetWrapper = importWizardModel.getSpreadsheetWrapper();
 		if (spreadsheetWrapper == null)
 		{
@@ -469,7 +467,7 @@ public class ImportGradesHelper {
 
 		// get existing data
 		final List<Assignment> assignments = businessService.getGradebookAssignments();
-		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, isContextAnonymous);
+		final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrixForImportExport(assignments, isContextAnonymous, null);
 
 		// process file
 		List<ProcessedGradeItem> processedGradeItems = processImportedGrades(spreadsheetWrapper, assignments, grades);
@@ -511,7 +509,7 @@ public class ImportGradesHelper {
 		sourcePage.clearFeedback();
 		sourcePage.updateFeedback(target);
 
-		// If returning from the creation pages, the ProcessedGradeItems in importWizardModel are now stale. Update them mathing on getItemTitle()
+		// If returning from the creation pages, the ProcessedGradeItems in importWizardModel are now stale. Update them matching on getItemTitle()
 		if (!CollectionUtils.isEmpty(selectedItemTitles))
 		{
 			Map<String, Assignment> titlesToAssignments = new HashMap<>();
@@ -604,23 +602,23 @@ public class ImportGradesHelper {
 			final ProcessedGradeItemStatus status = determineStatus(column, assignment, spreadsheetWrapper, gradeMap);
 
 			if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				log.debug("GB Item: " + columnTitle + ", status: " + status.getStatusCode());
+				log.debug("GB Item: {}, status: {}", columnTitle, status.getStatusCode());
 				processedGradeItem.setItemTitle(columnTitle);
 				processedGradeItem.setItemPointValue(column.getPoints());
 				processedGradeItem.setStatus(status);
 			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
-				log.debug("Comments: " + columnTitle + ", status: " + status.getStatusCode());
+				log.debug("Comments: {}, status: {}", columnTitle, status.getStatusCode());
 				processedGradeItem.setType(ProcessedGradeItem.Type.COMMENT);
 				processedGradeItem.setCommentStatus(status);
 				commentColumns.add(columnTitle);
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-				log.debug("Regular: " + columnTitle + ", status: " + status.getStatusCode());
+				log.debug("Regular: {}, status: {}", columnTitle, status.getStatusCode());
 				processedGradeItem.setItemTitle(columnTitle);
 				processedGradeItem.setStatus(status);
 			} else {
 				// skip
 				//TODO could return this but as a skip status?
-				log.warn("Bad column. Type: " + column.getType() + ", header: " + columnTitle + ".  Skipping.");
+				log.warn("Bad column. Type: {}, header: {}.  Skipping.", column.getType(), columnTitle);
 				continue;
 			}
 
@@ -787,8 +785,8 @@ public class ImportGradesHelper {
 
 			ImportedColumn column = new ImportedColumn();
 
-			log.debug("i: " + i);
-			log.debug("line[i]: " + line[i]);
+			log.debug("i: {}", i);
+			log.debug("line[i]: {}", line[i]);
 
 			if(i == USER_ID_POS) {
 				if (MessageHelper.getString("importExport.export.csv.headers.anonId").equals(line[i]))
@@ -833,12 +831,12 @@ public class ImportGradesHelper {
 			return null;
 		}
 
-		log.debug("headerValue: " + headerValue);
+		log.debug("headerValue: {}", headerValue);
 		final ImportedColumn column = new ImportedColumn();
 
 		Matcher m = IGNORE_PATTERN.matcher(headerValue);
 		if (m.matches()) {
-			log.debug("Found header: " + headerValue + " but ignoring it as it is prefixed with a #.");
+			log.debug("Found header: {} but ignoring it as it is prefixed with a #.", headerValue);
 			column.setType(ImportedColumn.Type.IGNORE);
 			return column;
 		}

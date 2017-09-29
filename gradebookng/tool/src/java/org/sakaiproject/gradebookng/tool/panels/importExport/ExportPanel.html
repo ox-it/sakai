@@ -1,5 +1,4 @@
 <wicket:panel xmlns:wicket="http://wicket.apache.org">
-
     <section class="gb-import-export-section">
         <h2><wicket:message key="importExport.export.heading" /></h2>
 
@@ -53,12 +52,14 @@
                                         <wicket:message key="importExport.export.advancedOption.includeStudentName"/>
                                     </label>
                                 </div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" wicket:id="includeStudentNumber">
-                                        <wicket:message key="importExport.export.advancedOption.includeStudentNumber"/>
-                                    </label>
-                                </div>
+                                <wicket:enclosure child="includeStudentNumber">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" wicket:id="includeStudentNumber">
+                                            <wicket:message key="importExport.export.advancedOption.includeStudentNumber"/>
+                                        </label>
+                                    </div>
+                                </wicket:enclosure>
                                 <wicket:enclosure child="includePoints">
                                     <div class="checkbox">
                                         <label>
@@ -67,12 +68,6 @@
                                         </label>
                                     </div>
                                 </wicket:enclosure>
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" wicket:id="includeFinalGrade">
-                                        <wicket:message key="importExport.export.advancedOption.includeFinalGrade"/>
-                                    </label>
-                                </div>
                                 <div class="checkbox">
                                     <label>
                                         <input type="checkbox" wicket:id="includeLastLogDate">
@@ -105,8 +100,26 @@
                                         <wicket:message key="importExport.export.advancedOption.includeGradeOverride"/>
                                     </label>
                                 </div>
+                                <wicket:enclosure child="includeFinalGrade">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" wicket:id="includeFinalGrade">
+                                            <wicket:message key="importExport.export.advancedOption.includeFinalGrade"/>
+                                        </label>
+                                    </div>
+                                </wicket:enclosure>
                             </div>
                         </div>
+                        <wicket:enclosure child="groupFilter">
+                            <div class="row">
+                                <div class="checkbox">
+                                    <label>
+                                        <wicket:message key="importExport.export.advancedOption.filter"/>
+                                        <select wicket:id="groupFilter" id="groupFilter">Section 001</select>
+                                    </label>
+                                </div>
+                            </div>
+                        </wicket:enclosure>
                     </div>
                     <div class="modal-footer act">
                         <button wicket:id="downloadCustomGradebook" type="button" class="button_color pull-left active" data-dismiss="modal">
@@ -123,5 +136,4 @@
             </div>
         </div>
     </section>
-
 </wicket:panel>

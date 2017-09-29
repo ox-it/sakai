@@ -416,7 +416,7 @@ public class GradebookNgBusinessService {
 			final Gradebook gradebook = (Gradebook) this.gradebookService.getGradebook(siteId);
 			return gradebook;
 		} catch (final GradebookNotFoundException e) {
-			log.error("No gradebook in site: " + siteId);
+			log.error("No gradebook in site: {}", siteId);
 			return null;
 		}
 	}
@@ -529,7 +529,7 @@ public class GradebookNgBusinessService {
 		}
 
 		// filter for TAs
-		if (this.getUserRole(siteId) == GbRole.TA) {
+		if (gradebook != null && this.getUserRole(siteId) == GbRole.TA) {
 			final User user = getCurrentUser();
 
 			// build a list of categoryIds
@@ -712,7 +712,7 @@ public class GradebookNgBusinessService {
 
 			// if over limit, still save but return the warning
 			if (newGradePoints.compareTo(maxPoints) > 0) {
-				log.debug("over limit. Max: " + maxPoints);
+				log.debug("over limit. Max: {}", maxPoints);
 				rval = GradeSaveResponse.OVER_LIMIT;
 			}
 		}
@@ -728,7 +728,7 @@ public class GradebookNgBusinessService {
 				rval = GradeSaveResponse.OK;
 			}
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
-			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
+			log.error("An error occurred saving the grade. {}: {}", e.getClass(), e.getMessage());
 			rval = GradeSaveResponse.ERROR;
 		}
 		return rval;
@@ -744,7 +744,7 @@ public class GradebookNgBusinessService {
 			gradebookService.saveGradesAndComments(gradebook.getUid(), assignment.getId(), gradeDefList);
 			return GradeSaveResponse.OK;
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
-			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
+			log.error("An error occurred saving the grade. {}: {}", e.getClass(), e.getMessage());
 			return GradeSaveResponse.ERROR;
 		}
 	}
@@ -899,9 +899,11 @@ public class GradebookNgBusinessService {
 	 * Build the matrix of assignments and grades for the Export process
 	 *
 	 * @param assignments list of assignments
+	 * @param isContextAnonymous
+	 * @param groupFilter
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrixForImportExport(final List<Assignment> assignments, boolean isContextAnonymous) throws GbException 
+	public List<GbStudentGradeInfo> buildGradeMatrixForImportExport(final List<Assignment> assignments, boolean isContextAnonymous, GbGroup groupFilter) throws GbException
 	{
 		// ------------- Initialization -------------
 		final GbStopWatch stopwatch = new GbStopWatch("buildGradeMatrixForImportExport");
@@ -928,7 +930,7 @@ public class GradebookNgBusinessService {
 
 		// ------------- Get Users -------------
 
-		final List<String> studentUUIDs = getGradeableUsers();
+		final List<String> studentUUIDs = getGradeableUsers(groupFilter);
 		final List<GbUser> gbStudents = getGbUsersFilteredIfAnonymous(studentUUIDs, isContextAnonymous);
 		stopwatch.time("getGbUsersForUiSettings");
 
@@ -950,6 +952,7 @@ public class GradebookNgBusinessService {
 
 	/**
 	 * Convenience method; use isCourseGradePureAnonForAllAssignments if you already have access to the assignment list
+	 * @return
 	 */
 	public boolean isCourseGradePureAnon()
 	{
@@ -960,6 +963,7 @@ public class GradebookNgBusinessService {
 	 * Returns true if all items counting toward the course grade are anonymous in the specified list of assignments. If no assignments count toward the course grade, it is not considered pure anonymous.
 	 * @param allAssignments for performance purposes; it is expected to be the complete list of assignments in the course (or at least the entire list of assignments that count toward the course grade).
 	 * To guarantee accuracy, pass the complete unfiltered list of assignments in the course
+	 * @return
 	 */
 	public boolean isCourseGradePureAnonForAllAssignments(List<Assignment> allAssignments)
 	{
@@ -1136,8 +1140,8 @@ public class GradebookNgBusinessService {
 		final Map<Long, Set<Long>> categoryAssignments = new TreeMap<>();
 
 		// Determine only which assignments / categories we're interested in wrt isContextAnonymous
-		Set<Long> assignmentIDsToInclude = null;
-		Set<Long> categoryIDsToIncludeScores = null;
+		Set<Long> assignmentIDsToInclude = new HashSet<>();
+		Set<Long> categoryIDsToIncludeScores = new HashSet<>();
 		if (settings != null)
 		{
 			assignmentIDsToInclude = settings.getAnonAwareAssignmentIDsForContext();
@@ -1162,7 +1166,7 @@ public class GradebookNgBusinessService {
 			// TA permission check. If there are categories and they don't have
 			// access to this one, skip it
 			if (role == GbRole.TA) {
-				log.debug("TA processing category: " + categoryId);
+				log.debug("TA processing category: {}", categoryId);
 
 				if (!categoryIds.isEmpty() && categoryId != null && !categoryIds.contains(categoryId)) {
 					continue;
@@ -1205,8 +1209,7 @@ public class GradebookNgBusinessService {
 				final GbStudentGradeInfo sg = matrix.get(def.getStudentUid());
 
 				if (sg == null) {
-					log.warn("No matrix entry seeded for: " + def.getStudentUid()
-							+ ". This user may have been removed from the site");
+					log.warn("No matrix entry seeded for: {}. This user may have been removed from the site", def.getStudentUid());
 				}
 				else {
 					// this will overwrite the stub entry for the TA matrix if
@@ -1275,14 +1278,14 @@ public class GradebookNgBusinessService {
 			// get permissions
 			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid);
 
-			log.debug("All permissions: " + permissions.size());
+			log.debug("All permissions: {}", permissions.size());
 
 			// only need to process this if some are defined
 			// again only concerned with grade permission, so parse the list to
 			// remove those that aren't GRADE
 			permissions.removeIf(permission -> !StringUtils.equalsIgnoreCase(GraderPermission.GRADE.toString(), permission.getFunction()));
 
-			log.debug("Filtered permissions: " + permissions.size());
+			log.debug("Filtered permissions: {}", permissions.size());
 
 			// if we still have permissions, they will be of type grade, so we
 			// need to enrich the students grades
@@ -1302,7 +1305,7 @@ public class GradebookNgBusinessService {
 				// for every student
 				for (final GbUser student : gbStudents)
 				{
-					log.debug("Processing student: " + student.getEid());
+					log.debug("Processing student: {}", student.getEid());
 
 					final GbStudentGradeInfo sg = matrix.get(student.getUserUuid());
 
@@ -1315,7 +1318,7 @@ public class GradebookNgBusinessService {
 						// categoryId
 						final Long gradeCategoryId = assignmentCategoryMap.get(entry.getKey());
 
-						log.debug("Grade: " + entry.getValue());
+						log.debug("Grade: {}", entry.getValue());
 
 						// iterate the permissions
 						// if category, compare the category,
@@ -1333,8 +1336,8 @@ public class GradebookNgBusinessService {
 							final Long permissionCategoryId = permission.getCategoryId();
 							final String permissionGroupReference = permission.getGroupReference();
 
-							log.debug("permissionCategoryId: " + permissionCategoryId);
-							log.debug("permissionGroupReference: " + permissionGroupReference);
+							log.debug("permissionCategoryId: {}", permissionCategoryId);
+							log.debug("permissionGroupReference: {}", permissionGroupReference);
 
 							// if permissions category is null (can grade all
 							// categories) or they match (can grade this
@@ -1352,7 +1355,7 @@ public class GradebookNgBusinessService {
 								log.debug("Group check passed #1");
 							} else {
 								final List<String> groupMembers = groupMembershipsMap.get(permissionGroupReference);
-								log.debug("groupMembers: " + groupMembers);
+								log.debug("groupMembers: {}", groupMembers);
 
 								if (groupMembers != null && groupMembers.contains(student.getUserUuid())) {
 									groupOk = true;
@@ -1415,7 +1418,7 @@ public class GradebookNgBusinessService {
 				final GbStudentGradeInfo sg = matrix.get(def.getStudentUid());
 
 				if (sg == null) {
-					log.warn("No matrix entry seeded for: " + def.getStudentUid() + ". This user may have been removed from the site");
+					log.warn("No matrix entry seeded for: {}. This user may have been removed from the site", def.getStudentUid());
 				} else {
 					// this will overwrite the stub entry for the TA matrix if
 					// need be
@@ -1432,14 +1435,14 @@ public class GradebookNgBusinessService {
 			// get permissions
 			final List<PermissionDefinition> permissions = getPermissionsForUser(currentUserUuid);
 
-			log.debug("All permissions: " + permissions.size());
+			log.debug("All permissions: {}", permissions.size());
 
 			// only need to process this if some are defined
 			// again only concerned with grade permission, so parse the list to
 			// remove those that aren't GRADE
 			permissions.removeIf(permission -> !StringUtils.equalsIgnoreCase(GraderPermission.GRADE.toString(), permission.getFunction()));
 
-			log.debug("Filtered permissions: " + permissions.size());
+			log.debug("Filtered permissions: {}", permissions.size());
 
 			// if we still have permissions, they will be of type grade, so we
 			// need to enrich the students grades
@@ -1457,7 +1460,7 @@ public class GradebookNgBusinessService {
 
 				// for every student
 				for (final GbUser student : gbStudents) {
-					log.debug("Processing student: " + student.getEid());
+					log.debug("Processing student: {}", student.getEid());
 
 					final GbStudentGradeInfo sg = matrix.get(student.getUserUuid());
 
@@ -1469,7 +1472,7 @@ public class GradebookNgBusinessService {
 						// categoryId
 						final Long gradeCategoryId = assignmentCategoryMap.get(entry.getKey());
 
-						log.debug("Grade: " + entry.getValue());
+						log.debug("Grade: {}", entry.getValue());
 
 						// iterate the permissions
 						// if category, compare the category,
@@ -1487,8 +1490,8 @@ public class GradebookNgBusinessService {
 							final Long permissionCategoryId = permission.getCategoryId();
 							final String permissionGroupReference = permission.getGroupReference();
 
-							log.debug("permissionCategoryId: " + permissionCategoryId);
-							log.debug("permissionGroupReference: " + permissionGroupReference);
+							log.debug("permissionCategoryId: {}", permissionCategoryId);
+							log.debug("permissionGroupReference: {}", permissionGroupReference);
 
 							// if permissions category is null (can grade all
 							// categories) or they match (can grade this
@@ -1506,7 +1509,7 @@ public class GradebookNgBusinessService {
 								log.debug("Group check passed #1");
 							} else {
 								final List<String> groupMembers = groupMembershipsMap.get(permissionGroupReference);
-								log.debug("groupMembers: " + groupMembers);
+								log.debug("groupMembers: {}", groupMembers);
 
 								if (groupMembers != null && groupMembers.contains(student.getUserUuid())) {
 									groupOk = true;
@@ -2167,13 +2170,11 @@ public class GradebookNgBusinessService {
 			// for each student remaining, add the grade
 			for (final String studentUuid : studentUuids) {
 
-				log.debug("Setting default grade. Values of assignmentId: " + assignmentId + ", studentUuid: "
-						+ studentUuid + ", grade: " + grade);
+				log.debug("Setting default grade. Values of assignmentId: {}, studentUuid: {}, grade: {}", assignmentId, studentUuid, grade);
 
 				// TODO if this is slow doing it one by one, might be able to
 				// batch it
-				this.gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid,
-						String.valueOf(grade), null);
+				this.gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, String.valueOf(grade), null);
 			}
 			return true;
 		} catch (final Exception e) {
@@ -2291,7 +2292,7 @@ public class GradebookNgBusinessService {
 				return def.getCommentText();
 			}
 		} catch (GradebookNotFoundException | AssessmentNotFoundException e) {
-			log.error("An error occurred retrieving the comment. " + e.getClass() + ": " + e.getMessage());
+			log.error("An error occurred retrieving the comment. {}: {}", e.getClass(), e.getMessage());
 		}
 		return null;
 	}
@@ -2316,7 +2317,7 @@ public class GradebookNgBusinessService {
 			this.gradebookService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid, comment);
 			return true;
 		} catch (GradebookNotFoundException | AssessmentNotFoundException | IllegalArgumentException e) {
-			log.error("An error occurred saving the comment. " + e.getClass() + ": " + e.getMessage());
+			log.error("An error occurred saving the comment. {}: {}", e.getClass(), e.getMessage());
 		}
 
 		return false;
@@ -2384,6 +2385,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Return true if the current user has the submit or approve permissions. This is NOT complete check
 	 * of final submitter/approver status because we can't perform the full check with no section selected.
+	 * @param siteId
 	 * @return 
 	 */
 	public boolean currentUserCanSeeFinalGradesPage(final String siteId)
@@ -2460,7 +2462,7 @@ public class GradebookNgBusinessService {
 		final Gradebook gradebook = getGradebook();
 
 		final Double score = this.gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId);
-		log.info("Category score for category: " + categoryId + ", student: " + studentUuid + ":" + score);
+		log.info("Category score for category: {}, student: {}:{}", categoryId, studentUuid, score);
 
 		return score;
 	}
@@ -2710,7 +2712,7 @@ public class GradebookNgBusinessService {
 		try {
 			site = this.siteService.getSite(siteId);
 		} catch (final IdUnusedException e) {
-			log.error("Error looking up site: " + siteId, e);
+			log.error("Error looking up site: {}", siteId, e);
 			return null;
 		}
 
@@ -2733,7 +2735,6 @@ public class GradebookNgBusinessService {
 			}
 
 			rval.put(groupReference, memberUuids);
-
 		}
 
 		return rval;
@@ -2784,7 +2785,7 @@ public class GradebookNgBusinessService {
 			sw.time("updateCourseGrade");
 			return true;
 		} catch (final Exception e) {
-			log.error("An error occurred saving the course grade. " + e.getClass() + ": " + e.getMessage());
+			log.error("An error occurred saving the course grade. {}: {}", e.getClass(), e.getMessage());
 		}
 
 		return false;
@@ -3015,7 +3016,6 @@ public class GradebookNgBusinessService {
 			final Double grade2 = (info2 != null) ? NumberUtils.toDouble(info2.getGrade()) : null;
 
 			return new CompareToBuilder().append(grade1, grade2).toComparison();
-
 		}
 	}
 
@@ -3037,7 +3037,6 @@ public class GradebookNgBusinessService {
 			final Double subtotal2 = g2.getCategoryAverages().get(this.categoryId);
 
 			return new CompareToBuilder().append(subtotal1, subtotal2).toComparison();
-
 		}
 	}
 
@@ -3249,11 +3248,12 @@ public class GradebookNgBusinessService {
 	 * Create a map of GradingIDs to their associated GbUser objects. 
 	 * NB: This should be avoided as GradingIDs can collide in crosslisted sections.
 	 * But there are scenarios (Ie. anonymous spreadsheet imports) where it is necessary
+	 * @return
 	 */
 	public Map<String, GbUser> getAnonIDUserMap()
 	{
 		final List<GbUser> users = getGbUsersFilteredIfAnonymous(getGradeableUsers(), true);
-		final Map<String, GbUser> anonIdUserMap = new HashMap<String, GbUser>();
+		final Map<String, GbUser> anonIdUserMap = new HashMap<>();
 		users.stream().forEach(user -> anonIdUserMap.put(String.valueOf(user.getAnonId()), user));
 
 		return anonIdUserMap;
