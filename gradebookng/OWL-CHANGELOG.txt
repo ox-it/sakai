@@ -1,6 +1,7 @@
 2017.09.29:
 	- [OWL-3255] add option to export particular sections/groups to GBNG+
 	- [OWL-3252] remove gradebook comments character limit from UI
+	- [OWL-2983] GBNG isn't using i18n strings in certain places
 2017.09.19:
 	- [OWL-3208] add primary action button styling to 'Set Score for Empty Cells' confirmation dialog
 2017.09.14:
