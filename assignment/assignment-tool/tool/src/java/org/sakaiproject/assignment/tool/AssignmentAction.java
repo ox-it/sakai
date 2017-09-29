@@ -17644,11 +17644,7 @@ public class AssignmentAction extends PagedResourceActionII
 						// of further permissions
 						m_securityService.pushAdvisor(sa);
 						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
-						if(allowReviewService && !contentReviewService.isAcceptableContent(attachment)) {
-							addAlert(state, rb.getFormattedMessage("cr.notprocess.warning"));
-						} else if(!contentReviewService.isAcceptableSize(attachment)) {
-							addAlert(state, rb.getFormattedMessage("cr.size.warning"));
-						}						
+						
 						Site s = null;
 						try
 						{
