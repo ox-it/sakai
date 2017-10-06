@@ -25,7 +25,6 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Serializable;
@@ -3678,7 +3677,7 @@ public class DeliveryBean
 	  }
 	  
 	  private String getTimeBeforeDue(String timeLimit) {
-		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0) {
+		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && beginTime != null) {
 			  int timeBeforeDue  = Math.round((dueDate.getTime() - beginTime.getTime())/1000.0f);
 			  if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 				  timeLimit = String.valueOf(timeBeforeDue);
@@ -3694,7 +3693,7 @@ public class DeliveryBean
 	  
 	  private String getTimeBeforeRetract(String timeLimit) {
 		  
-		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0) {
+		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0 && beginTime != null) {
 			  int timeBeforeRetract  = Math.round((retractDate.getTime() - beginTime.getTime())/1000.0f);
 			  if (timeBeforeRetract < Integer.parseInt(timeLimit)) {
 				  timeLimit = String.valueOf(timeBeforeRetract);
