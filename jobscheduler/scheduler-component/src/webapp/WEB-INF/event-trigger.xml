@@ -11,7 +11,7 @@
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     </bean>
 
-    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.BackFillToolJob"
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.EventTriggerJob"
           class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableStatefulJobBeanWrapper"
           init-method="init">
         <property name="beanId">
