@@ -50,9 +50,9 @@
                 </bean>
                 <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
                     <property name="required" value="true"/>
-                    <property name="labelResourceKey" value="skip.user.sites"/>
-                    <property name="descriptionResourceKey" value="skip.user.sites.description"/>
-                    <property name="defaultValue" value="true"/>
+                    <property name="labelResourceKey" value="user.sites.flag"/>
+                    <property name="descriptionResourceKey" value="user.sites.flag.description"/>
+                    <property name="defaultValue" value="U"/>
                 </bean>
             </set>
         </property>
