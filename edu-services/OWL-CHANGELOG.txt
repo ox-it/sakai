@@ -1,5 +1,6 @@
 2017.10.12:
 	- [OWL-3273] setAssignmentScoreString() logging level needs to change
+	- [OWL-3277] fix references to 'course grade submission'
 2017.09.26:
 	- [OWL-3253] move gb_gradable_object_t.is_anon SQL snippet from OWL-README.txt to dedicated .sql file
 2017.08.24:

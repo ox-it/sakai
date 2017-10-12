@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <emailTemplates>
 	<emailTemplate>
-		<subject>OWL Course Grade Approval Notice - ${sectionName} (No Transfer to Office of the Registrar)</subject>
+		<subject>OWL Final Grade Approval Notice - ${sectionName} (No Transfer to Office of the Registrar)</subject>
 		<message>
-This message is a notification that ${approver} has approved final course grades for ${sectionName}
+This message is a notification that ${approver} has approved final grades for ${sectionName}
 
 Section: ${sectionName}
 Section Id: ${sectionEid}
@@ -16,6 +16,6 @@ No additional action is required.
 If you have any questions regarding this email, please contact ${emailSupport}.
 		</message>
 		<locale>en</locale>
-		<version>1</version>
+		<version>2</version>
 	</emailTemplate>
 </emailTemplates>

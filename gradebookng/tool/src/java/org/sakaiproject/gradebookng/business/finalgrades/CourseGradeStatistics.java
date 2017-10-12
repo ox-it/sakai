@@ -23,7 +23,7 @@ import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeSubmiss
 public class CourseGradeStatistics implements Serializable
 {
     private static final Log LOG = LogFactory.getLog(CourseGradeStatistics.class);
-    private static final String LOG_PREFIX = "OWL: Course Grade Submission: ";
+    private static final String LOG_PREFIX = "OWL: Final Grade Submission: ";
     
     public static final String CONVERT_LETTER_GRADES_SAKAI_PROPERTY = "gradebook.courseGradeSubmission.stats.convertLetterGrades";
     public static final String KEYS_SAKAI_PROPERTY = "gradebook.courseGradeSubmission.stats.gradeScale.keys";

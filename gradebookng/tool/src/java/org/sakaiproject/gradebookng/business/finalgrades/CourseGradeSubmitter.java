@@ -52,7 +52,6 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.owl.finalgrades.MissingCourseGradeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -65,7 +64,7 @@ import org.springframework.core.NestedRuntimeException;
 public class CourseGradeSubmitter implements Serializable
 {
     private static final Log LOG = LogFactory.getLog(CourseGradeSubmitter.class);
-    private static final String LOG_PREFIX = "OWL: Course Grade Submission: ";
+    private static final String LOG_PREFIX = "OWL: Final Grade Submission: ";
     
     private static final String REGISTRAR_GRADE_CODES = "gradebook.courseGradeSubmission.registrarGradeCodes";
     private static final List<String> registrarGradeCodes = readListFromProperty(REGISTRAR_GRADE_CODES);

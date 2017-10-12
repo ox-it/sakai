@@ -227,7 +227,7 @@ public class CourseGradeSubmissionCsv
 		}
 		catch (IOException e)
 		{
-			LOG.error("OWL: Course Grade Submission: SFTP transfer failed: " + e.getMessage(), e);
+			LOG.error("OWL: Final Grade Submission: SFTP transfer failed: " + e.getMessage(), e);
 		}
 		
         // j2ssh sftp
@@ -258,11 +258,11 @@ public class CourseGradeSubmissionCsv
         }
         catch (ConfigurationException ce)
         {
-            LOG.error("OWL: Course Grade Submission: SFTP configuration failed: " + ce.getMessage(), ce);
+            LOG.error("OWL: Final Grade Submission: SFTP configuration failed: " + ce.getMessage(), ce);
         }
         catch (Exception e)
         {
-            LOG.error("OWL: Course Grade Submission: SFTP transfer failed: " + e.getMessage(), e);
+            LOG.error("OWL: Final Grade Submission: SFTP transfer failed: " + e.getMessage(), e);
         }*/
                 
         return uploaded;
@@ -318,7 +318,7 @@ public class CourseGradeSubmissionCsv
         
         if (failure)
         {
-            throw new IllegalArgumentException("OWL: Course Grade Submission: Unable to find required identifiers for section with eid: " + sectionEid);
+            throw new IllegalArgumentException("OWL: Final Grade Submission: Unable to find required identifiers for section with eid: " + sectionEid);
         }
     }
     

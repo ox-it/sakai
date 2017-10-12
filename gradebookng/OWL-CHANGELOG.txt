@@ -1,3 +1,5 @@
+2017.10.12:
+	- [OWL-3277] fix references to 'course grade submission'
 2017.09.29:
 	- [OWL-3255] add option to export particular sections/groups to GBNG+
 	- [OWL-3252] remove gradebook comments character limit from UI
