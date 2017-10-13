@@ -1,3 +1,5 @@
+2017.10.13:
+	- [OWL-3274] gradebook 'student' page needs to be mounted in Wicket
 2017.10.12:
 	- [OWL-3277] fix references to 'course grade submission'
 2017.09.29:
