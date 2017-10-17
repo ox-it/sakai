@@ -1407,6 +1407,28 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	/**
 	 * local function for getting assignment submission object
+	 */
+	private AssignmentSubmission getSubmission(Assignment assignment, User user, SessionState state)
+	{
+		AssignmentSubmission s = AssignmentService.getSubmission(assignment, user);
+		if (s == null)
+		{
+			return null;
+		}
+		if (!AssignmentService.allowGetSubmission(s.getReference()))
+		{
+			if (state != null)
+			{
+				String assignmentRef = assignment == null ? null : assignment.getReference();
+				addAlert(state, rb.getFormattedMessage("youarenot_viewSubmission_1", new Object[]{assignmentRef, user.getId()}));
+			}
+			return null;
+		}
+		return s;
+	}
+
+	/**
+	 * local function for getting assignment submission object
 	 * @param submissionId
 	 * @param callingFunctionName
 	 * @param state
@@ -1517,7 +1539,7 @@ public class AssignmentAction extends PagedResourceActionII
             if (submitter == null) {
                 submitter = user;
             }
-            s = getSubmission(assignment.getReference(), submitter, "build_student_view_submission_context", state);
+			s = getSubmission(assignment, submitter, state);
 			List currentAttachments = (List) state.getAttribute(ATTACHMENTS);
 
 			if (s != null)
@@ -2032,7 +2054,7 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("usingreview", false);
 			}
 			
-			AssignmentSubmission s = getSubmission(currentAssignmentReference, submitter, "build_student_view_submission_confirmation_context",state);
+			AssignmentSubmission s = getSubmission(currentAssignment, submitter, state);
 			if (s != null)
 			{
 			    context.put("submission", s); 
@@ -2085,7 +2107,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// put creator information into context
 			putCreatorIntoContext(context, assignment);
 			
-			submission = getSubmission(aReference, user, "build_student_view_assignment_context", state);
+			submission = getSubmission(assignment, user, state);
 			context.put("submission", submission);
 
 			if (assignment.isGroup()) {
@@ -2150,7 +2172,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (assignment != null) {
 			context.put("assignment", assignment);
 			
-			AssignmentSubmission submission = getSubmission(aReference, user, "build_student_preview_submission_context", state);
+			AssignmentSubmission submission = getSubmission(assignment, user, state);
 			context.put("submission", submission);
 			
 			context.put("canSubmit", Boolean.valueOf(AssignmentService.canSubmit((String) state.getAttribute(STATE_CONTEXT_STRING), assignment)));
@@ -5564,7 +5586,7 @@ public class AssignmentAction extends PagedResourceActionII
 			AssignmentSubmission submission = null;
 			try
 			{
-				submission = AssignmentService.getSubmission(assignmentReference, u);
+				submission = AssignmentService.getSubmission(a, u);
 			}
 			catch (Exception e)
 			{
@@ -5591,7 +5613,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (a != null)
 		{
-			AssignmentSubmission submission = getSubmission(assignmentReference, u, "doView_submission", state);
+			AssignmentSubmission submission = getSubmission(a, u, state);
 			if (submission != null)
 			{
 				state.setAttribute(VIEW_SUBMISSION_TEXT, submission.getSubmittedText());
@@ -6554,7 +6576,7 @@ public class AssignmentAction extends PagedResourceActionII
 			                "post_save_submission", 
 			                state);
 			    } else {
-			        submission = getSubmission(a.getReference(), u, "post_save_submission", state);
+			        submission = getSubmission(a, u, state);
 			    }
 
 				if (submission != null)
@@ -13963,14 +13985,14 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else if (m_criteria.equals(SORTED_BY_GRADE) || m_criteria.equals(SORTED_BY_SUBMISSION_STATUS))
 			{
-				AssignmentSubmission submission1 = getSubmission(((Assignment) o1).getId(), m_user, "compare", null);
+				AssignmentSubmission submission1 = getSubmission((Assignment) o1, m_user, null);
 				String grade1 = " ";
 				if (submission1 != null && submission1.getGraded() && submission1.getGradeReleased())
 				{
 					grade1 = submission1.getGrade();
 				}
 
-				AssignmentSubmission submission2 = getSubmission(((Assignment) o2).getId(), m_user, "compare", null);
+				AssignmentSubmission submission2 = getSubmission((Assignment) o2, m_user, null);
 				String grade2 = " ";
 				if (submission2 != null && submission2.getGraded() && submission2.getGradeReleased())
 				{
@@ -14469,21 +14491,9 @@ public class AssignmentAction extends PagedResourceActionII
 		 * @param a
 		 * @return
 		 */
-		protected AssignmentSubmission findAssignmentSubmission (Assignment a) {
-			AssignmentSubmission rv = null;
-			try
-			{
-				rv = AssignmentService.getSubmission(a.getReference(), UserDirectoryService.getCurrentUser());
-			}
-			catch (IdUnusedException e)
-			{
-				M_log.warn(this + "compare: " + rb.getFormattedMessage("cannotfin_assignment", new Object[]{a.getReference()}));
-			}
-			catch (PermissionException e)
-			{
-				
-			}
-			return rv;	
+		protected AssignmentSubmission findAssignmentSubmission(Assignment a)
+		{
+			return AssignmentService.getSubmission(a, UserDirectoryService.getCurrentUser());
 		}
 		/**
 		 * Compare two strings as double values. Deal with the case when either of the strings cannot be parsed as double value.
@@ -14718,7 +14728,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					}
 					else if (deleted.equalsIgnoreCase(Boolean.TRUE.toString()) && (a.getContent().getTypeOfSubmission() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) 
-							&& getSubmission(a.getReference(), (User) state.getAttribute(STATE_USER), "sizeResources", state) != null)
+							&& getSubmission(a, (User) state.getAttribute(STATE_USER), state) != null)
 					{
 						// and those deleted but not non-electronic assignments but the user has made submissions to them
 						returnResources.add(a);
@@ -17435,7 +17445,7 @@ public class AssignmentAction extends PagedResourceActionII
                                             submission = getSubmission(assignmentRef, userId, "doSave_resubmission_option", state);
                                         } else {
 					User u = UserDirectoryService.getUser(userId);
-                                            submission = getSubmission(assignmentRef, u, "doSave_resubmission_option", state);			    
+                                            submission = getSubmission(_a, u, state);
                                         }
 					if (submission != null)
 					{

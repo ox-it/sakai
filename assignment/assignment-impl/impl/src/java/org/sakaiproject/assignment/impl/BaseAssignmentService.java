@@ -3556,6 +3556,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 *         if there is no object with this id.
 	 * @throws PermissionException
 	 *         if the current user is not allowed to access this.
+	 *         Note: this only applies if the user doesn't have access to the assignment; submission level access is not accounted for! --bbailla2
 	 */
 	public AssignmentSubmission getSubmission(String assignmentReference, User person)
 	{
@@ -3565,11 +3566,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		if ((assignmentReference != null) && (person != null))
 		{
-			//First check their personal submission
-			submission = m_submissionStorage.get(assignmentId, person.getId());
-			if (submission != null && allowGetSubmission(submission.getReference())) {
-				return submission;
-			}
+			/*
+			 * This previously looked at individual submission first, before checking if it was a group submission; this was incorrect behaviour (OWL-2685)
+			 * If it's a group assignment, always display the group submission; there should be no fall back.
+			 * OWLTODO: If there were previous individual submissions in a group scenario, we should consider providing some mechanism for students to recover them
+			 * --bbailla2
+			 */
 			try {
 				Assignment a = getAssignment(assignmentReference);
 				if (a.isGroup()) {
@@ -3578,11 +3580,46 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			} catch (IdUnusedException | PermissionException e) {
 				M_log.debug(e.getMessage());
 			}
+			submission = m_submissionStorage.get(assignmentId, person.getId());
+			/* Removed this block, cause notice how it returns the submission instance below anyway --bbailla2
+			if (submission != null && allowGetSubmission(submission.getReference())) {
+				return submission;
+			}*/
 		}
 		
 		M_log.debug("No submission found for user {} in assignment {}", person.getId(), assignmentReference);
 
 		return submission;
+	}
+
+	/**
+	 * Access a User's AssignmentSubmission to a particular Assignment.
+	 * Careful; there are no permission checks!
+	 *
+	 * @param assignment
+	 *        The assignment.
+	 * @param person -
+	 *        The User who's Submission you would like.
+	 * @return AssignmentSubmission The user's submission for that Assignment.
+	 */
+	public AssignmentSubmission getSubmission(Assignment assignment, User person)
+	{
+		if (assignment == null)
+		{
+			throw new IllegalArgumentException("assignment cannot be null");
+		}
+		if (person == null)
+		{
+			throw new IllegalArgumentException("person cannot be null");
+		}
+
+		AssignmentSubmission submission = null;
+
+		if (assignment.isGroup())
+		{
+			return getUserGroupSubmissionMap(assignment, Collections.singletonList(person)).get(person);
+		}
+		return m_submissionStorage.get(assignment.getId(), person.getId());
 	}
 
 	/**

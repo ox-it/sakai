@@ -726,6 +726,17 @@ public interface AssignmentService extends EntityProducer
 	 *         if the current user is not allowed to read this.
 	 */
 	public AssignmentSubmission getSubmission(String assignmentId, User person);
+
+	/**
+	 * Access a User's AssignmentSubmission to a particular Assignment.
+	 * NB: There are no permission checks here
+	 *
+	 * @param assignment -
+	 *        The assignment
+	 * @param person -
+	 *        The User who's Submission you would like.
+	 */
+	public AssignmentSubmission getSubmission(Assignment assignment, User person);
 	
 	/**
 	 * Access a User or Group's AssignmentSubmission to a particular Assignment.

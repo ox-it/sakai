@@ -620,7 +620,17 @@ public class AssignmentService {
 
 		return service.getSubmission(param0, param1);
 	}
-	
+
+	public static org.sakaiproject.assignment.api.AssignmentSubmission getSubmission(Assignment assignment, User person)
+	{
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getSubmission(assignment, person);
+	}
+
+
 	public static org.sakaiproject.assignment.api.AssignmentSubmission getSubmission(
 			java.lang.String param0, java.lang.String param1)
 			throws org.sakaiproject.exception.IdUnusedException,
