@@ -3340,11 +3340,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 		//compare current list with given list, add/update/remove as required
 		//Rules:
-		//If category does not have an ID it is new
+		//If category does not have an ID it is new; add these later after all removals have been processed
 		//If category has an ID it is to be updated. Update and remove from currentCategoryMap.
 		//Any categories remaining in currentCategoryMap are to be removed.
 		//Sort by category order as we resequence the order values to avoid gaps
 		Collections.sort(newCategoryDefinitions, CategoryDefinition.orderComparator);
+		Map<CategoryDefinition, Integer> newCategories = new HashMap<>();
 		int categoryIndex = 0;
 		for(CategoryDefinition newDef: newCategoryDefinitions) {
 			
@@ -3359,8 +3360,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			
 			//new
 			if(newDef.getId() == null) {
-				this.createCategory(gradebook.getId(), newDef.getName(), newDef.getWeight(), newDef.getDrop_lowest(), newDef.getDropHighest(),
-										newDef.getKeepHighest(), newDef.isExtraCredit(), categoryIndex);
+				newCategories.put(newDef, categoryIndex);
 				categoryIndex++;
 			} 
 			
@@ -3389,12 +3389,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for(Entry<Long, Category> cat: currentCategoryMap.entrySet()) {
 			this.removeCategory(cat.getKey());
 		}
-		
+
+		// Handle the additions
+		for(Entry<CategoryDefinition, Integer> entry : newCategories.entrySet()) {
+			CategoryDefinition newCat = entry.getKey();
+			this.createCategory(gradebook.getId(), newCat.getName(), newCat.getWeight(), newCat.getDrop_lowest(), newCat.getDropHighest(),
+										newCat.getKeepHighest(), newCat.isExtraCredit(), entry.getValue());
+		}
+
 		//no need to set assignments, gbInfo doesn't update them
 
 		//persist
 		this.updateGradebook(gradebook);
-		
 	}
 
     
