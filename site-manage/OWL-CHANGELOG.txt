@@ -1,3 +1,5 @@
+2017.10.19:
+	- [OWL-3132] fix the unjoin process; show messages to the user
 2017.09.07:
 	- [OWL-2652] Removing provided users now reverts their roles
 2017.08.24:
