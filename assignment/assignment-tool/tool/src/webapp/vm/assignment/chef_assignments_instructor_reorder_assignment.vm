@@ -100,7 +100,7 @@
 					#if ($!assignment.draft)
 						<em class="highlight" style="font-style:normal">$tlang.getString("gen.dra2")</em>
 					#end
-					$validator.escapeHtml($validator.limit($!assignment.getTitle(), 45))
+					$validator.escapeHtml($!assignment.getTitle())
 				</span>
 				<span class="col-md-3 col-sm-3 col-xs-12">
 					$!assignment.openTime.toStringLocalFull()
