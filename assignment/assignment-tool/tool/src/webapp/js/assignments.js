@@ -338,7 +338,7 @@ ASN.showOrHideAccessMessages = function(groupRadioSelected) {
     // Get the elements
     var container = document.getElementById("messages");
     var groupMsg = document.getElementById("msgSelectGroups");
-    var groupSubWarn = document.getElementById("msgGroupSubsWarning");
+    var groupSubWarn2 = document.getElementById("msgGroupSubsWarning2");
     var children = container.getElementsByTagName("div");
     
     // Show/hide the messages
@@ -350,7 +350,7 @@ ASN.showOrHideAccessMessages = function(groupRadioSelected) {
             }
         }
 
-        groupSubWarn.style.display = "block";
+        groupSubWarn2.style.display = "block";
     } 
     else {
         for (i = 0; i < children.length; i++) {
@@ -359,7 +359,7 @@ ASN.showOrHideAccessMessages = function(groupRadioSelected) {
             }
         }
 
-        groupSubWarn.style.display = "none";
+        groupSubWarn2.style.display = "none";
     }
 };
 
@@ -622,6 +622,9 @@ ASN.toggleAddOptions = function(checked){
         section.style.display="none";
         ASN.resizeFrame('shrink');
         $("#site").prop("disabled", false);
+        $("#site").parent().prop("style", "");
+        var groupSubsWarning = document.getElementById("msgGroupSubsWarning1");
+        groupSubsWarning.style.display = "none";
         //When Peer Assement options is selected
         if(checked == "peerreview"){
             section.style.display="block";
@@ -629,6 +632,8 @@ ASN.toggleAddOptions = function(checked){
         //When Group Submission is checked
         }else if (checked=="group"){
             $("#site").prop("disabled", true);
+            $("#site").parent().prop("style", "cursor: not-allowed");
+            groupSubsWarning.style.display = "inline-block";
             $("#groups").prop("checked", true).trigger("click");
         }
     }
