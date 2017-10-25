@@ -320,12 +320,10 @@ public class SiteInfoToolServlet extends HttpServlet
 				Element participantNode = doc.createElement(PARTICIPANT_NODE_NAME);
 				
 				// participant name
-				String participantName= participant.getName();
-				if (participant.getDisplayId() != null)
-				{
-					participantName +="( " +  participant.getDisplayId() + " )";
-				}
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_NAME_NODE_NAME, StringUtils.trimToEmpty(participantName));
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_NAME_NODE_NAME, StringUtils.trimToEmpty(participant.getName()));
+
+				// display id
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ID_NODE_NAME, StringUtils.trimToEmpty(participant.getDisplayId()));
 
 				// sections
 				Element sectionsNode = doc.createElement(PARTICIPANT_SECTIONS_NODE_NAME);
@@ -336,9 +334,6 @@ public class SiteInfoToolServlet extends HttpServlet
 				}
 				participantNode.appendChild(sectionsNode);
 
-				// registration id
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ID_NODE_NAME, StringUtils.trimToEmpty(participant.getRegId()));
-				
 				// credit
 				writeStringNodeToDom(doc, participantNode, PARTICIPANT_CREDIT_NODE_NAME, StringUtils.trimToEmpty(participant.getCredits()));
 
@@ -423,8 +418,8 @@ public class SiteInfoToolServlet extends HttpServlet
 			InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
 			Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
 			transformer.setParameter("titleName", rb.getString("sitegen.siteinfolist.title.name"));
-			transformer.setParameter("titleSection", rb.getString("sitegen.siteinfolist.title.section"));
 			transformer.setParameter("titleId", rb.getString("sitegen.siteinfolist.title.id"));
+			transformer.setParameter("titleSection", rb.getString("sitegen.siteinfolist.title.section"));
 			transformer.setParameter("titleCredit", rb.getString("sitegen.siteinfolist.title.credit"));
 			transformer.setParameter("titleRole", rb.getString("sitegen.siteinfolist.title.role"));
 			transformer.setParameter("titleStatus", rb.getString("sitegen.siteinfolist.title.status"));

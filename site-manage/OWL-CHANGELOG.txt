@@ -1,3 +1,5 @@
+2017.10.25:
+	- [OWL-3177] fix Manage Participants > Printable version
 2017.10.19:
 	- [OWL-3132] fix the unjoin process; show messages to the user
 2017.09.07:

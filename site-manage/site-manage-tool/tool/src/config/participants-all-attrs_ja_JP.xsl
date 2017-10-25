@@ -3,8 +3,8 @@
   
   <!-- Isolate locale-specific content -->
   <xsl:variable name="lang.name" select="'&#x540D;&#x524D;'"/>
-  <xsl:variable name="lang.section" select="'&#x30BB;&#x30AF;&#x30B7;&#x30E7;&#x30F3;'"/>
   <xsl:variable name="lang.id" select="'ID'"/>
+  <xsl:variable name="lang.section" select="'&#x30BB;&#x30AF;&#x30B7;&#x30E7;&#x30F3;'"/>
   <xsl:variable name="lang.cr" select="'&#x30AF;&#x30EC;&#x30B8;&#x30C3;&#x30C8;'"/>
   <xsl:variable name="lang.role" select="'&#x30ED;&#x30FC;&#x30EB;'"/>
   <xsl:variable name="lang.status" select="'&#x72B6;&#x614B;'"/>
@@ -102,11 +102,11 @@
 					</fo:table>
 					<fo:table table-layout="fixed" width="100%"  text-align="left">
 						<!-- name col  -->
-						<fo:table-column   column-width="2in"/> 
+						<fo:table-column   column-width="2in"/>
+						<!-- id col -->
+						<fo:table-column column-width="1.15in" />
 						<!-- section col -->
 						<fo:table-column column-width="2.2in" />
-						<!-- id col -->						
-						<fo:table-column column-width="1.15in" />
 						<!-- credits col -->
 						<fo:table-column column-width=".25in" />
 						<!-- role col -->
@@ -122,12 +122,12 @@
 								</fo:table-cell>
 								<fo:table-cell  padding="2pt">
 									<fo:block>
-										<xsl:value-of select="$lang.section" />
+										<xsl:value-of select="$lang.id" />
 									</fo:block>
 								</fo:table-cell>
 								<fo:table-cell  padding="2pt">
 									<fo:block>
-										<xsl:value-of select="$lang.id" />
+										<xsl:value-of select="$lang.section" />
 									</fo:block>
 								</fo:table-cell>
 								<fo:table-cell  padding="2pt">
@@ -179,12 +179,12 @@
 		<fo:table-cell  padding="2pt" white-space="nowrap">
 			<xsl:choose>
 				<xsl:when test="../ROLE='Instructor'">
-					<fo:block font-weight="bold" white-space="nowrap">
+					<fo:block font-weight="bold" white-space="nowrap" wrap-option="wrap">
 						<xsl:value-of select="." />
 					</fo:block>
 				</xsl:when>
 				<xsl:otherwise>
-					<fo:block white-space="nowrap">
+					<fo:block white-space="nowrap" wrap-option="wrap">
 						<xsl:value-of select="." />
 					</fo:block>
 				</xsl:otherwise>
