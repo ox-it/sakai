@@ -1,3 +1,5 @@
+2017.10.26:
+	- [OWL-3294] update and style the peer review information message
 2017.10.25:
 	- [OWL-3198] 'Release to site' option is locked without explanation if you have 'Group Submissions' selected
 2017.10.17:
