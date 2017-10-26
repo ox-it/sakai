@@ -37,7 +37,7 @@
 			       <h:outputText value="#{msgs.stat_authored}" />
 			    <f:verbatim></h3></div></f:verbatim>
   		
-  		<div class="table-responsive">
+  		<div>
   		<h:dataTable id="staticAllMessages" value="#{mfStatisticsBean.userAuthoredStatistics2}" var="stat" styleClass="table table-hover table-striped table-bordered" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">	
    			<h:column rendered="#{!stat.msgDeleted}">
 				<f:verbatim><div  class="printBlock" style="margin:0"></f:verbatim>

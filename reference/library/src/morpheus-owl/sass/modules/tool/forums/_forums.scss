@@ -242,5 +242,12 @@
 		}
 	}
 
+	@media #{$phone}
+	{
+		.otherActions 
+		{
+			white-space: normal;
+		}
+	}
 
 }

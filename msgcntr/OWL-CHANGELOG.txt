@@ -1,3 +1,5 @@
+2017.10.26:
+	- [OWL-3232] Removed the responsive tables class from a number of pages to prevent unnecessary horizontal scrolling
 2017.08.22:
 	- [OWL-2697] Fixed styles when changing the sequence in the Organize tab
 2017.08.21:
