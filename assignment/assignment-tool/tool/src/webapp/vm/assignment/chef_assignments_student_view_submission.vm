@@ -313,7 +313,7 @@ $(document).ready(function(){
 										#elseif ($reviewResult.getReviewReport().equals("Pending"))
 											<i alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()" class="fa fa-clock-o"></i>
 										#else
-											<a href="$reviewResult.getReviewReport()" target="_blank">
+											<a href="$reviewResult.getReviewReport()" target="_blank" rel="noreferrer">
 												<i alt="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" title="$tlang.getString("review.originality.alt") = $reviewResult.getReviewScore() %" class="fa fa-flag reviewStyle" style="color:$reviewResult.getReviewIconColor()"></i>
 											</a>
 										#end
@@ -379,7 +379,7 @@ $(document).ready(function(){
 								#else
 									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 								#end
-									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+									<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 								#propertyDetails($props)
 							</li>
 						#end
@@ -421,7 +421,7 @@ $(document).ready(function(){
 										#else
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										#propertyDetails($props)
 									</li>
 									#end
@@ -471,7 +471,7 @@ $(document).ready(function(){
 										#else
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										#propertyDetails($props)
 									</li>
 									#end
@@ -540,7 +540,7 @@ $(document).ready(function(){
 										#else
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										#propertyDetails($props)
 									</li>
 								#end
@@ -772,7 +772,7 @@ $(document).ready(function(){
 											#else
 												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 											#end
-											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+											<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										</td>
 										<td>
 											#propertyDetails($props)
@@ -937,7 +937,7 @@ $(document).ready(function(){
 											#else
 												<img src = "#imageLink($contentTYpeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 											#end
-											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+											<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										</td>
 										<td>
 											#propertyDetails($props)
@@ -994,7 +994,7 @@ $(document).ready(function(){
 										#else
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										#propertyDetails($props)
 									</li>
 								#end
@@ -1036,7 +1036,7 @@ $(document).ready(function(){
 											#else
 												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 											#end
-											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+											<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 											#propertyDetails($props)
 										</li>
 									#end
@@ -1184,7 +1184,7 @@ $(document).ready(function(){
 									#else
 										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 									#end
-									<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+									<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 									#propertyDetails($props)
 								</li>
 							#end
@@ -1228,7 +1228,7 @@ $(document).ready(function(){
 												#else
 													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 												#end
-												<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+												<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 												#propertyDetails($props)
 											</li>
 										#end

@@ -56,7 +56,7 @@
 		<div class="messageInformation">
 			<h4>$download_url_reminder</h4>
 			<p>
-				<a target="_blank" href="$download_url_link">$download_url_link_label</a>
+				<a target="_blank" rel="noreferrer" href="$download_url_link">$download_url_link_label</a>
 			</p>
 		</div>
 	#end
@@ -229,7 +229,7 @@
 										#else
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										#propertyDetails($props)
 									</li>
 									#end
@@ -279,7 +279,7 @@
 										#else
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										#propertyDetails($props)
 									</li>
 									#end
@@ -884,7 +884,7 @@
 				</th>
 				<td>
 				#if($!ltiLink)
-					<a href="$ltiLink" title="$tlang.getString("content.review.inbox")" target="_blank">$reviewServiceName</a>
+					<a href="$ltiLink" title="$tlang.getString("content.review.inbox")" target="_blank" rel="noreferrer">$reviewServiceName</a>
 				#else
 					$reviewServiceName
 				#end
@@ -927,7 +927,7 @@
 						#else
 							<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 						#end
-						<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+						<a href="$attachment.Url" target="_blank" rel="noreferrer">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 						#propertyDetails($props)
 					</li>
 				#end
