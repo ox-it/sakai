@@ -15888,14 +15888,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		String assignmentId = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
-		// record the default grade setting for no-submission
-		AssignmentEdit aEdit = editAssignment(assignmentId, "doSet_defaultNoSubmissionScore", state, false); 
-		if (aEdit != null)
-		{
-			aEdit.getPropertiesEdit().addProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
-			AssignmentService.commitEdit(aEdit);
-		}
-		
 			Assignment a = getAssignment(assignmentId, "doSet_defaultNoSubmissionScore", state);
 			if (a != null && a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
 			{
@@ -15972,6 +15964,17 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 				}
 			}
+
+		// Only record the default grade setting for no-submission if there were no errors produced
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			AssignmentEdit aEdit = editAssignment(assignmentId, "doSet_defaultNoSubmissionScore", state, false);
+			if (aEdit != null)
+			{
+				aEdit.getPropertiesEdit().addProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
+				AssignmentService.commitEdit(aEdit);
+			}
+		}
 	}
 
 	/**

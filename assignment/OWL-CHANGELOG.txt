@@ -1,3 +1,5 @@
+2017.10.31:
+	- [OWL-3280] validate default no submission grade before saving it to assignment properties
 2017.10.26:
 	- [OWL-3294] update and style the peer review information message
 2017.10.25:
