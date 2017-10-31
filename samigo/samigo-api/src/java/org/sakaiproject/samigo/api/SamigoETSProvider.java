@@ -32,4 +32,9 @@ public interface SamigoETSProvider {
      * @param count the number of errors
      */
     void notifyAutoSubmitFailures(int count);
+	
+	/**
+	 * Notifies by email that the AutoSubmit job encountered a fatal error and could not continue
+	 */
+	void notifyUnexpectedAutoSubmitJobFailure();
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+    <emailTemplate>
+        <subject>AutoSubmit Job Unexpected Failure Notice</subject>
+        <message>The AutoSubmit job encountered a fatal error during processing and could not continue. Some attempts/submissions may have been processed successfully.
+
+Manual intervention may be required to correct this issue. For further details, see the logs.
+        </message>
+        <messagehtml>&lt;p&gt;The AutoSubmit job encountered a fatal error during processing and could not continue. Some attempts/submissions may have been processed successfully.&lt;/p&gt;
+
+&lt;p&gt;Manual intervention may be required to correct this issue. For further details, see the logs.&lt;/p&gt;
+        </messagehtml>
+        <version>1</version>
+        <owner>admin</owner>
+        <key>sam.assessmentAutoSubmitUnexpectedJobFailure</key>
+        <locale></locale>
+        <localeLangTag></localeLangTag>
+    </emailTemplate>
+</emailTemplates>

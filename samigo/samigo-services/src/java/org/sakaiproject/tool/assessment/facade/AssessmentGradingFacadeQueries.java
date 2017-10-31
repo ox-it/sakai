@@ -49,6 +49,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import org.apache.commons.collections.CollectionUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,6 +114,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.tool.assessment.facade.util.autosubmit.QuizAttempt;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI{
@@ -3472,8 +3474,84 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	}
 	
 	@Override
-	public int autoSubmitAssessments() {
-        String hql = "select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
+	public int autoSubmitAssessments()
+	{
+		// prerequisites
+		HashMap sectionSetMap = new HashMap();
+		EventLogService eventService = new EventLogService();
+	    EventLogFacade eventLogFacade = new EventLogFacade();
+	    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		GradebookExternalAssessmentService g = null;
+		boolean updateGrades = false;
+		HashMap toGradebookPublishedAssessmentSiteIdMap = null;
+		GradebookServiceHelper gbsHelper = null;
+		if (IntegrationContextFactory.getInstance() != null) {
+			boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
+			if (integrated) {
+				g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+			}
+			toGradebookPublishedAssessmentSiteIdMap = publishedAssessmentService.getToGradebookPublishedAssessmentSiteIdMap();
+			gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
+			updateGrades = true;
+		}
+
+
+		// N.B. The order of this list is important for the autosubmission logic.
+		// The results are grouped by quiz/user, with any submissions appearing first,
+		// followed by an unsubmitted attempt, if it exists. This allows us to
+		// determine if we need to autosubmit by only looking at the first entry
+		// in the list for each quiz/user pair. If the first entry is an unsubmitted
+		// attempt, we autosubmit it. Otherwise, we mark the submission as having been
+		// processed by the autosubmit job, and move on. However, there is a case
+		// involving quizzes with changed retract dates that has to be accounted for
+		// as well, so this ordering alone is not enough to ensure the correct decision
+		// is made.
+		List<AssessmentGradingData> list = getAutoSubmitGradingData();
+		
+		List<QuizAttempt> userQuizAttempts = new ArrayList<>();
+		String lastAgentId = "";
+		Long lastPublishedAssessmentId = 0L;
+		
+		int failures = 0;
+		for (AssessmentGradingData adata : list)
+		{
+			String agent = adata.getAgentId();
+			Long pubId = adata.getPublishedAssessmentId();
+			QuizAttempt qa = new QuizAttempt();
+			qa.attempt = adata;
+			qa.autoSubmit = false;
+			
+			if (!lastAgentId.equals(agent) || !lastPublishedAssessmentId.equals(pubId))
+			{
+				// a new pair, process anything in the queue from the last pair before switching to the new one
+				failures += processAttemptQueue(userQuizAttempts, publishedAssessmentService, persistenceHelper, updateGrades,
+						eventService, eventLogFacade, toGradebookPublishedAssessmentSiteIdMap, gbsHelper, g, sectionSetMap);
+				userQuizAttempts.clear();
+				lastAgentId = agent;
+				lastPublishedAssessmentId = pubId;
+				
+				// autosubmit this first entry iff:
+				// - forGrade is false (user did not submit it)
+				// - submittedDate is not null (user did more than just click Begin Assessment and quit)
+				// - user has not submitted previously (guard against quizzes that have had their retract
+				// dates extended after submissions were made)
+				qa.autoSubmit = Boolean.FALSE.equals(adata.getForGrade()) && adata.getSubmittedDate() != null
+						&& getLastSubmittedAssessmentGradingByAgentId(lastPublishedAssessmentId, lastAgentId, null) == null;  // UVA check
+			}
+			
+			userQuizAttempts.add(qa);
+		}
+		
+		// process final queue entries
+		failures += processAttemptQueue(userQuizAttempts, publishedAssessmentService, persistenceHelper, updateGrades,
+				eventService, eventLogFacade, toGradebookPublishedAssessmentSiteIdMap, gbsHelper, g, sectionSetMap);
+		
+		return failures;
+	}
+	
+	private List<AssessmentGradingData> getAutoSubmitGradingData()
+	{
+		String hql = "select new AssessmentGradingData(a.assessmentGradingId, a.publishedAssessmentId, " +
                 "a.agentId, a.submittedDate, a.isLate, a.forGrade, a.totalAutoScore, a.totalOverrideScore, " +
                 "a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
                 "from AssessmentGradingData a, PublishedAccessControl c " +
@@ -3490,102 +3568,36 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         List<AssessmentGradingData> list = session.createQuery(hql).setTimestamp("now", new Date()).list();
         log.info("AutoSubmit found {} submissions to process", list.size());
-
-	    Iterator iter = list.iterator();
-	    String lastAgentId = "";
-	    Long lastPublishedAssessmentId = Long.valueOf(0);
-	    AssessmentGradingData adata = null;
-	    HashMap sectionSetMap = new HashMap();
-	    
-	    // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
-	    PublishedAssessmentFacade assessment = null;
-	    
-	    EventLogService eventService = new EventLogService();
-	    EventLogFacade eventLogFacade = new EventLogFacade();
-	    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-	    
-		GradebookExternalAssessmentService g = null;
-		boolean updateGrades = false;
-		HashMap toGradebookPublishedAssessmentSiteIdMap = null;
-		GradebookServiceHelper gbsHelper = null;
-		if (IntegrationContextFactory.getInstance() != null) {
-			boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-			if (integrated) {
-				g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+		
+		return list;
+	}
+	
+	// This method runs in a separate transaction and will trap all exceptions and return 1 to indicate failure
+	// This allows the job to rollback and report a problem with this quiz/user pair, then continue on to the next pair
+	private int processAttemptQueue(List<QuizAttempt> attempts, PublishedAssessmentService publishedAssessmentService,
+			PersistenceHelper persistenceHelper, boolean updateGrades, EventLogService eventService, EventLogFacade eventLogFacade,
+			Map toGradebookPublishedAssessmentSiteIdMap, GradebookServiceHelper gbsHelper, GradebookExternalAssessmentService g,
+			HashMap sectionSetMap)
+	{
+		if (CollectionUtils.isNotEmpty(attempts))
+		{
+			try
+			{
+				PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(attempts.get(0).attempt.getPublishedAssessmentId().toString());
+				PersistenceService.getInstance().getAutoSubmitQueries().autoSubmitSingleUserAssessmentAttempts(attempts,
+						publishedAssessment, persistenceHelper, updateGrades, eventService, eventLogFacade,
+						toGradebookPublishedAssessmentSiteIdMap, gbsHelper, g, sectionSetMap, this);
 			}
-			toGradebookPublishedAssessmentSiteIdMap = publishedAssessmentService.getToGradebookPublishedAssessmentSiteIdMap();
-			gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-			updateGrades = true;
+			catch (Exception e)
+			{
+				AssessmentGradingData attempt = attempts.get(0).attempt;
+				log.error("AutoSubmit: Error while processing attempts for publishedAssessmentId " + attempt.getPublishedAssessmentId()
+						+ " by user " + attempt.getAgentId(), e);
+				return 1;
+			}
 		}
-		boolean autoSubmitCurrent;
-		boolean updateCurrentGrade;
-		int failures = 0;
-	    while (iter.hasNext()) {
-	    	autoSubmitCurrent = false;
-	    	updateCurrentGrade = false;
-	    	try{
-	    		adata = (AssessmentGradingData) iter.next();
-	    		adata.setHasAutoSubmissionRun(Boolean.TRUE);
-				
-				// OWL-3082 revert to 10.3 logic (with extra check for existing submissions from UVA)
-				// only the "first" attempt on this quiz by this user (according to the sort order defined above)
-				// is considered for autosubmission, all subsequent attemps are marked as processed and ignored
-				if ((!lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
-	    						|| !lastAgentId.equals(adata.getAgentId()))
-					&& adata.getSubmittedDate() != null)  // skip attempts with no submission date to match 10.3 behaviour, while still marking the attempt as processed to avoid "orphaned" records
-				{
-					lastPublishedAssessmentId = adata.getPublishedAssessmentId();
-	    			lastAgentId = adata.getAgentId();
-					if (Boolean.FALSE.equals(adata.getForGrade())
-							&& getLastSubmittedAssessmentGradingByAgentId(lastPublishedAssessmentId, lastAgentId, null) == null)  // UVA check
-					{
-						adata.setForGrade(Boolean.TRUE);
-						if (adata.getTotalAutoScore() == null) {
-								adata.setTotalAutoScore(0d);
-						}
-						if (adata.getFinalScore() == null) {
-								adata.setFinalScore(0d);
-						}
-						if (adata.getAttemptDate() != null && assessment != null && assessment.getDueDate() != null &&
-										adata.getAttemptDate().after(assessment.getDueDate())) {
-								adata.setIsLate(true);
-						}
-						// SAM-1088
-						else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
-										adata.getSubmittedDate().after(assessment.getDueDate())) {
-								adata.setIsLate(true);
-						}
-						
-						adata.setIsAutoSubmitted(Boolean.TRUE);
-						adata.setStatus(AssessmentGradingData.SUBMITTED);
-						completeItemGradingData(adata, sectionSetMap);
-						autoSubmitCurrent = true;
-						updateCurrentGrade = true;
-					}
-				}
-
-				PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(adata.getPublishedAssessmentId().toString());
-				// this call happens in a separate transaction, so a rollback only affects this iteration
-				boolean success = PersistenceService.getInstance().getAutoSubmitQueries().autoSubmitSingleAssessment(adata,
-						autoSubmitCurrent, updateCurrentGrade, publishedAssessment, persistenceHelper, updateGrades, eventService, eventLogFacade,
-						toGradebookPublishedAssessmentSiteIdMap, gbsHelper, g);
-				if (!success)
-				{
-					++failures;
-				}
-
-    			adata = null;
-	    	}catch (Exception e) {
-	    		++failures;
-	    		if(adata != null){
-	    			log.error("Error while auto submitting assessment grade data id: " + adata.getAssessmentGradingId(), e);
-	    		}else{
-	    			log.error(e.getMessage(), e);
-	    		}
-			}
-	    }
-	    
-	    return failures;
+		
+		return 0;
 	}
 
 	private String makeHeader(String section, int sectionNumber, String question, String headerType, int questionNumber, String pool, String poolName) {

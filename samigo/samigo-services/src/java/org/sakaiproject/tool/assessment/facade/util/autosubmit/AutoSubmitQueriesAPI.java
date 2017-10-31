@@ -1,8 +1,10 @@
 package org.sakaiproject.tool.assessment.facade.util.autosubmit;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
@@ -14,13 +16,11 @@ import org.sakaiproject.tool.assessment.services.assessment.EventLogService;
  * @author plukasew
  */
 public interface AutoSubmitQueriesAPI
-{
+{	
 	/**
-	 * Persist updates to a single assessment attempt/submission to the database. This includes updating the autosubmit flags,
+	 * Persist updates to a single user/assessment pair (all attempts) to the database. This includes updating the autosubmit flags,
 	 * updating the Samigo event log, and firing an event to trigger the email notification system.
-	 * @param adata The data for this attempt/submission
-	 * @param autoSubmit whether to autosubmit the attempt, or just update the flag indicating this submission has been processed
-	 * @param updateCurrentGrade true if the score should be sent to the gradebook
+	 * @param attempts The data for these attempts/submissions
 	 * @param publishedAssessment the assessment this attempt/submission is for
 	 * @param persistenceHelper for retrying in case of database deadlock
 	 * @param updateGrades true if integrating with gradebook
@@ -29,9 +29,11 @@ public interface AutoSubmitQueriesAPI
 	 * @param toGradebookPublishedAssessmentSiteIdMap map of assessments that send grades to gradebook
 	 * @param gbsHelper for updating grade in gradebook
 	 * @param g for updating grading in gradebook
-	 * @return true if the updates attempt/submission were processed, false if an error occurred
+	 * @param sectionSetMap for completing autosubmitted item grading data
+	 * @param queryFacade for completing autosubmitted item grading data
 	 */
-	public boolean autoSubmitSingleAssessment(AssessmentGradingData adata, boolean autoSubmit, boolean updateCurrentGrade, PublishedAssessmentFacade publishedAssessment,
+	public void autoSubmitSingleUserAssessmentAttempts(List<QuizAttempt> attempts, PublishedAssessmentFacade publishedAssessment,
 			PersistenceHelper persistenceHelper, boolean updateGrades, EventLogService eventService, EventLogFacade eventLogFacade,
-			Map toGradebookPublishedAssessmentSiteIdMap, GradebookServiceHelper gbsHelper, GradebookExternalAssessmentService g);
+			Map toGradebookPublishedAssessmentSiteIdMap, GradebookServiceHelper gbsHelper, GradebookExternalAssessmentService g,
+			HashMap sectionSetMap, AssessmentGradingFacadeQueries queryFacade);
 }

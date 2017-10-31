@@ -55,6 +55,7 @@ import org.apache.commons.math3.util.Precision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
@@ -3338,8 +3339,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return PersistenceService.getInstance().
 		  getAssessmentGradingFacadeQueries().autoSubmitAssessments();
 	  } catch (Exception e) {
-		  log.error(e.getMessage(), e);
-		  return 1;
+		  log.error("AutoSubmit Job Fatal Error: " + e.getMessage(), e);
+		  return SamigoConstants.AUTO_SUBMIT_JOB_FATAL_ERROR;
 	  }
   }
   

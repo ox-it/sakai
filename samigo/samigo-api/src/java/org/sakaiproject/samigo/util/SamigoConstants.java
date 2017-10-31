@@ -36,6 +36,8 @@ public class SamigoConstants {
     public static final     String      EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME = "template-assessmentTimedSubmission.xml";
     public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS                   = "sam.assessmentAutoSubmitErrors";
     public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME         = "template-assessmentAutoSubmitErrors.xml";
+	public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_FATAL_ERROR              = "sam.assessmentAutoSubmitUnexpectedJobFailure";
+    public static final     String      EMAIL_TEMPLATE_AUTO_SUBMIT_FATAL_ERROR_FILE_NAME    = "template-assessmentAutoSubmitUnexpectedJobFailure.xml";
 
     /*
      * Events
@@ -92,4 +94,6 @@ public class SamigoConstants {
      * sakai.property defaults
      */
     public static final boolean SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT = true;
+	
+	public static final int AUTO_SUBMIT_JOB_FATAL_ERROR = -1;
 }

@@ -15,6 +15,7 @@ import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.samigo.api.SamigoETSProvider;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 
@@ -86,7 +87,11 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 		GradingService gradingService = new GradingService();
 		int failures = gradingService.autoSubmitAssessments();
 
-		if (failures > 0)
+		if (failures == SamigoConstants.AUTO_SUBMIT_JOB_FATAL_ERROR)
+		{
+			etsProvider.notifyUnexpectedAutoSubmitJobFailure();
+		}
+		else if (failures > 0)
 		{
 			etsProvider.notifyAutoSubmitFailures(failures);
 		}

@@ -77,6 +77,7 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_AUTO_SUBMITTED);
         emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_ASSESSMENT_TIMED_SUBMITTED);
         emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS);
+        emailTemplateService.importTemplateFromXmlFile(cl.getResourceAsStream(SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_FATAL_ERROR_FILE_NAME), SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_FATAL_ERROR);	
     }
 
     public      void                notify                          (String eventKey, Map<String, Object> notificationValues, Event event) {
@@ -349,6 +350,36 @@ public class SamigoETSProviderImpl implements SamigoETSProvider {
         try
         {
             RenderedTemplate template = emailTemplateService.getRenderedTemplate(SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_ERRORS, Locale.getDefault(), replacementValues);
+            if (template == null)
+            {
+                throw new IllegalStateException("Template is null");
+            }
+
+            InternetAddress[] to = { new InternetAddress(toAddress) };
+            emailService.sendMail(new InternetAddress(fromAddress), to, template.getRenderedSubject(), template.getRenderedMessage(), null, null, null);
+        }
+        catch (Exception e)
+        {
+            LOG.error("Unable to send email notification for AutoSubmit failures.", e);
+        }
+    }
+	
+	@Override
+    public void notifyUnexpectedAutoSubmitJobFailure()
+    {
+        boolean notifyOn = serverConfigurationService.getBoolean(SamigoConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_ENABLED, false);
+        if (!notifyOn)
+        {
+            return;
+        }
+
+        String supportAddress = serverConfigurationService.getString(SamigoConstants.SAK_PROP_SUPPORT_EMAIL_ADDRESS, fromAddress);
+        String toAddress = serverConfigurationService.getString(SamigoConstants.SAK_PROP_AUTO_SUBMIT_ERROR_NOTIFICATION_TO_ADDRESS, supportAddress);
+
+        try
+        {
+            RenderedTemplate template = emailTemplateService.getRenderedTemplate(SamigoConstants.EMAIL_TEMPLATE_AUTO_SUBMIT_FATAL_ERROR,
+					Locale.getDefault(), new HashMap<>());
             if (template == null)
             {
                 throw new IllegalStateException("Template is null");
