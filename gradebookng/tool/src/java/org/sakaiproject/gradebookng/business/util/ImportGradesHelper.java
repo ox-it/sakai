@@ -480,23 +480,22 @@ public class ImportGradesHelper {
 			hasValidationErrors = true;
 		}
 
-		// if empty there are no users
-		if (processedGradeItems.isEmpty()) {
+		// if empty there are no users or no grade columns, tell the user now
+		if (processedGradeItems.isEmpty())
+		{
+			hasValidationErrors = true;
 			sourcePanel.error(MessageHelper.getString("importExport.error.empty"));
 			sourcePage.updateFeedback(target);
-		}
-
-		// If there are no valid user entries, tell the user now
-		boolean noValidUsers = true;
-		for (ProcessedGradeItem item : processedGradeItems) {
-			if (!item.getProcessedGradeItemDetails().isEmpty()) {
-				noValidUsers = false;
-				break;
+			
+			// see if we have any valid users
+			if (spreadsheetWrapper.getUserIdentifier().getReport().getIdentifiedUsers().isEmpty())
+			{
+				sourcePanel.error(MessageHelper.getString("importExport.error.noValidStudents"));
 			}
-		}
-		if (noValidUsers) {
-			sourcePanel.error(MessageHelper.getString("importExport.error.noValidStudents"));
-			hasValidationErrors = true;
+			else
+			{
+				sourcePanel.error(MessageHelper.getString("importExport.error.noValidGrades"));
+			}
 		}
 
 		// Return errors before processing further
