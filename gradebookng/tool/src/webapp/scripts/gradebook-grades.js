@@ -2054,7 +2054,7 @@ GradebookEditableCell.prototype.handleWicketCellReplacement = function(cellId) {
   this.setupEditableCell($("#" + cellId));
 
   //re-enable popover?
-  if (this.$cell.is('[data-toggle="popover"]')) {
+  if (this.$cell.has('[data-toggle="popover"]')) {
     this.gradebookSpreadsheet.enablePopovers(this.$cell);
   }
 
