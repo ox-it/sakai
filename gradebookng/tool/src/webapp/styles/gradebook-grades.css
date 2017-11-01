@@ -1687,6 +1687,29 @@ and (max-device-width : 736px) {
 	margin-bottom: 5px;
 }
 
+.gb-all-item-controls-groupByCategory
+{
+	display: -webkit-flex;
+	display: flex;
+}
+
+#gradeItemsToolbarItemPanel .gb-all-item-controls .gb-all-item-controls-groupByCategory input[type=checkbox]
+{
+	position: relative;
+	padding: 8px;
+}
+
+#gradeItemsToolbarItemPanel .gb-all-item-controls .gb-all-item-controls-groupByCategory input:before
+{
+	width: 0;
+	height: 0;
+}
+
+#gradeItemsTogglePanel .gb-all-item-controls-groupByCategory label
+{
+	margin-left: 0.25em;
+}
+
 .space-between {
 	-webkit-justify-content: space-between;
 	justify-content: space-between;

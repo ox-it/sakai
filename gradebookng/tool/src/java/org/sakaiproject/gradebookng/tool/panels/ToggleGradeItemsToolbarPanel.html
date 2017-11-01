@@ -6,8 +6,10 @@
 
 <div id="gradeItemsToolbarItemPanel" role="menu">
   <div wicket:id="allItemControls" class="gb-all-item-controls">
-    <input wicket:id="toggleCategoriesToolbarItem" class="toggleCategoriesToolbarItem" type="checkbox" />
-    <label wicket:id="toggleCategoriesLabel" />
+    <div class="gb-all-item-controls-groupByCategory">
+      <input wicket:id="toggleCategoriesToolbarItem" class="toggleCategoriesToolbarItem" type="checkbox" />
+      <label wicket:id="toggleCategoriesLabel"/>
+    </div>
     <div class="gb-all-item-controls-buttons">
       <a href="javascript:void(0)" id="hideAllGradeItems" role="menuitem" class="button">
         <span wicket:message="value:label.toolbar.gradeitemhideall">

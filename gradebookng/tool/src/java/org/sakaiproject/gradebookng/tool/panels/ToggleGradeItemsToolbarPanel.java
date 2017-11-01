@@ -8,11 +8,14 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.SimpleFormComponentLabel;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -23,6 +26,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.component.SakaiSpinnerAjaxCallListener;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
@@ -103,10 +107,19 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 			public boolean isVisible() {
 				return ToggleGradeItemsToolbarPanel.this.categoriesEnabled && !assignments.isEmpty();
 			}
-		};
+			
+			@Override
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
+			{
+				super.updateAjaxAttributes(attributes);
 
-		Label toggleCategoriesLabel = new Label("toggleCategoriesLabel", new ResourceModel("table.toolbar.categorytoggle"));
-		toggleCategoriesLabel.add(new AttributeModifier("for", toggleCategories.getMarkupId()));
+				AjaxCallListener listener = new SakaiSpinnerAjaxCallListener(getMarkupId(), false);
+				attributes.getAjaxCallListeners().add(listener);
+			}
+		};
+		toggleCategories.setLabel(new ResourceModel("table.toolbar.categorytoggle"));
+		
+		SimpleFormComponentLabel toggleCategoriesLabel = new SimpleFormComponentLabel("toggleCategoriesLabel", toggleCategories);
 		toggleCategoriesLabel.setVisible(categoriesEnabled && !assignments.isEmpty());
 
 		WebMarkupContainer allItemControls = new WebMarkupContainer("allItemControls");
