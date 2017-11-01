@@ -1,5 +1,6 @@
 2017.11.01:
 	- [OWL-3202] 'all changes saved' message shouldn't be on the pages by default
+	- [OWL-2943] import/export continue button shouldn't be enabled until a file is selected
 2017.10.13:
 	- [OWL-3274] gradebook 'student' page needs to be mounted in Wicket
 2017.10.12:

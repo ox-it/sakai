@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
@@ -61,16 +62,27 @@ public class GradeImportUploadStep extends Panel {
 			setMultiPart(true);
 			setMaxSize(Bytes.megabytes(2));
 
-			fileUploadField = new FileUploadField("upload");
-			add(fileUploadField);
-
 			SakaiAjaxButton continueButton = new SakaiAjaxButton("continuebutton") {
 				@Override
 				public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 					processUploadedFile(target);
 				}
 			};
+			continueButton.setOutputMarkupId(true);
+			continueButton.setEnabled(false);
 			add(continueButton);
+
+			fileUploadField = new FileUploadField("upload");
+			fileUploadField.add(new AjaxFormSubmitBehavior("onchange") {
+				@Override
+				protected void onSubmit(final AjaxRequestTarget target) {
+					FileUpload file = fileUploadField.getFileUpload();
+					boolean continueEnabled = file != null;
+					continueButton.setEnabled(continueEnabled);
+					target.add(continueButton);
+				}
+			});
+			add(fileUploadField);
 
 			final SakaiAjaxButton cancel = new SakaiAjaxButton("cancelbutton") {
 				@Override
