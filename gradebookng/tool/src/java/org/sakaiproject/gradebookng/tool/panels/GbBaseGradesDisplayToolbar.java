@@ -57,7 +57,7 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		final GradebookUiSettings settings = page.getUiSettings();
 		
 		liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
-		liveGradingFeedback.setVisible(hasAssignmentsAndGrades);
+		liveGradingFeedback.setVisible(false);
 		liveGradingFeedback.setOutputMarkupId(true);
 
 		// add the 'saving...' message to the DOM as the JavaScript will
@@ -162,7 +162,7 @@ public class GbBaseGradesDisplayToolbar extends Panel
 	public Component updateLiveGradingMessage(final String message)
 	{
 		liveGradingFeedback.setDefaultModel(Model.of(message));
-
+		liveGradingFeedback.setVisible(hasAssignmentsAndGrades);
 		return liveGradingFeedback;
 	}
 }
