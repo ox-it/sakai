@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.component;
 
+import org.apache.wicket.ajax.AjaxChannel;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -32,6 +33,7 @@ public class SakaiAjaxButton extends AjaxButton
 	protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
 	{
 		super.updateAjaxAttributes(attributes);
+		attributes.setChannel(new AjaxChannel("blocking", AjaxChannel.Type.ACTIVE));
 		
 		AjaxCallListener listener = new SakaiSpinnerAjaxCallListener(getMarkupId(), willRenderOnClick);
 		attributes.getAjaxCallListeners().add(listener);
