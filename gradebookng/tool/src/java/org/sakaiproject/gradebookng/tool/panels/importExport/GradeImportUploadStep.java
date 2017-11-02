@@ -9,10 +9,12 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
@@ -25,6 +27,7 @@ import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
  * Upload/Download page
@@ -47,6 +50,15 @@ public class GradeImportUploadStep extends Panel {
 
 		add(new ExportPanel("export"));
 		add(new UploadForm("form"));
+
+		boolean hasAnon = businessService.getGradebookAssignments().stream().anyMatch(Assignment::isAnon);
+		RepeatingView dpcInstructions = new RepeatingView("dpcInstructions");
+		dpcInstructions.add(new Label(dpcInstructions.newChildId(), getString("importExport.instructions.5")));
+		dpcInstructions.add(new Label(dpcInstructions.newChildId(), getString("importExport.instructions.6")));
+		if (hasAnon) {
+			dpcInstructions.add(new Label(dpcInstructions.newChildId(), getString("importExport.instructions.7")));
+		}
+		add(dpcInstructions);
 	}
 
 	/*
