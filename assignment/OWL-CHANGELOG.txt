@@ -1,3 +1,5 @@
+2017.11.02:
+	- [OWL-3199] submission emails for non-TII assignments list "Inline Submission.html" in the attachments list
 2017.10.31:
 	- [OWL-3280] validate default no submission grade before saving it to assignment properties
 	- [OWL-1706] update wording for content review badge
