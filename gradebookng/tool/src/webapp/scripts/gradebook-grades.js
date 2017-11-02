@@ -2348,6 +2348,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     var itemFilters = $group.find(".gb-item-filter :input, .gb-item-category-score-filter :input").length;
 
     $label.find(".gradebook-filter-partial-signal").remove();
+    $group.removeClass("gb-item-filter-group-partial");
     if (checkedItemFilters === 0) {
       $input.prop("checked", false);
     } else if (checkedItemFilters === itemFilters) {
@@ -2355,6 +2356,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     } else {
       $input.prop("checked", false);
       $label.find(".gb-item-category-filter-signal").append($("<span>").addClass("gradebook-filter-partial-signal"));
+      $group.addClass("gb-item-filter-group-partial");
     }
 
     updateSignal($label, $input);
@@ -2431,6 +2433,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
   function handleHideAll() {
     self.$gradeItemsFilterPanel.find(".gb-item-category-filter :input:checked").trigger("click");
+    self.$gradeItemsFilterPanel.find(".gb-item-filter-group-partial :input:checked").trigger("click");
   };
 
 
