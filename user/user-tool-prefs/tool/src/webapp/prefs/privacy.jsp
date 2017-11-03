@@ -49,19 +49,16 @@
  		    <sakai:tool_bar_item value="#{msgs.prefs_privacy}"  rendered="#{UserPrefsTool.privacy_selection == 5}" current="true" />
 		    
 		</sakai:tool_bar>
-			
-		<f:verbatim><div><h3></f:verbatim>
-     
-     	<h:outputText value="#{msgs.privacy_title}" rendered="#{privacyBean.myWorkspace}" />
 
-         <!--SAK-18566 -->
-        <h3>
-		 <h:panelGroup rendered="#{privacyBean.updateMessage}" style="margin:0 3em;font-weight:normal">
-		 <jsp:include page="prefUpdatedMsg.jsp"/>
-		 </h:panelGroup>
-	   </h3>
-
-		<f:verbatim></h3></div></f:verbatim>
+        <h:panelGroup rendered="#{privacyBean.myWorkspace}" >
+            <h3>
+                <h:outputText value="#{msgs.privacy_title}" />
+            </h3>
+        </h:panelGroup>
+        <!--SAK-18566 -->
+		<h:panelGroup rendered="#{privacyBean.updateMessage}" style="margin:0 3em;">
+			<jsp:include page="prefUpdatedMsg.jsp"/>
+		</h:panelGroup>
 	 	<%--  Message if Show All or Hide All has been clicked --%>
 	 	<f:verbatim><div></f:verbatim>
 	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />

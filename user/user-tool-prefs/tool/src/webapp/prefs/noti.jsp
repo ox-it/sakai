@@ -75,12 +75,12 @@
  		    
  			</sakai:tool_bar>
 				
-				<h3>
+				<h3 style="display: inline-block;">
 					<h:outputText value="#{msgs.prefs_noti_title}" />
-					<h:panelGroup rendered="#{UserPrefsTool.notiUpdated}"  style="margin:0 3em;font-weight:normal">
-						<jsp:include page="prefUpdatedMsg.jsp"/>	
-					</h:panelGroup>
 				</h3>
+				<h:panelGroup rendered="#{UserPrefsTool.notiUpdated}" style="margin:0 3em;">
+					<jsp:include page="prefUpdatedMsg.jsp"/>
+				</h:panelGroup>
 
 	
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />

@@ -55,30 +55,27 @@
                                 <sakai:tool_bar_item value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 5}" current="true" />
                         </sakai:tool_bar>
 
-                        <h:panelGroup rendered="#{UserPrefsTool.hiddenUpdated}"  style="margin-top:1em;display:inline-block;font-weight:normal">
-                                <jsp:include page="prefUpdatedMsg.jsp"/>
+                        <h:panelGroup rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                            <t:htmlTag value="h3" rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                                <h:outputText value="#{msgs.prefs_site_tab_display_format}" />
+                            </t:htmlTag>
+
+                            <%-- ## SAK-23895 :Display full name of course, not just code, in site tab  --%>
+                            <t:div rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                                <h:outputText value="#{msgs.tabDisplay_prompt}" rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/>
+                                <h:selectOneRadio value="#{UserPrefsTool.selectedTabLabel}" layout="pageDirection" rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                                    <f:selectItem itemValue="1" itemLabel="#{msgs.tabDisplay_coursecode}"/>
+                                    <f:selectItem itemValue="2" itemLabel="#{msgs.tabDisplay_coursename}"/>
+                                </h:selectOneRadio>
+                            </t:div>
                         </h:panelGroup>
 
-                        <h3>
-                                <h:outputText rendered="#{UserPrefsTool.prefShowTabLabelOption==true}" value="#{msgs.prefs_site_tab_display_format}" />
-                        </h3>
-
-                        <%-- ## SAK-23895 :Display full name of course, not just code, in site tab  --%>
-                        <f:verbatim>
-                        <div>
-                        </f:verbatim>
-                        <h:outputText value="#{msgs.tabDisplay_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/>
-                        <h:selectOneRadio value="#{UserPrefsTool.selectedTabLabel}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
-                                                <f:selectItem itemValue="1" itemLabel="#{msgs.tabDisplay_coursecode}"/>
-                                                <f:selectItem itemValue="2" itemLabel="#{msgs.tabDisplay_coursename}"/>
-                        </h:selectOneRadio>
-                        <f:verbatim>
-                        </div>
-                        </f:verbatim>
-
-                        <h3>
+                        <h3 style="display: inline-block;">
                                 <h:outputText value="#{msgs.hidden_title}" />
                         </h3>
+                        <h:panelGroup rendered="#{UserPrefsTool.hiddenUpdated}" style="margin:0 3em;">
+                                <jsp:include page="prefUpdatedMsg.jsp"/>
+                        </h:panelGroup>
 
                         <p class="instruction"><h:outputText value="#{msgs.hidden_instructions}" escape="false" /></p>
 

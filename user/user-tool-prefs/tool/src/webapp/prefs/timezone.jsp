@@ -61,12 +61,12 @@
 
 				
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
-				<h3>
+				<h3 style="display: inline-block;">
 					<h:outputText value="#{msgs.prefs_timezone_title}" />
-					<h:panelGroup rendered="#{UserPrefsTool.tzUpdated}"   style="margin:0 3em;font-weight:normal">
-						<jsp:include page="prefUpdatedMsg.jsp"/>	
-					</h:panelGroup>
 				</h3>
+				<h:panelGroup rendered="#{UserPrefsTool.tzUpdated}" style="margin:0 3em;">
+					<jsp:include page="prefUpdatedMsg.jsp"/>
+				</h:panelGroup>
 
 				
 				<p class="instruction">

@@ -1,3 +1,5 @@
+2017.11.03:
+	- [OWL-3190] the verification notice in preferences is noticeably larger than in other tools
 2017.08.12:
 	- [OWL-3093] add spinners to the Preferences pages
 2017.08.11:
