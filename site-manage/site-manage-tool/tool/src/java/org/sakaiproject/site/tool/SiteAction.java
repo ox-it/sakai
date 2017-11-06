@@ -45,6 +45,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
@@ -2855,16 +2856,21 @@ public class SiteAction extends PagedResourceActionII {
 					 String toolId = entry.getKey();
 					// get the proper html for tool input
 					String ltiToolId = toolMap.get("id").toString();
-					String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(ltiToolId));
-					// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
-					for(int k=0; k<contentToolModel.length;k++)
+					Optional<String[]> optContentToolModel=m_ltiService.getContentModelIfConfigurable(Long.valueOf(ltiToolId));
+					if (optContentToolModel.isPresent())
 					{
-						contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
+						String[] contentToolModel = optContentToolModel.get();
+						// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
+						for(int k=0; k<contentToolModel.length;k++)
+						{
+							contentToolModel[k] = ltiToolId + "_" + contentToolModel[k];
+						}
+						Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId));
+						String formInput=m_ltiService.formInput(ltiTool, contentToolModel);
+						toolMap.put("formInput", formInput);
+						toolMap.put("hasConfiguration", true);
+						currentLtiTools.put(ltiToolId, toolMap);
 					}
-					Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(ltiToolId));
-					String formInput=m_ltiService.formInput(ltiTool, contentToolModel);
-					toolMap.put("formInput", formInput);
-					currentLtiTools.put(ltiToolId, toolMap);
 				}
 				context.put("ltiTools", currentLtiTools);
 				context.put("ltiService", m_ltiService);
@@ -3948,7 +3954,7 @@ public class SiteAction extends PagedResourceActionII {
                ltiTools.put(ltiToolId, toolMap);
             }
 			}
-         
+
          
 			state.setAttribute(STATE_LTITOOL_LIST, ltiTools);
 			state.setAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST, linkedLtiContents);
@@ -11337,6 +11343,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					Properties reqProperties = (Properties) toolValues.get("reqProperties");
 					if (reqProperties==null) {
 						reqProperties = new Properties();
+
+						// any customized properties that need to be copied from lti_tool into lti_content should go here, but generally we detect null in lti_content and fallback to lti_tool
+						reqProperties.put(LTIService.LTI_TOOL_ID, ltiToolId);
 					}
 					Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
 					if (retval instanceof String)
@@ -11691,13 +11700,33 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			if (state.getAttribute(STATE_IMPORT) != null) {
 				// go to import tool page
 				state.setAttribute(STATE_TEMPLATE_INDEX, "27");
-			} else if (goToToolConfigPage || ltiToolSelected) {
+			} else if (goToToolConfigPage) {
 				state.setAttribute(STATE_MULTIPLE_TOOL_INSTANCE_SELECTED, Boolean.valueOf(goToToolConfigPage));
 				// go to the configuration page for multiple instances of tools
 				state.setAttribute(STATE_TEMPLATE_INDEX, "26");
 			} else {
-				// go to next page
-				state.setAttribute(STATE_TEMPLATE_INDEX, continuePageIndex);
+				boolean ltiToConfigure = false;
+				if (ltiToolSelected)
+				{
+					// iterate over ltiSelectedTools; if any are configurable, go to 26
+					for (String ltiToolId : ltiSelectedTools.keySet())
+					{
+						if (m_ltiService.getContentModelIfConfigurable(Long.parseLong(ltiToolId)).isPresent())
+						{
+							ltiToConfigure = true;
+							break;
+						}
+					}
+				}
+				if (ltiToConfigure)
+				{
+					state.setAttribute(STATE_TEMPLATE_INDEX, "26");
+				}
+				else
+				{
+					// go to next page
+					state.setAttribute(STATE_TEMPLATE_INDEX, continuePageIndex);
+				}
 			}
 			state.setAttribute(STATE_MULTIPLE_TOOL_ID_SET, multipleToolIdSet);
 			state.setAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP, multipleToolIdTitleMap);

@@ -23,6 +23,7 @@ package org.sakaiproject.lti.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.sakaiproject.exception.IdUnusedException;
@@ -317,6 +318,11 @@ public interface LTIService {
 	 * @return
 	 */
 	public String[] getContentModel(Long tool_id);
+
+	/**
+	 * If the form does not contain configuration, returns an empty optional; otherwise returns an optional containing the result of getContentModel(tool_id);
+	 */
+	public Optional<String[]> getContentModelIfConfigurable(Long tool_id);
 
 	/**
 	 * 
@@ -746,6 +752,8 @@ public interface LTIService {
 		"title:text:label=bl_title:required=true:maxlength=1024",
 		"allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
 		"fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
+		// OWL-2900
+		"allowfa_icon:radio:label=bl_allowfa_icon:choices=disallow,allow",
 		"pagetitle:text:label=bl_pagetitle:required=true:maxlength=1024",
 		"allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
 		"description:textarea:label=bl_description:maxlength=4096",

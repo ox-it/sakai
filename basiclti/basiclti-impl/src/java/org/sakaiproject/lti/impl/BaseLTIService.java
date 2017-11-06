@@ -24,6 +24,7 @@ package org.sakaiproject.lti.impl;
 import java.util.UUID;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.HashMap;
 
 import org.slf4j.Logger;
@@ -222,6 +223,12 @@ public abstract class BaseLTIService implements LTIService {
 		return getContentModelDao(tool, isAdmin());
 	}
 
+	public Optional<String[]> getContentModelIfConfigurable(Long tool_id)
+	{
+		Map<String, Object> tool = getToolDao(tool_id, getContext(), isAdmin());
+		return getContentModelDaoIfConfigurable(tool, isAdmin());
+	}
+
 	public String[] getContentModel(Map<String, Object> tool) {
 		return getContentModelDao(tool, isAdmin());
 	}
@@ -241,6 +248,22 @@ public abstract class BaseLTIService implements LTIService {
 		String[] retval = foorm.filterForm(tool, CONTENT_MODEL);
 		if (!isAdminRole) retval = foorm.filterForm(null, retval, null, ".*:role=admin.*");
 		return retval;
+	}
+
+	protected Optional<String[]> getContentModelDaoIfConfigurable(Map<String, Object> tool, boolean isAdminRole) {
+		if ( tool == null ) return Optional.empty();
+		boolean phase1 = foorm.formHasConfiguration(tool, CONTENT_MODEL, null, null);
+		String[] retval = foorm.filterForm(tool, CONTENT_MODEL);
+		if (!isAdminRole)
+		{
+			boolean phase2 = foorm.formHasConfiguration(null, retval, null, ".*:role=admin.*");
+			if (!phase1 && !phase2)
+			{
+				return Optional.empty();
+			}
+			retval = foorm.filterForm(null, retval, null, ".*:role=admin.*");
+		}
+		return Optional.of(retval);
 	}
 
 	/**
@@ -783,6 +806,16 @@ public abstract class BaseLTIService implements LTIService {
 		
 				ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
 				String fa_icon = (String)content.get(LTI_FA_ICON);
+				// if not present in lti_content, fallback to lti_tool's value
+				if (fa_icon == null) {
+					Object objToolId = content.get(LTI_TOOL_ID);
+					if (objToolId != null && objToolId instanceof Integer)
+					{
+						Long toolId = ((Integer)objToolId).longValue();
+						Map<String, Object> ltiTool = getToolDao(toolId, siteId);
+						fa_icon = (String)ltiTool.get(LTI_FA_ICON);
+					}
+				}
 				if ( fa_icon != null && fa_icon.length() > 0 ) {
 					tool.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
 				}
