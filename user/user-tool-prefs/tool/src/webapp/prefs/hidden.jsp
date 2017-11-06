@@ -59,6 +59,9 @@
                             <t:htmlTag value="h3" rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
                                 <h:outputText value="#{msgs.prefs_site_tab_display_format}" />
                             </t:htmlTag>
+                            <h:panelGroup rendered="#{UserPrefsTool.prefShowTabLabelOption==true and UserPrefsTool.hiddenUpdated}" style="margin:0 3em;">
+                                <jsp:include page="prefUpdatedMsg.jsp"/>
+                            </h:panelGroup>
 
                             <%-- ## SAK-23895 :Display full name of course, not just code, in site tab  --%>
                             <t:div rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
@@ -73,7 +76,7 @@
                         <h3 style="display: inline-block;">
                                 <h:outputText value="#{msgs.hidden_title}" />
                         </h3>
-                        <h:panelGroup rendered="#{UserPrefsTool.hiddenUpdated}" style="margin:0 3em;">
+                        <h:panelGroup rendered="#{UserPrefsTool.prefShowTabLabelOption==false and UserPrefsTool.hiddenUpdated}" style="margin:0 3em;">
                                 <jsp:include page="prefUpdatedMsg.jsp"/>
                         </h:panelGroup>
 
