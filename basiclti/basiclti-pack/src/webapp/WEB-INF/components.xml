@@ -130,4 +130,15 @@
             <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
             <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
         </bean>
+
+    <!-- This adds properties from the admin site into the lti launch
+         This is used to pass across the panopto parent folder ID when set. -->
+    <bean class="org.sakaiproject.lti.impl.AdminSitePropertyLookup" init-method="init" destroy-method="destroy">
+        <property name="devolvedSakaiSecurity" ref="org.sakaiproject.authz.api.DevolvedSakaiSecurity"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
+        <property name="sitePropery" value="panopto-parent-folder-id"/>
+        <property name="ltiProperty" value="panopto-parent-folder-id"/>
+    </bean>
+
 </beans>
