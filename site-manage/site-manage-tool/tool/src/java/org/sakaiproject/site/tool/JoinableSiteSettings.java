@@ -861,7 +861,7 @@ public class JoinableSiteSettings
 	 * 				the object to dump the settings into
 	 * @return status (true/false)
 	 */
-	public static boolean updateStateFromSitePropertiesOnEditAccessOrNewSite( ResourceProperties props, SessionState state )
+	public static boolean updateStateFromSitePropertiesWithJoinabilitySettings( ResourceProperties props, SessionState state )
 	{
 		if( props == null || state == null )
 		{
@@ -1053,6 +1053,41 @@ public class JoinableSiteSettings
 				else
 				{
 					context.put( CONTEXT_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE, Boolean.FALSE );
+				}
+			}
+		}
+		
+		return true;
+	}
+
+	/**
+	 * Put the joinable site settings into the context for the current site UI
+	 *
+	 * @param context
+	 * 				the parameters being passed to the velocity template
+	 * @param siteInfo
+	 * 				the object containing (default) values for the joinable site settings
+	 * @return status (true/false)
+	 */
+	public static boolean addJoinableSiteSettingsToSiteInfoList( Context context, SessionState state, Site site, boolean isSiteJoinable )
+	{
+		if( context == null || state == null )
+		{
+			return false;
+		}
+
+		context.put( CONTEXT_UI_SERVICE, serverConfigService.getString( SAK_PROP_UI_SERVICE, DEFAULT_UI_SERVICE ) );
+
+		if( isSiteJoinable )
+		{
+			if( siteService.isGlobalJoinLimitByAccountTypeEnabled() )
+			{
+				context.put( CONTEXT_JOIN_SITE_ACCOUNT_TYPES, siteService.getAllowedJoinableAccounts() );
+
+				if( state.getAttribute( STATE_JOIN_SITE_ACCOUNT_TYPES ) != null )
+				{
+					context.put( CONTEXT_JOIN_SITE_LIMIT_ACCOUNT_TYPES, Arrays.asList(
+							state.getAttribute( STATE_JOIN_SITE_ACCOUNT_TYPES ).toString().split( CSV_DELIMITER ) ) );
 				}
 			}
 		}

@@ -272,8 +272,17 @@
 					#if ($!published)
 						#if ($additionalAccess.size() > 0)
 							<ul class="attachList" style="margin:0">
-								#if ($!siteJoinable)
-									<li>$tlang.getString("sitegen.siteinfolist.sitecan")</li>
+								#if ($!siteJoinable && $joinLimitedAccountTypes.size() > 0)
+									<li>$tlang.getFormattedMessage("sitegen.siteinfolist.sitecan", $uiService)</li>
+									<ul class="acctType">
+										#foreach( $accountType in $joinLimitedAccountTypes )
+											#foreach( $accType in $joinableAccountTypes )
+												#if( $accountType == $accType.type )
+													<li>$accType.label</li>
+												#end
+											#end
+										#end
+									</ul>
 								#else
 									<li>$tlang.getString("sitegen.siteinfolist.sitepar")</li>
 								#end
@@ -282,8 +291,17 @@
 							#end
 							</ul>
 						#else
-							#if ($!siteJoinable)
-								$tlang.getString("sitegen.siteinfolist.sitecan")
+							#if ($!siteJoinable && $joinLimitedAccountTypes.size() > 0)
+								$tlang.getFormattedMessage("sitegen.siteinfolist.sitecan", $uiService)
+								<ul>
+									#foreach( $accountType in $joinLimitedAccountTypes )
+										#foreach( $accType in $joinableAccountTypes )
+											#if( $accountType == $accType.type )
+												<li>$accType.label</li>
+											#end
+										#end
+									#end
+								</ul>
 							#else
 								$tlang.getString("sitegen.siteinfolist.sitepar")
 							#end

@@ -2144,6 +2144,9 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("siteJoinable", site.isJoinable() && !(isAnon));
 					context.put("allowUnjoin", SiteService.allowUnjoinSite(site.getId()));
 				}
+				// Adds the uiservice to the context as well as the joinable site settings
+				JoinableSiteSettings.updateStateFromSitePropertiesWithJoinabilitySettings( site.getProperties(), state );
+				JoinableSiteSettings.addJoinableSiteSettingsToSiteInfoList( context, state, site, !unJoinableSiteTypes.contains( siteType ) );
 
 				// Is the current user a member
 				context.put("siteUserMember", site.getUserRole(UserDirectoryService.getCurrentUser().getId()) != null);
@@ -8535,7 +8538,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.setAttribute(STATE_JOINERROLE, joinerRole); 
 
 			// bjones86 - SAK-24423 - update state for joinable site settings
-			JoinableSiteSettings.updateStateFromSitePropertiesOnEditAccessOrNewSite( site.getProperties(), state );
+			JoinableSiteSettings.updateStateFromSitePropertiesWithJoinabilitySettings( site.getProperties(), state );
 		}
 		catch (Exception e)
 		{
