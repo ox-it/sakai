@@ -35,6 +35,8 @@ public class GbBaseGradesDisplayToolbar extends Panel
 	protected List<PermissionDefinition> permissions;
 	protected Label liveGradingFeedback;
 	protected final boolean hasAssignmentsAndGrades;
+
+	private static final AttributeModifier DISPLAY_NONE = new AttributeModifier("style", "display: none");
 	
 	@SpringBean(name = "org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService bus;
@@ -57,8 +59,9 @@ public class GbBaseGradesDisplayToolbar extends Panel
 		final GradebookUiSettings settings = page.getUiSettings();
 		
 		liveGradingFeedback = new Label("liveGradingFeedback", getString("feedback.saved"));
-		liveGradingFeedback.setVisible(false);
+		liveGradingFeedback.setVisible(hasAssignmentsAndGrades);
 		liveGradingFeedback.setOutputMarkupId(true);
+		liveGradingFeedback.add(DISPLAY_NONE);
 
 		// add the 'saving...' message to the DOM as the JavaScript will
 		// need to be the one that displays this message (Wicket will handle
@@ -162,7 +165,10 @@ public class GbBaseGradesDisplayToolbar extends Panel
 	public Component updateLiveGradingMessage(final String message)
 	{
 		liveGradingFeedback.setDefaultModel(Model.of(message));
-		liveGradingFeedback.setVisible(hasAssignmentsAndGrades);
+		if (liveGradingFeedback.getBehaviors().contains(DISPLAY_NONE)) {
+			liveGradingFeedback.remove(DISPLAY_NONE);
+		}
+
 		return liveGradingFeedback;
 	}
 }

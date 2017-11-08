@@ -593,7 +593,7 @@ GradebookSpreadsheet.prototype.positionModalAtTop = function($modal) {
 GradebookSpreadsheet.prototype.setLiveFeedbackAsSaving = function() {
   var $liveFeedback = this.$spreadsheet.closest("#gradebookSpreadsheet").find(".gb-live-feedback");
   $liveFeedback.html($liveFeedback.data("saving-message"));
-  $liveFeedback.show()
+  $liveFeedback.show();
 };
 
 
