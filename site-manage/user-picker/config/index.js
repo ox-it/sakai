@@ -1,7 +1,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 var path = require('path')
 
-const sakaiServer = 'http://dev:8080'
+const sakaiServer = 'http://localhost:8080'
 
 module.exports = {
   build: {
