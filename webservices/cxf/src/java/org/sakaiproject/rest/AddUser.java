@@ -1,6 +1,7 @@
 package org.sakaiproject.rest;
 
 import org.apache.commons.validator.routines.EmailValidator;
+import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -71,6 +72,9 @@ public class AddUser {
     @Autowired
     private UserNotificationProvider userNotificationProvider;
 
+    @Autowired
+    private ValidationLogic validationLogic;
+
 
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
@@ -86,6 +90,10 @@ public class AddUser {
 
     public void setUserAuditRegistration(UserAuditRegistration userAuditRegistration) {
         this.userAuditRegistration = userAuditRegistration;
+    }
+
+    public void setValidationLogic(ValidationLogic validationLogic) {
+        this.validationLogic = validationLogic;
     }
 
     public void setUserNotificationProvider(UserNotificationProvider userNotificationProvider) {
@@ -415,7 +423,11 @@ public class AddUser {
                         userEdit.setType("guest");
                         userDirectoryService.commitEdit(userEdit);
                         user = userEdit;
-                        userNotificationProvider.notifyNewUserEmail(user, pw, site);
+                        if (serverConfigurationService.getBoolean("siteManage.validateNewUsers", true)) {
+                            validationLogic.createValidationAccount(user.getId(), true);
+                        } else {
+                            userNotificationProvider.notifyNewUserEmail(user, pw, site);
+                        }
                     } catch (UserIdInvalidException e1) {
                         status.setMessage(user_invalid_id);
                     } catch (UserAlreadyDefinedException e1) {
