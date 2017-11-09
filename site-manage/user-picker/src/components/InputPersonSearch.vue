@@ -1,3 +1,13 @@
+<i18n>
+  {
+  "en": {
+  "placeholder": "name or username or email",
+  "aria.success": "Success",
+  "aria.remove": "Remove"
+  }
+
+  }
+</i18n>
 <template>
   <div class="input-person-search">
     <div class="form-group" :class="error" v-on:keydown.enter="$emit('new')">
@@ -5,7 +15,7 @@
       <div class="input-group dropdown">
 
         <typeahead async="/sakai-ws/rest/add-user/search?q=" v-model="search"
-                   placeholder="username / email / name"
+                   :placeholder="$t('placeholder')"
                    :minLength="3"
                    :limit="9"
                    :template="userTemplate"
@@ -24,10 +34,10 @@
         </span>
         <div class="input-group-btn">
           <button v-if="added" type="button" class="btn btn-success" disabled="disabled">
-            <span class="glyphicon glyphicon-ok" aria-label="Success"></span>
+            <span class="glyphicon glyphicon-ok" :aria-label="$t('aria.success')"></span>
           </button>
           <button v-else type="button" class="btn btn-danger" v-on:click="removeItem" :disabled="disabled">
-            <span class="glyphicon glyphicon-trash" aria-label="Remove"></span>
+            <span class="glyphicon glyphicon-trash" :aria-label="$t('aria.remove')"></span>
           </button>
         </div>
       </div>
