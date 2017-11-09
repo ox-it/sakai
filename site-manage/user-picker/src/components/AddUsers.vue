@@ -18,6 +18,7 @@
   "user_exists": "Cannot create as user already exists.",
   "no_permission_create": "You don't have permission to create new users.",
   "user_email_bad_domain": "The domain used in email address isn't permitted.",
+  "user_email_bad": "This isn't a well formed email address.",
   "user_not_found": "Failed to find user matching this.",
   "user_external_not_allowed": "External users cannot be added to this site.",
   "user_already_member": "User is already a member of this site.",

@@ -439,7 +439,11 @@ public class AddUser {
                     status.setMessage(user_email_bad_domain);
                 }
             } else {
-                status.setMessage(user_not_found);
+                if (userId.contains("@")) {
+                    status.setMessage(user_email_bad);
+                } else {
+                    status.setMessage(user_not_found);
+                }
             }
         }
         // If we failed to resolve the user then
@@ -463,7 +467,7 @@ public class AddUser {
           */
         enum Message {
             user_invalid_id, user_exists, no_permission_create, user_email_bad_domain, user_not_found,
-            user_external_not_allowed, user_already_member, unknown_error;
+            user_external_not_allowed, user_already_member, unknown_error, user_email_bad;
         }
 
         private boolean added;
