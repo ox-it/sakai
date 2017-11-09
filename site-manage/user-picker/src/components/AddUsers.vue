@@ -194,9 +194,9 @@
     data () {
       return {
         /** Show people help */
-        showPeopleHelp: false,
+        showPeopleHelp: true,
         /** Show role help */
-        showRoleHelp: false,
+        showRoleHelp: true,
         /** Show the bulk user add input */
         showBulk: false,
         role: undefined,
