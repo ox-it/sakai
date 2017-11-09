@@ -163,7 +163,7 @@
             } else {
               // Need to check if can add new users
               // Need to validate it's an email
-              if (query.indexOf('@') === -1 && data.allowAdd) {
+              if (query.indexOf('@') === -1 || !data.allowAdd) {
                 this.badUser = true
                 this.lookupMessage = 'user not found'
               } else {
