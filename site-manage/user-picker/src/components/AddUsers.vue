@@ -129,7 +129,9 @@
         this.searches.splice(index + 1, 0, {query: newSearch, itemCounter: itemCounter++})
       },
       removeItem: function (index) {
-        this.searches.splice(index, 1)
+        if (this.searches.length > 1) {
+          this.searches.splice(index, 1)
+        }
       },
       addUsers: function () {
         // Disable everything.
