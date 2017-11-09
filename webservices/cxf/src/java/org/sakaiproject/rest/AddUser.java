@@ -182,14 +182,23 @@ public class AddUser {
             try {
                 user = userDirectoryService.getUserByAid(search);
             } catch (UserNotDefinedException e1) {
-                Collection<User> users = userDirectoryService.findUsersByEmail(search);
-                if (users.size() == 1) {
-                    user = users.iterator().next();
+                if (search.contains("@")) {
+                    Collection<User> users = userDirectoryService.findUsersByEmail(search);
+                    if (users.size() == 1) {
+                        return new UserLookup(users.iterator().next());
+                    }
                 } else {
-                    // Check if email?
-                    boolean allowAdd = userDirectoryService.allowAddUser();
-                    return new UserLookup(allowAdd);
+                    List<User> users = userDirectoryService.searchExternalUsers(search, 1, 1);
+                    if (users.isEmpty()) {
+                        users = userDirectoryService.searchUsers(search, 1, 1);
+                    }
+                    if (users.size() == 1) {
+                        return new UserLookup(users.get(0));
+                    }
                 }
+                // Check if email?
+                boolean allowAdd = userDirectoryService.allowAddUser();
+                return new UserLookup(allowAdd);
             }
         }
         return new UserLookup(user);
