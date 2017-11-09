@@ -54,7 +54,7 @@
       },
       userTemplate: {
         type: String,
-        default: '{{ item.displayName }}'
+        default: '{{ item.displayName }} <small>({{ item.displayId }})</small>'
       },
       siteId: {
         type: String
