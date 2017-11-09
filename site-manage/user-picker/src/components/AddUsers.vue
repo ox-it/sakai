@@ -3,7 +3,7 @@
   "en": {
   "add.users": "Add Users",
   "people": "People",
-  "people.help": "Type in some users, press return to get enter another user. Paste multiple users, one per line.",
+  "people.help": "Type in or paste one or more users. One user per box. Press enter to get another box.",
   "role": "Role",
   "role.help": "Choose a role for the new participants",
   "lookup": "Lookup",
