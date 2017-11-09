@@ -1,6 +1,7 @@
 package org.sakaiproject.rest;
 
 import org.apache.commons.validator.routines.EmailValidator;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -59,6 +60,9 @@ public class AddUser {
 
     @Autowired
     private ServerConfigurationService serverConfigurationService;
+
+    @Autowired
+    private AuthzGroupService authzGroupService;
 
     @Autowired
     @Qualifier("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage")
@@ -128,8 +132,9 @@ public class AddUser {
             List<RoleDetails> roleDetails = new ArrayList<>();
             Site site = siteService.getSiteVisit(siteId);
             for (Role role : site.getRoles()) {
-                if (!role.isProviderOnly()) {
-                    roleDetails.add(new RoleDetails(role.getId(), role.getDescription()));
+                if (!role.isProviderOnly() && authzGroupService.isRoleAssignable(role.getId())) {
+                    String roleName = authzGroupService.getRoleName(role.getId());
+                    roleDetails.add(new RoleDetails(role.getId(), role.getDescription(), roleName));
                 }
             }
             return roleDetails;
@@ -143,10 +148,12 @@ public class AddUser {
     public static class RoleDetails {
         private String id;
         private String description;
+        private String name;
 
-        public RoleDetails(String role, String description) {
+        public RoleDetails(String role, String description, String name) {
             this.id = role;
             this.description = description;
+            this.name = name;
         }
 
         public String getId() {
@@ -155,6 +162,10 @@ public class AddUser {
 
         public String getDescription() {
             return description;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 
