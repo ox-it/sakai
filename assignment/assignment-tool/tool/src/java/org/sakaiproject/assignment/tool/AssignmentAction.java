@@ -17661,18 +17661,13 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						String siteId = ToolManager.getCurrentPlacement().getContext();
-						
+
 						// add attachment
 						// put in a security advisor so we can create citationAdmin site without need
 						// of further permissions
 						m_securityService.pushAdvisor(sa);
 						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
-						if(allowReviewService && !contentReviewService.isAcceptableContent(attachment)) {
-							addAlert(state, rb.getFormattedMessage("cr.notprocess.warning"));
-						} else if(!contentReviewService.isAcceptableSize(attachment)) {
-							addAlert(state, rb.getFormattedMessage("cr.size.warning"));
-						}
-						
+
 						Site s = null;
 						try
 						{
@@ -17685,7 +17680,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 						// Check if the file is acceptable with the ContentReviewService
 						boolean blockedByCRS = false;
-						if (!inPeerReviewMode && allowReviewService && contentReviewService != null && contentReviewService.isSiteAcceptable(s))
+						if (!inPeerReviewMode && allowReviewService && contentReviewService != null && (contentReviewService.isSiteAcceptable(s) || contentReviewService.isDirectAccess(s)))
 						{
 							String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 							Assignment a = getAssignment(assignmentReference, "doAttachUpload", state);
@@ -17696,6 +17691,11 @@ public class AssignmentAction extends PagedResourceActionII
 									addAlert(state, rb.getFormattedMessage("review.file.not.accepted", new Object[]{contentReviewService.getServiceName(), getContentReviewAcceptedFileTypesMessage()}));
 									blockedByCRS = true;
 									// TODO: delete the file? Could we have done this check without creating it in the first place?
+								}
+								else if(!contentReviewService.isAcceptableSize(attachment))
+								{
+									addAlert(state, rb.getFormattedMessage("cr.size.warning"));
+									blockedByCRS = true;
 								}
 							}
 						}
