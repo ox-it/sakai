@@ -65,6 +65,10 @@ public class FormatHelper {
 			numberOfDecimalPlaces = toMatch.split("\\.")[1].length();
 		}
 
+		if (toMatch.indexOf(",") >= 0) {
+			numberOfDecimalPlaces = toMatch.split("\\,")[1].length();
+		}
+
 		return FormatHelper.formatDoubleToDecimal(score, numberOfDecimalPlaces);
 	}
 
