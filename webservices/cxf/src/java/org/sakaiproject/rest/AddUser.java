@@ -92,6 +92,10 @@ public class AddUser {
         this.userAuditRegistration = userAuditRegistration;
     }
 
+    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+        this.authzGroupService = authzGroupService;
+    }
+
     public void setValidationLogic(ValidationLogic validationLogic) {
         this.validationLogic = validationLogic;
     }
