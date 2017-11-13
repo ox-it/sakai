@@ -8717,7 +8717,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 				// commit the changes to AssignmentContent object
 				//commitAssignmentContentEdit(state, ac, a.getReference(), title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeType, excludeValue, openTime, dueTime, closeTime, hideDueDate);
-				commitAssignmentContentEdit(state, ac, a.getReference(), title, submissionType,useReviewService,allowStudentViewReport,allowStudentViewExternalGrade, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeType, excludeValue, allowAnyFile, openTime, dueTime, closeTime, hideDueDate);
+				commitAssignmentContentEdit(state, ac, a.getReference(), title, submissionType,useReviewService,allowStudentViewReport,allowStudentViewExternalGrade, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeType, excludeValue, allowAnyFile, openTime, dueTime, closeTime, Boolean.valueOf(checkAnonymousGrading), hideDueDate);
 				
 				// set the Assignment Properties object
 				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
@@ -9825,7 +9825,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
-	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String assignmentRef, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, boolean allowStudentViewExternalGrade, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, boolean excludeBibliographic, boolean excludeQuoted, int excludeType, int excludeValue, boolean allowAnyFile, Time openTime, Time dueTime, Time closeTime, boolean hideDueDate)
+	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String assignmentRef, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, boolean allowStudentViewExternalGrade, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, boolean excludeBibliographic, boolean excludeQuoted, int excludeType, int excludeValue, boolean allowAnyFile, Time openTime, Time dueTime, Time closeTime, boolean anonymous, boolean hideDueDate)
 	{
 		ac.setTitle(title);
 		ac.setInstructions(description);
@@ -9890,7 +9890,7 @@ public class AssignmentAction extends PagedResourceActionII
 		AssignmentService.commitEdit(ac);
 		
 		if(ac.getAllowReviewService()){
-			if (!createTIIAssignment(ac, assignmentRef, openTime, dueTime, closeTime, state))
+			if (!createTIIAssignment(ac, assignmentRef, openTime, dueTime, closeTime, anonymous, state))
 			{
 				state.setAttribute("contentReviewSuccess", Boolean.FALSE);
 			}
@@ -9898,7 +9898,7 @@ public class AssignmentAction extends PagedResourceActionII
 		
 	}
 	
-	public boolean createTIIAssignment(AssignmentContentEdit assign, String assignmentRef, Time openTime, Time dueTime, Time closeTime, SessionState state) {
+	public boolean createTIIAssignment(AssignmentContentEdit assign, String assignmentRef, Time openTime, Time dueTime, Time closeTime, boolean anonymous, SessionState state) {
         Map opts = new HashMap();
         
         opts.put("submit_papers_to", assign.getSubmitReviewRepo());
@@ -9959,6 +9959,7 @@ public class AssignmentAction extends PagedResourceActionII
         opts.put("title", assign.getTitle());
         opts.put("instructions", assign.getInstructions());
         opts.put("assignmentContentId", assign.getReference());
+        opts.put("anon", anonymous?"1":"0");
 
         int factor = AssignmentService.getScaleFactor();
         int dec = (int)Math.log10(factor);
