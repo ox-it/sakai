@@ -6,7 +6,11 @@
 			white-space: normal;
 		}
 	}
-	
+
+	ul.attachList ul.acctType li{
+		list-style-type: disc;
+	}
+
 	.groups-site{
 		list-style: none;
 		
