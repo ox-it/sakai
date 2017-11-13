@@ -100,7 +100,12 @@ public class BackFillToolJob implements Job {
         // We only get the IDs so that we can save the sites.
         List<String> siteIds = siteService.getSiteIds(SiteService.SelectionType.ANY, type, null, null, SiteService.SortType.NONE, null);
 
-        boolean skipUserSites = context.getMergedJobDataMap().getBoolean("skip.user.sites");
+        // U for user, N for non-user or A for all
+        String userSitesflag = context.getMergedJobDataMap().getString("user.sites.flag").toUpperCase();
+
+        if (!("U".equals(userSitesflag) || "N".equals(userSitesflag) || "A".equals(userSitesflag))) {
+            throw new JobExecutionException("User sites flag must be U or N or A.");
+        }
 
         int updated = 0, examined = 0, special = 0, user = 0;
         for (String siteId : siteIds) {
@@ -110,12 +115,14 @@ public class BackFillToolJob implements Job {
                 special++;
                 continue;
             }
-            // Skip user
+            // Use flag to see if site should be skipped.
             if (siteService.isUserSite(siteId)) {
                 user++;
-                if (skipUserSites) {
+                if ("N".equals(userSitesflag)) {
                     continue;
                 }
+            } else if ("U".equals(userSitesflag)) {
+                continue;
             }
             try {
                 site = siteService.getSite(siteId);
