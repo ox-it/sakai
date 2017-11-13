@@ -6862,8 +6862,8 @@ public class AssignmentAction extends PagedResourceActionII
 						// SAK-17606
 						String logEntry = new java.util.Date().toString() + " ";
 						boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+						String subOrDraft = post ? "submitted" : "saved draft";
 						if(!anonymousGrading){
-							String subOrDraft = post ? "submitted" : "saved draft";
 							if( submitter != null && !submitter.getEid().equals( u.getEid() ) )
 							{
 								logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
@@ -6874,6 +6874,9 @@ public class AssignmentAction extends PagedResourceActionII
 							{
 								logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
 							}
+						}
+						else {
+							logEntry += subOrDraft;
 						}
 						sEdit.addSubmissionLogEntry( logEntry );
 						AssignmentService.commitEdit(sEdit);
@@ -6933,8 +6936,8 @@ public class AssignmentAction extends PagedResourceActionII
 							// SAK-17606
 							String logEntry = new java.util.Date().toString() + " ";
 							boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+							String subOrDraft = post ? "submitted" : "saved draft";
 							if(!anonymousGrading){
-								String subOrDraft = post ? "submitted" : "saved draft";
 								if( submitter != null && !submitter.getEid().equals( u.getEid() ) )
 								{
 									logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
@@ -6945,6 +6948,9 @@ public class AssignmentAction extends PagedResourceActionII
 								{
 									logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
 								}
+							}
+							else {
+								logEntry += subOrDraft;
 							}
 							edit.addSubmissionLogEntry( logEntry );
 							AssignmentService.commitEdit(edit);
