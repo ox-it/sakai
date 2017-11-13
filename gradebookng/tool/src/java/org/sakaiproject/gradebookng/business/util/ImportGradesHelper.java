@@ -479,23 +479,37 @@ public class ImportGradesHelper {
 			sourcePanel.error(MessageHelper.getString("importExport.error.orphanedComments", invalids));
 			hasValidationErrors = true;
 		}
+		
+		// if the file has no valid users, tell the user now
+		if (spreadsheetWrapper.getUserIdentifier().getReport().getIdentifiedUsers().isEmpty())
+		{
+			hasValidationErrors = true;
+			sourcePanel.error(MessageHelper.getString("importExport.error.noValidStudents"));
+		}
 
-		// if empty there are no users or no grade columns, tell the user now
+		// if empty there are no grade columns, tell the user now
 		if (processedGradeItems.isEmpty())
 		{
 			hasValidationErrors = true;
 			sourcePanel.error(MessageHelper.getString("importExport.error.empty"));
-			sourcePage.updateFeedback(target);
-			
-			// see if we have any valid users
-			if (spreadsheetWrapper.getUserIdentifier().getReport().getIdentifiedUsers().isEmpty())
+			sourcePanel.error(MessageHelper.getString("importExport.error.noValidGrades"));
+		}
+		
+		boolean hasChanges = false;
+		for (ProcessedGradeItem item : processedGradeItems)
+		{
+			if (item.getStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_MODIFIED ||
+					item.getStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_NEW ||
+					item.getStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_UPDATE)
 			{
-				sourcePanel.error(MessageHelper.getString("importExport.error.noValidStudents"));
+				hasChanges = true;
+				break;
 			}
-			else
-			{
-				sourcePanel.error(MessageHelper.getString("importExport.error.noValidGrades"));
-			}
+		}
+		if (!hasChanges)
+		{
+			hasValidationErrors = true;
+			sourcePanel.error(MessageHelper.getString("importExport.error.noChanges"));
 		}
 
 		// Return errors before processing further
