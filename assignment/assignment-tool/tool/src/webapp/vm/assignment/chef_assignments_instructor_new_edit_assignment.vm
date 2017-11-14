@@ -37,6 +37,10 @@
 		if ($("#generalAlert").length <= 0) {
 			SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
 		}
+
+        #if($validator.escapeHtml($!value_title) && $validator.escapeHtml($!value_title) !='')
+            ASN.toggleAddOptions("group");
+        #end
 	});
 
     function SetMaxPoint(obj_option, obj_textfield)

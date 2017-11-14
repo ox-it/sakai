@@ -622,22 +622,25 @@ ASN.toggleAddOptions = function(checked){
         section.style.display="none";
         ASN.resizeFrame('shrink');
         $("#site").prop("disabled", false);
+        $("#site").parent().prop("disalbed", false);
+        $("#site").parent().prop("class", "");
         $("#site").parent().prop("style", "");
         var groupSubsWarning = document.getElementById("msgGroupSubsWarning1");
         groupSubsWarning.style.display = "none";
         //When Peer Assement options is selected
-        if(checked == "peerreview"){
+        if(checked === "peerreview"){
             section.style.display="block";
             ASN.resizeFrame('grow');
         //When Group Submission is checked
-        }else if (checked=="group"){
+        }else if (checked==="group"){
             $("#site").prop("disabled", true);
+            $("#site").parent().prop("class", "disabled");
             $("#site").parent().prop("style", "cursor: not-allowed");
             groupSubsWarning.style.display = "inline-block";
             $("#groups").prop("checked", true).trigger("click");
         }
-    }
-    
+};
+
 ASN.toggleReviewServiceOptions = function(checked){
     var section = document.getElementById("reviewServiceOptions");
     if(checked){
@@ -896,7 +899,7 @@ ASN.toggleAllowResubmissionPanel = function()
     {
         allow.value = "checked";
     }
-}
+};
 
 ASN.toggleSendFeedbackPanel = function()
 {
@@ -908,14 +911,14 @@ ASN.toggleSendFeedbackPanel = function()
     var showLabel = document.getElementById("showSendFeedbackLabel");
     var hideLabel = document.getElementById("hideSendFeedbackLabel");
     ASN.swapDisplay(showLabel, hideLabel);
-}
+};
 
 ASN.swapDisplay = function(elem1, elem2)
 {
     var tmpDisplay = elem1.style.display;
     elem1.style.display = elem2.style.display;
     elem2.style.display = tmpDisplay;
-}
+};
 
 ASN.toggleIsGroupSubmission = function(checked){
     if (checked) {
@@ -949,7 +952,7 @@ ASN.setupPeerReviewAttachment = function(){
             var $nameCount = "upload"+$count;
             $input.attr("name", $nameCount);
             $('#submissionFileCount').val(parseInt($('#submissionFileCount').val(), 10) + 1);
-            if ($('#submissionFileCount').val() == 5) {
+            if ($('#submissionFileCount').val() === 5) {
                 $('#addMoreAttachmentControls').hide();
                 $('#addMoreAttachmentControlsInactive').show();
             }
@@ -998,4 +1001,4 @@ ASN.handleReportsTriangleDisclosure = function (header, content)
         header.src = expand;
         content.style.display = "none";
     }
-}
+};
