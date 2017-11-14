@@ -1,6 +1,5 @@
 package org.sakaiproject.search.producer;
 
-import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.tika.Tika;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.search.api.StoredDigestContentProducer;
@@ -68,11 +67,6 @@ public class BinaryContentHostingContentProducer extends ContentHostingContentPr
             } catch (IOException e) {
                 logger.error("Error while closing the contentStream", e);
             }
-            // PDFont leaks memory so clear it out each time around.
-            // On a long running JVM the static internal HashMap
-            // (org.apache.pdfbox.pdmodel.font.PDFont.cmapObjects) has been seen
-            // to be eating up 750MB of heap.
-            PDFont.clearResources();
         }
     }
 
