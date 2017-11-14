@@ -38,7 +38,7 @@
 			SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
 		}
 
-        #if($validator.escapeHtml($!value_title) && $validator.escapeHtml($!value_title) !='')
+        #if($validator.escapeHtml($!value_title) && $validator.escapeHtml($!value_title) != '' && $!value_additionalOptions.equals("group") && $!groupsList)
             ASN.toggleAddOptions("group");
         #end
 	});
