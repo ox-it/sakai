@@ -273,7 +273,7 @@
 			#end
 			#if ($assignment_expand_flag)
 					#if ($assignmentContent.getInstructions().length()>0)
-+						<div class="textPanel">$validator.escapeHtmlFormattedText($assignmentContent.getInstructions())</div>
+						<div class="textPanel">$validator.escapeHtmlFormattedText($assignmentContent.getInstructions())</div>
 					#else
 					#end
 					## attachments of assignment
