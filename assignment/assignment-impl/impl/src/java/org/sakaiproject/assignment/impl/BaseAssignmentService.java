@@ -2995,7 +2995,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		if (archiveIsEmpty)
 		{
-			return rb.getString("noti.archive.empty");
+			return rb.getString("noti.archive.empty") + newline;
 		}
 		return builder.toString();
 	}
