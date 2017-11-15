@@ -81,7 +81,7 @@
         <amqp.version>3.1.1</amqp.version>
         <hamcrest.version>1.3</hamcrest.version>
         <joda-time.version>2.2</joda-time.version>
-        <pdfbox.version>1.8.6</pdfbox.version>
+        <pdfbox.version>2.0.6</pdfbox.version>
     </properties>
 
     <dependencyManagement>
