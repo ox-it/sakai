@@ -2949,10 +2949,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			for (int j = 0; j<attachments.size(); j++)
 			{
 				Reference r = (Reference) attachments.get(j);
-				buffer.append(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + " (" + r.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH)+ ")\n");
+				boolean isArchiveFile = isArchiveFile(r);
+				buffer.append(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME))
+					.append(" (")
+					.append(r.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH))
+					.append(isArchiveFile ? "):" : ")")
+					.append(newline);
 				//if this is a archive (zip etc) append the list of files in it
-				if (isArchiveFile(r)) {
-					buffer.append(getArchiveManifest(r));
+				if (isArchiveFile) {
+					buffer.append("<blockquote>\n");
+					buffer.append(getArchiveManifest(r, true));
+					buffer.append("</blockquote>\n");
 				}
 			}
 		}
@@ -2963,22 +2970,33 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * get a list of the files in the archive
 	 * @param r
+	 * @param indent specifies whether each line should be prefixed with 4 spaces
 	 * @return
 	 */
-	private Object getArchiveManifest(Reference r) {
+	private Object getArchiveManifest(Reference r, boolean indent) {
 		String extension = getFileExtension(r);
 		StringBuilder builder = new StringBuilder();
+		// assume archive is empty until at least one entry is found
+		boolean archiveIsEmpty = true;
 		if (".zip".equals(extension)) {
 			ZipContentUtil zipUtil = new ZipContentUtil();
 			Map<String, Long> manifest = zipUtil.getZipManifest(r);
 			Set<Entry<String, Long>> set = manifest.entrySet();
+			archiveIsEmpty = set.isEmpty();
 			Iterator<Entry<String, Long>> it = set.iterator();
 			while (it.hasNext()) {
 				Entry<String, Long> entry = it.next();
+				if (indent)
+				{
+					builder.append("    ");
+				}
 				builder.append(entry.getKey() + " (" + formatFileSize(entry.getValue()) + ")" + newline);
 			}
 		}
-		
+		if (archiveIsEmpty)
+		{
+			return rb.getString("noti.archive.empty");
+		}
 		return builder.toString();
 	}
 
