@@ -208,7 +208,8 @@ public class AddUser {
                         return new UserLookup(users.get(0));
                     }
                 }
-                // Check if email?
+                // As this isn't an existing user just tell the client if the current user is allowed to add
+                // users. We'll leave it up to the client to decide if it wants to validate it as an email.
                 boolean allowAdd = userDirectoryService.allowAddUser();
                 return new UserLookup(allowAdd);
             }
