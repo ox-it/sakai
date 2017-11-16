@@ -1,3 +1,5 @@
+017.11.16:
+        - [OWL-3282] fix issues with releasing grades for group submissions that have previously had dummy submissions created
 2017.11.15:
 	- [OWL-3310] format improvements for submission emails
 2017.11.02:

@@ -3691,15 +3691,29 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				Collection<Group> groups = (Collection<Group>) _site.getGroupsWithMember(user.getId());
 				if (groups != null)
 				{
+					List<AssignmentSubmission> submissions = new ArrayList<>(1);
 					for (Group _g : groups)
 					{
-						M_log.debug("Checking submission for group: " + _g.getTitle());
+						M_log.debug("Checking submission for group: {}", _g.getTitle());
 						submission = getSubmission(a.getReference(), _g.getId());
-						if (submission != null && allowGetSubmission(submission.getReference()))
+						if (submission != null && (submission.isUserSubmission() || StringUtils.isNotBlank(submission.getGrade())) && allowGetSubmission(submission.getReference()))
 						{
-							userSubmissionMap.put(user, submission);
-							break;
+							submissions.add(submission);
 						}
+					}
+
+					if (submissions.size() > 1)
+					{
+						M_log.error("Found multiple group submissions for userID={}, assignmentID={}; these submissions will NOT be returned! Submission ID/Group ID pairings below:",
+									user.getId(), a.getId());
+						for (AssignmentSubmission sub : submissions)
+						{
+							M_log.error("submissionID={}, groupID={}", sub.getId(), sub.getSubmitterId());
+						}
+					}
+					else if(submissions.size() == 1)
+					{
+						userSubmissionMap.put(user, submissions.get(0));
 					}
 				}
 				else
