@@ -63,14 +63,6 @@ public class LTIExportServiceImpl implements LTIExportService {
 	public void init() {
 		
 	}
-	
-	private boolean isAdmin(String siteId) {
-		if ( siteId == null ) {
-			throw new java.lang.RuntimeException("isAdmin() requires non-null siteId");
-		}
-		if (!"!admin".equals(siteId)) return false;
-		return siteService.allowUpdateSite(siteId);
-	}
 
 	/* (non-Javadoc)
 	 * @see impl.LTIExportService#export(java.io.OutputStream, org.sakaiproject.lti.api.LTIExportService.ExportType, java.lang.String)
@@ -81,7 +73,7 @@ public class LTIExportServiceImpl implements LTIExportService {
 		if(StringUtils.isNotEmpty(filterId)) {
 			search = "tool_id:"+filterId;
 		}
-		List<Map<String,Object>> contents = ltiService.getContentsDao(search, null, 0, 0, siteId, isAdmin(siteId));
+		List<Map<String,Object>> contents = ltiService.getContentsDao(search, null, 0, 0, siteId, ltiService.isAdmin(siteId));
 		LTIExporter exporter = null;
 		switch(exportType) {
 			case CSV : exporter = new ExporterCSV(); break;
@@ -99,7 +91,7 @@ public class LTIExportServiceImpl implements LTIExportService {
 					attribution_name = aux;
 			}
 			
-			boolean isAdmin = isAdmin(siteId);
+			boolean isAdmin = ltiService.isAdmin(siteId);
 			
 			//set header row
 			exporter.newLine();
