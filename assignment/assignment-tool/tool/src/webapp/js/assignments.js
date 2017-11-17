@@ -622,7 +622,7 @@ ASN.toggleAddOptions = function(checked){
         section.style.display="none";
         ASN.resizeFrame('shrink');
         $("#site").prop("disabled", false);
-        $("#site").parent().prop("disalbed", false);
+        $("#site").parent().prop("disabled", false);
         $("#site").parent().prop("class", "");
         $("#site").parent().prop("style", "");
         var groupSubsWarning = document.getElementById("msgGroupSubsWarning1");
