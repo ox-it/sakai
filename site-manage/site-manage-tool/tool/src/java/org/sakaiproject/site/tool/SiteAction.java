@@ -11711,7 +11711,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// iterate over ltiSelectedTools; if any are configurable, go to 26
 					for (String ltiToolId : ltiSelectedTools.keySet())
 					{
-						if (m_ltiService.getContentModelIfConfigurable(Long.parseLong(ltiToolId)).isPresent())
+						if ((existingLtiIds == null || !existingLtiIds.keySet().contains(ltiToolId)) && m_ltiService.getContentModelIfConfigurable(Long.parseLong(ltiToolId)).isPresent())
 						{
 							ltiToConfigure = true;
 							break;

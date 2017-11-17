@@ -1,3 +1,5 @@
+2017.11.17:
+	- [OWL-2900] Don't display configuration for LTI tools if all configuration is disallowed
 2017.10.25:
 	- [OWL-3177] fix Manage Participants > Printable version
 2017.10.19:
