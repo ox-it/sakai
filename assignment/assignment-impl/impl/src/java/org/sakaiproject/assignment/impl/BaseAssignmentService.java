@@ -2949,17 +2949,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			for (int j = 0; j<attachments.size(); j++)
 			{
 				Reference r = (Reference) attachments.get(j);
-				boolean isArchiveFile = isArchiveFile(r);
-				buffer.append(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME))
-					.append(" (")
-					.append(r.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH))
-					.append(isArchiveFile ? "):" : ")")
-					.append(newline);
-				//if this is a archive (zip etc) append the list of files in it
-				if (isArchiveFile) {
-					buffer.append("<blockquote>\n");
-					buffer.append(getArchiveManifest(r, true));
-					buffer.append("</blockquote>\n");
+				ResourceProperties properties = r.getProperties();
+				// OWL-3199 - Skip inline attachments
+				if (!"true".equals(properties.getProperty(AssignmentSubmission.PROP_INLINE_SUBMISSION)))
+				{
+					boolean isArchiveFile = isArchiveFile(r);
+					buffer.append(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
+						.append(" (")
+						.append(properties.getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH))
+						.append(isArchiveFile ? "):" : ")")
+						.append(newline);
+					//if this is a archive (zip etc) append the list of files in it
+					if (isArchiveFile) {
+						buffer.append("<blockquote>\n");
+						buffer.append(getArchiveManifest(r, true));
+						buffer.append("</blockquote>\n");
+					}
 				}
 			}
 		}

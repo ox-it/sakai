@@ -6808,7 +6808,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 
 						// SAK-26322 - add inline as an attachment for the content review service
-						if (allowReviewService && !isHtmlEmpty(text) && post && a.getContent().getAllowReviewService())
+						if (allowReviewService && !isHtmlEmpty(text) && post)
 						{
 							prepareInlineForContentReview(text, sEdit, state, u, isPreviousSubmissionTime, a.getContent().getAllowReviewService());
 						}
@@ -6868,7 +6868,7 @@ public class AssignmentAction extends PagedResourceActionII
 							List attachments = (List) state.getAttribute(ATTACHMENTS);
 
 							// SAK-26322 - add inline as an attachment for the content review service
-							if (allowReviewService && !isHtmlEmpty(text) && post && a.getContent().getAllowReviewService())
+							if (allowReviewService && !isHtmlEmpty(text) && post)
 							{
 								prepareInlineForContentReview(text, edit, state, u, false, a.getContent().getAllowReviewService());
 							}

@@ -1,9 +1,9 @@
+2017.11.17:
+	- [OWL-3199] submission emails for non-TII assignments list "Inline Submission.html" in the attachments list
 017.11.16:
-        - [OWL-3282] fix issues with releasing grades for group submissions that have previously had dummy submissions created
+	- [OWL-3282] fix issues with releasing grades for group submissions that have previously had dummy submissions created
 2017.11.15:
 	- [OWL-3310] format improvements for submission emails
-2017.11.02:
-	- [OWL-3199] submission emails for non-TII assignments list "Inline Submission.html" in the attachments list
 2017.10.31:
 	- [OWL-3280] validate default no submission grade before saving it to assignment properties
 	- [OWL-1706] update wording for content review badge
