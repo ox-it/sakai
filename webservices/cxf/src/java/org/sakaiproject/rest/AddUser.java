@@ -1,6 +1,8 @@
 package org.sakaiproject.rest;
 
 import org.apache.commons.validator.routines.EmailValidator;
+import org.sakaiproject.accountvalidator.logic.ValidationLogic;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -61,11 +63,17 @@ public class AddUser {
     private ServerConfigurationService serverConfigurationService;
 
     @Autowired
+    private AuthzGroupService authzGroupService;
+
+    @Autowired
     @Qualifier("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage")
     private UserAuditRegistration userAuditRegistration;
 
     @Autowired
     private UserNotificationProvider userNotificationProvider;
+
+    @Autowired
+    private ValidationLogic validationLogic;
 
 
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -82,6 +90,14 @@ public class AddUser {
 
     public void setUserAuditRegistration(UserAuditRegistration userAuditRegistration) {
         this.userAuditRegistration = userAuditRegistration;
+    }
+
+    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+        this.authzGroupService = authzGroupService;
+    }
+
+    public void setValidationLogic(ValidationLogic validationLogic) {
+        this.validationLogic = validationLogic;
     }
 
     public void setUserNotificationProvider(UserNotificationProvider userNotificationProvider) {
@@ -128,8 +144,9 @@ public class AddUser {
             List<RoleDetails> roleDetails = new ArrayList<>();
             Site site = siteService.getSiteVisit(siteId);
             for (Role role : site.getRoles()) {
-                if (!role.isProviderOnly()) {
-                    roleDetails.add(new RoleDetails(role.getId(), role.getDescription()));
+                if (!role.isProviderOnly() && authzGroupService.isRoleAssignable(role.getId())) {
+                    String roleName = authzGroupService.getRoleName(role.getId());
+                    roleDetails.add(new RoleDetails(role.getId(), role.getDescription(), roleName));
                 }
             }
             return roleDetails;
@@ -143,10 +160,12 @@ public class AddUser {
     public static class RoleDetails {
         private String id;
         private String description;
+        private String name;
 
-        public RoleDetails(String role, String description) {
+        public RoleDetails(String role, String description, String name) {
             this.id = role;
             this.description = description;
+            this.name = name;
         }
 
         public String getId() {
@@ -155,6 +174,10 @@ public class AddUser {
 
         public String getDescription() {
             return description;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 
@@ -171,14 +194,24 @@ public class AddUser {
             try {
                 user = userDirectoryService.getUserByAid(search);
             } catch (UserNotDefinedException e1) {
-                Collection<User> users = userDirectoryService.findUsersByEmail(search);
-                if (users.size() == 1) {
-                    user = users.iterator().next();
+                if (search.contains("@")) {
+                    Collection<User> users = userDirectoryService.findUsersByEmail(search);
+                    if (users.size() == 1) {
+                        return new UserLookup(users.iterator().next());
+                    }
                 } else {
-                    // Check if email?
-                    boolean allowAdd = userDirectoryService.allowAddUser();
-                    return new UserLookup(allowAdd);
+                    List<User> users = userDirectoryService.searchExternalUsers(search, 1, 1);
+                    if (users.isEmpty()) {
+                        users = userDirectoryService.searchUsers(search, 1, 1);
+                    }
+                    if (users.size() == 1) {
+                        return new UserLookup(users.get(0));
+                    }
                 }
+                // As this isn't an existing user just tell the client if the current user is allowed to add
+                // users. We'll leave it up to the client to decide if it wants to validate it as an email.
+                boolean allowAdd = userDirectoryService.allowAddUser();
+                return new UserLookup(allowAdd);
             }
         }
         return new UserLookup(user);
@@ -395,7 +428,11 @@ public class AddUser {
                         userEdit.setType("guest");
                         userDirectoryService.commitEdit(userEdit);
                         user = userEdit;
-                        userNotificationProvider.notifyNewUserEmail(user, pw, site);
+                        if (serverConfigurationService.getBoolean("siteManage.validateNewUsers", true)) {
+                            validationLogic.createValidationAccount(user.getId(), true);
+                        } else {
+                            userNotificationProvider.notifyNewUserEmail(user, pw, site);
+                        }
                     } catch (UserIdInvalidException e1) {
                         status.setMessage(user_invalid_id);
                     } catch (UserAlreadyDefinedException e1) {
@@ -407,7 +444,11 @@ public class AddUser {
                     status.setMessage(user_email_bad_domain);
                 }
             } else {
-                status.setMessage(user_not_found);
+                if (userId.contains("@")) {
+                    status.setMessage(user_email_bad);
+                } else {
+                    status.setMessage(user_not_found);
+                }
             }
         }
         // If we failed to resolve the user then
@@ -431,7 +472,7 @@ public class AddUser {
           */
         enum Message {
             user_invalid_id, user_exists, no_permission_create, user_email_bad_domain, user_not_found,
-            user_external_not_allowed, user_already_member, unknown_error;
+            user_external_not_allowed, user_already_member, unknown_error, user_email_bad;
         }
 
         private boolean added;

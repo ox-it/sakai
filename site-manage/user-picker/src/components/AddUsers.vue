@@ -3,7 +3,7 @@
   "en": {
   "add.users": "Add Users",
   "people": "People",
-  "people.help": "Type in some users, press return to get enter another user. Paste multiple users, one per line.",
+  "people.help": "Type in or paste one or more users. One user per box. Press enter to get another box.",
   "role": "Role",
   "role.help": "Choose a role for the new participants",
   "lookup": "Lookup",
@@ -18,6 +18,7 @@
   "user_exists": "Cannot create as user already exists.",
   "no_permission_create": "You don't have permission to create new users.",
   "user_email_bad_domain": "The domain used in email address isn't permitted.",
+  "user_email_bad": "This isn't a well formed email address.",
   "user_not_found": "Failed to find user matching this.",
   "user_external_not_allowed": "External users cannot be added to this site.",
   "user_already_member": "User is already a member of this site.",
@@ -129,7 +130,9 @@
         this.searches.splice(index + 1, 0, {query: newSearch, itemCounter: itemCounter++})
       },
       removeItem: function (index) {
-        this.searches.splice(index, 1)
+        if (this.searches.length > 1) {
+          this.searches.splice(index, 1)
+        }
       },
       addUsers: function () {
         // Disable everything.
@@ -191,9 +194,9 @@
     data () {
       return {
         /** Show people help */
-        showPeopleHelp: false,
+        showPeopleHelp: true,
         /** Show role help */
-        showRoleHelp: false,
+        showRoleHelp: true,
         /** Show the bulk user add input */
         showBulk: false,
         role: undefined,
