@@ -1,3 +1,5 @@
+2017.22.17:
+	- [OWL-3334] assign grade to participants without a grade, multiplication by 100 display issue
 2017.11.17:
 	- [OWL-3199] submission emails for non-TII assignments list "Inline Submission.html" in the attachments list
 017.11.16:

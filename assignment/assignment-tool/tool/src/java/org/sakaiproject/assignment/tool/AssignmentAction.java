@@ -15882,6 +15882,8 @@ public class AssignmentAction extends PagedResourceActionII
 		ParameterParser params = data.getParameters();
 		
 		String grade = StringUtils.trimToNull(params.getString("defaultGrade"));
+		// OWL-3334 - the grade as input by the user
+		String inputGrade = grade;
 		if (grade == null)
 		{
 			addAlert(state, rb.getString("plespethe2"));
@@ -15971,7 +15973,8 @@ public class AssignmentAction extends PagedResourceActionII
 			AssignmentEdit aEdit = editAssignment(assignmentId, "doSet_defaultNoSubmissionScore", state, false);
 			if (aEdit != null)
 			{
-				aEdit.getPropertiesEdit().addProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE, grade);
+				// OWL-3334 - keep it stored as input by the user (ie. non-scaled)
+				aEdit.getPropertiesEdit().addProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE, inputGrade);
 				AssignmentService.commitEdit(aEdit);
 			}
 		}
