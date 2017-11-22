@@ -3690,9 +3690,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		try
 		{
 			Site _site = SiteService.getSite(a.getContext());
+			Collection<String> releaseToGroupRefs = a.getGroups();
 			for (User user : users)
 			{
-				AssignmentSubmission submission = null;
+				AssignmentSubmission submission;
 				Collection<Group> groups = (Collection<Group>) _site.getGroupsWithMember(user.getId());
 				if (groups != null)
 				{
@@ -3701,7 +3702,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						M_log.debug("Checking submission for group: {}", _g.getTitle());
 						submission = getSubmission(a.getReference(), _g.getId());
-						if (submission != null && (submission.isUserSubmission() || StringUtils.isNotBlank(submission.getGrade())) && allowGetSubmission(submission.getReference()))
+						String groupRef = "/site/" + a.getContext() + "/group/" +_g.getId();
+						if (submission != null && releaseToGroupRefs.contains(groupRef) && allowGetSubmission(submission.getReference()))
 						{
 							submissions.add(submission);
 						}
