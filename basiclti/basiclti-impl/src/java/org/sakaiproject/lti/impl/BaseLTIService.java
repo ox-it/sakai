@@ -807,7 +807,7 @@ public abstract class BaseLTIService implements LTIService {
 				ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
 				String fa_icon = (String)content.get(LTI_FA_ICON);
 				// if not present in lti_content, fallback to lti_tool's value
-				if (fa_icon == null) {
+				if (StringUtils.isBlank(fa_icon)) {
 					Object objToolId = content.get(LTI_TOOL_ID);
 					if (objToolId != null && objToolId instanceof Integer)
 					{
@@ -816,7 +816,7 @@ public abstract class BaseLTIService implements LTIService {
 						fa_icon = (String)ltiTool.get(LTI_FA_ICON);
 					}
 				}
-				if ( fa_icon != null && fa_icon.length() > 0 ) {
+				if ( !StringUtils.isBlank(fa_icon) ) {
 					tool.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
 				}
 				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
