@@ -809,9 +809,9 @@ public abstract class BaseLTIService implements LTIService {
 				// if not present in lti_content, fallback to lti_tool's value
 				if (StringUtils.isBlank(fa_icon)) {
 					Object objToolId = content.get(LTI_TOOL_ID);
-					if (objToolId != null && objToolId instanceof Integer)
+					if (objToolId != null && objToolId instanceof Number)
 					{
-						Long toolId = ((Integer)objToolId).longValue();
+						Long toolId = ((Number)objToolId).longValue();
 						Map<String, Object> ltiTool = getToolDao(toolId, siteId);
 						fa_icon = (String)ltiTool.get(LTI_FA_ICON);
 					}
