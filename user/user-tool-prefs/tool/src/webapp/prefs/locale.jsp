@@ -58,13 +58,12 @@
 				
 	
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
-				
+				<t:div rendered="#{UserPrefsTool.locUpdated}">
+					<jsp:include page="prefUpdatedMsg.jsp"/>
+				</t:div>
 				<h3 style="display: inline-block;">
 					<h:outputText value="#{msgs.prefs_lang_title}" />
 				</h3>
-				<h:panelGroup rendered="#{UserPrefsTool.locUpdated}" style="margin:0 3em;">
-					<jsp:include page="prefUpdatedMsg.jsp"/>
-				</h:panelGroup>
 
 
 				

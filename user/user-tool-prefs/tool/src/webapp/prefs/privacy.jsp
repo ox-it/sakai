@@ -50,15 +50,15 @@
 		    
 		</sakai:tool_bar>
 
+        <!--SAK-18566 -->
+        <t:div rendered="#{privacyBean.updateMessage}">
+            <jsp:include page="prefUpdatedMsg.jsp"/>
+        </t:div>
         <h:panelGroup rendered="#{privacyBean.myWorkspace}" >
             <h3>
                 <h:outputText value="#{msgs.privacy_title}" />
             </h3>
         </h:panelGroup>
-        <!--SAK-18566 -->
-		<h:panelGroup rendered="#{privacyBean.updateMessage}" style="margin:0 3em;">
-			<jsp:include page="prefUpdatedMsg.jsp"/>
-		</h:panelGroup>
 	 	<%--  Message if Show All or Hide All has been clicked --%>
 	 	<f:verbatim><div></f:verbatim>
 	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />

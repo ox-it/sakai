@@ -74,13 +74,14 @@
  		    <sakai:tool_bar_item action="#{UserPrefsTool.processActionHiddenFrmEdit}" value="#{msgs.prefs_sites}"  rendered="#{UserPrefsTool.hidden_selection == 5}" current="false" />
  		    
  			</sakai:tool_bar>
-				
+
+				<t:div rendered="#{UserPrefsTool.notiUpdated}">
+					<jsp:include page="prefUpdatedMsg.jsp"/>
+				</t:div>
 				<h3 style="display: inline-block;">
 					<h:outputText value="#{msgs.prefs_noti_title}" />
 				</h3>
-				<h:panelGroup rendered="#{UserPrefsTool.notiUpdated}" style="margin:0 3em;">
-					<jsp:include page="prefUpdatedMsg.jsp"/>
-				</h:panelGroup>
+				
 
 	
 				<sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />

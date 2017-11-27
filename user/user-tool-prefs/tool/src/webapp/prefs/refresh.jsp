@@ -19,9 +19,9 @@
 				
 				<br>
 
-				<h:panelGroup rendered="#{UserPrefsTool.refreshUpdated}">
+				<t:div rendered="#{UserPrefsTool.refreshUpdated}">
 					<jsp:include page="prefUpdatedMsg.jsp"/>	
-				</h:panelGroup>
+				</t:div>
 				
 				<sakai:messages />
 				
