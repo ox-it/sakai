@@ -816,7 +816,7 @@ public abstract class BaseLTIService implements LTIService {
 						fa_icon = (String)ltiTool.get(LTI_FA_ICON);
 					}
 				}
-				if ( !StringUtils.isBlank(fa_icon) ) {
+				if ( !StringUtils.isBlank(fa_icon) && !"none".equals(fa_icon) ) {
 					tool.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
 				}
 				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
