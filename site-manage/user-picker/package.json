@@ -83,7 +83,7 @@
     "vue-loader": "^12.1.0",
     "@kazupon/vue-i18n-loader": "0.1.1",
     "vue-style-loader": "^3.0.1",
-    "vue-template-compiler": "^2.3.3",
+    "vue-template-compiler": "2.3.4",
     "webpack": "^2.6.1",
     "webpack-bundle-analyzer": "^2.2.1",
     "webpack-dev-middleware": "^1.10.0",
