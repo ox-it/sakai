@@ -29,6 +29,7 @@ import java.io.InputStream;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.List;
@@ -304,9 +305,17 @@ public class SakaiIFrame extends GenericPortlet {
 				return;
 			}
 
-			String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(foundLtiToolId));
-			String formInput=m_ltiService.formInput(content, contentToolModel);
-			context.put("formInput", formInput);
+			Optional<String[]> contentToolModel = m_ltiService.getContentModelIfConfigurable(Long.valueOf(foundLtiToolId));
+			if (contentToolModel.isPresent())
+			{
+				String formInput = m_ltiService.formInput(content, contentToolModel.get());
+				context.put("formInput", formInput);
+			}
+			else
+			{
+				String noCustomizations = rb.getString("gen.info.nocustom");
+				context.put("noCustomizations", noCustomizations);
+			}
 			
 			vHelper.doTemplate(vengine, "/vm/edit.vm", context, out);
 		}
