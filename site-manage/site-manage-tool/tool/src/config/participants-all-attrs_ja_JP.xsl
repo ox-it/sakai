@@ -43,6 +43,7 @@
 											<fo:table-body>
 												<xsl:variable name="unique-list" select="//ROLE[not(.=following::ROLE)]" />
 												<xsl:for-each select="$unique-list">
+													<xsl:sort select="." />
 													<fo:table-row>
 														<fo:table-cell  padding="4pt">
 															<fo:block>
@@ -79,6 +80,7 @@
 											<fo:table-body>
 												<xsl:variable name="unique-list" select="//SECTION[not(.=following::SECTION)]" />
 												<xsl:for-each select="$unique-list">
+													<xsl:sort select="." />
 													<fo:table-row>
 														<fo:table-cell  padding="4pt">
 															<fo:block>
@@ -206,7 +208,7 @@
 		</fo:table-cell>
 	</xsl:template>
 	<xsl:template match="SECTION" xmlns:fo="http://www.w3.org/1999/XSL/Format">
-		<fo:inline font-size="70%" padding-right="3em">
+		<fo:inline font-size="70%">
 			<xsl:choose>
 				<xsl:when test="position() = last()">
 					<xsl:value-of select="." />

@@ -335,7 +335,8 @@ public class SiteInfoToolServlet extends HttpServlet
 				participantNode.appendChild(sectionsNode);
 
 				// credit
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_CREDIT_NODE_NAME, StringUtils.trimToEmpty(participant.getCredits()));
+				String credits = StringUtils.trimToEmpty(participant.getCredits()).replaceAll("<br />", "");
+				writeStringNodeToDom(doc, participantNode, PARTICIPANT_CREDIT_NODE_NAME, credits);
 
 				// role id
 				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ROLE_NODE_NAME, StringUtils.trimToEmpty(participant.getRole()));
