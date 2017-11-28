@@ -193,7 +193,7 @@
 			</xsl:choose>
 		</fo:table-cell>
 	</xsl:template>
-	<xsl:template match="ROLE | STATUS | ID | CREDIT" xmlns:fo="http://www.w3.org/1999/XSL/Format">
+	<xsl:template match="ROLE | STATUS | ID" xmlns:fo="http://www.w3.org/1999/XSL/Format">
 		<fo:table-cell  padding="2pt" >
 			<fo:block font-size="70%">
 				<xsl:value-of select="." />
@@ -208,16 +208,20 @@
 		</fo:table-cell>
 	</xsl:template>
 	<xsl:template match="SECTION" xmlns:fo="http://www.w3.org/1999/XSL/Format">
-		<fo:inline font-size="70%">
-			<xsl:choose>
-				<xsl:when test="position() = last()">
-					<xsl:value-of select="." />
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="." />
-					<xsl:text>, </xsl:text>
-				</xsl:otherwise>
-			</xsl:choose>
-		</fo:inline>
+		<fo:block font-size="70%">
+			<xsl:value-of select="." />
+		</fo:block>
+	</xsl:template>
+	<xsl:template match="CREDITS" xmlns:fo="http://www.w3.org/1999/XSL/Format">
+		<fo:table-cell  padding="2pt">
+			<fo:block>
+				<xsl:apply-templates select="CREDIT" />
+			</fo:block>
+		</fo:table-cell>
+	</xsl:template>
+	<xsl:template match="CREDIT" xmlns:fo="http://www.w3.org/1999/XSL/Format">
+		<fo:block font-size="70%">
+			<xsl:value-of select="." />
+		</fo:block>
 	</xsl:template>
 </xsl:stylesheet>

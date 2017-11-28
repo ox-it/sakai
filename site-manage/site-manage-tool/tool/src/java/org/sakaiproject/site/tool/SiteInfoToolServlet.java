@@ -98,6 +98,7 @@ public class SiteInfoToolServlet extends HttpServlet
 	protected static final String PARTICIPANT_SECTIONS_NODE_NAME = "SECTIONS";
 	protected static final String PARTICIPANT_SECTION_NODE_NAME = "SECTION";
 	protected static final String PARTICIPANT_ID_NODE_NAME = "ID";
+	protected static final String PARTICIPANT_CREDITS_NODE_NAME = "CREDITS";
 	protected static final String PARTICIPANT_CREDIT_NODE_NAME = "CREDIT";
 	protected static final String PARTICIPANT_ROLE_NODE_NAME = "ROLE";
 	protected static final String PARTICIPANT_STATUS_NODE_NAME = "STATUS";
@@ -287,7 +288,7 @@ public class SiteInfoToolServlet extends HttpServlet
 		// Create Root Element
 		Element root = doc.createElement(PARTICIPANTS_NODE_NAME);
 
-		String siteTitle = "";
+		String siteTitle;
 		
 		if (siteId != null)
 		{
@@ -297,7 +298,7 @@ public class SiteInfoToolServlet extends HttpServlet
 				siteTitle = site.getTitle();
 	    		
 				// site title
-				writeStringNodeToDom(doc, root, SITE_TITLE_NODE_NAME, rb.getFormattedMessage("participant_pdf_title", new String[] {siteTitle}));
+				writeStringNodeToDom(doc, root, SITE_TITLE_NODE_NAME, rb.getFormattedMessage("participant_pdf_title", new Object[] {siteTitle}));
 			}
 			catch (Exception e)
 			{
@@ -313,9 +314,8 @@ public class SiteInfoToolServlet extends HttpServlet
 		{
 		
 			// Go through all the time ranges (days)
-			for (Iterator<Participant> iParticipants = participants.iterator(); iParticipants.hasNext();)
+			for (Participant participant : participants)
 			{
-				Participant participant = iParticipants.next();
 				// Create Participant Element
 				Element participantNode = doc.createElement(PARTICIPANT_NODE_NAME);
 				
@@ -334,9 +334,14 @@ public class SiteInfoToolServlet extends HttpServlet
 				}
 				participantNode.appendChild(sectionsNode);
 
-				// credit
-				String credits = StringUtils.trimToEmpty(participant.getCredits()).replaceAll("<br />", "");
-				writeStringNodeToDom(doc, participantNode, PARTICIPANT_CREDIT_NODE_NAME, credits);
+				// credits
+				String[] credits = StringUtils.trimToEmpty(participant.getCredits()).replaceAll("<br />", "").split(",");
+				Element creditsNode = doc.createElement(PARTICIPANT_CREDITS_NODE_NAME);
+				for (String credit : credits)
+				{
+					writeStringNodeToDom(doc, creditsNode, PARTICIPANT_CREDIT_NODE_NAME, credit.trim());
+				}
+				participantNode.appendChild(creditsNode);
 
 				// role id
 				writeStringNodeToDom(doc, participantNode, PARTICIPANT_ROLE_NODE_NAME, StringUtils.trimToEmpty(participant.getRole()));
@@ -430,14 +435,11 @@ public class SiteInfoToolServlet extends HttpServlet
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
 			log.warn(this+".generatePDF(): " + e);
-			return;
 		}
 		finally
 		{
 			IOUtils.closeQuietly(configInputStream);
 		}
 	}
-	
 }
