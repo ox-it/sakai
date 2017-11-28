@@ -1,5 +1,6 @@
 2017.11.02:
 	- [OWL-985] spreadsheet import should be more informative about the format of the files it expects
+        - [OWL-3066] Hide All button has odd functionality
 2017.11.01:
 	- [OWL-3202] 'all changes saved' message shouldn't be on the pages by default
 	- [OWL-2943] import/export continue button shouldn't be enabled until a file is selected

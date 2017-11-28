@@ -196,7 +196,9 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 				categoryScoreFilter.add(new Label("categoryScoreLabel",
 						new StringResourceModel("label.toolbar.categoryscorelabel", null, new Object[] { categoryName })));
 
-				final CheckBox categoryScoreCheckbox = new AjaxCheckBox("categoryScoreCheckbox", new Model<>(settings.isCategoryScoreVisible(categoryName))) {
+				final CheckBox categoryScoreCheckbox = new AjaxCheckBox("categoryScoreCheckbox",
+						new Model<>(settings.isCategoryScoreVisible(categoryName)))
+				{
 					@Override
 					protected void onUpdate(final AjaxRequestTarget target) {
 						GradebookUiSettings settings = gradebookPage.getUiSettings();
@@ -211,9 +213,14 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 					}
 				};
 				categoryScoreCheckbox.add(new AttributeModifier("value", categoryName));
-				// If the context is anonymous, we have to filter out category scores for mixed categories (scores for mixed categories should display in normal view only)
-				boolean hideCategoryScores = settings.isContextAnonymous() && mixedCategoryNames.contains(categoryName);
-				categoryScoreFilter.add(categoryScoreCheckbox).setVisible(!hideCategoryScores);
+				categoryScoreFilter.add(categoryScoreCheckbox);
+				
+				// If the context is anonymous, we have to filter out category scores for mixed categories
+				// (scores for mixed categories should display in normal view only)
+				if (settings.isContextAnonymous() && mixedCategoryNames.contains(categoryName))
+				{
+					categoryScoreFilter.setVisible(false);
+				}
 
 				categoryItem.add(categoryScoreFilter);
 			}
