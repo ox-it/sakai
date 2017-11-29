@@ -24,14 +24,14 @@
 			<!-- actual layout -->
 			<fo:page-sequence master-reference="roster">
 				<fo:static-content flow-name="xsl-region-before">
-					<fo:block font-size="12pt" font-family="sans-serif" line-height="1cm" space-after.optimum="1pt" color="black" text-align="right" padding-top="0pt">
+					<fo:block font-size="12pt" font-family="sans-serif" line-height="1cm" space-after.optimum="1pt" color="black" text-align="center" padding-top="0pt">
 						<xsl:value-of select="PARTICIPANTS/SITE_TITLE" /> - <fo:page-number />
 					</fo:block>
 				</fo:static-content>
 				<fo:static-content flow-name="xsl-region-after"> </fo:static-content>
 				<fo:flow flow-name="xsl-region-body" font-size="9pt">
-					<fo:table table-layout="fixed" width="6in">
-						<fo:table-column column-width="2in" />
+					<fo:table table-layout="fixed" width="7.5in">
+						<fo:table-column column-width="2.5in" />
 						<fo:table-column column-width="4in" />
 						<fo:table-body>
 							<fo:table-row>
@@ -112,7 +112,7 @@
 						<!-- credits col -->
 						<fo:table-column column-width=".25in" />
 						<!-- role col -->
-						<fo:table-column column-width=".5in" />
+						<fo:table-column column-width="1.15in" />
 						<!-- status col -->						
 						<fo:table-column column-width=".5in" />
 						<fo:table-body>
@@ -195,7 +195,7 @@
 	</xsl:template>
 	<xsl:template match="ROLE | STATUS | ID" xmlns:fo="http://www.w3.org/1999/XSL/Format">
 		<fo:table-cell  padding="2pt" >
-			<fo:block font-size="70%">
+			<fo:block>
 				<xsl:value-of select="." />
 			</fo:block>
 		</fo:table-cell>
@@ -208,7 +208,7 @@
 		</fo:table-cell>
 	</xsl:template>
 	<xsl:template match="SECTION" xmlns:fo="http://www.w3.org/1999/XSL/Format">
-		<fo:block font-size="70%">
+		<fo:block>
 			<xsl:value-of select="." />
 		</fo:block>
 	</xsl:template>
@@ -220,7 +220,7 @@
 		</fo:table-cell>
 	</xsl:template>
 	<xsl:template match="CREDIT" xmlns:fo="http://www.w3.org/1999/XSL/Format">
-		<fo:block font-size="70%">
+		<fo:block>
 			<xsl:value-of select="." />
 		</fo:block>
 	</xsl:template>
