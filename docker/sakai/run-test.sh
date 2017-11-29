@@ -109,5 +109,5 @@ volumes:
 networks:
  backend: {}
  bridge:
-   external:
+   external: true
 EOF
