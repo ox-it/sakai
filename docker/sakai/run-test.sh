@@ -57,7 +57,7 @@ services:
           # All app servers can be referred to by this alias on the backend network
           - apps
       # This is needed so that the app can talk to the mailcatcher
-      bridge:
+      mailcatcher:
 
   db:
     extends:
@@ -108,6 +108,6 @@ volumes:
  shib-data:
 networks:
  backend: {}
- bridge:
+ mailcatcher:
    external: true
 EOF
