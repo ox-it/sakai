@@ -89,9 +89,16 @@ public class GradeImportUploadStep extends Panel {
 				@Override
 				protected void onSubmit(final AjaxRequestTarget target) {
 					FileUpload file = fileUploadField.getFileUpload();
-					boolean continueEnabled = file != null;
-					continueButton.setEnabled(continueEnabled);
-					target.add(continueButton);
+					final ImportExportPage page = (ImportExportPage) getPage();
+					if (file == null) {
+						error(getString("importExport.error.nullFile"));
+						page.updateFeedback(target);
+					} else {
+						continueButton.setEnabled(true);
+						page.clearFeedback();
+						page.updateFeedback(target);
+						target.add(continueButton);
+					}
 				}
 			});
 			add(fileUploadField);
