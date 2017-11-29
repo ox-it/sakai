@@ -108,4 +108,7 @@ volumes:
  shib-data:
 networks:
  backend: {}
+ bridge:
+   external:
+     name: bridge
 EOF
