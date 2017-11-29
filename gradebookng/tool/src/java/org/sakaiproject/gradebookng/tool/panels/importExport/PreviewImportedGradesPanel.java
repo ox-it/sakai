@@ -68,13 +68,13 @@ public class PreviewImportedGradesPanel extends Panel
         final WebMarkupContainer previewGradesContainer = new WebMarkupContainer( "previewGradesContainer" );
 
         String studentIdHeaderKey = isContextAnonymous ? "importExport.selection.previewGrades.anonId.heading" : "importExport.selection.previewGrades.studentID.heading";
-        Label studentIdHeading = new Label("studentIdHeading", new ResourceModel(studentIdHeaderKey));
-        Label studentNameHeading = new Label("studentNameHeading", new ResourceModel("importExport.selection.previewGrades.studentName.heading"));
-        Label studentGradeHeading = new Label("studentGradeHeading", new ResourceModel("importExport.selection.previewGrades.grade.heading"));
-        studentNameHeading.setVisible(!isContextAnonymous);
-        previewGradesContainer.add(studentIdHeading);
-        previewGradesContainer.add(studentNameHeading);
-        previewGradesContainer.add(studentGradeHeading);
+        Label studentIdHeading = new Label( "studentIdHeading", new ResourceModel( studentIdHeaderKey ) );
+        Label studentNameHeading = new Label( "studentNameHeading", new ResourceModel( "importExport.selection.previewGrades.studentName.heading" ) );
+        Label studentGradeHeading = new Label( "studentGradeHeading", new ResourceModel( "importExport.selection.previewGrades.grade.heading" ) );
+        studentNameHeading.setVisible( !isContextAnonymous);
+        previewGradesContainer.add( studentIdHeading );
+        previewGradesContainer.add( studentNameHeading );
+        previewGradesContainer.add( studentGradeHeading );
 
         final ListView<ProcessedGradeItemDetail> previewGrades = new ListView<ProcessedGradeItemDetail>( "previewGrades", processedGradeItem.getProcessedGradeItemDetails() )
         {
@@ -85,8 +85,8 @@ public class PreviewImportedGradesPanel extends Panel
                 final GbUser user = details.getUser();
                 String studentId = isContextAnonymous ? user.getAnonId() : user.getDisplayId();
                 item.add( new Label( "studentID", studentId ) );
-                Label lblStudentName = new Label("studentName", user.getDisplayName());
-                lblStudentName.setVisible(!isContextAnonymous);
+                Label lblStudentName = new Label( "studentName", user.getDisplayName() );
+                lblStudentName.setVisible( !isContextAnonymous );
                 item.add( lblStudentName );
                 item.add( new Label( "studentGrade", details.getGrade() ) );
             }

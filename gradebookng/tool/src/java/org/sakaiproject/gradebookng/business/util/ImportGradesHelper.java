@@ -38,8 +38,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.importExport.AnonIdentifier;
-import org.sakaiproject.gradebookng.business.importExport.CommentValidationReport;
-import org.sakaiproject.gradebookng.business.importExport.CommentValidator;
 import org.sakaiproject.gradebookng.business.importExport.DataConverter;
 import org.sakaiproject.gradebookng.business.importExport.GradeValidationReport;
 import org.sakaiproject.gradebookng.business.importExport.GradeValidator;
@@ -446,23 +444,6 @@ public class ImportGradesHelper {
 			String badGrades = StringUtils.join(badGradeEntries, ", ");
 			sourcePanel.error(MessageHelper.getString("importExport.error.invalidGradeData", badGrades));
 			hasValidationErrors = true;
-		}
-
-		// Perform comment validation if the file is not a DPC; present error message with invalid comments on current page
-		if (!isSourceDPC) {
-			CommentValidationReport commentReport = new CommentValidator().validate(rows, columns, isContextAnonymous);
-			SortedMap<String, SortedMap<String, String>> invalidCommentsMap = commentReport.getInvalidComments();
-			if (!invalidCommentsMap.isEmpty()) {
-				Collection<SortedMap<String, String>> invalidComments = invalidCommentsMap.values();
-				List<String> badCommentEntries = new ArrayList<>(invalidComments.size());
-				for (SortedMap<String, String> invalidCommentEntries : invalidComments) {
-					badCommentEntries.add(StringUtils.join(invalidCommentEntries.entrySet(), ", "));
-				}
-
-				String badComments = StringUtils.join(badCommentEntries, ", ");
-				sourcePanel.error(MessageHelper.getString("importExport.error.invalidComments", CommentValidator.MAX_COMMENT_LENGTH, badComments));
-				hasValidationErrors = true;
-			}
 		}
 
 		// get existing data

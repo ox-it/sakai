@@ -126,11 +126,7 @@ public class GradeImportUploadStep extends Panel {
 				ImportedSpreadsheetWrapper spreadsheetWrapper;
 				try {
 					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), businessService);
-				} catch (final GbImportExportInvalidFileTypeException e) {
-					error(getString("importExport.error.incorrecttype"));
-					page.updateFeedback(target);
-					return;
-				} catch (final InvalidFormatException e) {
+				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
 					error(getString("importExport.error.incorrecttype"));
 					page.updateFeedback(target);
 					return;
