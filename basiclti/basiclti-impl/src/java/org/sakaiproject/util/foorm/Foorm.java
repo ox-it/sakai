@@ -31,6 +31,8 @@ import java.util.logging.Logger;
 import java.lang.Number;
 import java.sql.ResultSetMetaData;
 
+import org.sakaiproject.lti.api.LTIService;
+
 /**
  * 
  */
@@ -1475,7 +1477,8 @@ public class Foorm {
 			{
 				Object allowRow = getField(controlRow, "allow" + field);
 				int value = getInt(allowRow);
-				if (value == 1)
+				// "Allow external tool to store setting data" enters this block, but it's not configuration; so exclude LTI_SETTINGS
+				if (value == 1 && !LTIService.LTI_SETTINGS.equals(field))
 				{
 					return true;
 				}
