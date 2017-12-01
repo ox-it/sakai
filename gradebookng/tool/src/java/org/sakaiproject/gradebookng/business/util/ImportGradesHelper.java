@@ -481,7 +481,10 @@ public class ImportGradesHelper {
 		{
 			if (item.getStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_MODIFIED ||
 					item.getStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_NEW ||
-					item.getStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_UPDATE)
+					item.getStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_UPDATE ||
+					item.getCommentStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_MODIFIED ||
+					item.getCommentStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_NEW ||
+					item.getCommentStatus().getStatusCode() == ProcessedGradeItemStatus.STATUS_UPDATE)
 			{
 				hasChanges = true;
 				break;
