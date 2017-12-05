@@ -2441,9 +2441,8 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     var $input = $filter.find(":input");
     var $label = $filter.find("label");
 
-    self.$gradeItemsFilterPanel.
-        find(".gb-item-category-filter :input:checked:not([value='"+$input.val()+"'])").
-        trigger("click");
+    self.$gradeItemsFilterPanel.find(".gb-item-category-filter :input:checked:not([value='"+$input.val()+"'])").trigger("click");
+    self.$gradeItemsFilterPanel.find(".gb-item-filter-group-partial :input:checked").trigger("click");
 
     if ($input.is(":not(:checked)")) {
       $label.trigger("click");

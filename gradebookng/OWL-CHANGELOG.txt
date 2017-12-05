@@ -1,3 +1,5 @@
+2017.12.05:
+	- [OWL-3342] selecting 'show this category' will not hide categories that are partially selected
 2017.12.01:
 	- [OWL-3349] gradebookng fails to import comment changes only
 2017.11.02:
