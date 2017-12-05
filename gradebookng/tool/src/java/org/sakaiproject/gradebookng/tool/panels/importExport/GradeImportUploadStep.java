@@ -52,6 +52,22 @@ public class GradeImportUploadStep extends Panel {
 		add(new UploadForm("form"));
 
 		boolean hasAnon = businessService.getGradebookAssignments().stream().anyMatch(Assignment::isAnon);
+
+		String summaryMsgKey = "importExport.instructions.summary";
+		String normalInstructionsMsgKey1 = "importExport.instructions.1";
+		if (hasAnon) {
+			summaryMsgKey = "importExport.instructions.summary.anon";
+			normalInstructionsMsgKey1 = "importExport.instructions.1.anon";
+		}
+		add(new Label("instructionsSummary", getString(summaryMsgKey)));
+
+		RepeatingView normalInstructions = new RepeatingView("normalInstructions");
+		normalInstructions.add(new Label(normalInstructions.newChildId(), getString(normalInstructionsMsgKey1)));
+		normalInstructions.add(new Label(normalInstructions.newChildId(), getString("importExport.instructions.2")));
+		normalInstructions.add(new Label(normalInstructions.newChildId(), getString("importExport.instructions.3")));
+		normalInstructions.add(new Label(normalInstructions.newChildId(), getString("importExport.instructions.4")));
+		add(normalInstructions);
+
 		RepeatingView dpcInstructions = new RepeatingView("dpcInstructions");
 		dpcInstructions.add(new Label(dpcInstructions.newChildId(), getString("importExport.instructions.5")));
 		dpcInstructions.add(new Label(dpcInstructions.newChildId(), getString("importExport.instructions.6")));
