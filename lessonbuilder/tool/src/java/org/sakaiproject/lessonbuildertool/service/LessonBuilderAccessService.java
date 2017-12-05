@@ -30,7 +30,6 @@ import java.io.BufferedInputStream;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
@@ -50,7 +49,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
@@ -95,11 +93,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
-import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.tool.api.Session;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
@@ -793,7 +788,7 @@ public class LessonBuilderAccessService {
 							//This differens if it's a student page or non-student page
 							if (studentcontent && inline && dangerous && useCspStudent) {
 							    res.addHeader("Content-Security-Policy", CSPHeadersStudent);
-							    res.addHeader("X-Content-Security-Policy", CSPHeaders);
+							    res.addHeader("X-Content-Security-Policy", CSPHeadersStudent);
 							}
 							else if (!studentcontent && inline && dangerous && useCsp) {
 							    res.addHeader("Content-Security-Policy", CSPHeaders);

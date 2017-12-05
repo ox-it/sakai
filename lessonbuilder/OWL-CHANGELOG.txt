@@ -1,3 +1,5 @@
+2017.12.05:
+	- [OWL-3352] lessons sends different CSP and XCSP headers for students, which leads to inconsistent browser support
 2017.08.24:
 	- [OWL-3171] Updated the placeholder instructions and the general instructions for Lessons in English
 2017.08.01:
