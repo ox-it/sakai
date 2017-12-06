@@ -156,6 +156,7 @@ a.markAsReadIcon:hover{
 	width: 98% !important;
 	margin: 1em 0 !important;
 /*	border-spacing: .5em;*/
+        table-layout: fixed;
 }
 .messagesFlat  tbody tr div,.messagesThreaded tbody tr div{
 	border: none
