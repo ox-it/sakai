@@ -58,7 +58,7 @@
 															</fo:block>
 														</fo:table-cell>
 														<fo:table-cell  padding="4pt">
-															<fo:block>
+															<fo:block text-align="right">
 																<xsl:variable name="this" select="." />
 																<xsl:value-of select="count(//ROLE[text()=$this])" />
 															</fo:block>
@@ -70,7 +70,7 @@
 														<fo:block font-weight="bold"> </fo:block>
 													</fo:table-cell>
 													<fo:table-cell  padding="4pt" border-top="1pt solid #ccc">
-														<fo:block font-weight="bold">
+														<fo:block font-weight="bold" text-align="right">
 															<xsl:value-of select="count(//ROLE)" />
 														</fo:block>
 													</fo:table-cell>
@@ -95,7 +95,7 @@
 															</fo:block>
 														</fo:table-cell>
 														<fo:table-cell  padding="4pt">
-															<fo:block>
+															<fo:block text-align="right">
 																<xsl:variable name="this" select="." />
 																<xsl:value-of select="count(//SECTION[text()=$this])" />
 															</fo:block>
@@ -201,8 +201,8 @@
 		</fo:table-cell>
 	</xsl:template>
 	<xsl:template match="ROLE | STATUS | ID" xmlns:fo="http://www.w3.org/1999/XSL/Format">
-		<fo:table-cell  padding="2pt" >
-			<fo:block>
+		<fo:table-cell  padding="2pt" white-space="nowrap">
+			<fo:block white-space="nowrap" wrap-option="wrap">
 				<xsl:value-of select="." />
 			</fo:block>
 		</fo:table-cell>
@@ -215,7 +215,7 @@
 		</fo:table-cell>
 	</xsl:template>
 	<xsl:template match="SECTION" xmlns:fo="http://www.w3.org/1999/XSL/Format">
-		<fo:block>
+		<fo:block white-space="nowrap" wrap-option="wrap">
 			<xsl:value-of select="." />
 		</fo:block>
 	</xsl:template>
@@ -227,7 +227,7 @@
 		</fo:table-cell>
 	</xsl:template>
 	<xsl:template match="CREDIT" xmlns:fo="http://www.w3.org/1999/XSL/Format">
-		<fo:block>
+		<fo:block white-space="nowrap" wrap-option="wrap">
 			<xsl:value-of select="." />
 		</fo:block>
 	</xsl:template>
