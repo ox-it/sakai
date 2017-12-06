@@ -1,3 +1,5 @@
+2017.12.06:
+	- [OWL-3357] fix excessive/misleading error reporting on gradebook import
 2017.12.05:
 	- [OWL-3342] selecting 'show this category' will not hide categories that are partially selected
 2017.12.01:

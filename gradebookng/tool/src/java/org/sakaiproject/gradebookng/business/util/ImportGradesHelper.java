@@ -462,17 +462,16 @@ public class ImportGradesHelper {
 		}
 		
 		// if the file has no valid users, tell the user now
-		if (spreadsheetWrapper.getUserIdentifier().getReport().getIdentifiedUsers().isEmpty())
+		if (userReport.getIdentifiedUsers().isEmpty())
 		{
 			hasValidationErrors = true;
 			sourcePanel.error(MessageHelper.getString("importExport.error.noValidStudents"));
 		}
 
 		// if empty there are no grade columns, tell the user now
-		if (processedGradeItems.isEmpty())
+		if (processedGradeItems.isEmpty() && !userReport.getIdentifiedUsers().isEmpty())
 		{
 			hasValidationErrors = true;
-			sourcePanel.error(MessageHelper.getString("importExport.error.empty"));
 			sourcePanel.error(MessageHelper.getString("importExport.error.noValidGrades"));
 		}
 		
@@ -490,7 +489,7 @@ public class ImportGradesHelper {
 				break;
 			}
 		}
-		if (!hasChanges)
+		if ((!hasChanges && !processedGradeItems.isEmpty()) && !userReport.getIdentifiedUsers().isEmpty())
 		{
 			hasValidationErrors = true;
 			sourcePanel.error(MessageHelper.getString("importExport.error.noChanges"));
