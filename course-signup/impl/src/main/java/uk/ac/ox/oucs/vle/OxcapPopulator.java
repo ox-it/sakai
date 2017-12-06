@@ -19,10 +19,20 @@
  */
 package uk.ac.ox.oucs.vle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.Collection;
 
-public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements PopulatorWrapper {
+/**
+ * This flags all the courses as deleted before running the populator and then deletes anything that hasn't
+ * been unflagged as deleted. This should only be used on providers that don't do
+ * signup through the tool.
+ */
+public class OxcapPopulator implements Populator {
+
+	private final Logger log = LoggerFactory.getLogger(OxcapPopulator.class);
 
 	/**
 	 * The DAO to update our entries through.
@@ -41,36 +51,39 @@ public class DaisyPopulatorWrapper extends BasePopulatorWrapper implements Popul
 	}
 	
 	/**
-	 * The service to supply search services
+	 * The Search service to use
 	 */
 	private SearchService search;
 	public void setSearchService(SearchService search) {
 		this.search = search;
 	}
 
-	private NowService nowService;
-	public void setNowService(NowService nowService) {
-		this.nowService = nowService;
-	}
-
+	
 	@Override
-	void runPopulator(PopulatorContext context) throws IOException {
-		
-		dao.flagSelectedDaisyCourseGroups(context.getName(), nowService.getNow());
-		dao.flagSelectedDaisyCourseComponents(context.getName(), nowService.getNow());
+	public void update(PopulatorContext context) {
+
+		dao.flagSelectedCourseGroups(context.getName());
+		dao.flagSelectedCourseComponents(context.getName());
 
 		populator.update(context);
 
 		Collection<CourseGroupDAO> groups = dao.deleteSelectedCourseGroups(context.getName());
 		for (CourseGroupDAO group : groups) {
 			search.deleteCourseGroup(new CourseGroupImpl(group, null));
-			context.getDeletedLogWriter().write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
+			try {
+				context.getDeletedLogWriter().write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
+			} catch (IOException e) {
+				log.warn("Failed to write deleted log.", e);
+			}
 		}
 
 		Collection<CourseComponentDAO> components = dao.deleteSelectedCourseComponents(context.getName());
 		for (CourseComponentDAO component : components) {
-			context.getDeletedLogWriter().write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
+			try {
+				context.getDeletedLogWriter().write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
+			} catch (IOException e) {
+				log.warn("Failed to write deleted log.", e);
+			}
 		}
 	}
-
 }

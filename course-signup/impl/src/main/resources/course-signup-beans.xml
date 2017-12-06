@@ -90,7 +90,7 @@
 	<bean id="uk.ac.ox.oucs.vle.XcriPopulator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
-			<bean class="uk.ac.ox.oucs.vle.XcriOxCapPopulatorImpl">
+			<bean class="uk.ac.ox.oucs.vle.XcriOxCapPopulator">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 				<property name="populatorInput" ref="uk.ac.ox.oucs.vle.PopulatorInput" />
@@ -105,10 +105,10 @@
 		</property>
 	</bean>
 	
-	<bean id="uk.ac.ox.oucs.vle.DaisyPopulatorWrapper"
+	<bean id="uk.ac.ox.oucs.vle.DaisyPopulator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
-			<bean class="uk.ac.ox.oucs.vle.DaisyPopulatorWrapper">
+			<bean class="uk.ac.ox.oucs.vle.DaisyPopulator">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator" />
 				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
@@ -118,7 +118,7 @@
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		<property name="transactionAttributes">
 			<value>
-				runPopulator=PROPAGATION_REQUIRED
+				update=PROPAGATION_REQUIRED
 			</value>
 		</property>
 	</bean>
@@ -126,15 +126,15 @@
 	<!-- Should be replaced by MethodInvokingJobDetailFactoryBean -->
 	<bean id="uk.ac.ox.oucs.vle.DaisyPopulatorJob"
 		class="uk.ac.ox.oucs.vle.PopulatorJob">
-		<property name="populatorWrapper" ref="uk.ac.ox.oucs.vle.DaisyPopulatorWrapper"/>
+		<property name="populator" ref="uk.ac.ox.oucs.vle.DaisyPopulator"/>
 		<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 	</bean>
 
 	
-		<bean id="uk.ac.ox.oucs.vle.OxcapPopulatorWrapper"
+		<bean id="uk.ac.ox.oucs.vle.OxcapPopulator"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="target">
-			<bean class="uk.ac.ox.oucs.vle.OxcapPopulatorWrapper">
+			<bean class="uk.ac.ox.oucs.vle.OxcapPopulator">
 				<property name="courseDao" ref="uk.ac.ox.oucs.vle.CourseDAO" />
 				<property name="populator" ref="uk.ac.ox.oucs.vle.XcriPopulator" />
 				<property name="searchService" ref="uk.ac.ox.oucs.vle.SearchService" />
@@ -143,7 +143,7 @@
 		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 		<property name="transactionAttributes">
 			<value>
-				runPopulator=PROPAGATION_REQUIRED
+				update=PROPAGATION_REQUIRED
 			</value>
 		</property>
 	</bean>
@@ -151,7 +151,7 @@
 	<!-- Should be replaced by MethodInvokingJobDetailFactoryBean -->
 	<bean id="uk.ac.ox.oucs.vle.OxcapPopulatorJob"
 		class="uk.ac.ox.oucs.vle.PopulatorJob">
-		<property name="populatorWrapper" ref="uk.ac.ox.oucs.vle.OxcapPopulatorWrapper"/>
+		<property name="populator" ref="uk.ac.ox.oucs.vle.OxcapPopulator"/>
 		<property name="proxy" ref="uk.ac.ox.oucs.vle.SakaiProxy" />
 	</bean>
 

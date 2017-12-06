@@ -20,7 +20,7 @@ public class BaseDateComparator implements Comparator<CourseComponent> {
 	 * Extracts the base date from a component.
 	 * @param component The course component.
 	 * @return A date when the course transitions from previous to current. Never returns <code>null</code>.
-	 * @see XcriOxCapPopulatorImpl#baseDate
+	 * @see XcriOxCapPopulator#baseDate
 	 */
 	public static Date getBaseDate(CourseComponent component) {
 		// In the future this should all be in one place and calculated when we import the course.

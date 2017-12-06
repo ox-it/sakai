@@ -19,8 +19,13 @@
  */
 package uk.ac.ox.oucs.vle;
 
+/**
+ * A class that implements something that populars some part of the system.
+ * This prevents direct binding against quartz interfaces.
+ */
+@FunctionalInterface
 public interface Populator {
 
-	public abstract void update(PopulatorContext context) throws CourseSignupException;
+	void update(PopulatorContext context) throws CourseSignupException;
 
 }
