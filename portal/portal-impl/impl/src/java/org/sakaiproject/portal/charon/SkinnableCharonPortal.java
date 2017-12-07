@@ -278,6 +278,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				String[] parts = getParts(req);
 				if (parts.length >= 3) {
 					String siteId = parts[2];
+					try {
+						// Lookup any alias in the URL
+						siteId = getSiteHelper().getSite(siteId).getId();
+					} catch (IdUnusedException ignored) {
+					}
 					ThreadLocalManager.set(PortalService.SAKAI_PORTAL_ORIGINAL_SITEID, siteId);
 				}
 				siteHandler.doGet(parts, req, res, session, "!error");
