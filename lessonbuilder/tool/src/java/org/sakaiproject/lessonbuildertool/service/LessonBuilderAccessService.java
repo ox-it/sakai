@@ -1269,8 +1269,6 @@ public class LessonBuilderAccessService {
 
     // similar to SimplePageBean.track, but doesn't need bean;
     public void track(long itemId, String userId) {
-	if (userId == null)
-	    userId = ".anon";
 	SimplePageLogEntry entry = simplePageToolDao.getLogEntry(userId, itemId, -1L);
 	// don't need a toolid for this entry. it's only used for pages
 	if (entry == null) {

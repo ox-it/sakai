@@ -4710,8 +4710,6 @@ public class SimplePageBean {
 		}
 
 		String userId = getCurrentUserId();
-		if (userId == null)
-		    userId = ".anon";
 		SimplePageLogEntry entry = getLogEntry(itemId, studentPageId);
 		String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
 		
@@ -5609,8 +5607,6 @@ public class SimplePageBean {
 		    // if no log entry, create a dummy entry
 			if (shouldHaveAccess) {
 				String userId = getCurrentUserId();
-				if (userId == null)
-					userId = ".anon";
 				SimplePageLogEntry entry = simplePageToolDao.makeLogEntry(userId, itemId, null);
 				entry.setDummy(true);
 				saveItem(entry);

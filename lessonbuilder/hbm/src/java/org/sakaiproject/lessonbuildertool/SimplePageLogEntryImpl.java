@@ -47,7 +47,7 @@ public class SimplePageLogEntryImpl implements SimplePageLogEntry {
 
 	public SimplePageLogEntryImpl(String userId, long itemId, Long studentPageId) {
 		firstViewed = new Date();
-		this.userId = userId;
+		this.userId = (userId == null || userId.isEmpty() ? ".anon" : userId);
 		this.itemId = itemId;
 		this.studentPageId = studentPageId;
 		complete = false;
