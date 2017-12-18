@@ -290,6 +290,10 @@ public class MoreSiteViewImpl extends AbstractSiteViewImpl
 			{
 				term = rb.getString("moresite_administration");
 			}
+			else if ("submission".equals(type))
+			{
+				term = rb.getString("moresite_submission");
+			}
 			else
 			{
 				term = rb.getString("moresite_other");

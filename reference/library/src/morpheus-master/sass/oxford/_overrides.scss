@@ -57,6 +57,8 @@
     .fav-sites-term:first-child {
         float: left;
         margin-right: 1em;
+        /* Add a minimum height so that items on the RHS of the menu don't move to the LHS. */
+        min-height: 250px;
         .favorites-term-header {
             /* The header is PROJECTS, we don't want to show this
                so shift off screen. */
@@ -76,8 +78,9 @@
             margin-top: 0;
         }
     }
-    .fav-sites-term:nth-child(3) {
+    .fav-sites-term:nth-child(3), .fav-sites-term:nth-child(4) {
         display: inline-block;
+        width: 49%;
         .favorites-term-header{
             margin-top: 0;
             margin-bottom: 0.4em;
