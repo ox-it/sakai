@@ -31,3 +31,25 @@ ASN_SVS.undoCancel = function()
 	submitPanel.style.display = "block";
 	confirmationDialogue.style.display = "none";
 };
+
+$(document).ready(function()
+{
+	var inTool = false;
+
+	window.addEventListener("click", function (event) {
+		if ($.contains(document.getElementById('addSubmissionForm'), event.target)) {
+			inTool = true;
+		}
+		else {
+			inTool = false;
+		}
+	});
+
+	window.addEventListener("beforeunload", function (event) {
+		// Add a returnValue so that a pop-up occurs if there is an attachment and the user
+		// tries to click on anything other than attachment buttons/links.
+		if ($("#attachments").length != 0 && (inTool === false)) {
+			event.returnValue = "";
+		}
+	});
+});
