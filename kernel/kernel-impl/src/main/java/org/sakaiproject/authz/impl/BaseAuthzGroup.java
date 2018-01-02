@@ -1017,7 +1017,8 @@ public class BaseAuthzGroup implements AuthzGroup
 		if (role == null)
 		{
 			M_log.warn(".addUserRole: role undefined: " + roleId);
-			throw new IllegalArgumentException("addMember called with null role!");
+			throw new IllegalArgumentException("addMember user: "+ user+ "called with roleId: "+ roleId +
+					" that isn't found on authzGroupId: "+ m_id);
 		}
 
 		BaseMember grant = (BaseMember) m_userGrants.get(user);
