@@ -68,7 +68,7 @@ public class DownloadLinkPanel extends Panel
 				if (submitter.isCurrentUserAbleToSubmit() || submitter.isCurrentUserAbleToApprove())
 				{
 					CourseGradePdfGenerator pdfGen = new CourseGradePdfGenerator(sub);
-					CourseGradeSubmitter.findPreviousApproval(sub).ifPresent(approval -> pdfGen.setPreviousApprovedGrades(approval.getGradeData()));
+					CourseGradeSubmitter.findPreviousApproval(sub.getPrevSubmission()).ifPresent(approval -> pdfGen.setPreviousApprovedGrades(approval.getGradeData()));
 					File tempFile = File.createTempFile("pdf", null);
 					FileOutputStream fos = new FileOutputStream(tempFile);
 					pdfGen.generateIntoOutputStream(fos);

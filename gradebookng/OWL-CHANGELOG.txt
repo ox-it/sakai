@@ -1,5 +1,6 @@
 2018.01.05:
         - [OWL-3373] Crosslisted sites with a Grade Admin in the second section won't allow the GA to approve their section
+        - [OWL-3374] Final Grades pdf behaves differently for Sakai 11 than it did previously
 2017.12.06:
 	- [OWL-3357] fix excessive/misleading error reporting on gradebook import
 2017.12.05:
