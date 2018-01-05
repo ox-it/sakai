@@ -211,7 +211,7 @@ public class TwoFactorLogin extends HttpServlet
 			}
 		}
 		if (!goodInstant) {
-			throw new RuntimeException("You login took too long to process, please try again.");
+			throw new RuntimeException("Your login took too long to process, please try again.");
 		}
 	}
 }
