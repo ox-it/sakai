@@ -23,6 +23,7 @@ public class SubmitAndApprovePanel extends Panel
 {	
 	private Label statusLabel;
 	private GbFeedbackPanel feedback;
+	private SakaiAjaxButton submitButton, approveButton;
 	
 	public SubmitAndApprovePanel(String id, IModel<CourseGradeSubmissionData> model)
 	{
@@ -36,7 +37,7 @@ public class SubmitAndApprovePanel extends Panel
 		
 		add(statusLabel = new Label("currentStatus", Model.of("")));
 		
-		final SakaiAjaxButton submitButton = new SakaiAjaxButton("submitFinalGrades")
+		submitButton = new SakaiAjaxButton("submitFinalGrades")
 		{
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form form)
@@ -52,10 +53,9 @@ public class SubmitAndApprovePanel extends Panel
 			}
 		};
 		submitButton.setWillRenderOnClick(true);
-		submitButton.setVisible(getData().isCanSubmit());
 		add(submitButton);
 		
-		final SakaiAjaxButton approveButton = new SakaiAjaxButton("approveFinalGrades")
+		approveButton = new SakaiAjaxButton("approveFinalGrades")
 		{
 			@Override
 			public void onSubmit(final AjaxRequestTarget target, final Form form)
@@ -71,7 +71,6 @@ public class SubmitAndApprovePanel extends Panel
 			}
 		};
 		approveButton.setWillRenderOnClick(true);
-		approveButton.setVisible(getData().isCanApprove());
 		add(approveButton);
 		
 		add(feedback = new GbFeedbackPanel("submitAndApproveFeedback"));
@@ -89,7 +88,13 @@ public class SubmitAndApprovePanel extends Panel
 	{	
 		super.onBeforeRender();
 		
-		statusLabel.setDefaultModelObject(getData().getStatusMsg());
+		SubmitAndApproveStatus status = getData();
+		
+		statusLabel.setDefaultModelObject(status.getStatusMsg());
+		
+		// switching sections can change button visibility, so re-check on each render
+		submitButton.setVisible(status.isCanSubmit());
+		approveButton.setVisible(status.isCanApprove());
 	}
 	
 	private SubmitAndApproveStatus getData()
