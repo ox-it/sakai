@@ -7,7 +7,6 @@ package org.sakaiproject.gradebookng.business.finalgrades;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -113,7 +112,7 @@ public class CourseGradePdfGenerator
             GradeRow row = new GradeRow();
             row.setStudentNumber(grade.getStudentNumber());
             row.setNewGrade(grade.getGrade());
-            row.setStudentName(grade.getStudentNameLastFirst());
+            row.setStudentName(cleanUnprintableChars(grade.getStudentNameLastFirst()));
             
             if (revision)
             {
@@ -835,6 +834,17 @@ public class CourseGradePdfGenerator
 		cs.lineTo(endX, endY);
 		cs.stroke();
 		cs.beginText();
+	}
+	
+	/**
+	 * Some names sourced from LDAP can contain characters that are unprintable in the PDF font we're using,
+	 * causing runtime exceptions. This method removes these characters and replaces them with underscores.
+	 * @param input the input string
+	 * @return the input string with all known unprintable characters replaced by underscores
+	 */
+	private String cleanUnprintableChars(String input)
+	{
+		return input.replaceAll("\uFFFD", "_");
 	}
     
     /********************* BEGIN NESTED CLASSES ************************/

@@ -1,3 +1,5 @@
+2018.01.08:
+        - [OWL-3377] Investigate if the Final Grades PDF can handle the Replacement Character better
 2018.01.05:
         - [OWL-3373] Crosslisted sites with a Grade Admin in the second section won't allow the GA to approve their section
         - [OWL-3374] Final Grades pdf behaves differently for Sakai 11 than it did previously
