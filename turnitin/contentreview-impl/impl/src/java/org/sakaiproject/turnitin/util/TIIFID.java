@@ -41,7 +41,7 @@ public enum TIIFID {
             TIIParam.dis, TIIParam.dtdue, TIIParam.dtstart, TIIParam.encrypt,
             TIIParam.fcmd, TIIParam.fid, TIIParam.gmtime, TIIParam.newassign,
             TIIParam.said, TIIParam.uem, TIIParam.ufn, TIIParam.uid,
-            TIIParam.uln, TIIParam.upw, TIIParam.username, TIIParam.utp}),
+            TIIParam.uln, TIIParam.upw, TIIParam.username, TIIParam.utp, TIIParam.dtpost}),
     fid5 (5, new TIIParam[] {
             TIIParam.aid, TIIParam.assign, TIIParam.assignid, TIIParam.cid,
             TIIParam.ctl, TIIParam.diagnostic, TIIParam.dis, TIIParam.encrypt,
@@ -73,7 +73,7 @@ public enum TIIFID {
             TIIParam.dis, TIIParam.dtdue, TIIParam.dtstart, TIIParam.encrypt,
             TIIParam.fcmd, TIIParam.fid, TIIParam.gmtime, TIIParam.newassign,
             TIIParam.said, TIIParam.tem, TIIParam.uem, TIIParam.ufn, TIIParam.uid,
-            TIIParam.uln, TIIParam.upw, TIIParam.username, TIIParam.utp}),
+            TIIParam.uln, TIIParam.upw, TIIParam.username, TIIParam.utp, TIIParam.dtpost}),
     fid99 (99, new TIIParam[] {TIIParam.aid, TIIParam.diagnostic, TIIParam.encrypt,
             TIIParam.fcmd, TIIParam.fid, TIIParam.gmtime,
             TIIParam.uem, TIIParam.ufn, TIIParam.uln,TIIParam.utp});
