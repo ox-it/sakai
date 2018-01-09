@@ -1,3 +1,5 @@
+2018.01.09:
+        - [OWL-3383] Upgrade HikariCP
 2017.09.07:
 	- [OWL-2962] An addition to AuthzGroupService was added to support reverting users to their provided roles
 2017.08.24:
