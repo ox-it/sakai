@@ -141,4 +141,12 @@
         <property name="ltiProperty" value="panopto-parent-folder-id"/>
     </bean>
 
+    <bean class="org.sakaiproject.lti.impl.AdminSitePropertyLookup" init-method="init" destroy-method="destroy">
+        <property name="devolvedSakaiSecurity" ref="org.sakaiproject.authz.api.DevolvedSakaiSecurity"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="ltiService" ref="org.sakaiproject.lti.api.LTIService"/>
+        <property name="sitePropery" value="test-panopto-parent-folder-id"/>
+        <property name="ltiProperty" value="test-panopto-parent-folder-id"/>
+    </bean>
+
 </beans>
