@@ -5,7 +5,7 @@
 
 # Use the OpenJDK image
 # This builds on debian jessie
-FROM oxit/java:jdk-8u121-01
+FROM oxit/java:jdk-8u151-01
 
 MAINTAINER Matthew Buckett <matthew.buckett@it.ox.ac.uk>
 
