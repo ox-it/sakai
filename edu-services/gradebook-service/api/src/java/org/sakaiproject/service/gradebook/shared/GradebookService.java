@@ -621,6 +621,13 @@ public interface GradebookService {
 		throws GradebookNotFoundException;
 	
 	/**
+	 * Determines if the given string contains a valid numeric grade.
+	 * @param grade the grade as a string, expected to contain a numeric value
+	 * @return true if the string contains a valid numeric grade
+	 */
+	public boolean isValidNumericGrade(String grade);
+	
+	/**
 	 * 
 	 * @param gradebookUid
 	 * @param studentIdToGradeMap - the student's username mapped to their grade

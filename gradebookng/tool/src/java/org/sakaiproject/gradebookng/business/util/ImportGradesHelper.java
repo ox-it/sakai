@@ -431,7 +431,7 @@ public class ImportGradesHelper {
 		boolean isSourceDPC = spreadsheetWrapper.isDPC();
 		List<ImportedColumn> columns = spreadsheetWrapper.getColumns();
 		List<ImportedRow> rows = spreadsheetWrapper.getRows();
-		GradeValidationReport gradeReport = new GradeValidator().validate(rows, columns, isSourceDPC, isContextAnonymous);
+		GradeValidationReport gradeReport = new GradeValidator(businessService).validate(rows, columns, isSourceDPC, isContextAnonymous);
 		// maps columnTitle -> (userEid -> grade)
 		SortedMap<String, SortedMap<String, String>> invalidGradesMap = gradeReport.getInvalidNumericGrades();
 		if (!invalidGradesMap.isEmpty()) {
@@ -442,7 +442,8 @@ public class ImportGradesHelper {
 			}
 
 			String badGrades = StringUtils.join(badGradeEntries, ", ");
-			sourcePanel.error(MessageHelper.getString("importExport.error.invalidGradeData", badGrades));
+			sourcePanel.error(MessageHelper.getString("importExport.error.invalidGradeData",
+					MessageHelper.getString("grade.notifications.invalid"), badGrades));
 			hasValidationErrors = true;
 		}
 

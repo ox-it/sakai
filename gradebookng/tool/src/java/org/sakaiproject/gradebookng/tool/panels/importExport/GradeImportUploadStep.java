@@ -66,6 +66,7 @@ public class GradeImportUploadStep extends Panel {
 		normalInstructions.add(new Label(normalInstructions.newChildId(), getString("importExport.instructions.2")));
 		normalInstructions.add(new Label(normalInstructions.newChildId(), getString("importExport.instructions.3")));
 		normalInstructions.add(new Label(normalInstructions.newChildId(), getString("importExport.instructions.4")));
+		normalInstructions.add(new Label(normalInstructions.newChildId(), getString("grade.notifications.invalid")));
 		add(normalInstructions);
 
 		RepeatingView dpcInstructions = new RepeatingView("dpcInstructions");

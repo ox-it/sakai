@@ -1944,52 +1944,63 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  return isGradeValid(grade, gradeEntryType, mapping);
   }
   
+  @Override
+  public boolean isValidNumericGrade(String grade)
+  {
+	  boolean gradeIsValid = false;
+	  
+	  try
+	  {
+		  NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+		  Double gradeAsDouble = nbFormat.parse(grade).doubleValue();
+		  String decSeparator =((DecimalFormat)nbFormat).getDecimalFormatSymbols().getDecimalSeparator()+"";
+		  // grade must be greater than or equal to 0
+		  if (gradeAsDouble >= 0) {
+				String[] splitOnDecimal = grade.split("\\"+decSeparator);
+			  // check that there are no more than 2 decimal places
+			  if (splitOnDecimal == null) {
+				  gradeIsValid = true;
+
+			  // check for a valid score matching ##########.##
+			  // where integer is maximum of 10 integers in length
+			  // and maximum of 2 decimal places
+			  } else if (grade.matches("[0-9]{0,10}(\\"+decSeparator+"[0-9]{0,2})?")) {
+				  gradeIsValid = true;
+			  }
+		  }
+	  }
+	  catch (NumberFormatException | ParseException nfe)
+	  {
+		  log.debug("Passed grade is not a numeric value");
+	  }
+	  
+	  return gradeIsValid;
+  }
+  
   private boolean isGradeValid(String grade, int gradeEntryType, LetterGradePercentMapping gradeMapping) {
 
 	  boolean gradeIsValid = false;
 
-	  if (grade == null || "".equals(grade)) {
+	  if (StringUtils.isBlank(grade))
+	  {
+		  return true;
+	  }
 
-		  gradeIsValid = true;
-
-	  } else {
-
-		  if (gradeEntryType == GradebookService.GRADE_TYPE_POINTS ||
-				  gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE) {
-			  try {
-				  NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
-				  Double gradeAsDouble = nbFormat.parse(grade).doubleValue();
-				  String decSeparator =((DecimalFormat)nbFormat).getDecimalFormatSymbols().getDecimalSeparator()+"";
-				  // grade must be greater than or equal to 0
-				  if (gradeAsDouble >= 0) {
-						String[] splitOnDecimal = grade.split("\\"+decSeparator);
-					  // check that there are no more than 2 decimal places
-					  if (splitOnDecimal == null) {
-						  gradeIsValid = true;
-
-					  // check for a valid score matching ##########.##
-					  // where integer is maximum of 10 integers in length
-					  // and maximum of 2 decimal places
-					  } else if (grade.matches("[0-9]{0,10}(\\"+decSeparator+"[0-9]{0,2})?")) {
-						  gradeIsValid = true;
-					  }
-				  }
-			  } catch (NumberFormatException | ParseException nfe) {
-				  log.debug("Passed grade is not a numeric value");
-			  }
-
-		  } else if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER) {
+	  switch (gradeEntryType)
+	  {
+		  case GradebookService.GRADE_TYPE_POINTS:
+		  case GradebookService.GRADE_TYPE_PERCENTAGE:
+			  gradeIsValid = isValidNumericGrade(grade);
+			  break;
+		  case GradebookService.GRADE_TYPE_LETTER:
 			  if (gradeMapping == null) {
 				  throw new IllegalArgumentException("Null mapping passed to isGradeValid for a letter grade-based gradeook");
-			  }
-
-			  String standardizedGrade = gradeMapping.standardizeInputGrade(grade);
+			  }	  String standardizedGrade = gradeMapping.standardizeInputGrade(grade);
 			  if (standardizedGrade != null) {
 				  gradeIsValid = true;
-			  }
-		  } else {
+			  }	  break;
+		  default:
 			  throw new IllegalArgumentException("Invalid gradeEntryType passed to isGradeValid");
-		  }
 	  }
 
 	  return gradeIsValid;

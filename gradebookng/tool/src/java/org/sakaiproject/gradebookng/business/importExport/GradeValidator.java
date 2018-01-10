@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 
 import org.sakaiproject.gradebookng.business.model.ImportedCell;
 import org.sakaiproject.gradebookng.business.model.ImportedColumn;
@@ -22,8 +23,12 @@ import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 public class GradeValidator
 {
     private GradeValidationReport report;
+	private final GradebookNgBusinessService bus;
 
-    public GradeValidator() {}
+    public GradeValidator(GradebookNgBusinessService service)
+	{
+		bus = service;
+	}
 
     /**
      * Validate the grades contained within the list of imported rows.
@@ -71,7 +76,7 @@ public class GradeValidator
     }
 
     /**
-     * Validates the given grade for the user.
+     * Validates the given grade for the user. Grades are expected to be numeric.
      *
      * @param userID
      * @param grade
@@ -85,32 +90,11 @@ public class GradeValidator
         }
 
         // OWLTODO: when/if letter grades are introduce, determine if grade is numeric
-        // or alphabetical here and call the appropriate isValid* method.
+        // or alphabetical here and call/write the appropriate business service method.
 
-        if( !isValidNumericGrade( grade ) )
+        if(!bus.isValidNumericGrade(grade))
         {
             report.addInvalidNumericGrade( columnTitle, userID, grade );
         }
-    }
-
-    /**
-     * Determines if the given grade is a valid numeric grade.
-     * 
-     * @param grade
-     * @return
-     */
-    private boolean isValidNumericGrade( String grade )
-    {
-        boolean valid = false;
-        try
-        {
-            if( DataConverter.convertStringToDouble( grade ) >= 0 )
-            {
-                valid = true;
-            }
-        }
-        catch( ParseException ex ) {}
-
-        return valid;
     }
 }

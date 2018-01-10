@@ -2816,6 +2816,16 @@ public class GradebookNgBusinessService {
 		}
 		return false;
 	}
+	
+	/**
+	 * Returns true if the given grade is numeric and meets the gradebook requirements (10 digits/2 decimal places max)
+	 * @param grade the grade to be validated, expected to be numeric
+	 * @return true if the grade is numeric and meets the gradebook requirements
+	 */
+	public boolean isValidNumericGrade(String grade)
+	{
+		return gradebookService.isValidNumericGrade(grade);
+	}
 
 	// -------------------- Begin Course Grade Submission methods --------------------
 

@@ -1,3 +1,5 @@
+2018.01.10:
+        - [OWL-3321] gradebook importing validation and messaging improvements
 2018.01.08:
         - [OWL-3377] Investigate if the Final Grades PDF can handle the Replacement Character better
 2018.01.05:
