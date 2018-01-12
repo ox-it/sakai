@@ -102,6 +102,51 @@ YourKit Profiling
 We include the profiling library in our build but by default we don't startup tomcat with this agent enabled. To start Sakai with profiling enabled change the command that is run from `/opt/tomcat/bin/catalina.sh run` to `/opt/tomcat/bin/startup_with_yjp.sh`
 The profiler isn't enabled for the first 100 seconds to give Sakai time to startup before slowing it down. By default it will listen on port 10001.
 
+Producing a heap dump
+=====================
+
+Becuase the JVM is now running inside a container you can't use the host's
+tools to produce a heap dump. On a modern deployment of docker this isn't a
+problem because you can use `docker exec` to get a shell inside the container
+and from there use the standard process to to get a heap dump. The only small
+issue is how you copy the heap dump out.
+
+If you have a connection setup so that you can connect to the JVM with JMX 
+and the JVM is still responding well to JMX. You eed to connect to the JVM with
+JMX (normally you will do this by an ssh tunnel
+`ssh -L5400:localhost:5400 {server}` and then startup `jvisualvm`, install the
+MBean plugin into `jvisualvm` (Tools -> Plugins). Then connect to
+localhost:5400. Once connected look in the MBeans tab and find the bean
+`com.sun.management:type=HotSpotDiagnostic`, one of the operations available is
+`dumpHeap()` which takes an argument of the file and true. Normally I put the
+heap dump in /tmp/sakai.bin. It should take a little while to run but once
+done there should be a file on the filesystem that can be got at.
+
+If these methods don't work then an alternative is to just use GDB to produce
+the heap dump from the host OS and then use `jmap` on another system to
+perform the dump. 
+
+    gdb –pid=16837
+    (gdb) gcore /tmp/jvm.core
+    Saved corefile /tmp/jvm.core
+    (gdb) detach
+    (gdb) quit
+
+This gives you the file which can then be processed by `jmap`. However if you
+are not on linux this needs to be done inside docker (or other linux
+environment) as the JDK needs to match the one that was running when the
+problems occurred. This assumes I've put the heap dump in a folder called 
+`cores` relative to my current location:
+
+    docker run --rm -it -v $(pwd)/cores/:/cores -e SAKAI_USER=root oxit/weblearn /bin/bash
+
+Then inside the container run:
+
+    cd /cores
+    /opt/jdk/jdk-8u121/bin/jmap -dump:format=b,file=jvm.hprof /opt/jdk/jdk-8u121/bin/java java.core
+
+And you should end up with a heap dump in the `cores` folder.
+
 Errors
 ======
 
