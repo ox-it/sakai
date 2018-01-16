@@ -38,6 +38,8 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9966,6 +9968,13 @@ public class AssignmentAction extends PagedResourceActionII
         opts.put("instructions", assign.getInstructions());
         opts.put("assignmentContentId", assign.getReference());
         opts.put("anon", anonymous?"1":"0");
+        if (anonymous) {
+            // Turnitin stops an assignment being anonymous after the post date, so to keep the post date in future.
+            // We don't set it too far ahead because of duration limitations on class lengths.
+            Instant postTime = Instant.ofEpochMilli(dueTime.getTime());
+            postTime = postTime.plus(365, ChronoUnit.DAYS);
+            opts.put("dtpost", dform.format(postTime.toEpochMilli())); // Ensure results aren't released sooner.
+        }
 
         int factor = AssignmentService.getScaleFactor();
         int dec = (int)Math.log10(factor);

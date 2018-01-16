@@ -33,6 +33,7 @@ public enum TIIParam {
     dis,
     dtdue,
     dtstart,
+    dtpost,
     encrypt,
     fcmd,
     fid,
