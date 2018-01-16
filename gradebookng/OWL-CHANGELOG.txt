@@ -1,3 +1,5 @@
+2018.01.16:
+	- [OWL-3386] import > fix panel for students not in site but in file not being populated
 2018.01.10:
         - [OWL-3321] gradebook importing validation and messaging improvements
 2018.01.08:

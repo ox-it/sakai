@@ -327,6 +327,8 @@ public class ImportGradesHelper {
 				if (user != null) {
 					row.setStudentUuid(user.getUserUuid());
 					row.setStudentEid(user.getEid());
+				} else {
+					row.setStudentEid(lineVal);
 				}
 
 			} else if (column.getType() == ImportedColumn.Type.USER_NAME) {
