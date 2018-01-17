@@ -91,7 +91,16 @@ ENV CATALINA_OPTS \
 # Connect timeout (5 minutes)
 -Dsun.net.client.defaultConnectTimeout=300000 \
 # Read timeout (30 minutes)
--Dsun.net.client.defaultReadTimeout=1800000
+-Dsun.net.client.defaultReadTimeout=1800000 \
+# This enables GC logging
+-Xloggc:/opt/tomcat/logs/gc-%t.log \
+-XX:+PrintGCDetails \
+-XX:+PrintGCTimeStamps \
+-XX:+PrintGCCause \
+-XX:+PrintTenuringDistribution \
+-XX:+UseGCLogFileRotation \
+-XX:NumberOfGCLogFiles=10 \
+-XX:GCLogFileSize=5M
 
 # If we run in debug mode
 ENV JPDA_OPTS -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n
