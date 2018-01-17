@@ -30,6 +30,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -1456,7 +1457,8 @@ public class SiteManageGroupSectionRoleHandler {
      * @return status
      */
     public String processUploadAndCheck() {
-        String uploadsDone = (String) httpServletRequest.getAttribute(RequestFilter.ATTR_UPLOADS_DONE);
+        HttpServletRequest request = (HttpServletRequest) ComponentManager.get(ThreadLocalManager.class).get(RequestFilter.CURRENT_HTTP_REQUEST);
+        String uploadsDone = (String) request.getAttribute(RequestFilter.ATTR_UPLOADS_DONE);
 
         FileItem usersFileItem;
         String processingFlag = "success";
@@ -1464,7 +1466,7 @@ public class SiteManageGroupSectionRoleHandler {
         if (uploadsDone != null && uploadsDone.equals(RequestFilter.ATTR_UPLOADS_DONE)) {
 
             try {
-                usersFileItem = (FileItem) httpServletRequest.getAttribute(REQ_ATTR_GROUPFILE);
+                usersFileItem = (FileItem) request.getAttribute(REQ_ATTR_GROUPFILE);
                 // Check for nothing to upload.
                 if (getGroupUploadTextArea().length() == 0 && usersFileItem.getSize() == 0) {
                     messages.addMessage(new TargettedMessage("import1.error.no.content", null, TargettedMessage.SEVERITY_ERROR));
@@ -1709,12 +1711,6 @@ public class SiteManageGroupSectionRoleHandler {
 	@Setter
 	private UserDirectoryService userDirectoryService;
 	
-	 /**
-     * We need this to get the uploaded file as snaffled by the request filter.
-     */
-	@Setter
-    private HttpServletRequest httpServletRequest;
-   
     
     /**
      * As we import groups we store the details here for use in further stages
