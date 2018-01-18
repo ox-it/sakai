@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.FlushMode;
 import org.jdom2.Document;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
@@ -70,7 +69,10 @@ import uk.ac.ox.oucs.vle.xcri.oxcap.OxcapPresentation;
 import uk.ac.ox.oucs.vle.xcri.oxcap.Session;
 import uk.ac.ox.oucs.vle.xcri.oxcap.Subject;
 
-public class XcriOxCapPopulatorImpl implements Populator {
+/**
+ * This is a standard importer that parse Xcri files.
+ */
+public class XcriOxCapPopulator implements Populator {
 
 	/**
 	 * The DAO to update our entries through.
@@ -104,7 +106,7 @@ public class XcriOxCapPopulatorImpl implements Populator {
 		this.search = search;
 	}
 
-	private static final Log log = LogFactory.getLog(XcriOxCapPopulatorImpl.class);
+	private static final Log log = LogFactory.getLog(XcriOxCapPopulator.class);
 
 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy  hh:mm");
 	

@@ -34,7 +34,7 @@ public class PopulatorTests {
 	private CourseDAOImpl courseDao;
 	@Autowired
 	private SessionFactory sessionFactory;
-	@Qualifier("uk.ac.ox.oucs.vle.DaisyPopulatorWrapper")
+	@Qualifier("uk.ac.ox.oucs.vle.DaisyPopulator")
 	@Autowired
 	private PopulatorWrapper populator;
 	

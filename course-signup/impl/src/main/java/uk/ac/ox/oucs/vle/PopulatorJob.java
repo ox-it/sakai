@@ -35,7 +35,6 @@ import org.quartz.JobExecutionException;
 /**
  * Bean that handles transactional stuff with regard to logging
  * @author buckett
- *
  */
 public class PopulatorJob implements Job {
 
@@ -50,11 +49,11 @@ public class PopulatorJob implements Job {
 	}
 
 	/**
-	 * The populator jov wrapper
+	 * The populator.
 	 */
-	private PopulatorWrapper populator;
-	public void setPopulatorWrapper(PopulatorWrapper populatorWrapper){
-		this.populator = populatorWrapper;
+	private Populator populator;
+	public void setPopulator(Populator populator){
+		this.populator = populator;
 	}
 
 	public void execute(JobExecutionContext context)

@@ -19,10 +19,15 @@
  */
 package uk.ac.ox.oucs.vle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.Collection;
 
-public class OxcapPopulatorWrapper extends BasePopulatorWrapper implements PopulatorWrapper {
+public class DaisyPopulator implements Populator {
+
+	private final Logger log = LoggerFactory.getLogger(DaisyPopulator.class);
 
 	/**
 	 * The DAO to update our entries through.
@@ -41,31 +46,44 @@ public class OxcapPopulatorWrapper extends BasePopulatorWrapper implements Popul
 	}
 	
 	/**
-	 * The Search service to use
+	 * The service to supply search services
 	 */
 	private SearchService search;
 	public void setSearchService(SearchService search) {
 		this.search = search;
 	}
 
-	
-	@Override
-	void runPopulator(PopulatorContext context) throws IOException {
+	private NowService nowService;
+	public void setNowService(NowService nowService) {
+		this.nowService = nowService;
+	}
 
-		dao.flagSelectedCourseGroups(context.getName());
-		dao.flagSelectedCourseComponents(context.getName());
+	@Override
+	public void update(PopulatorContext context) {
+
+		dao.flagSelectedDaisyCourseGroups(context.getName(), nowService.getNow());
+		dao.flagSelectedDaisyCourseComponents(context.getName(), nowService.getNow());
 
 		populator.update(context);
 
 		Collection<CourseGroupDAO> groups = dao.deleteSelectedCourseGroups(context.getName());
 		for (CourseGroupDAO group : groups) {
 			search.deleteCourseGroup(new CourseGroupImpl(group, null));
-			context.getDeletedLogWriter().write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
+			try {
+				context.getDeletedLogWriter().write("Deleting course ["+group.getCourseId()+" "+group.getTitle()+"]"+"\n");
+			} catch (IOException e) {
+				log.warn("Failed to write deleted log.", e);
+			}
 		}
 
 		Collection<CourseComponentDAO> components = dao.deleteSelectedCourseComponents(context.getName());
 		for (CourseComponentDAO component : components) {
-			context.getDeletedLogWriter().write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
+			try {
+				context.getDeletedLogWriter().write("Deleting component ["+component.getComponentId()+" "+component.getTitle()+"]"+"\n");
+			} catch (IOException e) {
+				log.warn("Failed to write deleted log.", e);
+			}
 		}
 	}
+
 }
