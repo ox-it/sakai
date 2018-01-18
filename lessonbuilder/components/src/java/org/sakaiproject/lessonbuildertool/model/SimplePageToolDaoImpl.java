@@ -859,6 +859,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public SimplePageLogEntry getLogEntry(String userId, long itemId, Long studentPageId) {
+		if (userId == null || userId.isEmpty())
+			userId = ".anon";
 		if(studentPageId.equals(-1L)) studentPageId = null;
 		
 		DetachedCriteria d = DetachedCriteria.forClass(SimplePageLogEntry.class).add(Restrictions.eq("userId", userId))
@@ -894,7 +896,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	    Object [] fields = new Object[2];
 	    fields[0] = Long.toString(pageId);
-	    fields[1] = userId;
+	    fields[1] = (userId == null || userId.isEmpty())? ".anon" : userId;
 	    List<String> ones = sqlService.dbRead("select 1 from lesson_builder_items a, lesson_builder_log b where a.sakaiId=? and a.type=2 and a.id=b.itemId and b.userId=?", fields, null);
 	    if (ones != null && ones.size() > 0)
 		return true;
