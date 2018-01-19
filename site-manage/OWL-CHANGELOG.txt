@@ -1,3 +1,6 @@
+2018.01.19:
+	- [OWL-3366] Role changes were not propagating into groups; updateRelatedGroupParticipants referenced a stale role
+	- [OWL-3368] Provided Participants' models' roles are no longer stale after 'remove' checkbox is clicked
 2017.11.17:
 	- [OWL-2900] Don't display configuration for LTI tools if all configuration is disallowed
 2017.10.25:

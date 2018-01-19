@@ -1128,15 +1128,15 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			return;
 		}
 
-		Map<String, String> target = m_provider.getUserRolesForGroup(azg.getProviderGroupId());
+		// For everyone in userId_isActive, add their membership in accordance with the group provider's userId -> role map
+		Map<String, String> userEid_providedRole = m_provider.getUserRolesForGroup(azg.getProviderGroupId());
 		for (Map.Entry<String, Boolean> entry : userId_isActive.entrySet())
 		{
 			String userId = entry.getKey();
 			try
 			{
-				// Provider keys on EID
 				String eid = userDirectoryService().getUserEid(userId);
-				String roleName = target.get(eid);
+				String roleName = userEid_providedRole.get(eid);
 				if (roleName != null)
 				{
 					// Add the membership; params: userId, provided role, isActive status, isProvided.

@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -583,6 +584,24 @@ public class ParticipantService implements Serializable
                     }
                 }
 
+                // OWL-2652 - For all removed participants who are provided: we want to revert them to their provided roles
+                // They've already been removed from this.realm. This change isn't yet persisted, so we'll add them back with their provided role if appropriate
+                if (removeUpdates != null)
+                {
+                    // Maintain the removed users' isActive status by building a map to track the removed users' userId->isActive
+                    Map<String, Boolean> removedUserId_isActive = removeUpdates.stream().collect(Collectors.toMap(Participant::getUniqName, p -> "true".equals(p.getStatus())));
+                    authzGroupService.addUsersIfProvided(removedUserId_isActive, realm);
+                    // Sync the participant objects
+                    for (Participant p : removeUpdates)
+                    {
+                        String userId = p.getUniqName();
+                        String roleId = realm.getUserRole(userId).getId();
+                        p.setRole(roleId);
+                        statusUpdates.get(userId).setRole(roleId);
+                        roleUpdates.get(userId).setRole(roleId);
+                    }
+                }
+
                 // No errors encountered, proceed with saving
                 authzGroupService.save(this.realm);
 
@@ -664,7 +683,8 @@ public class ParticipantService implements Serializable
                                 for (Member groupMember : groupMembers)
                                 {
                                     String groupMemberId = groupMember.getUserId();
-                                    Member siteMember = this.site.getMember(groupMemberId);
+                                    // OWL-3366 - this.realm has been updated; this.site's membership is presently stale
+                                    Member siteMember = this.realm.getMember(groupMemberId);
 
                                     if ( siteMember  == null)
                                     {
