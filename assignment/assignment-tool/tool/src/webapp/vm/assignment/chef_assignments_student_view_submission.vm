@@ -783,7 +783,7 @@ $(document).ready(function(){
 											#else
 												<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 											#end
-											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+											<a href="$attachment.Url" target="_blank" id="attachments">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
 										</td>
 										<td>
 											#propertyDetails($props)
@@ -1133,8 +1133,8 @@ $(document).ready(function(){
                             #end
 					#end
 			</div>
-			<div id="confirmationDialogue" class="act messageInformation" style="display:none;">
-				$tlang.getString("gen.can.discard")
+			<div id="confirmationDialogue" class="act messageError" style="display:none;">
+				<span id="confirmationDialogueMessage">$tlang.getString("gen.can.discard")</span>
 				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'cancel', null, null );" />
 				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="ASN_SVS.undoCancel();" />
 			</div>

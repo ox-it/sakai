@@ -322,3 +322,7 @@ fieldset .alertMessageInline,fieldset .alertMessage {
     font-style: italic !important;
     cursor: pointer !important;
 }
+
+#confirmationDialogueMessage {
+    padding-left: 15px;
+}
