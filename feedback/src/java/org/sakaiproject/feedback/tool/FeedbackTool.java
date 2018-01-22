@@ -22,6 +22,8 @@
 package org.sakaiproject.feedback.tool;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.authz.api.SecurityService;
@@ -57,6 +59,8 @@ public class FeedbackTool extends HttpServlet {
 
     private SiteService siteService = null;
 
+    private ThreadLocalManager threadLocalManager = null;
+
     private final String[] DYNAMIC_PROPERTIES = { "help_tooltip",  "overview", "technical_setup_instruction", "feature_suggestion_setup_instruction",
             "report_technical_tooltip", "short_technical_description",
             "suggest_feature_tooltip", "feature_description", "technical_instruction",  "error", "help_home"};
@@ -76,6 +80,7 @@ public class FeedbackTool extends HttpServlet {
             sakaiProxy = (SakaiProxy) context.getBean("org.sakaiproject.feedback.util.SakaiProxy");
             securityService = (SecurityService) context.getBean("org.sakaiproject.authz.api.SecurityService");
             siteService = (SiteService) context.getBean("org.sakaiproject.site.api.SiteService");
+            threadLocalManager = context.getBean(ThreadLocalManager.class);
 
         } catch (Throwable t) {
             throw new ServletException("Failed to initialise FeedbackTool servlet.", t);
@@ -175,9 +180,12 @@ public class FeedbackTool extends HttpServlet {
      * @return The site ID.
      */
     private String overrideSiteId(HttpServletRequest request, String siteId) {
-        if (siteId.equals("!error")) {
-            // When inside the !error site we get the URL of the original site being accessed
-            return request.getContextPath();
+        Object o = threadLocalManager.get(PortalService.SAKAI_PORTAL_ORIGINAL_SITEID);
+        if (o instanceof String) {
+            return (String)o;
+        }
+        if ("!error".equals(siteId)) {
+            return null;
         }
         return siteId;
     }
