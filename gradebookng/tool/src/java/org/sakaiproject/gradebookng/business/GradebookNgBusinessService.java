@@ -57,6 +57,7 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
@@ -1242,11 +1243,27 @@ public class GradebookNgBusinessService {
 						}
 					}
 
-					final Double categoryScore = this.gradebookService.calculateCategoryScore(gradebook,
+					Double score = null;
+					final Optional<CategoryScoreData> categoryScore = gradebookService.calculateCategoryScore(gradebook,
 							student.getUserUuid(), category, category.getAssignmentList(), gradeMap);
-
+					if (categoryScore.isPresent())
+					{
+						CategoryScoreData data = categoryScore.get();
+						for (Long item : gradeMap.keySet())
+						{
+							if (!data.includedItems.contains(item))
+							{
+								grades.get(item).setDroppedFromCategoryScore(true);
+							}
+						}
+						score = data.score;
+					}
+					
 					// add to GbStudentGradeInfo
-					sg.addCategoryAverage(category.getId(), categoryScore);
+					// OWLTODO: allowing score to be null to preserve original logic
+					// however, this just gets put into a map as a null so probably could
+					// just omit it
+					sg.addCategoryAverage(category.getId(), score);
 
 					// TODO the TA permission check could reuse this iteration... check performance.
 				}
@@ -2449,14 +2466,14 @@ public class GradebookNgBusinessService {
 	 * @param studentUuid uuid of student
 	 * @return
 	 */
-	public Double getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
+	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid) {
 
 		final Gradebook gradebook = getGradebook();
 
-		final Double score = this.gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId);
-		log.info("Category score for category: {}, student: {}:{}", categoryId, studentUuid, score);
+		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId);
+		log.info("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
 
-		return score;
+		return result;
 	}
 
 	/**

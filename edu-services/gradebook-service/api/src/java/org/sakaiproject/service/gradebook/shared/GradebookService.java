@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
 import org.sakaiproject.service.gradebook.shared.owl.finalgrades.OwlGradeApproval;
@@ -815,7 +816,7 @@ public interface GradebookService {
      * @return percentage or null if no calculations were made
      * 
      */
-	Double calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId);
+	Optional<CategoryScoreData> calculateCategoryScore(Long gradebookId, String studentUuid, Long categoryId);
 	
 	/**
      * Calculate the category score for the given gradebook, category, assignments in the category and grade map.
@@ -829,7 +830,7 @@ public interface GradebookService {
      * @param gradeMap map of assignmentId to grade, to use for the calculations
      * @return percentage or null if no calculations were made
      */
-	Double calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<Assignment> categoryAssignments, Map<Long,String> gradeMap);
+	Optional<CategoryScoreData> calculateCategoryScore(Object gradebook, String studentUuid, CategoryDefinition category, final List<Assignment> categoryAssignments, Map<Long,String> gradeMap);
 
     /**
      * Get the course grade for a student

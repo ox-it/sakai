@@ -21,9 +21,7 @@ import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
-import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -120,11 +118,9 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
 
 						if (assignment.getCategoryId() != null) {
-							final Double categoryAverage = this.businessService.getCategoryScoreForStudent(assignment.getCategoryId(),
-									userId);
-							if (categoryAverage != null) {
-								categoryAverages.put(assignment.getCategoryId(), categoryAverage);
-							}
+							
+							businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId)
+									.ifPresent(avg -> categoryAverages.put(assignment.getCategoryId(), avg.score));
 						}
 					}
 

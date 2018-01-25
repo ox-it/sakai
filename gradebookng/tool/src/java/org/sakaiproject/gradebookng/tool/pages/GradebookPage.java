@@ -21,6 +21,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.ComponentTag;
@@ -55,6 +56,7 @@ import org.sakaiproject.gradebookng.tool.component.table.columns.CourseGradeColu
 import org.sakaiproject.gradebookng.tool.component.table.columns.HandleColumn;
 import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNameColumn;
 import org.sakaiproject.gradebookng.tool.component.table.columns.StudentNumberColumn;
+import org.sakaiproject.gradebookng.tool.model.CategoryScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
@@ -954,5 +956,10 @@ public class GradebookPage extends BasePage implements IGradesPage
 	public Gradebook getGradebook()
 	{
 		return gradebook;
+	}
+	
+	public void broadcastToTableCells(CategoryScoreChangedEvent event)
+	{
+		send(table.getBody(), Broadcast.BREADTH, event);
 	}
 }

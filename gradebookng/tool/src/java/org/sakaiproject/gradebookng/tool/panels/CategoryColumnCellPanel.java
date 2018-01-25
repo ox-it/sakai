@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.event.IEvent;
@@ -11,7 +12,10 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.CategoryScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 
 /**
  *
@@ -55,11 +59,18 @@ public class CategoryColumnCellPanel extends Panel {
 					if (studentUuid.equals(scoreChangedEvent.getStudentUuid()) &&
 							categoryId.equals(scoreChangedEvent.getCategoryId())) {
 
-						final Double categoryAverage = CategoryColumnCellPanel.this.businessService.getCategoryScoreForStudent(categoryId,
+						final Optional<CategoryScoreData> categoryAverage = CategoryColumnCellPanel.this.businessService.getCategoryScoreForStudent(categoryId,
 								studentUuid);
-
-						final String newCategoryAverage = (categoryAverage == null) ? getString("label.nocategoryscore")
-								: FormatHelper.formatDoubleAsPercentage(categoryAverage);
+						
+						// OWLTODO: is it okay to not send the event if the average is not present? what about if the category
+						// is removed? We'd have to detect this and redraw the whole table otherwise only some cells
+						// will reflect the change.
+						categoryAverage.ifPresent(avg -> ((GradebookPage) getPage())
+								.broadcastToTableCells(new CategoryScoreChangedEvent(studentUuid, categoryId,
+										avg.includedItems, scoreChangedEvent.getTarget())));
+						
+						final String newCategoryAverage = categoryAverage.isPresent() ?
+								FormatHelper.formatDoubleAsPercentage(categoryAverage.get().score) : getString("label.nocategoryscore");
 
 						if (!newCategoryAverage.equals(getDefaultModelObject())) {
 							setDefaultModel(Model.of(newCategoryAverage));

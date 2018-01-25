@@ -248,7 +248,9 @@
   margin-right: 4px;
 }
 #gradebookGrades thead th .gb-grade-section,
-#gradebookGrades thead th .gb-due-date {
+#gradebookGrades thead th .gb-due-date,
+#gradebookGrades thead th .gb-drop-info
+{
   font-size: 0.9em;
   color: #999;
   line-height: 1.4em;
@@ -1883,4 +1885,20 @@ and (max-device-width : 736px) {
 	line-height: 1.1em;
 	font-weight: bold;
 	color: #dfc01c;
+}
+
+#gradebookGrades table .gb-dropped-grade-cell
+{
+	background-image: repeating-linear-gradient(135deg, #eee, #eee 4px, #fff 4px, #fff 8px) !important;
+	position: relative;
+}
+
+.gb-dropped-grade-cell input
+{
+	text-decoration: line-through;
+}
+
+.gb-dropped-grade-cell.gb-cell-editing input
+{
+	text-decoration: none;
 }

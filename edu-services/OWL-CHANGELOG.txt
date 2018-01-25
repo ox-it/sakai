@@ -1,3 +1,5 @@
+2018.01.25:
+        - [OWL-3324] Gradebook 'Drop Lowest' Not Showing
 2018.01.10:
         - [OWL-3321] gradebook importing validation and messaging improvements
 2017.10.18:

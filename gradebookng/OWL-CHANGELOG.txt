@@ -1,3 +1,5 @@
+2018.01.25:
+        - [OWL-3324] Gradebook 'Drop Lowest' Not Showing
 2018.01.16:
 	- [OWL-3386] import > fix panel for students not in site but in file not being populated
 2018.01.10:

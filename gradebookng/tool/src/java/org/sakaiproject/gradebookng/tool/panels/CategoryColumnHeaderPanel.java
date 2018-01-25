@@ -1,12 +1,16 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.gradebookng.business.SortDirection;
@@ -98,5 +102,23 @@ public class CategoryColumnHeaderPanel extends Panel {
 						new Object[] { category.getName() })).getString());
 		colorSwatch.add(new AttributeAppender("style", String.format("background-color:%s;", categoryColor)));
 		add(colorSwatch);
+		
+		int dropHighest = category.getDropHighest() == null ? 0 : category.getDropHighest();
+		int dropLowest = category.getDrop_lowest() == null ? 0 : category.getDrop_lowest();
+		int keepHighest = category.getKeepHighest() == null ? 0 : category.getKeepHighest();
+		
+		WebMarkupContainer dropOptions = new WebMarkupContainer("categoryDropOptions");
+		dropOptions.setRenderBodyOnly(true);
+		dropOptions.setVisible(dropHighest > 0 || dropLowest > 0 || keepHighest > 0);
+		IModel<String> noDropMsg = new ResourceModel("label.category.nodrop");
+		dropOptions.add(new Label("dropHighest", dropModel(dropHighest, noDropMsg)));
+		dropOptions.add(new Label("dropLowest", dropModel(dropLowest, noDropMsg)));
+		dropOptions.add(new Label("keepHighest", dropModel(keepHighest, noDropMsg)));
+		add(dropOptions);
+	}
+	
+	private IModel<String> dropModel(int drop, IModel<String> noDropMsg)
+	{
+		return drop < 1 ? noDropMsg : Model.of(Integer.toString(drop));
 	}
 }
