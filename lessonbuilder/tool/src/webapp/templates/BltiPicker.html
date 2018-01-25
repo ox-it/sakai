@@ -66,13 +66,16 @@ includeLatestJQuery('BltiPicker.html');
 <script>
 //<![CDATA[
 function showIframe(title) {
+	var ypos = 50;
 	$("#modal-iframe-div").dialog({
 		title: title,
 		width: modalDialogWidth(),
+		position: {my: "middle top", at: "center top+" +ypos, of: window},
 		modal: true,
 		draggable: false,
 		open: function() {
 			$('#sakai-basiclti-admin-iframe').width('100%');
+			$('#sakai-basiclti-admin-iframe').height('600px');
 		},
 		close: function() {
 			$('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
