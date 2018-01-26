@@ -364,6 +364,10 @@ public class GradebookPage extends BasePage implements IGradesPage
 				{
 					// case 3 b)
 					// only anonymous items exist and the course grade is anonymous; force the context to anonymous
+					if (!settings.isContextAnonymous())
+					{
+						settings.setAnonIdSortOrder(SortDirection.ASCENDING);
+					}
 					settings.setContextAnonymous(true);
 				}
 			}
