@@ -66,7 +66,7 @@ public class GroupImportStep1Producer implements ViewComponentProducer, Navigati
 		UIForm uploadForm = UIForm.make(content, "uploadform");
 		UIInput.make(uploadForm, "groupuploadtextarea", "#{SiteManageGroupSectionRoleHandler.groupUploadTextArea}");
 		UICommand.make(uploadForm, "continue", messageLocator.getMessage("import1.continue"), "#{SiteManageGroupSectionRoleHandler.processUploadAndCheck}");
-		UICommand cancel = UICommand.make(uploadForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+		UICommand cancel = UICommand.make(uploadForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancelGroups}");
 		cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
 	    
 		frameAdjustingProducer.fillComponents(tofill, "resize", "resetFrame");
@@ -93,6 +93,7 @@ public class GroupImportStep1Producer implements ViewComponentProducer, Navigati
 	public List<NavigationCase> reportNavigationCases() {
 		List<NavigationCase> togo = new ArrayList<NavigationCase>();
 		togo.add(new NavigationCase("success", new SimpleViewParameters(GroupImportStep2Producer.VIEW_ID)));
+		togo.add(new NavigationCase("returnToGroupList", new SimpleViewParameters(GroupListProducer.VIEW_ID)));
 		togo.add(new NavigationCase("error", new GroupImportViewParameters(GroupImportStep1Producer.VIEW_ID, "error")));
 		return togo;
 	}

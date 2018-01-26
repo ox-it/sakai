@@ -907,6 +907,14 @@ public class SiteManageGroupSectionRoleHandler {
     	return "cancel";
     }
     
+    public String processCancelGroups()
+    {
+        // reset the warning messages
+        resetTargettedMessageList();
+
+        return "returnToGroupList";
+    }
+    
     /**
      * SAK-29373 - Common validation algorithm for both roster and role based random groups
      * 
@@ -1657,7 +1665,7 @@ public class SiteManageGroupSectionRoleHandler {
 	}
 	
 	/**
-	 * Helper to get a list of user eids in a group
+	 * Helper to get a list of user display ids in a group
 	 * @param g	the group
 	 * @return
 	 */
@@ -1671,13 +1679,13 @@ public class SiteManageGroupSectionRoleHandler {
 		
 		Set<Member> members= g.getMembers();
 		for(Member m: members) {
-			userIds.add(m.getUserEid());
+			userIds.add(m.getUserDisplayId());
 		}
 		return userIds;
 	}
 	/**
-	 * Helper to get a user's name in the format surname, first name.
-	 * @param userId	EID of the user
+	 * Helper to get a user's name for display in the format surname, first name.
+	 * @param userId	authentication ID of the user
 	 * @return
 	 */
 	public String getUserSortName(String userId) {
@@ -1685,7 +1693,7 @@ public class SiteManageGroupSectionRoleHandler {
 		String sortName = userId;
 		try
 		{
-			sortName = userDirectoryService.getUserByEid(userId).getSortName();
+			sortName = userDirectoryService.getUserByAid(userId).getSortName();
 		}
 		catch( UserNotDefinedException ex )
 		{
