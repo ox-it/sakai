@@ -21,7 +21,8 @@
 }
 
 .ui-dialog label {
-   padding-left: 0.5em;
+   padding-left: 0.5em;  
+   padding-right: 0.5em;
    font-weight: normal;
 }
 
@@ -267,6 +268,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	text-decoration: none !important;
 	background-color: #eee;
 }
+.border2.controlsPanel label.mm-file {
+    padding-left: 0;
+}
 .mm-file-input {
 	display:inline;
 }
@@ -281,7 +285,13 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 	margin-left: 1.0em;
 }
 #edit-title {
-	margin-left: 1em
+    margin-left: 1em
+}
+.add-another-file-div {
+	padding: 10px;
+	padding-top: 0px;
+	background-color: #ddd;
+	border: 1px solid #bbb;
 }
 .ui-button-text {
 	padding: 0.25em 0.8em !important
