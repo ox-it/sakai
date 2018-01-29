@@ -2895,7 +2895,7 @@ public class SimplePageBean {
 
 			if (i.getType() == SimplePageItem.BLTI) {
 			    if (format == null || format.trim().equals(""))
-				i.setFormat("");
+				i.setFormat("inline");
 			    else
 				i.setFormat(format);
 			    // this is redundant, but the display code uses it
