@@ -56,6 +56,8 @@ public interface ItemTextIfc
   List<AnswerIfc> getAnswerArray();
 
   List<AnswerIfc> getAnswerArraySorted();
+
+  List<AnswerIfc> getAnswerArrayWithDistractorSorted();
   
   Set<ItemTextAttachmentIfc> getItemTextAttachmentSet();
 
