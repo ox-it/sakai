@@ -1,3 +1,5 @@
+2018.02.05:
+	- [OWL-3392] add NPE protection to SimplePageBean.getItemsOnPage()
 2017.12.05:
 	- [OWL-3352] lessons sends different CSP and XCSP headers for students, which leads to inconsistent browser support
 2017.08.24:

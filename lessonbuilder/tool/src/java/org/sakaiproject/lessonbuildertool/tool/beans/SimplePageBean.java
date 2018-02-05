@@ -25,7 +25,6 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.text.SimpleDateFormat;
-import java.text.Format;
 import java.math.BigDecimal;
 import java.util.Locale;
 import org.slf4j.Logger;
@@ -61,7 +60,6 @@ import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.*;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -84,7 +82,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URI;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -1792,7 +1789,10 @@ public class SimplePageBean {
 					}
 					if(item != null && item.getShowComments() != null && item.getShowComments()) {
 						//copy the attribute string from the top student section page  to each student page
-						items.add(0, simplePageToolDao.findItem(student.getCommentsSection()));
+						SimplePageItem commentsSection = simplePageToolDao.findItem(student.getCommentsSection());
+						if(commentsSection != null) {
+							items.add(0, commentsSection);
+						}
 					}
 				}
 			}
