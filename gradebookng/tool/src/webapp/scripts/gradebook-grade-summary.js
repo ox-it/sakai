@@ -329,8 +329,17 @@ GradebookGradeSummary.prototype.setupTableSorting = function() {
 
 GradebookGradeSummary.prototype.hideWeightColumn = function() {
   // only hide the weight column if there are no categories being displayed
-  if (this.$content.find(".gb-summary-category-row").length == 0) {
+  if (this.$content.find(".gb-summary-category-row").length === 0)
+  {
     this.$content.find(".weight-col").hide();
+    
+    // steal 1 from the date column
+    this.$content.find(".date-col").addClass("col-md-1").removeClass("col-md-2");
+  }
+  else
+  {
+      // return 1 to the date column
+      this.$content.find(".date-col").addClass("col-md-2").removeClass("col-md-1");
   }
 };
 

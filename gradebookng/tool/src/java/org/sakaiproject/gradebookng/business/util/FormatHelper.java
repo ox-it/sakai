@@ -5,10 +5,16 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 @Slf4j
 public class FormatHelper {
@@ -165,4 +171,38 @@ public class FormatHelper {
 	public static String abbreviateMiddle(final String s) {
 		return StringUtils.abbreviateMiddle(s, "...", 45);
 	}
+	
+	public static List<String> formatCategoryDropInfo(CategoryDefinition category)
+	{
+		if (category == null)
+		{
+			return Collections.emptyList();
+		}
+		
+		int dropHighest = category.getDropHighest() == null ? 0 : category.getDropHighest();
+		int dropLowest = category.getDrop_lowest() == null ? 0 : category.getDrop_lowest();
+		int keepHighest = category.getKeepHighest() == null ? 0 : category.getKeepHighest();
+		
+		if (dropHighest == 0 && dropLowest == 0 && keepHighest == 0)
+		{
+			return Collections.emptyList();
+		}
+		
+		List<String> info = new ArrayList<>(2);
+		if (dropHighest > 0)
+		{
+			info.add(MessageHelper.getString("label.category.drophighest", dropHighest));
+		}
+		if (dropLowest > 0)
+		{
+			info.add(MessageHelper.getString("label.category.droplowest", dropLowest));
+		}
+		if (keepHighest > 0)
+		{
+			info.add(MessageHelper.getString("label.category.keephighest", keepHighest));
+		}
+		
+		return info;
+	}
+	
 }

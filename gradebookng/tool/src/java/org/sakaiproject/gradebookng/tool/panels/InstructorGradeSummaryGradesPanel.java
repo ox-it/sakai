@@ -25,6 +25,7 @@ import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.IGradesPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
@@ -102,6 +103,8 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 			categoryNamesToAssignments.get(categoryName).add(assignment);
 		}
+		Map<String, CategoryDefinition> categoriesMap = businessService.getGradebookCategories().stream()
+				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
 		Collections.sort(categoryNames);
 
 		// build the model for table
@@ -115,6 +118,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", false);
 		tableModel.put("gradingType", GbGradingType.valueOf(gradebook.getGrade_type()));
+		tableModel.put("categoriesMap", categoriesMap);
 
 		addOrReplace(new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
 			@Override

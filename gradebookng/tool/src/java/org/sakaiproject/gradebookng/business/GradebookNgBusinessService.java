@@ -30,6 +30,8 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
 
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Membership;
@@ -560,8 +562,43 @@ public class GradebookNgBusinessService {
 
 		// Sort by categoryOrder
 		Collections.sort(rval, CategoryDefinition.orderComparator);
-
+		
 		return rval;
+	}
+	
+	/**
+	 * Retrieve the categories visible to the given student.
+	 * 
+	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
+	 * are an instructor using the student review mode)
+	 * 
+	 * @param studentUuid
+	 * @return 
+	 */
+	public List<CategoryDefinition> getGradebookCategoriesForStudent(String studentUuid)
+	{	
+		// find the categories that this student's visible assignments belong to
+		List<Assignment> viewableAssignments = getGradebookAssignmentsForStudent(studentUuid);
+		final List<Long> catIds = new ArrayList<>();
+		for (Assignment a : viewableAssignments)
+		{
+			Long catId = a.getCategoryId();
+			if (catId != null && !catIds.contains(catId))
+			{
+				catIds.add(a.getCategoryId());
+			}
+		}
+		
+		// get all the categories in the gradebook, use a security advisor in case the current user is the student
+		SecurityAdvisor gbAdvisor = (String userId, String function, String reference)
+				-> "gradebook.gradeAll".equals(function) ? SecurityAdvice.ALLOWED : SecurityAdvice.PASS;
+		securityService.pushAdvisor(gbAdvisor);
+		List<CategoryDefinition> catDefs = gradebookService.getCategoryDefinitions(getGradebook().getUid());
+		securityService.popAdvisor(gbAdvisor);
+		
+		// filter out the categories that don't match the categories of the viewable assignments
+		return catDefs.stream().filter(def -> catIds.contains(def.getId())).collect(Collectors.toList());
+		
 	}
 
 	/**

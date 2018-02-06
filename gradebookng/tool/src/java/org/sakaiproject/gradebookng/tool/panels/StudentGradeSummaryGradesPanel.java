@@ -23,6 +23,8 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
@@ -102,6 +104,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<String, List<Assignment>>();
 		final Map<Long, Double> categoryAverages = new HashMap<>();
+		Map<String, CategoryDefinition> categoriesMap = Collections.emptyMap();
 
 		// if gradebook release setting disabled, no work to do
 		if (this.isAssignmentsDisplayed) {
@@ -115,18 +118,34 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 					if (!categoryNamesToAssignments.containsKey(categoryName)) {
 						categoryNames.add(categoryName);
-						categoryNamesToAssignments.put(categoryName, new ArrayList<Assignment>());
-
-						if (assignment.getCategoryId() != null) {
-							
-							businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId)
-									.ifPresent(avg -> categoryAverages.put(assignment.getCategoryId(), avg.score));
-						}
+						categoryNamesToAssignments.put(categoryName, new ArrayList<>());
 					}
 
 					categoryNamesToAssignments.get(categoryName).add(assignment);
 				}
 			}
+			// get the category scores and mark any dropped items
+			for (String catName : categoryNamesToAssignments.keySet())
+			{
+				if (catName.equals(getString(GradebookPage.UNCATEGORISED)))
+				{
+					continue;
+				}
+				
+				List<Assignment> catItems = categoryNamesToAssignments.get(catName);
+				if (!catItems.isEmpty())
+				{
+					Long catId = catItems.get(0).getCategoryId();
+					if (catId != null)
+					{
+						businessService.getCategoryScoreForStudent(catId, userId)
+									.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages,
+											grades, catItems));
+					}
+				}
+			}
+			categoriesMap = businessService.getGradebookCategoriesForStudent(userId).stream()
+				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
 			Collections.sort(categoryNames);
 		}
 
@@ -141,6 +160,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		tableModel.put("isGroupedByCategory", this.isGroupedByCategory);
 		tableModel.put("showingStudentView", true);
 		tableModel.put("gradingType", GbGradingType.valueOf(gradebook.getGrade_type()));
+		tableModel.put("categoriesMap", categoriesMap);
 
 		addOrReplace(new GradeSummaryTablePanel("gradeSummaryTable", new LoadableDetachableModel<Map<String, Object>>() {
 			@Override
@@ -188,5 +208,17 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 	 */
 	private boolean isCategoryWeightEnabled() {
 		return (this.configuredCategoryType == GbCategoryType.WEIGHTED_CATEGORY) ? true : false;
+	}
+	
+	private void storeAvgAndMarkIfDropped(CategoryScoreData avg, Long catId, Map<Long, Double> categoryAverages,
+			Map<Long, GbGradeInfo> grades, List<Assignment> catItems)
+	{
+		categoryAverages.put(catId, avg.score);
+		
+		final List<Long> droppedAsnIds = catItems.stream().map(Assignment::getId)
+				.filter(id -> !avg.includedItems.contains(id)).collect(Collectors.toList());
+		
+		grades.entrySet().stream().filter(e -> droppedAsnIds.contains(e.getKey()))
+				.forEach(entry -> entry.getValue().setDroppedFromCategoryScore(true));
 	}
 }

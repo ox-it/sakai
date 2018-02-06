@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.List;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
@@ -15,6 +16,7 @@ import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbCategoryAverageSortOrder;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.component.table.columns.GbColumnSortToggleLink;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -103,22 +105,12 @@ public class CategoryColumnHeaderPanel extends Panel {
 		colorSwatch.add(new AttributeAppender("style", String.format("background-color:%s;", categoryColor)));
 		add(colorSwatch);
 		
-		int dropHighest = category.getDropHighest() == null ? 0 : category.getDropHighest();
-		int dropLowest = category.getDrop_lowest() == null ? 0 : category.getDrop_lowest();
-		int keepHighest = category.getKeepHighest() == null ? 0 : category.getKeepHighest();
-		
-		WebMarkupContainer dropOptions = new WebMarkupContainer("categoryDropOptions");
-		dropOptions.setRenderBodyOnly(true);
-		dropOptions.setVisible(dropHighest > 0 || dropLowest > 0 || keepHighest > 0);
-		IModel<String> noDropMsg = new ResourceModel("label.category.nodrop");
-		dropOptions.add(new Label("dropHighest", dropModel(dropHighest, noDropMsg)));
-		dropOptions.add(new Label("dropLowest", dropModel(dropLowest, noDropMsg)));
-		dropOptions.add(new Label("keepHighest", dropModel(keepHighest, noDropMsg)));
-		add(dropOptions);
-	}
-	
-	private IModel<String> dropModel(int drop, IModel<String> noDropMsg)
-	{
-		return drop < 1 ? noDropMsg : Model.of(Integer.toString(drop));
+		// display the drop highest/drop lowest/keep highest settings for the column, if any
+		// at most two of these settings can be active at the same time
+		List<String> dropOptions = FormatHelper.formatCategoryDropInfo(category);
+		String dropOption1 = dropOptions.size() > 0 ? dropOptions.get(0) : "";
+		String dropOption2 = dropOptions.size() > 1 ? dropOptions.get(1) : "";
+		add(new Label("dropOption1", Model.of(dropOption1)).setVisible(!dropOption1.isEmpty()));
+		add(new Label("dropOption2", Model.of(dropOption2)).setVisible(!dropOption2.isEmpty()));
 	}
 }

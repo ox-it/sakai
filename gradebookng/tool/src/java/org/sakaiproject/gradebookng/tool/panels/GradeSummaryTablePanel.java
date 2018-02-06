@@ -4,8 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -24,8 +22,11 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 public class GradeSummaryTablePanel extends Panel {
 
@@ -57,6 +58,7 @@ public class GradeSummaryTablePanel extends Panel {
 		final boolean showingStudentView = (boolean) data.get("showingStudentView");
 		final GbGradingType gradingType = (GbGradingType) data.get("gradingType");
 		isGroupedByCategory = (boolean) data.get("isGroupedByCategory");
+		final Map<String, CategoryDefinition> categoriesMap = (Map<String, CategoryDefinition>) data.get("categoriesMap");
 
 		if (getPage() instanceof GradebookPage) {
 			GradebookPage page = (GradebookPage) getPage();
@@ -129,7 +131,27 @@ public class GradeSummaryTablePanel extends Panel {
 				categoryRow.setVisible(categoriesEnabled && isGroupedByCategory && !categoryAssignments.isEmpty());
 				categoryItem.add(categoryRow);
 				categoryRow.add(new Label("category", categoryName));
-
+				String catDropInfo1 = "";
+				String catDropInfo2 = "";
+				if (!categoryName.equals(getString(GradebookPage.UNCATEGORISED)))
+				{
+					List<String> info = FormatHelper.formatCategoryDropInfo(categoriesMap.get(categoryName));
+					if (info.size() > 0)
+					{
+						catDropInfo1 = info.get(0);
+					}
+					if (info.size() > 1)
+					{
+						catDropInfo1 += " " + getString("label.category.dropSeparator") + " ";
+						catDropInfo2 = info.get(1);
+					}
+				}
+				WebMarkupContainer dropInfo = new WebMarkupContainer("categoryDropInfo");
+				dropInfo.setVisible(!catDropInfo1.isEmpty());
+				dropInfo.add(new Label("categoryDropInfo1", catDropInfo1).setVisible(!catDropInfo1.isEmpty()));
+				dropInfo.add(new Label("categoryDropInfo2", catDropInfo2).setVisible(!catDropInfo2.isEmpty()));
+				categoryRow.add(dropInfo);
+				
 				if (!categoryAssignments.isEmpty()) {
 					Double categoryAverage = categoryAverages.get(categoryAssignments.get(0).getCategoryId());
 					if (categoryAverage == null) {
@@ -198,8 +220,9 @@ public class GradeSummaryTablePanel extends Panel {
 							assignment.getDueDate() == null ? 0 : assignment.getDueDate().getTime()));
 						assignmentItem.add(dueDate);
 
+						final WebMarkupContainer gradeScore = new WebMarkupContainer("gradeScore");
 						if (GbGradingType.PERCENTAGE.equals(gradingType)) {
-							assignmentItem.add(new Label("grade",
+							gradeScore.add(new Label("grade",
 								new StringResourceModel("label.percentage.valued", null,
 									new Object[]{FormatHelper.formatGrade(rawGrade)})) {
 								@Override
@@ -207,10 +230,10 @@ public class GradeSummaryTablePanel extends Panel {
 									return StringUtils.isNotBlank(rawGrade);
 								}
 							});
-							assignmentItem.add(new Label("outOf").setVisible(false));
+							gradeScore.add(new Label("outOf").setVisible(false));
 						} else {
-							assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
-							assignmentItem.add(new Label("outOf",
+							gradeScore.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
+							gradeScore.add(new Label("outOf",
 								new StringResourceModel("label.studentsummary.outof", null, new Object[]{assignment.getPoints()})) {
 								@Override
 								public boolean isVisible() {
@@ -218,11 +241,34 @@ public class GradeSummaryTablePanel extends Panel {
 								}
 							});
 						}
+						if (gradeInfo != null && gradeInfo.isDroppedFromCategoryScore())
+						{
+							gradeScore.add(AttributeAppender.append("class", "gb-summary-grade-score-dropped"));
+						}
+						assignmentItem.add(gradeScore);
 
 						assignmentItem.add(new Label("comments", comment));
-						assignmentItem.add(
-							new Label("category", assignment.getCategoryName()).
-								setVisible(categoriesEnabled && !isGroupedByCategory));
+						WebMarkupContainer catCon = new WebMarkupContainer("category");
+						catCon.setVisible(categoriesEnabled && !isGroupedByCategory);
+						catCon.add(new Label("categoryName", assignment.getCategoryName()));
+						
+						String catDropInfo = "";
+						String catDropInfo2 = "";
+						if (assignment.getCategoryName() != null && !assignment.getCategoryName().equals(getString(GradebookPage.UNCATEGORISED)))
+						{
+							List<String> info = FormatHelper.formatCategoryDropInfo(categoriesMap.get(assignment.getCategoryName()));
+							if (info.size() > 0)
+							{
+								catDropInfo = info.get(0);
+							}
+							if (info.size() > 1)
+							{
+								catDropInfo2 = info.get(1);
+							}
+						}
+						catCon.add(new Label("categoryDropInfo", catDropInfo).setVisible(!catDropInfo.isEmpty()));
+						catCon.add(new Label("categoryDropInfo2", catDropInfo2).setVisible(!catDropInfo2.isEmpty()));
+						assignmentItem.add(catCon);
 					}
 				});
 			}
