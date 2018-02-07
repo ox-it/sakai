@@ -11279,7 +11279,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						Assignment assignment = getAssignment();
 						long effectiveDueDate = getEffectiveDueDate(item.getTaskId(), assignment.getCloseTime().getTime(), assignment.getProperties(),
-																		m_serverConfigurationService.getInt("contentreview.due.date.queue.job.buffer.minutes", 0));
+																		m_serverConfigurationService.getInt("contentreview.due.date.queue.job.buffer.minutes", 60));
 						errorMessage = rb.getString("content_review.pending.info") + " " 
 										+ rb.getFormattedMessage("content_review.pending.reportOnDueDate", new Object[] { TimeService.newTime(effectiveDueDate).getDisplay() });
 					}

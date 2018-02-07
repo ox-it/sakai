@@ -2580,7 +2580,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put( "enableAnonGrading", ServerConfigurationService.getBoolean( SAK_PROP_ENABLE_ANON_GRADING, false ) );
 
 		// Content review queue buffer
-		int reviewServiceQueueBuffer = ServerConfigurationService.getInt("contentreview.due.date.queue.job.buffer.minutes", 0);
+		int reviewServiceQueueBuffer = ServerConfigurationService.getInt("contentreview.due.date.queue.job.buffer.minutes", 60);
 		context.put("reviewServiceQueueBuffer", reviewServiceQueueBuffer);
 		
 		// is the assignment an new assignment
@@ -5225,7 +5225,8 @@ public class AssignmentAction extends PagedResourceActionII
 					contextString, assignmentRef));
 			context.put("accessPointUrl", accessPointUrl);
 			
-			int submissionType = a.getContent().getTypeOfSubmission();
+			AssignmentContent content = a.getContent();
+			int submissionType = content.getTypeOfSubmission();
 			// if the assignment is of text-only or allow both text and attachment, include option for uploading student submit text
 			context.put("includeSubmissionText", Boolean.valueOf(Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION == submissionType || Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION == submissionType));
 			
@@ -5237,6 +5238,29 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH):"");
 			
 			context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+
+			/*
+			 * If the due date in the content review service has passed for this assignment, we will have to push it to allow the submissions to go through.
+			 * Inform the user that the crs due date will be postponed accordingly
+			 */
+			if (allowReviewService && contentReviewService != null && content.getAllowReviewService())
+			{
+				// Get the latest acceptance date.
+				// This only considers the assignment accept until and resubmit accept until dates.
+				// TurnitinConstants.TURNITIN_ASN_LATEST_INDIVIDUAL_EXTENSION_DATE is not considered (it's a TII specific implementation detail)
+				final Time closeTime = a.getCloseTime();
+				Time latestAcceptanceDate = getResubmitCloseTime(a).filter(rct -> rct.after(closeTime)).orElse(closeTime);
+				if (System.currentTimeMillis() > latestAcceptanceDate.getTime())
+				{
+					// The latest acceptance date has passed; indicate that the due date will need to be pushed
+					String crsName = contentReviewService.getServiceName();
+					// This is an int, but we'll read it as a String to save the conversion
+					String bufferMinutes = ServerConfigurationService.getString("contentreview.due.date.queue.job.buffer.minutes", "60");
+					String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
+					String extendCRSDueDate = rb.getFormattedMessage("uploadall.extend.crs.due.date", new Object[]{crsName, bufferMinutes, uiService});
+					context.put("extendCRSDueDate", extendCRSDueDate);
+				}
+			}
 		}
 
 		String template = (String) getContext(data).get("template");
@@ -6213,7 +6237,8 @@ public class AssignmentAction extends PagedResourceActionII
 				gradeChanged = true;
 			}
 			Assignment a = sEdit.getAssignment();
-			int typeOfGrade = a.getContent().getTypeOfGrade();
+			AssignmentContent content = a.getContent();
+			int typeOfGrade = content.getTypeOfGrade();
 
 			if (!withGrade)
 			{
@@ -6307,7 +6332,7 @@ public class AssignmentAction extends PagedResourceActionII
 					pEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(extension.getTime()));
 
 					// TII-245 - Tell the CRS about this extension
-					handleIndividualExtensionInContentReview(sEdit, extension, state);
+					handleIndividualExtensionInContentReview(sEdit, Optional.of(a), Optional.of(content), extension, state);
 				}
 				else
 				{
@@ -9981,25 +10006,56 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	/**
 	 * Tells the content review service that we're offering an extension to an individual student; content review service will decide what to do with this
+	 * @param sub the submission
+	 * @param assignment optional for performance. If not present, the assignment will be pulled from the submission
+	 * @param assignmentContent the AssignmentContent associated with the assignment. If not present, will be pulled from the assignment
+	 * @param extension when to set the due date
+	 * @param state
 	 */
-	private void handleIndividualExtensionInContentReview(AssignmentSubmission sub, Time extension, SessionState state)
+	private void handleIndividualExtensionInContentReview(AssignmentSubmission sub, Optional<Assignment> assignment, Optional<AssignmentContent> assignmentContent, Time extension, SessionState state)
 	{
-		Assignment a = sub.getAssignment();
+		Assignment a = assignment.orElse(sub.getAssignment());
+		handleExtensionInContentReview(a, assignmentContent, extension, state);
+	}
+
+	/**
+	 * Extends the assignment due date in the content review service
+	 * @param a the assignment to sync
+	 * @param ac optional AssignmentContent associated with the assignment; will retrieve it from the assignment if empty
+	 * @param extension when to set the due date
+	 * @param state
+	 */
+	private void handleExtensionInContentReview(Assignment a, Optional<AssignmentContent> ac, Time extension, SessionState state)
+	{
 		if (a != null)
 		{
-			// Assignment open / due / close dates are easy to access, but the assignment level 'resubmit until' is a base64'd ResourceProperty
-			Time asnResubmitCloseTime = null;
+			AssignmentContent content = ac.orElse(a.getContent());
+			Time asnResubmitCloseTime = getResubmitCloseTime(a).orElse(null);
+			syncTIIAssignment(content, a.getReference(), a.getOpenTime(), a.getDueTime(), a.getCloseTime(), asnResubmitCloseTime, new Date(extension.getTime()), state, null);
+		}
+	}
+
+	/**
+	 * Gets the resubmit close time for the specified assignment
+	 * @param a the assignment
+	 * @return Optional wrapping the resubmit close time; empty if it is not set
+	 */
+	private Optional<Time> getResubmitCloseTime(Assignment a)
+	{
+		if (a != null)
+		{
 			ResourceProperties props = a.getProperties();
 			if (props != null)
 			{
 				String strResubmitCloseTime = props.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
 				if (!StringUtils.isBlank(strResubmitCloseTime))
 				{
-					asnResubmitCloseTime = TimeService.newTime(Long.parseLong(strResubmitCloseTime));
+					return Optional.of(TimeService.newTime(Long.parseLong(strResubmitCloseTime)));
 				}
 			}
-			syncTIIAssignment(a.getContent(), a.getReference(), a.getOpenTime(), a.getDueTime(), a.getCloseTime(), asnResubmitCloseTime, new Date(extension.getTime()), state, null);
 		}
+
+		return Optional.empty();
 	}
 	
 
@@ -16705,6 +16761,12 @@ public class AssignmentAction extends PagedResourceActionII
 			HashMap submissionTable, List submissions, Assignment assignment) {
 		if (assignment != null && submissions != null)
 		{
+			/*
+			 * The content review service may stop accepting files after the due date.
+			 * Track if we're uploading any new submission attachments so that we can determine if the CRS due date needs to be pushed
+			 */
+			boolean newAttachments = false;
+
 			Iterator sIterator = submissions.iterator();
 			while (sIterator.hasNext())
 			{
@@ -16739,6 +16801,7 @@ public class AssignmentAction extends PagedResourceActionII
 									Reference a = (Reference) attachments.next();
 									if (!submittedAttachments.contains(a))
 									{
+										newAttachments = true;
 										sEdit.addSubmittedAttachment(a);
 									}
 								}
@@ -16819,7 +16882,19 @@ public class AssignmentAction extends PagedResourceActionII
 							
 						}
 					}
-				}	
+				}
+				// if there are new attachments, postpone the CRS's due date as necessary to get these submissions in
+				if (newAttachments)
+				{
+					AssignmentContent content = assignment.getContent();
+					if (content.getAllowReviewService())
+					{
+						// Set the due date to now, and contentreview.due.date.queue.job.buffer.minutes will postpone the CRS's due date appropriately to allow the papers to get in
+						// The turnitin due date will not be effected if it is in the future
+						Time extension = TimeService.newTime();
+						handleExtensionInContentReview(assignment, Optional.of(content), extension, state);
+					}
+				}
 			}
 		}
 
@@ -17470,7 +17545,7 @@ public class AssignmentAction extends PagedResourceActionII
 								pEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, String.valueOf(extension.getTime()));
 
 								// TII-245
-								handleIndividualExtensionInContentReview(submissionEdit, extension, state);
+								handleIndividualExtensionInContentReview(submissionEdit, Optional.of(_a), Optional.empty(), extension, state);
 							}
 							else
 							{

@@ -23,6 +23,9 @@
 			#set($downloadTemplateUrl="$accessPointUrl?contextString=" + $contextString + "&studentSubmissionText=true&studentSubmissionAttachment=true&gradeFile=true&feedbackTexts=true&feedbackComments=true&feedbackAttachments=true")
 			$tlang.getString('uploadall.instruction2')(<a href="$downloadTemplateUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>) $tlang.getString('uploadall.instruction4')
 			<br />
+			#if ($extendCRSDueDate)
+				<span class="messageInformation">$extendCRSDueDate</span>
+			#end
 			<div class="highlight">
 				$tlang.getString('uploadall.note')
 			</div>
