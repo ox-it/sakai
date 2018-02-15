@@ -3142,13 +3142,13 @@ public class SimplePageBean {
 				    }
 
 				    // reset assignment-specific stuff
-				    i.setDescription("");
+				    i.setDescription(selectedObject.getShortDescription());
 				    update(i);
 				}
 			    } else {
 				// no, add new item
 				i = appendItem(selectedEntity, selectedObject.getTitle(), SimplePageItem.FORUM);
-				i.setDescription("");
+				i.setDescription(selectedObject.getShortDescription());
 				update(i);
 			    }
 			    return "success";
