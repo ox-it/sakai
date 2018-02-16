@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +11,8 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
@@ -683,9 +684,30 @@ public ItemData() {}
 		}
 		return answerKey;
 	}
-   
-   List<AnswerIfc> answerArray = itemTextArray.get(0).getAnswerArraySorted();
-   HashMap<String, String> h = new HashMap<String, String>();
+
+	else if (typeId.equals(TypeD.MATCHING)) {
+
+		List<String> answerKeys = new ArrayList<>(itemTextArray.size());
+		for (ItemTextIfc question : itemTextArray) {
+			boolean isDistractor = true;
+
+			List<AnswerIfc> answersSorted = question.getAnswerArraySorted();
+			for (AnswerIfc answer : answersSorted) {
+				if (!getPartialCreditFlag() && answer.getIsCorrect()) {
+					answerKeys.add(question.getSequence() + ":" + answer.getLabel());
+					isDistractor = false;
+					break;
+				}
+			}
+
+			if (isDistractor) {
+				answerKeys.add(question.getSequence() + ":" + Character.toString(SamigoConstants.ALPHABET.charAt(answersSorted.size())));
+			}
+		}
+
+		answerKey = StringUtils.join(answerKeys, ", ");
+		return answerKey;
+	}
 
    for (int i=0; i<itemTextArray.size();i++){
 	   ItemTextIfc text = itemTextArray.get(i);
@@ -693,7 +715,6 @@ public ItemData() {}
 	   for (int j=0; j<answers.size();j++){
 		   AnswerIfc a = answers.get(j);
 		   if (!this.getPartialCreditFlag() && (Boolean.TRUE).equals(a.getIsCorrect())){
-			   String pair = (String)h.get(a.getLabel());
 			   if((!this.getTypeId().equals(TypeD.MATCHING))&&(!this.getTypeId().equals(TypeD.IMAGEMAP_QUESTION)))
 			   {
 				   if(this.getTypeId().equals(TypeD.TRUE_FALSE))
@@ -710,17 +731,6 @@ public ItemData() {}
 					   {
 						   answerKey+=","+a.getLabel();
 					   }
-				   }
-			   }
-			   else if (this.getTypeId().equals(TypeD.MATCHING)){
-				   if (pair==null)
-				   {
-					   String s = a.getLabel() + ":" + text.getSequence();
-					   h.put(a.getLabel(), s);
-				   }
-				   else
-				   {
-					   h.put(a.getLabel(), pair+" "+text.getSequence());
 				   }
 			   }
 		   }
@@ -741,28 +751,8 @@ public ItemData() {}
 		   }
 	   }
    }
-   
-   if (this.getTypeId().equals(TypeD.MATCHING))
-   {
-	   List answerArrayWithDistractor = itemTextArray.get(0).getAnswerArrayWithDistractorSorted();
-	   for (int k=0; k<answerArrayWithDistractor.size();k++)
-	   {
-		   AnswerIfc a = (AnswerIfc)answerArrayWithDistractor.get(k);
-		   String pair = a.getSequence()+":"+a.getLabel();
-//		   String pair = a.getLabel()+":"+a.getSequence();
-
-		   if (k!=0)
-		       answerKey = answerKey+",  "+pair;
-		   else
-
-		       answerKey = pair;
-	   }
-   }
-
-
 
    return answerKey;
-
   }
 
   public int compareTo(ItemDataIfc o) {

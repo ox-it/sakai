@@ -204,7 +204,6 @@ public class QuestionScoreListener implements ActionListener,
 	public boolean questionScores(String publishedId, QuestionScoresBean bean,
 			boolean isValueChange) {
 		log.debug("questionScores()");
-		HashSet sortedAgentResults = new HashSet();
 		try {
 			PublishedAssessmentService pubService = new PublishedAssessmentService();
 			PublishedItemService pubItemService = new PublishedItemService();
@@ -224,45 +223,36 @@ public class QuestionScoreListener implements ActionListener,
 			log.debug("questionScores(): publishedItemHash.size = "
 					+ publishedItemHash.size());
 			// build a hashMap (publishedItemTextId, publishedItemText)
-			HashMap publishedItemTextHash = pubService
-					.preparePublishedItemTextHash(publishedAssessment);
+			Map<Long, ItemTextIfc> publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
 			log.debug("questionScores(): publishedItemTextHash.size = "
 					+ publishedItemTextHash.size());
 			HashMap publishedAnswerHash = pubService
 					.preparePublishedAnswerHash(publishedAssessment);
-            Set publishedItemTextIds = publishedItemTextHash.keySet();
-			Iterator keyIterator = publishedItemTextIds.iterator();
+			log.debug("questionScores(): publishedItemTextHash.size = "
+					+ publishedItemTextHash.size());
 			GradingService delegate = new GradingService();
-			HashMap allItemsHash = new HashMap();
-			while(keyIterator.hasNext()){
-					Object thisKey =  keyIterator.next();
-					ItemTextIfc thisItemTextIfc = (ItemTextIfc) publishedItemTextHash.get(thisKey);
-					ItemDataIfc thisItemDataIfc = thisItemTextIfc.getItem();
-					Set answers = thisItemTextIfc.getAnswerSet();
-					Iterator answerIterator = answers.iterator();
-					while(answerIterator.hasNext()){
-							AnswerIfc thisAnswerIfc = (AnswerIfc) answerIterator.next();
-							log.debug(""+thisAnswerIfc.getId());
-					}
-					if(delegate.isDistractor(thisItemTextIfc)){
-							log.debug("item is a distractor");
-					}
+			HashMap<Long, TreeMap<Long, ItemTextIfc>>  allItemsHash = new HashMap<>();
+			for (Long thisKey : publishedItemTextHash.keySet()) {
+				ItemTextIfc thisItemTextIfc = (ItemTextIfc) publishedItemTextHash.get(thisKey);
+				for (AnswerIfc thisAnswerIfc : thisItemTextIfc.getAnswerSet()) {
+					log.debug("{}", thisAnswerIfc.getId());
+				}
+				if (delegate.isDistractor(thisItemTextIfc)) {
+					log.debug("item is a distractor");
+				}
 
-				TreeMap thisItemOptions = (TreeMap) allItemsHash.get(thisItemTextIfc.getItem().getItemId());
-				if(thisItemOptions == null){
-					thisItemOptions = new TreeMap();
+				TreeMap<Long, ItemTextIfc> thisItemOptions = allItemsHash.get(thisItemTextIfc.getItem().getItemId());
+				if (thisItemOptions == null) {
+					thisItemOptions = new TreeMap<>();
 					thisItemOptions.put(thisItemTextIfc.getSequence(), thisItemTextIfc);
 					allItemsHash.put(thisItemTextIfc.getItem().getItemId(), thisItemOptions);
-				}else{
+				} else {
 					thisItemOptions.put(thisItemTextIfc.getSequence(), thisItemTextIfc);
 					allItemsHash.put(thisItemTextIfc.getItem().getItemId(), thisItemOptions);
 				}
-				log.debug("item = "+thisItemTextIfc.getSequence()+":"+thisItemTextIfc.getText()+"-"+thisItemTextIfc.getItem().getItemId());
+				log.debug("item = {}:{}-{}", thisItemTextIfc.getSequence(), thisItemTextIfc.getText(), thisItemTextIfc.getItem().getItemId());
 
 			}
-			log.debug("item -----------------------------------");
-//                     questionBean.setMarker("marker 1");
-			questionBean.setMarker("");
 			// re-attach session and load all lazy loaded parent/child stuff
 
 //			Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
@@ -277,8 +267,6 @@ public class QuestionScoreListener implements ActionListener,
 			log.debug("questionScores(): publishedAnswerHash.size = "
 					+ publishedAnswerHash.size());
 			HashMap agentResultsByItemGradingIdMap = new HashMap();
-
-			//GradingService delegate = new GradingService();
 
 			TotalScoresBean totalBean = (TotalScoresBean) ContextUtil
 					.lookupBean("totalScores");
@@ -736,7 +724,7 @@ public class QuestionScoreListener implements ActionListener,
 						answerTextLength = 35;
 					}
 
-					log.debug("answerText="+answerText);
+					log.debug("answerText=" + answerText);
 					// Fix for SAK-6932: Strip out all HTML tags except image tags
  					if (answerText.length() > answerTextLength) {
 						String noHTMLAnswerText;
@@ -815,84 +803,56 @@ public class QuestionScoreListener implements ActionListener,
 								answerText = crossmarkGif + answerText;
 							}
 						}
-						}else if(bean.getTypeId().equals("9")){
+					} else if (bean.getTypeId().equals("9")) {
 						log.debug("scoring a type 9 - matching");
 						boolean itemHasCorrectAnswers = hasCorrectAnswers(gdataPubItemText.getAnswerSet());
 						ItemGradingData thisItemGradingData = null;
-						Iterator allScoreIterator = allscores.iterator();
-						while(allScoreIterator.hasNext()){
-							thisItemGradingData = (ItemGradingData) allScoreIterator.next();
-							log.debug("thisItemGradingData.getItemGradingId().intValue()="+thisItemGradingData.getItemGradingId().intValue());
-							log.debug("gdata.getItemGradingId().intValue()="+gdata.getItemGradingId().intValue());
-							log.debug("thisItemGradingData.getAnswerText()="+thisItemGradingData.getAnswerText());
-							if(thisItemGradingData.getItemGradingId().intValue()==gdata.getItemGradingId().intValue())break;
-						}
-						if(thisItemGradingData!=null) log.debug("thisItemGradingData was found");
-						if(answerText.contains(noAnswer)&&fullAnswerText.contains(noAnswer)){
-							log.debug("check point A");
-							if(thisItemGradingData.getPublishedAnswerId()==null){
-									log.debug("null anwser id:thisItemGradingData.getAnswerText()="+thisItemGradingData.getAnswerText());
-                                    //                                    answerText = crossmarkGif+gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
-									if(answerList.size()==1){
-										TreeMap thisItemOptions = (TreeMap) allItemsHash.get(item.getItemId());
-										Set itemKeys = thisItemOptions.keySet();
-										Iterator k = itemKeys.iterator();
-										StringBuffer optionsBuffer = new StringBuffer();
-										while(k.hasNext()){
-											Long thisItemKey = (Long) k.next();
-											ItemTextIfc thisItemOptionText = (ItemTextIfc) thisItemOptions.get(thisItemKey);
-											optionsBuffer.append(crossmarkGif+" "+thisItemOptionText.getSequence().toString()+":No Response <br/>");
-										}
-										answerText = optionsBuffer.toString();
-
-									}else{
-										answerText = crossmarkGif+gdataPubItemText.getSequence() + ":" + "No Response";
-									}
-                            }else if(itemHasCorrectAnswers && thisItemGradingData.getPublishedAnswerId().intValue()<0){
-								answerText = crossmarkGif+gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
-							}else{
-								answerText = checkmarkGif+gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
+						for (Object thisItem : allscores) {
+							thisItemGradingData = (ItemGradingData) thisItem;
+							log.debug("thisItemGradingData.getItemGradingId().intValue()={}", thisItemGradingData.getItemGradingId().intValue());
+							log.debug("gdata.getItemGradingId().intValue()={}", gdata.getItemGradingId().intValue());
+							log.debug("thisItemGradingData.getAnswerText()={}", thisItemGradingData.getAnswerText());
+							if (thisItemGradingData.getItemGradingId().equals(gdata.getItemGradingId())) {
+								break;
 							}
-							log.debug("answerText="+answerText);
+						}
+						if (thisItemGradingData != null) {
+							log.debug("thisItemGradingData was found");
+						}
+						if (answerText.contains(noAnswer) && fullAnswerText.contains(noAnswer)) {
+							log.debug("check point A");
+							if (thisItemGradingData.getPublishedAnswerId() == null) {
+								log.debug("null anwser id:thisItemGradingData.getAnswerText()={}", thisItemGradingData.getAnswerText());
+								if (answerList.size() == 1) {
+									TreeMap<Long, ItemTextIfc> thisItemOptions = allItemsHash.get(item.getItemId());
+									StringBuilder optionsBuffer = new StringBuilder();
+									for (Long thisItemKey : thisItemOptions.keySet()) {
+										ItemTextIfc thisItemOptionText = (ItemTextIfc) thisItemOptions.get(thisItemKey);
+										optionsBuffer.append(crossmarkGif).append(" ").append(thisItemOptionText.getSequence().toString()).append(":No Response <br/>");
+									}
+									answerText = optionsBuffer.toString();
+								} else {
+									answerText = crossmarkGif + gdataPubItemText.getSequence() + ":" + "No Response";
+								}
+							} else if (itemHasCorrectAnswers && thisItemGradingData.getPublishedAnswerId() < 0) {
+								answerText = crossmarkGif + gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
+							} else {
+								answerText = checkmarkGif + gdataPubItemText.getSequence() + ":" + noneOfTheAbove;
+							}
+							log.debug("answerText={}", answerText);
 							String thisAgentId = gdata.getAgentId();
-							Iterator agentIterator = bean.getAgents().iterator();
-							boolean agentFound=false;
-							AgentResults thisAgentResult = null;
-							while(agentIterator.hasNext()){
-								thisAgentResult = (AgentResults) agentIterator.next();
-								if(thisAgentResult.getIdString().compareTo(thisAgentId)==0){
-									agentFound=true;
+							boolean agentFound = false;
+							for (Object thisAgent : bean.getAgents()) {
+								AgentResults thisAgentResult = (AgentResults) thisAgent;
+								if (thisAgentResult.getIdString().compareTo(thisAgentId) == 0) {
+									agentFound = true;
 									break;
 								}
 							}
-/*
-							if(agentFound){
-								String thisItemOptions[] = thisAgentResult.getAnswer().split("<br/>");
-								for(int s=0;s<thisItemOptions.length;s++){
-									int endOfCheckmark = thisItemOptions[s].indexOf(">");
-									int colonAt = thisItemOptions[s].indexOf(":");
-									String thisSequence = thisItemOptions[s].substring(endOfCheckmark, colonAt);
-									StringBuffer editItemBuffer = new StringBuffer();
-									editItemBuffer.append(thisSequence);
-									editItemBuffer.append("|");
-									editItemBuffer.append(thisItemOptions[s]);
-									thisItemOptions[s] = editItemBuffer.toString();
-								}
-								Arrays.sort(thisItemOptions);
-								StringBuffer optionBuffer = new StringBuffer();
-								for(int s=0;s<thisItemOptions.length;s++){
-									int dlmIndex = thisItemOptions[s].indexOf('|');
-									optionBuffer.append(thisItemOptions[s].substring(dlmIndex+1));
-									optionBuffer.append("<br/>");
-								}
-								log.debug("sortedOptions"+optionBuffer.toString());
-								thisAgentResult.setAnswer(optionBuffer.toString());
-							}
-*/
 						}
 					}
 
-					log.debug("check point B answerText="+answerText);
+					log.debug("check point B answerText={}", answerText);
 					// -- Got the answer text --
 					if (!answerList.get(0).equals(gdata)) { // We already have
 						// an agentResults
@@ -989,8 +949,7 @@ public class QuestionScoreListener implements ActionListener,
 				agents = (ArrayList) bs.sortDesc();
 			}
 
-			// log.info("Listing agents.");
-			if(bean.getTypeId().equals("9")){
+			if (bean.getTypeId().equals("9")) {
 				agents = sortMatching(agents);
 			}
 			bean.setAgents(agents);
@@ -1009,31 +968,26 @@ public class QuestionScoreListener implements ActionListener,
 		return true;
 	}
 
-	private ArrayList sortMatching(List a){
+	private ArrayList sortMatching(List<AgentResults> agentResults){
 
-		ArrayList returnValues = new ArrayList();
-		Iterator agentIterator = a.iterator();
-		while(agentIterator.hasNext()){
-			AgentResults thisAgentResult = (AgentResults) agentIterator.next();
+		ArrayList<AgentResults> returnValues = new ArrayList<>();
+		for (AgentResults thisAgentResult : agentResults) {
 			String thisItemOptions[] = thisAgentResult.getAnswer().split("<br/>");
-			for(int s=0;s<thisItemOptions.length;s++){
+			for (int s = 0; s < thisItemOptions.length; s++) {
 				int endOfCheckmark = thisItemOptions[s].indexOf(">");
 				int colonAt = thisItemOptions[s].indexOf(":");
 				String thisSequence = thisItemOptions[s].substring(endOfCheckmark, colonAt);
-				StringBuffer editItemBuffer = new StringBuffer();
-				editItemBuffer.append(thisSequence);
-				editItemBuffer.append("|");
-				editItemBuffer.append(thisItemOptions[s]);
+				StringBuilder editItemBuffer = new StringBuilder();
+				editItemBuffer.append(thisSequence).append("|").append(thisItemOptions[s]);
 				thisItemOptions[s] = editItemBuffer.toString();
 			}
 			Arrays.sort(thisItemOptions);
-			StringBuffer optionBuffer = new StringBuffer();
-			for(int s=0;s<thisItemOptions.length;s++){
-				int dlmIndex = thisItemOptions[s].indexOf('|');
-				optionBuffer.append(thisItemOptions[s].substring(dlmIndex+1));
-				optionBuffer.append("<br/>");
+			StringBuilder optionBuffer = new StringBuilder();
+			for (String thisItemOption : thisItemOptions) {
+				int dlmIndex = thisItemOption.indexOf('|');
+				optionBuffer.append(thisItemOption.substring(dlmIndex + 1)).append("<br/>");
 			}
-			log.debug("sortedOptions"+optionBuffer.toString());
+			log.debug("sortedOptions{}", optionBuffer);
 			thisAgentResult.setAnswer(optionBuffer.toString());
 			returnValues.add(thisAgentResult);
 		}
@@ -1099,19 +1053,14 @@ public class QuestionScoreListener implements ActionListener,
 		}
 	}
 
-	private boolean hasCorrectAnswers(Set answerSet){
-		    ArrayList list = new ArrayList();
-		    Iterator iter = answerSet.iterator();
-		    while (iter.hasNext()){
-		      list.add(iter.next());
-		    }
-	    	Iterator answerIterator = list.iterator();
-	    	while(answerIterator.hasNext()){
-	    		PublishedAnswer thisPublishedAnswer = (PublishedAnswer) answerIterator.next();
-	    		if(thisPublishedAnswer.getIsCorrect().booleanValue()) return true;
-	    	}
-	    	return false;
-	  }
+	private boolean hasCorrectAnswers(Set<AnswerIfc> answerSet){
+		for (AnswerIfc thisAnswer : answerSet) {
+			if (((PublishedAnswer) thisAnswer).getIsCorrect()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	private void populateSections(PublishedAssessmentIfc publishedAssessment,
 			QuestionScoresBean bean, TotalScoresBean totalBean,

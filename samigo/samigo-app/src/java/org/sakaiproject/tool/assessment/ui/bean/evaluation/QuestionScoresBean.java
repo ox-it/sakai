@@ -93,8 +93,6 @@ public class QuestionScoresBean
   private HashMap scoresByItem;
   private static Logger log = LoggerFactory.getLogger(QuestionScoresBean.class);
 
-  private String marker;
-
   //private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSectionFilterValue = null;
   
@@ -263,15 +261,6 @@ public class QuestionScoresBean
   public String getAssessmentId()
   {
     return Validator.check(assessmentId, "0");
-  }
-
-  public String getMarker()
-  {
-    return marker;
-  }
-
-  public void setMarker(String s){
-    marker = s;
   }
 
   /**

@@ -96,4 +96,6 @@ public class SamigoConstants {
     public static final boolean SAK_PROP_EXPORT_INCLUDE_DATES_DEFAULT = true;
 	
 	public static final int AUTO_SUBMIT_JOB_FATAL_ERROR = -1;
+
+    public static final     String      ALPHABET                                            = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 }
