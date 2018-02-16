@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -283,7 +284,14 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		rv.add(getFromAddress(event));
 
 		// to
-		rv.add(getTo(event));
+		if (ServerConfigurationService.getBoolean("announcement.notification.email.to.matches.from", false))
+		{
+			rv.add(getToAddress(event));
+		}
+		else
+		{
+			rv.add(getTo(event));
+		}
 
 		return rv;
 	}
@@ -331,15 +339,24 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		// use the message's subject
 		return rb.getFormattedMessage("noti.subj", new Object[]{title, hdr.getSubject()});
 	}
-	
+
 	/**
-	 * Format the announcement notification from address.
-	 * 
-	 * @param event
-	 *        The event that matched criteria to cause the notification.
-	 * @return the announcement notification from address.
+	 * Defines the possible parameters for getAddress() to determine if we're getting the address for the 'From' or the 'To' field
 	 */
-	protected String getFromAddress(Event event)
+	private enum AddressField
+	{
+		FROM,
+		TO;
+	}
+
+	/**
+	 * Gets the address for either the "From:" or "To:" field in an announcement notification email.
+	 * They are formatted as follows:
+	 * From/To: "display address" <email address>
+	 * @param event the announcement event backing the notification
+	 * @param field specifies if we are getting the 'From' or the 'To' address
+	 */
+	private String getAddress(Event event, AddressField field)
 	{
 		Reference ref = entityManager.newReference(event.getResource());
 		
@@ -356,17 +373,16 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		
 		String userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
 		String userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
-		//String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";
-		//String no_reply_withTitle = "From: \"" + title + "\" <" + userEmail + ">";	
-		String from = "From: Sakai"; // fallback value
-		 if (title!=null && !title.equals("")){ 
-		     from = "From: \"" + title + "\" <" + userEmail + ">"; 
-		 } else {
-		     String fromVal = getFrom(event); // should not return null but better safe than sorry
-	         if (fromVal != null) {
-	             from = fromVal;
-	         }
-		 }
+		String address = field == AddressField.FROM ? "From: " : "To: ";
+		if (title!=null && !title.equals("")){
+			address = address + "\"" + title + "\" <" + userEmail + ">";
+		} else {
+			String val = field == AddressField.FROM ? getFrom(event) : getTo(event);
+			if (val != null)
+			{
+				address = val;
+			}
+		}
 		
 		// get the message
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
@@ -376,7 +392,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		// SAK-20988 - emailFromReplyable@org.sakaiproject.event.api.NotificationService is deprecated
 		boolean notificationEmailFromReplyable = ServerConfigurationService.getBoolean("notify.email.from.replyable", false);
 		if (notificationEmailFromReplyable 
-		        && from.contains(userEmail)
+		        && address.contains(userEmail)
 		        && userId != null) 
 		{
 				try
@@ -387,17 +403,42 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 					if ((userEmail != null) && (userEmail.trim().length()) == 0) userEmail = null;
 					
 				} catch (UserNotDefinedException e) {
-					M_log.warn("Failed to load user from announcement header: " + userId + ". Will send from no-reply@" + ServerConfigurationService.getServerName()  + " instead.");
+					M_log.warn("Failed to load user from announcement header: " + userId + ". Will send with no-reply@" + ServerConfigurationService.getServerName()  + " instead.");
 				}
 				
 				// some fallback positions
 				if (userEmail == null) userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
 				if (userDisplay == null) userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
-				from="From: \"" + userDisplay + "\" <" + userEmail + ">";
+
+				address = field == AddressField.FROM ? "From: \"" : "To: \"";
+				// 'From' should display the user; 'To' should display the site title; if the title is unavailable, fallback to the user
+				String display = (field == AddressField.FROM || StringUtils.isBlank(title)) ? userDisplay : title;
+				address = address + display + "\" <" + userEmail + ">";
 		}
 		
-		return from;
+		return address;
 	}
+
+	/**
+	 * Format the announcement notification from address.
+	 *
+	 * @param event
+	 *        The event that matched criteria to cause the notification.
+	 * @return the announcement notification from address.
+	 */
+	protected String getFromAddress(Event event)
+	{
+		return getAddress(event, AddressField.FROM);
+	}
+
+	/**
+	 * Format the announcement notification to address.
+	 */
+	protected String getToAddress(Event event)
+	{
+		return getAddress(event, AddressField.TO);
+	}
+
 
 	/**
 	 * Add to the user list any other users who should be notified about this ref's change.

@@ -1,3 +1,5 @@
+2018.02.16:
+	- [OWL-3397] created a property to match the 'To' address with the 'From' address in announcement notification emails
 2017.08.22:
 	- [OWL-2990] change synoptic header from h1 to h3
 2017.01.23:
