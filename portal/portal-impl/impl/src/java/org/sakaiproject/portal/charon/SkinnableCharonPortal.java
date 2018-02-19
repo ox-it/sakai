@@ -1329,24 +1329,27 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		StringBuilder headJs = new StringBuilder();
 
         // SAK-22384
-        if (site != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
+        if (placement != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
         {
+            ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
+            if (toolConfig != null) {
                 if (site != null)
-                {                           
-                    String strMathJaxEnabled = site.getProperties().getProperty(MATHJAX_ENABLED);                    
+                {
+                    String strMathJaxEnabled = site.getProperties().getProperty(MATHJAX_ENABLED);
                     if (!StringUtils.isBlank(strMathJaxEnabled))
                     {
                         String[] mathJaxTools = strMathJaxEnabled.split(",");
-                        
+
                         String toolId = toolConfig.getTool().getId();
                         if (toolId != null && ArrayUtils.contains(mathJaxTools, toolId))
                         {
                             // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
                             headJs.append("<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n");
                             headJs.append("<script src=\"").append(MATHJAX_SRC_PATH).append("\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n");
-                        }                     
+                        }
                     }
                 }
+            }
         }
 
 		String contentItemUrl = portalService.getContentItemUrl(site);
@@ -1411,7 +1414,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				site = SiteService.getSite(p.getContext());
 			}
 			catch (IdUnusedException ex) {
-				log.debug(ex.getMessage());
+				M_log.debug(ex.getMessage());
 			}
                 }
 
