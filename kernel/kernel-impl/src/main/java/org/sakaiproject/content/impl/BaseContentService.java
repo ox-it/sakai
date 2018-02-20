@@ -5962,7 +5962,29 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				M_log.warn("Exception when trying to get the resource's data: " + e);
 			} 
         }
-        
+
+		// Put a copy in the trash if the user has chosen to overwrite the file.
+		if(edit instanceof BaseResourceEdit && ((BaseResourceEdit)edit).getEvent().equals(EVENT_RESOURCE_WRITE)) {
+			try {
+				ContentResource trashCopy = getResource(edit.getId());
+//				String uuid = this.getUuid(edit.getId());
+//				String userId = sessionManager.getCurrentSessionUserId().trim();
+				removeResource(trashCopy.getId());
+				//addResourceToDeleteTable(trashCopy, uuid, userId);
+				//edit.setContentLength(0);  // we stop removing it entry from the DB 
+				//commitResourceEdit(trashCopy, NotificationService.NOTI_NONE, false);
+			} catch (PermissionException pe) {
+				M_log.debug("commitResource: permission exception so could not save deleted resource, restore for this resource is not possible " + pe );
+			} catch (IdUnusedException pe) {
+				M_log.debug("commitResource: permission exception so could not save deleted resource, restore for this resource is not possible " + pe );
+			} catch (TypeException pe) {
+				M_log.debug("commitResource: permission exception so could not save deleted resource, restore for this resource is not possible " + pe );
+			} catch (InUseException pe) {
+				M_log.debug("commitResource: permission exception so could not save deleted resource, restore for this resource is not possible " + pe );
+			}
+//			trashCopy.streamContent()
+		}
+
 		commitResourceEdit(edit, priority);
 
         // Queue up content for virus scanning
@@ -5980,6 +6002,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				//the edit is closed so we need to refetch it
 				ContentResourceEdit edit2 = editResource(edit.getId());
 				removeResource(edit2);
+				// only want to do this if overwriting and don't know that here.
+				// Restore the original file from trash.
+				restoreResource(edit.getId());
 			} catch (PermissionException e1) {
 				// we're unlikely to see this at this point
 				e1.printStackTrace();
@@ -5990,6 +6015,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				// we're unlikely to see this at this point
 				e1.printStackTrace();
 			} catch (InUseException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (IdUsedException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (IdInvalidException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (InconsistentException e1) {
 				// we're unlikely to see this at this point
 				e1.printStackTrace();
 			}
@@ -6155,14 +6189,30 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/**
 	 * Commit the changes made, and release the lock - no quota check. The Object is disabled, and not to be used after this call.
+	 *
+	 * @param edit
+	 *        The ContentResourceEdit object to commit.
+	 * @param priority
+	 *        The notification priority of this commit.
+	 * @throws PermissionException
+	 */
+	protected void commitResourceEdit(ContentResourceEdit edit, int priority) throws ServerOverloadException {
+		boolean updateResourceProperties = true;
+		commitResourceEdit(edit, priority, updateResourceProperties);
+	}
+	
+	/**
+	 * Commit the changes made, and release the lock - no quota check. The Object is disabled, and not to be used after this call.
 	 * 
 	 * @param edit
 	 *        The ContentResourceEdit object to commit.
 	 * @param priority
 	 *        The notification priority of this commit.
+	 * @param updateResourceProperties
+	 *        Whether to update the file stamps before saving.
 	 * @throws PermissionException 
 	 */
-	protected void commitResourceEdit(ContentResourceEdit edit, int priority) throws ServerOverloadException
+	protected void commitResourceEdit(ContentResourceEdit edit, int priority, boolean updateResourceProperties) throws ServerOverloadException
 	{
 		// check for closed edit
 		if (!edit.isActiveEdit())
@@ -6178,7 +6228,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		// update the properties for update
-		addLiveUpdateResourceProperties(edit);
+		if (updateResourceProperties) {
+			addLiveUpdateResourceProperties(edit);
+		}
 
 		boolean titleUpdated = false;
 		if(edit instanceof BaseResourceEdit) {
