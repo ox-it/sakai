@@ -60,6 +60,7 @@ public class GradeItemCellPanel extends Panel {
 
 	TextField<String> gradeCell;
 	private String originalGrade;
+	private Label displayGradeLabel;
 	
 	String rawGrade;
 	String formattedGrade;
@@ -159,7 +160,8 @@ public class GradeItemCellPanel extends Panel {
 		// RENDER
 		if (isExternal || !this.gradeable) {
 
-			add(new Label("readonlyGrade", Model.of(this.displayGrade)));
+			displayGradeLabel = new Label("readonlyGrade", Model.of(this.displayGrade));
+			add(displayGradeLabel);
 			add(new Label("editableGrade") {
 				private static final long serialVersionUID = 1L;
 
@@ -473,7 +475,9 @@ public class GradeItemCellPanel extends Panel {
 			if (categoryId != null && categoryId.equals(payload.categoryId)
 					&& studentUuid.equals(payload.studentUuid))
 			{
-				dropped = !payload.includedItems.contains(assignmentId) && StringUtils.isNotBlank(gradeCell.getModelObject());
+				dropped = !payload.includedItems.contains(assignmentId) 
+						&& (gradeCell != null && StringUtils.isNotBlank(gradeCell.getModelObject()) 
+							|| displayGradeLabel != null && StringUtils.isNotBlank(displayGradeLabel.getDefaultModelObjectAsString()));
 				gradeDropStyle = dropped ? GradeCellDropStyle.DROPPED : GradeCellDropStyle.INCLUDED;
 				
 				String js = String.format("sakai.gradebookng.spreadsheet.refreshCellForCategoryDropUpdate('%s', '%s', '%s')",

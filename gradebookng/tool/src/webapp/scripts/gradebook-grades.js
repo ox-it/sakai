@@ -1722,7 +1722,9 @@ GradebookSpreadsheet.prototype.setupCell = function(cellId, assignmentId, studen
 
 GradebookSpreadsheet.prototype.refreshCellForCategoryDropUpdate = function(cellId, assignmentId, studentUuid) {
   var cellModel = this.getCellModelForStudentAndAssignment(studentUuid, assignmentId);
-  cellModel.handleWicketCellReplacementForCategoryDropUpdate(cellId);
+  if (cellModel.isEditable()) {
+    cellModel.handleWicketCellReplacementForCategoryDropUpdate(cellId);
+  }
 };
 
 GradebookSpreadsheet.prototype.findVisibleStudentBefore = function(studentUuid) {
