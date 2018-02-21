@@ -54,14 +54,14 @@ public class GradebookNgApplication extends WebApplication {
 		// getApplicationSettings().setPageExpiredErrorPage(getHomePage());
 
 		// show internal error page rather than default developer page
-		// for production, set to SHOW_NO_EXCEPTION_PAGE
-		getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_EXCEPTION_PAGE);
+		// for development, set to SHOW_EXCEPTION_PAGE
+		getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_NO_EXCEPTION_PAGE);
 
 		// Intercept any unexpected error stacktrace and take to our page
 		getRequestCycleListeners().add(new AbstractRequestCycleListener() {
 			@Override
 			public IRequestHandler onException(final RequestCycle cycle, final Exception e) {
-				return new RenderPageRequestHandler(new PageProvider(new ErrorPage(e)));
+				return new RenderPageRequestHandler(new PageProvider(new ErrorPage(e, getExceptionSettings().getUnexpectedExceptionDisplay())));
 			}
 		});
 

@@ -3,8 +3,10 @@ package org.sakaiproject.gradebookng.tool.pages;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.settings.IExceptionSettings;
 
 /**
  * Page displayed when an internal error occurred.
@@ -17,7 +19,7 @@ public class ErrorPage extends BasePage {
 
 	private static final long serialVersionUID = 1L;
 
-	public ErrorPage(final Exception e) {
+	public ErrorPage(final Exception e, final IExceptionSettings.UnexpectedExceptionDisplay displayExceptionSetting) {
 		
 		final String stacktrace = ExceptionUtils.getStackTrace(e);
 		
@@ -33,8 +35,14 @@ public class ErrorPage extends BasePage {
 		error.setEscapeModelStrings(false);
 		add(error);
 
-		// show the stacktrace. This should be configurable at some point
-		add(new Label("stacktrace", stacktrace));
-
+		// Display the stack trace only if the application is configured to do so
+		WebMarkupContainer container = new WebMarkupContainer("stacktraceContainer");
+		Label trace = new Label("stacktrace", stacktrace);
+		if (!IExceptionSettings.SHOW_EXCEPTION_PAGE.equals(displayExceptionSetting)) {
+			container.setVisible(false);
+			trace.setVisible(false);
+		}
+		container.add(trace);
+		add(container);
 	}
 }
