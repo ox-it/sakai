@@ -4,11 +4,13 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -120,6 +122,49 @@ public class FormatHelper {
 
 			s = df.format(d);
 		} catch (final NumberFormatException e) {
+			log.debug("Bad format, returning original string: " + grade);
+			s = grade;
+		}
+
+		return StringUtils.removeEnd(s, ".0");
+	}
+
+	/**
+	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25
+	 *
+	 * @param grade - string representation of a grade
+	 * @return
+	 */
+	public static String formatGradeForDisplay(final Double grade) {
+		return formatGradeForDisplay(formatDoubleToDecimal(grade));
+	}
+
+	/**
+	 * Format a grade from the root locale for display using the user's locale
+	 *
+	 * @param grade - string representation of a grade
+	 * @return
+	 */
+	public static String formatGradeForDisplay(final String grade) {
+		if (StringUtils.isBlank(grade)) {
+			return "";
+		}
+
+		String s = null;
+		try {
+			final DecimalFormat dfParse = (DecimalFormat) NumberFormat.getInstance(Locale.ROOT);
+			dfParse.setParseBigDecimal(true);
+			final BigDecimal d = (BigDecimal) dfParse.parse(grade);
+
+			final DecimalFormat dfFormat = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
+			dfFormat.setMinimumFractionDigits(0);
+			dfFormat.setMaximumFractionDigits(2);
+			dfFormat.setGroupingUsed(true);
+			s = dfFormat.format(d);
+		} catch (final NumberFormatException e) {
+			log.debug("Bad format, returning original string: " + grade);
+			s = grade;
+		} catch (final ParseException e) {
 			log.debug("Bad format, returning original string: " + grade);
 			s = grade;
 		}
