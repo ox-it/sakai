@@ -133,30 +133,32 @@ public class FormatHelper {
 	 * Format a grade, e.g. 00 => 0 0001 => 1 1.0 => 1 1.25 => 1.25
 	 *
 	 * @param grade - string representation of a grade
+	 * @param locale
 	 * @return
 	 */
-	public static String formatGradeForDisplay(final Double grade) {
-		return formatGradeForDisplay(formatDoubleToDecimal(grade));
+	public static String formatGradeForDisplay(final Double grade, final Locale locale) {
+		return formatGradeForDisplay(formatDoubleToDecimal(grade), locale);
 	}
 
 	/**
 	 * Format a grade from the root locale for display using the user's locale
 	 *
 	 * @param grade - string representation of a grade
+	 * @param locale
 	 * @return
 	 */
-	public static String formatGradeForDisplay(final String grade) {
+	public static String formatGradeForDisplay(final String grade, final Locale locale) {
 		if (StringUtils.isBlank(grade)) {
 			return "";
 		}
 
 		String s = null;
 		try {
-			final DecimalFormat dfParse = (DecimalFormat) NumberFormat.getInstance(Locale.ROOT);
+			final DecimalFormat dfParse = (DecimalFormat) NumberFormat.getInstance(locale);
 			dfParse.setParseBigDecimal(true);
 			final BigDecimal d = (BigDecimal) dfParse.parse(grade);
 
-			final DecimalFormat dfFormat = (DecimalFormat) NumberFormat.getInstance(rl.getLocale());
+			final DecimalFormat dfFormat = (DecimalFormat) NumberFormat.getInstance(locale);
 			dfFormat.setMinimumFractionDigits(0);
 			dfFormat.setMaximumFractionDigits(2);
 			dfFormat.setGroupingUsed(true);

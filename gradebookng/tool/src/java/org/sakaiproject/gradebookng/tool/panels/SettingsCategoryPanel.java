@@ -675,7 +675,7 @@ public class SettingsCategoryPanel extends Panel {
 			// convert to percentage representation
 			final Double percentage = value * 100;
 
-			return FormatHelper.formatGradeForDisplay(percentage);
+			return FormatHelper.formatGradeForDisplay(percentage, locale);
 		}
 
 	}
