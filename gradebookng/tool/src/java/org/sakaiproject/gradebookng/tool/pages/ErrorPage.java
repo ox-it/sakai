@@ -38,7 +38,7 @@ public class ErrorPage extends BasePage {
 		// Display the stack trace only if the application is configured to do so
 		WebMarkupContainer container = new WebMarkupContainer("stacktraceContainer");
 		Label trace = new Label("stacktrace", stacktrace);
-		if (!IExceptionSettings.SHOW_EXCEPTION_PAGE.equals(displayExceptionSetting)) {
+		if (!IExceptionSettings.SHOW_EXCEPTION_PAGE.equals(displayExceptionSetting) && !businessService.isSuperUser()) {
 			container.setVisible(false);
 			trace.setVisible(false);
 		}
