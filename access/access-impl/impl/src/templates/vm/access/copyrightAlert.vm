@@ -30,7 +30,11 @@
 					$tlang.getString("gen.copy")
 				</th>
 				<td>
-					$validator.escapeHtml($props.getPropertyFormatted($props.NamePropCopyright))
+					#if($props.getPropertyFormatted($props.NamePropCopyright) == "")
+						$validator.escapeHtml($props.getPropertyFormatted($props.NamePropCopyrightChoice))
+					#else
+						$validator.escapeHtml($props.getPropertyFormatted($props.NamePropCopyright))
+					#end
 				</td>
 			</tr>
 		</table>	
