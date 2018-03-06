@@ -22,6 +22,9 @@ public class GbStudentGradeInfo implements Serializable {
 	private String studentUuid;
 
 	@Getter
+	private String studentDisplayId;
+
+	@Getter
 	private String studentDisplayName;
 
 	@Getter
@@ -49,6 +52,7 @@ public class GbStudentGradeInfo implements Serializable {
 	public GbStudentGradeInfo(final User u) {
 		this.studentUuid = u.getId();
 		this.studentEid = u.getEid();
+		this.studentDisplayId = u.getDisplayId();
 		this.studentFirstName = u.getFirstName();
 		this.studentLastName = u.getLastName();
 		this.studentDisplayName = u.getDisplayName();

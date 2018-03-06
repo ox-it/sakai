@@ -43,6 +43,7 @@ public class ExportPanel extends Panel {
 	ExportFormat exportFormat = ExportFormat.CSV;
 	boolean includeStudentName = true;
 	boolean includeStudentId = true;
+	boolean includeStudentDisplayId = false;
 	boolean includeGradeItemScores = true;
 	boolean includeGradeItemComments = true;
 	boolean includeCourseGrade = false;
@@ -58,6 +59,16 @@ public class ExportPanel extends Panel {
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+
+		add(new AjaxCheckBox("includeStudentDisplayId", Model.of(this.includeStudentDisplayId)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(final AjaxRequestTarget ajaxRequestTarget) {
+				ExportPanel.this.includeStudentDisplayId = !ExportPanel.this.includeStudentDisplayId;
+				setDefaultModelObject(ExportPanel.this.includeStudentDisplayId);
+			}
+		});
 
 		add(new AjaxCheckBox("includeStudentName", Model.of(this.includeStudentName)) {
 			private static final long serialVersionUID = 1L;
@@ -182,6 +193,9 @@ public class ExportPanel extends Panel {
 			if (!isCustomExport || this.includeStudentId) {
 				header.add(getString("importExport.export.csv.headers.studentId"));
 			}
+			if (isCustomExport || this.includeStudentDisplayId) {
+				header.add(getString("importExport.export.csv.headers.studentDisplayId"));
+			}
 			if (!isCustomExport || this.includeStudentName) {
 				header.add(getString("importExport.export.csv.headers.studentName"));
 			}
@@ -236,6 +250,9 @@ public class ExportPanel extends Panel {
 				final List<String> line = new ArrayList<String>();
 				if (!isCustomExport || this.includeStudentId) {
 					line.add(studentGradeInfo.getStudentEid());
+				}
+				if (!isCustomExport || this.includeStudentDisplayId) {
+					line.add(studentGradeInfo.getStudentDisplayId());
 				}
 				if (!isCustomExport ||this.includeStudentName) {
 					line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
