@@ -1550,6 +1550,12 @@ $(document).ready(function() {
 			$("#grouplist").show();
 		    });
 
+		$('.calendar-link').click(function() {
+			$("#calendar-addBefore").val(addAboveItem);
+                        $("#add-calendar").click();
+			return false;
+		    });
+
 		$('.change-resource-movie').click(function(){
 			closeMovieDialog();
 			mm_test_reset();

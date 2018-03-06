@@ -8190,7 +8190,7 @@ public class SimplePageBean {
 	 * @return
 	 */
 	public String addCalendar(){
-		if (!itemOk(itemId))
+		if (!itemOk(itemId) || !checkCsrf())
 			return "permission-failed";
 		String result = "success";
 		if (canEditPage()) {

@@ -431,8 +431,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		String addBefore = params.getAddBefore();
 		if (params.addTool == GeneralViewParameters.COMMENTS) {
 			simplePageBean.addCommentsSection(addBefore);
-		}else if(params.addTool == GeneralViewParameters.CALENDAR){
-			simplePageBean.addCalendar();
 		}else if(params.addTool == GeneralViewParameters.STUDENT_CONTENT) {
 			simplePageBean.addStudentContentSection(addBefore);
 		}else if(params.addTool == GeneralViewParameters.STUDENT_PAGE) {
@@ -3853,14 +3851,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "assignment-li");
 		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment-descrip", currentPage, "simplepage.assignment");
 
-		    //If Calendar tool is present in the site, add an option to configure calendar in Lessons
-		    if(simplePageBean.getCurrentTool(simplePageBean.CALENDAR_TOOL_ID) != null){
-		        GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
-		        eParams.addTool = GeneralViewParameters.CALENDAR;
-		        UIOutput.make(tofill, "calendar-li");
-		        UILink calendarLink = UIInternalLink.make(tofill, "calendar-link", messageLocator.getMessage("simplepage.calendarLinkText"), eParams);
-		        calendarLink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
-		    }
+		    boolean showEmbedCalendarLink = ServerConfigurationService.getBoolean("lessonbuilder.show.calendar.link", true);
+		    if (showEmbedCalendarLink){
+			UIOutput.make(tofill, "calendar-li");
+			UIOutput.make(tofill, "calendar-link").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.calendar-descrip")));
+			UIForm form = UIForm.make(tofill, "add-calendar-form");
+			UIInput.make(form, "calendar-addBefore", "#{simplePageBean.addBefore}");
+			makeCsrf(form, "csrf28");
+			UICommand.make(form, "add-calendar", "#{simplePageBean.addCalendar}");
+		    }		    
 		    UIOutput.make(tofill, "quiz-li");
 		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
