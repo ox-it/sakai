@@ -335,3 +335,52 @@ div#pagingHeader {
     align-items: center;
     justify-content: center;
 }
+
+.selectGroupRequired::after
+{
+	content: "*";
+	color: #990000;
+	position: relative;
+	top: 3px;
+	margin-left: 4px;
+}
+
+/* visibility will be controlled by javascript */
+#msgNoMembersInCommonSuccess, #msgNoMembersInCommonError
+{
+	display: none;
+}
+
+#msgNoMembersInCommonError
+{
+	max-height: 300px;
+	overflow-y: scroll;
+}
+
+#categoryList label
+{
+	margin-bottom: 0; /* kill off bootstrap margin to reduce jitter during animation transitions */
+}
+
+.owlIndent1
+{
+	margin-left: 40px;
+}
+.owlIndent2
+{
+	margin-left: 80px;
+}
+.owlIndent3
+{
+	margin-left: 120px;
+}
+.owlIndent4
+{
+	margin-left: 160px;
+}
+
+#assignmentGradingPointsPanel .radio, #assignmentGradingPointsPanel .checkbox
+{
+	margin-top: 0;
+	margin-bottom: 0;
+}

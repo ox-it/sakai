@@ -332,42 +332,34 @@ ASN.setupToggleAreas = function(toggler, togglee, openInit, speed){
     });
 };
 
-// SAK-26349
-ASN.showOrHideAccessMessages = function(groupRadioSelected) {
-    
-    // Get the elements
-    var container = document.getElementById("messages");
-    var groupMsg = document.getElementById("msgSelectGroups");
-    var groupSubWarn2 = document.getElementById("msgGroupSubsWarning2");
-    var children = container.getElementsByTagName("div");
-    
-    // Show/hide the messages
-    ASN.showOrHideSelectGroupsMessage();
-    if (groupRadioSelected) {
-        for (i = 0; i < children.length; i++) {
-            if (children[i].id !== groupMsg.id) {
-                children[i].style.display = "none";
-            }
-        }
-
-        groupSubWarn2.style.display = "block";
-    } 
-    else {
-        for (i = 0; i < children.length; i++) {
-            if (children[i].id !== groupMsg.id) {
-                children[i].style.display = "block";
-            }
-        }
-
-        groupSubWarn2.style.display = "none";
+ASN.noMembersInCommonMsg = function(display)
+{
+    var msg = document.getElementById("msgNoMembersInCommon");
+	var msgSuccess = document.getElementById("msgNoMembersInCommonSuccess");
+	var msgError = document.getElementById("msgNoMembersInCommonError");
+	var groupAssignRadio = document.getElementById("groupAssignment");
+    if (groupAssignRadio.checked && display === "show")
+    {
+        msg.style.display = "block";
     }
+    else
+    {
+        msg.style.display = "none";
+    }
+
+	// hide any previous success/failure messages
+	msgSuccess.style.display = "none";
+	msgError.style.display = "none";
 };
 
-ASN.showOrHideSelectGroupsMessage = function() {
+// SAK-26349
+ASN.showOrHideSelectGroupsMessage = function(groupOption, groupsSelected) {
     
     // Get the elements
     var groupMsg = document.getElementById("msgSelectGroups");
     var groupsRadio = document.getElementById("groups");
+    var groupAssignRadio = document.getElementById("groupAssignment");
+    var groupOption = groupsRadio.checked || groupAssignRadio.checked;
     var checkboxes = document.getElementsByName("selectedGroups");
     
     // Determine if groups are selected
@@ -384,7 +376,7 @@ ASN.showOrHideSelectGroupsMessage = function() {
     var saveButtons = document.getElementsByName( "save" );
 
     // Show/hide the groups message
-    if (groupsRadio.checked && !groupsSelected) {
+    if (groupOption && !groupsSelected) {
         groupMsg.style.display = "block";
         
         // Disable the post, save and preview buttons
@@ -616,7 +608,7 @@ ASN.togglePeerAssessmentOptions = function(checked){
     }
 };
 
-ASN.toggleAddOptions = function(checked){
+ASN.togglePeerAssessment = function(element){
         //Disable the peer review area and renable the site property unless this is selected 
         var section = document.getElementById("peerAssessmentOptions");
         section.style.display="none";
@@ -625,21 +617,34 @@ ASN.toggleAddOptions = function(checked){
         $("#site").parent().prop("disabled", false);
         $("#site").parent().prop("class", "");
         $("#site").parent().prop("style", "");
-        var groupSubsWarning = document.getElementById("msgGroupSubsWarning1");
-        groupSubsWarning.style.display = "none";
+
+        ASN.setGroupAssignmentRadioEnabled(!element.checked);
         //When Peer Assement options is selected
-        if(checked === "peerreview"){
+        if(element.checked)
+        {
             section.style.display="block";
             ASN.resizeFrame('grow');
-        //When Group Submission is checked
-        }else if (checked==="group"){
-            $("#site").prop("disabled", true);
-            $("#site").parent().prop("class", "disabled");
-            $("#site").parent().prop("style", "cursor: not-allowed");
-            groupSubsWarning.style.display = "inline-block";
-            $("#groups").prop("checked", true).trigger("click");
         }
 };
+
+ASN.setGroupAssignmentRadioEnabled = function(enabled)
+{
+    var groupAssignRadio = document.getElementById("groupAssignment");
+    if (groupAssignRadio !== null)
+    {
+        groupAssignRadio.disabled = !enabled;
+        var label = document.getElementById("groupAssignmentCheckboxLabel");
+        if (enabled)
+        {
+            label.classList.remove("disabled");
+        }
+        else
+        {
+            label.classList.add("disabled");
+        }
+        document.getElementById("msgNoGroupAssignmentPeerInUse").style.display = enabled ? "none" : "inline";
+    }
+}
 
 ASN.toggleReviewServiceOptions = function(checked){
     var section = document.getElementById("reviewServiceOptions");
@@ -1001,4 +1006,271 @@ ASN.handleReportsTriangleDisclosure = function (header, content)
         header.src = expand;
         content.style.display = "none";
     }
+};
+
+ASN.isGradeTypePoints = function()
+{
+	var gradeScaleSelectContainer = document.getElementById("gradeScaleSelectContainer");
+	if (gradeScaleSelectContainer === null)
+	{
+		return false;
+	}
+	var select = gradeScaleSelectContainer.getElementsByTagName("select")[0];
+	return select && select.value === "3";
+}
+
+ASN.handleGradeAssignmentClick = function(checkbox, selectId, pointsId)
+{
+	$("#assignmentGradingPanel").toggle(checkbox.checked);
+
+	var select = document.getElementById(selectId);
+	ASN.handleGradeScaleChange(select, pointsId);
+};
+
+ASN.handleGradeScaleChange = function(select, textfieldId)
+{
+	var pointsField = document.getElementById(textfieldId);
+	if (select === null || pointsField === null)
+	{
+		return;
+	}
+	var pointsPanel = document.getElementById("assignmentGradingPointsPanel");
+	var isPoints = ASN.isGradeTypePoints();
+	pointsPanel.style.display = isPoints ? "block" : "none";
+
+	if (!isPoints) // we're switching away from points which means peer assessment is not valid, so re-enable the group option
+	{
+		ASN.setGroupAssignmentRadioEnabled(true);
+	}
+	else // we're switching to points, peer assessment may already be enabled
+	{
+		if (pointsField !== null && pointsField.value.length < 1)
+		{
+			pointsField.focus();
+		}
+		ASN.evaluateAssignToOptionsForPeerAssessment();
+	}
+};
+
+// evaluate the state of the assign to options based on the current
+// state of peer assessment
+ASN.evaluateAssignToOptionsForPeerAssessment = function()
+{
+	var peerCheck = document.getElementById("usePeerAssessment");
+	if (peerCheck === null)
+	{
+		return;
+	}
+
+	ASN.setGroupAssignmentRadioEnabled(!peerCheck.checked);
+}
+
+ASN.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWithGbRadioId)
+{
+	if (checkbox.checked)
+	{
+		var addRadio = document.getElementById(addToGbRadioId);
+		var assocRadio = document.getElementById(assocWithGbRadioId);
+		if (addRadio !== null && !addRadio.checked && assocRadio !== null && !assocRadio.checked)
+		{
+			addRadio.click();
+		}
+	}
+	var panel = document.getElementById("assignmentGradingGradebookOptionsPanel");
+	panel.style.display = checkbox.checked ? "block" : "none";
+}
+
+// evaluate the state of the peer assessment option based on the current group
+// assignment setting.
+ASN.evaluatePeerAssessmentOption = function()
+{
+    var groupAsn = document.getElementById("groupAssignment");
+    var isGroup = groupAsn !== null && groupAsn.checked;
+    var peerCheck = document.getElementById("usePeerAssessment");
+    if (peerCheck === null)
+    {
+        return;
+    }
+
+    if (isGroup && peerCheck.checked)
+    {
+        peerCheck.click();
+    }
+	ASN.disablePeerAssessment(isGroup);
+};
+
+ASN.disablePeerAssessment = function(disable)
+{
+	var peerCheck = document.getElementById("usePeerAssessment");
+	if (peerCheck === null)
+    {
+        return;
+    }
+
+	peerCheck.disabled = disable;
+	var label = document.getElementById("peerAssessmentCheckboxLabel");
+	if (disable)
+	{
+		label.classList.add("disabled");
+		document.getElementById("peerGroupAsnWarn").style.display = "block";
+	}
+	else
+	{
+		label.classList.remove("disabled");
+		document.getElementById("peerGroupAsnWarn").style.display = "none";
+	}
+};
+
+ASN.handleGradebookRadioClick = function(radio, addToGbRadioId)
+{
+	var catSelect = document.getElementById("category");
+	var itemSelect = document.getElementById("gradebookItemSelect");
+	var isAdd = radio.id === addToGbRadioId;
+	if (catSelect !== null)
+	{
+		catSelect.disabled = !isAdd;
+	}
+	if (itemSelect !== null)
+	{
+		itemSelect.disabled = isAdd;
+	}
+}
+
+ASN.handleAssignToChangeForPeerAssessment = function()
+{
+    var peerCheck = document.getElementById("usePeerAssessment");
+    if (peerCheck !== null)
+    {
+        ASN.evaluatePeerAssessmentOption();
+    }
+};
+
+ASN.handleGroupSelectionChange = function()
+{
+	var groupsRadio = document.getElementById("groups");
+    var groupAssignRadio = document.getElementById("groupAssignment");
+    var groupOption = groupsRadio.checked || groupAssignRadio.checked;
+    var selectedGroupCount = ASN.getSelectedGroupsCount();
+
+	ASN.showOrHideSelectGroupsMessage(groupOption, selectedGroupCount > 0);
+
+	// enable/disable the no members in common message
+    ASN.enableNoMembersInCommon(selectedGroupCount);
+};
+
+ASN.initCheckNowButton = function()
+{
+	ASN.enableNoMembersInCommon(ASN.getSelectedGroupsCount());
+};
+
+ASN.enableNoMembersInCommon = function(selectedGroupCount)
+{
+	var display = selectedGroupCount < 2 ? "hide" : "show";
+	ASN.noMembersInCommonMsg(display);
+};
+
+ASN.getSelectedGroupsCount = function()
+{
+	var checkboxes = document.getElementsByName("selectedGroups");
+
+	// Determine if groups are selected and how many
+    var groupsSelected = 0;
+    for (i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i].checked === true) {
+            groupsSelected++;
+        }
+    }
+
+	return groupsSelected;
+};
+
+ASN.checkGroupsNow = function(button, siteId, asnRef)
+{
+    ASNAPI.checkGroups(button, siteId, asnRef, ASN.handleCheckGroups, ASN.handleCheckGroupsError);
+};
+
+ASN.handleCheckGroupsError = function(data)
+{
+	console.log("Ajax call error when attempting to check group membership uniqueness.");
+};
+
+ASN.handleCheckGroups = function(data)
+{
+	var button = document.getElementById("checkNowButton");
+	button.classList.remove("spinButton");
+	button.disabled = false;
+
+	var successMsg = document.getElementById("msgNoMembersInCommonSuccess");
+	var errorMsg = document.getElementById("msgNoMembersInCommonError");
+	var checkGroupsError = document.getElementById("checkGroupsError");
+	var checkGroupsFailed = document.getElementById("checkGroupsFailed");
+	var report = document.getElementById("checkGroupsErrorReport");
+
+	if ($.isEmptyObject(data))
+	{
+		successMsg.style.display = "none";
+		errorMsg.style.display = "block";
+		checkGroupsError.style.display = "none";
+		checkGroupsFailed.style.display = "block";
+	}
+	else if ($.isEmptyObject(data.assignment_collection) || data.assignment_collection.length === 0)
+	{
+		successMsg.style.display = "block";
+		errorMsg.style.display = "none";
+	}
+	else
+	{
+		successMsg.style.display = "none";
+		errorMsg.style.display = "block";
+		checkGroupsError.style.display = "block";
+		checkGroupsFailed.style.display = "none";
+		report.style.display = "block";
+
+		report.innerHTML = "";
+		data.assignment_collection.forEach(function(reportRow)
+		{
+			var li = report.appendChild(document.createElement("li"));
+			var row = reportRow.user.displayId + " (" + reportRow.groups.map(g => g.title).join(", ") + ")";
+			li.innerHTML = row;
+		});
+	}
+};
+
+var ASNAPI = ASNAPI || {};
+
+ASNAPI.checkGroups = function(button, siteId, asnRef, onSuccess, onError)
+{
+	var endpoint = "/direct/assignment/checkForUsersInMultipleGroups.json";
+	var params = {};
+	var groups = document.getElementsByName("selectedGroups");
+	var selectedGroupIds = [];
+	for (var i = 0; i < groups.length; ++i)
+	{
+		if (groups[i].checked)
+		{
+			selectedGroupIds.push(groups[i].value);
+		}
+	}
+	params.selectedGroups = selectedGroupIds;
+	params.siteId = siteId;
+	params.asnRef = asnRef;
+
+	button.classList.add("spinButton");
+	button.disabled = true;
+
+	ASNAPI._GET(endpoint, params, onSuccess, onError);
+};
+
+ASNAPI._GET = function(url, data, onSuccess, onError, onComplete)
+{
+	$.ajax(
+	{
+		type: "GET",
+		url: url,
+		data: data,
+		cache: false,
+		success: onSuccess || $.noop,
+		error: onError || $.noop,
+		complete: onComplete || $.noop
+	});
 };

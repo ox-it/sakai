@@ -1,16 +1,20 @@
 package org.sakaiproject.assignment.entityproviders;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang.StringUtils;
 
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.Assignment.AssignmentAccess;
@@ -21,6 +25,7 @@ import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.assignment.api.AssignmentService.AsnMultiGroupRecord;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.impl.BaseAssignmentService;
 import org.sakaiproject.assignment.impl.MySecurityAdvisor;
@@ -60,6 +65,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Group;
 
 
 public class AssignmentEntityProvider extends AbstractEntityProvider implements EntityProvider, 
@@ -981,6 +987,49 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 	 */
 	public void setPropertyValue(String reference, String name, String value) {
 		// TODO: add ability to set properties of an assignment
+	}
+
+	@EntityCustomAction(action ="checkForUsersInMultipleGroups", viewKey = EntityView.VIEW_LIST)
+	public List<AsnMultiGroupRecord> checkForUsersInMultipleGroups(final EntityView view, final Map<String, Object> params)
+	{
+		final String siteId = StringUtils.trimToEmpty((String) params.get("siteId"));
+		final String asnRef = StringUtils.trimToEmpty((String) params.get("asnRef"));
+
+		if (siteId.isEmpty())
+		{
+			throw new IllegalArgumentException("Site Id must be provided.");
+		}
+
+		if (!params.containsKey("selectedGroups[]"))
+		{
+			throw new IllegalArgumentException("Selected groups must be provided.");
+		}
+
+		final List<String> groupIds;
+		Object groups = params.get("selectedGroups[]");
+		if (groups instanceof String[])
+		{
+			groupIds = Arrays.asList((String[]) groups);
+		}
+		else if (groups instanceof String)
+		{
+			groupIds = Collections.singletonList((String) groups);
+		}
+		else
+		{
+			throw new IllegalArgumentException("Selected groups must be provided.");
+		}
+
+		try
+		{
+			List<Group> selectedGroups = siteService.getSite(siteId).getGroups().stream()
+				.filter(g -> groupIds.contains(g.getId())).collect(Collectors.toList());
+			return assignmentService.checkForUsersInMultipleGroups(siteId, asnRef, selectedGroups);
+		}
+		catch (IdUnusedException e)
+		{
+			throw new IllegalArgumentException("Site Id must be provided.");
+		}
 	}
 
 }

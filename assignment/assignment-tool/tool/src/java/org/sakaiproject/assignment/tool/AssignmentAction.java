@@ -203,11 +203,13 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final int contentreviewAssignMax = ServerConfigurationService.getInt("contentreview.assign.max", 0);//TII value = 100
 	private static final boolean hideAllowAnyFileOption = ServerConfigurationService.getBoolean("turnitin.option.any_file.hide", false);
 	private static final boolean allowAnyFileOptionDefault = ServerConfigurationService.getBoolean("turnitin.option.any_file.default", false);
-	
-	/** Is the review service available? */
+
+	// Grading
+	private static final String NEW_ASSIGNMENT_GRADE_ASSIGNMENT = "new_assignment_grade_assignment";
+	private static final String NEW_ASSIGNMENT_SEND_TO_GRADEBOOK = "new_assignment_send_to_gradebook";
+
 	//Peer Assessment
 	private static final String NEW_ASSIGNMENT_USE_PEER_ASSESSMENT= "new_assignment_use_peer_assessment";
-	private static final String NEW_ASSIGNMENT_ADDITIONAL_OPTIONS= "new_assignment_additional_options";
 	private static final String NEW_ASSIGNMENT_PEERPERIODMONTH = "new_assignment_peerperiodmonth";
 	private static final String NEW_ASSIGNMENT_PEERPERIODDAY = "new_assignment_peerperiodday";
 	private static final String NEW_ASSIGNMENT_PEERPERIODYEAR = "new_assignment_peerperiodyear";
@@ -217,7 +219,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS= "new_assignment_peer_assessment_student_view_review";
 	private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS= "new_assignment_peer_assessment_num_reviews";
 	private static final String NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS = "new_assignment_peer_assessment_instructions";
-	
+
+	/** Is the review service available? */
 	private static final String NEW_ASSIGNMENT_USE_REVIEW_SERVICE = "new_assignment_use_review_service";
 	
 	private static final String NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW = "new_assignment_allow_student_view";
@@ -2624,7 +2627,6 @@ public class AssignmentAction extends PagedResourceActionII
 		// put the names and values into vm file
 		
 		context.put("name_UsePeerAssessment", NEW_ASSIGNMENT_USE_PEER_ASSESSMENT);
-		context.put("name_additionalOptions", NEW_ASSIGNMENT_ADDITIONAL_OPTIONS);
 		context.put("name_PeerAssessmentAnonEval", NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL);
 		context.put("name_PeerAssessmentStudentViewReviews", NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS);
 		context.put("name_PeerAssessmentNumReviews", NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS);
@@ -2672,6 +2674,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_Section", NEW_ASSIGNMENT_SECTION);
 		context.put("name_SubmissionType", NEW_ASSIGNMENT_SUBMISSION_TYPE);
 		context.put("name_Category", NEW_ASSIGNMENT_CATEGORY);
+		context.put("name_GradeAssignment", NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
 		context.put("name_GradeType", NEW_ASSIGNMENT_GRADE_TYPE);
 		context.put("name_GradePoints", NEW_ASSIGNMENT_GRADE_POINTS);
 		context.put("name_Description", NEW_ASSIGNMENT_DESCRIPTION);
@@ -2689,15 +2692,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// SAK-17606
 		context.put("name_CheckAnonymousGrading", NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
-
-		context.put("name_CheckIsGroupSubmission", NEW_ASSIGNMENT_GROUP_SUBMIT);
-		//Default value of additional options for now. It's a radio so it can only have one option
-		String contextAdditionalOptions = "none";
-
-		String gs = (String) state.getAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT);
-		if (gs != null && "1".equals(gs)) {
-			contextAdditionalOptions = "group";
-		}
 
 		// set the values
 		Assignment a = null;
@@ -2720,7 +2714,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("value_Sections", state.getAttribute(NEW_ASSIGNMENT_SECTION));
 		context.put("value_SubmissionType", state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE));
-		
+
+		// Grading
+
 		// information related to gradebook categories
 		putGradebookCategoryInfoIntoContext(state, context);
 		
@@ -2733,12 +2729,10 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// SAK-17606
 		context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
-		
+
 		//Peer Assessment
 		String peer = (String) state.getAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT);
-		if (peer != null && "true".equals(peer)) {
-			contextAdditionalOptions = "peerreview";
-		}
+		context.put("value_UsePeerAssessment", peer);
 		context.put("value_PeerAssessmentAnonEval", state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL));
 		context.put("value_PeerAssessmentStudentViewReviews", state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_STUDENT_VIEW_REVIEWS));
 		context.put("value_PeerAssessmentNumReviews", state.getAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_NUM_REVIEWS));
@@ -2858,6 +2852,7 @@ public class AssignmentAction extends PagedResourceActionII
 				boolean withGrade = ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue();
 				if (withGrade)
 				{
+					context.put("name_SendToGradebook", NEW_ASSIGNMENT_SEND_TO_GRADEBOOK);
 					context.put("name_Addtogradebook", AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
 					context.put("name_AssociateGradebookAssignment", AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 				}
@@ -2895,8 +2890,13 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
 		String range = StringUtils.trimToNull((String) state.getAttribute(NEW_ASSIGNMENT_RANGE));
-		context.put("range", range != null?range:"site");
-		
+		//context.put("range", range != null?range:"site");
+		// when writing out the range, check to see if groupSubmission is enabled and modify
+		// the range value accordingly. We'll do the opposite when reading it back in
+		String gs = (String) state.getAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT);
+		String rangeValue = "1".equals(gs) ? "groupAssignment" : StringUtils.defaultIfBlank(range, "site");
+		context.put("range", rangeValue);  // OWLTODO: replace "range" as the name of the radio group in the markup to avoid confusion?
+
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		// put site object into context
 		try
@@ -3057,9 +3057,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			M_log.warn(this + ":setAssignmentFormContext role cast problem " +  e.getMessage() + " site =" + contextString);
 		}
-		//Add the additional options in
-		context.put("value_additionalOptions", contextAdditionalOptions);
-		
+
 	} // setAssignmentFormContext
 
 	/**
@@ -7348,15 +7346,49 @@ public class AssignmentAction extends PagedResourceActionII
 		String order = params.getString(NEW_ASSIGNMENT_ORDER);
 		state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
 		
-		String additionalOptions = params.getString(NEW_ASSIGNMENT_ADDITIONAL_OPTIONS);
-		
+		// assignment range
+		String range = data.getParameters().getString("range");
+		// reading range back in could be one of three values: site, groups, groupAssignment
+		// need to translate it into range/groupAssignment pair where groupAssignment implies groups for the range value
 		boolean groupAssignment = false;
-		if ("group".equals(additionalOptions)) {
-			state.setAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT, "1");
+		if ("groupAssignment".equals(range))
+		{
+			range = "groups";
 			groupAssignment = true;
 		}
-		else {
-			state.setAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT, "0");
+		state.setAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT, groupAssignment ? "1" : "0");
+
+		state.setAttribute(NEW_ASSIGNMENT_RANGE, range);
+		if ("groups".equals(range))
+		{
+			String[] groupChoice = data.getParameters().getStrings("selectedGroups");
+			if (groupChoice != null && groupChoice.length != 0)
+			{
+				state.setAttribute(NEW_ASSIGNMENT_GROUPS, new ArrayList(Arrays.asList(groupChoice)));
+			}
+			else
+			{
+				state.setAttribute(NEW_ASSIGNMENT_GROUPS, null);
+				addAlert(state, rb.getString("java.alert.youchoosegroup"));
+			}
+		}
+		else
+		{
+			state.removeAttribute(NEW_ASSIGNMENT_GROUPS);
+		}
+
+		// check groups for duplicate members here
+		if (groupAssignment) {
+			Collection<String> _dupUsers = usersInMultipleGroups(state, "groups".equals(range),("groups".equals(range) ? data.getParameters().getStrings("selectedGroups") : null), false, null);
+			if (_dupUsers.size() > 0) {
+				StringBuilder _sb = new StringBuilder(rb.getString("group.user.multiple.warning") + " ");
+				Iterator<String> _it = _dupUsers.iterator();
+				if (_it.hasNext()) _sb.append(_it.next());
+				while (_it.hasNext())
+					_sb.append(", " + _it.next());
+				addAlert(state, _sb.toString());
+				M_log.warn(this + ":post_save_assignment at least one user in multiple groups.");
+			}
 		}
 
 		if (title == null || title.length() == 0)
@@ -7428,24 +7460,118 @@ public class AssignmentAction extends PagedResourceActionII
 		Integer submissionType = Integer.valueOf(params.getString(NEW_ASSIGNMENT_SUBMISSION_TYPE));
 		state.setAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE, submissionType);
 
-		// Skip category if it was never set.
-		Long catInt = Long.valueOf(-1);
-		if(params.getString(NEW_ASSIGNMENT_CATEGORY) != null) 
-			catInt = Long.valueOf(params.getString(NEW_ASSIGNMENT_CATEGORY));
-			state.setAttribute(NEW_ASSIGNMENT_CATEGORY, catInt);
-		
+		// ----------   BEGIN GRADING PARAMS   ----------------
+
 		int gradeType = -1;
+		boolean gradeTypePoints = false;
 
 		// grade type and grade points
 		if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
 		{
-			gradeType = Integer.parseInt(params.getString(NEW_ASSIGNMENT_GRADE_TYPE));
-			state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, Integer.valueOf(gradeType));
+			boolean gradeAssignment = params.getBoolean(NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
+			state.setAttribute(NEW_ASSIGNMENT_GRADE_ASSIGNMENT, gradeAssignment);
+			String gradeTypeParam = params.getString(NEW_ASSIGNMENT_GRADE_TYPE);
+			if (!gradeAssignment || gradeTypeParam == null)
+			{
+				state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, Assignment.UNGRADED_GRADE_TYPE);
+			}
+			else
+			{
+				gradeType = Integer.parseInt(gradeTypeParam);
+				state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, Integer.valueOf(gradeType));
+			}
+
+			gradeTypePoints = gradeType == Assignment.SCORE_GRADE_TYPE;
+
+			// the grade point
+			String gradePoints = gradeTypePoints ? params.getString(NEW_ASSIGNMENT_GRADE_POINTS) : null;
+			state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+			if (gradePoints != null)
+			{
+				if (gradeTypePoints)
+				{
+					if ((gradePoints.length() == 0))
+					{
+						// in case of point grade assignment, user must specify maximum grade point
+						addAlert(state, rb.getString("plespethe3"));
+					}
+					else
+					{
+						Integer scaleFactor = AssignmentService.getScaleFactor();
+						try {
+							if (StringUtils.isNotEmpty(assignmentRef)) {
+								Assignment assignment = AssignmentService.getAssignment(assignmentRef);
+								if (assignment != null && assignment.getContent() != null) {
+									scaleFactor = assignment.getContent().getFactor();
+								}
+							}
+						} catch (IdUnusedException | PermissionException e) {
+							M_log.error(e.getMessage());
+						}
+
+						validPointGrade(state, gradePoints, scaleFactor);
+						// when scale is points, grade must be integer and less than maximum value
+						if (state.getAttribute(STATE_MESSAGE) == null)
+						{
+							gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
+						}
+						if (state.getAttribute(STATE_MESSAGE) == null)
+						{
+							state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+						}
+					}
+				}
+			}
 		}
+
+		boolean sendToGradebook = gradeTypePoints && params.getBoolean(NEW_ASSIGNMENT_SEND_TO_GRADEBOOK);
+		String grading = sendToGradebook ? params.getString(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) : AssignmentService.GRADEBOOK_INTEGRATION_NO;
+		state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, grading);
+
+		// SAK-17606
+		state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, params.getString(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+
+		// only when choose to associate with assignment in Gradebook
+		String associateAssignment = params.getString(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+
+		if (grading != null)
+		{
+			if (grading.equals(AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE))
+			{
+				state.setAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateAssignment);
+			}
+			else
+			{
+				state.setAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "");
+			}
+
+			if (!grading.equals(AssignmentService.GRADEBOOK_INTEGRATION_NO))
+			{
+				// gradebook integration only available to point-grade assignment
+				if (gradeType != Assignment.SCORE_GRADE_TYPE)
+				{
+					addAlert(state, rb.getString("addtogradebook.wrongGradeScale"));
+				}
+
+				// if chosen as "associate", have to choose one assignment from Gradebook
+				if (grading.equals(AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE) && StringUtils.trimToNull(associateAssignment) == null)
+				{
+					addAlert(state, rb.getString("grading.associate.alert"));
+				}
+			}
+		}
+
+		// Skip category if it was never set.
+		Long catInt = Long.valueOf(-1);
+		if(params.getString(NEW_ASSIGNMENT_CATEGORY) != null && AssignmentService.GRADEBOOK_INTEGRATION_ADD.equals(grading))
+		{
+			catInt = Long.valueOf(params.getString(NEW_ASSIGNMENT_CATEGORY));
+		}
+		state.setAttribute(NEW_ASSIGNMENT_CATEGORY, catInt);
 
 		//Peer Assessment
 		boolean peerAssessment = false;
-		if ("peerreview".equals(additionalOptions)) {
+		if (gradeTypePoints && params.getBoolean(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT)) {
 			state.setAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT, Boolean.TRUE.toString());
 			peerAssessment = true;
 		}
@@ -7507,6 +7633,8 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		String peerAssessmentInstructions = processFormattedTextFromBrowser(state, params.getString(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS), true);
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS, peerAssessmentInstructions);
+
+		// -------------   END GRADING PARAMS   ----------------------
 		
 		//REVIEW SERVICE
 		r = params.getString(NEW_ASSIGNMENT_USE_REVIEW_SERVICE);
@@ -7758,42 +7886,6 @@ public class AssignmentAction extends PagedResourceActionII
 		if (s == null) s = "1";
 		state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, s);
 
-		String grading = params.getString(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-		state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, grading);
-
-		// SAK-17606
-		state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, params.getString(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
-
-		// only when choose to associate with assignment in Gradebook
-		String associateAssignment = params.getString(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-
-		if (grading != null)
-		{
-			if (grading.equals(AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE))
-			{
-				state.setAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateAssignment);
-			}
-			else
-			{
-				state.setAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, "");
-			}
-
-			if (!grading.equals(AssignmentService.GRADEBOOK_INTEGRATION_NO))
-			{
-				// gradebook integration only available to point-grade assignment
-				if (gradeType != Assignment.SCORE_GRADE_TYPE)
-				{
-					addAlert(state, rb.getString("addtogradebook.wrongGradeScale"));
-				}
-
-				// if chosen as "associate", have to choose one assignment from Gradebook
-				if (grading.equals(AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE) && StringUtils.trimToNull(associateAssignment) == null)
-				{
-					addAlert(state, rb.getString("grading.associate.alert"));
-				}
-			}
-		}
-
 		List attachments = (List) state.getAttribute(ATTACHMENTS);
 		if (attachments == null || attachments.isEmpty())
 		{
@@ -7835,42 +7927,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			addAlert(state, rb.getString("thiasshas"));
 		}
-		
-		// assignment range?
-		String range = data.getParameters().getString("range");
-		state.setAttribute(NEW_ASSIGNMENT_RANGE, range);
-		if ("groups".equals(range))
-		{
-			String[] groupChoice = data.getParameters().getStrings("selectedGroups");
-			if (groupChoice != null && groupChoice.length != 0)
-			{
-				state.setAttribute(NEW_ASSIGNMENT_GROUPS, new ArrayList(Arrays.asList(groupChoice)));
-			}
-			else
-			{
-				state.setAttribute(NEW_ASSIGNMENT_GROUPS, null);
-				addAlert(state, rb.getString("java.alert.youchoosegroup"));
-			}
-		}
-		else
-		{
-			state.removeAttribute(NEW_ASSIGNMENT_GROUPS);
-		}
-		
-                // check groups for duplicate members here
-                if (groupAssignment) {
-                    Collection<String> _dupUsers = usersInMultipleGroups(state, "groups".equals(range),("groups".equals(range) ? data.getParameters().getStrings("selectedGroups") : null), false, null);
-                    if (_dupUsers.size() > 0) {
-                        StringBuilder _sb = new StringBuilder(rb.getString("group.user.multiple.warning") + " ");
-                        Iterator<String> _it = _dupUsers.iterator();
-                        if (_it.hasNext()) _sb.append(_it.next());
-                        while (_it.hasNext())
-                            _sb.append(", " + _it.next());                        
-                        addAlert(state, _sb.toString());
-                        M_log.warn(this + ":post_save_assignment at least one user in multiple groups.");
-                    }
-                }
-                
+
 		// allow resubmission numbers
 		if (params.getString("allowResToggle") != null && params.getString(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 		{
@@ -7918,49 +7975,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		// read inputs for supplement items
 		setNewAssignmentParametersSupplementItems(validify, state, params);
-		
-		if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
-		{
-			// the grade point
-			String gradePoints = params.getString(NEW_ASSIGNMENT_GRADE_POINTS);
-			state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-			if (gradePoints != null)
-			{
-				if (gradeType == 3)
-				{
-					if ((gradePoints.length() == 0))
-					{
-						// in case of point grade assignment, user must specify maximum grade point
-						addAlert(state, rb.getString("plespethe3"));
-					}
-					else
-					{
-						Integer scaleFactor = AssignmentService.getScaleFactor();
-						try {
-							if (StringUtils.isNotEmpty(assignmentRef)) {
-								Assignment assignment = AssignmentService.getAssignment(assignmentRef);
-								if (assignment != null && assignment.getContent() != null) {
-									scaleFactor = assignment.getContent().getFactor();
-								}
-							}
-						} catch (IdUnusedException | PermissionException e) {
-							M_log.error(e.getMessage());
-						}
-						
-						validPointGrade(state, gradePoints, scaleFactor);
-						// when scale is points, grade must be integer and less than maximum value
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
-						}
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-						}
-					}
-				}
-			}
-		}
 		
 	} // setNewAssignmentParameters
 
@@ -13230,6 +13244,8 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE);
 		state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE);
 		state.removeAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
+		state.removeAttribute(NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
+		state.removeAttribute(NEW_ASSIGNMENT_SEND_TO_GRADEBOOK);
 		state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION);
 		state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
 		state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);

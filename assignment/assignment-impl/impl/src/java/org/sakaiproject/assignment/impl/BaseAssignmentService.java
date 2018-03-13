@@ -114,6 +114,7 @@ import java.util.zip.ZipOutputStream;
 //Export to excel
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.stream.Collectors;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor;
 
@@ -14954,5 +14955,139 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public long getEffectiveDueDate(String assignmentID, long assignmentDueDate, ResourceProperties assignmentProperties, int dueDateBuffer) {
 		return contentReviewService.getEffectiveDueDate(assignmentID, assignmentDueDate, assignmentProperties, dueDateBuffer);
 	}
+
+	@Override
+	public List<AsnMultiGroupRecord> checkForUsersInMultipleGroups(String siteId, String asnRef, Collection<Group> groups)
+	{
+		// AKA AssignmentAction.checkForGroupsInMultipleGroups()
+		// OWLTODO: really this should be a more general check for membership duplication, but
+		// at the moment this needs to be aware of the assignment permissions that make someone a student vs
+		// instructor/TA to avoid false positives. See SAK-23697.
+
+		if (CollectionUtils.isEmpty(groups))
+		{
+			return Collections.emptyList();
+		}
+
+		// Permission check, user must have be able to edit the given assignment, or if none given, add assignments in the site
+		// OWLTODO: is this enough? it could be considered a false positive if used outside the add/edit asn UI
+		boolean add = asnRef.isEmpty();
+		boolean edit = !add;
+		if ( (add && !allowAddAssignment(siteId)) || (edit && !allowUpdateAssignment(asnRef)))
+		{
+			return Collections.emptyList();
+		}
+
+		// group check, are the given groups visible to current user?
+		// From AssignmentAction.build_instructor_new_edit_assignment_context code which populates the group list
+		final Collection<Group> visibleGroups = getAllowGroupAssignments() ? getGroupsAllowAddAssignment(siteId) : Collections.emptyList();
+		Collection<Group> filteredGroups = groups.stream().filter(g -> visibleGroups.contains(g)).collect(Collectors.toList());
+
+		List<String> checkUsers = new ArrayList<>();
+		for (Group g : filteredGroups)
+		{
+			for (String userid : g.getUsers())
+			{
+				if (!checkUsers.contains(userid))
+				{
+					checkUsers.add(userid);
+				}
+			}
+		}
+
+		// AKA AssignmentAction.checkForUsersInMultipleGroups()
+		//return usersInMultipleGroups(siteId, checkUsers, groups);
+		// OWLTODO: for now we'll convert the map to a list to make entitybroker happy
+		Map<AsnUser, List<AsnGroup>> map = usersInMultipleGroups(siteId, checkUsers, filteredGroups);
+		List<AsnMultiGroupRecord> list = new ArrayList<>(map.size());
+		for (AsnUser u : map.keySet())
+		{
+			list.add(new AsnMultiGroupRecord(u, map.get(u)));
+		}
+
+		return list;
+	}
+
+	// OWLTODO: have this return a list?
+	private Map<AsnUser, List<AsnGroup>> usersInMultipleGroups(String siteId, List<String> checkUsers, Collection<Group> groups)
+	{
+		// AKA AssignmentAction.usersInMultipleGroups()
+		Map<AsnUser, List<AsnGroup>> dupes = Collections.emptyMap();
+		Site site;
+		try
+		{
+			site = SiteService.getSite(siteId);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("Could not find site with id: " + siteId);
+			return dupes;  // technically this should be some kind of error, but the chances of this actually happening are minuscule
+		}
+
+		userLoop: for (String userid : checkUsers)
+		{
+			AsnUser user = new AsnUser();
+			Collection<Group> userGroups = site.getGroupsWithMember(userid);
+			int count = 0;
+			Group firstMatchingGroup = null;
+			for (Group userGroup : userGroups)
+			{
+				String userGroupId = userGroup.getId();
+				for (Group asnGroup : groups)
+				{
+					if (userGroupId.equals(asnGroup.getId()))
+					{
+						++count;
+						switch (count)
+						{
+							case 1:
+								firstMatchingGroup = userGroup;
+								break;
+							case 2:
+								try
+								{
+									User u = UserDirectoryService.getUser(userid);
+									/*
+									* SAK-23697 Allow user to be in multiple groups if
+										* no SECURE_ADD_ASSIGNMENT_SUBMISSION permission or 
+									* if user has both SECURE_ADD_ASSIGNMENT_SUBMISSION
+									* and SECURE_GRADE_ASSIGNMENT_SUBMISSION permission (TAs and Instructors)
+										*/
+									if (!securityService.unlock(u, AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION, site.getReference())
+											|| securityService.unlock(u, AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION, site.getReference()))
+									{
+										// INS/TA, bail hard on this user
+										continue userLoop;
+									}
+									user = AsnUser.fromUser(u);
+								}
+								catch (UserNotDefinedException unde)
+								{
+									// assume to be a student and report it
+									user = AsnUser.fromUserId(userid);
+								}
+
+								// only now do we have to allocate
+								if (dupes.isEmpty())
+								{
+									dupes = new HashMap<>();
+								}
+								List<AsnGroup> groupList = new ArrayList<>();
+								groupList.add(AsnGroup.fromGroup(firstMatchingGroup));
+								groupList.add(AsnGroup.fromGroup(userGroup));
+								dupes.put(user, groupList);
+								break;
+							default:
+								dupes.get(user).add(AsnGroup.fromGroup(userGroup));
+								break;
+						}
+					}
+				}
+			}
+		}
+
+		return dupes;
+	}
+
 } // BaseAssignmentService
 

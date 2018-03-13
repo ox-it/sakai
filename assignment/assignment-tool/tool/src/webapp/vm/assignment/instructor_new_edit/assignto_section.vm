@@ -1,0 +1,230 @@
+#**
+"Assign To" Section
+This section contains the options for setting the assignee of this assignment. The assignee
+can be either all members of the site, all members of selected groups, or the selected groups themselves
+(making it a group assignment).
+
+Markup note: Markup is defined in "fragments" (due to how Velocity parses, these must be defined first) that
+             are applied to a "skeleton". Scroll to the bottom of the file and review the skeleton to get a better
+             idea of the structure of this section.
+
+@author plukasew
+*#
+
+## -------- Fragments ----------
+
+#define($fragment_init)
+	#set( $class = "" )
+	#set($releaseToSiteMsg = [ $tlang.getString("displayto.site") ])
+	#set($releaseToGroupsMsg = [ $tlang.getString("displayto.selected") ])
+	#if( !$!groupsList )
+		#set( $class = "disabled" )
+	#end
+	#set( $selectedGroupsNotFound = false )
+	#if(($!range == "groups" || $!range == "groupAssignment"))
+		#set( $selectedGroupsNotFound = true )
+		#foreach( $group in $!groupsList )
+			#foreach( $aGroupRef in $assignmentGroups )
+				#set( $aGroup = $!site.getGroup( $!aGroupRef ) )
+				#if( $!group.Id == $!aGroup.Id )
+					#set( $selectedGroupsNotFound = false )
+				#end
+			#end
+		#end
+	#end
+	#set($peerAssessment = false)
+	#if($!value_UsePeerAssessment.equals("true"))
+		#set($peerAssessment = true)
+	#end
+#end ## $fragment_init
+
+
+#define($fragment_allSiteMembersRadio)
+	<div class="radio">
+		<label for="site">
+		#set($showGB = "")
+		#if( !$!allowGroupAssignmentsInGradebook )
+			#set($showGB = "if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.resizeFrame()};")
+		#end
+		<input type="radio" name="range" id="site" value="site"
+			onclick="$showGB$('#groupTableContainer').fadeOut('slow'); ASN.showOrHideSelectGroupsMessage(); ASN.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame();"
+			#if( $!range == "site" || $selectedGroupsNotFound ) checked="checked"
+			#end />
+		$tlang.getString("displayto.site")
+		</label>
+	</div>
+#end  ## $fragment_allSiteMembersRadio
+
+
+#define($fragment_groupsHeadingLabel)
+	#if ($!groups.size() >1)
+		<label class="$class" for="groups">$tlang.getString("groups")</label>
+	#else
+		<label class="$class" for="groups">$tlang.getString("group")</label>
+	#end
+#end ## $fragment_groupsHeadingLabel
+
+
+#define($fragment_allSelectedGroupMembersRadio)
+	<div class="radio">
+		<label class="$class" for="groups">
+		#set($hideGB = "")
+		#if( !$!allowGroupAssignmentsInGradebook )
+			#set($hideGB = "if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};")
+		#end
+		<input type="radio" name="range" id="groups" value="groups"
+			onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN.initCheckNowButton();ASN.showOrHideSelectGroupsMessage();ASN.handleAssignToChangeForPeerAssessment();ASN.resizeFrame();"
+			#if( $!range == "groups" && !$selectedGroupsNotFound ) checked="checked"
+			#elseif( !$!groupsList ) disabled="disabled"
+			#end />
+		$tlang.getString("displayto.selected")
+		</label>
+	</div>
+#end ## $fragment_allSelectedGroupMembersRadio
+
+
+#define($fragment_groupAssignmentRadio)
+	## OWLTODO: for now we will repurpose the "range" name to add this third radio option to the group
+	#if($group_submissions_enabled)
+		<div class="radio">
+			<label for="groupAssignment" id="groupAssignmentCheckboxLabel" class="#if(!$!groupsList || $peerAssessment))disabled#end">
+				<input type="radio" id="groupAssignment" name="range" value="groupAssignment"
+					onclick="$hideGB$('#groupTableContainer').fadeIn('slow'); ASN.initCheckNowButton(); ASN.showOrHideSelectGroupsMessage(); ASN.handleAssignToChangeForPeerAssessment(); ASN.resizeFrame();"
+					#if ($!range == "groupAssignment" && $!groupsList && !$selectedGroupsNotFound) checked="checked" #end
+					#if( !$!groupsList || $peerAssessment) disabled="disabled" #end
+				/>
+				$tlang.getFormattedMessage("group.issubmit", $releaseToGroupsMsg.toArray())
+				<span id="msgNoGroupAssignmentPeerInUse" style="display:#if($peerAssessment) inline;#else none;#end">$tlang.getString("settings.access.noGroupAssignmentPeerInUse")</span>
+			</label>
+		</div>
+	#end
+#end ## $fragment_groupAssignmentRadio
+
+
+#define($fragment_messageArea1)
+	<div id="messages">
+	#if( $selectedGroupsNotFound )
+		#if( $!groupsList.size() > 0 )
+			<div id="msgSelectedGroupsGoneOtherGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getFormattedMessage("settings.access.selectedGroupsGoneOtherGroupsPresent", $releaseToSiteMsg.toArray())</div>
+		#else
+			<div id="msgSelectedGroupsGoneNoGroups" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getFormattedMessage("settings.access.selectedGroupsGoneNoGroups", $releaseToSiteMsg.toArray())</div>
+		#end
+	#elseif( !$!groupsList )
+		<div id="msgNoGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.noGroupsPresent" )</div>
+	#end
+	</div>
+#end ## $fragment_messageArea1
+
+
+#define($fragment_groupsTable)
+	#if( ($!range == "groups" || $!range == "groupAssignment" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound )
+		#set( $listDisplay = "block" )
+	#else
+		#set( $listDisplay = "none" )
+	#end
+	<div id="groupTableContainer" class="row" style="display:$listDisplay">
+		<div class="col-sm-offset-1 col-sm-9">
+			<h5 class="selectGroupRequired">$tlang.getString( "settings.access.selectGroups" )</h5>
+			<table id="groupTable"  class="table table-striped table-condensed" summary="$tlang.getString('group.list.summary')">
+				<tr>
+					<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
+						<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="ASN.toggleSelectAll(this, 'selectedGroups'); ASN.showOrHideSelectGroupsMessage(); ASN.handleGroupSelectionChange();"  />
+					</th>
+					<th id="groupname">$tlang.getString('gen.title')</th>
+					<th id="groupdescription">$tlang.getString('group.list.descr')</th>
+				</tr>
+				#foreach ($group in $!groups)
+					<tr>
+						<td headers="selected">
+							#set($selected=false)
+							#foreach($aGroupRef in $assignmentGroups)
+								#set($aGroup = $!site.getGroup($!aGroupRef))
+								#if ($!group.Id == $!aGroup.Id)
+									#set($selected = true)
+								#end
+							#end
+							<input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end onclick="ASN.handleGroupSelectionChange();" />
+						</td>
+						<td headers="name">
+							<label for="id-$group.Id">$validator.escapeHtml($group.Title)</label>
+						</td>
+						<td headers="description">
+							#set($description = "")
+							#set($description = $group.Description)
+							$validator.escapeHtml($!description)
+						</td>
+					</tr>
+				#end
+			</table>
+			## Message Area 2
+			$fragment_messageArea2
+		</div>
+	</div>
+#end ## $fragment_groupsTable
+
+
+#define($fragment_messageArea2)
+	#set( $selectGroupsDisplay = "block" )
+	#if( (($!range == "groups" || $!range == "groupAssignment" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "site" )
+		#set( $selectGroupsDisplay = "none" )
+	#end
+	<div id="msgSelectGroups" class="messageInformation" style="display: $selectGroupsDisplay">$tlang.getString( "settings.access.selectGroups" )</div>
+	#set($noMembersInCommonDisplay = "none")
+	#if($!range == "groupAssignment" && !$selectedGroupsNotFound)
+		#set($noMembersInCommonDisplay = "flex")
+	#end
+	<div id="msgNoMembersInCommon" class="messageInformation" style="display: $noMembersInCommonDisplay">
+		<span>$tlang.getString( "settings.access.noMembersInCommon" )</span>
+		<div class="checkNowWidget">
+			<button type="button" id="checkNowButton" onclick="ASN.checkGroupsNow(this, '$!site.id', '$!assignment.Reference');">
+				$tlang.getString("settings.access.checkNow")
+			</button>
+		</div>
+	</div>
+	<div id="msgNoMembersInCommonSuccess" class="messageSuccess msgNoMembersInCommonSuccess">
+		$tlang.getString("settings.access.checkSuccess")
+	</div>
+	<div id="msgNoMembersInCommonError" class="messageError msgNoMembersInCommonError">
+		<span id="checkGroupsFailed" class="checkGroupsFailed">$tlang.getString("settings.access.checkFailure")</span>
+		<span id="checkGroupsError" class="checkGroupsError">$tlang.getString("settings.access.checkError")</span>
+		<ul id="checkGroupsErrorReport"></ul>
+	</div>
+	#if ($multipleGroupUsers)
+		<p class="checkbox indnt2">
+		<div class="text-warning">$tlang.getString("group.user.multiple.warning")</div>
+		<div class="text-warning">
+		#foreach($duser in $!multipleGroupUsers)
+			#if ($velocityCount > 1), #end
+			$duser
+		#end
+	</div>
+	</p>
+	#end
+#end ## $fragment_messageArea2
+
+
+## ------- Section Skeleton  ------------
+
+## Header and variable init
+<h4>$!tlang.getString('accessSectionHeader')</h4>
+$fragment_init
+
+## Radio Option 1: All members of site (or "Groups" heading label for TAs)
+#if($allowAddSiteAssignment)
+    $fragment_allSiteMembersRadio
+#elseif($allowAddAssignment)
+    $fragment_groupsHeadingLabel
+#end
+
+## Radio Option 2: All members of selected groups
+$fragment_allSelectedGroupMembersRadio
+
+## Radio Option 3: Group assignment (selected groups)
+$fragment_groupAssignmentRadio
+
+## Message Area 1
+$fragment_messageArea1
+
+## Groups table, visible when Option 2 or 3 is chosen
+$fragment_groupsTable
+

@@ -22,10 +22,14 @@
 package org.sakaiproject.assignment.api;
 
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -1005,4 +1009,134 @@ public interface AssignmentService extends EntityProducer
 	 * This is used when creating a new gradebook item.
 	 */
 	public String getToolTitle();
+
+	/**
+	 * Returns a list of users that belong to multiple groups, if the user is considered a "student" in the group
+	 * by the standards of the Assignments tool
+	 * @param siteId the site id, cannot be empty
+	 * @param asnRef the assignment reference, can be empty
+	 * @param groups the groups to check membership of
+	 * @return list of users with multiple group memberships
+	 */
+	public List<AsnMultiGroupRecord> checkForUsersInMultipleGroups(String siteId, String asnRef, Collection<Group> groups);
+
+	// OWLTODO: entitybroker doesn't like to return maps so we will have to create a new object that contains the AsnUser and List<AsnGroup>
+	@RequiredArgsConstructor
+	public static final class AsnMultiGroupRecord implements Serializable
+	{
+		public final AsnUser user;
+		public final List<AsnGroup> groups;
+	}
+
+	// OWLTODO: see if we can return these to immutable and still fool reflectutils into thinking this is a bean
+	public static final class AsnUser implements Serializable
+	{
+		@Getter
+		public final String id;
+		@Getter
+		public final String displayId;
+		@Getter
+		public final String displayName;
+
+		public AsnUser()
+		{
+			this("-", "-", "-");
+		}
+
+		public AsnUser(String userId, String displayId, String displayName)
+		{
+			id = userId;
+			this.displayId = displayId;
+			this.displayName = displayName;
+		}
+
+		public static AsnUser fromUser(User user)
+		{
+			return new AsnUser(user.getId(), user.getDisplayId(), user.getDisplayName());
+		}
+
+		public static AsnUser fromUserId(String userUuid)
+		{
+			return new AsnUser(userUuid, "", "");
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int hash = 5;
+			hash = 89 * hash + Objects.hashCode(this.id);
+			return hash;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+			{
+				return true;
+			}
+			if (obj == null)
+			{
+				return false;
+			}
+			if (getClass() != obj.getClass())
+			{
+				return false;
+			}
+			final AsnUser other = (AsnUser) obj;
+			return Objects.equals(this.id, other.id);
+		}
+	}
+
+	public static final class AsnGroup implements Serializable
+	{
+		@Getter
+		public final String id;
+		@Getter
+		public final String title;
+
+		public AsnGroup()
+		{
+			this("-", "-");
+		}
+
+		public AsnGroup(String groupId, String groupTitle)
+		{
+			id = groupId;
+			title = groupTitle;
+		}
+
+		public static AsnGroup fromGroup(Group group)
+		{
+			return new AsnGroup(group.getId(), group.getTitle());
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int hash = 3;
+			hash = 53 * hash + Objects.hashCode(this.id);
+			return hash;
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+			{
+				return true;
+			}
+			if (obj == null)
+			{
+				return false;
+			}
+			if (getClass() != obj.getClass())
+			{
+				return false;
+			}
+			final AsnGroup other = (AsnGroup) obj;
+			return Objects.equals(this.id, other.id);
+		}
+	}
+
 }
