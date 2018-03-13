@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.model.ImportedRow;
 
 /**
  * Identifier utility for student numbers.
@@ -29,7 +30,7 @@ public class StudentNumberIdentifier implements UserIdentifier, Serializable
     }
 
     @Override
-    public GbUser getUser( String studentNumber )
+    public GbUser getUser( String studentNumber, ImportedRow row )
     {
         GbUser user = studentNumberMap.get( studentNumber );
         if( user != null )
@@ -40,7 +41,7 @@ public class StudentNumberIdentifier implements UserIdentifier, Serializable
         else
         {
             user = GbUser.forDisplayOnly( studentNumber, "" );
-            report.addUnknownUser( studentNumber );
+            report.addUnknownUser( user );
             log.debug( "User's student # {} is unknown to this gradebook", studentNumber );
         }
 

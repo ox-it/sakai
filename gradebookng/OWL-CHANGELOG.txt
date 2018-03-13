@@ -1,3 +1,5 @@
+2018.03.13:
+	- [OWL-3418] import > ommissions > unknown users panel should list student name as well as ID
 2018.01.26:
 	- [OWL-3361] pure anon gradebooks don't sort by anonymous id by default
 2018.01.25:

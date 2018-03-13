@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.model.ImportedRow;
 
 /**
  * Identifier utility for anonymous IDs.
@@ -29,7 +30,7 @@ public class AnonIdentifier implements UserIdentifier, Serializable
     }
 
     @Override
-    public GbUser getUser( String anonID )
+    public GbUser getUser( String anonID, ImportedRow row )
     {
         GbUser user = anonIdMap.get( anonID );
         if( user != null )
@@ -40,7 +41,7 @@ public class AnonIdentifier implements UserIdentifier, Serializable
         else
         {
             user = GbUser.forDisplayOnly(anonID, "" );
-            report.addUnknownUser( anonID );
+            report.addUnknownUser( user );
             log.debug( "User's anon ID {} is unknown to this gradebook", anonID );
         }
 

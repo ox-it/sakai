@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.model.ImportedRow;
 
 /**
  * Identifier utility for user EIDs.
@@ -29,7 +30,7 @@ public class UsernameIdentifier implements UserIdentifier, Serializable
     }
 
     @Override
-    public GbUser getUser( String userEID )
+    public GbUser getUser( String userEID, ImportedRow row )
     {
         GbUser user = userEidMap.get( userEID );
         if( user != null )
@@ -39,8 +40,8 @@ public class UsernameIdentifier implements UserIdentifier, Serializable
         }
         else
         {
-            user = GbUser.forDisplayOnly( userEID, "" );
-            report.addUnknownUser( userEID );
+            user = GbUser.forDisplayOnly( userEID, row.getStudentName().trim() );
+            report.addUnknownUser( user );
             log.debug( "User {} is unknown to this gradebook", userEID );
         }
 

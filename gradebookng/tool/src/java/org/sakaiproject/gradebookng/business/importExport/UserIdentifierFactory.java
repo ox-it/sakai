@@ -75,7 +75,7 @@ public class UserIdentifierFactory
                 lookupProp = row.getStudentEid();
             }
 
-            GbUser user = userIdentifier.getUser( lookupProp );
+            GbUser user = userIdentifier.getUser( lookupProp, row );
             if( user != null )
             {
                 row.setUser( user );
