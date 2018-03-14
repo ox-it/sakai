@@ -130,7 +130,17 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		form.add(updateUngradedItemsWindow);
 		
 		final GradebookUiSettings settings = getUiSettings();
-		settings.setContextAnonymous(businessService.isCourseGradePureAnon());
+		if (businessService.isCourseGradePureAnon())
+		{
+			settings.setContextAnonymous(true);
+			if (settings.getAnonIdSortOrder() == null && settings.getCalculatedSortOrder() == null
+					&& settings.getFinalGradeSortOrder() == null)
+			{
+				// there is no existing sort on the anon-aware columns, so default to anon id to maintain anonymity
+				settings.setAnonIdSortOrder(SortDirection.ASCENDING);
+			}
+		}
+		
 		settings.setGroupFilterVisibilityForced(true);
 		if (settings.getGroupFilter() == null)
 		{
