@@ -162,7 +162,7 @@ public class CourseGradesPage extends BasePage implements IGradesPage
 		cols.add(new StudentNameColumn(this));
 		
 		// OWL student number column
-		if (businessService.isStudentNumberVisible())
+		if (!settings.isContextAnonymous() && businessService.isStudentNumberVisible())
 		{
 			cols.add(new StudentNumberColumn());
 		}
