@@ -38,6 +38,7 @@
 			<li>$tlang.getString("gen.youmay")</li>
 			<li>$tlang.getString("gen.youmaynot")</li>
 			<li>$tlang.getString("gen.youmaynotdown")</li>
+            <li>$validator.escapeHtml($tlang.getString("gen.crowncopyright"))</li>
 		</ul>
 		<div style="margin:2em .3em .3em .3em;text-align:right">
 			#if($sample)
