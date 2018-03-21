@@ -17,6 +17,7 @@
 
 <f:view>
   <sakai:view title="#{msgs.title_new}">
+	  <script src="/library/js/spinner.js" type="text/javascript"></script>
       <h:form enctype="multipart/form-data">
       
       	<div class="page-header">
@@ -117,11 +118,13 @@
 				<sakai:button_bar>
           <sakai:button_bar_item
 			    	action="#{PostemTool.processCreate}"
-					value="#{msgs.bar_post}" 
+					value="#{msgs.bar_post}"
+					onclick="SPNR.disableControlsAndSpin(this, null);"
 					rendered="#{PostemTool.editable}"/>
 			  	<sakai:button_bar_item
 			    	action="#{PostemTool.processCancelNew}"
-					value="#{msgs.cancel}" 
+					value="#{msgs.cancel}"
+					onclick="SPNR.disableControlsAndSpin(this, null);"
 					rendered="#{PostemTool.editable}"/>
    	    </sakai:button_bar>
 				
