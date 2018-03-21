@@ -160,6 +160,10 @@ public class GradeItemCellPanel extends Panel {
 		if (isExternal || !this.gradeable) {
 
 			displayGradeLabel = new Label("readonlyGrade", Model.of(this.displayGrade));
+			if (categoryId != null)
+			{
+				displayGradeLabel.setOutputMarkupId(true);
+			}
 			add(displayGradeLabel);
 			add(new Label("editableGrade") {
 				private static final long serialVersionUID = 1L;
@@ -473,8 +477,8 @@ public class GradeItemCellPanel extends Panel {
 					&& studentUuid.equals(payload.studentUuid))
 			{
 				dropped = !payload.includedItems.contains(assignmentId) 
-						&& (gradeCell != null && StringUtils.isNotBlank(gradeCell.getModelObject()) 
-							|| displayGradeLabel != null && StringUtils.isNotBlank(displayGradeLabel.getDefaultModelObjectAsString()));
+						&& ((gradeCell != null && businessService.isValidNumericGrade(gradeCell.getModelObject()))
+							|| (displayGradeLabel != null && StringUtils.isNotBlank(displayGradeLabel.getDefaultModelObjectAsString())));
 				gradeDropStyle = dropped ? GradeCellDropStyle.DROPPED : GradeCellDropStyle.INCLUDED;
 				
 				String js = String.format("sakai.gradebookng.spreadsheet.refreshCellForCategoryDropUpdate('%s', '%s', '%s')",
@@ -482,11 +486,15 @@ public class GradeItemCellPanel extends Panel {
 						assignmentId, studentUuid);
 				payload.target.appendJavaScript(js);
 				
+				// only one of these will have a parent cell and be added to the target
 				GbUtils.getParentCellFor(GradeItemCellPanel.this.gradeCell, PARENT_ID).ifPresent(payload.target::add);
+				GbUtils.getParentCellFor(displayGradeLabel, PARENT_ID).ifPresent(payload.target::add);
 
-				// reset the cell's style and flags 
-				gradeSaveStyle = null;
-				clearNotifications();
+				// clear the save style unless there was an error
+				if (!GradeCellSaveStyle.ERROR.equals(gradeSaveStyle) && !GradeCellSaveStyle.WARNING.equals(gradeSaveStyle))
+				{
+					gradeSaveStyle = null;
+				}
 
 				// apply any applicable flags
 				refreshExtraCreditFlag();

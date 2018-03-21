@@ -1,5 +1,6 @@
 2018.03.21:
         - [OWL-3428] NPE's being generated in the busService.saveGrade() method
+        - [OWL-3429] Various display issues with dropped grades
 2018.03.14:
         - [OWL-3419] Final Grades page shows student numbers in pure anon gradebooks
 2018.03.13:

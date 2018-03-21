@@ -241,7 +241,7 @@ public class GradeSummaryTablePanel extends Panel {
 								}
 							});
 						}
-						if (gradeInfo != null && gradeInfo.isDroppedFromCategoryScore())
+						if (gradeInfo != null && StringUtils.isNotBlank(rawGrade) && gradeInfo.isDroppedFromCategoryScore())
 						{
 							gradeScore.add(AttributeAppender.append("class", "gb-summary-grade-score-dropped"));
 						}
