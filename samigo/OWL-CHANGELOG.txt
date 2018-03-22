@@ -1,3 +1,5 @@
+2018.03.21:
+        - [OWL-3439] matching questions with distractors apply the checkmark to incorrectly matched distractors
 2017.08.28:
 	- [OWL-3160] fix bug in SAM-3227: doubles used in determineRandomValuesForRanges
 2017.08.21:

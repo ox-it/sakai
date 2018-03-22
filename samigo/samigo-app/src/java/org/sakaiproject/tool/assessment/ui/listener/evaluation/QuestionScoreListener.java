@@ -99,15 +99,13 @@ public class QuestionScoreListener implements ActionListener,
 	// private static EvaluationListenerUtil util;
 	private static BeanSort bs;
 
+	private static final String EVAL_BUNDLE = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
+
 	private static final String noAnswer = (String) ContextUtil
-			.getLocalizedString(
-					"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
-					"no_answer");
+			.getLocalizedString(EVAL_BUNDLE, "no_answer");
 
 	private static final String noneOfTheAbove = (String) ContextUtil
-			.getLocalizedString(
-					"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
-					"none_above");
+			.getLocalizedString(EVAL_BUNDLE, "none_above");
 
 	/**
 	 * Standard process action method.
@@ -123,8 +121,7 @@ public class QuestionScoreListener implements ActionListener,
 				.lookupBean("questionScores");
 
 		// Reset the search field
-		String defaultSearchString = ContextUtil.getLocalizedString(
-				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages",
+		String defaultSearchString = ContextUtil.getLocalizedString(EVAL_BUNDLE,
 				"search_default_student_search_string");
 		bean.setSearchString(defaultSearchString);
 
@@ -638,7 +635,7 @@ public class QuestionScoreListener implements ActionListener,
 
 					if ("4".equals(bean.getTypeId())) {
 						if (rb == null) { 	 
-			        		rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+			        		rb = new ResourceLoader(EVAL_BUNDLE);
 			        	}
 						if ("true".equals(answerText)) {
 							answerText = rb.getString("true_msg");
@@ -750,8 +747,10 @@ public class QuestionScoreListener implements ActionListener,
 					 */
 
 					//SAM-755-"checkmark" indicates right, add "X" to indicate wrong
-					String checkmarkGif = "<img src='/samigo-app/images/delivery/checkmark.gif'>";
-					String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
+					String correct = ContextUtil.getLocalizedString(EVAL_BUNDLE, "alt_correct");
+					String incorrect = ContextUtil.getLocalizedString(EVAL_BUNDLE, "alt_incorrect");
+					String checkmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--check feedBackCheck\"></span>", correct);
+					String crossmarkGif = String.format("<span title=\"%s\" class=\"icon-sakai--delete feedBackCross\"></span>", incorrect);
 					if (gdataAnswer != null) {
 						answerText = FormattedText.escapeHtml(answerText, true);
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
@@ -796,8 +795,7 @@ public class QuestionScoreListener implements ActionListener,
 						}
 						else if(!bean.getTypeId().equals("3")){
 							if((gdataAnswer.getIsCorrect() != null && gdataAnswer.getIsCorrect()) || 
-								(gdataAnswer.getPartialCredit() != null && gdataAnswer.getPartialCredit() > 0) ||
-								(delegate.isDistractor(gdataAnswer.getItemText())) ){
+								(gdataAnswer.getPartialCredit() != null && gdataAnswer.getPartialCredit() > 0)){
 								answerText = checkmarkGif + answerText;
 							}else if(gdataAnswer.getIsCorrect() != null && !gdataAnswer.getIsCorrect()){
 								answerText = crossmarkGif + answerText;
