@@ -9,8 +9,8 @@ import org.sakaiproject.gradebookng.business.model.ImportedCell;
 import org.sakaiproject.gradebookng.business.model.ImportedColumn;
 import org.sakaiproject.gradebookng.business.model.ImportedColumn.Type;
 import org.sakaiproject.gradebookng.business.model.ImportedRow;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
-import org.sakaiproject.util.FormattedText;
 
 /**
  * Used to validate grades in an imported file.
@@ -90,11 +90,7 @@ public class GradeValidator
         }
 
         // Convert back to user's locale for display/validation purposes
-        String userDecimalSeparator = FormattedText.getDecimalSeparator();
-        if( ",".equals( userDecimalSeparator ) )
-        {
-            grade = grade.replace( ".", userDecimalSeparator );
-        }
+        grade = FormatHelper.formatGradeForDisplay( grade );
 
         // OWLTODO: when/if letter grades are introduce, determine if grade is numeric
         // or alphabetical here and call/write the appropriate business service method.

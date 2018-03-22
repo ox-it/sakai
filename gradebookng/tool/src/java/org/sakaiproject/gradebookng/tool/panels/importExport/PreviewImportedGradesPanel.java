@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -16,8 +15,8 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
-import org.sakaiproject.util.FormattedText;
 
 /**
  * This panel provides a table previewing the grades that will be imported for the current item in the {@link ImportWizardModel}.
@@ -91,13 +90,8 @@ public class PreviewImportedGradesPanel extends Panel
                 lblStudentName.setVisible( !isContextAnonymous );
                 item.add( lblStudentName );
 
-                // Convert to user's locale if necessary for display purposes
-                String userDecimalSeparator = FormattedText.getDecimalSeparator();
-                String grade = details.getGrade();
-                if( StringUtils.isNotBlank( grade ) && ",".equals( userDecimalSeparator) )
-                {
-                    grade = grade.replace( ".", userDecimalSeparator );
-                }
+                // Convert back to user's locale for display/validation purposes
+                String grade = FormatHelper.formatGradeForDisplay( details.getGrade() );
                 item.add( new Label( "studentGrade", grade ) );
             }
         };
