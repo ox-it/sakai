@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.business.util;
 
+import au.com.bytecode.opencsv.CSVParser;
 import au.com.bytecode.opencsv.CSVReader;
 
 import java.io.BufferedReader;
@@ -69,7 +70,7 @@ public class ImportGradesHelper {
 	public final static int USER_NAME_POS = 1;
 
 	// patterns for detecting column headers and their types
-	final static Pattern ASSIGNMENT_PATTERN = Pattern.compile("([^\\[]+)(\\[(\\d+(\\.\\d+)?)\\])?");
+	public final static Pattern ASSIGNMENT_PATTERN = Pattern.compile("([^\\[]+)(\\[(\\d+([\\.,]\\d+)?)\\])?");
 	final static Pattern COMMENT_PATTERN = Pattern.compile("\\* (.+)");
 	final static Pattern IGNORE_PATTERN = Pattern.compile("(\\#.+)");
 
@@ -79,6 +80,8 @@ public class ImportGradesHelper {
 	private static final String[] CSV_MIME_TYPES = { "text/csv", "text/plain", "text/comma-separated-values", "application/csv" };
 	private static final String[] CSV_FILE_EXTS = { ".csv", ".txt" };
 	private static final String[] DPC_FILE_EXTS = { ".dpc" };
+
+	private static final char CSV_SEMICOLON_SEPARATOR = ';';
 
 	// DPC default values
 	private static final String DPC_STUDENT_ID_COLUMN_HEADER = "Student ID";
@@ -96,17 +99,35 @@ public class ImportGradesHelper {
 	 * @throws IOException
 	 * @throws InvalidFormatException
 	 */
-	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename, 
-																		final GradebookNgBusinessService businessService)
+	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename, final GradebookNgBusinessService businessService)
+			throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
+		return parseImportedGradeFile(is, mimetype, filename, businessService, "");
+	}
+
+	/**
+	 * Helper to parse the imported file into an {@link ImportedSpreadsheetWrapper} depending on its type
+	 *
+	 * @param is
+	 * @param mimetype
+	 * @param filename
+	 * @param businessService
+	 * @param userDecimalSeparator
+	 * @return
+	 * @throws GbImportExportInvalidFileTypeException
+	 * @throws IOException
+	 * @throws InvalidFormatException
+	 */
+	public static ImportedSpreadsheetWrapper parseImportedGradeFile(final InputStream is, final String mimetype, final String filename,
+				final GradebookNgBusinessService businessService, String userDecimalSeparator)
 			throws GbImportExportInvalidFileTypeException, IOException, InvalidFormatException {
 
 		ImportedSpreadsheetWrapper rval = null;
 
 		// It would be great if we could depend on the browser mimetype, but Windows + Excel will always send an Excel mimetype
 		if (StringUtils.endsWithAny(filename, CSV_FILE_EXTS) || ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
-			rval = parseCsv(is, businessService);
+			rval = parseCsv(is, businessService, userDecimalSeparator);
 		} else if (StringUtils.endsWithAny(filename, XLS_FILE_EXTS) || ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
-			rval = parseXls(is, businessService);
+			rval = parseXls(is, businessService, userDecimalSeparator);
 		} else if (StringUtils.endsWithAny(filename, DPC_FILE_EXTS)) {
 			rval = parseDPC(is, businessService.getUserStudentNumMap());
 		} else {
@@ -122,13 +143,18 @@ public class ImportGradesHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final GradebookNgBusinessService businessService) throws IOException {
+	private static ImportedSpreadsheetWrapper parseCsv(final InputStream is, final GradebookNgBusinessService businessService, String userDecimalSeparator) throws IOException {
 
 		// Maps a String user identifier to its associated GbUser object. The key can be the eid (in a normal export), or the grading ID (in an anonymous export)
 		Map<String, GbUser> idUserMap = Collections.emptyMap();
 
 		// manually parse method so we can support arbitrary columns
-		final CSVReader reader = new CSVReader(new InputStreamReader(is));
+		CSVReader reader;
+		if (StringUtils.isEmpty(userDecimalSeparator)) {
+			reader = new CSVReader(new InputStreamReader(is));
+		} else {
+			reader = new CSVReader(new InputStreamReader(is), ".".equals(userDecimalSeparator) ? CSVParser.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR);
+		}
 		String[] nextLine;
 		int lineCount = 0;
 		final List<ImportedRow> list = new ArrayList<>();
@@ -145,7 +171,7 @@ public class ImportGradesHelper {
 					idUserMap = isContextAnonymous ? businessService.getAnonIDUserMap() : businessService.getUserEidMap();
 				} else if (idUserMap != null) {
 					// map the fields into the object
-					final ImportedRow importedRow = mapLine(nextLine, mapping, idUserMap);
+					final ImportedRow importedRow = mapLine(nextLine, mapping, idUserMap, userDecimalSeparator);
 					if(importedRow != null) {
 						list.add(importedRow);
 					}
@@ -204,7 +230,7 @@ public class ImportGradesHelper {
 					continue;
 				}
 
-				final ImportedRow row = mapLine(lineValues, columnMapping, studentNumMap);
+				final ImportedRow row = mapLine(lineValues, columnMapping, studentNumMap, null);
 				if (row != null) {
 					rows.add(row);
 				}
@@ -235,7 +261,8 @@ public class ImportGradesHelper {
 	 * @throws IOException
 	 * @throws InvalidFormatException
 	 */
-	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final GradebookNgBusinessService businessService) throws InvalidFormatException, IOException {
+	private static ImportedSpreadsheetWrapper parseXls(final InputStream is, final GradebookNgBusinessService businessService, String userDecimalSeparator)
+			throws InvalidFormatException, IOException {
 		// Maps a String user identifier to its associated GbUser object. The key can be the eid (in a normal export), or the grading ID (in an anonymous export)
 		Map<String, GbUser> idUserMap = Collections.emptyMap();
 
@@ -258,7 +285,7 @@ public class ImportGradesHelper {
 
 			} else {
 				// map the fields into the object
-				final ImportedRow importedRow = mapLine(r, mapping, idUserMap);
+				final ImportedRow importedRow = mapLine(r, mapping, idUserMap, userDecimalSeparator);
 				if(importedRow != null) {
 					list.add(importedRow);
 				}
@@ -278,7 +305,7 @@ public class ImportGradesHelper {
 	 * @param mapping
 	 * @return
 	 */
-	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, GbUser> userMap) {
+	private static ImportedRow mapLine(final String[] line, final Map<Integer, ImportedColumn> mapping, final Map<String, GbUser> userMap, String userDecimalSeparator) {
 
 		final ImportedRow row = new ImportedRow();
 
@@ -335,11 +362,21 @@ public class ImportGradesHelper {
 				row.setStudentName(lineVal);
 
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				cell.setScore(lineVal);
+				// fix the separator for the comparison with the current values
+				if (StringUtils.isNotBlank(lineVal)) {
+					if (",".equals(userDecimalSeparator)) {
+						lineVal = lineVal.replace(",", ".");
+					}
+					cell.setScore(lineVal);
+				}
 				row.getCellMap().put(columnTitle, cell);
 
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
+				// fix the separator for the comparison with the current values
 				if (StringUtils.isNotBlank(lineVal)) {
+					if (",".equals(userDecimalSeparator)) {
+						lineVal = lineVal.replace(",", ".");
+					}
 					cell.setScore(lineVal);
 				}
 				row.getCellMap().put(columnTitle, cell);

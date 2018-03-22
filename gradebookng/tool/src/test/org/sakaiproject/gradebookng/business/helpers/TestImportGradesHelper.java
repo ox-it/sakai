@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import org.apache.commons.lang.StringUtils;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -62,7 +64,6 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
-	@Ignore
 	@Test
 	public void when_textplain_thenCsvImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
@@ -72,7 +73,6 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
-	@Ignore
 	@Test
 	public void when_textcommaseparatedvalues_thenCsvImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
@@ -82,7 +82,6 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
-	@Ignore
 	@Test
 	public void when_textapplicationcsv_thenCsvImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
@@ -92,7 +91,6 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
-	@Ignore
 	@Test
 	public void when_browser_says_applicationvndmsexcel_thenCsvImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
@@ -103,7 +101,6 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
-	@Ignore
 	@Test
 	public void when_applicationvndmsexcel_thenXlsImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
@@ -113,7 +110,6 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
-	@Ignore
 	@Test
 	public void when_applicationvndopenxmlformatsofficedocumentspreadsheetmlsheet_thenXlsImportSucceeds() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
@@ -123,7 +119,6 @@ public class TestImportGradesHelper {
 		testImport(importedSpreadsheetWrapper);
 	}
 
-	@Ignore
 	@Test(expected=GbImportExportInvalidFileTypeException.class)
 	public void when_anythingelse_thenImportFails() throws Exception {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
@@ -147,6 +142,41 @@ public class TestImportGradesHelper {
 		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
 		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_with_exact_dupes.csv")) {
 			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "application/csv", "grades_import_with_exact_dupes.csv", service);
+		}
+		testImport(importedSpreadsheetWrapper);
+	}
+
+	@Test
+	public void when_pointsHasDecimalWithComma_thenImportSucceeds() throws Exception {
+		String headerValue = "Week #1: Intro to A-B-C [55,4]";
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValue);
+		Assert.assertTrue(m1.matches());
+		Assert.assertEquals("Week #1: Intro to A-B-C", StringUtils.trimToNull(m1.group(1)));
+		Assert.assertEquals("55,4", m1.group(3));
+	}
+
+	@Test
+	public void when_itemsSimilarButDistinctWithComma_thenImportSucceeds() throws Exception {
+		String headerValueA = "Week #1 [55,1]";
+		String headerValueB = "Week #2 [55,2]";
+
+		Matcher m1 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValueA);
+		Assert.assertTrue(m1.matches());
+
+		Matcher m2 = ImportGradesHelper.ASSIGNMENT_PATTERN.matcher(headerValueB);
+		Assert.assertTrue(m2.matches());
+
+		Assert.assertEquals("Week #1", StringUtils.trimToNull(m1.group(1)));
+		Assert.assertEquals("Week #2", StringUtils.trimToNull(m2.group(1)));
+		Assert.assertEquals("55,1", m1.group(3));
+		Assert.assertEquals("55,2", m2.group(3));
+	}
+
+	@Test
+	public void when_textcsv_i18n_thenCsvImportSucceeds() throws Exception {
+		final ImportedSpreadsheetWrapper importedSpreadsheetWrapper;
+		try (InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import_i18n.csv")) {
+			importedSpreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(is, "text/csv", "grades_import_i18n.csv", service, ",");
 		}
 		testImport(importedSpreadsheetWrapper);
 	}

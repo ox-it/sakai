@@ -38,6 +38,7 @@ import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import org.sakaiproject.util.FormattedText;
 
 public class ExportPanel extends Panel {
 
@@ -45,6 +46,7 @@ public class ExportPanel extends Panel {
 	protected GradebookNgBusinessService businessService;
 
 	private static final String CUSTOM_EXPORT_COLUMN_PREFIX = "# ";
+	private static final char CSV_SEMICOLON_SEPARATOR = ';';
 
 	enum ExportFormat {
 		CSV
@@ -358,7 +360,10 @@ public class ExportPanel extends Panel {
 			{
 				// Non mixed scenarios (Ie. csv scenarios)
 				tempFile = File.createTempFile("gradebookTemplate", ".csv");
-				try (FileWriter fw = new FileWriter(tempFile); CSVWriter csvWriter = new CSVWriter(fw)){
+
+				//CSV separator is comma unless the comma is the decimal separator, then is ;
+				try (FileWriter fw = new FileWriter(tempFile); final CSVWriter csvWriter = new CSVWriter(fw,
+						".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)){
 					// Write an appropriate CSV via getCSVContents
 					if (isRevealed)
 					{
@@ -461,13 +466,13 @@ public class ExportPanel extends Panel {
 
 		// build column header
 		assignments.forEach(assignment -> {
-			final String assignmentPoints = assignment.getPoints().toString();
+			final String assignmentPoints = FormatHelper.formatGradeForDisplay(assignment.getPoints().toString());
 			String externalPrefix = "";
 			if (assignment.isExternallyMaintained()) {
 				externalPrefix = CUSTOM_EXPORT_COLUMN_PREFIX;
 			}
 			if (!isCustomExport || includeGradeItemScores) {
-				header.add(externalPrefix + assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
+				header.add(externalPrefix + assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, FormattedText.getDecimalSeparator() + "0") + "]");
 			}
 			if (!isCustomExport || includeGradeItemComments) {
 				header.add(externalPrefix + "* " + assignment.getName());
@@ -536,7 +541,8 @@ public class ExportPanel extends Panel {
 					if (gradeInfo != null)
 					{
 						if (!isCustomExport || includeGradeItemScores) {
-							line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
+							String grade = FormatHelper.formatGradeForDisplay(gradeInfo.getGrade());
+							line.add(StringUtils.removeEnd(grade, FormattedText.getDecimalSeparator() + "0"));
 						}
 						if (!isCustomExport || includeGradeItemComments) {
 							line.add(gradeInfo.getGradeComment());
@@ -559,18 +565,16 @@ public class ExportPanel extends Panel {
 				final CourseGrade courseGrade = gbCourseGrade.getCourseGrade();
 
 				if (isCustomExport && includePoints) {
-					Double pointsEarned = courseGrade.getPointsEarned();
-					String formattedPointsEarned = pointsEarned == null ? "" : FormatHelper.formatDoubleToDecimal(pointsEarned);
-					line.add(formattedPointsEarned);
+					line.add(FormatHelper.formatGradeForDisplay(FormatHelper.formatDoubleToDecimal(courseGrade.getPointsEarned())));
 				}
 				if (isCustomExport && includeCourseGrade) {
-					line.add(courseGrade.getCalculatedGrade());
+					line.add(FormatHelper.formatGradeForDisplay(courseGrade.getCalculatedGrade()));
 				}
 				if (isCustomExport && includeFinalGrade) {
 					line.add(FinalGradeFormatter.format(gbCourseGrade));
 				}
 				if (isCustomExport && includeGradeOverride) {
-					line.add(courseGrade.getEnteredGrade());
+					line.add(FormatHelper.formatGradeForDisplay(courseGrade.getEnteredGrade()));
 				}
 				if (isCustomExport && includeLastLogDate) {
 					if (courseGrade.getDateRecorded() == null) {

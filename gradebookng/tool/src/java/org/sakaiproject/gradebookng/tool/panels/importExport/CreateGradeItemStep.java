@@ -20,8 +20,8 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Importer has detected that items need to be created so extract the data and wrap the 'AddOrEditGradeItemPanelContent' panel
@@ -63,8 +63,13 @@ public class CreateGradeItemStep extends Panel {
         if (useSpreadsheetData)
         {
             assignment.setName(StringUtils.trim(processedGradeItem.getItemTitle()));
-            if(StringUtils.isNotBlank(processedGradeItem.getItemPointValue())) {
-                assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
+            String itemPointValue = processedGradeItem.getItemPointValue();
+            if(StringUtils.isNotBlank(itemPointValue)) {
+                String decimalSeparator = FormattedText.getDecimalSeparator();
+                if (",".equals(decimalSeparator)) {
+                    itemPointValue = itemPointValue.replace(decimalSeparator, ".");
+                }
+                assignment.setPoints(Double.parseDouble(itemPointValue));
             }
         }
 

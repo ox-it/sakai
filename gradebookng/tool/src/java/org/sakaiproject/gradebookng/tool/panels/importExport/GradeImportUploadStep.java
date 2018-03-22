@@ -28,6 +28,7 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Upload/Download page
@@ -142,7 +143,8 @@ public class GradeImportUploadStep extends Panel {
 				// TODO would be nice to capture the values from these exceptions
 				ImportedSpreadsheetWrapper spreadsheetWrapper;
 				try {
-					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), businessService);
+					spreadsheetWrapper = ImportGradesHelper.parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), upload.getClientFileName(), 
+																					businessService, FormattedText.getDecimalSeparator());
 				} catch (final GbImportExportInvalidFileTypeException | InvalidFormatException e) {
 					error(getString("importExport.error.incorrecttype"));
 					page.updateFeedback(target);

@@ -1,7 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,7 +24,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 
@@ -222,7 +220,7 @@ public class GradeImportConfirmationStep extends Panel {
 					for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItemDetails) {
 						GradeDefinition gradeDef = new GradeDefinition();
 						gradeDef.setStudentUid(processedGradeItemDetail.getUser().getUserUuid());
-						gradeDef.setGrade(processedGradeItemDetail.getGrade());
+						gradeDef.setGrade(FormatHelper.formatGradeForDisplay(processedGradeItemDetail.getGrade()));
 						gradeDef.setGradeComment(processedGradeItemDetail.getComment());
 						gradeDefList.add(gradeDef);
 					}
