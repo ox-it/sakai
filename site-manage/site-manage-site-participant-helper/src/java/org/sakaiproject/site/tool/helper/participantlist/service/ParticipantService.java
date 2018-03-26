@@ -595,10 +595,14 @@ public class ParticipantService implements Serializable
                     for (Participant p : removeUpdates)
                     {
                         String userId = p.getUniqName();
-                        String roleId = realm.getUserRole(userId).getId();
-                        p.setRole(roleId);
-                        statusUpdates.get(userId).setRole(roleId);
-                        roleUpdates.get(userId).setRole(roleId);
+                        Member mem = realm.getMember(userId);
+                        if (mem != null)
+                        {
+                            String roleId = mem.getRole().getId();
+                            p.setRole(roleId);
+                            statusUpdates.get(userId).setRole(roleId);
+                            roleUpdates.get(userId).setRole(roleId);
+                        }
                     }
                 }
 

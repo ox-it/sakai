@@ -1,3 +1,5 @@
+2018.03.26:
+        - [OWL-3444] Manage Participants > can't remove a user from a site
 2018.01.19:
 	- [OWL-3366] Role changes were not propagating into groups; updateRelatedGroupParticipants referenced a stale role
 	- [OWL-3368] Provided Participants' models' roles are no longer stale after 'remove' checkbox is clicked
