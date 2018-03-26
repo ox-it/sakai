@@ -109,6 +109,7 @@ public interface LessonEntity {
 
     // properties of entities
     public String getTitle();
+    public default String getShortDescription() { return null; }
     public String getUrl();
     public Date getDueDate();
     // for forums, where we have a hiearchy of topics
