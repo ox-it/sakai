@@ -112,6 +112,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private Boolean						visitsInfoAvailable						= null;
 	private boolean						enableServerWideStats					= true;
 	private boolean						countFilesUsingCHS						= true;
+	private boolean						countPagesUsingLBS						= true;
 	private String						chartBackgroundColor					= "white";
 	private boolean						chartIn3D								= true;
 	private float						chartTransparency						= 0.80f;
@@ -207,6 +208,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	
 	public void setCountFilesUsingCHS(boolean countFilesUsingCHS) {
 		this.countFilesUsingCHS = countFilesUsingCHS;
+	}
+	
+	public void setCountPagesUsingLBS(boolean countPagesUsingLBS) {
+		this.countPagesUsingLBS = countPagesUsingLBS;
 	}
 	
 	public void setChartBackgroundColor(String color) {
@@ -891,6 +896,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 
 		if (siteId == null){
 			throw new IllegalArgumentException("Null siteId");
+		} if(countPagesUsingLBS){
+			return lessonBuilderService.getSitePages(siteId).size();
 		} else {
 			// Use SiteStats tables (very fast, relies on resource events)
 			// Build common HQL
