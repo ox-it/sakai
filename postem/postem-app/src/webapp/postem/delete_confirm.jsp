@@ -15,6 +15,7 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.title_list}">
+		<script src="/library/js/spinner.js" type="text/javascript"></script>
 			<h:form>
 			  <h:outputText styleClass="alertMessage" value="#{msgs.delete_confirm}" />
 			  
@@ -29,8 +30,10 @@
 
 				<sakai:button_bar>
           <sakai:button_bar_item action="#{PostemTool.processDelete}"
+								 onclick="SPNR.disableControlsAndSpin(this, null);"
 					                       value="#{msgs.bar_delete}" />
 					<sakai:button_bar_item action="#{PostemTool.processCancelView}"
+										   onclick="SPNR.disableControlsAndSpin(this, null);"
 										             value="#{msgs.cancel}" />
          </sakai:button_bar>
 
