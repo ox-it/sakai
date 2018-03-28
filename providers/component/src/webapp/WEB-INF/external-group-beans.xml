@@ -62,6 +62,14 @@
 		<property name="externalGroupManager">
 			<ref bean="uk.ac.ox.oucs.vle.ExternalGroupManager"/>
 		</property>
+		<property name="roleOrder">
+			<list>
+				<value>maintain</value>
+				<value>contribute</value>
+				<value>access</value>
+				<value>suspended</value>
+			</list>
+		</property>
 	</bean>
 
 </beans>
