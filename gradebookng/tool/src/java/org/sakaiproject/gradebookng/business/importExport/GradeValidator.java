@@ -65,7 +65,8 @@ public class GradeValidator
                         if( cell != null )
                         {
                             String studentIdentifier = isContextAnonymous ? row.getAnonID() : row.getStudentEid();
-                            validateGrade( columnTitle, studentIdentifier, cell.getScore() );
+							// validation is locale-aware, so use the raw score that the user input in their own locale
+                            validateGrade( columnTitle, studentIdentifier, cell.getRawScore() );
                         }
                     }
                 }
@@ -88,9 +89,6 @@ public class GradeValidator
         {
             return;
         }
-
-        // Convert back to user's locale for display/validation purposes
-        grade = FormatHelper.formatGradeForDisplay( grade );
 
         // OWLTODO: when/if letter grades are introduce, determine if grade is numeric
         // or alphabetical here and call/write the appropriate business service method.

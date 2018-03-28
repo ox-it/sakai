@@ -362,23 +362,11 @@ public class ImportGradesHelper {
 				row.setStudentName(lineVal);
 
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
-				// fix the separator for the comparison with the current values
-				if (StringUtils.isNotBlank(lineVal)) {
-					if (",".equals(userDecimalSeparator)) {
-						lineVal = lineVal.replace(",", ".");
-					}
-					cell.setScore(lineVal);
-				}
+				convertSeparator(lineVal, userDecimalSeparator, cell);
 				row.getCellMap().put(columnTitle, cell);
 
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITHOUT_POINTS) {
-				// fix the separator for the comparison with the current values
-				if (StringUtils.isNotBlank(lineVal)) {
-					if (",".equals(userDecimalSeparator)) {
-						lineVal = lineVal.replace(",", ".");
-					}
-					cell.setScore(lineVal);
-				}
+				convertSeparator(lineVal, userDecimalSeparator, cell);
 				row.getCellMap().put(columnTitle, cell);
 
 			} else if (column.getType() == ImportedColumn.Type.COMMENTS) {
@@ -388,6 +376,16 @@ public class ImportGradesHelper {
 		}
 
 		return row;
+	}
+
+	// fix the separator for the comparison with the current values
+	private static void convertSeparator(final String lineVal, final String userDecimalSeparator, final ImportedCell cell)
+	{
+		if (StringUtils.isNotBlank(lineVal))
+		{
+			cell.setRawScore(lineVal);
+			cell.setScore(",".equals(userDecimalSeparator) ? lineVal.replace(",", ".") : lineVal);
+		}
 	}
 
 	/**

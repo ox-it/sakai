@@ -17,13 +17,18 @@ public class ImportedCell implements Serializable {
 	@Getter
 	@Setter
 	private String score;
-	
+
+	@Getter
+	@Setter
+	private String rawScore;
+
 	@Getter
 	@Setter
 	private String comment;
 
-	public ImportedCell() {
+	public ImportedCell()
+	{
+		rawScore = "";
 	}
-	
 
 }

@@ -1,3 +1,5 @@
+2018.03.28:
+        - [OWL-3445] Import > In comma decimal locale, invalid grades front-end validation does not flag too many decimal places as invalid
 2018.03.22:
 	- [OWL-3432] make imports work with comma decimal separator locales/files
 2018.03.21:
