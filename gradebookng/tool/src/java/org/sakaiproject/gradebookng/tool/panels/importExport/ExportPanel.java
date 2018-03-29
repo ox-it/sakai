@@ -355,6 +355,7 @@ public class ExportPanel extends Panel {
 			isCourseGradePureAnon = businessService.isCourseGradePureAnonForAllAssignments(allAssignments);
 		}
 
+		char csvDelimiter = ".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR;
 		try {
 			if (isRevealed || !(hasAnon && hasNormal))
 			{
@@ -362,8 +363,7 @@ public class ExportPanel extends Panel {
 				tempFile = File.createTempFile("gradebookTemplate", ".csv");
 
 				//CSV separator is comma unless the comma is the decimal separator, then is ;
-				try (FileWriter fw = new FileWriter(tempFile); final CSVWriter csvWriter = new CSVWriter(fw,
-						".".equals(FormattedText.getDecimalSeparator()) ? CSVWriter.DEFAULT_SEPARATOR : CSV_SEMICOLON_SEPARATOR)){
+				try (FileWriter fw = new FileWriter(tempFile); final CSVWriter csvWriter = new CSVWriter(fw, csvDelimiter)){
 					// Write an appropriate CSV via getCSVContents
 					if (isRevealed)
 					{
@@ -388,14 +388,14 @@ public class ExportPanel extends Panel {
 				{
 					ZipEntry normalEntry = new ZipEntry("gradebookExport_normal.csv");
 					zos.putNextEntry(normalEntry);
-					CSVWriter normalWriter = new CSVWriter(new OutputStreamWriter(zos));
+					CSVWriter normalWriter = new CSVWriter(new OutputStreamWriter(zos), csvDelimiter);
 					writeLines(normalWriter, getCSVContents(isCustomExport, false, false, isCourseGradePureAnon));
 					normalWriter.flush();
 					zos.closeEntry();
 
 					ZipEntry anonEntry = new ZipEntry("gradebookExport_anonymous.csv");
 					zos.putNextEntry(anonEntry);
-					CSVWriter anonWriter = new CSVWriter(new OutputStreamWriter(zos));
+					CSVWriter anonWriter = new CSVWriter(new OutputStreamWriter(zos), csvDelimiter);
 					writeLines(anonWriter, getCSVContents(isCustomExport, false, true, isCourseGradePureAnon));
 					anonWriter.flush();
 					zos.closeEntry();
