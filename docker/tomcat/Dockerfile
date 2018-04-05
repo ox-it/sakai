@@ -3,9 +3,8 @@
 # This doesn't have a copy of Sakai put into it so it can be used for development where Sakai is mounted from outside
 # the container.
 
-# Use the OpenJDK image
-# This builds on debian jessie
-FROM oxit/java:jdk-8u151-01
+# This is our own Ubuntu image with Java
+FROM oxit/java:jdk-8u161-02
 
 MAINTAINER Matthew Buckett <matthew.buckett@it.ox.ac.uk>
 
@@ -66,6 +65,10 @@ RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.o
   rm /opt/tomcat/conf/logging.properties
 
 # This sets the default locale and gets it to work correctly in Java
+RUN \
+  apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y locales && \
+  rm -rf /var/lib/apt/lists/*
 ENV LANG en_GB.UTF-8
 RUN /usr/sbin/locale-gen $LANG
 
