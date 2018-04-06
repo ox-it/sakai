@@ -1156,7 +1156,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		 */
 		public String getHtmlBody()
 		{
-			return m_html_body;
+			return FormattedText.getHtmlBody(m_html_body);
 		} // getHtmlBody
 
 		/**
@@ -1167,7 +1167,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		public String getFormattedBody()
 		{
 			if ( getHtmlBody() != null && getHtmlBody().length() > 0 )
-				return m_html_body;
+				return getHtmlBody();
 			else 
 				return Web.encodeUrlsAsHtml( FormattedText.convertPlaintextToFormattedText(m_body) );
 				
