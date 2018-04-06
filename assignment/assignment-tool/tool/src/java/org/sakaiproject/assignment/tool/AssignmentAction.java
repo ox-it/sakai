@@ -7401,12 +7401,17 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// visible time
 		if (Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.visible.date.enabled", false))) {
+			Time visibleTime = null;
 		    if (params.get("allowVisibleDateToggle") == null) {
 		        state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, false);
 		    } else {
-		        Time visibleTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_VISIBLEMONTH, NEW_ASSIGNMENT_VISIBLEDAY, NEW_ASSIGNMENT_VISIBLEYEAR, NEW_ASSIGNMENT_VISIBLEHOUR, NEW_ASSIGNMENT_VISIBLEMIN, "newassig.visdat");
+				visibleTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_VISIBLEMONTH, NEW_ASSIGNMENT_VISIBLEDAY, NEW_ASSIGNMENT_VISIBLEYEAR, NEW_ASSIGNMENT_VISIBLEHOUR, NEW_ASSIGNMENT_VISIBLEMIN, "newassig.visdat");
 		        state.setAttribute(NEW_ASSIGNMENT_VISIBLETOGGLE, true);
 		    }
+			if (visibleTime != null && openTime != null && !openTime.after(visibleTime))
+			{
+				addAlert(state, rb.getString("assig7"));
+			}
 
 		}
 
@@ -7426,7 +7431,6 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			addAlert(state, rb.getString("assig4"));
 		}
-		
 		if (openTime != null && dueTime != null && !dueTime.after(openTime))
 		{
 			addAlert(state, rb.getString("assig3"));
