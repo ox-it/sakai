@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Job to reset permissions on attachments folder that may have been incorrectly owned. -->
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.attachmentpermissions.UpdateAttachmentPermissions"
+          class="org.sakaiproject.component.app.scheduler.jobs.attachmentpermissions.UpdateAttachmentPermissions">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.UpdateAttachmentPermissions"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId">
+            <value>org.sakaiproject.component.app.scheduler.jobs.attachmentpermissions.UpdateAttachmentPermissions</value>
+        </property>
+        <property name="jobName">
+            <value>Reset the permissions on attachement folders</value>
+        </property>
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+    </bean>
+</beans>
