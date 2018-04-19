@@ -28,8 +28,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.evaluation.beans.EvalBeanUtils;
@@ -54,9 +52,11 @@ import org.sakaiproject.evaluation.model.EvalResponse;
 import org.sakaiproject.evaluation.model.EvalTemplate;
 import org.sakaiproject.evaluation.utils.ArrayUtils;
 import org.sakaiproject.evaluation.utils.EvalUtils;
+import org.sakaiproject.evaluation.utils.TextTemplateLogicUtils;
 import org.sakaiproject.genericdao.api.search.Order;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
+
 
 /**
  * Implementation for EvalEvaluationSetupService
@@ -1529,6 +1529,37 @@ public class EvalEvaluationSetupServiceImpl implements EvalEvaluationSetupServic
         if (! securityChecks.canUserControlEmailTemplate(userId, emailTemplate)) {
             throw new SecurityException("User (" + userId + ") cannot control email template ("
                     + emailTemplate.getId() + ") without permissions");
+        }
+
+        // Check to see if the template is a valid format.
+        // Create dummy values so that the parameter names can be checked.
+        Map<String, String> replacementValues = new HashMap<String, String>() {{
+            put("EarliestEvalDueDate","a");
+            put("EvalCLE","b");
+            put("EvalTitle","c");
+            put("EvalStartDate","d");
+            put("EvalDueDate","e");
+            put("EvalResultsDate","f");
+            put("EvalGroupTitle","g");
+            put("EvalToolTitle","h");
+            put("EvalSite","i");
+            put("HelpdeskEmail","j");
+            put("MyWorkspaceDashboard","k");
+            put("URLtoAddItems","l");
+            put("URLtoTakeEval","m");
+            put("URLtoViewResults","n");
+            put("URLtoSystem","o");
+            put("URLtoAddItems","p");
+            put("URLtoOptOut","q");
+            put("ShowAddItemsText", "r");
+            put("ShowOptInText", "r");
+            put("ShowOptOutText", "r");
+        }};
+        try {
+            TextTemplateLogicUtils.processFreemarkerTextTemplate(emailTemplate.getMessage(), replacementValues);
+        } catch (RuntimeException re) {
+            // Template format incorrect, prevent template being saved.
+            throw re;
         }
 
         // checks to keeps someone from overwriting the default templates

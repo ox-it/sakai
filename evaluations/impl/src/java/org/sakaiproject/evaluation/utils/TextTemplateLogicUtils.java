@@ -102,7 +102,7 @@ public class TextTemplateLogicUtils {
     }
 
     private static Configuration freemarkerConfig = null;
-    private static String processFreemarkerTextTemplate(String textTemplate, Map<String, String> replacementValues) {
+    public static String processFreemarkerTextTemplate(String textTemplate, Map<String, String> replacementValues) {
         // setup freemarker if it is not already done
         synchronized (lock) {
             if (freemarkerConfig == null || resetCounter.getAndAdd(1) > totalResetCount) {
