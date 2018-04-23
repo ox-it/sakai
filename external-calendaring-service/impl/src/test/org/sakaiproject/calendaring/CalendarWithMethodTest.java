@@ -16,6 +16,9 @@ import org.sakaiproject.calendaring.mocks.MockSakaiProxy;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserAlreadyDefinedException;
+import org.sakaiproject.user.api.UserIdInvalidException;
+import org.sakaiproject.user.api.UserPermissionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -45,21 +48,15 @@ public class CalendarWithMethodTest {
     private final long START_TIME = 1336136400; // 4/May/2012 13:00 GMT
     private final long END_TIME = 1336140000; // 4/May/2012 14:00 GMT
     
-    private List<User> users;
-    
+    private Set<User> users;
     //for the test classes we can still use annotation based injection
     @Resource(name = "org.sakaiproject.calendaring.api.ExternalCalendaringService")
     private ExternalCalendaringService service;
     @Autowired
     private ApplicationContext applicationContext;
-    
     @Before
     public void setupData() {
-        users = new ArrayList<User>();
-        for(int i=0;i<5;i++) {
-            User u = Mockito.mock(User.class);
-            users.add(u);
-        }
+        users = generateUsers();
     }
 
     @Test
@@ -74,7 +71,7 @@ public class CalendarWithMethodTest {
     @Test
     public void testRequestCalendarWithoutAttendees() {
         VEvent vevent = generateVEvent();
-        Calendar calendar = service.createCalendar(Collections.singletonList(vevent), "REQUEST");
+        Calendar calendar = service.createCalendar(Collections.singletonList(vevent), "REQUEST", false);
         assertNull(calendar);
     }
 
@@ -82,7 +79,7 @@ public class CalendarWithMethodTest {
     public void testRequestCalendarWithAttendees() {
         VEvent vevent = generateVEvent();
         service.addChairAttendeesToEvent(vevent, users);
-        Calendar calendar = service.createCalendar(Collections.singletonList(vevent), "REQUEST");
+        Calendar calendar = service.createCalendar(Collections.singletonList(vevent), "REQUEST", false);
         assertNotNull(calendar);
     }
 
@@ -91,8 +88,8 @@ public class CalendarWithMethodTest {
         VEvent vevent = generateVEvent();
         User noEmailUser = mock(User.class);
         when(noEmailUser.getEmail()).thenReturn("");
-        service.addChairAttendeesToEvent(vevent, Collections.singletonList(noEmailUser));
-        Calendar calendar = service.createCalendar(Collections.singletonList(vevent), "REQUEST");
+        service.addChairAttendeesToEvent(vevent, new HashSet<>(Arrays.asList(noEmailUser)));
+        Calendar calendar = service.createCalendar(Collections.singletonList(vevent), "REQUEST", false);
         assertNotNull(calendar);
     }
 
@@ -110,7 +107,7 @@ public class CalendarWithMethodTest {
          public void testCancelCalendarStillWorksWithoutSequence() {
         VEvent vevent = generateVEvent();
         service.cancelEvent(vevent);
-        Calendar calendar = service.createCalendar(Collections.singletonList(vevent), "CANCEL");
+        Calendar calendar = service.createCalendar(Collections.singletonList(vevent), "CANCEL", false);
         assertNotNull(calendar);
     }
 
@@ -165,5 +162,28 @@ public class CalendarWithMethodTest {
 
         return edit;
 
+    }
+
+    /**
+     * Helper to generate a list of users. NOT A TEST METHOD
+     * @return
+     * @throws UserPermissionException
+     * @throws UserAlreadyDefinedException
+     * @throws UserIdInvalidException
+     */
+    private Set<User> generateUsers(){
+        Set<User> users = new HashSet<User>();
+
+        for(int i=0;i<5;i++) {
+            User u = mock(User.class);
+            when(u.getId()).thenReturn("user"+i);
+            when(u.getEid()).thenReturn("user"+i);
+            when(u.getDisplayId()).thenReturn("user"+i);
+            when(u.getEmail()).thenReturn("user"+ i+ "@email.com");
+            when(u.getFirstName()).thenReturn("User");
+            when(u.getLastName()).thenReturn(String.valueOf(i));
+            users.add(u);
+        }
+        return users;
     }
 }
