@@ -114,10 +114,17 @@ public class EmailTemplateWBL implements WriteableBeanLocator {
          if (key.startsWith(NEW_PREFIX)) {
             // add in extra logic needed for new items here
          }
-         evaluationSetupService.saveEmailTemplate(emailTemplate, commonLogic.getCurrentUserId());
-         messages.addMessage( new TargettedMessage("controlemailtemplates.template.saved.message",
-               new Object[] { emailTemplate.getType(), emailTemplate.getSubject() }, 
-               TargettedMessage.SEVERITY_INFO));
+         try {
+            evaluationSetupService.saveEmailTemplate(emailTemplate, commonLogic.getCurrentUserId());
+            messages.addMessage(new TargettedMessage("controlemailtemplates.template.saved.message",
+                    new Object[]{emailTemplate.getType(), emailTemplate.getSubject()},
+                    TargettedMessage.SEVERITY_INFO));
+         } catch (RuntimeException re) {
+            messages.addMessage(new TargettedMessage("controlemailtemplates.template.error.message",
+                    new Object[]{re.getCause().getMessage()},
+                    TargettedMessage.SEVERITY_ERROR));
+            throw new RuntimeException(re);
+         }
       }
    }
 
