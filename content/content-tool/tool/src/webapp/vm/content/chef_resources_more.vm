@@ -63,8 +63,7 @@
 						## TSH replaced the line below with the following if/else/end to handle the fact that there is no
 						## copyright status on a folder. Stack traces to the user in 'view details' otherwise.
 						## <span class="chefPre">$validator.escapeHtmlFixCopyright($item.copyrightStatus)</span>
-						## OWLTODO: internationalize this
-						#if ($item.copyrightStatus != '' && $item.copyrightStatus.length() > 0 && $item.copyrightStatus != 'Material is in public domain.')
+						#if ($item.copyrightStatus != '' && $item.copyrightStatus.length() > 0 && $item.copyrightStatus != $publicdomain)
 
 							## bjones86 - OWL-1299
 							#set( $found = false )

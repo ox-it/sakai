@@ -416,8 +416,13 @@ public class ResourcesAction
     private static ResourceLoader metaLang = new ResourceLoader("metadata");
 
 	// bjones86 - OWL-1076/OWL-1077
-	private static final String MSG_KEY_PLEASE_SELECT_COPYRIGHT = "custom.copyright.pleaseSelect";
-	private static final String MSG_KEY_PLEASE_SELECT_ERROR_COPYRIGHT = "custom.copyright.pleaseSelect.error";
+	public static final String MSG_KEY_PLEASE_SELECT_COPYRIGHT = "custom.copyright.pleaseSelect";
+	public static final String MSG_KEY_PLEASE_SELECT_ERROR_COPYRIGHT = "custom.copyright.pleaseSelect.error";
+
+	public static final String SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE = "copyright.useCustom.requireChoice";
+	public static final String SAK_PROP_USE_CUSTOM_COPYRIGHT = "copyright.useCustom";
+	public static final boolean SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE_DEFAULT = false;
+	public static final boolean SAK_PROP_USE_CUSTOM_COPYRIGHT_DEFAULT = false;
 
 	// bjones86 - OWL-1637
 	private static final org.sakaiproject.content.copyright.api.CopyrightManager copyrightManager = (org.sakaiproject.content.copyright.api.CopyrightManager)
@@ -1079,14 +1084,18 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			//copyright
 			context.put("fairuseurl", rrb.getString("fairuse.url"));
-			
 			context.put("newcopyrightinput", rrb.getString("newcopyrightinput"));
-			
-			org.sakaiproject.content.copyright.api.CopyrightInfo copyrightInfo = copyrightManager.getCopyrightInfo(new ResourceLoader().getLocale(),rrb.getStrings("copyrighttype"),ResourcesAction.class.getResource("ResourcesAction.class"));
+			context.put("publicdomain", rrb.getString("copyrighttype.1"));
+			context.put("copyrightError", rb.getString(MSG_KEY_PLEASE_SELECT_ERROR_COPYRIGHT));
+			context.put("copyright_useCustom", ServerConfigurationService.getBoolean(SAK_PROP_USE_CUSTOM_COPYRIGHT, SAK_PROP_USE_CUSTOM_COPYRIGHT_DEFAULT));
+			context.put("copyright_requireChoice", ServerConfigurationService.getBoolean(SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE, SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE_DEFAULT));
+
+			org.sakaiproject.content.copyright.api.CopyrightInfo copyrightInfo = copyrightManager.getCopyrightInfo(new ResourceLoader().getLocale(), rrb.getStrings("copyrighttype"),
+																														ResourcesAction.class.getResource("ResourcesAction.class"));
 			List<org.sakaiproject.content.copyright.api.CopyrightItem> copyrightTypes = copyrightInfo.getItems();
 
             context.put("copyrightTypes", copyrightTypes);
-            context.put("copyrightTypesSize", copyrightTypes.size());				
+            context.put("copyrightTypesSize", copyrightTypes.size());
 			context.put("USE_THIS_COPYRIGHT", copyrightManager.getUseThisCopyright(rrb.getStrings("copyrighttype")));
 			
 		}
@@ -6390,15 +6399,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						noti = NotificationService.NOTI_OPTIONAL;
 					}
 				}
-				
-				List<String> alerts = item.checkRequiredProperties();
 
-				// OWL-1730/OWL-1749
-				// consider making this part of item.checkRequiredProperties()
-				if( item.isCopyrightApplicable() && rb.getString( MSG_KEY_PLEASE_SELECT_COPYRIGHT ).equals( copyrightManager.getCopyrightString( item.copyrightInfo ) ) )
-				{
-					alerts.add(rb.getString(MSG_KEY_PLEASE_SELECT_ERROR_COPYRIGHT));
-				}
+				List<String> alerts = item.checkRequiredProperties(copyrightManager);
 
 				if(alerts.isEmpty())
 				{
@@ -7655,13 +7657,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			}
 			
-			List<String> alerts = item.checkRequiredProperties();
-
-			// bjones86/plukasew - OWL-1076/OWL-1077/OWL-1637/OWL-1749
-			if( item.isCopyrightApplicable() && rb.getString( MSG_KEY_PLEASE_SELECT_COPYRIGHT ).equals( copyrightManager.getCopyrightString( item.copyrightInfo ) ) )
-			{
-				alerts.add( rb.getString( MSG_KEY_PLEASE_SELECT_ERROR_COPYRIGHT ) );
-			}
+			List<String> alerts = item.checkRequiredProperties(copyrightManager);
 			
 			if(alerts.isEmpty())
 			{

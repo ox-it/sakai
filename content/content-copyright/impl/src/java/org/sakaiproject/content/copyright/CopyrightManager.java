@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
@@ -33,7 +34,17 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 public class CopyrightManager implements org.sakaiproject.content.copyright.api.CopyrightManager {
 
 	static final Logger logger = LoggerFactory.getLogger(CopyrightManager.class);
-	
+
+	private static final String SAK_PROP_USE_CUSTOM_COPYRIGHT = "copyright.useCustom";
+	private static final String SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE = "copyright.useCustom.requireChoice";
+	private static final Boolean SAK_PROP_USE_CUSTOM_COPYRIGHT_DEFAULT = false;
+	private static final Boolean SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE_DEFAULT = false;
+	private static final String CUSTOM_COPYRIGHT_MSG_BUNDLE_KEY_PREFIX = "custom.copyright.";
+	private static final String CUSTOM_COPYRIGHT_MSG_BUNDLE_REQ_CHOICE_KEY = "custom.copyright.requireChoice";
+	private static final String CUSTOM_COPYRIGHT_MSG_BUNDLE = "org.sakaiproject.content.copyright.copyright";
+	private static final String CUSTOM_COPYRIGHT_LICENSE_FILE_LOCATION = "/library/content/copyright/";
+	private static final String CUSTOM_COPYRIGHT_LICENSE_FILE_TYPE = ".html";
+
 	protected boolean active = true;
 
 	private static ResourceBundle rb = null;
@@ -42,6 +53,7 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 	
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService m_serverConfigurationService = null;
+
 	/**
 	 * Dependency: ServerConfigurationService.
 	 * 
@@ -53,35 +65,87 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 	}
 
 	@Override
-	public org.sakaiproject.content.copyright.api.CopyrightInfo getCopyrightInfo(Locale locale, String [] rights, URL serverURL){
-		String baseURL = getBaseURL(serverURL.getFile());
-		CopyrightInfo copyrightInfo = new CopyrightInfo();
-		String[] copyright_types = m_serverConfigurationService.getStrings("copyright.types");
-		if (copyright_types==null) {
-			active = false;
-			copyright_types = (rights == null)?new String[]{}:rights;
+	public CopyrightInfo getCopyrightInfo(Locale locale, String [] rights, URL serverURL){
+
+		TreeMap<String, String> copyrightMap = new TreeMap<>();
+
+		// If sakai.properties says to use custom copyright, grab all key/values from copyright.properties that start with the defined prefix 'custom.copyright.option.'
+		boolean useCustomCopyright = m_serverConfigurationService.getBoolean(SAK_PROP_USE_CUSTOM_COPYRIGHT, SAK_PROP_USE_CUSTOM_COPYRIGHT_DEFAULT);
+		if (useCustomCopyright) {
+			rb = ResourceBundle.getBundle(CUSTOM_COPYRIGHT_MSG_BUNDLE, locale);
+			for (String key : rb.keySet()) {
+				if (StringUtils.startsWith(key, CUSTOM_COPYRIGHT_MSG_BUNDLE_KEY_PREFIX) && !CUSTOM_COPYRIGHT_MSG_BUNDLE_REQ_CHOICE_KEY.equals(key)) {
+					copyrightMap.put(key, rb.getString(key));
+				}
+			}
 		}
 
-		CopyrightManager.locale = locale;
-		rb = ResourceBundle.getBundle("org.sakaiproject.content.copyright.copyright",locale);
-		String language = locale.getLanguage();
-		for (String copyrightType:copyright_types){
-			CopyrightItem item = new CopyrightItem();
-			if (active) {
-				item.setType(copyrightType);
-				item.setText(rb.getString(copyrightType));
-				if (existsFile("/library/content/copyright/" + copyrightType + "_" + language + ".html",baseURL)) {
-					item.setLicenseUrl("/library/content/copyright/" + copyrightType + "_" + language + ".html");
-				} else if (existsFile("/library/content/copyright/" + copyrightType + ".html",baseURL)) {
-					item.setLicenseUrl("/library/content/copyright/" + copyrightType + ".html");
+		// If the map is still empty at this point, fall back to the default copyright values passed into this function (provided the array is not null)
+		if (copyrightMap.isEmpty()) {
+			active = false;
+			if (rights != null) {
+				for (int i = 0; i < rights.length; i++) {
+					copyrightMap.put(i + "", rights[i]);
 				}
-			} else {
-				item.setType(copyrightType);
-				item.setText(copyrightType);
 			}
-			copyrightInfo.add(item);
 		}
+
+		String baseURL = getBaseURL(serverURL.getFile());
+		CopyrightInfo copyrightInfo = new CopyrightInfo();
+		CopyrightManager.locale = locale;
+		String language = locale.getLanguage();
+
+		// Loop through the map to build the copyright options
+		for (String key : copyrightMap.keySet()) {
+			copyrightInfo.add(buildCopyrightItem(key, language, baseURL, copyrightMap));
+		}
+
+		/*
+		 ****************************** OWL NOTE ******************************
+		 *
+		 * This block of code breaks OWL because of our historical data (custom copyright keys being stored in the resource's XML blob).
+		 * For the time being (and for OWL only) we comment out this block of code. After community contribution, commenting out this block
+		 * should be the only local customization we have to carry forward to new versions of Sakai, with regards to using custom copyright options.
+		 * See OWL-1752 for more details.
+		 */
+//		if (useCustomCopyright && !copyrightInfo.getItems().isEmpty()) {
+//			boolean customCopyrightRequireChoice = m_serverConfigurationService.getBoolean(SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE, SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE_DEFAULT);
+//			if (customCopyrightRequireChoice) {
+//				copyrightMap.put(CUSTOM_COPYRIGHT_MSG_BUNDLE_REQ_CHOICE_KEY, rb.getString(CUSTOM_COPYRIGHT_MSG_BUNDLE_REQ_CHOICE_KEY));
+//				copyrightInfo.addToBeginning(buildCopyrightItem(CUSTOM_COPYRIGHT_MSG_BUNDLE_REQ_CHOICE_KEY, language, baseURL, copyrightMap));
+//			}
+//		}
+
 		return copyrightInfo;
+	}
+
+	/**
+	 * Utility method to build CopyrightItem objects to reduce code duplication.
+	 * @param key the key in the map that corresponds to the correct user facing text
+	 * @param language the language of the user
+	 * @param baseURL the base URL where the HTML file licenses are stored
+	 * @param copyrightMap the map of keys to user facing messages
+	 * @return a built CopyrightItem object
+	 */
+	private CopyrightItem buildCopyrightItem(String key, String language, String baseURL, TreeMap<String, String> copyrightMap) {
+		CopyrightItem item = new CopyrightItem();
+
+		// If custom copyright options are 'active', try to find the corresponding HTML license file on the file system
+		if (active) {
+			item.setType(key);
+			item.setText(copyrightMap.get(key));
+			if (existsFile(CUSTOM_COPYRIGHT_LICENSE_FILE_LOCATION + key + "_" + language + CUSTOM_COPYRIGHT_LICENSE_FILE_TYPE, baseURL)) {
+				item.setLicenseUrl(CUSTOM_COPYRIGHT_LICENSE_FILE_LOCATION + key + "_" + language + CUSTOM_COPYRIGHT_LICENSE_FILE_TYPE);
+			} else if (existsFile(CUSTOM_COPYRIGHT_LICENSE_FILE_LOCATION + key + CUSTOM_COPYRIGHT_LICENSE_FILE_TYPE, baseURL)) {
+				item.setLicenseUrl(CUSTOM_COPYRIGHT_LICENSE_FILE_LOCATION + key + CUSTOM_COPYRIGHT_LICENSE_FILE_TYPE);
+			}
+		} else {
+			String copyrightText = copyrightMap.get(key);
+			item.setType(copyrightText);
+			item.setText(copyrightText);
+		}
+
+		return item;
 	}
 
 	/**

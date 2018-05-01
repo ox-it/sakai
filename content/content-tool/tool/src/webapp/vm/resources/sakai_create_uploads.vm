@@ -261,11 +261,11 @@ Dropzone.options.fileUploader = {
         });
 
         submitButton.addEventListener("click", function() {
+            var requireChoice = $copyright_useCustom && $copyright_requireChoice;
             var copyrightSelect = document.getElementById('copyright');
-            if (copyrightSelect !== null && copyrightSelect.selectedIndex < 1)
+            if (requireChoice && copyrightSelect !== null && copyrightSelect.selectedIndex < 1)
             {
-                // OWLTODO: internationalize this
-                $('.alertMessage').html('Alert: Please choose a valid copyright status. Your selected copyright status cannot be assigned.');
+                $('.alertMessage').html('$copyrightError');
                 $('.alertMessage').show();
             }
             else

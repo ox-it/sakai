@@ -1,3 +1,5 @@
+2018.05.01:
+	- [OWL-1752] refactor the custom copyright code
 2017.09.27:
 	- [OWL-3098] render drop box group filter conditionally based on permissions
 2017.08.12:

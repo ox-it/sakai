@@ -64,6 +64,7 @@ import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.copyright.api.CopyrightManager;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.metadata.logic.MetadataService;
 import org.sakaiproject.content.metadata.model.MetadataType;
@@ -3771,10 +3772,25 @@ public class ListItem
 		{
 			alerts.add(rb.getString("edit.retractBeforeRelease"));
 		}
-		
-		
+
 	    return alerts;
     }
+
+	public List<String> checkRequiredProperties(CopyrightManager copyrightManager)
+	{
+		List<String> alerts = checkRequiredProperties();
+
+		boolean useCustom = ServerConfigurationService.getBoolean(ResourcesAction.SAK_PROP_USE_CUSTOM_COPYRIGHT, ResourcesAction.SAK_PROP_USE_CUSTOM_COPYRIGHT_DEFAULT);
+		boolean requireChoice = ServerConfigurationService.getBoolean(ResourcesAction.SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE, ResourcesAction.SAK_PROP_USE_CUSTOM_COPYRIGHT_REQ_CHOICE_DEFAULT);
+
+		// bjones86/plukasew - OWL-1076/OWL-1077/OWL-1637/OWL-1749
+		if( (useCustom && requireChoice) && isCopyrightApplicable() && rb.getString( ResourcesAction.MSG_KEY_PLEASE_SELECT_COPYRIGHT ).equals( copyrightManager.getCopyrightString( copyrightInfo ) ) )
+		{
+			alerts.add(rb.getString(ResourcesAction.MSG_KEY_PLEASE_SELECT_ERROR_COPYRIGHT));
+		}
+
+		return alerts;
+	}
 
 	/**
      * @return the expandable
