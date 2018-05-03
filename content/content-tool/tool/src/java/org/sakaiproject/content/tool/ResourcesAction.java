@@ -54,6 +54,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.content.util.ZipContentUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.AliasEdit;
@@ -533,6 +534,7 @@ public class ResourcesAction
 	/************** the edit context *****************************************/
 
 	private static final String MODE_DELETE_FINISH = "deleteFinish";
+	private static final String MODE_ZIP_FINISH = "zipFinish";
 	private static final String MODE_SHOW_FINISH = "showFinish";
 	private static final String MODE_HIDE_FINISH = "hideFinish"; 
 	
@@ -800,7 +802,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
 
 	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
-	
+
+	private static final String TEMPLATE_ZIP_FINISH = "content/sakai_resources_zipFinish";
+
 	private static final String TEMPLATE_SHOW_FINISH = "content/sakai_resources_showFinish";
 	private static final String TEMPLATE_HIDE_FINISH = "content/sakai_resources_hideFinish";
 
@@ -4086,6 +4090,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}
 
+
+	public String buildZipFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		logger.debug(this + ".buildZipFinishContext()");
+		context.put("tlang",trb);
+		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
+		context.put ("collectionPath", state.getAttribute (STATE_COLLECTION_PATH));
+
+		List zipItems = (List) state.getAttribute(STATE_DELETE_SET);
+
+		context.put ("zipItems", zipItems);
+		context.put("homeCollection", state.getAttribute(STATE_HOME_COLLECTION_ID));
+
+		return TEMPLATE_ZIP_FINISH;
+
+	}
 	/**
 	* Build the context for the new list view, which uses the resources type registry
 	*/
@@ -4841,6 +4861,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			// build the context for the basic step of delete confirm page
 			template = buildDeleteFinishContext (portlet, context, data, state);
+		}
+		else if (mode.equals (MODE_ZIP_FINISH))
+		{
+			// build the context for the basic step of zip confirm page
+			template = buildZipFinishContext (portlet, context, data, state);
 		}
 		else if (mode.equals (MODE_SHOW_FINISH))
 		{
@@ -5889,7 +5914,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * @param state
 	 * @param deleteIdSet
 	 */
-	protected void deleteItems(SessionState state, Set deleteIdSet)
+	protected void addItemsToSession(SessionState state, Set deleteIdSet)
 	{
 		logger.debug(this + ".deleteItems()");
 		List deleteItems = new ArrayList();
@@ -6544,7 +6569,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		else
 		{
 			deleteIdSet.addAll(Arrays.asList(deleteIds));
-			deleteItems(state, deleteIdSet);
+			addItemsToSession(state, deleteIdSet);
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -6555,6 +6580,52 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 
 	}	// doDeleteconfirm
+
+
+	/**
+	 * set the state name to be "zipconfirm" if any item has been selected for zipping
+	 */
+	public void doZipconfirm ( RunData data)
+	{
+		logger.debug(this + ".doZipconfirm()");
+
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		Set<String> zipIdSet  = new TreeSet<>();
+		String[] zipIds = data.getParameters ().getStrings ("selectedMembers");
+		if (zipIds == null)
+		{
+			// there is no resource selected, show the alert message to the user
+			addAlert(state, rb.getString("choosefile3"));
+		}
+		else
+		{
+			zipIdSet.addAll(Arrays.asList(zipIds));
+			addItemsToSession(state, zipIdSet);
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_ZIP_FINISH);
+			state.removeAttribute(STATE_LIST_SELECTIONS);
+		}
+	}	// doZipconfirm
 
 	public void doDispatchAction(RunData data)
 	{
@@ -7047,6 +7118,78 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}	// doDelete
 
 	/**
+	 * doFinalizeZip to zip the selected collection or resource items
+	 */
+	public void doFinalizeZip( RunData data) throws IdUnusedException {
+		logger.debug(this + ".doFinalizeZip()");
+
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		List items = (List) state.getAttribute(STATE_DELETE_SET);
+
+		List<String> selectedFolderIds = new ArrayList<>();
+		List<String> selectedFiles = new ArrayList<>();
+		for (Object listItem : items) {
+			ListItem l = (ListItem)listItem;
+			if (l.isCollection()){
+				selectedFolderIds.add(l.getId());
+			}
+			else {
+				selectedFiles.add(l.getId());
+			}
+		}
+
+		try
+		{
+			ZipContentUtil zipUtil = new ZipContentUtil();
+			try {
+				Reference r = EntityManager.newReference(ContentHostingService.getReference(collectionId));
+				zipUtil.compressFolder(r, selectedFolderIds, selectedFiles);
+			} catch (Exception e) {
+				logger.warn(e.getMessage());
+			}
+		} // try - catch
+		catch(RuntimeException e)
+		{
+			logger.debug("ResourcesAction.doFinalizeZip ***** Unknown Exception ***** " + e.getMessage());
+			addAlert(state, rb.getString("failed"));
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			// zip sucessful
+			state.setAttribute (STATE_MODE, MODE_LIST);
+			state.removeAttribute(STATE_DELETE_SET);
+			state.removeAttribute(STATE_NON_EMPTY_DELETE_SET);
+
+			if (state.getAttribute (STATE_SELECT_ALL_FLAG).equals(Boolean.TRUE.toString()))
+			{
+				state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
+			}
+		}	// if-else
+	}	// doZip
+
+
+
+	/**
 	 * @param data
 	 */
 	public void doHideOtherSites(RunData data)
@@ -7234,6 +7377,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		else if(ResourceToolAction.DELETE.equals(actionId))
 		{
 			doDeleteconfirm(data);
+		}
+		else if(ResourceToolAction.ZIP.equals(actionId))
+		{
+			doZipconfirm(data);
 		}
 		else if(ResourceToolAction.SHOW.equals(actionId))
 		{

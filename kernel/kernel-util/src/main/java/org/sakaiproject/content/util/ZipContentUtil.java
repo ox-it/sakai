@@ -79,13 +79,16 @@ public class ZipContentUtil {
         return MAX_ZIP_EXTRACT_FILES;
     }
 
+	public void compressFolder(Reference reference) {
+		compressFolder(reference, null, null);
+	}
 	/**
 	 * Compresses a ContentCollection to a new zip archive with the same folder name
 	 * 
 	 * @param reference sakai entity reference
 	 * @throws Exception on failure
 	 */
-    public void compressFolder(Reference reference) { 
+    public void compressFolder(Reference reference, List<String> selectedFolders, List<String> selectedFiles) {
 		File temp = null;
 		FileInputStream fis = null;
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -96,7 +99,12 @@ public class ZipContentUtil {
 				temp = File.createTempFile("sakai_content-", ".tmp");
 				ContentCollection collection = ContentHostingService.getCollection(reference.getId());
 				out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE));
-				storeContentCollection(reference.getId(),collection,out);
+				if (selectedFolders==null && selectedFiles==null){
+					storeContentCollection(reference.getId(),collection,out);
+				}
+				else {
+					storeContentCollection(reference.getId(),collection,out, selectedFolders, selectedFiles);
+				}
 			} finally {
 				if (out != null) {
 					try {
@@ -452,10 +460,10 @@ public class ZipContentUtil {
 		}
         return temp;
 	}
-    
+
 	/**
 	 * Iterates the collection.getMembers() and streams content resources recursively to the ZipOutputStream
-	 * 
+	 *
 	 * @param rootId
 	 * @param collection
 	 * @param out
@@ -467,12 +475,62 @@ public class ZipContentUtil {
 			if (memberId.endsWith(Entity.SEPARATOR)) {
 				ContentCollection memberCollection = ContentHostingService.getCollection(memberId);
 				storeContentCollection(rootId,memberCollection,out);
-			} 
+			}
 			else {
 				ContentResource resource = ContentHostingService.getResource(memberId);
 				storeContentResource(rootId, resource, out);
 			}
 		}
+	}
+
+	/**
+	 * Iterates the collection.getMembers() and streams selected content resources recursively to the ZipOutputStream
+	 *
+	 * @param rootId
+	 * @param collection
+	 * @param out
+	 * @param selectedFolderIds
+	 * @param selectedFiles
+	 * @throws Exception
+	 */
+	private void storeContentCollection(String rootId, ContentCollection collection, ZipOutputStream out, List<String> selectedFolders, List<String> selectedFiles) throws Exception {
+		List<String> members = collection.getMembers();
+		for (String memberId: members) {
+			if (memberId.endsWith(Entity.SEPARATOR)) {
+				if (selectedFolders != null && selectedFolders.contains(memberId)) { // user selected folder
+					ContentCollection memberCollection = ContentHostingService.getCollection(memberId);
+					storeContentCollection(rootId, memberCollection, out);
+				}
+				else if (isInPath(selectedFiles, selectedFolders, memberId)) {// it's a folder above a selected folder or file
+					ContentCollection memberCollection = ContentHostingService.getCollection(memberId);
+					storeContentCollection(rootId, memberCollection, out, selectedFolders, selectedFiles);
+				}
+			}
+			else {
+				if (selectedFiles.contains(memberId)) { // user selected file
+					ContentResource resource = ContentHostingService.getResource(memberId);
+					storeContentResource(rootId, resource, out);
+				}
+			}
+		}
+	}
+
+	private boolean isInPath (List<String> selectedFiles, List<String> selectedFolders, String memberId){
+		if (selectedFiles!=null) {
+			for (String selectedFile : selectedFiles) {
+				if (selectedFile.startsWith(memberId)) {
+					return true;
+				}
+			}
+		}
+		if (selectedFolders!=null) {
+			for (String selectedFolderId : selectedFolders) {
+				if (selectedFolderId.startsWith(memberId)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
