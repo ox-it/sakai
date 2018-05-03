@@ -36,7 +36,7 @@ $(document).ready(function()
 {
 	var inTool = false;
 
-	window.addEventListener("click", function (event) {
+	window.addEventListener("mousedown", function (event) {
 		if ($.contains(document.getElementById('addSubmissionForm'), event.target)) {
 			inTool = true;
 		}
@@ -48,7 +48,8 @@ $(document).ready(function()
 	window.addEventListener("beforeunload", function (event) {
 		// Add a returnValue so that a pop-up occurs if there is an attachment and the user
 		// tries to click on anything other than attachment buttons/links.
-		if ($("#attachments").length != 0 && (inTool === false)) {
+		// Make use of a hidden input element set server side.
+		if ($('input[name=new_attachments]').val() === "true" && (inTool === false)) {
 			event.returnValue = "";
 		}
 	});
