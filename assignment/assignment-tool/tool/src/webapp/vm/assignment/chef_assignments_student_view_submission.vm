@@ -573,6 +573,7 @@ $(document).ready(function(){
 		<input type="hidden" name="option" id="option" value="cancel" />
 		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+		<input type="hidden" name="new_attachments" value="$!new_attachments" />
 
 		#if ($!canSubmit)
 			## if a draft submission or the submission has been returned and has not yet submitted
