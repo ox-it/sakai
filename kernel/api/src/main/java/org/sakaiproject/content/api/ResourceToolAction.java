@@ -90,9 +90,9 @@ public interface ResourceToolAction
 		 * Delete -- Handled by Resources tool.  Requires content.delete permission
 		 */
 		DELETE,
-		
+
 		/**
-		 * Revise content -- Handled by helper.  Requires content.revise.any permission (or 
+		 * Revise content -- Handled by helper.  Requires content.revise.any permission (or
 		 * 		content.revise.own if user is creator).
 		 */
 		REVISE_CONTENT,
@@ -209,6 +209,7 @@ public interface ResourceToolAction
 	
 	public static final String CREATE = "create";
 	public static final String DELETE = "delete";
+	public static final String ZIP = "zip";
 	public static final String COPY = "copy";
 	public static final String REVISE_CONTENT = "revise";
 	public static final String REPLACE_CONTENT = "replace";

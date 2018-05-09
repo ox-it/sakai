@@ -207,6 +207,10 @@
                                                 disabled="disabled">$tlang.getString('avail.hide')
                                             </button>
                                     #end
+                                    <button  style="margin:0" class="btn btn-default" id="zip-button" type="button"
+                                                onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='zip';document.getElementById('showForm').submit();"
+                                                disabled="disabled" >$tlang.getString('avail.zip')
+                                    </button>
                                  #end
                                  ####### end SAK-23304, add Show and Hide
 
@@ -369,7 +373,7 @@
 						#if($item.depth > 0 && $item.hasMultipleItemActions())
 							<input type="checkbox" name="selectedMembers" id="list$num" 
 									#if($selectedItems.contains($item.id))checked="checked"#end
-									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustShowHideCount(this)"
+									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustCount(this, 'zip');adjustShowHideCount(this)"
  									value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select"): $validator.escapeHtml($item.name)</label>
 							#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 							<input type="hidden" name="itemHidden" id="itemHidden" value="$item.hidden" />
@@ -783,13 +787,14 @@
 		
 		#foreach($key in $listActions.keySet())
 			<input type="hidden" id="${key}-count" value="$counter.getValue("${key}selected")" />
-		#end		
+		#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<input type="hidden" id="show-count" value="$counter.getValue("showselected")" />
-		<input type="hidden" id="hide-count" value="$counter.getValue("hideselected")" /> 
+		<input type="hidden" id="hide-count" value="$counter.getValue("hideselected")" />
+		<input type="hidden" id="zip-count" value="$counter.getValue("zipselected")" />
 		## copy for other sites
 		<input type="hidden" id="copy-count-other" value="0" />
-	</form>						
+	</form>
 </div>
 <script type="text/JavaScript">
 	<!--
@@ -892,8 +897,8 @@
 			{
 				counter.value = parseInt(counter.value) - 1;
 			}
-	
-			if(button)
+
+	    	if(button)
 			{
 				if(counter.value > 0)
 				{
