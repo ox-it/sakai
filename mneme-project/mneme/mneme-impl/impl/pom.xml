@@ -124,7 +124,6 @@
 						<war.bundle>true</war.bundle>
 					</properties>-->
 		</dependency>
-		
 	</dependencies>
 
 	<build>

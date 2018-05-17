@@ -66,6 +66,8 @@ import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ls.DOMImplementationLS; 
+import org.w3c.dom.ls.LSSerializer;
 
 /**
  * <p>
@@ -327,7 +329,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			Element titleElement = doc.createElementNS("http://www.imsglobal.org/xsd/imsmd_v1p2", "imsmd:title");
 			Element langstring = doc.createElementNS("http://www.imsglobal.org/xsd/imsmd_v1p2", "imsmd:langstring");
 			title = FormattedText.unEscapeHtml(title);
-			langstring.setTextContent(title);
+			langstring.appendChild(doc.createCDATASection(title));
 			titleElement.appendChild(langstring);
 			general.appendChild(titleElement);
 		}
@@ -337,7 +339,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			Element langstring = doc.createElementNS("http://www.imsglobal.org/xsd/imsmd_v1p2", "imsmd:langstring");
 			description = FormattedText.unEscapeHtml(description);
 			if (zip != null && mediaFiles != null) description = translateEmbedData(zip, subFolder, subFolder, description, mediaFiles);
-			langstring.setTextContent(description);
+			langstring.appendChild(doc.createCDATASection(description));
 			descElement.appendChild(langstring);
 			general.appendChild(descElement);
 		}
@@ -1149,9 +1151,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 
 			if (mediaFiles.isEmpty())
 			{
-				Element div = questionDocument.createElement("div");
-				div.setTextContent(text);
-				itemBody.appendChild(div);
+				itemBody.appendChild(questionDocument.createCDATASection(text));
 			}
 		}
 
@@ -1285,7 +1285,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			ArrayList anFiles = new ArrayList<String>();
 			answer = translateEmbedData(zip,  testId + "/Resources/", "Resources/", answer, anFiles);
 			Element correctResponseValue = questionDocument.createElement("value");			
-			correctResponseValue.setTextContent(answer);
+			correctResponseValue.appendChild(questionDocument.createCDATASection(answer));
 			correctResponse.appendChild(correctResponseValue);
 		}
 
@@ -1324,9 +1324,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 		while (m_fillBlanks.find())
 		{
 			String fib = m_fillBlanks.group(1);
-			Element textDiv = questionDocument.createElement("div");
-			textDiv.setTextContent(fib);
-			itemBody.appendChild(textDiv);
+			itemBody.appendChild(questionDocument.createCDATASection(fib));
 
 			String fib_curly = m_fillBlanks.group(2);
 			Element fbInteraction = questionDocument.createElement("textEntryInteraction");
@@ -1343,9 +1341,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			itemBody = translateEmbedData(zip, testId + "/Resources/", sb.toString(), itemBody, mediaFiles, questionDocument);
 			if (mediaFiles.isEmpty())
 			{
-				Element textDiv = questionDocument.createElement("div");
-				textDiv.setTextContent(sb.toString());
-				itemBody.appendChild(textDiv);
+				itemBody.appendChild(questionDocument.createCDATASection(sb.toString()));
 			}
 		}
 
@@ -1576,7 +1572,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			simpleChoice = translateEmbedData(zip, testId + "/Resources/", choiceText, simpleChoice, mediaFiles, questionDocument);
 			if (mediaFiles.isEmpty())
 			{
-				simpleChoice.setTextContent(choiceText);
+				simpleChoice.appendChild(questionDocument.createCDATASection(choiceText));
 			}
 			choiceInteraction.appendChild(simpleChoice);
 		}
@@ -1709,7 +1705,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			simpleAssociableChoice = translateEmbedData(zip, testId + "/Resources/", choiceText, simpleAssociableChoice, mediaFiles, questionDocument);
 			if (mediaFiles.isEmpty())
 			{
-				simpleAssociableChoice.setTextContent(choiceText);
+				simpleAssociableChoice.appendChild(questionDocument.createCDATASection(choiceText));
 			}
 			simpleMatchSet1.appendChild(simpleAssociableChoice);
 
@@ -1724,7 +1720,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			simpleAssociableMatch = translateEmbedData(zip, testId + "/Resources/", matchText, simpleAssociableMatch, mediaFiles, questionDocument);
 			if (mediaFiles.isEmpty())
 			{
-				simpleAssociableMatch.setTextContent(matchText);
+				simpleAssociableMatch.appendChild(questionDocument.createCDATASection(matchText));
 			}
 			simpleMatchSet2.appendChild(simpleAssociableMatch);
 
@@ -1853,6 +1849,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 	private Element translateEmbedData(ZipOutputStream zip, String subFolder, String text, Element itemBody, List<String> mediaFiles,
 			Document questionDocument)
 	{
+		StringBuilder appender=new StringBuilder();
 		if (text == null || text.length() == 0) return itemBody;
 		
 		Element media = null;
@@ -1881,9 +1878,10 @@ public class ExportQtiServiceImpl implements ExportQtiService
 					
 					Element div = questionDocument.createElement("div");
 					if (startIdx <= text.length())
-					{						
-						String divText = text.substring(start, startIdx);
-						div.setTextContent(divText); 
+					{
+						String txt = text.substring(start, startIdx);
+						appender.append(txt);
+
 						start = m.end();
 					}
 					ref = ref.replaceAll("%20", " ");
@@ -1904,20 +1902,27 @@ public class ExportQtiServiceImpl implements ExportQtiService
 					media = questionDocument.createElement(m.group(1));
 					if ("a".equalsIgnoreCase(m.group(1))) media.setAttribute("target", "_blank");
 					media.setAttribute(m_src.group(1), embedSubFolder + embedFileName);
+					Document ownerDocument = media.getOwnerDocument();
+					//converting the element to string to add to the appender variable 
+					DOMImplementationLS domImplLS = (DOMImplementationLS) ownerDocument
+									.getImplementation();
+					LSSerializer serializer = domImplLS.createLSSerializer();
+					serializer.getDomConfig().setParameter("xml-declaration", false);
+					String mediaString = serializer.writeToString(media);
+
 					m.appendReplacement(sb, "");
 
 					writeContentResourceToZip(zip, subFolder, resource_id, embedFileName);
-					itemBody.appendChild(div);
-					itemBody.appendChild(media);
+					appender.append(mediaString);
 				}				
 			}
 			m.appendTail(sb);
 			if (start > 0 && start < text.length())
 			{
-				Element div = questionDocument.createElement("div");
-				div.setTextContent(text.substring(start));
-				itemBody.appendChild(div);
+				String substring = text.substring(start);
+				appender.append(substring);
 			}
+			itemBody.appendChild(questionDocument.createCDATASection(appender.toString()));
 			return itemBody;
 		}
 		catch (Exception e)

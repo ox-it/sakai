@@ -82,6 +82,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
+			<artifactId>gradebook-service-api</artifactId>
+			</dependency>
+
+		<dependency>
+			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
+			<artifactId>gradebook-service-hibernate</artifactId>
+			<version>${sakai.edu-services.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
 		</dependency>
@@ -95,11 +107,26 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-core</artifactId>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>xml-resolver</artifactId>
 			<version>1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-utils</artifactId>
 		</dependency>
 
 	</dependencies>
