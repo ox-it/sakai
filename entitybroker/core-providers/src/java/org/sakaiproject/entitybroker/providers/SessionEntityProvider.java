@@ -314,7 +314,7 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
     * 
     * url syntax: serverUrl/direct/session/becomeuser/:USERID:
     * 
-    * Where :USERID is either a userId or a userEid
+    * Where :USERID is either a userId or a userEid or a authentication ID
     * 
     * @param view
     * @param params
@@ -376,9 +376,18 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
     	  }
     	  catch (UserNotDefinedException ee)
     	  {
-    		  log.info("Their is no user assosiated with the provided userID \""+requestedUserId+"\" while become user via webservice");
-    		  return result;
-    		  
+    		  try {
+    			  // try with the aid
+    			  userinfo = userDirectoryService.getUserByAid(requestedUserId);
+
+    			  validatedUserId = userinfo.getId();
+    			  validatedUserEid = userinfo.getEid();
+    		  }
+    		  catch (UserNotDefinedException eee)
+    		  {
+    			  log.info("Their is no user assosiated with the provided userID \""+requestedUserId+"\" while become user via webservice");
+    			  return result;
+    		  }
     	  }
       }
 
