@@ -111,6 +111,11 @@
             <artifactId>ehcache-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.9</version>
@@ -141,6 +146,16 @@
                 </includes>
             </resource>
         </resources>
-        
+        <testResources>
+            <testResource>
+                <directory>${basedir}/src/test/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                    <include>**/*.properties</include>
+                    <include>**/*.ics</include>
+                    <include>**/*.csv</include>
+                </includes>
+            </testResource>
+        </testResources>
     </build>
 </project>
