@@ -25,6 +25,15 @@
         <property name="maxDepth" value="8"/>
     </bean>
 
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		  class="org.sakaiproject.entitybroker.providers.HomeEntityProvider"
+		  init-method="init">
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="contentService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
             class="org.sakaiproject.entitybroker.providers.SessionEntityProvider">
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
