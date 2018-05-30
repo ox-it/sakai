@@ -616,7 +616,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	}
 
 	public LdapUserData getUserByAid(String aid, LDAPConnection conn) {
-		String filter = ldapAttributeMapper.getFindUserByAidFilter(aid);
+		String filter = ldapAttributeMapper.getFindUserByAidFilter(aid.replace("@ox.ac.uk", ""));
 		LdapUserData mappedEntry = null;
 		try {
 			mappedEntry = (LdapUserData) searchDirectoryForSingleEntry(filter,
