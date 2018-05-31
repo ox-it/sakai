@@ -378,7 +378,7 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
     	  {
     		  try {
     			  // try with the aid
-    			  userinfo = userDirectoryService.getUserByAid(requestedUserId);
+    			  userinfo = userDirectoryService.getUserByAid(requestedUserId.replaceAll("@OX.AC.UK", ""));
 
     			  validatedUserId = userinfo.getId();
     			  validatedUserEid = userinfo.getEid();
