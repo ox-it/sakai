@@ -38,6 +38,7 @@
         <param-value>
             /WEB-INF/*View.xml
             /WEB-INF/*Fragment.xml
+            /WEB-INF/applicationContext.xml
         </param-value>
     </context-param>
 

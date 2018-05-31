@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+		<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+					class="org.etudes.mneme.entityproviders.MnemeEntityProvider">
+					<property name="assessmentService" ref="org.etudes.mneme.api.AssessmentService"></property>
+					<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+					<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"></property>
+					<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"></property>
+		</bean>
+</beans>
