@@ -120,6 +120,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
             "usedisplayid:checkbox:label=bl_usedisplayid",
+            "appenddomain:checkbox:label=bl_appenddomain",
             "services:header:fields=allowoutcomes,allowroster,allowsettings",
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
             "allowroster:checkbox:label=bl_allowroster",
@@ -223,6 +224,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_SENDNAME = "sendname";
     String LTI_SENDEMAILADDR = "sendemailaddr";
     String LTI_USEDISPLAYID = "usedisplayid";
+    String LTI_APPENDDOMAIN = "appenddomain";
     String LTI_ALLOWOUTCOMES = "allowoutcomes";
     String LTI_ALLOWROSTER = "allowroster";
     String LTI_ALLOWSETTINGS = "allowsettings";
