@@ -408,7 +408,15 @@ public class SakaiBLTIUtil {
 		{
 			setProperty(ltiProps,BasicLTIConstants.USER_ID,user.getId());
 			setProperty(lti2subst,LTI2Vars.USER_ID,user.getId());
-			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
+			if (getInt(tool.get(LTIService.LTI_USEDISPLAYID)) == 1)
+			{
+				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getDisplayId());
+			}
+			else
+			{
+				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getEid());
+			}
+
 			setProperty(lti2subst,LTI2Vars.USER_USERNAME,user.getEid());
 			setProperty(lti2subst,LTI2Vars.PERSON_SOURCEDID,user.getEid());
 

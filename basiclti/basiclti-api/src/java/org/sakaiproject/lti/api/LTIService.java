@@ -119,6 +119,7 @@ public interface LTIService extends LTISubstitutionsFilter {
             "privacy:header:fields=sendname,sendemailaddr",
             "sendname:checkbox:label=bl_sendname",
             "sendemailaddr:checkbox:label=bl_sendemailaddr",
+            "usedisplayid:checkbox:label=bl_usedisplayid",
             "services:header:fields=allowoutcomes,allowroster,allowsettings",
             "allowoutcomes:checkbox:label=bl_allowoutcomes",
             "allowroster:checkbox:label=bl_allowroster",
@@ -221,6 +222,7 @@ public interface LTIService extends LTISubstitutionsFilter {
     String LTI_ALLOWFRAMEHEIGHT = "allowframeheight";
     String LTI_SENDNAME = "sendname";
     String LTI_SENDEMAILADDR = "sendemailaddr";
+    String LTI_USEDISPLAYID = "usedisplayid";
     String LTI_ALLOWOUTCOMES = "allowoutcomes";
     String LTI_ALLOWROSTER = "allowroster";
     String LTI_ALLOWSETTINGS = "allowsettings";

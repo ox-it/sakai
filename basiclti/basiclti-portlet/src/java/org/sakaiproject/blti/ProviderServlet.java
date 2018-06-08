@@ -40,6 +40,7 @@ import net.oauth.*;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
+import org.sakaiproject.authz.api.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -758,7 +759,9 @@ public class ProviderServlet extends HttpServlet {
 
         // Check user has access to this tool in this site
         if(!ToolManager.isVisible(site, toolConfig)) {
-            M_log.warn("Not allowed to access tool user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id);
+            Role role = site.getUserRole(user.getId());
+            String userRole = (role == null)?"unknown": role.getId();
+            M_log.warn("Not allowed to access tool user_id=" + user.getId() + " role=" + userRole + " site="+ site.getId() + " tool=" + tool_id);
             throw new LTIException( "launch.site.tool.denied", "user_id=" + user.getId() + " site="+ site.getId() + " tool=" + tool_id, null);
 
         }
