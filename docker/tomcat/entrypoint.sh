@@ -39,7 +39,7 @@ if [ -f "/opt/tomcat/webapps/library.war" ] ; then
     # Set the portal version based on the sha1 of the library.war
     # we only use a few characters and we don't want very long URLs and the
     # chance of a collision is very low
-    echo "portal.cdn.version=$(shasum /opt/tomcat/webapps/library.war | cut -c1-8)" >> /opt/tomcat/sakai/sakai.properties
+    echo "portal.cdn.version=$(sha1sum /opt/tomcat/webapps/library.war | cut -c1-8)" >> /opt/tomcat/sakai/sakai.properties
 fi
 
 # Setup the jGroups opts
