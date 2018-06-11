@@ -410,7 +410,16 @@ public class SakaiBLTIUtil {
 			setProperty(lti2subst,LTI2Vars.USER_ID,user.getId());
 			if (getInt(tool.get(LTIService.LTI_USEDISPLAYID)) == 1)
 			{
-				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_SOURCEDID, user.getDisplayId());
+				String sourceId = user.getDisplayId();
+				if (getInt(tool.get(LTIService.LTI_APPENDDOMAIN)) == 1)
+				{
+					// This appends the domain to the displayId only if it's from the JLDAP Provider
+					if ("oxford".equals(user.getType()))
+					{
+						sourceId = sourceId + "@ox.ac.uk";
+					}
+				}
+				setProperty(ltiProps, BasicLTIConstants.LIS_PERSON_SOURCEDID, sourceId);
 			}
 			else
 			{
