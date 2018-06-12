@@ -535,8 +535,9 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("siteTitle", rb.getString("sit_mywor") );
 			rcontext.put("siteTitleTruncated", rb.getString("sit_mywor") );
 		}else{
-			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle( site, false, true, providers ));
-			rcontext.put("siteTitleTruncated", portal.getSiteHelper().getUserSpecificSiteTitle( site, true, false, providers ) );
+			rcontext.put("siteTitle", portal.getSiteHelper().getUserSpecificSiteTitle(site, false, true, providers));
+			rcontext.put("siteTitleTruncated", Validator.escapeHtml(portal.getSiteHelper().getUserSpecificSiteTitle(site, true, false, providers)));
+			rcontext.put("isUserSite", false);
 		}
 		
 		addLocale(rcontext, site, session.getUserId());

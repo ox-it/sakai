@@ -81,6 +81,7 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Validator;
 
 /**
  * @author ieb
@@ -456,12 +457,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
-
-		String siteTitleNotTruncated = getUserSpecificSiteTitle( s, false, true, siteProviders );
-		String siteTitleTruncated = getUserSpecificSiteTitle( s, true, true, siteProviders );
-		m.put("siteTitle", siteTitleTruncated);
-		m.put("fullTitle", siteTitleNotTruncated);
-		m.put("siteTitleNotTruncated", siteTitleNotTruncated);
+		
+		String siteTitle = Validator.escapeHtml(getUserSpecificSiteTitle(s, false, false, siteProviders));
+		String siteTitleTruncated = FormattedText.makeShortenedText(siteTitle, null, null, null);
+		m.put("siteTitle", siteTitle);
+		m.put("siteTitleTrunc", siteTitleTruncated);
+		m.put("fullTitle", siteTitle);
 		m.put("siteDescription", s.getHtmlDescription());
 
 		if ( s.getShortDescription() !=null && s.getShortDescription().trim().length()>0 ){
