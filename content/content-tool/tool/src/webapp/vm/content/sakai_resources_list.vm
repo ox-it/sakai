@@ -851,6 +851,11 @@
                         //let bd take care of this hide_button.className = 'enabled';
                 }
                 document.getElementById("hide-count").value = "$counter.getValue("hide")";
+                var zip_button = document.getElementById("zip-button");
+                if(zip_button) {
+                        zip_button.disabled = false;
+                        //let bd take care of this zip_button.className = 'enabled';
+                }
 #### end SAK-23304
 			}
 			else
