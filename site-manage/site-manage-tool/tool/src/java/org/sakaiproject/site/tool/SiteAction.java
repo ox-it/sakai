@@ -166,6 +166,16 @@ import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.util.*;
 // for basiclti integration
+import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.FileItem;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ParameterParser;
+import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SortedIterator;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
 import org.sakaiproject.util.api.LinkMigrationHelper;
 
 
@@ -9610,11 +9620,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			 */
 			if (forward) {
 				if (state.getAttribute(SITE_DUPLICATED) == null) {
-					if (StringUtils.trimToNull(params.getString("title")) == null) {
-						addAlert(state, rb.getString("java.dupli") + " ");
-					} else {
-						String title = params.getString("title");
-						state.setAttribute(SITE_DUPLICATED_NAME, title);
+
+					// duplicated site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
+					String titleOrig = params.getString("title");
+					String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+					if (isSiteTitleValid(titleOrig, titleStripped, state)) {
+						state.setAttribute(SITE_DUPLICATED_NAME, titleStripped);
 
 						String newSiteId = IdManager.createUuid();
 						try {
@@ -9649,7 +9660,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 
 							// set title
-							site.setTitle(title);
+							site.setTitle(titleStripped);
 							
 							// SAK-20797 alter quota if required
 							boolean	duplicateQuota = params.getString("dupequota") != null ? params.getBoolean("dupequota") : false;
@@ -10667,18 +10678,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// title
 		boolean hasRosterAttached = params.getString("hasRosterAttached") != null ? Boolean.getBoolean(params.getString("hasRosterAttached")) : false;
 		if ((siteTitleEditable(state, siteInfo.site_type) || !hasRosterAttached) && params.getString("title") != null) 	 
-		{ 	 
-			// site titel is editable and could not be null
-			String title = StringUtils.trimToNull(params.getString("title"));
-			siteInfo.title = title;
-			
-			if (title == null) { 	 
-				addAlert(state, rb.getString("java.specify") + " "); 	 
-			} 	 
-			// check for site title length 	 
-			else if (title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT) 	 
-			{ 	 
-				addAlert(state, rb.getFormattedMessage("site_group_title_length_limit", new Object[]{SiteConstants.SITE_GROUP_TITLE_LIMIT})); 	 
+		{
+			// site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
+			String titleOrig = params.getString("title");
+			String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+			if (isSiteTitleValid(titleOrig, titleStripped, state)) {
+				siteInfo.title = titleStripped;
 			}
 		}
 				
@@ -15945,5 +15950,29 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		return true; //backwards compatibility
 	}
 
-	
+	/**
+	 * Responsible for checking validation status of the original versus stripped site title, and
+	 * adding necessary error messages to the STATE.
+	 * @param titleOrig the original site title as entered by the user
+	 * @param titleStripped the produce of passing the original string into FormattedText.stripHtmlFromText(titleOrig, true, true);
+	 * @param true if the stripped title passes all validation; false otherwise
+	 */
+	private boolean isSiteTitleValid(String titleOrig, String titleStripped, SessionState state) {
+		SiteTitleValidationStatus status = SiteService.validateSiteTitle(titleOrig, titleStripped);
+
+		if (null != status) switch(status)
+		{
+			case STRIPPED_TO_EMPTY:
+				addAlert(state, rb.getString("siteTitle.htmlStrippedToEmpty"));
+				return false;
+			case EMPTY:
+				addAlert(state, rb.getString("java.specify"));
+				return false;
+			case TOO_LONG:
+				addAlert(state, rb.getFormattedMessage("site_group_title_length_limit", new Object[] {SiteConstants.SITE_GROUP_TITLE_LIMIT}));
+				return false;
+		}
+
+		return true;
+	}
 }

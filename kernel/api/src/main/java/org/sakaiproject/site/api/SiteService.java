@@ -1410,4 +1410,27 @@ public interface SiteService extends EntityProducer
 	 * Use this only when making very minimal changes in performance critical tasks.
 	 */
 	public void saveSitePropertyOnSites(String[] siteIds, String propertyName, String propertyValue);
-} 
+
+	/**
+	 * Defines the maximum character length of a site title.
+	 */
+	public static final int SITE_TITLE_MAX_LENGTH = 99;
+
+	/**
+	 * Defines the possible results which can be returned from the {@link validateSiteTitle()} method.
+	 */
+	public enum SiteTitleValidationStatus {
+		OK,
+		TOO_LONG,
+		EMPTY,
+		STRIPPED_TO_EMPTY
+	}
+
+	/**
+	 * Given the original and stripped site titles, determine that validation status of the stripped string.
+	 * @param orig the original, unaltered text as input by the user
+	 * @param stripped the HTML stripped text, produced by passing the original text through FormattedText.stripHtmlFromText(text, true, true).
+	 * @return {@link SiteTitleValidationStatus}
+	 */
+	public SiteTitleValidationStatus validateSiteTitle(String orig, String stripped);
+}

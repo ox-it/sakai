@@ -67,6 +67,11 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
+	public SiteTitleValidationStatus validateSiteTitle(String orig, String stripped) {
+		return null;
+	}
+
+	@Override
 	public boolean willArchiveMerge() {
 		// TODO Auto-generated method stub
 		return false;

@@ -28,9 +28,9 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import org.apache.commons.lang.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +67,8 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import static org.sakaiproject.site.api.SiteService.SITE_TITLE_MAX_LENGTH;
+import org.sakaiproject.site.api.SiteService.SiteTitleValidationStatus;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
@@ -77,6 +79,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -1366,11 +1369,10 @@ public class AdminSitesAction extends PagedResourceActionII
 	private boolean readSiteForm(RunData data, SessionState state)
 	{
 		// read the form
-		String id = StringUtil.trimToNull(data.getParameters().getString("id"));
-		String title = StringUtil.trimToNull(data.getParameters().getString("title"));
-		String type = StringUtil.trimToNull(data.getParameters().getString("type"));
-		String shortDescription = StringUtil.trimToNull(data.getParameters().getString("shortDescription"));
-		String description = StringUtil.trimToNull(data.getParameters().getString("description"));
+		String id = StringUtils.trimToNull(data.getParameters().getString("id"));
+		String type = StringUtils.trimToNull(data.getParameters().getString("type"));
+		String shortDescription = StringUtils.trimToNull(data.getParameters().getString("shortDescription"));
+		String description = StringUtils.trimToNull(data.getParameters().getString("description"));
 		boolean joinable = data.getParameters().getBoolean("joinable");
 		String joinerRole = StringUtil.trimToNull(data.getParameters().getString("joinerRole"));
 		String icon = StringUtil.trimToNull(data.getParameters().getString("icon"));
@@ -1380,6 +1382,22 @@ public class AdminSitesAction extends PagedResourceActionII
 		String skin = StringUtil.trimToNull(data.getParameters().getString("skin"));
 		boolean pubView = data.getParameters().getBoolean("pubView");
 		boolean customOrder = data.getParameters().getBoolean("customOrder");
+
+		// Site title is editable; cannot but null/empty after HTML stripping, and cannot exceed max length
+		String titleOrig = data.getParameters().getString("title");
+		String titleStripped = FormattedText.stripHtmlFromText(titleOrig, true, true);
+		SiteTitleValidationStatus status = SiteService.validateSiteTitle(titleOrig, titleStripped);
+
+		if (SiteTitleValidationStatus.STRIPPED_TO_EMPTY.equals(status)) {
+			addAlert(state, rb.getString("siteTitle.htmlStrippedToEmpty"));
+			return false;
+		} else if (SiteTitleValidationStatus.EMPTY.equals(status)) {
+			addAlert(state, rb.getString("siteTitle.Empty"));
+			return false;
+		} else if (SiteTitleValidationStatus.TOO_LONG.equals(status)) {
+			addAlert(state, rb.getFormattedMessage("siteTitle.maxLength", new Object[]{SITE_TITLE_MAX_LENGTH}));
+			return false;
+		}
 
 		// get the site
 		Site site = (Site) state.getAttribute("site");
@@ -1470,7 +1488,7 @@ public class AdminSitesAction extends PagedResourceActionII
 				}
 			}
 
-			site.setTitle(title);
+			site.setTitle(titleStripped);
 			site.setShortDescription(shortDescription);
 			site.setDescription(description);
 			site.setJoinable(joinable);
