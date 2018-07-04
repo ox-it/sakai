@@ -1404,9 +1404,9 @@ public class SimplePageBean {
 			mimeType = null; // use default rules if we can't find it
 			String url = null;
 			// part 1, fix up the type fields
-			boolean pushed = false;
+			SecurityAdvisor editUrlAdvisor = null;
 			try {
-				pushed = pushAdvisor();
+				editUrlAdvisor = pushAdvisor();
 				ContentResourceEdit res = contentHostingService.editResource(id);
 				res.setContentType("text/url");
 				res.setResourceType("org.sakaiproject.content.types.urlResource");
@@ -1415,7 +1415,7 @@ public class SimplePageBean {
 			} catch (Exception ignore) {
 				return "no-reference";
 			}finally {
-				if(pushed) popAdvisor();
+				popAdvisor(editUrlAdvisor);
 			}
 			// part 2, find the actual data type.
 			if (url != null)
@@ -1423,22 +1423,22 @@ public class SimplePageBean {
 		} else if (isCaption) {
 			// sakai probably sees it as a normal text file.
 			// some browsers require the mime type to be right
-			boolean pushed = false;
+			SecurityAdvisor editAdvisor = null;
 			try {
-				pushed = pushAdvisor();
+				editAdvisor = pushAdvisor();
 				ContentResourceEdit res = contentHostingService.editResource(id);
 				res.setContentType("text/vtt");
 				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 			} catch (Exception ignore) {
 				return "no-reference";
 			}finally {
-				if(pushed) popAdvisor();
+				popAdvisor(editAdvisor);
 			}
-		}boolean pushed = false;
+		}
+
 		try {
 		    // I don't think we want the user adding anything he doesn't have access to
 		    // accessservice depends upon that
-		    //	pushed = pushAdvisor();
 			contentHostingService.checkResource(id);
 		} catch (PermissionException e) {
 			return "permission-exception";
@@ -1448,9 +1448,6 @@ public class SimplePageBean {
 		} catch (TypeException e) {
 			return "type-exception";
 		}
-		// }finally {
-		//   if(pushed) popAdvisor();
-		//}
 
 		String[] split = id.split("/");
 
@@ -1521,7 +1518,7 @@ public class SimplePageBean {
 	private ContentResource getContentResource(String id)
 	{
 		ContentResource res = null;
-		boolean pushed = false;
+		SecurityAdvisor pushed = null;
 		try
 		{
 			pushed = pushAdvisor();
@@ -1541,10 +1538,7 @@ public class SimplePageBean {
 		}
 		finally
 		{
-			if (pushed)
-			{
-				popAdvisor();
-			}
+			popAdvisor(pushed);
 		}
 		
 		return res;
@@ -3436,12 +3430,13 @@ public class SimplePageBean {
 
 	   // only here for object types with underlying entities
 	   boolean exists = false;
+	   SecurityAdvisor sa = null;
 	   try {
-	       pushAdvisorAlways();  // assignments won't let the student look
+	       sa = pushAdvisorAlways();  // assignments won't let the student look
 	       if (entity != null)
 		   exists = entity.objectExists();
 	   } finally {
-	       popAdvisor();
+	       popAdvisor(sa);
 	   }
 
 	   if (!exists) {
@@ -3473,11 +3468,12 @@ public class SimplePageBean {
 		   ;  // leave ret as an empty list
 	   } else {
 	       // not under our control, use list from tool
-	       try {
-		   pushAdvisorAlways();
+		   SecurityAdvisor advisor = null;
+		   try {
+		   advisor = pushAdvisorAlways();
 		   ret = entity.getGroups(nocache); // assignments won't let a student see
 	       } finally {
-		   popAdvisor();
+		   popAdvisor(advisor);
 	       }
 	   }
 
@@ -3507,15 +3503,7 @@ public class SimplePageBean {
 	       // so the advisor will cause the wrong answer
 	   	   boolean inheritingPubView =  contentHostingService.isInheritingPubView(i.getSakaiId());
 
-  	   	  // for isItemVisible to work, users need to be able to get this all the time
-                   //if(getCurrentPage().getOwner() != null) {
-    			   advisor = new SecurityAdvisor() {
-						public SecurityAdvice isAllowed(String userId, String function, String reference) {
-							return SecurityAdvice.ALLOWED;
-						}
-					};
-					securityService.pushAdvisor(advisor);
-		   //   }
+	   	   advisor = pushAdvisorAlways();
     	   
     		   Collection<String> ret = null;
 
@@ -3563,7 +3551,7 @@ public class SimplePageBean {
     		   
     		   return ret;
     	   }finally {
-	       if(advisor != null) securityService.popAdvisor();
+			   popAdvisor(advisor);
     	   }
        }
 
@@ -3671,9 +3659,9 @@ public class SimplePageBean {
 	   ContentResourceEdit resource = null;
 	   List<String>ret = null;
 
-	   boolean pushed = false;
+	   SecurityAdvisor pushedAdvisor = null;
 	   try {
-		   pushed = pushAdvisor();
+		   pushedAdvisor = pushAdvisor();
 	       resource = contentHostingService.editResource(i.getSakaiId());
 
 	       if (AccessMode.GROUPED.equals(resource.getInheritedAccess())) {
@@ -3714,7 +3702,7 @@ public class SimplePageBean {
 	       if (resource != null) {
 		   contentHostingService.cancelResource(resource);
 	       }
-	       if(pushed) popAdvisor();
+	       popAdvisor(pushedAdvisor);
 	   }
 
 	   return ret;
@@ -4057,11 +4045,10 @@ public class SimplePageBean {
 		}
 
 		if (pageTitle != null && pageItem.getPageId() == 0) {
-			try {
 				// we need a security advisor because we're allowing users to edit the page if they
 				// have
 				// simplepage.upd privileges, but site.save requires site.upd.
-				securityService.pushAdvisor(new SecurityAdvisor() {
+				SecurityAdvisor siteUpdAdvisor = new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
 						if (function.equals(SITE_UPD) && reference.equals("/site/" + getCurrentSiteId())) {
 							return SecurityAdvice.ALLOWED;
@@ -4069,7 +4056,10 @@ public class SimplePageBean {
 							return SecurityAdvice.PASS;
 						}
 					}
-				});
+				};
+
+				try {
+				securityService.pushAdvisor(siteUpdAdvisor);
 
 				SitePage sitePage = site.getPage(page.getToolId());
 					
@@ -4099,7 +4089,7 @@ public class SimplePageBean {
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				securityService.popAdvisor();
+				securityService.popAdvisor(siteUpdAdvisor);
 			}
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
@@ -4825,10 +4815,9 @@ public class SimplePageBean {
 		}
 
 		Collection<String>itemGroups = null;
-		boolean pushed = false;
+		SecurityAdvisor advisor = null;
 		try {
-		    pushAdvisorAlways();
-		    pushed = true;
+		    advisor = pushAdvisorAlways();
 		    LessonEntity entity = null;
 		    if (!canSeeAll()) {
 			switch (item.getType()) {
@@ -4853,15 +4842,14 @@ public class SimplePageBean {
 				return false;
 			}
 		    }
-		    popAdvisor();
-		    pushed = false;
+		    popAdvisor(advisor);
 		    // entity can be null. passing the actual entity just avoids a second lookup
 		    itemGroups = getItemGroups(item, entity, false);
 		} catch (IdUnusedException exc) {
 		    visibleCache.put(item.getId(), false);
 		    return false; // underlying entity missing, don't show it
 		} finally {
-		    if (pushed) popAdvisor();
+		     if(advisor != null) securityService.popAdvisor(advisor);
 		}
 		if (itemGroups == null || itemGroups.size() == 0) {
 		    // this includes items for which for which visibility doesn't apply
@@ -5927,14 +5915,7 @@ public class SimplePageBean {
 
 		SecurityAdvisor advisor = null;
 		try {
-			if(getCurrentPage().getOwner() != null) {
-				advisor = new SecurityAdvisor() {
-					public SecurityAdvice isAllowed(String userId, String function, String reference) {
-							return SecurityAdvice.ALLOWED;
-					}
-				};
-				securityService.pushAdvisor(advisor);
-			}
+			advisor = pushAdvisor();
 			if (!itemOk(itemId))
 				return;
 			if (!canEditPage())
@@ -5966,7 +5947,7 @@ public class SimplePageBean {
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		} finally {
-			if(advisor != null) securityService.popAdvisor();
+			popAdvisor(advisor);
 		}
 		
 	}
@@ -6935,29 +6916,35 @@ public class SimplePageBean {
 		return map;
 	}
 	
-	private void pushAdvisorAlways() {
-	    securityService.pushAdvisor(new SecurityAdvisor() {
+	private SecurityAdvisor pushAdvisorAlways() {
+	    SecurityAdvisor alwaysAdvisor = new SecurityAdvisor() {
 		    public SecurityAdvice isAllowed(String userId, String function, String reference) {
 			return SecurityAdvice.ALLOWED;
 		    }
-		});
+		};
+		securityService.pushAdvisor(alwaysAdvisor);
+		return alwaysAdvisor;
 	}
 
-	private boolean pushAdvisor() {
+	private SecurityAdvisor pushAdvisor() {
 		if(getCurrentPage().getOwner() != null) {
-			securityService.pushAdvisor(new SecurityAdvisor() {
+			SecurityAdvisor studentAdvisor = new SecurityAdvisor() {
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
 					return SecurityAdvice.ALLOWED;
 				}
-			});
-			return true;
+			};
+			securityService.pushAdvisor(studentAdvisor);
+			return studentAdvisor;
 		}else {
-			return false;
+			return null;
 		}
 	}
 	
-	private void popAdvisor() {
-		securityService.popAdvisor();
+	private void popAdvisor(SecurityAdvisor sa) {
+		// If pushAdvisor() was called on a non-student page, this SecurityAdvisor will be null
+		if (sa != null) {
+			securityService.popAdvisor(sa);
+		}
 	}
 	
 	public void setAddAnswerData(String data) {
