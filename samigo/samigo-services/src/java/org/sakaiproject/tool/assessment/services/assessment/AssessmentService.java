@@ -42,14 +42,9 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentTemplateData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
@@ -874,7 +869,7 @@ public class AssessmentService {
 		} catch (Exception e) {
 			log.warn("Could not copy resource " + resourceId + ", " + e.getMessage());
 		} finally{
-			securityService.popAdvisor();
+			securityService.popAdvisor(securityAdvisor);
 		}
 		return cr_copy;
 	}
@@ -1131,7 +1126,7 @@ public class AssessmentService {
 						log.error(e.getMessage());
 					}
 					finally{
-						securityService.popAdvisor();
+						securityService.popAdvisor(securityAdvisor);
 					}
 				}
 			}

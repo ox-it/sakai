@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -503,9 +502,11 @@ public class QuestionPoolServiceImpl
 					  addToReport("\nCould NOT copy old attachment "+attachment+" to new attachment in site "+contextToReplace+" .\n\n");
 					  e2.printStackTrace();
 				  }
+				  finally
+				  {
+					  SecurityService.popAdvisor();
+				  }
 			  }
-
-			  SecurityService.popAdvisor();
 		  }
 		  return attachment;
 	  }
