@@ -1997,7 +1997,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			Map<String,Object> content = ltiService.getContent(contentKey, getSiteId(state));
 			if ( content != null ) {
 				contentUrl = ltiService.getContentLaunch(content);
-				if ( contentUrl != null && contentUrl.startsWith("/") ) contentUrl = SakaiBLTIUtil.getOurServerUrl() + contentUrl;
 			}
                         if ( contentUrl == null ) {
                                 M_log.error("Unable to get launch url from contentitem content="+contentKey);
