@@ -161,7 +161,7 @@ public class LtiImportItemProducer implements ViewComponentProducer, NavigationC
 		}
 
 		// We are not in the pop-up iframe, create a list of  tools registered as importers
-		List<Map<String, Object>> toolsImportItem = ltiService.getToolsImportItem();
+		List<Map<String, Object>> toolsImportItem = ltiService.getToolsImportItem(simplePageBean.getCurrentSiteId());
 		if ( toolsImportItem.size() < 1 ) {
 			UIOutput.make(tofill, "error-div");
 			UIBranchContainer er = UIBranchContainer.make(tofill, "errors:");
