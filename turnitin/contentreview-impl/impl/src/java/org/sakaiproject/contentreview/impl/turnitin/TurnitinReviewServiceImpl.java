@@ -717,28 +717,27 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
         /**
     * Return the Gradebook item associated with an assignment.
     * @param data Map containing Site/Assignment IDs
-    * @return Associated gradebook item
+    * @return Associated gradebook item or null if it can't be found.
     */
-        public Assignment getAssociatedGbItem(Map data){
+        public Assignment getAssociatedGbItem(Map data) {
             Assignment assignment = null;
             String taskId = data.get("taskId").toString();
             String siteId = data.get("siteId").toString();
             String taskTitle = data.get("taskTitle").toString();
 
-            pushAdvisor();
+            SecurityAdvisor advisor = pushAdvisor();
             try {
                 List<Assignment> allGbItems = gradebookService.getAssignments(siteId);
                 for (Assignment assign : allGbItems) {
-                        //Match based on External ID / Assignment title
-                        if(taskId.equals(assign.getExternalId()) || assign.getName().equals(taskTitle) ){
-                            assignment = assign;
-                            break;
-                        }
+                    //Match based on External ID / Assignment title
+                    if (taskId.equals(assign.getExternalId()) || assign.getName().equals(taskTitle)) {
+                        assignment = assign;
+                        break;
+                    }
                 }
-            } catch (Exception e) {
-                    log.error("(allGbItems)"+e.toString());
+            } catch (GradebookNotFoundException ignore) {
             } finally{
-                popAdvisor();
+                popAdvisor(advisor);
             }
             return assignment;
         }
@@ -750,13 +749,14 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
         public void syncGrades(Map<String,Object>data){
                 //Get session and check if gardes have already been synced
                 Session sess = sessionManager.getCurrentSession();
-                boolean runOnce=gradesChecked(sess, data.get("taskId").toString());
+                boolean runOnce = gradesChecked(sess, data.get("taskId").toString());
                 boolean isStudent = isUserStudent(data.get("siteId").toString(), sess.getUserId());
+                String siteId = data.get("siteId").toString();
 
-                if(turnitinConn.getUseGradeMark() && runOnce == false && isStudent == false){
+                if(turnitinConn.getUseGradeMark() && gradebookService.isGradebookDefined(siteId)
+                        && !runOnce && !isStudent){
                     log.info("Syncing Grades with Turnitin");
 
-                    String siteId = data.get("siteId").toString();
                     String taskId = data.get("taskId").toString();
 
                     HashMap<String, Integer> reportTable = new HashMap<String, Integer>();
@@ -775,12 +775,17 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
                     //Get students enrolled on class in Turnitin
                     Map<String,Object> enrollmentInfo = getAllEnrollmentInfo(siteId);
 
-                    //Get Associated GB item
-                    Assignment assignment = getAssociatedGbItem(data);
+                    try {
+                        //Get Associated GB item
+                        Assignment assignment = getAssociatedGbItem(data);
+                        if (assignment == null) {
+                            log.warn("Failed to find assignment for site: "+ siteId);
+                            return;
+                        }
 
-                    //List submissions call
-                    Map params = new HashMap();
-                    params = TurnitinAPIUtil.packMap(turnitinConn.getBaseTIIOptions(),
+                        //List submissions call
+                        Map params = new HashMap();
+                        params = TurnitinAPIUtil.packMap(turnitinConn.getBaseTIIOptions(),
                                 "fid", "10",
                                 "fcmd", "2",
                                 "tem", getTEM(siteId),
@@ -789,45 +794,45 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
                                 "cid", siteId,
                                 "ctl", siteId,
                                 "utp", "2"
-                    );
-                    params.putAll(getInstructorInfo(siteId));
+                        );
+                        params.putAll(getInstructorInfo(siteId));
 
-                    Document document = null;
-                    try {
-                            document = turnitinConn.callTurnitinReturnDocument(params);
+                        Document document = null;
+                        document = turnitinConn.callTurnitinReturnDocument(params);
+
+                        Element root = document.getDocumentElement();
+                        if (((CharacterData) (root.getElementsByTagName("rcode").item(0).getFirstChild())).getData().trim().compareTo("72") == 0) {
+                            NodeList objects = root.getElementsByTagName("object");
+                            String grade = "";
+                            log.debug(objects.getLength() + " objects in the returned list");
+
+                            for (int i = 0; i < objects.getLength(); i++) {
+                                tiiUserId = ((CharacterData) (((Element) (objects.item(i))).getElementsByTagName("userid").item(0).getFirstChild())).getData().trim();
+                                additionalData.put("tiiUserId", tiiUserId);
+                                //Get GradeMark Grade
+                                try {
+                                    grade = ((CharacterData) (((Element) (objects.item(i))).getElementsByTagName("score").item(0).getFirstChild())).getData().trim();
+                                    reportTable.put("grade" + tiiUserId, Integer.valueOf(grade));
+                                } catch (Exception e) {
+                                    //No score returned
+                                    grade = "";
+                                }
+
+                                if (!grade.equals("")) {
+                                    //Update Grade ----------------
+                                    writeGrade(assignment, data, reportTable, additionalData, enrollmentInfo);
+                                }
+                            }
+                        } else {
+                            log.debug("Report list request not successful");
+                            log.debug(document.getTextContent());
+                        }
+                    } catch (GradebookNotFoundException e) {
+                        log.warn("Failed to find gradebook for site: "+ e.getMessage());
                     }catch (TransientSubmissionException e) {
                         log.error(e);
                     }catch (SubmissionException e) {
                         log.warn("SubmissionException error. "+e);
-                    }
-                    Element root = document.getDocumentElement();
-                    if (((CharacterData) (root.getElementsByTagName("rcode").item(0).getFirstChild())).getData().trim().compareTo("72") == 0) {
-                            NodeList objects = root.getElementsByTagName("object");
-                            String grade="";
-                            log.debug(objects.getLength() + " objects in the returned list");
-
-                            for (int i=0; i<objects.getLength(); i++) {
-                                    tiiUserId = ((CharacterData) (((Element)(objects.item(i))).getElementsByTagName("userid").item(0).getFirstChild())).getData().trim();
-                                    additionalData.put("tiiUserId",tiiUserId);
-                                    //Get GradeMark Grade
-                                    try{
-                                        grade = ((CharacterData) (((Element)(objects.item(i))).getElementsByTagName("score").item(0).getFirstChild())).getData().trim();
-                                        reportTable.put("grade"+tiiUserId, Integer.valueOf(grade));
-                                    } catch(Exception e){
-                                        //No score returned
-                                        grade="";
-                                    }
-
-                                    if(!grade.equals("")){
-                                        //Update Grade ----------------
-                                        if(gradebookService.isGradebookDefined(siteId)){
-                                            writeGrade(assignment,data,reportTable,additionalData,enrollmentInfo);
-                                        }
-                                    }
-                            }
-                    } else {
-                            log.debug("Report list request not successful");
-                            log.debug(document.getTextContent());
                     }
                 }
             }
@@ -889,7 +894,7 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
             //If so then set to the maximum grade
             grade = processGrade(reportTable.get("grade"+currentStudentUserId).toString(),assignment);
 
-            pushAdvisor();
+            SecurityAdvisor advisor = pushAdvisor();
             try {
                         if(grade!=null){
                                 try{
@@ -909,7 +914,7 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
             } catch (Exception e) {
                 log.error("Error setting grade "+e.toString());
             } finally {
-                    popAdvisor();
+                popAdvisor(advisor);
             }
             return success;
         }
@@ -962,17 +967,15 @@ public class TurnitinReviewServiceImpl extends BaseReviewServiceImpl {
                 return enrollmentInfo;
         }
 
-         public void pushAdvisor() {
-                securityService.pushAdvisor(new SecurityAdvisor() {
-                        
-                        public SecurityAdvisor.SecurityAdvice isAllowed(String userId, String function,
-                                String reference) {
-                                return SecurityAdvisor.SecurityAdvice.ALLOWED;
-                        }
-                });
+        public SecurityAdvisor pushAdvisor() {
+             SecurityAdvisor advisor = (userId, function, reference) -> SecurityAdvisor.SecurityAdvice.ALLOWED;
+             securityService.pushAdvisor(advisor);
+             return advisor;
         }
-        public void popAdvisor() {
-                securityService.popAdvisor();
+
+
+        public void popAdvisor(SecurityAdvisor advisor) {
+                securityService.popAdvisor(advisor);
         }
 	/**
 	 * private methods
