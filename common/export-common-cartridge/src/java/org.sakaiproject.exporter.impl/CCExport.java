@@ -1,12 +1,9 @@
 package org.sakaiproject.exporter.impl;
 
 import java.io.*;
-import java.util.Map;
-import java.util.HashMap;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.zip.ZipEntry;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -25,6 +22,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.util.Validator;
 
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
@@ -44,50 +42,7 @@ public class CCExport {
 	private List<String> selectedFiles;
 	private org.sakaiproject.content.api.ContentHostingService contentService;
 
-	boolean doBank = false;
-
-	class Resource {
-		String sakaiId;
-		String resourceId;
-		String location;
-		String use;
-		String title;
-		String contentType;
-		String url;
-		boolean isbank;
-		String filename;
-		boolean isHtml;
-		Set<String> dependencies;
-		private ContentResource cr;
-		void  setContentResource(ContentResource cr) {this.cr = cr;} 
-		ContentResource getContentResource() {return cr;}
-	
-	}
-
-	// map of all file resource to be included in cartridge
-	Map<String, Resource> fileMap = new HashMap<String, Resource>();
-	Map<Long, Resource> poolMap = new HashMap<Long, Resource>();
-	Resource samigoBank = null;
-
-	// the error messages are a problem. They won't show until the next page display
-	// however errrors at this level are unusual, and we interrupt the download, so the
-	// user should never see an incomplete one. Most common errors have to do with
-	// problems converting for CC format. Those go into a log file that's included in
-	// the ZIP, so the user will see those errors (if he knows the look)
-
-	public static void setErrMessage(String s) {
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		if (toolSession == null) {
-			log.error("Error in export-common-cartridge: CCExport " + s);
-			return;
-		}
-		List<String> errors = (List<String>)toolSession.getAttribute("export-common-cartridge.errors");
-		if (errors == null)
-			errors = new ArrayList<String>();
-		errors.add(s);
-		toolSession.setAttribute("export-common-cartridge.errors", errors);
-	}
-
+	List<ContentResource> selectedFilesToExport = new ArrayList<>();
 
 	public void doExport(String siteId, List<String> selectedFolderIds, List<String> selectedFiles, HttpServletResponse httpServletResponse) {
 		this.siteId = siteId;
@@ -100,16 +55,15 @@ public class CCExport {
 			return;
 		if (! findSelectedFiles())
 			return;
-		
+
 		try (OutputStream htmlOut = response.getOutputStream(); ZipPrintStream out = new ZipPrintStream(htmlOut)){
 			response.setHeader("Content-disposition", "inline; filename=sakai-export.imscc");
 			response.setContentType("application/zip");
 
 			outputSelectedFiles (out);
 			outputCourseSettingsFiles(out);
-			outputModuleSettingsFiles(out);
-			
-			
+			// Module not required for now.
+			// outputModuleSettingsFiles(out);
 			outputManifest (out);
 			out.close();
 		} catch (IOException ioe) {
@@ -137,80 +91,18 @@ public class CCExport {
 		return true;
 	}
 
-	String getResourceId () {
-       	return "res" + (nextid++);
-    }
-
-	String getResourceIdPeek () {
-       	return "res" + nextid;
-    }
-
-	public void setIntendeduse (String sakaiId, String intendeduse) {
-		Resource ref = fileMap.get(sakaiId);
-		if (ref == null)
-			return;
-		ref.use = intendeduse;
-	}
-
-	String getLocation(String sakaiId) {
-		Resource ref = fileMap.get(sakaiId);
-		if (ref == null)
-			return null;
-		return ref.location;
-	}
-
-	public Resource addSelectedFile(ContentResource contentResource, String location) {
-		return addSelectedFile(contentResource, location, null);
-	}
-
-	public Resource addSelectedFile(ContentResource contentResource, String location, String use) {
-		Resource res = new Resource();
-		res.sakaiId = contentResource.getId();
-		res.resourceId = getResourceId();
-		res.location = location;
-		res.dependencies = new HashSet<String>();
-		res.use = use;
-		res.contentType = contentResource.getContentType();
-		res.isbank = false;
-		res.cr = contentResource;
-
-		// Work out the filename, filetype and see if this is HTML. If so, we need to scan it.
-		String filepath = contentResource.getId();
-		int lastdot = filepath.lastIndexOf(".");
-		int lastslash = filepath.lastIndexOf("/");
-		String extension = "";
-		if (lastdot >= 0 && lastdot > lastslash)
-			extension = filepath.substring(lastdot + 1);
-
-		// update the resource map entry with the filename.
-		res.filename = filepath.substring(lastslash + 1);
-
-		String mimeType = null;
-		mimeType = contentResource.getContentType();
-		boolean isHtml = false;
-		if (mimeType != null && (mimeType.startsWith("http") || mimeType.equals("")))
-			mimeType = null;
-		if (mimeType != null && (mimeType.equals("text/html") || mimeType.equals("application/xhtml+xml"))
-				|| mimeType == null && (extension.equals("html") || extension.equals("htm"))) {
-			isHtml = true;
-		}
-		res.isHtml = isHtml;
-		fileMap.put(contentResource.getId(), res);
-		return res;
-	}
-
 	private boolean findSelectedFiles() {
 		try {
 			if (selectedFolderIds.size() > 0) {
 				for (String selectedFolder : selectedFolderIds) {
 					List<ContentResource> folderContents = contentService.getAllResources(selectedFolder);
 					for (ContentResource folderFile: folderContents) {
-						addSelectedFile(folderFile, folderFile.getId());
+						selectedFilesToExport.add(folderFile);
 					}
 				}
 			}
 			for (String selectedFile : selectedFiles) {
-				addSelectedFile(contentService.getResource(selectedFile), selectedFile);
+				selectedFilesToExport.add(contentService.getResource(selectedFile));
 			}
 		} catch (PermissionException pe) {
 			log.error("export-common-cartridge permission error finding selected files" + pe);
@@ -229,37 +121,40 @@ public class CCExport {
 	}
 
 	public boolean outputSelectedFiles (ZipPrintStream out) {
-		for (Map.Entry<String, Resource> entry : fileMap.entrySet()) {
-			Resource resource = entry.getValue();
-
+		for (ContentResource contentResource: selectedFilesToExport) {
 			ZipEntry zipEntry;
 
-			if (resource.isHtml) {
-				zipEntry = new ZipEntry("wiki_content/" + resource.filename);
+			// Includes the file path and name, starting with /
+			String filename = getFileName(contentResource, true);
+
+			// Files that are HTML or XHTML should be put in the pages area in Canvas so that they can be edited,
+			// to do this add to the wiki-content area and put the appropriate entry in the manifest file.
+			// Files in Pages must be in a flat file structure regardless of where they are in resources.
+			// Files in web_resources will end up in Files and cannot be edited.  They can be in the same file structure as resources.
+			if (hasMarkUp(contentResource.getContentType())) {
+				zipEntry = new ZipEntry("wiki_content/" + filename);
 			} else {
-				zipEntry = new ZipEntry("web_resources/" + resource.filename);
+				zipEntry = new ZipEntry("web_resources/" + getFilePath(contentResource, false) + filename);
 			}
 
-			zipEntry.setSize(resource.getContentResource().getContentLength());
+			zipEntry.setSize(contentResource.getContentLength());
 
-			try (InputStream contentStream = resource.getContentResource().streamContent()) {
+			try (InputStream contentStream = contentResource.streamContent()) {
 
 				out.putNextEntry(zipEntry);
-				if (resource.isHtml) {
-					// treat html separately. Need to convert urls to relative
+				if (hasMarkUp(contentResource.getContentType())) {
+					// treat html/xhtml separately. Need to convert urls to relative urls.
 					String content = null;
 
-					content = new String(resource.getContentResource().getContent());
-
-					// relFixup needs work
-					content = relFixup(content, entry.getValue());
+					content = new String(contentResource.getContent());
+					content = relFixup(content, contentResource);
 
 					//  add in HTML header and footer
 					out.println("<html>");
 					out.println("<head>");
 					out.println("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>");
-					out.println("  <title>" + StringEscapeUtils.escapeXml(resource.filename.substring(0, resource.filename.indexOf('.')))+ "</title>");
-					out.println("  <meta name=\"identifier\" content=\"" + entry.getValue().resourceId + "\"/>");
+					out.println("  <title>" + StringEscapeUtils.escapeXml(filename) + "</title>");
+					out.println("  <meta name=\"identifier\" content=\"" + getResourceId() + "\"/>");
 
 					out.println("  <meta name=\"editing_roles\" content=\"teachers\"/>");
 					out.println("  <meta name=\"workflow_state\" content=\"unpublished\"/>");
@@ -284,21 +179,6 @@ public class CCExport {
 		}
 		return true;
 	}
-
-	public String removeDotDot(String s) {
-		while (true) {
-			int i = s.indexOf("/../");
-			if (i < 1)
-				return s;
-			int j = s.lastIndexOf("/", i-1);
-			if (j < 0)
-				j = 0;
-			else
-			j = j + 1;
-			s = s.substring(0, j) + s.substring(i+4);
-		}
-	}
-
 
 	public boolean outputCourseSettingsFiles(ZipPrintStream out) {
 		try {
@@ -335,11 +215,11 @@ public class CCExport {
 			out.println("  <root_account_uuid>5kBHQyhv7XPtbq84g8Y4KYbyHmrS7odURR6NriBv</root_account_uuid>");
 			out.println("</course>");
 			out.closeEntry();
-			
+
 			zipEntry = new ZipEntry("course_settings/canvas_export.txt");
 			out.putNextEntry(zipEntry);
-			out.println("some Canvas rubbish");
-			
+			out.println("Required so that common cartridge import into Canvas Pages and Files works.");
+
 			out.closeEntry();
 		} catch (IOException ioe) {
 			log.error("export-common-cartridge IO exception outputing course settings files" + ioe);
@@ -354,7 +234,7 @@ public class CCExport {
 		try {
 			ZipEntry zipEntry = new ZipEntry("course_settings/module_meta.xml");
 			out.putNextEntry(zipEntry);
-			
+
 			out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			out.println("<modules xmlns=\"http://canvas.instructure.com/xsd/cccv1p0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://canvas.instructure.com/xsd/cccv1p0 https://canvas.instructure.com/xsd/cccv1p0.xsd\">");
 			out.println("<module identifier=\"tocomplete\">");
@@ -385,15 +265,15 @@ public class CCExport {
 			Site site = null;
 			site = SiteService.getSite(siteId);
 			title = site.getTitle();
-		} catch (Exception impossible) {
+		} catch (IdUnusedException impossible) {
 			// impossible, one hopes
 		}
-	
+
 		try {
 			ZipEntry zipEntry = new ZipEntry("imsmanifest.xml");
 			out.putNextEntry(zipEntry);
 			out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	
+
 			out.println("<manifest identifier=\"i65d048afc30bea25ed17ce5063f901f6\"");
 			out.println(" xmlns=\"http://www.imsglobal.org/xsd/imsccv1p1/imscp_v1p1\"");
 			out.println(" xmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p1/LOM/resource\"");
@@ -414,7 +294,7 @@ public class CCExport {
 			out.println("          <lomimscc:string>" + StringEscapeUtils.escapeXml(title) + "</lomimscc:string>");
 			out.println("        </lomimscc:title>");
 			out.println("      </lomimscc:general>");
-			out.println("      <lomimscc:lifeCycle>"); 
+			out.println("      <lomimscc:lifeCycle>");
 			out.println("        <lomimscc:contribute>");
 			out.println("          <lomimscc:date>");
 			out.println("            <lomimscc:dateTime>2018-06-11</lomimscc:dateTime>");
@@ -431,55 +311,35 @@ public class CCExport {
 			out.println("      </lomimscc:rights>");
 			out.println("    </lomimscc:lom>");
 			out.println("  </metadata>");
-	
-			out.println("  <organizations>");
-			out.println("    <organization identifier=\"org_1\" structure=\"rooted-hierarchy\">");
-			out.println("      <item identifier=\"LearningModules\"><item identifier=\"tocomplete\"><title>First module</title></item></item>");
-			out.println("    </organization>");
-			out.println("  </organizations>");
-	
-			String qtiid = null;
-			String bankid = null;
-			String topicid = null;
-			String linkid = null;
-			String usestr = "";
-	
-			qtiid = "imsqti_xmlv1p2/imscc_xmlv1p3/assessment";
-			bankid = "imsqti_xmlv1p2/imscc_xmlv1p3/question-bank";
-			topicid = "imsdt_xmlv1p3";
-			linkid = "imswl_xmlv1p3";
-			usestr = " intendeduse=\"assignment\"";
-	
+			// Module not required for now.
+//			out.println("  <organizations>");
+//			out.println("    <organization identifier=\"org_1\" structure=\"rooted-hierarchy\">");
+//			out.println("      <item identifier=\"LearningModules\"><item identifier=\"tocomplete\"><title>First module</title></item></item>");
+//			out.println("    </organization>");
+//			out.println("  </organizations>");
+
 			out.println("  <resources>");
 			out.println("    <resource identifier=\"i56e1997d322b372fd7e6015b2f538aad\" type=\"associatedcontent/imscc_xmlv1p1/learning-application-resource\" href=\"course_settings/canvas_export.txt\">");
 			out.println("      <file href=\"course_settings/course_settings.xml\"/>");
 			out.println("      <file href=\"course_settings/canvas_export.txt\"/>");
-			out.println("      <file href=\"course_settings/module_meta.xml\"/>");
-			out.println("      <file href=\"course_settings/assignment_groups.xml\"/>");
-			out.println("      <file href=\"course_settings/files_meta.xml\"/>");
-			out.println("      <file href=\"course_settings/media_tracks.xml\"/>");
-			out.println("      <file href=\"course_settings/canvas_export.txt\"/>");
+			// Module not required for now.
+			// out.println("      <file href=\"course_settings/module_meta.xml\"/>");
 			out.println("    </resource>");
-			for (Map.Entry<String, Resource> entry: fileMap.entrySet()) {
-				String use = "";
-				if (entry.getValue().use != null) {
-					use = " intendeduse=\"" + entry.getValue().use + "\"";
-				}
-				String type = "webcontent";
-				if (entry.getValue().isHtml) {
-					out.println("    <resource identifier=\"" + entry.getValue().resourceId + "\" type=\"webcontent\"" + use + " href=\"wiki_content/" + StringEscapeUtils.escapeXml(entry.getValue().filename) + "\">");
-					out.println("      <file href=\"wiki_content/" + StringEscapeUtils.escapeXml(entry.getValue().filename) + "\"/>");
+
+			for (ContentResource contentResource: selectedFilesToExport) {
+				String filename = getFileName(contentResource, true);
+
+				// See the comments above in method outputSelectedFiles.
+				if (hasMarkUp(contentResource.getContentType())) {
+					out.println("    <resource identifier=\"" + getResourceId() + "\" type=\"webcontent\" href=\"wiki_content/" + filename + "\">");
+					out.println("      <file href=\"wiki_content/" + filename + "\"/>");
 				} else {
-					out.println("    <resource identifier=\"" + entry.getValue().resourceId + "\" type=\"webcontent\"" + use + " href=\"web_resources/" + StringEscapeUtils.escapeXml(entry.getValue().filename) + "\">");
-					out.println("      <file href=\"web_resources/" + StringEscapeUtils.escapeXml(entry.getValue().filename) + "\"/>");
-				}
-				for (String d: entry.getValue().dependencies) {
-					out.println("      <dependency identifierref=\"" + d + "\"/>");
+					out.println("    <resource identifier=\"" + getResourceId() + "\" type=\"webcontent\" href=\"web_resources/" + getFilePath(contentResource, false) + filename + "\">");
+					out.println("      <file href=\"web_resources/" + getFilePath(contentResource, false) + filename + "\"/>");
 				}
 				out.println("    </resource>");
 			}
-	
-	
+
 			// add error log at the very end
 			String errId = getResourceId();
 			out.println(("    <resource href=\"cc-objects/export-errors\" identifier=\"" + errId + "\" type=\"webcontent\">\n      <file href=\"cc-objects/export-errors\"/>\n    </resource>"));
@@ -501,27 +361,64 @@ public class CCExport {
 		return true;
 	}
 
+	String getResourceId () {
+		return "res" + (nextid++);
+	}
+
+	private boolean hasMarkUp(String mimeType){
+		if (("text/html").equals(mimeType) || ("application/xhtml+xml").equals(mimeType) ||
+				("application/xml").equals(mimeType) || ("text/xml").equals(mimeType)) {
+			return true;
+		}
+		return false;
+	}
+
+	private String getFilePath(ContentResource contentResource, boolean encode) {
+		// We want to find the path up until the filename, just strip off the /group/:siteid and stop at the last slash.
+		String filePath = contentResource.getId().substring(contentResource.getId().lastIndexOf(siteId) + siteId.length() + 1, contentResource.getId().lastIndexOf("/") + 1);
+		if (encode) {
+			// use Validator class, not URLEncoder as Validator does not convert the slashes in the path.
+			return Validator.escapeUrl(filePath);
+		} else {
+			return filePath;
+		}
+	}
+
+	private String getFileName(ContentResource contentResource, boolean encode) {
+		String fileName = contentResource.getId().substring(contentResource.getId().lastIndexOf("/") + 1);
+		if (encode) {
+			try {
+				return URLEncoder.encode(fileName, "UTF-8");
+			} catch (UnsupportedEncodingException uee) {
+				log.error("export-common-cartridge UnsupportedEncodingException encoding file name: " + uee);
+			}
+		}
+		return fileName;
+	}
+
 	// turns the links into relative links
 	// fixups will get a list of offsets where fixups were done, for loader to reconstitute HTML
-	public String relFixup (String s, Resource resource, StringBuilder fixups) {
+	public String relFixup (String s, ContentResource contentResource) {
 		StringBuilder ret = new StringBuilder();
 		String sakaiIdBase = "/group/" + siteId;
 		// I'm matching against /access/content/group not /access/content/group/SITEID, because SITEID can in some installations
 		// be user chosen. In that case there could be escaped characters, and the escaping in HTML URL's isn't unique. 
-		Pattern target = Pattern.compile("(?:https?:)?(?://[-a-zA-Z0-9.]+(?::[0-9]+)?)?/access/content(/group/)|http://lessonbuilder.sakaiproject.org/", Pattern. CASE_INSENSITIVE);
+		Pattern target = Pattern.compile("(?:https?:)?(?://[-a-zA-Z0-9.]+(?::[0-9]+)?)?/access/content(/group/)", Pattern. CASE_INSENSITIVE);
 		Matcher matcher = target.matcher(s);
 		// technically / isn't allowed in an unquoted attribute, but sometimes people
-		// use sloppy HTML	
+		// use sloppy HTML
 		Pattern wordend = Pattern.compile("[^-a-zA-Z0-9._:/]");
 		int index = 0;
+		int loopCount = 0;
 		while (true) {
-			if (!matcher.find()) {
+			// prevent infinite loop
+			if (!matcher.find() || ++loopCount > 999) {
 				ret.append(s.substring(index));
 				break;
 			}
 			String sakaiId = null;
 			int start = matcher.start();
-			if (matcher.start(1) >= 0) { // matched /access/content...
+
 			// make sure it's the right siteid. This approach will get it no matter
 			// how the siteid is url encoded
 			int startsite = matcher.end(1);
@@ -536,9 +433,9 @@ public class CCExport {
 			}
 			if (!siteId.equals(sitepart))
 				continue;
-	
+
 			int sakaistart = matcher.start(1); //start of sakaiid, can't find end until we figure out quoting
-	
+
 			// need to find sakaiend. To do that we need to find the close quote
 			int sakaiend = 0;
 			char quote = s.charAt(start-1);
@@ -557,67 +454,12 @@ public class CCExport {
 			} catch (Exception e) {
 				log.info("Exception in CCExport URLDecoder " + e);
 			}
-			// do the mapping. resource.location is a relative URL of the page we're looking at
-			// sakaiid is the URL of the object, starting /group/
-			String base = getParent(resource.location);
-			String thisref = sakaiId.substring(sakaiIdBase.length()+1);
-			String relative = relativize(thisref, base);
+
 			ret.append(s.substring(index, start));
-			// we're now at start of URL. save it for fixup list
-			if (fixups != null) {
-				if (fixups.length() > 0)
-					fixups.append(",");
-				fixups.append("" + ret.length());
-			}
-			// and now add the new relative URL
-			ret.append(relative.toString());
+			ret.append(sakaiId.substring(sakaiIdBase.length()+1));
 			index = sakaiend;  // start here next time
-			} else { // matched http://lessonbuilder.sakaiproject.org/
-				int last = matcher.end(); // should be start of an integer
-				int endnum = s.length();  // end of the integer
-				for (int i = last; i < s.length(); i++) {
-					if ("0123456789".indexOf(s.charAt(i)) < 0) {
-						endnum = i;
-						break;
-					}
-				}
-				String numString = s.substring(last, endnum);
-				if (numString.length() >= 1) {
-					Long itemId = new Long(numString);
-					if (sakaiId.startsWith(sakaiIdBase)) {
-						ret.append(s.substring(index, start));
-						String base = getParent(resource.location);
-						String thisref = sakaiId.substring(sakaiIdBase.length()+1);
-						String relative = relativize(thisref, base);
-						// we're now at start of URL. save it for fixup list
-						if (fixups != null) {
-							if (fixups.length() > 0)
-							fixups.append(",");
-							fixups.append("" + ret.length());
-						}
-						// and now add the new relative URL
-						ret.append(relative);
-						if (s.charAt(endnum) == '/')
-							endnum++;
-						index = endnum;
-					}
-				}
-			}
-			if (sakaiId != null) {
-				Resource r = fileMap.get(sakaiId);
-				if (r != null) {
-					resource.dependencies.add(r.resourceId);
-				}
-			}
-		}
-		if (fixups != null && fixups.length() > 0) {
-			return ("<!--fixups:" + fixups.toString() + "-->" + ret.toString());
 		}
 		return ret.toString();
-	}
-
-	public String relFixup (String s, Resource resource) {
-		return relFixup(s, resource, null);
 	}
 
 	// return base directory of file, including trailing /
@@ -631,23 +473,38 @@ public class CCExport {
 		}
 	}
 
-	// return relative path to target from base
-	// base is assumed to be "" or ends in /
-	public String relativize(String target, String base) {
-	if (base.equals(""))
-	    return target;
-	if (target.startsWith(base))
-	    return target.substring(base.length());
-	else {
-		// get parent directory of base directory.
-		// base directory ends in /
-		int i = base.lastIndexOf("/", base.length()-2);
-		if (i < 0) {
-			base = "";
-		} else {
-			base = base.substring(0, i + 1); // include /
+	public String removeDotDot(String s) {
+		int loopCount = 0;
+		while (true) {
+			int i = s.indexOf("/../");
+			// prevent infinite loop
+			if (i < 1 || ++loopCount > 999)
+				return s;
+			int j = s.lastIndexOf("/", i-1);
+			if (j < 0)
+				j = 0;
+			else
+				j = j + 1;
+			s = s.substring(0, j) + s.substring(i+4);
 		}
-		return "../" + relativize(target, base);
 	}
+
+	// the error messages are a problem. They won't show until the next page display
+	// however errrors at this level are unusual, and we interrupt the download, so the
+	// user should never see an incomplete one. Most common errors have to do with
+	// problems converting for CC format. Those go into a log file that's included in
+	// the ZIP, so the user will see those errors (if he knows the look)
+	public static void setErrMessage(String s) {
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		if (toolSession == null) {
+			log.error("Error in export-common-cartridge: CCExport " + s);
+			return;
+		}
+		List<String> errors = (List<String>)toolSession.getAttribute("export-common-cartridge.errors");
+		if (errors == null)
+			errors = new ArrayList<String>();
+		errors.add(s);
+		toolSession.setAttribute("export-common-cartridge.errors", errors);
 	}
+
 }
