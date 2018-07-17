@@ -24,6 +24,7 @@ package org.sakaiproject.content.tool;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -55,6 +56,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.util.ZipContentUtil;
+import org.sakaiproject.exporter.impl.ZipPrintStream;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.AliasEdit;
@@ -138,10 +141,14 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.FileItem;
+import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.exporter.impl.CCExport;
 import org.w3c.dom.Element;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.quartz.Scheduler;
@@ -480,6 +487,8 @@ public class ResourcesAction
 	
 	public static final String DROPBOX_NOTIFICATIONS_DEFAULT_VALUE = DROPBOX_NOTIFICATIONS_NONE;
 
+	private static final String EXPORT_TYPE_NAME = "export_type_name";
+
 	/** The default number of members for a collection at which this tool should refuse to expand the collection. Used only if value can't be read from config service. */
 	protected static final int EXPANDABLE_FOLDER_SIZE_LIMIT = 256;
 
@@ -534,7 +543,7 @@ public class ResourcesAction
 	/************** the edit context *****************************************/
 
 	private static final String MODE_DELETE_FINISH = "deleteFinish";
-	private static final String MODE_ZIP_FINISH = "zipFinish";
+	private static final String MODE_EXPORT_FINISH = "exportFinish";
 	private static final String MODE_SHOW_FINISH = "showFinish";
 	private static final String MODE_HIDE_FINISH = "hideFinish"; 
 	
@@ -803,6 +812,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
 
+	private static final String TEMPLATE_EXPORT_FINISH = "content/sakai_resources_exportFinish";
 	private static final String TEMPLATE_ZIP_FINISH = "content/sakai_resources_zipFinish";
 
 	private static final String TEMPLATE_SHOW_FINISH = "content/sakai_resources_showFinish";
@@ -4091,19 +4101,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}
 
 
-	public String buildZipFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	public String buildExportFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
-		logger.debug(this + ".buildZipFinishContext()");
+		logger.debug(this + ".buildExportFinishContext()");
 		context.put("tlang",trb);
 		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
 		context.put ("collectionPath", state.getAttribute (STATE_COLLECTION_PATH));
 
-		List zipItems = (List) state.getAttribute(STATE_DELETE_SET);
+		List exportItems = (List) state.getAttribute(STATE_DELETE_SET);
 
-		context.put ("zipItems", zipItems);
+		context.put ("exportItems", exportItems);
 		context.put("homeCollection", state.getAttribute(STATE_HOME_COLLECTION_ID));
 
-		return TEMPLATE_ZIP_FINISH;
+		return TEMPLATE_EXPORT_FINISH;
 
 	}
 	/**
@@ -4862,10 +4872,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			// build the context for the basic step of delete confirm page
 			template = buildDeleteFinishContext (portlet, context, data, state);
 		}
-		else if (mode.equals (MODE_ZIP_FINISH))
+		else if (mode.equals (MODE_EXPORT_FINISH))
 		{
-			// build the context for the basic step of zip confirm page
-			template = buildZipFinishContext (portlet, context, data, state);
+			// build the context for the basic step of export confirm page
+			template = buildExportFinishContext (portlet, context, data, state);
 		}
 		else if (mode.equals (MODE_SHOW_FINISH))
 		{
@@ -6583,11 +6593,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 
 	/**
-	 * set the state name to be "zipconfirm" if any item has been selected for zipping
+	 * set the state name to be "exportconfirm" if any item has been selected for export to IMS common cartridge or a zip file.
 	 */
-	public void doZipconfirm ( RunData data)
+	public void doExportconfirm ( RunData data)
 	{
-		logger.debug(this + ".doZipconfirm()");
+		logger.debug(this + ".doExportconfirm()");
 
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
@@ -6622,10 +6632,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			state.setAttribute (STATE_MODE, MODE_ZIP_FINISH);
+			state.setAttribute (STATE_MODE, MODE_EXPORT_FINISH);
 			state.removeAttribute(STATE_LIST_SELECTIONS);
 		}
-	}	// doZipconfirm
+	}	// doExportconfirm
 
 	public void doDispatchAction(RunData data)
 	{
@@ -7118,17 +7128,26 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}	// doDelete
 
 	/**
-	 * doFinalizeZip to zip the selected collection or resource items
+	 * doFinalizeExport to create an IMS common cartridge or zip the selected collection or resource items
 	 */
-	public void doFinalizeZip( RunData data) throws IdUnusedException {
-		logger.debug(this + ".doFinalizeZip()");
-
+	public void doFinalizeExport( RunData data) throws IdUnusedException {
+		logger.debug(this + ".doFinalizeExport()");
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
 		}
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		ParameterParser params = data.getParameters ();
 
+
+		String exportType = params.getString(EXPORT_TYPE_NAME);
+		
+		if (!("imscc".equals(exportType) || "zip".equals(exportType)))
+		{
+			addAlert(state, trb.getString("export.type.not.valid"));
+		}
+		
 		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
 
 		// cancel copy if there is one in progress
@@ -7148,29 +7167,36 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		List<String> selectedFolderIds = new ArrayList<>();
 		List<String> selectedFiles = new ArrayList<>();
 		for (Object listItem : items) {
-			ListItem l = (ListItem)listItem;
-			if (l.isCollection()){
+			ListItem l = (ListItem) listItem;
+			if (l.isCollection()) {
 				selectedFolderIds.add(l.getId());
-			}
-			else {
+			} else {
 				selectedFiles.add(l.getId());
 			}
 		}
+		ThreadLocalManager threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
+		HttpServletResponse response = (HttpServletResponse)threadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE);
 
-		try
-		{
-			ZipContentUtil zipUtil = new ZipContentUtil();
+		if ("imscc".equals(exportType)) {
+			Reference ref = EntityManager.newReference(ContentHostingService.getReference(collectionId));
+			String siteId = ref.getContext();
+			CCExport ccExport = new org.sakaiproject.exporter.impl.CCExport();
+			ccExport.doExport(siteId, selectedFolderIds, selectedFiles, response);
+		}
+		else if ("zip".equals(exportType)) {
 			try {
-				Reference r = EntityManager.newReference(ContentHostingService.getReference(collectionId));
-				zipUtil.compressFolder(r, selectedFolderIds, selectedFiles);
-			} catch (Exception e) {
-				logger.warn(e.getMessage());
+				ZipContentUtil zipUtil = new ZipContentUtil();
+				try {
+					Reference r = EntityManager.newReference(ContentHostingService.getReference(collectionId));
+					zipUtil.compressFolder(r, selectedFolderIds, selectedFiles);
+				} catch (Exception e) {
+					logger.warn(e.getMessage());
+				}
+			} // try - catch
+			catch (RuntimeException e) {
+				logger.debug("ResourcesAction.doFinalizeZip ***** Unknown Exception ***** " + e.getMessage());
+				addAlert(state, rb.getString("failed"));
 			}
-		} // try - catch
-		catch(RuntimeException e)
-		{
-			logger.debug("ResourcesAction.doFinalizeZip ***** Unknown Exception ***** " + e.getMessage());
-			addAlert(state, rb.getString("failed"));
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -7378,9 +7404,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			doDeleteconfirm(data);
 		}
-		else if(ResourceToolAction.ZIP.equals(actionId))
+		else if(ResourceToolAction.EXPORT.equals(actionId))
 		{
-			doZipconfirm(data);
+			doExportconfirm(data);
 		}
 		else if(ResourceToolAction.SHOW.equals(actionId))
 		{

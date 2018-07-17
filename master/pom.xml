@@ -1075,6 +1075,11 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+        <artifactId>export-common-cartridge</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
         <!-- TODO - remove this from DM - nothing should use the import-impl -->
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>import-impl</artifactId>

@@ -207,9 +207,9 @@
                                                 disabled="disabled">$tlang.getString('avail.hide')
                                             </button>
                                     #end
-                                    <button  style="margin:0" class="btn btn-default" id="zip-button" type="button"
-                                                onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='zip';document.getElementById('showForm').submit();"
-                                                disabled="disabled" >$tlang.getString('avail.zip')
+                                    <button  style="margin:0" class="btn btn-default" id="export-button" type="button"
+                                                onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='export';document.getElementById('showForm').submit();"
+                                                disabled="disabled" >$tlang.getString('avail.export')
                                     </button>
                                  #end
                                  ####### end SAK-23304, add Show and Hide
@@ -373,7 +373,7 @@
 						#if($item.depth > 0 && $item.hasMultipleItemActions())
 							<input type="checkbox" name="selectedMembers" id="list$num" 
 									#if($selectedItems.contains($item.id))checked="checked"#end
-									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustCount(this, 'zip');adjustShowHideCount(this)"
+									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustCount(this, 'export');adjustShowHideCount(this)"
  									value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select"): $validator.escapeHtml($item.name)</label>
 							#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 							<input type="hidden" name="itemHidden" id="itemHidden" value="$item.hidden" />
@@ -791,7 +791,7 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<input type="hidden" id="show-count" value="$counter.getValue("showselected")" />
 		<input type="hidden" id="hide-count" value="$counter.getValue("hideselected")" />
-		<input type="hidden" id="zip-count" value="$counter.getValue("zipselected")" />
+		<input type="hidden" id="export-count" value="$counter.getValue("exportselected")" />
 		## copy for other sites
 		<input type="hidden" id="copy-count-other" value="0" />
 	</form>
@@ -851,10 +851,10 @@
                         //let bd take care of this hide_button.className = 'enabled';
                 }
                 document.getElementById("hide-count").value = "$counter.getValue("hide")";
-                var zip_button = document.getElementById("zip-button");
-                if(zip_button) {
-                        zip_button.disabled = false;
-                        //let bd take care of this zip_button.className = 'enabled';
+                var export_button = document.getElementById("export-button");
+                if(export_button) {
+                        export_button.disabled = false;
+                        //let bd take care of this export_button.className = 'enabled';
                 }
 #### end SAK-23304
 			}

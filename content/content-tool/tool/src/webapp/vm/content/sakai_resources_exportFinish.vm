@@ -1,0 +1,69 @@
+<!-- chef_resources_exportFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<div class="portletBody specialLink">
+    #if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
+    <div class="instruction">$tlang.getString("export.sure")</div><div style="display:block;clear:both" ></div>
+    <form action="#toolForm("ResourcesAction")" name="deleteFileForm" method="post" >
+        <input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+        <table class ="listHier lines" cellspacing="0" summary="$tlang.getString("export.table")" border="0" cellpadding="0">
+            <tr>
+                <th id="title">
+                    $tlang.getString("title.name")
+                </th>
+                <th id="size">
+                    $tlang.getString("title.size")
+                </th>
+                <th id="created">
+                    $tlang.getString("title.created")
+                </th>
+                <th id="last">
+                    $tlang.getString("title.last")
+                </th>
+            </tr>
+            #foreach ($member in $exportItems)
+                <tr>
+                    <td headers="title">
+                        <h4>
+                            #if($member.isCollection())
+                                <img src = "#imageLink("sakai/dir_closed.gif")" alt="$member.label" />
+                            #else
+                                <img src = "#imageLink($member.iconLocation)" alt="$member.label" />
+                            #end
+                            <a href="$member.accessUrl" target="_blank">
+                                $validator.escapeHtml($member.name)
+                            </a>
+                        </h4>
+                    </td>
+                    <td headers="size">
+                        $member.size
+                    </td>
+                    <td headers="created">
+                        $validator.escapeHtml($member.createdBy)
+                    </td>
+                    <td headers="last">
+                        $member.modifiedTime
+                    </td>
+                </tr>
+            #end
+        </table>
+        <h3>
+            $tlang.getString("export.type")
+        </h3>
+        <div class="radio">
+            <label for="$tlang.getString("export.radio.imscc")">
+                <input id="$tlang.getString("export.radio.imscc")" name="export_type_name" type="radio" value="imscc" onclick="ASN.toggleAddOptions('none');" />
+                $tlang.getString("export.radio.imscc")
+            </label>
+        </div>
+        <div class="radio">
+            <label for="$tlang.getString("export.radio.zip")">
+                <input id="$tlang.getString("export.radio.zip")" name="export_type_name" type="radio" value="zip" onclick="ASN.toggleAddOptions('none');" />
+                $tlang.getString("export.radio.zip")
+            </label>
+        </div>
+        <p class ="act">
+            <input type="submit" class="active"  name="eventSubmit_doFinalizeExport" value="$tlang.getString("export.button")" accesskey="s" checked />
+            <input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("label.cancel")" accesskey="x" />
+        </p>
+        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+    </form>
+</div>
