@@ -37,6 +37,7 @@
     <module>import-parsers/blackboard_5-5</module>
     <module>import-parsers/blackboard_6/api</module>
     <module>import-parsers/blackboard_6/impl</module>
+    <module>export-common-cartridge</module>
   </modules>
 
 
@@ -147,6 +148,11 @@
 	<artifactId>sakai-archive-import</artifactId>
         <version>${project.version}</version>
       </dependency>
+		<dependency>
+			<groupId>org.sakaiproject.common</groupId>
+			<artifactId>export-common-cartridge</artifactId>
+			<version>${project.version}</version>
+		</dependency>
       <!-- external dependencies -->
       <dependency>
         <groupId>org.apache.commons</groupId>

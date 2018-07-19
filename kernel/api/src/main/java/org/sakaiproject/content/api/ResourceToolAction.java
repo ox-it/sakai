@@ -209,6 +209,7 @@ public interface ResourceToolAction
 	
 	public static final String CREATE = "create";
 	public static final String DELETE = "delete";
+	public static final String EXPORT = "export";
 	public static final String ZIP = "zip";
 	public static final String COPY = "copy";
 	public static final String REVISE_CONTENT = "revise";
