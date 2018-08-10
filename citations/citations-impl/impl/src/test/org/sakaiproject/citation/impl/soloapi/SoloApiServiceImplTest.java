@@ -153,7 +153,7 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		assertEquals("Complete transcatheter closure of a patent arterial duct with subsequent haemolysis", citation.getCitationProperty("title", false));
 		assertEquals("Cardiology in the Young", citation.getCitationProperty("sourceTitle", false));
 		assertEquals("[Cace, Neven, Ahel, Vladimir, Bilic, Iva]", citation.getCitationProperty("creator", false).toString());
-		assertEquals("201008", citation.getCitationProperty("date", false));
+		assertEquals("2010-08", citation.getCitationProperty("date", false));
 		assertEquals("20", citation.getCitationProperty("volume", false));
 		assertEquals("4", citation.getCitationProperty("issue", false));
 		assertEquals("462", citation.getCitationProperty("startPage", false));
@@ -287,7 +287,7 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		assertEquals("Thomas Blanchard's Patent Management", citation.getCitationProperty("title", false));
 		assertEquals("The Journal of Economic History", citation.getCitationProperty("sourceTitle", false));
 		assertEquals("Cooper, Carolyn C", citation.getCitationProperty("creator", false));
-		assertEquals("198706", citation.getCitationProperty("date", false));
+		assertEquals("1987-06", citation.getCitationProperty("date", false));
 		assertEquals("47", citation.getCitationProperty("volume", false));
 		assertEquals("2", citation.getCitationProperty("issue", false));
 		assertEquals("487", citation.getCitationProperty("startPage", false));
@@ -342,7 +342,7 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		assertEquals("Transcatheter closure of a patent foramen ovale following mitral valve replacement", citation.getCitationProperty("title", false));
 		assertEquals("Annals of Thoracic Surgery", citation.getCitationProperty("sourceTitle", false));
 		assertEquals("[Skulski, R., Snider, J.M., Buzzard, C.J., Ling, F.S., Mendelsohn, A.M.]", citation.getCitationProperty("creator", false).toString());
-		assertEquals("199908", citation.getCitationProperty("date", false));
+		assertEquals("1999-08", citation.getCitationProperty("date", false));
 		assertEquals("68", citation.getCitationProperty("volume", false));
 		assertEquals("2", citation.getCitationProperty("issue", false));
 		assertEquals("582", citation.getCitationProperty("startPage", false));
