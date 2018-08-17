@@ -459,7 +459,7 @@ public abstract class DbSiteService extends BaseSiteService
 			int size = siteIds.size();
 			for (int i = 0; i < size; i += ORACLE_MAX_ELEMENTS_IN_CLAUSE)
 			{
-				int batchSize = Math.min(size - 1, ORACLE_MAX_ELEMENTS_IN_CLAUSE);
+				int batchSize = Math.min(size - i, ORACLE_MAX_ELEMENTS_IN_CLAUSE);
 
 				// statement changes based on batch size
 				String statement = null;
