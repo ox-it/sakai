@@ -359,7 +359,7 @@ public class ImportGradesHelper {
 				}
 
 			} else if (column.getType() == ImportedColumn.Type.USER_NAME) {
-				row.setStudentName(lineVal);
+				row.setStudentName(StringUtils.trimToEmpty(lineVal));
 
 			} else if (column.getType() == ImportedColumn.Type.GB_ITEM_WITH_POINTS) {
 				convertSeparator(lineVal, userDecimalSeparator, cell);
