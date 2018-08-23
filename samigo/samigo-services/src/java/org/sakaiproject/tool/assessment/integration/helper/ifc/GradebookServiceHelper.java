@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -68,4 +67,6 @@ public interface GradebookServiceHelper extends Serializable
   
   public Long getExternalAssessmentCategoryId(String gradebookUId,
 		  String publishedAssessmentId, GradebookExternalAssessmentService g);
+
+  public String getAppName();
 }

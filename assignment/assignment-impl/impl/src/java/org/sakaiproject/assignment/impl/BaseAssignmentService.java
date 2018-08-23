@@ -118,6 +118,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.contentreview.service.ContentReviewSiteAdvisor;
 
 import org.sakaiproject.entitybroker.DeveloperHelperService;
+import org.sakaiproject.tool.api.Tool;
 
 /**
  * <p>
@@ -6480,6 +6481,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public String getLabel()
 	{
 		return "assignment";
+	}
+
+	@Override
+	public String getToolTitle() {
+		Tool tool = ToolManager.getTool(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID);
+		String toolTitle = null;
+		if (tool == null)
+			toolTitle = "Assignments";
+		else
+			toolTitle = tool.getTitle();
+		return toolTitle;
 	}
 
 	/**

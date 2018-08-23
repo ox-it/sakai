@@ -592,7 +592,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
             log.info("No assignment found for external assignment check: gradebookUid="+gradebookUid+", externalId="+externalId);
 		} else {
 	        for (ExternalAssignmentProvider provider : getExternalAssignmentProviders().values()) {
-	            if (provider.isAssignmentDefined(externalId)) {
+	            if (provider.isAssignmentDefined(assignment.getExternalAppName(), externalId)) {
 	                result = provider.isAssignmentGrouped(externalId);
 	            }
 	        }
@@ -619,7 +619,7 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 			log.info("No assignment found for external assignment check: gradebookUid="+gradebookUid+", externalId="+externalId);
 		} else {
 			for (ExternalAssignmentProvider provider : getExternalAssignmentProviders().values()) {
-				if (provider.isAssignmentDefined(externalId)) {
+				if (provider.isAssignmentDefined(assignment.getExternalAppName(), externalId)) {
 					providerResponded = true;
 					result = result || provider.isAssignmentVisible(externalId, userId);
 				}

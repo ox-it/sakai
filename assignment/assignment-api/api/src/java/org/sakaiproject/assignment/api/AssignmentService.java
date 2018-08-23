@@ -999,4 +999,10 @@ public interface AssignmentService extends EntityProducer
 	 * @return the effective due date in milliseconds (long)
 	 */
 	public long getEffectiveDueDate(String assignmentID, long assignmentDueDate, ResourceProperties assignmentProperties, int dueDateBuffer);
+
+	/**
+	 * This will return the internationalized title of the tool.
+	 * This is used when creating a new gradebook item.
+	 */
+	public String getToolTitle();
 }

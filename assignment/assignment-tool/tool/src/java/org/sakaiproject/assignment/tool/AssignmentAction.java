@@ -81,6 +81,7 @@ import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentContentEdit;
 import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentPeerAssessmentService;
+import org.sakaiproject.assignment.api.AssignmentServiceConstants;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
@@ -167,7 +168,6 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -193,8 +193,6 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	/** Our logger. */
 	private static final Logger M_log = LoggerFactory.getLogger(AssignmentAction.class);
-
-	private static final String ASSIGNMENT_TOOL_ID = "sakai.assignment.grades";
 	
 	private static final Boolean allowReviewService = ServerConfigurationService.getBoolean("assignment.useContentReview", false);
 	private static final Boolean allowPeerAssessment = ServerConfigurationService.getBoolean("assignment.usePeerAssessment", true);
@@ -3145,7 +3143,7 @@ public class AssignmentAction extends PagedResourceActionII
 			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
 			{
 				org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-				if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(getToolTitle()))
+				if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(AssignmentService.getToolTitle()))
 				{
 					gradebookAssignmentsExceptSamigo.add(gAssignment);
 				
@@ -5267,23 +5265,6 @@ public class AssignmentAction extends PagedResourceActionII
 		return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
 
 	} // build_instructor_upload_all
-	
-   /**
-    ** Retrieve tool title from Tool configuration file or use default
-    ** (This should return i18n version of tool title if available)
-    **/
-   private String getToolTitle()
-   {
-      Tool tool = ToolManager.getTool(ASSIGNMENT_TOOL_ID);
-      String toolTitle = null;
-
-      if (tool == null)
-        toolTitle = "Assignments";
-      else
-        toolTitle = tool.getTitle();
-
-      return toolTitle;
-   }
 
 	/**
 	 * integration with gradebook
@@ -5308,7 +5289,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
 		// exception are indication that the assessment is already in the Gradebook or there is nothing
 		// to remove.
-		String assignmentToolTitle = getToolTitle();
+		String assignmentToolTitle = AssignmentService.getToolTitle();
 
 		GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 		GradebookExternalAssessmentService gExternal = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
@@ -12724,7 +12705,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// save the option into tool configuration
 			try {
 				Site site = SiteService.getSite(siteId);
-				ToolConfiguration tc=site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
+				ToolConfiguration tc=site.getToolForCommonId(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID);
 				propValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
 			}
 			catch (IdUnusedException e)
@@ -16233,7 +16214,7 @@ public class AssignmentAction extends PagedResourceActionII
 			else
 			{
 				String contextString = ToolManager.getCurrentPlacement().getContext();
-				String toolTitle = ToolManager.getTool(ASSIGNMENT_TOOL_ID).getTitle();
+				String toolTitle = AssignmentService.getToolTitle();
 				String aReference = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 				String associateGradebookAssignment = null;
 				
@@ -17915,7 +17896,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String siteId = ToolManager.getCurrentPlacement().getContext();
 		try {
 			Site site = SiteService.getSite(siteId);
-			ToolConfiguration tc=site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
+			ToolConfiguration tc=site.getToolForCommonId(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID);
 			String optionValue = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
 			state.setAttribute(SUBMISSIONS_SEARCH_ONLY, optionValue == null ? Boolean.FALSE:Boolean.valueOf(optionValue));
 }	
@@ -17987,7 +17968,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// save the option into tool configuration
 		try {
 			Site site = SiteService.getSite(siteId);
-			ToolConfiguration tc=site.getToolForCommonId(ASSIGNMENT_TOOL_ID);
+			ToolConfiguration tc=site.getToolForCommonId(AssignmentServiceConstants.ASSIGNMENT_TOOL_ID);
 			String currentSetting = tc.getPlacementConfig().getProperty(SUBMISSIONS_SEARCH_ONLY);
 			if (currentSetting == null || !currentSetting.equals(Boolean.toString(submissionsSearchOnly)))
 			{

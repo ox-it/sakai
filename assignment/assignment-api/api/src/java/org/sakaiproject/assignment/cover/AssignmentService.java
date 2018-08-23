@@ -913,4 +913,13 @@ public class AssignmentService {
 
 		return service.getEffectiveDueDate(assignmentID, assignmentDueDate, assignmentProperties, dueDateBuffer);
 	}
+
+	public static String getToolTitle() {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null) {
+			return null;
+		}
+
+		return service.getToolTitle();
+	}
 }

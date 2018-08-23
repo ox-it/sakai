@@ -54,6 +54,8 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     // default of 10 min
     protected static final int DEFAULT_EXPIRATION = 60 * 10;
 
+    private static final String TOOL_ID = "sakai.lessonbuildertool";
+
     // Sakai Service Beans
     private GradebookExternalAssessmentService geaService;
     private SimplePageToolDao dao;
@@ -89,7 +91,7 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     // the item from the id by finding the item number
     // at the end and that looking up by ID
 
-    public boolean isAssignmentDefined(String id) {
+    public boolean isAssignmentDefined(String externalAppName, String id) {
 	if (!id.startsWith("lesson-builder:"))
 	    return false;
 	int i = id.lastIndexOf(":");
