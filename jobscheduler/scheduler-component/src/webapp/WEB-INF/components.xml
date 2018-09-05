@@ -426,6 +426,36 @@
       </property>
    </bean>
 
+    <!-- Remove My Workspaces -->
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.removesites.RemoveMySites"
+          class="org.sakaiproject.component.app.scheduler.jobs.removesites.RemoveMySitesJob">
+        <property name="sessionManager">
+            <ref bean="org.sakaiproject.tool.api.SessionManager"/>
+        </property>
+        <property name="siteService">
+            <ref bean="org.sakaiproject.site.api.SiteService"/>
+        </property>
+        <property name="ignoredSiteIds">
+            <set>
+                <value>~admin</value>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.RemoveMySites"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+          init-method="init">
+        <property name="beanId">
+            <value>org.sakaiproject.component.app.scheduler.jobs.removesites.RemoveMySites</value>
+        </property>
+        <property name="jobName">
+            <value>Remove My Workspace Sites</value>
+        </property>
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+    </bean>
+
     <!-- Hide LB-CSS folder from access user-->
     <bean id = "org.sakaiproject.component.app.scheduler.jobs.LBCSSFolderHideJob"
           class="org.sakaiproject.component.app.scheduler.jobs.LBCSSFolderHideJob">
