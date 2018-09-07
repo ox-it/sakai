@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -36,6 +37,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendaring.api.ExternalCalendaringService;
@@ -54,6 +58,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import org.mockito.MockitoAnnotations;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * Test class for the ExternalCalendaringService
@@ -63,6 +69,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"/test-components.xml"})
+@Configuration
 public class ExternalCalendaringServiceTest {
 
 	private final String EVENT_NAME = "A new event";
@@ -72,8 +79,12 @@ public class ExternalCalendaringServiceTest {
 	private final long START_TIME = 1336136400000l; // 4/May/2012 13:00 GMT
 	private final long END_TIME = 1336140000000l; // 4/May/2012 14:00 GMT
 
+	@Mock
+	private TimeService timeService;
+
 	//for the test classes we can still use annotation based injection
 	@Resource(name="org.sakaiproject.calendaring.api.ExternalCalendaringService")
+	@InjectMocks
 	private ExternalCalendaringService service;
 	
 	@Autowired
@@ -85,6 +96,10 @@ public class ExternalCalendaringServiceTest {
 	
 	@Before
 	public void setupData() {
+		MockitoAnnotations.initMocks(this);
+		//Needs these for timeService
+		when(timeService.newTime()).thenReturn(Mockito.<Time>mock(Time.class));
+		when(timeService.getLocalTimeZone()).thenReturn(TimeZone.getTimeZone("GMT"));
 		users = generateUsers();
 	}
 	
@@ -129,6 +144,15 @@ public class ExternalCalendaringServiceTest {
 		System.out.println("####################");
 		System.out.println(vevent);
 		
+		Assert.assertNotNull(vevent);
+
+		//Testing timeIsLocal case
+		vevent = service.createEvent(event, null, true);
+
+		System.out.println("testGeneratingVEvent");
+		System.out.println("####################");
+		System.out.println(vevent);
+
 		Assert.assertNotNull(vevent);
 		
 		//TODO check the attributes of the vevent
