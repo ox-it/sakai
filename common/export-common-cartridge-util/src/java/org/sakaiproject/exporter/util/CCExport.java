@@ -112,7 +112,11 @@ public class CCExport {
 				}
 			}
 			for (String selectedFile : selectedFiles) {
-				selectedFilesToExport.add(contentService.getResource(selectedFile));
+				ContentResource contentFile = contentService.getResource(selectedFile);
+				// Don't put reading lists (citations) in the export.
+				if (!("org.sakaiproject.citation.impl.CitationList".equals(contentFile.getResourceType()))) {
+					selectedFilesToExport.add(contentFile);
+				}
 			}
 		} catch (PermissionException pe) {
 			log.error("export-common-cartridge permission error finding selected files" + pe);
