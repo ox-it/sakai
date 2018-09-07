@@ -1,6 +1,12 @@
-package org.sakaiproject.exporter.impl;
+package org.sakaiproject.exporter.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.PrintStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.ArrayList;
@@ -10,7 +16,7 @@ import java.util.regex.Matcher;
 import java.net.URLDecoder;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
@@ -38,9 +44,14 @@ public class CCExport {
 	private File errFile = null;
 	private PrintStream errStream = null;
 	private String siteId;
-	private List<String> selectedFolderIds;
-	private List<String> selectedFiles;
-	private org.sakaiproject.content.api.ContentHostingService contentService;
+	List<String> selectedFolderIds;
+	List<String> selectedFiles;
+
+	private ContentHostingService contentService;
+
+	public CCExport(ContentHostingService contentHostingService) {
+		this.contentService = contentHostingService;
+	}
 
 	List<ContentResource> selectedFilesToExport = new ArrayList<>();
 
@@ -49,7 +60,6 @@ public class CCExport {
 		this.selectedFolderIds = selectedFolderIds;
 		this.selectedFiles = selectedFiles;
 		response = httpServletResponse;
-		contentService = ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
 
 		if (! startExport())
 			return;
@@ -121,6 +131,7 @@ public class CCExport {
 	}
 
 	public boolean outputSelectedFiles (ZipPrintStream out) {
+		
 		for (ContentResource contentResource: selectedFilesToExport) {
 			ZipEntry zipEntry;
 
@@ -155,7 +166,6 @@ public class CCExport {
 					out.println("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>");
 					out.println("  <title>" + StringEscapeUtils.escapeXml(filename) + "</title>");
 					out.println("  <meta name=\"identifier\" content=\"" + getResourceId() + "\"/>");
-
 					out.println("  <meta name=\"editing_roles\" content=\"teachers\"/>");
 					out.println("  <meta name=\"workflow_state\" content=\"unpublished\"/>");
 					out.println("</head>");
@@ -279,7 +289,7 @@ public class CCExport {
 			out.println(" xmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p1/LOM/resource\"");
 			out.println(" xmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p1/LOM/manifest\"");
 			out.println(" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
-			out.println(" xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsccv1p1/imscp_v1p1 ");
+			out.println(" xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsccv1p1/imscp_v1p1");
 			out.println("                      http://www.imsglobal.org/profile/cc/ccv1p1/ccv1p1_imscp_v1p2_v1p0.xsd");
 			out.println("                      http://ltsc.ieee.org/xsd/imsccv1p1/LOM/resource");
 			out.println("                      http://www.imsglobal.org/profile/cc/ccv1p1/LOM/ccv1p1_lomresource_v1p0.xsd");
@@ -342,8 +352,11 @@ public class CCExport {
 
 			// add error log at the very end
 			String errId = getResourceId();
-			out.println(("    <resource href=\"cc-objects/export-errors\" identifier=\"" + errId + "\" type=\"webcontent\">\n      <file href=\"cc-objects/export-errors\"/>\n    </resource>"));
-			out.println("  </resources>\n</manifest>");
+			out.println("    <resource href=\"cc-objects/export-errors\" identifier=\"" + errId + "\" type=\"webcontent\">");
+			out.println("      <file href=\"cc-objects/export-errors\"/>");
+			out.println("    </resource>");
+			out.println("  </resources>");
+			out.println("</manifest>");
 
 			out.closeEntry();
 			errStream.close();

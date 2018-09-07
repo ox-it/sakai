@@ -37,7 +37,7 @@
     <module>import-parsers/blackboard_5-5</module>
     <module>import-parsers/blackboard_6/api</module>
     <module>import-parsers/blackboard_6/impl</module>
-    <module>export-common-cartridge</module>
+    <module>export-common-cartridge-util</module>
   </modules>
 
 

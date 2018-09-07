@@ -24,7 +24,6 @@ package org.sakaiproject.content.tool;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -56,7 +55,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.content.util.ZipContentUtil;
-import org.sakaiproject.exporter.impl.ZipPrintStream;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,7 +140,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.exporter.impl.CCExport;
+import org.sakaiproject.exporter.util.CCExport;
 import org.w3c.dom.Element;
 
 import javax.servlet.http.Cookie;
@@ -7180,7 +7178,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if ("imscc".equals(exportType)) {
 			Reference ref = EntityManager.newReference(ContentHostingService.getReference(collectionId));
 			String siteId = ref.getContext();
-			CCExport ccExport = new org.sakaiproject.exporter.impl.CCExport();
+			CCExport ccExport = new org.sakaiproject.exporter.util.CCExport(ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class));
 			ccExport.doExport(siteId, selectedFolderIds, selectedFiles, response);
 		}
 		else if ("zip".equals(exportType)) {
