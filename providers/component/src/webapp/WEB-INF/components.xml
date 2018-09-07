@@ -160,7 +160,10 @@
 	</bean>
 -->
 
-<!-- Uncomment and configure to use the JLDAPDirectoryProvider -->
+<!-- Uncomment and configure to use the UnboundidDirectoryProvider -->
+	<!--  import resource="unboundid-ldap.xml" / -->
+
+<!-- Uncomment and configure to use the legacy JLDAP Provider -->
 	<import resource="jldap-beans.xml"/>
 	<!-- These aren't in our 10 build yet. -->
 	<import resource="external-group-beans.xml"/>
