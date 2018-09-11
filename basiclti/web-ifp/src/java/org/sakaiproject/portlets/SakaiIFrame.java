@@ -281,9 +281,10 @@ public class SakaiIFrame extends GenericPortlet {
 
 		// The current user may not be a maintainer in the current site, but we want to still be able to
 		// correct the source on the LTI tool
-		Object retval = m_ltiService.insertContentDao(props, siteId, m_ltiService.isAdmin(siteId), true);
+		// Also pretend that the user is an admin so they can have stealth tools patched.
+		Object retval = m_ltiService.insertContentDao(props, siteId, true, true);
 		if ( retval == null || retval instanceof String ) {
-			M_log.error("Unable to insert LTILinkItem tool={} placement={}",tool_id,placement.getId());
+			M_log.error("Unable to insert LTILinkItem tool={} placement={} retval={}",tool_id,placement.getId(), retval);
 			placement.getPlacementConfig().setProperty(SOURCE,"");
 			placement.save();
 			return null;

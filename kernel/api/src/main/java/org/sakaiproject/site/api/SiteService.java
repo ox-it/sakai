@@ -303,6 +303,9 @@ public interface SiteService extends EntityProducer
 
 		/** Get unpublished sites the current user has access to */
 		public static final SelectionType INACTIVE_ONLY = new SelectionType("inactive", true, true, false, true);
+
+		/** Get user sites that aren't deleted */
+		public static final SelectionType USER = new SelectionType("user", true, false, false, true);
 	}
 
 	/**
