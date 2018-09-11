@@ -87,7 +87,9 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 
 		//start and end date
 		DateTime start = new DateTime(getStartDate(event.getRange()).getTime());
+		start.setUtc(true);
 		DateTime end = new DateTime(getEndDate(event.getRange()).getTime());
+		end.setUtc(true);
 		
 		//create event incl title/summary
 		VEvent vevent = new VEvent(start, end, event.getDisplayName());
