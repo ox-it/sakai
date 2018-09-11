@@ -65,9 +65,6 @@ public interface ExternalCalendaringService {
 	 * @return the VEvent for the given event or null if there was an error
 	 */
 	public VEvent createEvent(CalendarEvent event, List<User> attendees);
-
-	// OWL-3468 - backport SAK-31901
-	public VEvent createEvent(CalendarEvent event, List<User> attendees, boolean timeIsLocal);
 	
 	/**
 	 * Adds a list of attendees to an existing VEvent.
