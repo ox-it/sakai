@@ -33,6 +33,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IllegalSecurityAdvisorException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
@@ -899,6 +900,7 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 
 	/**
 	 * {@inheritDoc}
+	 * @throws SecurityAdvisorException 
 	 */
 	public SecurityAdvisor popAdvisor(SecurityAdvisor advisor)
 	{
@@ -915,10 +917,16 @@ public abstract class SakaiSecurity implements SecurityService, Observer
 			}
 			else
 			{
-				SecurityAdvisor sa = advisors.firstElement();
+				SecurityAdvisor sa = advisors.peek();
 				if (advisor.equals(sa))
 				{
 					rv = (SecurityAdvisor) advisors.pop();
+				}
+				else
+				{
+					// Code is attempting to popAdvisor in wrong order so we destroy the stack to be safe
+					dropAdvisorStack();
+					throw new IllegalSecurityAdvisorException("SecurityAdvisor not called in correct order");
 				}
 			}
 		}
