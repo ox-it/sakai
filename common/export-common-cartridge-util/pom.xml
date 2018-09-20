@@ -12,7 +12,6 @@
 <groupId>org.sakaiproject.common</groupId>
 <artifactId>export-common-cartridge-util</artifactId>
 <packaging>jar</packaging>
-
 <dependencies>
 	<!-- Internal project -->
 	<dependency>

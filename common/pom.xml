@@ -148,11 +148,6 @@
 	<artifactId>sakai-archive-import</artifactId>
         <version>${project.version}</version>
       </dependency>
-		<dependency>
-			<groupId>org.sakaiproject.common</groupId>
-			<artifactId>export-common-cartridge</artifactId>
-			<version>${project.version}</version>
-		</dependency>
       <!-- external dependencies -->
       <dependency>
         <groupId>org.apache.commons</groupId>
