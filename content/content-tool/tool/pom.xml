@@ -55,7 +55,7 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
-      <artifactId>export-common-cartridge</artifactId>
+      <artifactId>export-common-cartridge-util</artifactId>
     </dependency>
     <dependency>
       <groupId>jdom</groupId>
