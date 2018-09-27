@@ -21,14 +21,7 @@
 
 package org.sakaiproject.feedback.tool.entityproviders;
 
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.commons.fileupload.FileItem;
-
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
@@ -43,18 +36,23 @@ import org.sakaiproject.feedback.db.Database;
 import org.sakaiproject.feedback.exception.AttachmentsTooBigException;
 import org.sakaiproject.feedback.tool.FeedbackTool;
 import org.sakaiproject.feedback.util.Constants;
+import org.sakaiproject.feedback.util.RecaptchaService;
 import org.sakaiproject.feedback.util.SakaiProxy;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.RequestFilter;
-
-import net.tanesha.recaptcha.ReCaptcha;
-import net.tanesha.recaptcha.ReCaptchaFactory;
-import net.tanesha.recaptcha.ReCaptchaResponse;
-import org.sakaiproject.util.ResourceLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class FeedbackEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, Outputable, Describeable, ActionsExecutable, RequestAware {
 	
@@ -83,6 +81,11 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
     private Database db = null;
     public void setDb(Database db) {
         this.db = db;
+    }
+
+    private RecaptchaService recaptcha;
+    public void setRecaptcha(RecaptchaService recaptcha) {
+        this.recaptcha = recaptcha;
     }
 
     private RequestGetter requestGetter = null;
@@ -212,18 +215,10 @@ public class FeedbackEntityProvider extends AbstractEntityProvider implements Au
         }
         else {
             // Recaptcha
-            if (sakaiProxy.getConfigBoolean("user.recaptcha.enabled", false)) {
-                String publicKey = sakaiProxy.getConfigString("user.recaptcha.public-key", "");
-                String privateKey = sakaiProxy.getConfigString("user.recaptcha.private-key", "");
-                ReCaptcha captcha = ReCaptchaFactory.newReCaptcha(publicKey, privateKey, false);
-                String challengeField = (String) params.get("recaptcha_challenge_field");
-                String responseField = (String) params.get("recaptcha_response_field");
-                if (challengeField == null) challengeField = "";
-                if (responseField == null) responseField = "";
+            if (recaptcha.isEnabled()) {
                 String remoteAddress = requestGetter.getRequest().getRemoteAddr();
-                ReCaptchaResponse response = captcha.checkAnswer(remoteAddress, challengeField, responseField);
-                if (!response.isValid()) {
-                    logger.warn("Recaptcha failed with this message: " + response.getErrorMessage());
+                boolean valid = recaptcha.verify((String) params.get("g-recaptcha-response"), remoteAddress);
+                if (!valid) {
                     return RECAPTCHA_FAILURE;
                 }
             }

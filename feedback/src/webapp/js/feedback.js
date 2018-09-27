@@ -25,6 +25,8 @@
     var loggedIn = (feedback.userId != '') ? true : false;
     var siteUpdater;
     var technicalToAddress;
+    var recaptchaRequested = false;
+    var recaptchaLoaded = false;
 
     feedback.switchState = function (state) {
         feedback.switchState(state, null);
@@ -190,18 +192,27 @@
 
         if (feedback.recaptchaPublicKey.length > 0) {
             // Recaptcha is enabled, show it.
-            Recaptcha.create(feedback.recaptchaPublicKey, "feedback-recaptcha-block",
-                {
-                    theme: "red",
-                    callback: function () {
-
-                        feedback.fitFrame();
-                        $('#feedback-recaptcha-wrapper').show();
-                    }
-                }
-            );
+            recaptchaRequested = true;
+            feedback.addRecaptcha();
         }
     };
+
+    feedback.addRecaptcha = function() {
+        if (recaptchaRequested && recaptchaLoaded) {
+            grecaptcha.render("feedback-recaptcha-block", {
+                sitekey: feedback.recaptchaPublicKey
+            });
+
+            $('#feedback-recaptcha-wrapper').show();
+            feedback.fitFrame();
+        }
+
+    };
+
+    feedback.readyReptcha = function() {
+        recaptchaLoaded = true;
+
+    }
 
     feedback.setUpCancelButton = function () {
         $('#feedback-cancel-button').click(function (e) {
