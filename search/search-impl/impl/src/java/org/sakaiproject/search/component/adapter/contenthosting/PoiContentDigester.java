@@ -27,8 +27,9 @@ import java.io.StringReader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.poi.POITextExtractor;
-import org.apache.poi.extractor.ExtractorFactory;
+
+import org.apache.poi.extractor.POITextExtractor;
+import org.apache.poi.ooxml.extractor.ExtractorFactory;
 import org.sakaiproject.content.api.ContentResource;
 
 /**
