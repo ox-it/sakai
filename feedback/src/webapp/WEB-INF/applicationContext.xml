@@ -23,6 +23,12 @@
         init-method="init">
         <property name="db"><ref bean="org.sakaiproject.feedback.db.Database" /></property>
         <property name="sakaiProxy"><ref bean="org.sakaiproject.feedback.util.SakaiProxy" /></property>
+        <property name="recaptcha" ref="org.sakaiproject.feedback.util.RecaptchaService"/>
 	</bean>
+
+    <bean id="org.sakaiproject.feedback.util.RecaptchaService"
+        class="org.sakaiproject.feedback.util.RecaptchaServiceImpl">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </bean>
 
 </beans>

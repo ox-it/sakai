@@ -22,6 +22,7 @@
 package org.sakaiproject.feedback.tool;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.sakaiproject.feedback.util.RecaptchaService;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.slf4j.Logger;
@@ -61,6 +62,8 @@ public class FeedbackTool extends HttpServlet {
 
     private ThreadLocalManager threadLocalManager = null;
 
+    private RecaptchaService recaptchaService;
+
     private final String[] DYNAMIC_PROPERTIES = { "help_tooltip",  "overview", "technical_setup_instruction", "feature_suggestion_setup_instruction",
             "report_technical_tooltip", "short_technical_description",
             "suggest_feature_tooltip", "feature_description", "technical_instruction",  "error", "help_home"};
@@ -81,6 +84,7 @@ public class FeedbackTool extends HttpServlet {
             securityService = (SecurityService) context.getBean("org.sakaiproject.authz.api.SecurityService");
             siteService = (SiteService) context.getBean("org.sakaiproject.site.api.SiteService");
             threadLocalManager = context.getBean(ThreadLocalManager.class);
+            recaptchaService = context.getBean(RecaptchaService.class);
 
         } catch (Throwable t) {
             throw new ServletException("Failed to initialise FeedbackTool servlet.", t);
@@ -125,9 +129,8 @@ public class FeedbackTool extends HttpServlet {
         if (userId != null) {
             setMapAttribute(request, "siteUpdaters", emailRecipients);
         } else {
-            if (sakaiProxy.getConfigBoolean("user.recaptcha.enabled", false)) {
-                String publicKey = sakaiProxy.getConfigString("user.recaptcha.public-key", "");
-                setStringAttribute(request, "recaptchaPublicKey", publicKey);
+            if (recaptchaService.isEnabled()) {
+                setStringAttribute(request, "recaptchaPublicKey", recaptchaService.getPublicKey());
             }
         }
 

@@ -10,10 +10,8 @@
         <script type="text/javascript" src="/library/webjars/jquery/1.11.3/jquery.min.js"></script>
         <script type="text/javascript" src="/feedback-tool/lib/jquery.form.min.js"></script>
         <script type="text/javascript" src="/feedback-tool/lib/jquery.MultiFile.pack.js"></script>
-        <script type="text/javascript" src="//www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
         <script type="text/javascript" src="/feedback-tool/lib/handlebars.runtime-v1.3.0.js"></script>
         <script type="text/javascript" src="/feedback-tool/templates/all.handlebars"></script>
-
         <script type="text/javascript">
 
             var feedback = {
@@ -46,6 +44,11 @@
                     </c:forEach>
                 }
             };
+
+            /* Google doesn't allow dots in onload */
+            function recaptchaLoaded() {
+                feedback.readyReptcha();
+            }
     
         </script>
         <script type="text/javascript" src="/feedback-tool/js/feedbackutils.js"></script>
@@ -72,6 +75,7 @@
             </div>
         </div>
         <script type="text/javascript" src="/feedback-tool/js/feedback.js"></script>
+        <script src="https://www.google.com/recaptcha/api.js?onload=recaptchaLoaded&render=explicit" async defer></script>
 
     </body>
 </html>
