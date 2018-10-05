@@ -1825,7 +1825,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// Should we keep the path after Login?
 			boolean keepPath = ServerConfigurationService.getBoolean("login.keep.path", false);
 			// Must encode or we expose an XSS
-			String returnPath = (keepPath)?"?returnPath="+  URLEncoder.encode(req.getPathInfo()):"";
+			String returnPath = (keepPath && req.getPathInfo() != null)
+					?"?returnPath="+  URLEncoder.encode(req.getPathInfo())
+					:"";
 			
 			if (containerLogin) topLogin = false;
 			
