@@ -29,9 +29,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:git@github.com:oxit/sentry-sakai.git</connection>
-        <developerConnection>scm:git:git@github.com:oxit/sentry-sakai.git</developerConnection>
-        <url>git@github.com:oxit/sentry-sakai.git</url>
+        <connection>scm:git:git@github.com:ox-it/sentry-sakai.git</connection>
+        <developerConnection>scm:git:git@github.com:ox-it/sentry-sakai.git</developerConnection>
+        <url>git@github.com:ox-it/sentry-sakai.git</url>
       <tag>HEAD</tag>
   </scm>
 
