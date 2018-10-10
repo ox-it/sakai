@@ -26,6 +26,9 @@ RUN chmod 755 /opt/tomcat/bin/startup_with_yjp.sh
 # Up the memory for production
 ENV CATALINA_OPTS_MEMORY -Xms2g -Xmx3g
 
+# Get hostnames correctly in docker
+ENV SENTRY_FACTORY=uk.ac.ox.it.sentry.DockerSentryClientFactory
+
 # To allow de-reploy and expanding of webapps.
 RUN chown sakai /opt/tomcat/webapps
 

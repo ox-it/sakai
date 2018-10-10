@@ -38,6 +38,7 @@ services:
     environment:
      # Blank value gets copied through from local enviroment
      SENTRY_DSN:
+     SENTRY_FACTORY: uk.ac.ox.it.sentry.DockerSentryClientFactory
      RABBITMQ_URL:
      CATALINA_JMX_PORT: 5401
      DB_ENV_MYSQL_USER: sakai
