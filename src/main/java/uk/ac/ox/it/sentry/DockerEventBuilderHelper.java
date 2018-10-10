@@ -17,11 +17,10 @@
  * limitations under the License.
  * #L%
  */
-package org.sakaiproject.sentry;
+package uk.ac.ox.it.sentry;
 
-
-import com.getsentry.raven.event.EventBuilder;
-import com.getsentry.raven.event.helper.EventBuilderHelper;
+import io.sentry.event.EventBuilder;
+import io.sentry.event.helper.EventBuilderHelper;
 
 /**
  * Under docker it might be the case that the hostname isn't the same as the interface IP.

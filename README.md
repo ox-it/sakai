@@ -1,13 +1,13 @@
-# Raven Java for Sakai
+# Sentry Java for Sakai
 
-This project re-packages raven-java and it's dependencies so that they can be deployed into Sakai's classloaders, this
+This project re-packages sentry-java and it's dependencies so that they can be deployed into Sakai's classloaders, this
 allows you to send log4j events to sentry.
 
 ## Deployment
 
-Copy the artifact into tomcat's `common/lib` folder so that it is in the same classloader as log4j.jar, if you are
+Copy the artifact into tomcat's `lib` folder so that it is in the same classloader as log4j.jar, if you are
 running a copy of Sakai before 10.x you may get problems with tools supplying thier own copy of log4j.jar. Then
-you need to configure log4j to use the raven logger, placing a log4j.properties file in `sakai.home` means it will
+you need to configure log4j to use the sentry logger, placing a log4j.properties file in `sakai.home` means it will
 get read at startup and watched for changes. A simple example of this is:
 
     # Define the loggers
@@ -15,8 +15,7 @@ get read at startup and watched for changes. A simple example of this is:
     
     # Sentry setup
     # The DSN should be supplied through the envrionment variable SENTRY_DSN
-    # log4j.appender.sentry.dsn=https://publicKey:secretKey@host:port/1?options
-    log4j.appender.sentry=com.getsentry.raven.log4j.SentryAppender
+    log4j.appender.sentry=io.sentry.log4j.SentryAppender
     log4j.appender.sentry.Threshold=ERROR
     
     # Console setup
@@ -34,25 +33,27 @@ get read at startup and watched for changes. A simple example of this is:
     log4j.logger.uk.ac.ox.oucs=INFO
     log4j.logger.net.sf.snmpadaptor4j=INFO
     
-To avoid putting secrets in configuration files you can use the `SENTRY_DSN` envrionment variable to configure the 
-raven-java log4j integration.
+To avoid putting secrets in configuration files you can use the `SENTRY_DSN` environment variable to configure the 
+sentry-java log4j integration.
 
 ## Custom hostname
 
-Sometimes the way raven-java looks up the hostname isn't correct, by default it will use the name of the IP used
+Sometimes the way sentry-java looks up the hostname isn't correct, by default it will use the name of the IP used
 on the default interface. In some setups this isn't correct, for example when running inside docker containers with
 custom networking, if you wish it to just use the `HOSTNAME` environment variable then you can set the raven factory
-to be `org.sakaiproject.sentry.DockerRavenFactory` and it will use that instead, if using log4j.properties then the
-configuration to enable this is:
+to be `uk.ac.ox.it.sentry.DockerSentryClientFactory` and it will use that instead. One way todo this is using an
+environmental variable:
 
-    log4j.appender.sentry.ravenFactory=org.sakaiproject.sentry.DockerRavenFactory
+    SENTRY_FACTORY=uk.ac.ox.it.sentry.DockerSentryClientFactory
+
     
 ## Making a release
 
-This project is released to OSSRH using the standard maven deploy plugin. There is documentation about this on
-http://central.sonatype.org/pages/apache-maven.html and once you have made the appropriate changes to 
-`~/.m2/settings.xml` you should be able to makes releases. Then once they look ok you can promote them
-http://central.sonatype.org/pages/releasing-the-deployment.html
+This is release to https://maven-repo.oucs.ox.ac.uk . To perform a release use:
+
+     mvn release:prepare release:perform
+
+You will need credentals to perform the upload.
 
 ## License
 

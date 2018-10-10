@@ -17,22 +17,22 @@
  * limitations under the License.
  * #L%
  */
-package org.sakaiproject.sentry;
+package uk.ac.ox.it.sentry;
 
 
-import com.getsentry.raven.DefaultRavenFactory;
-import com.getsentry.raven.Raven;
-import com.getsentry.raven.dsn.Dsn;
+import io.sentry.DefaultSentryClientFactory;
+import io.sentry.SentryClient;
+import io.sentry.dsn.Dsn;
 
 /**
  * This uses the DockerEventBuilder to set the hostname from the environment.
  */
-public class DockerRavenFactory extends DefaultRavenFactory {
+public class DockerSentryClientFactory extends DefaultSentryClientFactory {
 
     @Override
-    public Raven createRavenInstance(Dsn dsn) {
-        Raven ravenInstance = super.createRavenInstance(dsn);
-        ravenInstance.addBuilderHelper(new DockerEventBuilderHelper());
-        return ravenInstance;
+    public SentryClient createSentryClient(Dsn dsn) {
+        SentryClient sentryClient = super.createSentryClient(dsn);
+        sentryClient.addBuilderHelper(new DockerEventBuilderHelper());
+        return sentryClient;
     }
 }
