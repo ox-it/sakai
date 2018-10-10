@@ -80,8 +80,8 @@ fi
 if [ -z "${CATALINA_LISTEN}" ]; then
 	CATALINA_LISTEN="0.0.0.0"
 fi
-# Tag this onto the end of the CATALINA_OPTS
-export CATALINA_OPTS="$CATALINA_OPTS -Dcatalina.listen=$CATALINA_LISTEN"
+# Tag this onto the end of the JAVA_OPTS because it's needed for stop
+export JAVA_OPTS="$JAVA_OPTS -Dcatalina.listen=$CATALINA_LISTEN"
 
 # Enable JMX on port 5400 by default, but allow it to be overridden
 if [ -z "${CATALINA_JMX_PORT}" ]; then
