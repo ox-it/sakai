@@ -5,7 +5,7 @@
     <groupId>uk.ac.ox.it.sentry</groupId>
     <artifactId>sentry-sakai</artifactId>
     <packaging>jar</packaging>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <description>This jar packages sentry-java and it dependencies into a shaded JAR for deployment into Sakai.</description>
     <url>https://github.com/sakaiproject/sentry-sakai</url>
     <inceptionYear>2015</inceptionYear>
@@ -32,7 +32,7 @@
         <connection>scm:git:git@github.com:ox-it/sentry-sakai.git</connection>
         <developerConnection>scm:git:git@github.com:ox-it/sentry-sakai.git</developerConnection>
         <url>git@github.com:ox-it/sentry-sakai.git</url>
-      <tag>sentry-sakai-1.0</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <properties>
