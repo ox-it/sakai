@@ -2742,7 +2742,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             Integer dropHighest = cat.getDropHighest();
             Integer dropLowest = cat.getDrop_lowest();
             Integer keepHighest = cat.getKeepHighest();
-            Long catId = cat.getId();
             
             if((dropHighest != null && dropHighest > 0) || (dropLowest != null && dropLowest > 0) || (keepHighest != null && keepHighest > 0)) {
                 
@@ -3103,7 +3102,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	
 	private Optional<CategoryScoreData> getCategoryScoreResult(String studentUuid, Long categoryId, List<AssignmentGradeRecord> gradeRecords)
 	{
-		Double score = calculateCategoryScore(studentUuid, categoryId, gradeRecords);
+		List<AssignmentGradeRecord> dropList = new ArrayList<>();
+		Double score = calculateCategoryScore(studentUuid, categoryId, gradeRecords, dropList);
 		if (score == null)
 		{
 			return Optional.empty();
@@ -3111,7 +3111,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		// the call to calculateCategoryScore modifies gradeRecords so that it only contains items included in the category score
 		List<Long> includedItems = gradeRecords.stream().map(agr -> agr.getAssignment().getId()).collect(Collectors.toList());
-		return Optional.of(new CategoryScoreData(score, includedItems));
+
+		// the call to calculateCategoryScore populates dropList with the items that were dropped (and are no longer in gradeRecords)
+		List<Long> droppedItems = dropList.stream().map(agr -> agr.getAssignment().getId()).collect(Collectors.toList());
+
+		return Optional.of(new CategoryScoreData(score, includedItems, droppedItems));
 	}
 	
 	/**
@@ -3120,9 +3124,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @param studentUuid the student uuid
 	 * @param categoryId the cateogry id we are interested in
 	 * @param gradeRecords all grade records for the student
+	 * @param dropList a list that will be populated with the dropped grade records due to drop highest/lowest settings
 	 * @return
 	 */
-	private Double calculateCategoryScore(String studentUuid, Long categoryId, List<AssignmentGradeRecord> gradeRecords) {
+	private Double calculateCategoryScore(String studentUuid, Long categoryId,
+			List<AssignmentGradeRecord> gradeRecords, List<AssignmentGradeRecord> dropList) {
 				
 		//validate
 		if(gradeRecords == null) {
@@ -3156,16 +3162,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// Rule 7. extra credit items have their grade value counted only. Their total points possible does not apply to the calculations
 		log.debug("categoryId: " + categoryId);
 
+		// keep a list of the records that were dropped from this category
+		List<AssignmentGradeRecord> drops = gradeRecords.stream().filter(r -> isInCategory(r.getAssignment(), categoryId) && r.getDroppedFromGrade())
+				.collect(Collectors.toList());
+
 		gradeRecords.removeIf(gradeRecord -> {
 			Assignment assignment = gradeRecord.getAssignment();
 						
 			// remove if not for this category (rule 1)
-			if(assignment.getCategory() == null){
+			if(!isInCategory(assignment, categoryId)) {
 				return true;
 			}
-			if(categoryId.longValue() != assignment.getCategory().getId().longValue()){
-				return true;
-			}
+
 			//remove if the assignment/graderecord doesn't meet the criteria for the calculation (rule 2-6)
 			return assignment.getPointsPossible() == null || gradeRecord.getPointsEarned() == null || !assignment.isCounted()
 				   || !assignment.isReleased() || gradeRecord.getDroppedFromGrade();
@@ -3202,9 +3210,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
     		return null;
     	}
-	
+
+		// populate the drop list before returning the category score
+		dropList.addAll(drops);
+
     	BigDecimal mean = totalEarned.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).divide((totalPossible.divide(new BigDecimal(numOfAssignments), GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));    	
     	return mean.doubleValue();
+	}
+
+	private boolean isInCategory(Assignment asn, Long categoryId)
+	{
+		return asn != null && asn.getCategory() != null && asn.getCategory().getId().longValue() == categoryId.longValue();
 	}
 	
 	@Override

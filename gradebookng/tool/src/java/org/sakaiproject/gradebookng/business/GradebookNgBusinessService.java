@@ -1312,7 +1312,7 @@ public class GradebookNgBusinessService {
 						CategoryScoreData data = categoryScore.get();
 						for (Long item : gradeMap.keySet())
 						{
-							if (!data.includedItems.contains(item))
+							if (data.droppedItems.contains(item))
 							{
 								grades.get(item).setDroppedFromCategoryScore(true);
 							}

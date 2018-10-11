@@ -139,8 +139,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 					if (catId != null)
 					{
 						businessService.getCategoryScoreForStudent(catId, userId)
-									.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages,
-											grades, catItems));
+									.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages, grades));
 					}
 				}
 			}
@@ -211,14 +210,11 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 	}
 	
 	private void storeAvgAndMarkIfDropped(CategoryScoreData avg, Long catId, Map<Long, Double> categoryAverages,
-			Map<Long, GbGradeInfo> grades, List<Assignment> catItems)
+			Map<Long, GbGradeInfo> grades)
 	{
 		categoryAverages.put(catId, avg.score);
-		
-		final List<Long> droppedAsnIds = catItems.stream().map(Assignment::getId)
-				.filter(id -> !avg.includedItems.contains(id)).collect(Collectors.toList());
-		
-		grades.entrySet().stream().filter(e -> droppedAsnIds.contains(e.getKey()))
+
+		grades.entrySet().stream().filter(e -> avg.droppedItems.contains(e.getKey()))
 				.forEach(entry -> entry.getValue().setDroppedFromCategoryScore(true));
 	}
 }

@@ -476,9 +476,8 @@ public class GradeItemCellPanel extends Panel {
 			if (categoryId != null && categoryId.equals(payload.categoryId)
 					&& studentUuid.equals(payload.studentUuid))
 			{
-				dropped = !payload.includedItems.contains(assignmentId) 
-						&& ((gradeCell != null && businessService.isValidNumericGrade(gradeCell.getModelObject()))
-							|| (displayGradeLabel != null && StringUtils.isNotBlank(displayGradeLabel.getDefaultModelObjectAsString())));
+				dropped = payload.droppedItems.contains(assignmentId)
+						&& gradeCell != null && businessService.isValidNumericGrade(gradeCell.getModelObject());
 				gradeDropStyle = dropped ? GradeCellDropStyle.DROPPED : GradeCellDropStyle.INCLUDED;
 				
 				String js = String.format("sakai.gradebookng.spreadsheet.refreshCellForCategoryDropUpdate('%s', '%s', '%s')",

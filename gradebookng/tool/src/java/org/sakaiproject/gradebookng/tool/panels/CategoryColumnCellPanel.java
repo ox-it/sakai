@@ -67,7 +67,7 @@ public class CategoryColumnCellPanel extends Panel {
 						// will reflect the change.
 						categoryAverage.ifPresent(avg -> ((GradebookPage) getPage())
 								.broadcastToTableCells(new CategoryScoreChangedEvent(studentUuid, categoryId,
-										avg.includedItems, scoreChangedEvent.getTarget())));
+										avg.includedItems, avg.droppedItems, scoreChangedEvent.getTarget())));
 						
 						final String newCategoryAverage = categoryAverage.isPresent() ?
 								FormatHelper.formatDoubleAsPercentage(categoryAverage.get().score) : getString("label.nocategoryscore");
