@@ -35,6 +35,9 @@
         <property name="deleted" type="java.lang.Boolean">
         	<column name="DELETED" />
         </property>
+        <property name="optionOrder" type="int" not-null="true">
+            <column name="OPTION_ORDER" />
+        </property>
      </class>
     
 	

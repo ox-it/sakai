@@ -28,10 +28,8 @@ public class Option {
     private String text;
     private String status;
     private String uuid;
-	private Boolean deleted;
-	
-	
-    
+    private Boolean deleted;
+    private Integer optionOrder;
 
 
     public Option() {}
@@ -104,4 +102,11 @@ public class Option {
 		this.deleted = deleted;
 	}
 
+    public void setOptionOrder(Integer optionOrder) {
+        this.optionOrder = optionOrder;
+    }
+
+    public Integer getOptionOrder() {
+        return this.optionOrder;
+    }
 }

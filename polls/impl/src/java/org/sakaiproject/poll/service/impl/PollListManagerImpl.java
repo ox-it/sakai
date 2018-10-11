@@ -311,7 +311,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         }
         Search search = new Search();
         search.addRestriction(new Restriction("pollId", pollId));
-        search.addOrder(new Order("optionId"));
+        search.addOrder(new Order("optionOrder"));
         List<Option> optionList = dao.findBySearch(Option.class, search);
         return optionList;
     }

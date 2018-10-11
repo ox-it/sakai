@@ -284,15 +284,11 @@ public class PollToolBean {
 		StringBuilder sb = new StringBuilder();
 		option.setOptionText(FormattedText.processFormattedText(option.getOptionText(), sb, true, true));
 
-		String text = option.getOptionText();
-		text = PollUtils.cleanupHtmlPtags(text);
-
+		String text = PollUtils.cleanupHtmlPtags(option.getOptionText());
 		option.setOptionText(text);
+		option.setOptionOrder(manager.getOptionsForPoll(option.getPollId()).size());
 		manager.saveOption(option);
 		LOG.debug("Succesuly save option with id" + option.getId());
-
-		//voteBean.poll = manager.getPollById(option.getPollId());
-
 		
 		if ("option".equals(submissionStatus))
 			return "option";
