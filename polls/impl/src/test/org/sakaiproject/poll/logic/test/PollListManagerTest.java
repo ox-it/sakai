@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.poll.dao.PollDao;
 import org.sakaiproject.poll.logic.test.stubs.ExternalLogicStubb;
 import org.sakaiproject.poll.model.Option;
@@ -69,6 +71,7 @@ public class PollListManagerTest extends AbstractJUnit4SpringContextTests {
 		pollListManager.setExternalLogic(externalLogicStubb);
 		pollVoteManager.setExternalLogic(externalLogicStubb);
 		pollListManager.setPollVoteManager(pollVoteManager);
+		pollListManager.setIdManager(mock(IdManager.class));
 		
 		// preload testData
 		tdp.preloadTestData(dao);
