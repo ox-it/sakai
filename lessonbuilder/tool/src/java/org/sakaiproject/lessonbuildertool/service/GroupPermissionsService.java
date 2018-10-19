@@ -158,8 +158,6 @@ public class GroupPermissionsService {
 			log.warn("ID unused", e);
 		} catch (PermissionException e) {
 			log.warn("Permission Error", e);
-		} finally {
-			// SecurityService.popAdvisor();
 		}
 
 		return group.getId();
@@ -215,7 +213,6 @@ public class GroupPermissionsService {
 
 		try {
 			securityService.pushAdvisor(unjoinAdvisor);
-
 			authzGroupService.unjoinGroup(groupId);
 		} catch (Exception e) {
 		    // we've got a problem. unjoingroup can fail for maintain users

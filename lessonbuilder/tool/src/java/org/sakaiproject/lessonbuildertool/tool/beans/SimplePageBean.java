@@ -4842,14 +4842,13 @@ public class SimplePageBean {
 				return false;
 			}
 		    }
-		    popAdvisor(advisor);
 		    // entity can be null. passing the actual entity just avoids a second lookup
 		    itemGroups = getItemGroups(item, entity, false);
 		} catch (IdUnusedException exc) {
 		    visibleCache.put(item.getId(), false);
 		    return false; // underlying entity missing, don't show it
 		} finally {
-		     if(advisor != null) securityService.popAdvisor(advisor);
+		     popAdvisor(advisor);
 		}
 		if (itemGroups == null || itemGroups.size() == 0) {
 		    // this includes items for which for which visibility doesn't apply
@@ -5473,7 +5472,7 @@ public class SimplePageBean {
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}finally {
-		    if(advisor != null) securityService.popAdvisor();
+		    if(advisor != null) securityService.popAdvisor(advisor);
 		}
 		
 		// 	no
