@@ -8,8 +8,10 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -37,15 +39,15 @@ public class CCExport {
 
 	private static Logger log = LoggerFactory.getLogger(CCExport.class);
 	private File root;
-	private String rootPath;
-	long nextid = 1;
+	private long nextid = 100000;
 
 	private HttpServletResponse response;
 	private File errFile = null;
 	private PrintStream errStream = null;
 	private String siteId;
-	List<String> selectedFolderIds;
-	List<String> selectedFiles;
+	private List<String> selectedFolderIds;
+	private List<String> selectedFiles;
+	private List<ContentResource> selectedFilesToExport = new ArrayList<>();
 
 	private ContentHostingService contentService;
 
@@ -53,29 +55,26 @@ public class CCExport {
 		this.contentService = contentHostingService;
 	}
 
-	List<ContentResource> selectedFilesToExport = new ArrayList<>();
-
 	public void doExport(String siteId, List<String> selectedFolderIds, List<String> selectedFiles, HttpServletResponse httpServletResponse) {
 		this.siteId = siteId;
 		this.selectedFolderIds = selectedFolderIds;
 		this.selectedFiles = selectedFiles;
 		response = httpServletResponse;
 
-		if (! startExport())
+		if (!startExport())
 			return;
-		if (! findSelectedFiles())
+		if (!findSelectedFiles())
 			return;
 
-		try (OutputStream htmlOut = response.getOutputStream(); ZipPrintStream out = new ZipPrintStream(htmlOut)){
+		try (OutputStream htmlOut = response.getOutputStream(); ZipPrintStream out = new ZipPrintStream(htmlOut)) {
 			response.setHeader("Content-disposition", "inline; filename=sakai-export.imscc");
 			response.setContentType("application/zip");
 
-			outputSelectedFiles (out);
+			outputSelectedFiles(out);
 			outputCourseSettingsFiles(out);
 			// Module not required for now.
 			// outputModuleSettingsFiles(out);
-			outputManifest (out);
-			out.close();
+			outputManifest(out);
 		} catch (IOException ioe) {
 			log.error("export-common-cartridge error getting output/zip stream, doExport" + ioe);
 			setErrMessage("I/O error getting output stream for export file: " + ioe.getMessage());
@@ -103,14 +102,6 @@ public class CCExport {
 
 	private boolean findSelectedFiles() {
 		try {
-			if (selectedFolderIds.size() > 0) {
-				for (String selectedFolder : selectedFolderIds) {
-					List<ContentResource> folderContents = contentService.getAllResources(selectedFolder);
-					for (ContentResource folderFile: folderContents) {
-						selectedFilesToExport.add(folderFile);
-					}
-				}
-			}
 			for (String selectedFile : selectedFiles) {
 				ContentResource contentFile = contentService.getResource(selectedFile);
 				// Don't put reading lists (citations) in the export.
@@ -122,7 +113,7 @@ public class CCExport {
 			log.error("export-common-cartridge permission error finding selected files" + pe);
 			setErrMessage("Error finding files selected for export: " + pe.getMessage());
 			return false;
-		} catch(IdUnusedException ide) {
+		} catch (IdUnusedException ide) {
 			log.error("export-common-cartridge ID unused  error finding selected files" + ide);
 			setErrMessage("Error finding files selected for export: " + ide.getMessage());
 			return false;
@@ -134,20 +125,26 @@ public class CCExport {
 		return true;
 	}
 
-	public boolean outputSelectedFiles (ZipPrintStream out) {
-		
-		for (ContentResource contentResource: selectedFilesToExport) {
+	public boolean outputSelectedFiles(ZipPrintStream out) {
+
+		String dashedFilename;
+
+		for (ContentResource contentResource : selectedFilesToExport) {
 			ZipEntry zipEntry;
 
-			// Includes the file path and name, starting with /
+			// Find the file name without the file path.
 			String filename = getFileName(contentResource, true);
 
 			// Files that are HTML or XHTML should be put in the pages area in Canvas so that they can be edited,
 			// to do this add to the wiki-content area and put the appropriate entry in the manifest file.
 			// Files in Pages must be in a flat file structure regardless of where they are in resources.
 			// Files in web_resources will end up in Files and cannot be edited.  They can be in the same file structure as resources.
+
+			// Change the filename to be the folder structure but replace slash with dash, this is so that duplicate file names are not lost.
+			// Will only be used for HTML files.
+			dashedFilename = getFilePath(contentResource, false).replace('/', '-') + filename;
 			if (hasMarkUp(contentResource.getContentType())) {
-				zipEntry = new ZipEntry("wiki_content/" + filename);
+				zipEntry = new ZipEntry("wiki_content/" + dashedFilename);
 			} else {
 				zipEntry = new ZipEntry("web_resources/" + getFilePath(contentResource, false) + filename);
 			}
@@ -162,16 +159,16 @@ public class CCExport {
 					String content = null;
 
 					content = new String(contentResource.getContent());
-					content = relFixup(content, contentResource);
+					content = linkFixup(content);
 
 					//  add in HTML header and footer
 					out.println("<html>");
 					out.println("<head>");
-					out.println("  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>");
-					out.println("  <title>" + StringEscapeUtils.escapeXml(filename) + "</title>");
-					out.println("  <meta name=\"identifier\" content=\"" + getResourceId() + "\"/>");
-					out.println("  <meta name=\"editing_roles\" content=\"teachers\"/>");
-					out.println("  <meta name=\"workflow_state\" content=\"unpublished\"/>");
+					out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>");
+					out.println("<title>" + dashedFilename + "</title>");
+					out.println("<meta name=\"identifier\" content=\"" + contentResource.getId() + "\"/>");
+					out.println("<meta name=\"editing_roles\" content=\"teachers\"/>");
+					out.println("<meta name=\"workflow_state\" content=\"unpublished\"/>");
 					out.println("</head>");
 					out.println("<body>");
 					out.println(content);
@@ -233,7 +230,6 @@ public class CCExport {
 			zipEntry = new ZipEntry("course_settings/canvas_export.txt");
 			out.putNextEntry(zipEntry);
 			out.println("Required so that common cartridge import into Canvas Pages and Files works.");
-
 			out.closeEntry();
 		} catch (IOException ioe) {
 			log.error("export-common-cartridge IO exception outputing course settings files" + ioe);
@@ -340,13 +336,14 @@ public class CCExport {
 			// out.println("      <file href=\"course_settings/module_meta.xml\"/>");
 			out.println("    </resource>");
 
-			for (ContentResource contentResource: selectedFilesToExport) {
+			for (ContentResource contentResource : selectedFilesToExport) {
+				String filepath = getFilePath(contentResource, true);
 				String filename = getFileName(contentResource, true);
 
 				// See the comments above in method outputSelectedFiles.
 				if (hasMarkUp(contentResource.getContentType())) {
-					out.println("    <resource identifier=\"" + getResourceId() + "\" type=\"webcontent\" href=\"wiki_content/" + filename + "\">");
-					out.println("      <file href=\"wiki_content/" + filename + "\"/>");
+					out.println("    <resource identifier=\"" + contentResource.getId() + "\" type=\"webcontent\" href=\"wiki_content/" + filepath.replace('/', '-') + filename + "\">");
+					out.println("      <file href=\"wiki_content/" + filepath.replace('/', '-') + filename + "\"/>");
 				} else {
 					out.println("    <resource identifier=\"" + getResourceId() + "\" type=\"webcontent\" href=\"web_resources/" + getFilePath(contentResource, false) + filename + "\">");
 					out.println("      <file href=\"web_resources/" + getFilePath(contentResource, false) + filename + "\"/>");
@@ -366,7 +363,7 @@ public class CCExport {
 			errStream.close();
 			zipEntry = new ZipEntry("cc-objects/export-errors");
 			out.putNextEntry(zipEntry);
-			try (InputStream contentStream = new FileInputStream(errFile)){
+			try (InputStream contentStream = new FileInputStream(errFile)) {
 				IOUtils.copy(contentStream, out);
 				out.closeEntry();
 			}
@@ -378,16 +375,12 @@ public class CCExport {
 		return true;
 	}
 
-	String getResourceId () {
+	String getResourceId() {
 		return "res" + (nextid++);
 	}
 
-	private boolean hasMarkUp(String mimeType){
-		if (("text/html").equals(mimeType) || ("application/xhtml+xml").equals(mimeType) ||
-				("application/xml").equals(mimeType) || ("text/xml").equals(mimeType)) {
-			return true;
-		}
-		return false;
+	private boolean hasMarkUp(String mimeType) {
+		return (("text/html").equals(mimeType) || ("application/xhtml+xml").equals(mimeType));
 	}
 
 	private String getFilePath(ContentResource contentResource, boolean encode) {
@@ -407,76 +400,140 @@ public class CCExport {
 			try {
 				return URLEncoder.encode(fileName, "UTF-8");
 			} catch (UnsupportedEncodingException uee) {
-				log.error("export-common-cartridge UnsupportedEncodingException encoding file name: " + uee);
+				throw new RuntimeException("export-common-cartridge UnsupportedEncodingException encoding file name: " + uee);
 			}
 		}
 		return fileName;
 	}
 
-	// turns the links into relative links
-	// fixups will get a list of offsets where fixups were done, for loader to reconstitute HTML
-	public String relFixup (String s, ContentResource contentResource) {
-		StringBuilder ret = new StringBuilder();
-		String sakaiIdBase = "/group/" + siteId;
-		// I'm matching against /access/content/group not /access/content/group/SITEID, because SITEID can in some installations
-		// be user chosen. In that case there could be escaped characters, and the escaping in HTML URL's isn't unique. 
-		Pattern target = Pattern.compile("(?:https?:)?(?://[-a-zA-Z0-9.]+(?::[0-9]+)?)?/access/content(/group/)", Pattern. CASE_INSENSITIVE);
-		Matcher matcher = target.matcher(s);
-		// technically / isn't allowed in an unquoted attribute, but sometimes people
-		// use sloppy HTML
-		Pattern wordend = Pattern.compile("[^-a-zA-Z0-9._:/]");
-		int index = 0;
-		int loopCount = 0;
-		while (true) {
-			// prevent infinite loop
-			if (!matcher.find() || ++loopCount > 999) {
-				ret.append(s.substring(index));
-				break;
-			}
-			String sakaiId = null;
-			int start = matcher.start();
+	// Converts links in HTML files into relative links and makes them suitable for Canvas.
+	public String linkFixup(String content) {
+		StringBuilder parsedContent = new StringBuilder(content);
 
-			// make sure it's the right siteid. This approach will get it no matter
-			// how the siteid is url encoded
-			int startsite = matcher.end(1);
-			int last = s.indexOf("/", startsite);
-			if (last < 0)
-				continue;
-			String sitepart = null;
-			try {
-				sitepart = URLDecoder.decode(s.substring(startsite, last), "UTF-8");
-			} catch (Exception e) {
-				log.info("decode failed in CCExport " + e);
-			}
-			if (!siteId.equals(sitepart))
-				continue;
+		// Remove protocol, domain and /access/content folders from all links.
+		parsedContent = makeLinksRelative(parsedContent);
 
-			int sakaistart = matcher.start(1); //start of sakaiid, can't find end until we figure out quoting
+		// Check which links are to html files (need to use the unencoded href but not remove the encoding) and change 
+		// the folder slashes for hyphens when they are. Store the links in a map to use below.
+		Map<String, Boolean> savedLinks = new HashMap<>();
+		parsedContent = convertSlashToHyphen(parsedContent, savedLinks);
 
-			// need to find sakaiend. To do that we need to find the close quote
-			int sakaiend = 0;
-			char quote = s.charAt(start-1);
-			if (quote == '\'' || quote == '"')  // quoted, this is easy
-				sakaiend = s.indexOf(quote, sakaistart);
-			else { // not quoted. find first char not legal in unquoted attribute
-				Matcher wordendMatch = wordend.matcher(s);
-				if (wordendMatch.find(sakaistart)) {
-					sakaiend = wordendMatch.start();
+		// Add the correct Canvas substitution variable so that HTML files end up in Pages in Canvas and
+		// everything else in the files area in Canvas.
+		parsedContent = addCanvasFilePath(parsedContent, savedLinks);
+
+		// Remove the /group/siteid from the links.
+		parsedContent = removeWLPath(parsedContent);
+
+		//Remove any encoding characters from the link text only (not the href).
+		parsedContent = removeUrlEncoding(parsedContent);
+
+		return parsedContent.toString();
+	}
+
+	private StringBuilder makeLinksRelative(StringBuilder parsedContent) {
+		// Remove protocol, domain and /access/content folders from all links.
+		Pattern target = Pattern.compile("(?:https?:)?(?://[-a-z0-9.]+(?::[0-9]+)?)?/access/content", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = target.matcher(parsedContent);
+		return new StringBuilder(matcher.replaceAll(""));
+	}
+
+	private StringBuilder convertSlashToHyphen(StringBuilder parsedContent, Map<String, Boolean> savedLinks) {
+		// Check which links are to html files (need to use the unencoded href but not remove the encoding) and change 
+		// the folder slashes for hyphens when they are.
+		Pattern target = Pattern.compile("(?:href=)+(?:\"|')?(/group/[a-z0-9-]+/)([a-z0-9/%+._-]+)(?:\"|'| )?(?:[a-z0-9=\"'])*>(?:/group/[a-z0-9-]+/)([a-z0-9/%+._-]+)", Pattern.CASE_INSENSITIVE);
+		Matcher matcher = target.matcher(parsedContent);
+
+		try {
+			while (matcher.find()) {
+				String urlMatch = matcher.group(1) + matcher.group(2);
+				urlMatch = URLDecoder.decode(urlMatch, "UTF-8");
+				for (ContentResource cr : selectedFilesToExport) {
+					if (cr.getId().equals(urlMatch)) {
+						if (hasMarkUp(cr.getContentType())) {
+							parsedContent.replace(matcher.start(2), matcher.end(2), matcher.group(2).replace('/', '-'));
+							parsedContent.replace(matcher.start(3), matcher.end(3), matcher.group(3).replace('/', '-'));
+							// Add the href link to the map to use when working out the correct Canvas substitution variable.
+							savedLinks.put(matcher.group(2).replace('/', '-'), true);
+						} else {
+							savedLinks.put(matcher.group(2), false);
+						}
+					}
 				}
-				else
-					sakaiend = s.length();
 			}
-			try {
-				sakaiId = removeDotDot(URLDecoder.decode(s.substring(sakaistart, sakaiend), "UTF-8"));
-			} catch (Exception e) {
-				log.info("Exception in CCExport URLDecoder " + e);
-			}
-
-			ret.append(s.substring(index, start));
-			ret.append(sakaiId.substring(sakaiIdBase.length()+1));
-			index = sakaiend;  // start here next time
+		} catch (IllegalStateException ise) {
+			log.error("export-common-cartridge illegal state exception in convertSlashToHyphen for matcher: " + matcher.toString() + " and content: " + parsedContent + ise);
+		} catch (UnsupportedEncodingException uee) {
+			throw new RuntimeException("export-common-cartridge unsupported encoding exception in convertSlashToHyphen" + uee);
 		}
-		return ret.toString();
+		return parsedContent;
+	}
+
+	private StringBuilder addCanvasFilePath(StringBuilder parsedContent, Map<String, Boolean> savedLinks) {
+		// Add the correct Canvas substitution variable so that HTML files end up in Pages in Canvas and
+		// everything else in the files area in Canvas.
+		try {
+			for (Map.Entry<String, Boolean> link : savedLinks.entrySet()) {
+				String pat = "(href=)+(\"|')?(/group/" + siteId + "/)(" + link.getKey() + ")(\"|')?([ a-z0-9=\"'-]*)(>)";
+				Pattern target = Pattern.compile(pat, Pattern.CASE_INSENSITIVE);
+				Matcher matcher = target.matcher(parsedContent);
+				if (matcher.find()) {
+					if (link.getValue()) {
+						// Link is to HTML content which will be in the wiki_content directory (Pages).
+						// To get links between HTML pages working in href links in Canvas the underscore has to be replaced with hyphen,
+						// and spaces also have to be replaced with a hyphen.  The file ending (.html) also has to be removed.
+						// Also, the filename (including the bit converted from the file path to the filename with hyphens has to be lower case.
+						String filename = link.getKey();
+						int periodPosition = filename.indexOf('.');
+						if (periodPosition > -1) {
+							filename = filename.substring(0, periodPosition);
+						}
+						// Change any encoding characters to hyphens in the href as Canvas requires this for HTML files.
+						filename = URLDecoder.decode(filename, "UTF-8");
+						filename = filename.replace(' ', '-').replace('_', '-').toLowerCase();
+						parsedContent = new StringBuilder(matcher.replaceAll(matcher.group(1) + matcher.group(2) + matcher.group(3) +
+								"%24WIKI_REFERENCE%24/pages/" + filename + matcher.group(5) + matcher.group(6) + matcher.group(7)));
+					} else {
+						// Otherwise the link is to a file in the Files area.
+						parsedContent = new StringBuilder(matcher.replaceAll(matcher.group(1) + matcher.group(2) + matcher.group(3) +
+								"%24IMS-CC-FILEBASE%24/" + matcher.group(4) + matcher.group(5) + matcher.group(6) + matcher.group(7)));
+					}
+				}
+			}
+		} catch (IllegalStateException ise) {
+			log.error("export-common-cartridge illegal state exception in addCanvasFilePath, content: " + parsedContent + ise);
+		} catch (UnsupportedEncodingException uee) {
+			throw new RuntimeException("export-common-cartridge unsupported encoding exception in addCanvasFilePath" + uee);
+		}
+		return parsedContent;
+	}
+
+	private StringBuilder removeWLPath(StringBuilder parsedContent) {
+		// Remove the /group/siteid from the links.
+		Pattern targetGroupSiteId = Pattern.compile("/group/" + siteId + "/", Pattern.CASE_INSENSITIVE);
+		Matcher matcherGroupSiteId = targetGroupSiteId.matcher(parsedContent);
+		return new StringBuilder(matcherGroupSiteId.replaceAll(""));
+	}
+
+	private StringBuilder removeUrlEncoding(StringBuilder parsedContent) {
+		//Remove any encoding characters from the link text only (not the href)
+		Pattern targetEncoding = Pattern.compile("(?:>)[a-z0-9%/._-]+[^</a>]", Pattern.CASE_INSENSITIVE);
+		Matcher matcherEncoding = targetEncoding.matcher(parsedContent);
+		int subsequence = 1;
+
+		try {
+			while (matcherEncoding.find(subsequence)) {
+				parsedContent.replace(matcherEncoding.start(0), matcherEncoding.end(0), URLDecoder.decode(matcherEncoding.group(0), "UTF-8"));
+				subsequence++;
+			}
+		} catch (IllegalStateException ise) {
+			log.error("export-common-cartridge illegal state exception in removeUrlEncoding, content: " + parsedContent + ise);
+		} catch (IllegalArgumentException iae) {
+			log.error("export-common-cartridge unsupported encoding exception in removeUrlEncoding for content: " + parsedContent + iae);
+		} catch (UnsupportedEncodingException uee) {
+			throw new RuntimeException("export-common-cartridge unsupported encoding exception in removeUrlEncoding" + uee);
+		}
+		return parsedContent;
 	}
 
 	// return base directory of file, including trailing /
