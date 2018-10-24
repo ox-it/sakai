@@ -8,7 +8,9 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -47,7 +49,7 @@ public class CCExport {
 	private String siteId;
 	private List<String> selectedFolderIds;
 	private List<String> selectedFiles;
-	private List<ContentResource> selectedFilesToExport = new ArrayList<>();
+	private Map<String, ContentResource> selectedFilesToExport = new HashMap<>();
 
 	private ContentHostingService contentService;
 
@@ -102,11 +104,28 @@ public class CCExport {
 
 	private boolean findSelectedFiles() {
 		try {
+			// Add any files in the folders to the Map.
+			if (selectedFolderIds.size() > 0) {
+				for (String selectedFolder : selectedFolderIds) {
+					List<ContentResource> folderContents = contentService.getAllResources(selectedFolder);
+					for (ContentResource folderFile: folderContents) {
+						selectedFilesToExport.put(folderFile.getId(), folderFile);
+					}
+				} 
+			}
+
+			// Add any files to the Map.
 			for (String selectedFile : selectedFiles) {
 				ContentResource contentFile = contentService.getResource(selectedFile);
-				// Don't put reading lists (citations) in the export.
-				if (!("org.sakaiproject.citation.impl.CitationList".equals(contentFile.getResourceType()))) {
-					selectedFilesToExport.add(contentFile);
+				selectedFilesToExport.put(contentFile.getId(), contentFile);
+			}
+
+			// Add everything other than reading lists (citations) or zips to the files to be in the export.
+			for (Iterator<Map.Entry<String, ContentResource>> it = selectedFilesToExport.entrySet().iterator(); it.hasNext();) {
+				ContentResource contentResource = it.next().getValue();
+				if ("org.sakaiproject.citation.impl.CitationList".equals(contentResource.getResourceType()) ||
+					"application/zip".equals(contentResource.getContentType())) {
+					it.remove();
 				}
 			}
 		} catch (PermissionException pe) {
@@ -128,8 +147,8 @@ public class CCExport {
 	public boolean outputSelectedFiles(ZipPrintStream out) {
 
 		String dashedFilename;
-
-		for (ContentResource contentResource : selectedFilesToExport) {
+		Collection<ContentResource> contentResources = selectedFilesToExport.values();
+		for (ContentResource contentResource : contentResources) {
 			ZipEntry zipEntry;
 
 			// Find the file name without the file path.
@@ -336,7 +355,8 @@ public class CCExport {
 			// out.println("      <file href=\"course_settings/module_meta.xml\"/>");
 			out.println("    </resource>");
 
-			for (ContentResource contentResource : selectedFilesToExport) {
+			Collection<ContentResource> contentResources = selectedFilesToExport.values();
+			for (ContentResource contentResource : contentResources) {
 				String filepath = getFilePath(contentResource, true);
 				String filename = getFileName(contentResource, true);
 
@@ -448,7 +468,9 @@ public class CCExport {
 			while (matcher.find()) {
 				String urlMatch = matcher.group(1) + matcher.group(2);
 				urlMatch = URLDecoder.decode(urlMatch, "UTF-8");
-				for (ContentResource cr : selectedFilesToExport) {
+
+				Collection<ContentResource> contentResources = selectedFilesToExport.values();
+				for (ContentResource cr : contentResources) {
 					if (cr.getId().equals(urlMatch)) {
 						if (hasMarkUp(cr.getContentType())) {
 							parsedContent.replace(matcher.start(2), matcher.end(2), matcher.group(2).replace('/', '-'));
