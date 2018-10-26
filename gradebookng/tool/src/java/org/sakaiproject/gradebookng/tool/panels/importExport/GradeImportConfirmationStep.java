@@ -31,6 +31,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
+import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.business.util.MessageHelper;
 import org.sakaiproject.gradebookng.tool.component.SakaiAjaxButton;
@@ -112,6 +113,8 @@ public class GradeImportConfirmationStep extends Panel {
 		final SakaiAjaxButton finishButton = new SakaiAjaxButton("finishbutton") {
 			@Override
 			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+
+				EventHelper.postImportBeginEvent(businessService.getGradebook());
 
 				boolean errors = false;
 				final Map<String, Long> assignmentMap = new HashMap<>();
@@ -248,6 +251,8 @@ public class GradeImportConfirmationStep extends Panel {
 					// Present errors to the user
 					page.updateFeedback(target);
 				}
+
+				EventHelper.postImportCompletedEvent(businessService.getGradebook(), !errors);
 			}
 		};
 		form.add(finishButton);

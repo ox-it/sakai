@@ -10,6 +10,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.tool.panels.StudentGradeSummaryGradesPanel;
 import org.sakaiproject.user.api.User;
 
@@ -34,6 +35,8 @@ public class StudentPage extends BasePage {
 
 		add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[] { u.getDisplayName() })));
 		add(new StudentGradeSummaryGradesPanel("summary", Model.ofMap(userData)));
+
+		EventHelper.postStudentViewEvent(this.businessService.getGradebook(), u.getId());
 	}
 
 	@Override

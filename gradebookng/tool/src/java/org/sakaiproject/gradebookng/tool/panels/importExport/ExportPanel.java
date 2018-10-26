@@ -34,6 +34,7 @@ import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.EventHelper;
 import org.sakaiproject.gradebookng.business.util.FinalGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -406,6 +407,8 @@ public class ExportPanel extends Panel {
 			Session.get().error("Unable to create export file");
 			throw new RuntimeException(e);
 		}
+
+		EventHelper.postExportEvent(businessService.getGradebook(), isCustomExport);
 
 		return tempFile;
 	}
