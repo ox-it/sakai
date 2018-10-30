@@ -104,27 +104,26 @@ public class CCExport {
 
 	private boolean findSelectedFiles() {
 		try {
-			// Add any files in the folders to the Map.
+			// Add any files in the chosen folders to the files to be in the export.
 			if (selectedFolderIds.size() > 0) {
 				for (String selectedFolder : selectedFolderIds) {
 					List<ContentResource> folderContents = contentService.getAllResources(selectedFolder);
 					for (ContentResource folderFile: folderContents) {
 						selectedFilesToExport.put(folderFile.getId(), folderFile);
 					}
-				} 
+				}
 			}
 
-			// Add any files to the Map.
+			// Add any chosen files to the files to be in the export.
 			for (String selectedFile : selectedFiles) {
 				ContentResource contentFile = contentService.getResource(selectedFile);
 				selectedFilesToExport.put(contentFile.getId(), contentFile);
 			}
 
-			// Add everything other than reading lists (citations) or zips to the files to be in the export.
+			// Remove any reading lists (citations)from the files to be in the export.
 			for (Iterator<Map.Entry<String, ContentResource>> it = selectedFilesToExport.entrySet().iterator(); it.hasNext();) {
 				ContentResource contentResource = it.next().getValue();
-				if ("org.sakaiproject.citation.impl.CitationList".equals(contentResource.getResourceType()) ||
-					"application/zip".equals(contentResource.getContentType())) {
+				if ("org.sakaiproject.citation.impl.CitationList".equals(contentResource.getResourceType())) {
 					it.remove();
 				}
 			}
@@ -405,7 +404,7 @@ public class CCExport {
 
 	private String getFilePath(ContentResource contentResource, boolean encode) {
 		// We want to find the path up until the filename, just strip off the /group/:siteid and stop at the last slash.
-		String filePath = contentResource.getId().substring(contentResource.getId().lastIndexOf(siteId) + siteId.length() + 1, contentResource.getId().lastIndexOf("/") + 1);
+		String filePath = contentResource.getId().substring(contentResource.getId().indexOf(siteId) + siteId.length() + 1, contentResource.getId().lastIndexOf("/") + 1);
 		if (encode) {
 			// use Validator class, not URLEncoder as Validator does not convert the slashes in the path.
 			return Validator.escapeUrl(filePath);
