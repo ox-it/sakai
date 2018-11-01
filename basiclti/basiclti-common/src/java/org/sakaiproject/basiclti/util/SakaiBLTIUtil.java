@@ -1713,10 +1713,13 @@ public class SakaiBLTIUtil {
 			}
 		} catch (Exception e) {
 			assignmentObject = null; // Just to make double sure
+		} finally {
+			popAdvisor();
 		}
 
 		// Attempt to add assignment to grade book
 		if ( assignmentObject == null && g.isGradebookDefined(siteId) ) {
+			pushAdvisor();
 			try {
 				assignmentObject = new Assignment();
 				assignmentObject.setPoints(Double.valueOf(100));
@@ -1735,6 +1738,8 @@ public class SakaiBLTIUtil {
 			catch (Exception e) {
 				M_log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
 				assignmentObject = null; // Just to make double sure
+			} finally {
+				popAdvisor();
 			}
 		}
 		if (assignmentObject == null || assignmentObject.getId() == null) {
@@ -1786,7 +1791,6 @@ public class SakaiBLTIUtil {
 			retval = "Grade failure "+e.getMessage()+" siteId="+siteId;
 		} finally {
 			sess.invalidate(); // Make sure to leave no traces
-			popAdvisor();
 		}
 
 		return retval;
