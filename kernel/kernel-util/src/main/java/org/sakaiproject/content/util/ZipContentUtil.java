@@ -541,7 +541,11 @@ public class ZipContentUtil {
 	 * @param out
 	 * @throws Exception
 	 */
-	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {		
+	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {
+		// Don't include citations (reading lists) in the zip.
+		if ("org.sakaiproject.citation.impl.CitationList".equals(resource.getResourceType())) {
+			return;
+		}
 		String filename = resource.getId().substring(rootId.length(),resource.getId().length());
 		//Inorder to have username as the folder name rather than having eids
 		if(ContentHostingService.isInDropbox(rootId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
