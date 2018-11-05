@@ -57,6 +57,11 @@ public class CCExport {
 		this.contentService = contentHostingService;
 	}
 
+	// Required for the tests.
+	protected void setSiteId(String siteId) {
+		this.siteId = siteId;
+	}
+	
 	public void doExport(String siteId, List<String> selectedFolderIds, List<String> selectedFiles, HttpServletResponse httpServletResponse) {
 		this.siteId = siteId;
 		this.selectedFolderIds = selectedFolderIds;
@@ -437,6 +442,10 @@ public class CCExport {
 		Map<String, Boolean> savedLinks = new HashMap<>();
 		parsedContent = convertSlashToHyphen(parsedContent, savedLinks);
 
+		// Add the things required so that Canvas displays the 'Preview the file' icon next to the filename and it
+		// displays the file preview window correctly.
+		parsedContent = addPDFViewer(parsedContent, savedLinks);
+
 		// Add the correct Canvas substitution variable so that HTML files end up in Pages in Canvas and
 		// everything else in the files area in Canvas.
 		parsedContent = addCanvasFilePath(parsedContent, savedLinks);
@@ -490,12 +499,34 @@ public class CCExport {
 		return parsedContent;
 	}
 
+	StringBuilder addPDFViewer(StringBuilder parsedContent, Map<String, Boolean> savedLinks) {
+		// Add the CSS class and URL parameters so that Canvas displays the 'Preview the file' icon next to the filename.
+		for (Map.Entry<String, Boolean> linkPath : savedLinks.entrySet()) {
+			if (linkPath.getKey().toLowerCase().contains(".pdf")) {
+
+				String pat = "(href=)+(\"|')?(/group/" + siteId + "/)(" + linkPath.getKey() + ")(\"|')?([_ a-z0-9=\"'-]*)(>)";
+				Pattern target = Pattern.compile(pat, Pattern.CASE_INSENSITIVE);
+				Matcher matcher = target.matcher(parsedContent);
+
+				String urlAddition = "?canvas_download=1&amp;canvas_qs_wrap=1";
+				String cssAddition = "class=\"instructure_file_link instructure_scribd_file\" ";
+				while (matcher.find()) {
+					parsedContent.insert(matcher.end(4), urlAddition);
+					parsedContent.insert(matcher.start(), cssAddition);
+					// Reset the region to search as have increased the length of the search string (parsedContent).
+					matcher.region(matcher.end() + urlAddition.length() + cssAddition.length(), parsedContent.length());
+				}
+			}
+		}
+		return parsedContent;
+	}
+
 	private StringBuilder addCanvasFilePath(StringBuilder parsedContent, Map<String, Boolean> savedLinks) {
 		// Add the correct Canvas substitution variable so that HTML files end up in Pages in Canvas and
 		// everything else in the files area in Canvas.
 		try {
 			for (Map.Entry<String, Boolean> link : savedLinks.entrySet()) {
-				String pat = "(href=)+(\"|')?(/group/" + siteId + "/)(" + link.getKey() + ")(\"|')?([ a-z0-9=\"'-]*)(>)";
+				String pat = "(href=)+(\"|')?(/group/" + siteId + "/)(" + link.getKey() + ")(\"|')?([_ a-z0-9=\"'-]*)(>)";
 				Pattern target = Pattern.compile(pat, Pattern.CASE_INSENSITIVE);
 				Matcher matcher = target.matcher(parsedContent);
 				if (matcher.find()) {
