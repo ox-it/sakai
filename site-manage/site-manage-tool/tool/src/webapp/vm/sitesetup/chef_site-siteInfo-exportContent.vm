@@ -1,0 +1,21 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("siteexport.heading")
+	</h3>
+	<div class="instruction">$tlang.getString("siteexport.question")</div>
+	<div class="clear"></div>
+
+	<form name="featuresForm" id="featuresForm" action="#toolForm("SiteAction")" method="post" enctype="multipart/form-data" onsubmit="return true;">
+		<input type="hidden" name="flow" id="flow" value="" />
+		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
+		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+		<p class="act">
+			<input type="button" name="uploadButton" id="uploadButton" accesskey="s" class="active" value="$tlang.getString('siteexport.export')"
+				onclick="document.getElementById('featuresForm').action='#toolLink("SiteAction" "doExport_Content_IMSCC")'; submitform('featuresForm');" />
+			
+			<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" value="$tlang.getString('siteexport.cancel')"
+				onclick="document.getElementById('featuresForm').action='#toolLink("SiteAction" "doCancel")';submitform('featuresForm');" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
