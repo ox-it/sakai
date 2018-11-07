@@ -15002,7 +15002,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		List<AsnMultiGroupRecord> list = new ArrayList<>(map.size());
 		for (AsnUser u : map.keySet())
 		{
-			list.add(new AsnMultiGroupRecord(u, map.get(u)));
+			list.add(new AsnMultiGroupRecord(u, map.get(u).stream().sorted().collect(Collectors.toList())));
 		}
 
 		return list;

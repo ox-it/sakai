@@ -1022,10 +1022,17 @@ public interface AssignmentService extends EntityProducer
 
 	// OWLTODO: entitybroker doesn't like to return maps so we will have to create a new object that contains the AsnUser and List<AsnGroup>
 	@RequiredArgsConstructor
-	public static final class AsnMultiGroupRecord implements Serializable
+	public static final class AsnMultiGroupRecord implements Serializable, Comparable<AsnMultiGroupRecord>
 	{
 		public final AsnUser user;
 		public final List<AsnGroup> groups;
+
+		@Override
+		public int compareTo(AsnMultiGroupRecord o)
+		{
+			return user.displayId.compareTo(o.user.displayId);
+		}
+
 	}
 
 	// OWLTODO: see if we can return these to immutable and still fool reflectutils into thinking this is a bean
@@ -1088,7 +1095,7 @@ public interface AssignmentService extends EntityProducer
 		}
 	}
 
-	public static final class AsnGroup implements Serializable
+	public static final class AsnGroup implements Serializable, Comparable<AsnGroup>
 	{
 		@Getter
 		public final String id;
@@ -1136,6 +1143,13 @@ public interface AssignmentService extends EntityProducer
 			}
 			final AsnGroup other = (AsnGroup) obj;
 			return Objects.equals(this.id, other.id);
+		}
+
+		@Override
+		public int compareTo(AsnGroup o)
+		{
+			// OWLTODO: this method of case-insensitive comparison is not perfect in all languages
+			return title.toLowerCase().compareTo(o.title.toLowerCase());
 		}
 	}
 

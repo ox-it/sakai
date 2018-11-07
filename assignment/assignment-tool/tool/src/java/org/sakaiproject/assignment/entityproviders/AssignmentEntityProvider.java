@@ -1024,7 +1024,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		{
 			List<Group> selectedGroups = siteService.getSite(siteId).getGroups().stream()
 				.filter(g -> groupIds.contains(g.getId())).collect(Collectors.toList());
-			return assignmentService.checkForUsersInMultipleGroups(siteId, asnRef, selectedGroups);
+			return assignmentService.checkForUsersInMultipleGroups(siteId, asnRef, selectedGroups)
+					.stream().sorted().collect(Collectors.toList());
 		}
 		catch (IdUnusedException e)
 		{
