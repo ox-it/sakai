@@ -1229,8 +1229,14 @@ ASN.handleCheckGroups = function(data)
 		report.innerHTML = "";
 		data.assignment_collection.forEach(function(reportRow)
 		{
+			var groupTitles = [];
+			reportRow.groups.forEach(function(group)
+			{
+				groupTitles.push(group.title);
+			});
+
 			var li = report.appendChild(document.createElement("li"));
-			var row = reportRow.user.displayId + " (" + reportRow.groups.map(g => g.title).join(", ") + ")";
+			var row = reportRow.user.displayId + " (" + groupTitles.join(", ") + ")";
 			li.innerHTML = row;
 		});
 	}
