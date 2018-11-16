@@ -63,6 +63,7 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.exception.TypeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -109,6 +110,7 @@ import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.CourseSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.exporter.util.CCExport;
 import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -333,7 +335,8 @@ public class SiteAction extends PagedResourceActionII {
 			"-siteInfo-changeAdmin", // 63
 			"-selectAdmin", // 64
 			"-selectAdmin", // 65
-			"-exportMemberList" // 66
+			"-exportMemberList", // 66 
+			"-siteInfo-exportContent" // 67
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -2343,7 +2346,12 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					}
 				}
-				
+
+				if (allowUpdateSite && !isMyWorkspace) {
+					// show export to IMS Common Cartridge tab.
+					b.add(new MenuEntry(rb.getString("siteexport.exportContent"),rb.getString("siteexport.tooltip"),"doExportContent"));
+				}
+
 				if (allowUpdateSite) 
 				{
 					// show add parent sites menu
@@ -3980,6 +3988,11 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("template", Integer.toString(index));
 			
 			return (String)getContext(data).get("template") + TEMPLATE[index];
+		case 67:
+			/*
+			 * buildContextForTemplate chef_site-siteInfo-exportContent.vm
+			 */
+			return (String) getContext(data).get("template") + TEMPLATE[67];
 		}
 			
 		// should never be reached
@@ -4947,6 +4960,24 @@ public class SiteAction extends PagedResourceActionII {
 	} // doAdd_MtrlSite
 
 	/**
+	 * Export the whole site in IMS Common Cartridge format (call code in content module).
+	 *
+	 * @param data
+	 */
+	public void doExport_Content_IMSCC(RunData data) throws IdUnusedException, TypeException, PermissionException {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		String siteId = ((Site)getStateSite(state)).getId();
+
+		String rootCollectionId = m_contentHostingService.getSiteCollection(siteId);
+		List selectedFolders = Arrays.asList(rootCollectionId);
+		List selectedFiles = new ArrayList();
+		HttpServletResponse response = (HttpServletResponse)ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE);
+		CCExport ccExport = new org.sakaiproject.exporter.util.CCExport(m_contentHostingService);
+		ccExport.doExport(siteId, selectedFolders, selectedFiles, response);
+	}
+
+	/**
 	 * Helper class for Add and remove
 	 * 
 	 * @param value
@@ -5061,6 +5092,12 @@ public class SiteAction extends PagedResourceActionII {
 
 		state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 
+	}
+
+	public void doExportContent(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(STATE_TEMPLATE_INDEX, "67");
 	}
 
 	// htripath-end
