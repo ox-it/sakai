@@ -1071,7 +1071,7 @@ ASN.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWithGbR
 	{
 		var addRadio = document.getElementById(addToGbRadioId);
 		var assocRadio = document.getElementById(assocWithGbRadioId);
-		if (addRadio !== null && !addRadio.checked && assocRadio !== null && !assocRadio.checked)
+		if (addRadio !== null && !addRadio.checked && (assocRadio === null || !assocRadio.checked))
 		{
 			addRadio.click();
 		}
