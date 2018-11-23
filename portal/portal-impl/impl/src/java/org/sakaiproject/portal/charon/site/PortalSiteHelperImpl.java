@@ -23,6 +23,9 @@ package org.sakaiproject.portal.charon.site;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +40,7 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.sakaiproject.util.ResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sakaiproject.alias.api.Alias;
@@ -745,8 +749,17 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& loggedIn));
 		theMap.put("pageNavPresenceUrl", presenceUrl);
 
-		//add softly deleted status
-		theMap.put("softlyDeleted", site.isSoftlyDeleted());
+		//add softly deleted status and if true, formatted date of planned deletion.
+		boolean isSoftlyDeleted = site.isSoftlyDeleted();
+		theMap.put("softlyDeleted", isSoftlyDeleted);
+		if (isSoftlyDeleted) {
+			long milliSinceEpoch = site.getSoftlyDeletedDate().getTime();
+			LocalDate siteDeletedDate = LocalDate.ofEpochDay(milliSinceEpoch/(1000*60*60*24)); 
+			int graceNumDays = ServerConfigurationService.getInt("site.soft.deletion.gracetime", 30); 
+			LocalDate graceDaysRemaining = siteDeletedDate.plusDays(graceNumDays);
+			DateTimeFormatter df = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(new ResourceLoader().getLocale());
+			theMap.put("graceDaysRemaining", graceDaysRemaining.format(df));
+		}
 
 		// Retrieve whether or not we are to put presence in a frame
 		theMap.put("pageNavPresenceIframe", Boolean.valueOf(
