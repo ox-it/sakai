@@ -1057,12 +1057,13 @@ ASN.handleGradeScaleChange = function(select, textfieldId)
 ASN.evaluateAssignToOptionsForPeerAssessment = function()
 {
 	var peerCheck = document.getElementById("usePeerAssessment");
-	if (peerCheck === null)
+	var gradeAsn = document.getElementById("gradeAssignment");
+	if (peerCheck === null || gradeAsn === null)
 	{
 		return;
 	}
 
-	ASN.setGroupAssignmentRadioEnabled(!peerCheck.checked);
+	ASN.setGroupAssignmentRadioEnabled(!gradeAsn.checked || !peerCheck.checked);
 }
 
 ASN.handleSendToGradebookClick = function(checkbox, addToGbRadioId, assocWithGbRadioId)
