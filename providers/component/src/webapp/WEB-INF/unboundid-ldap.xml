@@ -162,7 +162,16 @@
 		</property>
 		<property name="searchAliases"><value>false</value></property>
 
+		<property name="connectionPoolFactory">
+			<ref bean="org.sakaiproject.unboundid.ConnectionPoolFactory"/>
+		</property>
+
 	</bean>
+
+	<bean id="org.sakaiproject.unboundid.ConnectionPoolFactory" class="org.sakaiproject.unboundid.ConnectionPoolFactory">
+		<property name="provider" ref="org.sakaiproject.unboundid.UnboundidDirectoryProvider"/>
+	</bean>
+
 
 	<bean id="org.sakaiproject.unboundid.LdapAttributeMapper"
 		  class="org.sakaiproject.unboundid.OakLdapAttributeMapper"
