@@ -25,12 +25,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.security.GeneralSecurityException;
+import java.util.Set;
 import javax.net.ssl.SSLSocketFactory;
 
+import com.unboundid.ldap.sdk.FastestConnectServerSet;
+import com.unboundid.ldap.sdk.OperationType;
+import com.unboundid.ldap.sdk.RoundRobinDNSServerSet;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.user.api.AuthenticationIdUDP;
@@ -171,6 +176,9 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	/** Handles LDAPConnection allocation */
 	private LDAPConnectionPool connectionPool;
 
+	/** Create the LDAPConnnectionPool if we don't already have one */
+	private ConnectionPoolFactory connectionPoolFactory;
+
 	/** Handles LDAP attribute mappings and encapsulates filter writing */
 	private LdapAttributeMapper ldapAttributeMapper;
 	
@@ -209,16 +217,22 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 		return connectionPool;
 	}
 
+	public void setConnectionPool(LDAPConnectionPool connectionPool) {
+		this.connectionPool = connectionPool;
+	}
+
+	public void setConnectionPoolFactory(ConnectionPoolFactory connectionPoolFactory) {
+		this.connectionPoolFactory = connectionPoolFactory;
+	}
+
 	public UnboundidDirectoryProvider() {
 		log.debug("instantating UnboundidDirectoryProvider");
 	}
 
 	/**
 	 * Typically invoked by Spring to complete bean initialization.
-	 * Ensures initialization of delegate {@link LdapConnectionManager}
 	 * and {@link LdapAttributeMapper}
 	 * 
-	 * @see #initLdapConnectionManager()
 	 * @see #initLdapAttributeMapper()
 	 */
 	public void init()
@@ -231,40 +245,17 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 			batchSize = maxResultSize;
 			log.warn("Unboundid batchSize is larger than maxResultSize, batchSize has been reduced from: "+ batchSize + " to: "+ maxResultSize);
 		}
+		initLdapConnectionPool();
 
-		// Create a new LDAP connection pool with 10 connections
-		ServerSet serverSet = null;
-
-		// Set some sane defaults to better handle timeouts. Unboundid will wait 30 seconds by default on a hung connection.
-		LDAPConnectionOptions connectOptions = new LDAPConnectionOptions();
-		connectOptions.setAbandonOnTimeout(true);
-		connectOptions.setConnectTimeoutMillis(operationTimeout);
-		connectOptions.setResponseTimeoutMillis(operationTimeout); // Sakai should not be making any giant queries to LDAP
-
-		if (isSecureConnection()) {
-			try {
-				// If testing locally only, could use `new TrustAllTrustManager()` as contructor parameter to SSLUtil
-				SSLUtil sslUtil = new SSLUtil();
-				SSLSocketFactory sslSocketFactory = sslUtil.createSSLSocketFactory();
-
-				serverSet = new SingleServerSet(ldapHost[0], ldapPort[0], sslSocketFactory, connectOptions);
-			} catch (GeneralSecurityException ex) {
-				log.error("Error while initializing LDAP SSLSocketFactory");
-				throw new RuntimeException(ex);
-			}
-		} else {
-			serverSet = new SingleServerSet(ldapHost[0], ldapPort[0], connectOptions);
-		}
-
-		SimpleBindRequest bindRequest = new SimpleBindRequest(ldapUser, ldapPassword);
-		try {
-			log.info("Creating LDAP connection pool of size " + poolMaxConns);
-			connectionPool = new LDAPConnectionPool(serverSet, bindRequest, poolMaxConns);
-		} catch (com.unboundid.ldap.sdk.LDAPException e) {
-			log.error("Could not init LDAP pool", e);
-		}
-		   
 		initLdapAttributeMapper();
+	}
+
+	protected void initLdapConnectionPool() {
+		log.debug("initLdapConnectionPool");
+
+		if (connectionPool == null) {
+			connectionPool = connectionPoolFactory.getInstance();
+		}
 	}
 
 	/**
