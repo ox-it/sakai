@@ -7465,7 +7465,7 @@ public class AssignmentAction extends PagedResourceActionII
 		int gradeType = -1;
 		boolean gradeTypePoints = false;
 
-		// grade type and grade points
+		// grade type
 		if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
 		{
 			boolean gradeAssignment = params.getBoolean(NEW_ASSIGNMENT_GRADE_ASSIGNMENT);
@@ -7482,46 +7482,8 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 
 			gradeTypePoints = gradeType == Assignment.SCORE_GRADE_TYPE;
-
-			// the grade point
-			String gradePoints = gradeTypePoints ? params.getString(NEW_ASSIGNMENT_GRADE_POINTS) : null;
-			state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-			if (gradePoints != null)
-			{
-				if (gradeTypePoints)
-				{
-					if ((gradePoints.length() == 0))
-					{
-						// in case of point grade assignment, user must specify maximum grade point
-						addAlert(state, rb.getString("plespethe3"));
-					}
-					else
-					{
-						Integer scaleFactor = AssignmentService.getScaleFactor();
-						try {
-							if (StringUtils.isNotEmpty(assignmentRef)) {
-								Assignment assignment = AssignmentService.getAssignment(assignmentRef);
-								if (assignment != null && assignment.getContent() != null) {
-									scaleFactor = assignment.getContent().getFactor();
-								}
-							}
-						} catch (IdUnusedException | PermissionException e) {
-							M_log.error(e.getMessage());
-						}
-
-						validPointGrade(state, gradePoints, scaleFactor);
-						// when scale is points, grade must be integer and less than maximum value
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
-						}
-						if (state.getAttribute(STATE_MESSAGE) == null)
-						{
-							state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
-						}
-					}
-				}
-			}
+			// points are handled at the end of this method to avoid grade scaling issues that can occur
+			// if there are validation errors in the rest of the form
 		}
 
 		boolean sendToGradebook = gradeTypePoints && params.getBoolean(NEW_ASSIGNMENT_SEND_TO_GRADEBOOK);
@@ -7634,7 +7596,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String peerAssessmentInstructions = processFormattedTextFromBrowser(state, params.getString(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS), true);
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_INSTRUCTIONS, peerAssessmentInstructions);
 
-		// -------------   END GRADING PARAMS   ----------------------
+		// -------------   END GRADING PARAMS (EXCEPT FOR POINTS AT THE END OF THIS METHOD)  ----------------------
 		
 		//REVIEW SERVICE
 		r = params.getString(NEW_ASSIGNMENT_USE_REVIEW_SERVICE);
@@ -7975,6 +7937,50 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		// read inputs for supplement items
 		setNewAssignmentParametersSupplementItems(validify, state, params);
+
+		// handle points at the end so that scaling does not happen if there have been any errors
+		if (state.getAttribute(WITH_GRADES) != null && ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue())
+		{
+			// the grade point
+			String gradePoints = gradeTypePoints ? params.getString(NEW_ASSIGNMENT_GRADE_POINTS) : null;
+			state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+			if (gradePoints != null)
+			{
+				if (gradeTypePoints)
+				{
+					if ((gradePoints.length() == 0))
+					{
+						// in case of point grade assignment, user must specify maximum grade point
+						addAlert(state, rb.getString("plespethe3"));
+					}
+					else
+					{
+						Integer scaleFactor = AssignmentService.getScaleFactor();
+						try {
+							if (StringUtils.isNotEmpty(assignmentRef)) {
+								Assignment assignment = AssignmentService.getAssignment(assignmentRef);
+								if (assignment != null && assignment.getContent() != null) {
+									scaleFactor = assignment.getContent().getFactor();
+								}
+							}
+						} catch (IdUnusedException | PermissionException e) {
+							M_log.error(e.getMessage());
+						}
+
+						validPointGrade(state, gradePoints, scaleFactor);
+						// when scale is points, grade must be integer and less than maximum value
+						if (state.getAttribute(STATE_MESSAGE) == null)
+						{
+							gradePoints = scalePointGrade(state, gradePoints, scaleFactor);
+						}
+						if (state.getAttribute(STATE_MESSAGE) == null)
+						{
+							state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, gradePoints);
+						}
+					}
+				}
+			}
+		}
 		
 	} // setNewAssignmentParameters
 
