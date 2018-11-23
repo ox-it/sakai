@@ -117,7 +117,7 @@ Markup note: Markup is defined in "fragments" (due to how Velocity parses, these
 
 
 #define($fragment_groupsTable)
-	#if( ($!range == "groups" || $!range == "groupAssignment" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound )
+	#if( ($!range == "groups" || $!range == "groupAssignment") && !$selectedGroupsNotFound )
 		#set( $listDisplay = "block" )
 	#else
 		#set( $listDisplay = "none" )
