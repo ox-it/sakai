@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -35,6 +36,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
     public static final String OXFORD_COURSE_OWNER = "oxfordCourseOwner";
     public static final String OXFORD_UNIT_SITS_CODE = "oxfordUnitSITSCode";
+
+
+    public static final String DISPLAY_NAME = "displayName";
     public static final String GROUP_BASE = "dc=oak,dc=ox,dc=ac,dc=uk";
     public static final String COURSES_DN = "ou=course,ou=groupstore,"+ GROUP_BASE;
     public static final String UNITS_DN = "ou=org,ou=groupstore,"+ GROUP_BASE;
@@ -54,9 +58,9 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
     public static final String OXUNI = "oxuni";
     public static final String UNITS = "units";
     public static final String COURSES = "courses";
-    public static final String CONTED = "conted";
-    public static final String COUNCILDEP = "councildep";
-    public static final List<String> OXUNI_SUB_FOLDERS = Arrays.asList("acserv", "councildep", "human", "mathsci", "medsci", "socsci", "centadm", CONTED);
+
+    // Parts of the tree that get remapped.
+    public static final Collection<String> OXUNI_SUB_FOLDERS = Arrays.asList("acserv", "councildep", "human", "mathsci", "medsci", "socsci", "centadm", "conted");
 
     // Only include unit groups if they start with these strings
     public static final Collection<String> GOOD_UNIT_GROUPS = Arrays.asList(
@@ -66,13 +70,12 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
     public static final String COURSE_OWNERS_CACHE = "uk.ac.ox.oucs.vle.UniquePathHandler.courseOwnersCache";
 
     private static Log log = LogFactory.getLog(ExternalGroupManagerImpl.class);
-    AbstractConnectionPool ldapConnectionPool;
-    UnboundidDirectoryProvider unboundidDirectoryProvider;
-    UserDirectoryService userDirectoryService;
-    MappedGroupDao mappedGroupDao;
+    private AbstractConnectionPool ldapConnectionPool;
+    private UnboundidDirectoryProvider unboundidDirectoryProvider;
+    private UserDirectoryService userDirectoryService;
+    private MappedGroupDao mappedGroupDao;
     private MemoryService memoryService;
     private String memberFormat = "oakPrimaryPersonID={0},ou=people,dc=oak,dc=ox,dc=ac,dc=uk";
-    private final String displayName = "displayName";
     private int SEARCH_LIMIT = 500;
     private String searchPattern = "(&{0}(member=*)(objectClass=groupstoreGroup))";
     private List<PathHandler> pathHandlers;
@@ -82,9 +85,6 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
     // The maximum number of results parsed from LDAP.
     private int maxResults = 4000;
 
-
-
-
     public MemoryService getMemoryService() {
         return memoryService;
     }
@@ -93,25 +93,47 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
         this.memoryService = memoryService;
     }
 
+    public AbstractConnectionPool getLdapConnectionPool() {
+        return ldapConnectionPool;
+    }
+
+    public void setLdapConnectionPool(AbstractConnectionPool ldapConnectionPool) {
+        this.ldapConnectionPool = ldapConnectionPool;
+    }
+
+    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+        this.userDirectoryService = userDirectoryService;
+    }
+
+    public void setUnboundidDirectoryProvider(UnboundidDirectoryProvider unboundidDirectoryProvider) {
+        this.unboundidDirectoryProvider = unboundidDirectoryProvider;
+    }
+
+    public void setMappedGroupDao(MappedGroupDao mappedGroupDao) {
+        this.mappedGroupDao = mappedGroupDao;
+    }
+
+    public void setMemberFormat(String memberFormat) {
+        this.memberFormat = memberFormat;
+    }
+
+    public void setMaxResults(int maxResults) {
+        this.maxResults = maxResults;
+    }
+
+    public void setDisplayNames(Map<String, String> displayNames) {
+        this.displayNames = displayNames;
+    }
+
     public void init() {
         log.debug("init()");
-        if (ldapConnectionPool == null && unboundidDirectoryProvider == null) {
-            throw new IllegalStateException("Don't have a way of getting a LdapConnectionManager");
-        }
-        if (memoryService == null) {
-            throw new IllegalStateException("Don't have a way of getting a MemoryService");
-        }
-        if (userDirectoryService == null) {
-            throw new IllegalStateException("UserDirectoryService must be set.");
-        }
-        if (mappedGroupDao == null) {
-            throw new IllegalStateException("MappedGroupDao must be set.");
-        }
-
+        Objects.requireNonNull(memoryService, "memoryService must be set");
+        Objects.requireNonNull(userDirectoryService, "userDirectoryService must be set");
+        Objects.requireNonNull(mappedGroupDao, " mappedGroupDao must be set");
         if (ldapConnectionPool == null) {
+            Objects.requireNonNull(unboundidDirectoryProvider, "ldapConnectionPool isn't set so unboundidDirectoryProvider must be set");
             ldapConnectionPool = unboundidDirectoryProvider.getConnectionPool();
         }
-
 
         DisplayAdjuster da = new MappedDisplayAdaptor(displayNames);
 
@@ -123,26 +145,27 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
                 new ExternalGroupNodeImpl("units", "Unit Groups")}))
         );
         pathHandlers.add(new UniquePathHandler("courses", this,
-                p -> new SearchRequest(UNITS_DN, SUB, this.getCourseOwnerFilter(), "oxfordUnitSITSCode", displayName),
-                (p, e) -> new ExternalGroupNodeImpl("courses:" + e.getAttributeValue("oxfordUnitSITSCode"), e.getAttributeValue(displayName))
+                p -> new SearchRequest(UNITS_DN, SUB, this.getCourseOwnerFilter(), "oxfordUnitSITSCode", DISPLAY_NAME),
+                (p, e) -> new ExternalGroupNodeImpl("courses:" + e.getAttributeValue("oxfordUnitSITSCode"), e.getAttributeValue(DISPLAY_NAME))
         ));
         pathHandlers.add(new AttributePathHandler("courses", this,
-                p -> new SearchRequest(COURSES_DN, SUB, "oxfordCourseOwner=" + p[1], "oxfordCourseSITSRouteCode", "oxfordCourseSITSProgrammeCode", displayName),
-                (p, e) -> new ExternalGroupNodeImpl(join(p, e.getAttributeValue("oxfordCourseSITSRouteCode"), e.getAttributeValue("oxfordCourseSITSProgrammeCode")), e.getAttributeValue(displayName))
+                p -> new SearchRequest(COURSES_DN, SUB, "oxfordCourseOwner=" + p[1], "oxfordCourseSITSRouteCode", "oxfordCourseSITSProgrammeCode", DISPLAY_NAME),
+                (p, e) -> new ExternalGroupNodeImpl(join(p, e.getAttributeValue("oxfordCourseSITSRouteCode"), e.getAttributeValue("oxfordCourseSITSProgrammeCode")), e.getAttributeValue(DISPLAY_NAME))
         ));
         pathHandlers.add(new SubPathHandler("courses", this,
-                p -> new SearchRequest(String.format("ou=%s,ou=route,ou=%s,ou=programme,"+ COURSES_DN, p[2], p[3]), SUB, "(|(member=*)(cn=*suspended*))", displayName),
+                p -> new SearchRequest(String.format("ou=%s,ou=route,ou=%s,ou=programme,"+ COURSES_DN, p[2], p[3]), SUB, "(|(member=*)(cn=*suspended*))", DISPLAY_NAME),
                 (p, e) -> {
                     String dn = e.getDN();
                     boolean goodCourseGroup = !dn.startsWith(CN_GRADUATE) && !dn.startsWith(CN_TRANSFERRED)
                             && (dn.contains("current") || dn.startsWith(CN_GRADUAND)) && !dn.matches("cn=\\d{4}-current,ou=y.*");
                     if (goodCourseGroup) {
-                        String displayName = e.getAttributeValue(this.displayName);
+                        String displayName = e.getAttributeValue(DISPLAY_NAME);
                         return new ExternalGroupNodeImpl(join(p, dn), displayName,
                                 new ExternalGroupImpl(dn, displayName, this, this.userDirectoryService));
                     }
                     return null;
-                }));
+                }
+        ));
 
         pathHandlers.add(new UniquePathHandler("units", this,
                 p -> new SearchRequest(UNITS_DN, SUB, "oxfordUnitDivisionCode=*", "oxfordUnitDivisionCode"),
@@ -150,15 +173,15 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
         ));
 
         pathHandlers.add(new AttributePathHandler("units", this,
-                p -> new SearchRequest(UNITS_DN, SUB, "oxfordUnitDivisionCode=" + p[1], "oxfordUnitCode", displayName),
-                (p, e) -> new ExternalGroupNodeImpl(join(remap(p), e.getAttributeValue("oxfordUnitCode")), e.getAttributeValue(displayName))
+                p -> new SearchRequest(UNITS_DN, SUB, "oxfordUnitDivisionCode=" + p[1], "oxfordUnitCode", DISPLAY_NAME),
+                (p, e) -> new ExternalGroupNodeImpl(join(remapPath(p), e.getAttributeValue("oxfordUnitCode")), e.getAttributeValue(DISPLAY_NAME))
         ));
         pathHandlers.add(new SubPathHandler("units", this,
-                p -> new SearchRequest(getBasePrefix(p) + UNITS_DN, SUB, "member=*", displayName),
+                p -> new SearchRequest(remapDn(p) + UNITS_DN, SUB, "member=*", DISPLAY_NAME),
                 (p, e) -> {
                     String dn = e.getDN();
                     if (GOOD_UNIT_GROUPS.stream().anyMatch(dn::startsWith)) {
-                        String displayName = e.getAttributeValue(this.displayName);
+                        String displayName = e.getAttributeValue(DISPLAY_NAME);
                         return new ExternalGroupNodeImpl(join(p, dn), displayName,
                                 new ExternalGroupImpl(dn, displayName, this, this.userDirectoryService));
                     }
@@ -171,16 +194,16 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
     /**
      * Remap some parts of the units tree.
      *
-     * @param path
-     * @return
+     * @param path The current path
+     * @return Part of the DN remapped.
      */
-    private String getBasePrefix(String[] path) {
+    private String remapDn(String[] path) {
         String basePrefix = "";
         int length = path.length - 1;
-        if (path.length > 3 && CONTED.equals(path[2]) && CONTED.equals(path[3])) {
+        if (path.length > 3 && "conted".equals(path[2]) && "conted".equals(path[3])) {
             length = path.length - 2;
         }
-        if (path.length > 3 && COUNCILDEP.equals(path[2]) && COUNCILDEP.equals(path[3])) {
+        if (path.length > 3 && "councildep".equals(path[2]) && "councildep".equals(path[3])) {
             length = path.length - 2;
         }
         for (int i = length; i > 0; i--) {
@@ -195,7 +218,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
      * @param parts The existing parsed parts
      * @return The re-mapped parts.
      */
-    private static String[] remap(String[] parts) {
+    private static String[] remapPath(String[] parts) {
         if (parts.length > 1) {
             if (UNITS.equals(parts[0]) && OXUNI_SUB_FOLDERS.contains(parts[1])) {
                 String[] remapped = new String[parts.length + 1];
@@ -272,7 +295,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
         }
         ExternalGroup group = null;
         try {
-            SearchResultEntry entry = ldapConnectionPool.getEntry(externalGroupId, displayName);
+            SearchResultEntry entry = ldapConnectionPool.getEntry(externalGroupId, DISPLAY_NAME);
             if (entry != null) {
                 group = convert(entry);
             }
@@ -300,10 +323,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
         Map<String, String> groupRoles;
         try {
             String filter = memberAttribute + "=" + member;
-            SearchRequest searchRequest = new SearchRequest(GROUP_BASE, SUB, filter, displayName);
+            SearchRequest searchRequest = new SearchRequest(GROUP_BASE, SUB, filter, DISPLAY_NAME);
             searchRequest.setSizeLimit(maxResults);
             SearchResult results = ldapConnectionPool.search(searchRequest);
-            groupRoles = new HashMap<String, String>();
+            groupRoles = new HashMap<>();
             for (SearchResultEntry entry : results.getSearchEntries()) {
                 ExternalGroup group = convert(entry);
                 if (group != null) {
@@ -327,7 +350,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
         query.append("(&");
         for (String term : terms) {
             if (isValidTerm(term)) {
-                query.append("(displayName=*");
+                query.append("("+ DISPLAY_NAME+ "=*");
                 query.append(escapeSearchFilterTerm(term));
                 query.append("*)");
             }
@@ -358,7 +381,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
             // we are filtering by the attribute cn rather than by dn because dn is not an attribute so you'd have to filter by base fot rhis and displaYName may change
             MessageFormat filterFormat = new MessageFormat(searchPattern);
             String filter = filterFormat.format(new Object[]{query});
-            SearchRequest request = new SearchRequest(GROUP_BASE, SUB, filter, displayName);
+            SearchRequest request = new SearchRequest(GROUP_BASE, SUB, filter, DISPLAY_NAME);
             request.setSizeLimit(SEARCH_LIMIT);
             SearchResult results = ldapConnectionPool.search(request);
             groups = new ArrayList<>(results.getEntryCount());
@@ -389,41 +412,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
     ExternalGroup convert(SearchResultEntry entry) {
         String dn = entry.getDN();
-        String name = entry.getAttributeValue(displayName);
+        String name = entry.getAttributeValue(DISPLAY_NAME);
         return new ExternalGroupImpl(dn, name, this, userDirectoryService);
     }
 
-    public AbstractConnectionPool getLdapConnectionPool() {
-        return ldapConnectionPool;
-    }
-
-    public void setLdapConnectionPool(AbstractConnectionPool ldapConnectionPool) {
-        this.ldapConnectionPool = ldapConnectionPool;
-    }
-
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-        this.userDirectoryService = userDirectoryService;
-    }
-
-    public void setUnboundidDirectoryProvider(UnboundidDirectoryProvider unboundidDirectoryProvider) {
-        this.unboundidDirectoryProvider = unboundidDirectoryProvider;
-    }
-
-    public void setMappedGroupDao(MappedGroupDao mappedGroupDao) {
-        this.mappedGroupDao = mappedGroupDao;
-    }
-
-    public void setMemberFormat(String memberFormat) {
-        this.memberFormat = memberFormat;
-    }
-
-    public void setMaxResults(int maxResults) {
-        this.maxResults = maxResults;
-    }
-
-    public void setDisplayNames(Map<String, String> displayNames) {
-        this.displayNames = displayNames;
-    }
 
     Collection<String> findMembers(String externalId) {
         Collection<String> users = Collections.emptyList();
@@ -468,7 +460,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
         if (term == null)
             return null;
         // From RFC 2254
-        String escapedStr = new String(term);
+        String escapedStr = term;
         escapedStr = escapedStr.replaceAll("\\\\", "\\\\5c");
         escapedStr = escapedStr.replaceAll("\\*", "\\\\2a");
         escapedStr = escapedStr.replaceAll("\\(", "\\\\28");
