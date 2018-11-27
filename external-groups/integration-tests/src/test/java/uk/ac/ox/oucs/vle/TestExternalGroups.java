@@ -132,6 +132,7 @@ public class TestExternalGroups {
 
 	@Test
 	public void testBadPart() throws Exception {
+		// This part gets remapped across.
 		List<ExternalGroupNode> nodes = groupManager.findNodes("units:oxuni:councildep:councildep");
 		assertFalse(nodes.isEmpty());
 	}

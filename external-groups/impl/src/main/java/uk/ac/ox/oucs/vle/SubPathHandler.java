@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * This find all groups below a base that have members.
  */
-public class SubPathHandler implements PathHandler{
+public class SubPathHandler implements PathHandler {
 
 	private static Log log = LogFactory.getLog(SubPathHandler.class);
 
