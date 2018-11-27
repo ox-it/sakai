@@ -383,24 +383,7 @@
 		</property -->
 		
 	</bean>
-	<!--
-	<bean id="org.sakaiproject.authz.api.GroupProvider"
-		class="edu.amc.sakai.user.JLDAPGroupProvider"
-		init-method="init">
-		
-		<property name="jldapDirectoryProvider">
-			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider"/>
-		</property>
-		<property name="groupManager">
-			<bean class="edu.amc.sakai.user.ProvidedGroupManager">
-				<property name="idManager">
-					<ref bean="org.sakaiproject.id.api.IdManager"/>
-				</property>
-			</bean>
-		</property>
-	</bean>
-	-->
-	
+
 		
 	<!-- /// End Sample UserTypeMapper Beans /// -->
 	
