@@ -8,21 +8,18 @@
 			<value>test.properties</value>
 		</property>
 	</bean>
-	<bean id="LdapConfigurationTest" class="uk.ac.ox.oucs.vle.LdapConfigurationTest">
+
+	<bean id="UnboundidLdapProvider" class="org.sakaiproject.unboundid.UnboundidDirectoryProvider">
 		<property name="autoBind" value="true"/>
 		<property name="secureConnection" value="true"/>
-		<property name="secureSocketFactory">
-			<!--					<bean class="com.novell.ldap.LDAPJSSEStartTLSFactory" />-->
-			<bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" />
-		</property>
 		<property name="ldapHost" value="${ldap.host}"/>
 		<property name="ldapPort" value="636"/>
 		<property name="ldapUser" value="${ldap.username}"/>
 		<property name="ldapPassword" value="${ldap.password}"/>
 	</bean>
 
-	<bean id="LDAPConnectionManager" class="edu.amc.sakai.user.SimpleLdapConnectionManager">
-		<property name="config" ref="LdapConfigurationTest"/>
+	<bean id="LDAPConnectionPool" class="org.sakaiproject.unboundid.ConnectionPoolFactory">
+        <property name="provider" ref="UnboundidLdapProvider"/>
 	</bean>
 		
 	<bean id="MockUserDirectory" class="uk.ac.ox.oucs.vle.MockUserDirectoryServices">
@@ -32,7 +29,7 @@
 	<!-- We don't init here as we need to inject the other services -->
 	<bean id="ExternalGroupManager" class="uk.ac.ox.oucs.vle.ExternalGroupManagerImpl">
 		<property name="ldapConnectionPool">
-			<ref bean="LDAPConnectionManager"/>
+			<bean factory-bean="LDAPConnectionPool" factory-method="getInstance"/>
 		</property>
 		<property name="userDirectoryService">
 			<ref bean="MockUserDirectory"/>

@@ -8,7 +8,7 @@ public class MappedDisplayAdaptor implements DisplayAdjuster {
 	private Map<String, String> names;
 	
 	public MappedDisplayAdaptor(Map <String, String> names) {
-		this.names = new HashMap<String, String>(names);
+		this.names = new HashMap<>(names);
 	}
 	
 	public String adjustDisplayName(String name) {
