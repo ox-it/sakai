@@ -135,7 +135,6 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
             ldapConnectionPool = unboundidDirectoryProvider.getConnectionPool();
         }
 
-        DisplayAdjuster da = new MappedDisplayAdaptor(displayNames);
 
         courseOwnersCache = getMemoryService().getCache("uk.ac.ox.oucs.vle.UniquePathHandler.courseOwnersCache");
 
@@ -169,7 +168,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
         pathHandlers.add(new UniquePathHandler("units", this,
                 p -> new SearchRequest(UNITS_DN, SUB, "oxfordUnitDivisionCode=*", "oxfordUnitDivisionCode"),
-                (p, e) -> new ExternalGroupNodeImpl("units:" + e.getAttributeValue("oxfordUnitDivisionCode"), da.adjustDisplayName(e.getAttributeValue("oxfordUnitDivisionCode")))
+                (p, e) -> new ExternalGroupNodeImpl("units:" + e.getAttributeValue("oxfordUnitDivisionCode"), toDisplayName(e.getAttributeValue("oxfordUnitDivisionCode")))
         ));
 
         pathHandlers.add(new AttributePathHandler("units", this,
@@ -281,6 +280,10 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
             log.error("Failed to find course owners.", lde);
         }
         return courseOwnersFilter;
+    }
+
+    private String toDisplayName(String name) {
+        return displayNames.getOrDefault(name, name);
     }
 
 
@@ -431,7 +434,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
                 String[] members = memberAttr.getValues();
 
                 MessageFormat formatter = new MessageFormat(memberFormat);
-                users = new ArrayList<String>(members.length);
+                users = new ArrayList<>(members.length);
 
                 for (String member : members) {
                     //oakPrimaryPersonID=21096,ou=people,dc=oak,dc=ox,dc=ac,dc=uk

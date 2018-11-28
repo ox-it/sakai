@@ -45,7 +45,6 @@ public class AttributePathHandler implements PathHandler{
 			SearchRequest searchRequest = builder.create(path);
 			SearchResult searchResults = groupManager.getLdapConnectionPool().search(searchRequest);
 			List<ExternalGroupNode> nodes = new ArrayList<>();
-			String pathPrefix = getPathPrefix(path);
 			for(SearchResultEntry result : searchResults.getSearchEntries()) {
 				nodes.add(mapper.map(path, result));
 			}
@@ -55,16 +54,5 @@ public class AttributePathHandler implements PathHandler{
 			throw new ExternalGroupException(Type.UNKNOWN);
 		}
 	}
-
-	private String getPathPrefix(String[] path) {
-		String pathPrefix = path[0]+ PathHandler.SEPARATOR;
-		if (root.equals(ExternalGroupManagerImpl.UNITS) && ExternalGroupManagerImpl.OXUNI_SUB_FOLDERS.contains(path[1])){
-			pathPrefix = pathPrefix + ExternalGroupManagerImpl.OXUNI + PathHandler.SEPARATOR;
-		}
-		pathPrefix = pathPrefix + path[1]+ PathHandler.SEPARATOR;
-		return pathPrefix;
-	}
-
-
 
 }
