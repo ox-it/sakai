@@ -21,9 +21,9 @@
 	<bean id="LDAPConnectionPool" class="org.sakaiproject.unboundid.ConnectionPoolFactory">
         <property name="provider" ref="UnboundidLdapProvider"/>
 	</bean>
-		
-	<bean id="MockUserDirectory" class="uk.ac.ox.oucs.vle.MockUserDirectoryServices">
-		
+
+	<bean id="MockUserDirectory" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
 
 	<!-- We don't init here as we need to inject the other services -->

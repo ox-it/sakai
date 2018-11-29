@@ -259,6 +259,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
         // A default of all units.
         try {
             // The objectClass filter means that many fewer items are queried and so speeds up the filter.
+            // In the Schema is that there are no owners on the programmes, only owners on the routes.
             String filter = String.format("(&(%s=*)(objectClass=groupstoreOrganizationalUnit))", OXFORD_COURSE_OWNER);
             SearchRequest request = new SearchRequest(COURSES_DN, SUB, filter, OXFORD_COURSE_OWNER);
             request.setSizeLimit(maxResults);

@@ -1,0 +1,10 @@
+dn: ou=itserv,ou=centadm,ou=oxuni,ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=u
+ k
+oxfordUnitUsernamePrefix: ouit
+oxfordUnitCode: itserv
+displayName: IT Services
+ou: itserv
+oxfordUnitDivisionCode: centadm
+objectClass: groupstoreOrganizationalUnit
+objectClass: organizationalUnit
+objectClass: top

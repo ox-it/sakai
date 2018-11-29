@@ -3,10 +3,9 @@ package uk.ac.ox.oucs.vle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.User;
@@ -16,13 +15,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayDeque;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
 import static uk.ac.ox.oucs.vle.ExternalGroupManagerImpl.COURSES;
 
@@ -37,27 +35,18 @@ public class TestExternalGroups {
 	@Autowired
 	protected ApplicationContext applicationContext;
 
+	@BeforeClass
+	public static void onlyOnce() {
+		String config = "/test.properties";
+		assumeTrue("Test skipped as can't find on classpath: " + config,
+				TestExternalGroups.class.getResourceAsStream(config) != null);
+	}
+
 	@Before
 	public void onSetUp() {
 		groupManager = applicationContext.getBean(ExternalGroupManagerImpl.class);
 
-		Cache cache = mock(Cache.class);
-		final Map<Object, Object> map = new HashMap<>();
-		doAnswer(new Answer() {
-			@Override
-			public Object answer(InvocationOnMock invocation) throws Throwable {
-				Object[] arguments = invocation.getArguments();
-				map.put(arguments[0], arguments[1]);
-				return Void.TYPE;
-			}
-		}).when(cache).put(any(), any());
-		doAnswer(new Answer() {
-			@Override
-			public Object answer(InvocationOnMock invocation) throws Throwable {
-				Object[] arguments = invocation.getArguments();
-				return map.get(arguments[0]);
-			}
-		}).when(cache).get(any());
+		Cache<Object, Object> cache = Utils.mockCache();
 
 		MemoryService memoryService = mock(MemoryService.class);
 		when(memoryService.getCache(anyString())).thenReturn(cache);
