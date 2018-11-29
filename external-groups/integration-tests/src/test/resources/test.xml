@@ -5,7 +5,7 @@
 
 	<bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
 		<property name="location">
-			<value>test.properties</value>
+			<value>test2.properties</value>
 		</property>
 	</bean>
 

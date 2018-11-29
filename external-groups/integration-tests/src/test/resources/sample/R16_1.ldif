@@ -1,0 +1,57 @@
+
+
+dn: ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: ou=programme,ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: ou=R16_1,ou=programme,ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: ou=route,ou=R16_1,ou=programme,ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: ou=R16_9A1,ou=route,ou=R16_1,ou=programme,ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+oxfordCourseSITSProgrammeCode: R16_1
+oxfordCourseOwner: 4D03DG
+oxfordCourseCoOwners: 4D03DG
+oxfordCourseSITSRouteCode: R16_9A1
+displayName: Oil and Gas (NERC CDT)
+
+dn: cn=current,ou=R16_9A1,ou=route,ou=R16_1,ou=programme,ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+displayName: Oil and Gas (NERC CDT), Current students
+objectClass: groupstoreGroup
+objectClass: top
+cn: current
+member: oakPrimaryPersonID=1234,ou=people,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: ou=start-year,ou=R16_9A1,ou=route,ou=R16_1,ou=programme,ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: cn=2017-current,ou=start-year,ou=R16_9A1,ou=route,ou=R16_1,ou=programme,ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+displayName: Oil and Gas (NERC CDT), starting 2017/18, current students only
+objectClass: groupstoreGroup
+objectClass: top
+cn: 2017-current
+member: oakPrimaryPersonID=1234,ou=people,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: ou=year-of-study,ou=R16_9A1,ou=route,ou=R16_1,ou=programme,ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: cn=2-current,ou=year-of-study,ou=R16_9A1,ou=route,ou=R16_1,ou=programme,ou=course,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+displayName: Oil and Gas (NERC CDT), year 2, current students only
+objectClass: groupstoreGroup
+objectClass: top
+cn: 2-current
+member: oakPrimaryPersonID=1234,ou=people,dc=oak,dc=ox,dc=ac,dc=uk
+
+# And the owning department
+dn: ou=mathsci,ou=oxuni,ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: ou=earth,ou=mathsci,ou=oxuni,ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+ou: earth
+oxfordUnitCode: earth
+oxfordUnitUsernamePrefix: eart
+oxfordUnitPrasCode: DG
+displayName: Department of Earth Sciences
+objectClass: groupstoreOrganizationalUnit
+objectClass: organizationalUnit
+objectClass: top
+oxfordUnitSITSCode: 4D03DG
+oxfordUnitDivisionCode: mathsci
+

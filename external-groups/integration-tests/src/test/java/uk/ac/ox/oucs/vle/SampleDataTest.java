@@ -17,8 +17,10 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.UserDirectoryService;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.junit.Assert.*;
@@ -29,7 +31,6 @@ public class SampleDataTest {
 
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
-
 
     private InMemoryDirectoryServer ds;
     private LDAPConnectionPool pool;
@@ -69,12 +70,15 @@ public class SampleDataTest {
         groupManager.setUserDirectoryService(userDirectoryService);
         groupManager.setMappedGroupDao(mappedGroupDao);
         groupManager.setMemoryService(memoryService);
-        groupManager.setDisplayNames(Collections.singletonMap("centadm", "UAS"));
+        Map<String, String> displayNames = new HashMap<>();
+        displayNames.put("centadm", "UAS");
+        displayNames.put("mathsci", "MPLS");
+        groupManager.setDisplayNames(displayNames);
         groupManager.init();
     }
 
     @After
-    public void tearDown() throws LDAPException {
+    public void tearDown() {
         pool.close();
         ds.shutDown(true);
     }
@@ -96,11 +100,19 @@ public class SampleDataTest {
     @Test
     public void testUnitNode() throws ExternalGroupException {
         List<ExternalGroupNode> nodes = groupManager.findNodes("units");
-        assertEquals(1, nodes.size());
-        ExternalGroupNode node = nodes.get(0);
-        assertEquals("UAS", node.getName());
-        assertFalse(node.hasGroup());
-        assertEquals("units:centadm", node.getPath());
+        assertEquals(2, nodes.size());
+        {
+            ExternalGroupNode node = nodes.get(0);
+            assertEquals("UAS", node.getName());
+            assertFalse(node.hasGroup());
+            assertEquals("units:centadm", node.getPath());
+        }
+        {
+            ExternalGroupNode node = nodes.get(1);
+            assertEquals("MPLS", node.getName());
+            assertFalse(node.hasGroup());
+            assertEquals("units:mathsci", node.getPath());
+        }
     }
 
     @Test
