@@ -15,6 +15,11 @@ public class ExternalGroupException extends Exception {
 	public ExternalGroupException(Type type) {
 		this.type = type;
 	}
+
+	public ExternalGroupException(Type type, Exception exception) {
+		super(exception);
+		this.type = type;
+	}
 	
 	public ExternalGroupException(String message, Exception exception) {
 		super(message, exception);

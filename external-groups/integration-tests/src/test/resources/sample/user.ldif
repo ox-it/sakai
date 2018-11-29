@@ -1,0 +1,29 @@
+dn: oakPrimaryPersonID=1234,ou=people,dc=oak,dc=ox,dc=ac,dc=uk
+eduPersonAffiliation: member
+eduPersonAffiliation: staff
+eduPersonAffiliation: employee
+eduPersonPrimaryOrgUnitDN: oakUnitCode=unitname,ou=units,dc=oak,dc=ox,dc=ac,dc=uk
+cn: Forename Surname
+oakPrimaryPersonID: 1234
+oakUniversityBarcode: 98765
+eduPersonOrgDN: dc=ox,dc=ac,dc=uk
+sn: Surname
+oakPrincipal: krbPrincipalName=username@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk
+givenName: Forename
+oakUniversityBarcodeFull: 98765-
+oakUniversityCardID: 98765
+oakITSSFor: oakGN=ITSS,oakUnitCode=unitname,ou=units,dc=oak,dc=ox,dc=ac,dc=uk
+mail: forename.surname@it.ox.ac.uk
+displayName: Forename Surname
+ou: Some Unit
+oakOxfordSSOUsername: username
+oakAlternativeMail: forename.surname@unit.ox.ac.uk
+oakUniversityBarcodeCheckCharacter: -
+eduPersonOrgUnitDN: oakUnitCode=unitname,ou=units,dc=oak,dc=ox,dc=ac,dc=uk
+oakStatus: staff
+objectClass: oakPerson
+objectClass: eduPerson
+oakPersonID: 1234
+oakPrimaryPrincipal: krbPrincipalName=username@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk
+o: University of Oxford
+oakCardExpiry: 202009300000Z

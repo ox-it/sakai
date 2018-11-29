@@ -18,8 +18,6 @@ public class ExternalGroupImpl implements ExternalGroup {
 	private final String id;
 	private final String name;
 	
-	private List<User> cachedMembers;
-	
 	private final ExternalGroupManagerImpl groupManagerImpl;
 	private final UserDirectoryService userDirectoryService;
 	
@@ -39,7 +37,7 @@ public class ExternalGroupImpl implements ExternalGroup {
 	}
 	
 	public String toString() {
-		return ExternalGroupImpl.class.getName()+ "( ID: "+ id+ ", Name: "+ name+ ", Cached Members: "+ ((cachedMembers==null)?null:cachedMembers.size()+ ")");
+		return ExternalGroupImpl.class.getName()+ "( ID: "+ id+ ", Name: "+ name;
 	}
 	
 	public Iterator<User> getMembers() {

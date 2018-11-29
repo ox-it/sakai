@@ -1,0 +1,21 @@
+dn: dc=oak,dc=ox,dc=ac,dc=uk
+dc: oak
+objectClass: dcObject
+objectClass: organization
+o: Oak LDAP
+
+dn: ou=people,dc=oak,dc=ox,dc=ac,dc=uk
+dc: oak
+objectClass: oakStructuralClass
+objectClass: dcObject
+
+dn: ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+objectClass: organizationalUnit
+ou: groupstore
+
+dn: ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+displayName: org
+ou: org
+objectClass: groupstoreOrganizationalUnit
+objectClass: organizationalUnit
+objectClass: top

@@ -1,11 +1,14 @@
 package uk.ac.ox.oucs.vle;
 
+import java.util.Objects;
+
 public class ExternalGroupNodeImpl implements ExternalGroupNode {
 
 	private String path;
 	private String name;
+	// Can be null.
 	private ExternalGroup group;
-	
+
 	ExternalGroupNodeImpl(String path, String name) {
 		this.path = path;
 		this.name = name;
@@ -16,7 +19,7 @@ public class ExternalGroupNodeImpl implements ExternalGroupNode {
 		this.name = name;
 		this.group = group;
 	}
-	
+
 	public ExternalGroup getGroup() {
 		return group;
 	}
@@ -32,5 +35,4 @@ public class ExternalGroupNodeImpl implements ExternalGroupNode {
 	public boolean hasGroup() {
 		return group != null;
 	}
-
 }

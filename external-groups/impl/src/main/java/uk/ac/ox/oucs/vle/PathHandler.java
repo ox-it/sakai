@@ -4,10 +4,10 @@ import java.util.List;
 
 public interface PathHandler {
 	
-	public String SEPARATOR = ":";
+	String SEPARATOR = ":";
 
-	public boolean canHandle(String[] path);
+	boolean canHandle(String[] path);
 	
-	public List<ExternalGroupNode> getNodes(String[] path) throws ExternalGroupException;
+	List<ExternalGroupNode> getNodes(String[] path) throws ExternalGroupException;
 
 }
