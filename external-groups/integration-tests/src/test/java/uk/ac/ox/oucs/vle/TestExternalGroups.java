@@ -11,7 +11,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sakaiproject.memory.api.Cache;
@@ -68,7 +67,7 @@ public class TestExternalGroups extends Assert {
 		MappedGroupDao mappedGroupDao = mock(MappedGroupDao.class);
 		groupManager.setMappedGroupDao(mappedGroupDao);
 		// TODO This is a hack and there should really be better isolation between tests.
-		groupManager.setLdapConnectionManager(ldapConnectionManager);
+		groupManager.setLdapConnectionPool(ldapConnectionManager);
 
 		groupManager.init();
 	}
@@ -114,7 +113,7 @@ public class TestExternalGroups extends Assert {
 		doThrow(LDAPException.class).when(spyConnection).search(eq(COURSE_BASE), anyInt(), anyString(), any(String[].class), anyBoolean());
         when(spyConnectionManager.getConnection()).thenCallRealMethod().thenReturn(spyConnection);
 		// Reset the object with our spy
-		groupManager.setLdapConnectionManager(spyConnectionManager);
+		groupManager.setLdapConnectionPool(spyConnectionManager);
 
 		List<ExternalGroupNode> groups = groupManager.findNodes(COURSES);
 		assertFalse(groups.isEmpty());

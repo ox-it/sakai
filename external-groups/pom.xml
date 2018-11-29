@@ -19,7 +19,7 @@
 		<module>hbm</module>
 		<module>impl</module>
 		<!-- This should be moved into the impl in the long run -->
-		<module>integration-tests</module>
+		<!--<module>integration-tests</module>-->
 		<module>tool</module>
 	</modules>
 
@@ -82,7 +82,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.sakaiproject</groupId>
-				<artifactId>sakai-jldap-provider</artifactId>
+				<artifactId>sakai-unboundid-provider</artifactId>
 				<version>${sakai.version}</version>
 				<scope>provided</scope>
 			</dependency>

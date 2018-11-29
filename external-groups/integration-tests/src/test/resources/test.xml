@@ -31,7 +31,7 @@
 
 	<!-- We don't init here as we need to inject the other services -->
 	<bean id="ExternalGroupManager" class="uk.ac.ox.oucs.vle.ExternalGroupManagerImpl">
-		<property name="ldapConnectionManager">
+		<property name="ldapConnectionPool">
 			<ref bean="LDAPConnectionManager"/>
 		</property>
 		<property name="userDirectoryService">

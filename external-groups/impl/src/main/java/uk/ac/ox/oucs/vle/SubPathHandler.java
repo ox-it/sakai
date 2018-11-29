@@ -1,21 +1,17 @@
 package uk.ac.ox.oucs.vle;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import uk.ac.ox.oucs.vle.ExternalGroupException.Type;
 
-import com.novell.ldap.LDAPConnection;
-import com.novell.ldap.LDAPEntry;
-import com.novell.ldap.LDAPException;
-import com.novell.ldap.LDAPSearchResults;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SubPathHandler implements PathHandler{
 
@@ -49,19 +45,18 @@ public class SubPathHandler implements PathHandler{
 	public List<ExternalGroupNode> getNodes(String[] path) throws ExternalGroupException {
 		if (!canHandle(path)) 
 			throw new IllegalArgumentException("Can't handle this path: "+ path);
-		LDAPConnection conn = null;
-		try {
-			conn = groupManager.getConnection();
+		try (LDAPConnection conn = groupManager.getConnection()){
 			String basePrefix = getBasePrefix(path);
 			String pathSub1 = getPathSub1(path);
 			String pathSub2 = getPathSub2(path);
-			LDAPSearchResults searchResults = conn.search(basePrefix + String.format(base, pathSub1, pathSub2) , LDAPConnection.SCOPE_SUB, "(|(member=*)(cn=*suspended*))", new String[]{displayAttribute}, false);
+			SearchRequest searchRequest = new SearchRequest(basePrefix + String.format(base, pathSub1, pathSub2), SearchScope.SUB, "(|(member=*)(cn=*suspended*))", displayAttribute);
+			searchRequest.setSizeLimit(groupManager.getSizeLimit());
+			SearchResult searchResults = conn.search(searchRequest);
 			List<ExternalGroupNode> nodes = new ArrayList<ExternalGroupNode>();
 			String pathPrefix = path[0]+ PathHandler.SEPARATOR + path[1]+ PathHandler.SEPARATOR + path[2] + PathHandler.SEPARATOR;
-			while (searchResults.hasMore()) {
-				LDAPEntry result = searchResults.next();
+			for (SearchResultEntry result : searchResults.getSearchEntries()) {
 				String name = result.getDN();
-				String displayName = adjustedDisplayName(result.getAttribute(displayAttribute).getStringValue());
+				String displayName = adjustedDisplayName(result.getAttribute(displayAttribute).getValue());
 				if ((root.equals(ExternalGroupManagerImpl.COURSES) && !name.startsWith(ExternalGroupManagerImpl.CN_GRADUATE) && !name.startsWith(ExternalGroupManagerImpl.CN_TRANSFERRED)
 				   && (name.contains("current") || name.startsWith(ExternalGroupManagerImpl.CN_GRADUAND)) && !name.matches("cn=\\d{4}-current,ou=y.*"))
 						|| (root.equals(ExternalGroupManagerImpl.UNITS)
@@ -73,8 +68,6 @@ public class SubPathHandler implements PathHandler{
 		} catch (LDAPException lde) {
 			log.warn(lde);
 			throw new ExternalGroupException(Type.UNKNOWN);
-		} finally {
-			groupManager.returnConnection(conn);
 		}
 	}
 

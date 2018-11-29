@@ -1,34 +1,42 @@
 package uk.ac.ox.oucs.vle;
 
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.*;
-
+import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPConnectionOptions;
+import com.unboundid.ldap.sdk.LDAPConnectionPool;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.unboundid.UnboundidDirectoryProvider;
 import org.sakaiproject.user.api.UserDirectoryService;
-
 import uk.ac.ox.oucs.vle.ExternalGroupException.Type;
 
-import com.novell.ldap.LDAPAttribute;
-import com.novell.ldap.LDAPConnection;
-import com.novell.ldap.LDAPEntry;
-import com.novell.ldap.LDAPException;
-import com.novell.ldap.LDAPSearchConstraints;
-import com.novell.ldap.LDAPSearchResults;
-
-import edu.amc.sakai.user.JLDAPDirectoryProvider;
-import edu.amc.sakai.user.LdapConnectionManager;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	private static Log log = LogFactory.getLog(ExternalGroupManagerImpl.class);
 	
-	LdapConnectionManager ldapConnectionManager;
+	LDAPConnectionPool ldapConnectionPool;
 	
-	JLDAPDirectoryProvider jldapDirectoryProvider;
+	UnboundidDirectoryProvider unboundidDirectoryProvider;
 	
 	UserDirectoryService userDirectoryService;
 
@@ -107,7 +115,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 
 	public void init() {
 		log.debug("init()");
-		if (ldapConnectionManager == null && jldapDirectoryProvider == null) {
+		if (ldapConnectionPool == null && unboundidDirectoryProvider == null) {
 			throw new IllegalStateException("Don't have a way of getting a LdapConnectionManager");
 		}
 		if (memoryService == null) {
@@ -175,11 +183,12 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 			conn = getConnection();
 			// The objectClass filter means that many fewer items are queried and so speeds up the filter.
 			String filter = String.format("(&(%s=*)(objectClass=groupstoreOrganizationalUnit))", OXFORD_COURSE_OWNER);
-			LDAPSearchResults searchResults = conn.search(COURSE_BASE, LDAPConnection.SCOPE_SUB, filter, new String[]{OXFORD_COURSE_OWNER}, false);
+			SearchRequest request = new SearchRequest(COURSE_BASE, SearchScope.SUB, filter, OXFORD_COURSE_OWNER);
+			request.setSizeLimit(maxResults);
+			SearchResult searchResults = conn.search(request);
 			Set<String> owners = new HashSet<>();
-			while (searchResults.hasMore()) {
-				LDAPEntry result = searchResults.next();
-				String name = result.getAttribute(OXFORD_COURSE_OWNER).getStringValue();
+			for (SearchResultEntry result : searchResults.getSearchEntries()) {
+				String name = result.getAttribute(OXFORD_COURSE_OWNER).getValue();
 				owners.add(name);
 			}
 			if (owners.size() > 0){
@@ -205,24 +214,24 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	}
 
 	public ExternalGroup findExternalGroup(String externalGroupId) throws ExternalGroupException {
-		if (externalGroupId == null || externalGroupId.length() < 0) {
+		if (externalGroupId == null || externalGroupId.isEmpty()) {
 			return null;
 		}
 		ExternalGroup group = null;
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
-			LDAPEntry entry = connection.read(externalGroupId, getSearchAttributes());
+			SearchResultEntry entry = connection.getEntry(externalGroupId, getSearchAttributes());
 			if (entry != null) {
 				group = convert(entry);
 			}
 		} catch (LDAPException ldape) {
 			// Not finding a DN throws an exception.
-			switch (ldape.getResultCode()) {
-			case LDAPException.NO_SUCH_OBJECT:
+			switch (ldape.getResultCode().intValue()) {
+            case ResultCode.NO_SUCH_OBJECT_INT_VALUE:
 				log.warn("Didn't find group ID: " + externalGroupId);
 				break;
-			case LDAPException.INVALID_DN_SYNTAX:
+			case ResultCode.INVALID_DN_SYNTAX_INT_VALUE:
 				log.warn("Badly formed DN: " + externalGroupId);
 				throw new IllegalArgumentException("Badly formed DN: "+ externalGroupId);
 			default:
@@ -246,10 +255,12 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		try {
 			connection = getConnection();
 			String filter = memberAttribute+ "="+member;
-			LDAPSearchResults results = connection.search(groupBase, LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
+			SearchRequest searchRequest = new SearchRequest(groupBase, SearchScope.SUB, filter, getSearchAttributes());
+			searchRequest.setSizeLimit(maxResults);
+			SearchResult results = connection.search(searchRequest);
 			groupRoles = new HashMap<String, String>();
-			while (results.hasMore()) {
-				ExternalGroup group = convert(results.next());
+			for(SearchResultEntry entry : results.getSearchEntries()) {
+				ExternalGroup group = convert(entry);
 				if (group != null) {
 					List <MappedGroup> mappedGroups = mappedGroupDao.findByGroup(group.getId());
 					for (MappedGroup mappedGroup: mappedGroups) {
@@ -303,17 +314,16 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
-			LDAPSearchConstraints constraints = new LDAPSearchConstraints(connection.getConstraints());
-			constraints.setMaxResults(SEARCH_LIMIT);
-			connection.setConstraints(constraints);
 			//  CODE REASON: we are doing the filtering here rather than after the search is done otherwise you will get an size limit error
 			// we are filtering by the attribute cn rather than by dn because dn is not an attribute so you'd have to filter by base fot rhis and displaYName may change
 			MessageFormat filterFormat = new MessageFormat(searchPattern);
 			String filter = filterFormat.format(new Object[]{query});
-			LDAPSearchResults results = connection.search(groupBase, LDAPConnection.SCOPE_SUB, filter, getSearchAttributes(), false);
-			groups = new ArrayList<ExternalGroup>(results.getCount());
-			while (results.hasMore()) {
-				ExternalGroup group = convert(results.next());
+			SearchRequest request = new SearchRequest(groupBase, SearchScope.SUB, filter, getSearchAttributes());
+			request.setSizeLimit(SEARCH_LIMIT);
+			SearchResult results = connection.search(request);
+			groups = new ArrayList<>(results.getEntryCount());
+			for(SearchResultEntry entry : results.getSearchEntries()) {
+				ExternalGroup group = convert(entry);
 				if (group != null) {
 					if ((group.getId().contains(PROGRAMME_COURSE) && group.getId().contains(ROUTE)
 							&& !group.getId().startsWith(CN_GRADUAND) && !group.getId().startsWith(CN_GRADUATE)
@@ -328,7 +338,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 				}
 			}
 		} catch (LDAPException ldape) {
-			if (ldape.getResultCode() == LDAPException.SIZE_LIMIT_EXCEEDED) {
+			if (ldape.getResultCode().equals(ResultCode.SIZE_LIMIT_EXCEEDED)) {
 				throw new ExternalGroupException(Type.SIZE_LIMIT);
 			} else {
 				log.error("Problem with LDAP.", ldape);
@@ -341,13 +351,13 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		return groups;
 	}
 
-	ExternalGroup convert(LDAPEntry entry) {
+	ExternalGroup convert(SearchResultEntry entry) {
 		String dn = entry.getDN();
 		String name = null;
 		for(String attributeName: getSearchAttributes() ) {
-			LDAPAttribute attribute = entry.getAttribute(attributeName);
+			Attribute attribute = entry.getAttribute(attributeName);
 			if (attribute != null) {
-				String[] names = attribute.getStringValueArray();
+				String[] names = attribute.getValues();
 				if (names.length == 1) {
 					name = names[0];
 				} else {
@@ -382,8 +392,8 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	}
 
 	void ensureConnectionManager() {
-		if (ldapConnectionManager == null) { 
-			ldapConnectionManager = jldapDirectoryProvider.getLdapConnectionManager();
+		if (ldapConnectionPool == null) {
+			ldapConnectionPool = unboundidDirectoryProvider.getConnectionPool();
 		}
 	}
 	
@@ -398,29 +408,26 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 	 */
 	LDAPConnection getConnection() throws LDAPException {
 		ensureConnectionManager();
-		LDAPConnection connection =  ldapConnectionManager.getConnection();
-		LDAPSearchConstraints searchConstraints = connection.getSearchConstraints();
-		searchConstraints.setMaxResults(maxResults);
-		connection.setConstraints(searchConstraints);
+		LDAPConnection connection =  ldapConnectionPool.getConnection();
+		LDAPConnectionOptions options = connection.getConnectionOptions();
 		return connection;
 	}
 
 	void returnConnection(LDAPConnection connection) {
 		ensureConnectionManager();
-		ldapConnectionManager.returnConnection(connection);
+		ldapConnectionPool.discardConnection(connection);
 	}
 
-	public void setLdapConnectionManager(LdapConnectionManager ldapConnectionManager) {
-		this.ldapConnectionManager = ldapConnectionManager;
+	public void setLdapConnectionPool(LDAPConnectionPool ldapConnectionPool) {
+		this.ldapConnectionPool = ldapConnectionPool;
 	}
 
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
 	}
 
-	public void setJldapDirectoryProvider(
-			JLDAPDirectoryProvider jldapDirectoryProvider) {
-		this.jldapDirectoryProvider = jldapDirectoryProvider;
+	public void setUnboundidDirectoryProvider(UnboundidDirectoryProvider unboundidDirectoryProvider) {
+		this.unboundidDirectoryProvider = unboundidDirectoryProvider;
 	}
 
 	public void setMappedGroupDao(MappedGroupDao mappedGroupDao) {
@@ -448,14 +455,15 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		LDAPConnection connection = null;
 		try {
 			connection = getConnection();
-			LDAPSearchResults results = connection.search(externalId, LDAPConnection.SCOPE_BASE, memberAttribute + "=*", new String[]{memberAttribute}, false);
-			while(results.hasMore()) {
-				LDAPEntry entry = results.next();
-				LDAPAttribute memberAttr = entry.getAttribute(memberAttribute);
+			SearchRequest request = new SearchRequest(externalId, SearchScope.BASE, memberAttribute + "=*", memberAttribute);
+			request.setSizeLimit(maxResults);
+			SearchResult results = connection.search(request);
+			for (SearchResultEntry entry: results.getSearchEntries()) {
+				Attribute memberAttr = entry.getAttribute(memberAttribute);
 				if (memberAttr == null) {
 					continue;
 				}
-				String[] members = memberAttr.getStringValueArray();
+				String[] members = memberAttr.getValues();
 
 				MessageFormat formatter = new MessageFormat(memberFormat);
 				users = new ArrayList<String>(members.length);
@@ -516,4 +524,7 @@ public class ExternalGroupManagerImpl implements ExternalGroupManager {
 		return null;
 	}
 
+	public int getSizeLimit() {
+		return maxResults;
+	}
 }

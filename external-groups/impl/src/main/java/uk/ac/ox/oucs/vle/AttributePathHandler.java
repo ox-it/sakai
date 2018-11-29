@@ -2,15 +2,16 @@ package uk.ac.ox.oucs.vle;
 
 import java.util.*;
 
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ox.oucs.vle.ExternalGroupException.Type;
-
-import com.novell.ldap.LDAPConnection;
-import com.novell.ldap.LDAPEntry;
-import com.novell.ldap.LDAPException;
-import com.novell.ldap.LDAPSearchResults;
 
 public class AttributePathHandler implements PathHandler{
 
@@ -50,28 +51,24 @@ public class AttributePathHandler implements PathHandler{
 	public List<ExternalGroupNode> getNodes(String[] path) throws ExternalGroupException {
 		if (!canHandle(path)) 
 			throw new IllegalArgumentException("Can't handle this path: "+ path);
-		LDAPConnection conn = null;
-		try {
-			conn = groupManager.getConnection();
-			LDAPSearchResults searchResults = conn.search(base, LDAPConnection.SCOPE_SUB, searchAttribute+ "="+ path[1], new String[]{attribute, attribute2, displayAttribute}, false);
+		try (LDAPConnection conn = groupManager.getConnection()) {
+			SearchRequest searchRequest = new SearchRequest(base, SearchScope.SUB, searchAttribute + "=" + path[1], attribute, attribute2, displayAttribute);
+			SearchResult searchResults = conn.search(searchRequest);
 			List<ExternalGroupNode> nodes = new ArrayList<ExternalGroupNode>();
 			String pathPrefix = getPathPrefix(path);
-			while (searchResults.hasMore()) {
-				LDAPEntry result = searchResults.next();
-				String name = result.getAttribute(attribute).getStringValue();
+			for(SearchResultEntry result : searchResults.getSearchEntries()) {
+				String name = result.getAttribute(attribute).getValue();
 				String name2 = "";
 				if (root.equals(ExternalGroupManagerImpl.COURSES)){
-					name2 = ":" + result.getAttribute(attribute2).getStringValue();
+					name2 = ":" + result.getAttribute(attribute2).getValue();
 				}
-				String displayName = adjustedDisplayName(result.getAttribute(displayAttribute).getStringValue());
+				String displayName = adjustedDisplayName(result.getAttribute(displayAttribute).getValue());
 				nodes.add(new ExternalGroupNodeImpl(pathPrefix + name + name2, displayName));
 			}
 			return nodes;
 		} catch (LDAPException lde) {
 			log.warn(lde);
 			throw new ExternalGroupException(Type.UNKNOWN);
-		} finally {
-			groupManager.returnConnection(conn);
 		}
 	}
 

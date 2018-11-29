@@ -37,7 +37,8 @@
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-jldap-provider</artifactId>
+			<artifactId>sakai-unboundid-provider</artifactId>
+            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
