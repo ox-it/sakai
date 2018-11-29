@@ -65,18 +65,18 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	 * values are physical attr names.
 	 */
 	private Map<String,String> attributeMappings;
-    
-    /**
+
+	/**
 	 * Formatters used for manipulating attribute values sent to and returned from LDAP.
 	 */
 	private Map<String,MessageFormat> valueMappings;
 
-    /**
-     * Keys are physical attr names, values are collections of
-     * logical attr names. Essentially an inverse copy of
-     * {@link #attributeMappings}.
-     */
-    private Map<String,Collection<String>> reverseAttributeMappings;
+	/**
+	 * Keys are physical attr names, values are collections of
+	 * logical attr names. Essentially an inverse copy of
+	 * {@link #attributeMappings}.
+	 */
+	private Map<String,Collection<String>> reverseAttributeMappings;
 	
 	/** strategy for calculating the Sakai user type given a
 	 * <code>LDAPEntry</code>
@@ -164,51 +164,57 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	}
 
 	public String getFindUserByAidFilter(String aid) {
-		String eidAttr = 
-			attributeMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
-		return eidAttr + "=" + escapeSearchFilterTerm(aid);
+		String aidAttr =
+				attributeMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
+		MessageFormat valueFormat = valueMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
+		if (valueFormat == null) {
+			return aidAttr + "=" + escapeSearchFilterTerm(aid);
+		} else {
+			valueFormat = (MessageFormat) valueFormat.clone();
+			return aidAttr + "=" + escapeSearchFilterTerm(valueFormat.format(new Object[]{aid}));
+		}
 	}
 
 	/**
 	 * Performs {@link LDAPEntry}-to-{@Link LdapUserData} attribute
-     * mappings. Assigns the given {@link LDAPEntry}'s DN to the
-     * {@link LdapUserData} as a property keyed by 
-     * {@link AttributeMappingConstants#USER_DN_PROPERTY}. Then iterates
-     * over {@link LDAPEntry#getAttributeSet()}, handing each attribute
-     * to {@link #mapLdapAttributeOntoUserData(LDAPAttribute, LdapUserData, Collection)}.  
-     * Then enforces the preferred first name field, if it exists.
-     * Finally, assigns a "type" to the {@link LdapUserData} as defined
-     * by {@link #mapLdapEntryToSakaiUserType(LDAPEntry)}.
+	 * mappings. Assigns the given {@link LDAPEntry}'s DN to the
+	 * {@link LdapUserData} as a property keyed by
+	 * {@link AttributeMappingConstants#USER_DN_PROPERTY}. Then iterates
+	 * over {@link LDAPEntry#getAttributeSet()}, handing each attribute
+	 * to {@link #mapLdapAttributeOntoUserData(LDAPAttribute, LdapUserData, Collection)}.
+	 * Then enforces the preferred first name field, if it exists.
+	 * Finally, assigns a "type" to the {@link LdapUserData} as defined
+	 * by {@link #mapLdapEntryToSakaiUserType(LDAPEntry)}.
 	 * 
-     * @see UserTypeMapper
+	 * @see UserTypeMapper
 	 * @param ldapEntry the user's directory entry
 	 * @param userData target {@link LdapUserData}
 	 */
 	public void mapLdapEntryOntoUserData(LDAPEntry ldapEntry, LdapUserData userData) {
 		
 			log.debug("mapLdapEntryOntoUserData(): mapping entry [dn = {}]", ldapEntry.getDN());
-        
+
 		setUserDataDn(ldapEntry, userData);
-        
-        LDAPAttributeSet ldapAttributeSet = ldapEntry.getAttributeSet();
-        Enumeration<LDAPAttribute> ldapAttributes = ldapAttributeSet.getAttributes();
-        while (ldapAttributes.hasMoreElements()) {
-        	LDAPAttribute ldapAttribute = ldapAttributes.nextElement();
-            // we do the reverse lookup here since it will always need to
-            // be performed and we want to ensure it only happens once
-            // per attribute, regardless of the complexity of the actual
-            // mapping onto the user object
-            Collection<String> logicalAttrNames = 
-                getReverseAttributeMappings(ldapAttribute.getName());
-            mapLdapAttributeOntoUserData(ldapAttribute, userData, logicalAttrNames);
-        }
-        
-        //enforce use of firstNamePreferred if its set
-        userData.setFirstName(usePreferredFirstName(userData));
-        
-        // calculating a user's "type" potentially involves calculations
-        // against the entire LDAPEntry
-        userData.setType(mapLdapEntryToSakaiUserType(ldapEntry));
+
+		LDAPAttributeSet ldapAttributeSet = ldapEntry.getAttributeSet();
+		Enumeration<LDAPAttribute> ldapAttributes = ldapAttributeSet.getAttributes();
+		while (ldapAttributes.hasMoreElements()) {
+			LDAPAttribute ldapAttribute = ldapAttributes.nextElement();
+			// we do the reverse lookup here since it will always need to
+			// be performed and we want to ensure it only happens once
+			// per attribute, regardless of the complexity of the actual
+			// mapping onto the user object
+			Collection<String> logicalAttrNames =
+				getReverseAttributeMappings(ldapAttribute.getName());
+			mapLdapAttributeOntoUserData(ldapAttribute, userData, logicalAttrNames);
+		}
+
+		//enforce use of firstNamePreferred if its set
+		userData.setFirstName(usePreferredFirstName(userData));
+
+		// calculating a user's "type" potentially involves calculations
+		// against the entire LDAPEntry
+		userData.setType(mapLdapEntryToSakaiUserType(ldapEntry));
 	}
 	
 	public String getUserBindDn(LdapUserData userData) {
@@ -221,106 +227,106 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	
 	protected void setUserDataDn(LDAPEntry entry, LdapUserData targetUserData) {
 		targetUserData.setProperty(
-                AttributeMappingConstants.USER_DN_PROPERTY, 
-                entry.getDN());
+				AttributeMappingConstants.USER_DN_PROPERTY,
+				entry.getDN());
 	}
-    
-    /**
-     * Map the given {@link LDAPAttribute} onto the given 
-     * {@link LdapUserData}. Client can specify the logical attribute
-     * name(s) which have been configured for the given {@link LDAPAttribute}.
-     * This implementation has specific handling for the following
-     * logical attribute names:
-     * 
-     * <ul>
-     *   <li>{@link AttributeMappingConstants#LOGIN_ATTR_MAPPING_KEY} - {@link LdapUserData#setEid(String)}</li>
-     *   <li>{@link AttributeMappingConstants#FIRST_NAME_ATTR_MAPPING_KEY} - {@link LdapUserData#setFirstName(String)}</li>
-     *   <li>{@link AttributeMappingConstants#LAST_NAME_ATTR_MAPPING_KEY} - {@link LdapUserData#setLastName(String)}</li>
-     *   <li>{@link AttributeMappingConstants#EMAIL_ATTR_MAPPING_KEY} - {@link LdapUserData#setEmail(String)}</li>
-     * </ul>
-     * 
-     * Any other logical attribute names passed in <code>logicalAttrNames</code>
-     * will be mapped onto <code>userData</code> as a property using
-     * the logical attribute name as a key.
-     * 
-     * @param attribute the {@link LDAPAttribute} to map
-     * @param userData the target {@link LdapUserData} instance
-     * @param logicalAttrNames logical name(s) of the <code>attribute</code>. May
-     *   be null or empty, indicating no configured logical name(s).
-     */
-    protected void mapLdapAttributeOntoUserData(LDAPAttribute attribute, 
-            LdapUserData userData, Collection<String> logicalAttrNames) {
-        
-        if ( logicalAttrNames == null || logicalAttrNames.isEmpty() ) {
-            log.debug("No logical name for attribute. [physical name = {}]", attribute.getName());
-            return;
-        }
 
-        for ( String logicalAttrName : logicalAttrNames ) {
-        	mapLdapAttributeOntoUserData(attribute, userData, logicalAttrName);
-        }
+	/**
+	 * Map the given {@link LDAPAttribute} onto the given
+	 * {@link LdapUserData}. Client can specify the logical attribute
+	 * name(s) which have been configured for the given {@link LDAPAttribute}.
+	 * This implementation has specific handling for the following
+	 * logical attribute names:
+	 *
+	 * <ul>
+	 *   <li>{@link AttributeMappingConstants#LOGIN_ATTR_MAPPING_KEY} - {@link LdapUserData#setEid(String)}</li>
+	 *   <li>{@link AttributeMappingConstants#FIRST_NAME_ATTR_MAPPING_KEY} - {@link LdapUserData#setFirstName(String)}</li>
+	 *   <li>{@link AttributeMappingConstants#LAST_NAME_ATTR_MAPPING_KEY} - {@link LdapUserData#setLastName(String)}</li>
+	 *   <li>{@link AttributeMappingConstants#EMAIL_ATTR_MAPPING_KEY} - {@link LdapUserData#setEmail(String)}</li>
+	 * </ul>
+	 *
+	 * Any other logical attribute names passed in <code>logicalAttrNames</code>
+	 * will be mapped onto <code>userData</code> as a property using
+	 * the logical attribute name as a key.
+	 *
+	 * @param attribute the {@link LDAPAttribute} to map
+	 * @param userData the target {@link LdapUserData} instance
+	 * @param logicalAttrNames logical name(s) of the <code>attribute</code>. May
+	 *   be null or empty, indicating no configured logical name(s).
+	 */
+	protected void mapLdapAttributeOntoUserData(LDAPAttribute attribute,
+			LdapUserData userData, Collection<String> logicalAttrNames) {
 
-    }
-    
-    /**
-     * A delegate of {@link #mapLdapAttributeOntoUserData(LDAPAttribute, LdapUserData, Collection)}
-     * that allows for discrete handling of each logical attribute name associated with
-     * the given {@link LDAPAttribute}
-     * 
-     * @param attribute
-     * @param userData
-     * @param logicalAttrName
-     */
-    protected void mapLdapAttributeOntoUserData(LDAPAttribute attribute, 
-            LdapUserData userData, String logicalAttrName) {
-        
-    	Attribute unboundidAttribute = attribute.toAttribute();
-        String attrValue = unboundidAttribute.getValue();
-        MessageFormat format = valueMappings.get(logicalAttrName);
-        if (format != null && attrValue != null) {
-            format = (MessageFormat)format.clone();
-            log.debug("mapLdapAttributeOntoUserData(): value mapper [attrValue = {}; format={}]", attrValue, format.toString());
-            attrValue = (String)(format.parse(attrValue, new ParsePosition(0))[0]);
-        }
+		if ( logicalAttrNames == null || logicalAttrNames.isEmpty() ) {
+			log.debug("No logical name for attribute. [physical name = {}]", attribute.getName());
+			return;
+		}
 
-        log.debug("mapLdapAttributeOntoUserData() preparing to map: [logical attr name = {}][physical attr name = {}][value = {}]",
-            logicalAttrName, attribute.getName(), attrValue);
-        
-        if ( logicalAttrName.equals(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY) ) {
-            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.eid: [logical attr name = {}][physical attr name = {}][value = {}]",
-                logicalAttrName, attribute.getName(), attrValue);
-            userData.setEid(attrValue);
-        } else if ( logicalAttrName.equals(AttributeMappingConstants.FIRST_NAME_ATTR_MAPPING_KEY) ) {
-            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.firstName: [logical attr name = {}][physical attr name = [}][value = {}]",
-                logicalAttrName, attribute.getName(), attrValue);
-            userData.setFirstName(attrValue);
-        } else if ( logicalAttrName.equals(AttributeMappingConstants.PREFERRED_FIRST_NAME_ATTR_MAPPING_KEY) ) {
-            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.firstNamePreferred: logical attr name = {}][physical attr name = {}][value = {}]",
-                logicalAttrName, attribute.getName(), attrValue);
-            userData.setPreferredFirstName(attrValue);
-        } else if ( logicalAttrName.equals(AttributeMappingConstants.LAST_NAME_ATTR_MAPPING_KEY) ) {
-            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.lastName: [logical attr name = {}][physical attr name = {}][value = {}]",
-                logicalAttrName, attribute.getName(), attrValue);
-            userData.setLastName(attrValue);
-        } else if ( logicalAttrName.equals(AttributeMappingConstants.EMAIL_ATTR_MAPPING_KEY) ) {
-            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.email: [logical attr name = {}][physical attr name = {}][value = {}]",
-                logicalAttrName, attribute.getName(), attrValue);
-            userData.setEmail(attrValue);
-        } else if ( logicalAttrName.equals(AttributeMappingConstants.DISPLAY_ID_ATTR_MAPPING_KEY) ) {
-            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display Id: logical attr name = {}][physical attr name = {}][value = {}]",
-                logicalAttrName, attribute.getName(), attrValue);
-            userData.setProperty(UnboundidDirectoryProvider.DISPLAY_ID_PROPERTY, attrValue);
-        } else if ( logicalAttrName.equals(AttributeMappingConstants.DISPLAY_NAME_ATTR_MAPPING_KEY) ) {
-            log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display name: [logical attr name = {}][physical attr name = {}][value = {}]",
-                logicalAttrName, attribute.getName(), attrValue);
-            userData.setProperty(UnboundidDirectoryProvider.DISPLAY_NAME_PROPERTY, attrValue);
-        } else {
-            log.debug("mapLdapAttributeOntoUserData() mapping attribute to a User property: [logical attr name (and property name) = {}][physical attr name = {}][value = {}]",
-                logicalAttrName, attribute.getName(), attrValue);
-            userData.setProperty(logicalAttrName, attrValue);
-        }
+		for ( String logicalAttrName : logicalAttrNames ) {
+			mapLdapAttributeOntoUserData(attribute, userData, logicalAttrName);
+		}
 
-    }
+	}
+
+	/**
+	 * A delegate of {@link #mapLdapAttributeOntoUserData(LDAPAttribute, LdapUserData, Collection)}
+	 * that allows for discrete handling of each logical attribute name associated with
+	 * the given {@link LDAPAttribute}
+	 *
+	 * @param attribute
+	 * @param userData
+	 * @param logicalAttrName
+	 */
+	protected void mapLdapAttributeOntoUserData(LDAPAttribute attribute,
+			LdapUserData userData, String logicalAttrName) {
+
+		Attribute unboundidAttribute = attribute.toAttribute();
+		String attrValue = unboundidAttribute.getValue();
+		MessageFormat format = valueMappings.get(logicalAttrName);
+		if (format != null && attrValue != null) {
+			format = (MessageFormat)format.clone();
+			log.debug("mapLdapAttributeOntoUserData(): value mapper [attrValue = {}; format={}]", attrValue, format.toString());
+			attrValue = (String)(format.parse(attrValue, new ParsePosition(0))[0]);
+		}
+
+		log.debug("mapLdapAttributeOntoUserData() preparing to map: [logical attr name = {}][physical attr name = {}][value = {}]",
+			logicalAttrName, attribute.getName(), attrValue);
+
+		if ( logicalAttrName.equals(AttributeMappingConstants.LOGIN_ATTR_MAPPING_KEY) ) {
+			log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.eid: [logical attr name = {}][physical attr name = {}][value = {}]",
+				logicalAttrName, attribute.getName(), attrValue);
+			userData.setEid(attrValue);
+		} else if ( logicalAttrName.equals(AttributeMappingConstants.FIRST_NAME_ATTR_MAPPING_KEY) ) {
+			log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.firstName: [logical attr name = {}][physical attr name = [}][value = {}]",
+				logicalAttrName, attribute.getName(), attrValue);
+			userData.setFirstName(attrValue);
+		} else if ( logicalAttrName.equals(AttributeMappingConstants.PREFERRED_FIRST_NAME_ATTR_MAPPING_KEY) ) {
+			log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.firstNamePreferred: logical attr name = {}][physical attr name = {}][value = {}]",
+				logicalAttrName, attribute.getName(), attrValue);
+			userData.setPreferredFirstName(attrValue);
+		} else if ( logicalAttrName.equals(AttributeMappingConstants.LAST_NAME_ATTR_MAPPING_KEY) ) {
+			log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.lastName: [logical attr name = {}][physical attr name = {}][value = {}]",
+				logicalAttrName, attribute.getName(), attrValue);
+			userData.setLastName(attrValue);
+		} else if ( logicalAttrName.equals(AttributeMappingConstants.EMAIL_ATTR_MAPPING_KEY) ) {
+			log.debug("mapLdapAttributeOntoUserData() mapping attribute to User.email: [logical attr name = {}][physical attr name = {}][value = {}]",
+				logicalAttrName, attribute.getName(), attrValue);
+			userData.setEmail(attrValue);
+		} else if ( logicalAttrName.equals(AttributeMappingConstants.DISPLAY_ID_ATTR_MAPPING_KEY) ) {
+			log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display Id: logical attr name = {}][physical attr name = {}][value = {}]",
+				logicalAttrName, attribute.getName(), attrValue);
+			userData.setProperty(UnboundidDirectoryProvider.DISPLAY_ID_PROPERTY, attrValue);
+		} else if ( logicalAttrName.equals(AttributeMappingConstants.DISPLAY_NAME_ATTR_MAPPING_KEY) ) {
+			log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display name: [logical attr name = {}][physical attr name = {}][value = {}]",
+				logicalAttrName, attribute.getName(), attrValue);
+			userData.setProperty(UnboundidDirectoryProvider.DISPLAY_NAME_PROPERTY, attrValue);
+		} else {
+			log.debug("mapLdapAttributeOntoUserData() mapping attribute to a User property: [logical attr name (and property name) = {}][physical attr name = {}][value = {}]",
+				logicalAttrName, attribute.getName(), attrValue);
+			userData.setProperty(logicalAttrName, attrValue);
+		}
+
+	}
 
 	
 	/**
@@ -359,45 +365,45 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 		}
 		
 	}
-    
-    public String escapeSearchFilterTerm(final String unescapedTerm) {
-        if (unescapedTerm == null) return null;
-        //From RFC 2254
-        String term = unescapedTerm.replaceAll("\\\\","\\\\5c");
-        term = term.replaceAll("\\*","\\\\2a");
-        term = term.replaceAll("\\(","\\\\28");
-        term = term.replaceAll("\\)","\\\\29");
-        term = term.replaceAll("\\"+Character.toString('\u0000'), "\\\\00");
-        return term;
-    }
-    
-    /**
-     * Map the given logical attribute name to a physical attribute name.
-     * 
-     * @param key the logical attribute name
-     * @return the corresponding physical attribute name, or null
-     *   if no mapping exists.
-     */
-    public String getAttributeMapping(String key) {
-        return attributeMappings.get(key);
-    }
-    
-    /**
-     * Access the configured logical names associated with the given
-     * physical attribute name. May return <code>null</code>.
-     * 
-     * @param physicalAttrName a physical LDAP attribute name to reverse
-     *   map to zero or more logical attribute names
-     * @return a collection of logical attribute names; may be <code>null</code>
-     *   or empty.
-     */
-    public Collection<String> getReverseAttributeMappings(String physicalAttrName) {
-        return reverseAttributeMappings.get(physicalAttrName);
-    }
-    
-    protected Map<String, Collection<String>> getReverseAttributeMap() {
-    	return this.reverseAttributeMappings;
-    }
+
+	public String escapeSearchFilterTerm(final String unescapedTerm) {
+		if (unescapedTerm == null) return null;
+		//From RFC 2254
+		String term = unescapedTerm.replaceAll("\\\\","\\\\5c");
+		term = term.replaceAll("\\*","\\\\2a");
+		term = term.replaceAll("\\(","\\\\28");
+		term = term.replaceAll("\\)","\\\\29");
+		term = term.replaceAll("\\"+Character.toString('\u0000'), "\\\\00");
+		return term;
+	}
+
+	/**
+	 * Map the given logical attribute name to a physical attribute name.
+	 *
+	 * @param key the logical attribute name
+	 * @return the corresponding physical attribute name, or null
+	 *   if no mapping exists.
+	 */
+	public String getAttributeMapping(String key) {
+		return attributeMappings.get(key);
+	}
+
+	/**
+	 * Access the configured logical names associated with the given
+	 * physical attribute name. May return <code>null</code>.
+	 *
+	 * @param physicalAttrName a physical LDAP attribute name to reverse
+	 *   map to zero or more logical attribute names
+	 * @return a collection of logical attribute names; may be <code>null</code>
+	 *   or empty.
+	 */
+	public Collection<String> getReverseAttributeMappings(String physicalAttrName) {
+		return reverseAttributeMappings.get(physicalAttrName);
+	}
+
+	protected Map<String, Collection<String>> getReverseAttributeMap() {
+		return this.reverseAttributeMappings;
+	}
 	
 	/**
 	 * Implemented to return the current values of 
@@ -434,12 +440,12 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 		} else {
 			this.attributeMappings = attributeMappings;
 		}
-        cachePhysicalAttributeNames();
-        cacheReverseAttributeLookupMap();
-        
-       	log.debug("setAttributeMappings(): [attrib map = {}]", this.attributeMappings);
-       	log.debug("setAttributeMappings(): [reverse attrib map = {}]", this.reverseAttributeMappings);
-       	log.debug("setAttributeMappings(): [cached phys attrb names = {}]", Arrays.toString(this.physicalAttrNames));
+		cachePhysicalAttributeNames();
+		cacheReverseAttributeLookupMap();
+
+		log.debug("setAttributeMappings(): [attrib map = {}]", this.attributeMappings);
+		log.debug("setAttributeMappings(): [reverse attrib map = {}]", this.reverseAttributeMappings);
+		log.debug("setAttributeMappings(): [cached phys attrb names = {}]", Arrays.toString(this.physicalAttrNames));
 	}
 	
 	/**
@@ -457,45 +463,45 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 			physicalAttrNames[k++] = name;
 		}
 	}
-    
-    /**
-     * Caches the result of {@link #reverseAttributeMap(Map)}, passing
-     * the currently cached attribute map. The result completely
-     * replaces any currently cached reverse attribute map.
-     *
-     */        
-    private void cacheReverseAttributeLookupMap() {
-        reverseAttributeMappings = reverseAttributeMap(attributeMappings);    
-    }
-    
-    /**
-     * Creates a reverse lookup map of a given attribute map's values.
-     * That is, creates a map of physical to logical LDAP attribute names.
-     * Since a multiple logical names may point to a single physical name,
-     * values in this map are actually {@link Collection<String>}'s.
-     * 
-     * <p>Protected access control mainly to enable testing</p>
-     * 
-     * @param toReverse
-     * @return
-     */
-    protected Map<String,Collection<String>> reverseAttributeMap(Map<String,String> toReverse) {
-    	Map<String,Collection<String>> reversed = new HashMap<String,Collection<String>>();
-    	for ( Map.Entry<String, String> entry : toReverse.entrySet()) {
-            Collection<String> logicalAttrNames = 
-            	reversed.get(entry.getValue());
-            String logicalAttrName = entry.getKey();
-            String physicalAttrName = entry.getValue();
-            if (logicalAttrNames == null) {
-                logicalAttrNames = new ArrayList<String>(1);
-                logicalAttrNames.add(logicalAttrName);
-                reversed.put(physicalAttrName, logicalAttrNames);
-            } else {
-                logicalAttrNames.add(logicalAttrName);
-            }
-        }
-    	return reversed;
-    }
+
+	/**
+	 * Caches the result of {@link #reverseAttributeMap(Map)}, passing
+	 * the currently cached attribute map. The result completely
+	 * replaces any currently cached reverse attribute map.
+	 *
+	 */
+	private void cacheReverseAttributeLookupMap() {
+		reverseAttributeMappings = reverseAttributeMap(attributeMappings);
+	}
+
+	/**
+	 * Creates a reverse lookup map of a given attribute map's values.
+	 * That is, creates a map of physical to logical LDAP attribute names.
+	 * Since a multiple logical names may point to a single physical name,
+	 * values in this map are actually {@link Collection<String>}'s.
+	 *
+	 * <p>Protected access control mainly to enable testing</p>
+	 *
+	 * @param toReverse
+	 * @return
+	 */
+	protected Map<String,Collection<String>> reverseAttributeMap(Map<String,String> toReverse) {
+		Map<String,Collection<String>> reversed = new HashMap<String,Collection<String>>();
+		for ( Map.Entry<String, String> entry : toReverse.entrySet()) {
+			Collection<String> logicalAttrNames =
+				reversed.get(entry.getValue());
+			String logicalAttrName = entry.getKey();
+			String physicalAttrName = entry.getValue();
+			if (logicalAttrNames == null) {
+				logicalAttrNames = new ArrayList<String>(1);
+				logicalAttrNames.add(logicalAttrName);
+				reversed.put(physicalAttrName, logicalAttrNames);
+			} else {
+				logicalAttrNames.add(logicalAttrName);
+			}
+		}
+		return reversed;
+	}
 
 	/** 
 	 * Access the strategy for calculating the Sakai user type given a

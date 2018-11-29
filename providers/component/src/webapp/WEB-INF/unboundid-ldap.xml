@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+	<bean id="org.sakaiproject.unboundid.UnboundidDirectoryProvider"
 		class="org.sakaiproject.unboundid.UnboundidDirectoryProvider" init-method="init"
 		destroy-method="destroy">
 		
@@ -163,51 +163,67 @@
 		<property name="searchAliases"><value>false</value></property>
 		
 	</bean>
-			
-    <!-- An optional bean definition which can be used to customize LDAP
-    attribute to Sakai User instance member mapping behaviors. This
-    example describes availabel configuration options for SimpleLdapAttributeMapper
-    (the default LdapAttributeMapper implementation). -->
+
 	<bean id="org.sakaiproject.unboundid.LdapAttributeMapper"
-			class="org.sakaiproject.unboundid.SimpleLdapAttributeMapper"
-			init-method="init">
-			
+		  class="org.sakaiproject.unboundid.OakLdapAttributeMapper"
+		  init-method="init">
+
+		<property name="encryption" ref="org.sakaiproject.user.detail.ValueEncryptionUtilities"/>
+		<!-- If the values found are larger than these they won't be loaded. -->
+		<property name="additionalInfoLength" value="2"/>
+		<property name="candidateIdLength" value="10"/>
+
 		<!-- A typical set of attribute mappings. Keys are logical
 		names expected by the application. Values are physical LDAP
 		attribute names. If not specified or empty, defaults to
 		AttributeMappingConstants.DEFAULT_ATTR_MAPPINGS. -->
 		<property name="attributeMappings">
 			<map>
-<!--
-				<entry key="aid"><value>krb5PrincipalName</value></entry>
--->
-				<entry key="login"><value>uid</value></entry>         
-				<entry key="firstName"><value>givenName</value></entry> 
-				<entry key="preferredFirstName"><value>preferredName</value></entry>
-				<entry key="lastName"><value>sn</value></entry> 
-				<entry key="email"><value>mail</value></entry>  
-				<entry key="groupMembership"><value>groupMembership</value></entry>   
-				<entry key="jpegPhoto"><value>jpegPhoto</value></entry>   
+				<!-- Note: Our mapper extracts the desired value from the one
+                that is actually returned. -->
+				<entry key="login"><value>oakPrimaryPersonID</value></entry>
+				<entry key="aid"><value>oakPrimaryPrincipal</value></entry>
+				<!-- Note: We parse first name out of the display name ;-). -->
+				<entry key="firstName"><value>displayName</value></entry>
+				<entry key="lastName"><value>sn</value></entry>
+				<entry key="email"><value>mail</value></entry>
+				<entry key="givenName"><value>givenName</value></entry>
+				<entry key="displayId"><value>oakPrimaryPrincipal</value></entry>
+				<!-- Gets set as a user property -->
+				<entry key="oakStatus"><value>oakStatus</value></entry>
+				<entry key="oakSITSID"><value>oakSITSID</value></entry>
+				<!-- Gets the units a person is part of. This is for course signup -->
+				<entry key="units"><value>ou</value></entry>
+				<entry key="oakSITSCourse"><value>oakSITSCourse</value></entry>
+				<entry key="eduPersonPrimaryOrgUnitDN"><value>eduPersonPrimaryOrgUnitDN</value></entry>
+
+				<!-- These are just sample ones for now. -->
+				<entry key="candidateID"><value>oakSITSCandidateNumber</value></entry>
+				<entry key="additionalInfo"><value>oakSITSRoomFacilityCode</value></entry>
 			</map>
 		</property>
-		
-		<!-- If any of the values need manipulating with message formats they can be set here. -->
-		<!-- property name="valueMappings">
+		<!--
+			Note: When populating a user object from LDAP, we use this "official"
+			value. When searching for a user, we use the multi-valued
+			*oakAlternativeMail* attribute (which includes this value).
+		-->
+		<property name="alternativeEmail" value="oakAlternativeMail" />
+
+		<!-- If any of the values need manipulating with message formats they
+		can be set here. -->
+		<property name="valueMappings">
 			<map>
-				<entry key="displayId"><value>{0}@example.edu</value></entry>
+				<entry key="aid"><value>krbPrincipalName={0}@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk</value></entry>
+				<entry key="displayId"><value>krbPrincipalName={0}@OX.AC.UK,cn=OX.AC.UK,cn=KerberosRealms,dc=oak,dc=ox,dc=ac,dc=uk</value></entry>
 			</map>
-		</property -->
+		</property>
 
 		<!-- Several options for calculating Sakai user types based
 		on LDAP attributes. Defaults to an instance of EmptyStringUserTypeMapper -->
 		<property name="userTypeMapper">
-			<!-- Select one of the following beans -->
-			<ref bean="org.sakaiproject.unboundid.EmptyStringUserTypeMapper" />
-			<!-- ref bean="org.sakaiproject.unboundid.EntryAttributeToUserTypeMapper" /-->
-			<!-- ref bean="org.sakaiproject.unboundid.EntryContainerRdnToUserTypeMapper" /-->
-			<!-- ref bean="org.sakaiproject.unboundid.StringUserTypeMapper" /-->
+			<ref bean="org.sakaiproject.unboundid.StringUserTypeMapper" />
 		</property>
-		
+
 	</bean>
 	
 	
@@ -228,9 +244,9 @@
 	<bean id="org.sakaiproject.unboundid.StringUserTypeMapper"
 		class="org.sakaiproject.unboundid.StringUserTypeMapper">
 		
-		<!--  property name="userType">
-			<value>Registered</value>
-		</property -->
+		<property name="userType">
+			<value>oxford</value>
+		</property>
 		
 	</bean>
 		
@@ -298,5 +314,92 @@
 	</bean>
 		
 	<!-- /// End Sample UserTypeMapper Beans /// -->
+
+	<!-- TODO -->
+	<bean id="org.sakaiproject.authz.api.RoleProvider"
+		  class="edu.amc.sakai.user.UserAttributeRoleProvider"
+		  init-method="init">
+		<property name="userDirectoryService">
+			<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
+		</property>
+		<property name="statusAttribute" value="oakStatus"/>
+		<property name="statusRoles">
+			<map>
+				<entry key="staff">
+					<set>
+						<value>.uk.ac.ox.card.staff</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="college">
+					<set>
+						<value>.uk.ac.ox.card.college</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="dept">
+					<set>
+						<value>.uk.ac.ox.card.dept</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="senmem">
+					<set>
+						<value>.uk.ac.ox.card.senmem</value>
+						<value>.uk.ac.ox.bod.allstaff</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="visitor">
+					<set>
+						<value>.uk.ac.ox.card.visitor</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="undergrad">
+					<set>
+						<value>.uk.ac.ox.card.undergrad</value>
+						<value>.uk.ac.ox.bod.allstudents</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="postgrad">
+					<set>
+						<value>.uk.ac.ox.card.postgrad</value>
+						<value>.uk.ac.ox.bod.allstudents</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="student">
+					<set>
+						<value>.uk.ac.ox.card.student</value>
+						<value>.uk.ac.ox.bod.allstudents</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="cardholder">
+					<set>
+						<value>.uk.ac.ox.card.cardholder</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="virtual">
+					<set>
+						<value>.uk.ac.ox.card.virtual</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+				<entry key="ret">
+					<set>
+						<value>.uk.ac.ox.card.ret</value>
+						<value>.uk.ac.ox.bod.allusers</value>
+					</set>
+				</entry>
+			</map>
+		</property>
+	</bean>
 	
 </beans>
