@@ -103,6 +103,11 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	/** Property of the user object to store the display Name under */
 	public static final String DISPLAY_NAME_PROPERTY = UnboundidDirectoryProvider.class+"-displayName";
 
+	/** Property of the user object to store the display ID under */
+	public static final String YEAR_OF_STUDY_PROPERTY = "yearOfStudy";
+
+	public static final String PRIMARY_ORG_UNIT_DN = "primaryOrgUnit";
+
 	public static final boolean DEFAULT_ALLOW_AUTHENTICATION = true;
 
 	public static final boolean DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST = false;
@@ -199,6 +204,10 @@ public class UnboundidDirectoryProvider implements UserDirectoryProvider, LdapCo
 	 * {@link #authenticateWithProviderFirst(String)} on a global basis.
 	 */
 	private boolean authenticateWithProviderFirst = DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST;
+
+	public LDAPConnectionPool getConnectionPool() {
+		return connectionPool;
+	}
 
 	public UnboundidDirectoryProvider() {
 		log.debug("instantating UnboundidDirectoryProvider");
