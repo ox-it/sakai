@@ -12,7 +12,7 @@
 	#if($removals && $removals.size() != 0)
 		<div class="alertMessage">
 			#if($softDelete)
-				$tlang.getString("sitegen.sitedel.soft")
+				$tlang.getFormattedMessage("sitegen.sitedel.soft", $deletionDateForSoftlyDeletedSite)
 			#else
 				$tlang.getString("sitegen.sitedel.deleting1")
 			#end

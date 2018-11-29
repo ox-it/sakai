@@ -2,7 +2,7 @@
 
 #if (${sitePages} && ${sitePages.softlyDeleted})
     <div class="alertMessage">
-        <span id="siteStatusSoftlyDeleted" class="Mrphs-siteStatus Mrphs-messagePanel__error--warning is-softly-deleted">$rloader.getFormattedMessage("site_softly_deleted", $sitePages.graceDaysRemaining)</span>
+        <span id="siteStatusSoftlyDeleted" class="Mrphs-siteStatus Mrphs-messagePanel__error--warning is-softly-deleted">$rloader.getFormattedMessage("site_softly_deleted", $sitePages.deletionDateForSoftlyDeletedSite)</span>
     </div>
 #elseif (${sitePages} && !${sitePages.pageNavPublished})
 

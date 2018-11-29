@@ -753,12 +753,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		boolean isSoftlyDeleted = site.isSoftlyDeleted();
 		theMap.put("softlyDeleted", isSoftlyDeleted);
 		if (isSoftlyDeleted) {
-			long milliSinceEpoch = site.getSoftlyDeletedDate().getTime();
-			LocalDate siteDeletedDate = LocalDate.ofEpochDay(milliSinceEpoch/(1000*60*60*24)); 
-			int graceNumDays = ServerConfigurationService.getInt("site.soft.deletion.gracetime", 30); 
-			LocalDate graceDaysRemaining = siteDeletedDate.plusDays(graceNumDays);
+			LocalDate deletionDate = SiteService.getDeletionDateForSoftlyDeletedSite(site.getId());
 			DateTimeFormatter df = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(new ResourceLoader().getLocale());
-			theMap.put("graceDaysRemaining", graceDaysRemaining.format(df));
+			theMap.put("deletionDateForSoftlyDeletedSite", deletionDate.format(df));
 		}
 
 		// Retrieve whether or not we are to put presence in a frame
