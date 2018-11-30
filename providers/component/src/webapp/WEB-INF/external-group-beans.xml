@@ -8,8 +8,8 @@
 			<property name="ldapConnectionManager"> <ref
 			bean="edu.amc.sakai.user.LdapConnectionManager"/> </property>
 		-->
-		<property name="jldapDirectoryProvider">
-			<ref bean="edu.amc.sakai.user.JLDAPDirectoryProvider" />
+		<property name="unboundidDirectoryProvider">
+			<ref bean="org.sakaiproject.unboundid.UnboundidDirectoryProvider" />
 		</property>
 		<property name="userDirectoryService">
 			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />

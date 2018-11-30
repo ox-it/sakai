@@ -1,0 +1,30 @@
+dn: ou=oxuni,ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+
+dn: ou=centadm,ou=oxuni,ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+
+# The IT Services Unit
+dn: ou=itserv,ou=centadm,ou=oxuni,ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+oxfordUnitUsernamePrefix: ouit
+oxfordUnitCode: itserv
+displayName: IT Services
+ou: itserv
+oxfordUnitDivisionCode: centadm
+objectClass: groupstoreOrganizationalUnit
+objectClass: organizationalUnit
+objectClass: top
+
+# Everyone in IT Services
+dn: cn=all,ou=itserv,ou=centadm,ou=oxuni,ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+displayName: IT Services, All
+objectClass: top
+# This nested group shouldn't break things
+member: cn=nested,ou=itserv,ou=centadm,ou=oxuni,ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+member: oakPrimaryPersonID=1234,ou=people,dc=oak,dc=ox,dc=ac,dc=uk
+
+
+# We shouldn't find this group.
+dn: cn=other,ou=itserv,ou=centadm,ou=oxuni,ou=org,ou=groupstore,dc=oak,dc=ox,dc=ac,dc=uk
+displayName: IT Services, Other
+objectClass: top
+cn: other
+member: oakPrimaryPersonID=1234,ou=people,dc=oak,dc=ox,dc=ac,dc=uk

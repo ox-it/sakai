@@ -28,7 +28,7 @@
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
 
-  		<dependency>
+		<dependency>
 			<groupId>uk.ac.ox.oucs</groupId>
 			<artifactId>course-signup-api</artifactId>
 		</dependency>
@@ -43,6 +43,13 @@
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-jldap-provider</artifactId>
 			<version>${sakai.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-unboundid-provider</artifactId>
+			<version>${sakai.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>

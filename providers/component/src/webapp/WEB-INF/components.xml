@@ -160,8 +160,11 @@
 	</bean>
 -->
 
-<!-- Uncomment and configure to use the JLDAPDirectoryProvider -->
-	<import resource="jldap-beans.xml"/>
+<!-- Uncomment and configure to use the UnboundidDirectoryProvider -->
+	<import resource="unboundid-ldap.xml" />
+
+<!-- Uncomment and configure to use the legacy JLDAP Provider -->
+	<!--<import resource="jldap-beans.xml"/>-->
 	<!-- These aren't in our 10 build yet. -->
 	<import resource="external-group-beans.xml"/>
 	<import resource="course-signup-beans.xml"/>
@@ -201,7 +204,7 @@
 		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
 		init-method="init" destroy-method="destroy">
 		<property name="myProvider">
-			<ref bean="edu.amc.sakai.user.JLDAPDirectoryProvider" />
+			<ref bean="org.sakaiproject.unboundid.UnboundidDirectoryProvider" />
 		</property>
 		<property name="nextProvider">
 			<ref bean="org.sakaiproject.provider.user.ThreadCheckUserDirectoryProvider" />
