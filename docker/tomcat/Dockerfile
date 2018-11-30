@@ -50,14 +50,6 @@ RUN mkdir -p /opt/scripts && \
   mkdir -p /opt/tomcat/sakai/deleted && \
   mkdir -p /opt/tomcat/sakai/logs
 
-# The logs directory needs to be writable by tomcat
-RUN chown sakai /opt/tomcat/logs /opt/tomcat/temp /opt/tomcat/work /opt/tomcat/sakai/files /opt/tomcat/sakai/deleted /opt/tomcat/sakai/logs /opt/tomcat/webapps && \
-  find /opt/tomcat/conf/ -type f| xargs chmod 640 && \
-  mkdir -p /opt/tomcat/conf/Catalina && chown sakai /opt/tomcat/conf/Catalina && \
-  chgrp sakai -R /opt/tomcat/conf && chmod 755 /opt/tomcat/conf && \
-  touch /opt/tomcat/sakai/sakai.properties && \
-  chown sakai /opt/tomcat/sakai/sakai.properties
-
 # Copy in the JCE unlimited strength policy files
 RUN curl -sLO --cookie 'oraclelicense=accept-securebackup-cookie;'  http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip && \
   jar xf jce_policy-8.zip && \
@@ -74,6 +66,14 @@ RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.o
 # This sets the default locale and gets it to work correctly in Java
 ENV LANG en_GB.UTF-8
 RUN /usr/sbin/locale-gen $LANG
+
+# The logs directory needs to be writable by tomcat
+RUN chown sakai /opt/tomcat/logs /opt/tomcat/temp /opt/tomcat/work /opt/tomcat/sakai/files /opt/tomcat/sakai/deleted /opt/tomcat/sakai/logs /opt/tomcat/webapps && \
+  find /opt/tomcat/conf/ -type f| xargs chmod 640 && \
+  mkdir -p /opt/tomcat/conf/Catalina && chown sakai /opt/tomcat/conf/Catalina && \
+  chgrp sakai -R /opt/tomcat/ && chmod 755 /opt/tomcat/conf && \
+  touch /opt/tomcat/sakai/sakai.properties && \
+  chown sakai /opt/tomcat/sakai/sakai.properties
 
 COPY ./entrypoint.sh /opt/scripts/entrypoint.sh
 
