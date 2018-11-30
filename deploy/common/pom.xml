@@ -27,9 +27,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.sakaiproject.sentry</groupId>
-            <artifactId>raven-sakai</artifactId>
-            <version>1.2</version>
+            <groupId>uk.ac.ox.it.sentry</groupId>
+            <artifactId>sentry-sakai</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 </project>
