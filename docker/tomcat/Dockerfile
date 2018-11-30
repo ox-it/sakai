@@ -29,7 +29,7 @@ RUN update-ca-certificates
 RUN mkdir -p /opt/tomcat && \
   # We don't use the main mirror as otherwise it stops working once newer versions are released.
   # version we want
-  curl -s https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.28/bin/apache-tomcat-8.0.28.tar.gz | \
+  curl -s https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz | \
   tar zxf - --strip-components 1 -C /opt/tomcat && \
   cd /opt/tomcat && \
   rm -r webapps && \
@@ -64,10 +64,11 @@ RUN curl -sLO --cookie 'oraclelicense=accept-securebackup-cookie;'  http://downl
   cp UnlimitedJCEPolicyJDK8/*.jar $JAVA_HOME/jre/lib/security && \
   rm -r jce_policy-8.zip UnlimitedJCEPolicyJDK8
 
-# Setup all the logging to use log4j
+# Setup all the internal tomcat logging to use log4j
 # This needs to go in the lib folder
-RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.28/bin/extras/tomcat-juli-adapters.jar &&\
-  curl -s -o /opt/tomcat/bin/tomcat-juli.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.28/bin/extras/tomcat-juli.jar && \
+# There isn't a more recent version of this library because it's no longer supported because log4j is EOL.
+RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.0/bin/extras/tomcat-juli-adapters.jar &&\
+  curl -s -o /opt/tomcat/bin/tomcat-juli.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.0/bin/extras/tomcat-juli.jar && \
   rm /opt/tomcat/conf/logging.properties
 
 # This sets the default locale and gets it to work correctly in Java
