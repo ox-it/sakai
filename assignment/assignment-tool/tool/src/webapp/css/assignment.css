@@ -360,6 +360,7 @@ div#pagingHeader {
 #categoryList label
 {
 	margin-bottom: 0; /* kill off bootstrap margin to reduce jitter during animation transitions */
+	font-weight: normal; /* kill off bootstrap label bolding */
 }
 
 .owlIndent1

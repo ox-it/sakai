@@ -61,11 +61,11 @@ Markup note: Markup is defined in "fragments" (due to how Velocity parses, these
 					$tlang.getString("grading.add")
 				</label>
 			</div>
-			#if (!$!categoryTable.isEmpty())
+			#if ($!value_totalCategories > 1)
 			## show the "Category list" choices or not
 			<div id="categoryList" class="owlIndent2">
 				<label for="category">$tlang.getString("grading.categorylist")</label>
-				<select name="$name_Category" id="category">
+				<select name="$name_Category" id="category" #if(!$!gradebookChoice.equals("$!gradebookChoice_add"))disabled#end>
 					#foreach ($i in $categoryKeys)
 						<option value="$i" #if ($i == $!value_Category)selected="selected"#end>$categoryTable.get($i)</option>
 					#end
