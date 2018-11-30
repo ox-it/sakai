@@ -4,7 +4,7 @@
 # the container.
 
 # This is our own Ubuntu image with Java
-FROM oxit/java:jdk-8u161-02
+FROM openjdk:8u181-jdk-slim-stretch
 
 MAINTAINER Matthew Buckett <matthew.buckett@it.ox.ac.uk>
 
@@ -13,6 +13,12 @@ WORKDIR /tmp
 # Create the group and user for Sakai
 RUN groupadd --gid 10000 sakai && \
   useradd --uid 10000 --gid 10000 --system sakai 
+
+# Install locales and curl
+RUN \
+  apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y locales curl && \
+  rm -rf /var/lib/apt/lists/*
 
 # The 1024 bit root CAs are no longer in Debian (https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=812708)
 # and the cross signing isn't working in older versions of openssl
@@ -65,10 +71,6 @@ RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.o
   rm /opt/tomcat/conf/logging.properties
 
 # This sets the default locale and gets it to work correctly in Java
-RUN \
-  apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y locales && \
-  rm -rf /var/lib/apt/lists/*
 ENV LANG en_GB.UTF-8
 RUN /usr/sbin/locale-gen $LANG
 
