@@ -4982,8 +4982,8 @@ public class SiteAction extends PagedResourceActionII {
 		List selectedFolders = Arrays.asList(rootCollectionId);
 		List selectedFiles = new ArrayList();
 		HttpServletResponse response = (HttpServletResponse)ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE);
-		CCExport ccExport = new org.sakaiproject.exporter.util.CCExport(m_contentHostingService);
-		ccExport.doExport(siteId, selectedFolders, selectedFiles, response);
+		CCExport ccExport = new org.sakaiproject.exporter.util.CCExport(siteId, m_contentHostingService);
+		ccExport.doExport(response);
 	}
 
 	/**

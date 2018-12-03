@@ -7178,8 +7178,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if ("imscc".equals(exportType)) {
 			Reference ref = EntityManager.newReference(ContentHostingService.getReference(collectionId));
 			String siteId = ref.getContext();
-			CCExport ccExport = new org.sakaiproject.exporter.util.CCExport(ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class));
-			ccExport.doExport(siteId, selectedFolderIds, selectedFiles, response);
+			CCExport ccExport = new org.sakaiproject.exporter.util.CCExport(siteId, ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class));
+			ccExport.doExport(selectedFolderIds, selectedFiles, response);
 		}
 		else if ("zip".equals(exportType)) {
 			try {
