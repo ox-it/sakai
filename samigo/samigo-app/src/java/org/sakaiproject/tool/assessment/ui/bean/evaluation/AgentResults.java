@@ -238,10 +238,10 @@ public class AgentResults
   }
 
   public String getRoundedTotalAutoScore() {
-   if (totalAutoScore!= null){	  
+   if (totalAutoScore!= null){
 	   try {
 		   String newscore = ContextUtil.getRoundedValue(totalAutoScore.replace(',', '.'), 2);
-		   return Validator.check(newscore, "N/A").replace(',', '.');
+		   return Validator.check(newscore, "N/A");
 	   }
 	   catch (Exception e) {
 		   // encountered some weird number format/locale
@@ -271,7 +271,7 @@ public class AgentResults
 			try {
 				String newscore = ContextUtil.getRoundedValue(
 						totalOverrideScore.replace(',', '.'), 2);
-				return Validator.check(newscore, "N/A").replace(',', '.');
+				return Validator.check(newscore, "N/A");
 			} catch (Exception e) {
 				// encountered some weird number format/locale
 				return Validator.check(totalOverrideScore, "0").replace(',', '.');
@@ -296,7 +296,7 @@ public class AgentResults
 	  if (finalScore!= null){
 		  try {
 			  String newscore = ContextUtil.getRoundedValue(finalScore.replace(',', '.'), 2);
-			  return Validator.check(newscore, "N/A").replace(',', '.');
+			  return Validator.check(newscore, "N/A");
 		  }
 		  catch (Exception e) {
 			  // encountered some weird number format/locale
