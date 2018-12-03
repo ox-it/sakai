@@ -9,7 +9,7 @@ if [ ! -z "$DOCKER_EMAIL_USER" ]; then
 	set -- $DOCKER_EMAIL_USER
 	DOCKER_EMAIL="$1"
 	DOCKER_USER="$2"
-	docker login --email="$DOCKER_EMAIL" --username="$DOCKER_USER" --password="$DOCKER_PASS"
+	docker login --username="$DOCKER_USER" --password="$DOCKER_PASS"
 	# Make sure we logout when shell script exits
 	trap 'docker logout' INT TERM EXIT
 fi
