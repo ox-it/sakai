@@ -99,8 +99,8 @@ public class AutoImport implements ApplicationContextAware {
 							.withIdentity(job.getJobType(), null)
                             .setJobData(jobData);
 					JobDetail jobDetail = builder.build();
-					scheduler.addJob(jobDetail, true);
-					scheduler.triggerJob(jobDetail.getKey());
+					scheduler.addJob(jobDetail, true, true);
+					scheduler.triggerJob(jobDetail.getKey(), triggerData);
 					log.info("Triggered job: "+ job.getJobType());
 				} catch (SchedulerException se) {
 					log.warn("Failed to run job: "+ startup, se);
