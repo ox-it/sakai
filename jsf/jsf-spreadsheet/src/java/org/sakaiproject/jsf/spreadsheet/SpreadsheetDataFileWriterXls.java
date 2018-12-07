@@ -29,6 +29,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -74,8 +75,8 @@ public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
 		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
 		
 		// Set the header style
-		headerCs.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-		headerCs.setFillBackgroundColor(HSSFColor.BLUE_GREY.index);
+		headerCs.setBorderBottom(BorderStyle.THIN);
+		headerCs.setFillBackgroundColor(HSSFColor.HSSFColorPredefined.BLUE_GREY.getIndex());
 
 		// Set the font
 		HSSFCellStyle cellStyle = null;

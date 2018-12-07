@@ -73,7 +73,7 @@
         <!-- dependencies versions -->
         <sakai.search.version>10-SNAPSHOT</sakai.search.version>
         <solr.version>4.3.1</solr.version>
-        <tika.version>1.5</tika.version>
+        <tika.version>1.19.1</tika.version>
         <guava.version>14.0.1</guava.version>
         <junit.version>4.11</junit.version>
         <mockito.version>1.9.5</mockito.version>
@@ -81,7 +81,7 @@
         <amqp.version>3.1.1</amqp.version>
         <hamcrest.version>1.3</hamcrest.version>
         <joda-time.version>2.2</joda-time.version>
-        <pdfbox.version>2.0.6</pdfbox.version>
+        <pdfbox.version>2.0.12</pdfbox.version>
     </properties>
 
     <dependencyManagement>

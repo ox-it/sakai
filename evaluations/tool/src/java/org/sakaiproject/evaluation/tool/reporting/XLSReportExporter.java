@@ -107,14 +107,14 @@ public class XLSReportExporter implements ReportExporter {
         // Title Style
         Font font = wb.createFont();
         font.setFontHeightInPoints((short) 12);
-        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setBold(true);
         CellStyle mainTitleStyle = wb.createCellStyle();
         mainTitleStyle.setFont(font);
 
         // Bold header style
         font = wb.createFont();
         font.setFontHeightInPoints((short) 10);
-        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        font.setBold(true);
         CellStyle boldHeaderStyle = wb.createCellStyle();
         boldHeaderStyle.setFont(font);
 
