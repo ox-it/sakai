@@ -28,6 +28,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1961,6 +1964,12 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				if (remove.size() == 0) {
 					addAlert(state, rb.getString("java.click"));
+				} else {
+					LocalDate today = LocalDate.now();
+					int graceNumDays = ServerConfigurationService.getInt("site.soft.deletion.gracetime", SiteService.SOFT_DELETION_GRACE_DAYS);
+					LocalDate siteToBeDeletedDate = today.plusDays(graceNumDays);
+					DateTimeFormatter df = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(new ResourceLoader().getLocale());
+					context.put("deletionDateForSoftlyDeletedSite", siteToBeDeletedDate.format(df));
 				}
 			}
 			context.put("removals", remove);

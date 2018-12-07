@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.api;
 
+import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -137,6 +138,9 @@ public interface SiteService extends EntityProducer
 	
 	/** The configuration property for enabling or disabling user-site caching, defaults to true. */
 	public static final String PROP_CACHE_USER_SITES = "user.site.cache.enabled";
+
+	/** The default number of days to keep softly deleted sites until they are purged. */
+	public static final int SOFT_DELETION_GRACE_DAYS = 30;
 
 	/**
 	 * Event for adding user to site
@@ -1156,8 +1160,15 @@ public interface SiteService extends EntityProducer
 	 * @return List of Sites or empty list if none.
 	 */
 	List<Site> getSoftlyDeletedSites();
-	
-	
+
+	/**
+	 * Get the date that a softly deleted site will be permanently deleted.
+	 * @param siteId
+	 *        The id of the site.
+	 * @return A date when the softly deleted site will be permanently removed.
+	 */
+	LocalDate getDeletionDateForSoftlyDeletedSite(String siteId);
+
 	/**
 	 * Count the Site objets that meet specified criteria.
 	 * 

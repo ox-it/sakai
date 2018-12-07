@@ -58,6 +58,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.PrintWriter;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -2219,6 +2220,25 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public List<Site> getSoftlyDeletedSites() {
 		return storage().getSoftlyDeletedSites();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public LocalDate getDeletionDateForSoftlyDeletedSite(String siteId) {
+		try {
+			Site site = getSite(siteId);
+			if (site.isSoftlyDeleted()) {
+				long milliSinceEpoch = site.getSoftlyDeletedDate().getTime();
+				LocalDate siteDeletedDate = LocalDate.ofEpochDay(milliSinceEpoch / (1000 * 60 * 60 * 24));
+				int graceNumDays = serverConfigurationService().getInt("site.soft.deletion.gracetime", SOFT_DELETION_GRACE_DAYS);
+				return siteDeletedDate.plusDays(graceNumDays);
+			}
+		}	
+		catch (IdUnusedException e)
+		{
+		}
+		return null; 
 	}
 
 	/**

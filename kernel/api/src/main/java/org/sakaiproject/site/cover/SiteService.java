@@ -123,6 +123,8 @@ public class SiteService
 	
 	public static java.lang.String EVENT_SITE_UNPUBLISH = org.sakaiproject.site.api.SiteService.EVENT_SITE_UNPUBLISH;
 
+	public static int SOFT_DELETION_GRACE_DAYS = org.sakaiproject.site.api.SiteService.SOFT_DELETION_GRACE_DAYS;
+
 	public static boolean allowAccessSite(java.lang.String param0)
 	{
 		org.sakaiproject.site.api.SiteService service = getInstance();
@@ -404,6 +406,14 @@ public class SiteService
 		if (service == null) return null;
 
 		return service.getSiteDisplay(param0);
+	}
+
+	public static java.time.LocalDate getDeletionDateForSoftlyDeletedSite(java.lang.String param0)
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return null;
+
+		return service.getDeletionDateForSoftlyDeletedSite(param0);
 	}
 
 	public static org.sakaiproject.site.api.ToolConfiguration findTool(java.lang.String param0)

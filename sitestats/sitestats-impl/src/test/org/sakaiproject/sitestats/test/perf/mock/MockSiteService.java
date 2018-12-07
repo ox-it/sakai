@@ -1,5 +1,6 @@
 package org.sakaiproject.sitestats.test.perf.mock;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import org.sakaiproject.entity.api.Entity;
@@ -445,6 +446,11 @@ public class MockSiteService implements SiteService {
 	@Override
 	public List<Site> getSoftlyDeletedSites() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public LocalDate getDeletionDateForSoftlyDeletedSite(String siteId) {
 		return null;
 	}
 
