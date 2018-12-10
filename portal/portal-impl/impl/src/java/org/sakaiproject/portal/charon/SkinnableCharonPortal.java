@@ -1061,6 +1061,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String universalAnalyticsId =  ServerConfigurationService.getString("portal.google.universal_analytics_id", null);
 		if ( universalAnalyticsId != null ) {
 			rcontext.put("googleUniversalAnalyticsId", universalAnalyticsId);
+			rcontext.put("googleAnonymizeIp", ServerConfigurationService.getBoolean("portal.google.anonymize.ip", false));
 		}
 
 		String analyticsId =  ServerConfigurationService.getString("portal.google.analytics_id", null);
