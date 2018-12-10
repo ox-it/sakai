@@ -164,9 +164,15 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	}
 
 	public String getFindUserByAidFilter(String aid) {
-		String eidAttr =
+		String aidAttr =
 				attributeMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
-		return eidAttr + "=" + escapeSearchFilterTerm(aid);
+		MessageFormat valueFormat = valueMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
+		if (valueFormat == null) {
+			return aidAttr + "=" + escapeSearchFilterTerm(aid);
+		} else {
+			valueFormat = (MessageFormat) valueFormat.clone();
+			return aidAttr + "=" + escapeSearchFilterTerm(valueFormat.format(new Object[]{aid}));
+		}
 	}
 
 	/**
