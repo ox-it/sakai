@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.util.WorkbookUtil;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -337,7 +338,7 @@ public class GradeSheetExporter {
                     rowNum = headerRowNumber;
                     row = sheet.getRow(rowNum++);
                     cell = row.createCell(cellNum);
-                    cell.setCellType(1);
+                    cell.setCellType(CellType.STRING);
                     cell.setCellValue(rb.getString("gen.notes"));
                 }
 
@@ -359,16 +360,16 @@ public class GradeSheetExporter {
                     for (Object rowValue : rowValues) {
                         if (rowValue instanceof FloatCell) {
                             FloatCell floatValue = (FloatCell) rowValue;
-                            cell = sheetRow.createCell(column++, Cell.CELL_TYPE_NUMERIC);
+                            cell = sheetRow.createCell(column++, CellType.NUMERIC);
                             cell.setCellValue(floatValue.value);
                             style = wb.createCellStyle();
                             style.setDataFormat(wb.createDataFormat().getFormat(floatValue.format));
                             cell.setCellStyle(style);
                         } else if (rowValue != null) {
-                            cell = sheetRow.createCell(column++, Cell.CELL_TYPE_STRING);
+                            cell = sheetRow.createCell(column++, CellType.STRING);
                             cell.setCellValue(rowValue.toString());
                         } else {
-                            cell = sheetRow.createCell(column++, Cell.CELL_TYPE_STRING);
+                            cell = sheetRow.createCell(column++, CellType.STRING);
                             cell.setCellValue(rb.getString("listsub.nosub"));
                         }
                     }
@@ -377,7 +378,7 @@ public class GradeSheetExporter {
                         submitter.notes.ifPresent(notes -> {
                             int col = startColumn;
                             for (String note: notes) {
-                                Cell noteCell = sheetRow.createCell(col++, Cell.CELL_TYPE_STRING);
+                                Cell noteCell = sheetRow.createCell(col++, CellType.STRING);
                                 noteCell.setCellValue(note);
                             }
                         });
