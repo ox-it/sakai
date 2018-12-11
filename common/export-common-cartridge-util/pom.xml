@@ -27,6 +27,14 @@
 		<artifactId>sakai-kernel-util</artifactId>
 	</dependency>
 	<dependency>
+		<groupId>org.sakaiproject.kernel</groupId>
+		<artifactId>sakai-component-manager</artifactId>
+	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.msgcntr</groupId>
+		<artifactId>messageforums-api</artifactId>
+	</dependency>
+	<dependency>
 		<groupId>commons-lang</groupId>
 		<artifactId>commons-lang</artifactId>
 	</dependency>
