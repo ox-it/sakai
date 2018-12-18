@@ -63,6 +63,9 @@ RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.o
   curl -s -o /opt/tomcat/bin/tomcat-juli.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.0/bin/extras/tomcat-juli.jar && \
   rm /opt/tomcat/conf/logging.properties
 
+# Newer versions of Tomcat have much more restrictice permissions.
+RUN chmod -R +rX /opt/tomcat/
+
 # This sets the default locale and gets it to work correctly in Java
 ENV LANG en_GB.UTF-8
 RUN /usr/sbin/locale-gen $LANG
