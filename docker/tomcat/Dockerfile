@@ -26,6 +26,8 @@ COPY thawte_Premium_Server_CA.pem /usr/local/share/ca-certificates/thawte_permiu
 RUN update-ca-certificates
 
 # Need to get the tomcat binary and unpack
+# This all needed to be done as one layer as the staging/live(?) docker versions don't appear to apply owner/group changes
+# in newer layers.
 RUN mkdir -p /opt/tomcat && \
   # We don't use the main mirror as otherwise it stops working once newer versions are released.
   # version we want
@@ -36,19 +38,22 @@ RUN mkdir -p /opt/tomcat && \
   mkdir webapps && \
   # We change the classloader for tomcat so that we can map in a folder that just contains the Sakai additions.
   mkdir /opt/tomcat/sakai-lib && \
-  sed -i.orig '/^common.loader=/s@$@,"${catalina.base}/sakai-lib/*.jar"@' conf/catalina.properties
+  sed -i.orig '/^common.loader=/s@$@,"${catalina.base}/sakai-lib/*.jar"@' conf/catalina.properties && \
+  mkdir -p /opt/scripts && \
+  mkdir -p /opt/tomcat/sakai/files && \
+  mkdir -p /opt/tomcat/sakai/deleted && \
+  mkdir -p /opt/tomcat/sakai/logs && \
+  chown -R root:sakai . && \
+  mkdir -p conf/Catalina && \
+  chown sakai conf/Catalina && \
+  chmod -R g+rX conf && \
+  chown sakai logs temp work sakai/files sakai/deleted sakai/logs webapps 
 
 
 # Override with custom server.xml
 COPY server.xml /opt/tomcat/conf/server.xml
 # Speedup startup
 COPY context.xml /opt/tomcat/conf/context.xml
-
-# /opt/tomcat/sakai/logs is for Apache James logging.
-RUN mkdir -p /opt/scripts && \
-  mkdir -p /opt/tomcat/sakai/files && \
-  mkdir -p /opt/tomcat/sakai/deleted && \
-  mkdir -p /opt/tomcat/sakai/logs
 
 # Copy in the JCE unlimited strength policy files
 RUN curl -sLO --cookie 'oraclelicense=accept-securebackup-cookie;'  http://download.oracle.com/otn-pub/java/jce/8/jce_policy-8.zip && \
@@ -61,22 +66,12 @@ RUN curl -sLO --cookie 'oraclelicense=accept-securebackup-cookie;'  http://downl
 # There isn't a more recent version of this library because it's no longer supported because log4j is EOL.
 RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.0/bin/extras/tomcat-juli-adapters.jar &&\
   curl -s -o /opt/tomcat/bin/tomcat-juli.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.0/bin/extras/tomcat-juli.jar && \
-  rm /opt/tomcat/conf/logging.properties
-
-# Newer versions of Tomcat have much more restrictice permissions.
-RUN chmod -R +rX /opt/tomcat/
+  rm /opt/tomcat/conf/logging.properties && \
+  touch /opt/tomcat/sakai/sakai.properties 
 
 # This sets the default locale and gets it to work correctly in Java
 ENV LANG en_GB.UTF-8
 RUN /usr/sbin/locale-gen $LANG
-
-# The logs directory needs to be writable by tomcat
-RUN chown sakai /opt/tomcat/logs /opt/tomcat/temp /opt/tomcat/work /opt/tomcat/sakai/files /opt/tomcat/sakai/deleted /opt/tomcat/sakai/logs /opt/tomcat/webapps && \
-  find /opt/tomcat/conf/ -type f| xargs chmod 640 && \
-  mkdir -p /opt/tomcat/conf/Catalina && chown sakai /opt/tomcat/conf/Catalina && \
-  chgrp sakai -R /opt/tomcat/ && chmod 755 /opt/tomcat/conf && \
-  touch /opt/tomcat/sakai/sakai.properties && \
-  chown sakai /opt/tomcat/sakai/sakai.properties
 
 COPY ./entrypoint.sh /opt/scripts/entrypoint.sh
 
