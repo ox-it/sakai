@@ -11,8 +11,9 @@ MAINTAINER Matthew Buckett <matthew.buckett@it.ox.ac.uk>
 WORKDIR /tmp
 
 # Create the group and user for Sakai
+# This should be a proper user so it has a home directory as otherwise snapshots can't be captured.
 RUN groupadd --gid 10000 sakai && \
-  useradd --uid 10000 --gid 10000 --system sakai 
+  useradd --uid 10000 --gid 10000 sakai 
 
 # Install locales and curl
 RUN \
