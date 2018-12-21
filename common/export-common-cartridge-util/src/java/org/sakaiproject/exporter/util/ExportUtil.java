@@ -1,12 +1,17 @@
 package org.sakaiproject.exporter.util;
 
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.util.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,10 +23,13 @@ import java.util.regex.Pattern;
 public class ExportUtil {
 	private final String siteId;
 	private static Logger log = LoggerFactory.getLogger(CCExport.class);
-	private long nextid = 100000;
+	private static long nextid = 100000;
+	
+	private ContentHostingService contentService;
 
-	public ExportUtil(String siteId) {
+	public ExportUtil(String siteId, ContentHostingService contentService) {
 		this.siteId = siteId;
+		this.contentService = contentService;
 	}
 
 	public Resource getResource(String sakaiId, String location) {
@@ -118,7 +126,7 @@ public class ExportUtil {
 				}
 			}
 		} catch (IllegalStateException ise) {
-			log.error("export-common-cartridge illegal state exception in convertSlashToHyphen for matcher: " + matcher.toString() + " and content: " + parsedContent + ise);
+			log.error("export-common-cartridge illegal state exception in convertSlashToHyphen for matcher: " + matcher.toString() + " and content: " + parsedContent, ise);
 		} catch (UnsupportedEncodingException uee) {
 			throw new RuntimeException("export-common-cartridge unsupported encoding exception in convertSlashToHyphen" + uee);
 		}
@@ -180,7 +188,7 @@ public class ExportUtil {
 				}
 			}
 		} catch (IllegalStateException ise) {
-			log.error("export-common-cartridge illegal state exception in addCanvasFilePath, content: " + parsedContent + ise);
+			log.error("export-common-cartridge illegal state exception in addCanvasFilePath, content: " + parsedContent, ise);
 		} catch (UnsupportedEncodingException uee) {
 			throw new RuntimeException("export-common-cartridge unsupported encoding exception in addCanvasFilePath" + uee);
 		}
@@ -206,11 +214,11 @@ public class ExportUtil {
 				subsequence++;
 			}
 		} catch (IllegalStateException ise) {
-			log.error("export-common-cartridge illegal state exception in removeUrlEncoding, content: " + parsedContent + ise);
+			log.error("export-common-cartridge illegal state exception in removeUrlEncoding, content: " + parsedContent, ise);
 		} catch (IllegalArgumentException iae) {
-			log.error("export-common-cartridge unsupported encoding exception in removeUrlEncoding for content: " + parsedContent + iae);
+			log.error("export-common-cartridge unsupported encoding exception in removeUrlEncoding for content: " + parsedContent, iae);
 		} catch (UnsupportedEncodingException uee) {
-			throw new RuntimeException("export-common-cartridge unsupported encoding exception in removeUrlEncoding" + uee);
+			throw new RuntimeException("export-common-cartridge unsupported encoding exception in removeUrlEncoding", uee);
 		}
 		return parsedContent;
 	}
@@ -233,6 +241,15 @@ public class ExportUtil {
 		}
 	}
 
+	ContentResource getContentResource(String sakaiId) throws PermissionException, IdUnusedException, TypeException{
+		return contentService.getResource(sakaiId);
+	}
+
+	boolean isLink(String sakaiId) throws PermissionException, IdUnusedException, TypeException {
+		ContentResource contentResource = contentService.getResource(sakaiId);
+		return isLink(contentResource);
+	}
+
 	boolean isLink(ContentResource r) {
 		return r.getResourceType().equals("org.sakaiproject.content.types.urlResource") ||
 				r.getContentType().equals("text/url");
@@ -253,7 +270,7 @@ public class ExportUtil {
 		return filesToExport;
 	}
 
-	String getResourceId() {
+	static String getResourceId() {
 		return "res" + (nextid++);
 	}
 }
