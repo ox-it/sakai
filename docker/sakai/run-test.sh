@@ -44,6 +44,7 @@ services:
      DB_ENV_MYSQL_USER: sakai
      DB_ENV_MYSQL_PASSWORD: sakai
      DB_ENV_MYSQL_DATABASE: sakai
+     UMASK: 0022
 
     external_links:
      - mailcatcher
