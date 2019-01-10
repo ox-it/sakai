@@ -716,7 +716,12 @@ public class SiteManageGroupSectionRoleHandler {
 			for (Iterator iMembers = members.iterator(); iMembers
 					.hasNext();) {
 				found = false;
-				String mId = ((Member) iMembers.next()).getUserId();
+				Member member = (Member) iMembers.next();
+				// Don't remove all the provided ones, they will get updated when the refresh queue gets processed.
+				if (member.isProvided()) {
+					continue;
+				}
+				String mId = member.getUserId();
 				for (int i = 0; !found && i < membersSelected.length; i++)
 				{
 					if (mId.equals(membersSelected[i])) {
