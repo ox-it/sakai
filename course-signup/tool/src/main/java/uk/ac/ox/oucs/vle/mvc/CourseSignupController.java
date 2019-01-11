@@ -49,7 +49,7 @@ public class CourseSignupController extends AbstractController {
 	protected ModelAndView handleRequestInternal(HttpServletRequest request,
 			 HttpServletResponse response) throws Exception {
 
-		ModelAndView modelAndView = new ModelAndView(request.getPathInfo().substring(1));
+		ModelAndView modelAndView = new ModelAndView(request.getPathInfo());
 		modelAndView.addObject("externalUser", 
 				userDirectoryService.getAnonymousUser().equals(userDirectoryService.getCurrentUser()));
 
