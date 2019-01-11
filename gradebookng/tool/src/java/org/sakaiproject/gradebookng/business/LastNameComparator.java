@@ -11,7 +11,7 @@ public class LastNameComparator implements Comparator<User> {
 
 	@Override
 	public int compare(final User u1, final User u2) {
-		return u1.getLastName().compareTo(u2.getLastName());
+		return u1.getLastName().compareToIgnoreCase(u2.getLastName());
 	}
 
 }

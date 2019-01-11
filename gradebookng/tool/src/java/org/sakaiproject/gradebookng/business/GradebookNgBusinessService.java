@@ -1977,8 +1977,8 @@ public class GradebookNgBusinessService {
 	class LastNameComparator implements Comparator<User> {
 		@Override
 		public int compare(final User u1, final User u2) {
-			return new CompareToBuilder().append(u1.getLastName(), u2.getLastName())
-					.append(u1.getFirstName(), u2.getFirstName()).toComparison();
+			return new CompareToBuilder().append(StringUtils.lowerCase(u1.getLastName()), StringUtils.lowerCase(u2.getLastName()))
+					.append(StringUtils.lowerCase(u1.getFirstName()), StringUtils.lowerCase(u2.getFirstName())).toComparison();
 		}
 	}
 
@@ -1989,8 +1989,8 @@ public class GradebookNgBusinessService {
 	class FirstNameComparator implements Comparator<User> {
 		@Override
 		public int compare(final User u1, final User u2) {
-			return new CompareToBuilder().append(u1.getFirstName(), u2.getFirstName())
-					.append(u1.getLastName(), u2.getLastName()).toComparison();
+			return new CompareToBuilder().append(StringUtils.lowerCase(u1.getFirstName()), StringUtils.lowerCase(u2.getFirstName()))
+					.append(StringUtils.lowerCase(u1.getLastName()), StringUtils.lowerCase(u2.getLastName())).toComparison();
 		}
 	}
 	
