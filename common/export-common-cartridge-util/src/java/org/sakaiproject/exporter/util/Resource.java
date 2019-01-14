@@ -4,19 +4,21 @@ import java.util.Set;
 
 public class Resource {
 	// The path within Sakai to find the resource (without the site ID)
-	String sakaiId;
+	private String sakaiId;
 	
 	// A made up value to identify an object with the IMSCC file and link objects and their attachments together (sample res100007).
-	String resourceId;
+	private String resourceId;
 	
 	// The location to save the object in the IMSCC file.
-	String location;
-	String use;
-	String title;
-	String url;
-	boolean islink;
-	boolean isbank;
-	Set<String> dependencies;
+	private String location;
+	private String use;
+	private String title;
+	private String url;
+	// ID for any metadata file.
+	private String metaId;
+	private boolean islink;
+	private boolean isbank;
+	private Set<String> dependencies;
 
 	public String getSakaiId() {
 		return sakaiId;
@@ -65,6 +67,10 @@ public class Resource {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+
+	public String getMetaId() { return metaId; }
+
+	public void setMetaId(String metaId) { this.metaId = metaId; }
 
 	public boolean isIslink() {
 		return islink;

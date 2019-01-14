@@ -3,6 +3,7 @@ package org.sakaiproject.exporter.util;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 
 import java.util.Arrays;
@@ -10,7 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,10 +22,13 @@ public class ExportUtilTest {
 	private Map<String, ContentResource> files;
 	String siteId;
 
+	private ContentHostingService contentHostingService;
+
 	@Before
 	public void setUp() {
 		siteId = "0b1cfd08-c97a-48d8-8020-5448ffa25b1e";
-		exportUtil = new ExportUtil(siteId);
+		contentHostingService = mock(ContentHostingService.class);
+		exportUtil = new ExportUtil(siteId, contentHostingService);
 
 		links = new HashMap<>();
 		files = new HashMap<>();
