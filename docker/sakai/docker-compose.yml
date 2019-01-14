@@ -38,6 +38,7 @@ services:
     environment:
      SENTRY_DSN:
      SENTRY_FACTORY: uk.ac.ox.it.sentry.DockerSentryClientFactory
+     SENTRY_STACKTRACE_APP_PACKAGES: org.sakaiproject,uk.ac.ox
      CATALINA_OPTS_EXTRA:
      # In development this means we can read files without anything special
      SAKAI_USER: root
