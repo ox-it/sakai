@@ -28,6 +28,7 @@ ENV CATALINA_OPTS_MEMORY -Xms2g -Xmx3g
 
 # Get hostnames correctly in docker
 ENV SENTRY_FACTORY=uk.ac.ox.it.sentry.DockerSentryClientFactory
+ENV SENTRY_STACKTRACE_APP_PACKAGES=org.sakaiproject,uk.ac.ox
 
 # To allow de-reploy and expanding of webapps.
 RUN chown sakai /opt/tomcat/webapps
