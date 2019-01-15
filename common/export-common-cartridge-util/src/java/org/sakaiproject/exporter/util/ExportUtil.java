@@ -48,20 +48,20 @@ public class ExportUtil {
 		return res;
 	}
 
-	String getFilePath(String contentResourceId, boolean encode) {
+	String getFilePath(String contentResourceId) {
 		// Find the path up until the filename without the /group/:siteid or the file name (may result in an empty string). 
 		// Just return the path if the content resource ID is in another site.
 		if (contentResourceId.contains(siteId)) {
 			String filePath = contentResourceId.substring(contentResourceId.indexOf(siteId) + siteId.length() + 1, contentResourceId.lastIndexOf("/") + 1);
-			if (encode) {
-				// use Validator class, not URLEncoder as Validator does not convert the slashes in the path.
-				return Validator.escapeUrl(filePath);
-			} else {
-				return filePath;
-			}
+			return filePath;
 		} else {
 			return contentResourceId;
 		}
+	}
+
+	String getFileName(ContentResource contentResource) {
+		String fileName = contentResource.getId().substring(contentResource.getId().lastIndexOf("/") + 1);
+		return fileName;
 	}
 
 	// Converts links in HTML files into relative links and makes them suitable for Canvas.

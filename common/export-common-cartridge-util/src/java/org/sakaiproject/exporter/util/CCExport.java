@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -215,20 +213,19 @@ public class CCExport {
 			ZipEntry zipEntry;
 
 			// Find the file name without the file path.
-			String filename = getFileName(contentResource, true);
+			String filename = exportUtil.getFileName(contentResource);
 
 			// Files that are HTML or XHTML should be put in the pages area in Canvas so that they can be edited,
 			// to do this add to the wiki-content area and put the appropriate entry in the manifest file.
 			// Files in Pages must be in a flat file structure regardless of where they are in resources.
 			// Files in web_resources will end up in Files and cannot be edited.  They can be in the same file structure as resources.
 
-			// Change the filename to be the folder structure but replace slash with dash, this is so that duplicate file names are not lost.
-			// Will only be used for HTML files.
-			dashedFilename = exportUtil.getFilePath(contentResource.getId(), false).replace('/', '-') + filename;
+			// Change the filename to be the folder structure for HTML files, but replace slash with dash, this is so that duplicate file names are not lost.
+			dashedFilename = exportUtil.getFilePath(contentResource.getId()).replace('/', '-') + filename;
 			if (exportUtil.hasMarkUp(contentResource.getContentType())) {
 				zipEntry = new ZipEntry("wiki_content/" + dashedFilename);
 			} else {
-				zipEntry = new ZipEntry("web_resources/" + exportUtil.getFilePath(contentResource.getId(), false) + filename);
+				zipEntry = new ZipEntry("web_resources/" + exportUtil.getFilePath(contentResource.getId()) + filename);
 			}
 
 			zipEntry.setSize(contentResource.getContentLength());
@@ -413,16 +410,16 @@ public class CCExport {
 			Collection<ContentResource> contentResources = filesToExport.values();
 			for (ContentResource contentResource : contentResources) {
 				String contentResourceId = contentResource.getId();
-				String filepath = exportUtil.getFilePath(contentResourceId, true);
-				String filename = getFileName(contentResource, true);
+				String filepath = exportUtil.getFilePath(contentResourceId);
+				String filename = exportUtil.getFileName(contentResource);
 
 				// See the comments above in method outputSelectedFiles.
 				if (exportUtil.hasMarkUp(contentResource.getContentType())) {
 					out.println("    <resource href=\"wiki_content/" + filepath.replace('/', '-') + filename + "\" identifier=\"" + contentResourceId + "\" type=\"webcontent\">");
 					out.println("      <file href=\"wiki_content/" + filepath.replace('/', '-') + filename + "\"/>");
 				} else {
-					out.println("    <resource href=\"web_resources/" + exportUtil.getFilePath(contentResourceId, false) + filename + "\" identifier=\"" + contentResource.getId() + "\" type=\"webcontent\">");
-					out.println("      <file href=\"web_resources/" + exportUtil.getFilePath(contentResourceId, false) + filename + "\"/>");
+					out.println("    <resource href=\"web_resources/" + filepath + filename + "\" identifier=\"" + contentResource.getId() + "\" type=\"webcontent\">");
+					out.println("      <file href=\"web_resources/" + filepath + filename + "\"/>");
 				}
 				out.println("    </resource>");
 			}
@@ -457,17 +454,6 @@ public class CCExport {
 		return true;
 	}
 
-	private String getFileName(ContentResource contentResource, boolean encode) {
-		String fileName = contentResource.getId().substring(contentResource.getId().lastIndexOf("/") + 1);
-		if (encode) {
-			try {
-				return URLEncoder.encode(fileName, "UTF-8");
-			} catch (UnsupportedEncodingException uee) {
-				throw new RuntimeException("export-common-cartridge UnsupportedEncodingException encoding file name: ", uee);
-			}
-		}
-		return fileName;
-	}
 
 
 	public String removeDotDot(String s) {
