@@ -40,6 +40,7 @@ public class ReplaceSiteController{
 	private SessionManager sessionManager;
 	private PortalHierarchyService portalHierarchyService;
 	private SiteService siteService;
+	private SecurityService securityService;
 	private VelocityControllerUtils velocityControllerUtils;
 	private ServerConfigurationService serverConfigurationService;
 	static final String REQUEST_SITE = "_site";
@@ -64,11 +65,17 @@ public class ReplaceSiteController{
 	public void setVelocityControllerUtils(VelocityControllerUtils velocityControllerUtils) {
 		this.velocityControllerUtils = velocityControllerUtils;
 	}
+
 	@Autowired
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
 	}
-	
+
+	@Autowired
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
 	@ModelAttribute
 	public void referenceData(HttpServletRequest request, Model model) {
 		model.addAllAttributes(velocityControllerUtils.referenceData(request));
@@ -79,8 +86,13 @@ public class ReplaceSiteController{
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 
 		toolSession.setAttribute(Tool.HELPER_DONE_URL, velocityControllerUtils.buildUrl(request, "/edit").toString());
-		toolSession.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
-				org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
+		if (securityService.isSuperUser()) {
+			toolSession.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
+					org.sakaiproject.site.api.SiteService.SelectionType.ANY);
+		} else {
+			toolSession.setAttribute(SiteHelper.SITE_PICKER_PERMISSION,
+					org.sakaiproject.site.api.SiteService.SelectionType.UPDATE);
+		}
 
 		// Go to the helper
 		RedirectView redirectView = new RedirectView("/sites", true);
