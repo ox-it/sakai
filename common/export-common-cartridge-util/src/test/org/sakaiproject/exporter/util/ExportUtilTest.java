@@ -148,22 +148,15 @@ public class ExportUtilTest {
 	@Test
 	public void testFilePathAnotherSite() {
 		String path = "/group/wrongSiteId/file.pdf";
-		String result = exportUtil.getFilePath(path, false);
+		String result = exportUtil.getFilePath(path);
 		assertEquals(result, path); 
 	}
 
 	@Test
 	public void testFilePathFlat() {
 		String path = "/group/" + siteId + "/file.pdf";
-		String result = exportUtil.getFilePath(path, true);
+		String result = exportUtil.getFilePath(path);
 		assertEquals("", result);
-	}
-
-	@Test
-	public void testFilePathEscaped() {
-		String path = "/group/" + siteId + "/dot&dash/ürm/file.pdf";
-		String result = exportUtil.getFilePath(path, true);
-		assertEquals("dot%26dash/%C3%BCrm/", result);
 	}
 
 	@Test
