@@ -14,3 +14,7 @@
 	path = externals/owl-quartz-jobs
 	url = git@github.com:Western-OWL/OWL-Quartz-Jobs.git
 	branch = 20.x
+[submodule "externals/scorm"]
+	path = externals/scorm
+	url = git@github.com:Western-OWL/SCORM.2004.3ED.RTE.git
+	branch = 20.x
