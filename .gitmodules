@@ -6,3 +6,7 @@
 	path = externals/certification
 	url = git@github.com:Western-OWL/certification.git
 	branch = 20.x
+[submodule "externals/ezproxy"]
+	path = externals/ezproxy
+	url = git@github.com:Western-OWL/EZProxy.git
+	branch = 20.x
