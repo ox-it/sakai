@@ -2,3 +2,7 @@
 	path = externals/sakora-csv
 	url = git@github.com:Western-OWL/sakora-csv.git
 	branch = 20.x
+[submodule "externals/certification"]
+	path = externals/certification
+	url = git@github.com:Western-OWL/certification.git
+	branch = 20.x
