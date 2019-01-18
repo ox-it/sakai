@@ -120,6 +120,13 @@
                 <module>webcomponents</module>
                 <module>webjars</module>
                 <module>webservices</module>
+
+		<!-- OWL -->
+                <module>externals/certification</module>
+                <module>externals/ezproxy</module>
+                <module>externals/owl-quartz-jobs</module>
+                <module>externals/sakora-csv</module>
+		<module>externals/scorm</module>
             </modules>
         </profile>
         <profile>
