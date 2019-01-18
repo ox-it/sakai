@@ -25,3 +25,4 @@ rsf/sakai-rsf-web/test/overlays
 .checkstyle
 assets
 reference/library/
+externals/turnitin
