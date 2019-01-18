@@ -10,3 +10,7 @@
 	path = externals/ezproxy
 	url = git@github.com:Western-OWL/EZProxy.git
 	branch = 20.x
+[submodule "externals/owl-quartz-jobs"]
+	path = externals/owl-quartz-jobs
+	url = git@github.com:Western-OWL/OWL-Quartz-Jobs.git
+	branch = 20.x
