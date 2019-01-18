@@ -1,3 +1,5 @@
+2019.01.17:
+	-[OWL-3563] upper case characters in user EIDs from Sakora cause authz problems
 2018.01.25:
         - [OWL-3324] Gradebook 'Drop Lowest' Not Showing
 2018.01.10:
