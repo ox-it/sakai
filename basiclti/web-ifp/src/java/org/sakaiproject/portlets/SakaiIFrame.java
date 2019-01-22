@@ -436,7 +436,7 @@ public class SakaiIFrame extends GenericPortlet {
 			try {
 				SiteService.save(SiteService.getSite(toolConfig.getSiteId()));
 			} catch(Exception e) {
-				log.error("Failed to save site", e);
+				M_log.error("Failed to save site", e);
 			}
 
 			placement.save();
