@@ -1,3 +1,5 @@
+2019.01.11:
+	- [OWL-3461] fixed assigned grade deflation when question is worth > 999
 2019.01.03:
 	- [OWL-3546] fixed precision errors with assessment total point calculations
 2018.03.21:
