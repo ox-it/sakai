@@ -1,6 +1,9 @@
 package org.sakaiproject.gradebookng.business;
 
+import java.text.Collator;
 import java.util.Comparator;
+
+import org.apache.commons.lang.builder.CompareToBuilder;
 
 import org.sakaiproject.user.api.User;
 
@@ -9,9 +12,12 @@ import org.sakaiproject.user.api.User;
  */
 public class LastNameComparator implements Comparator<User> {
 
+	private Collator collator = Collator.getInstance();
+
 	@Override
 	public int compare(final User u1, final User u2) {
-		return u1.getLastName().compareToIgnoreCase(u2.getLastName());
+		collator.setStrength(Collator.PRIMARY);
+		return new CompareToBuilder().append(u1.getLastName(), u2.getLastName(), collator).toComparison();
 	}
 
 }
