@@ -1,3 +1,5 @@
+2019.01.03:
+	- [OWL-3546] fixed precision errors with assessment total point calculations
 2018.03.21:
         - [OWL-3439] matching questions with distractors apply the checkmark to incorrectly matched distractors
 2017.08.28:
