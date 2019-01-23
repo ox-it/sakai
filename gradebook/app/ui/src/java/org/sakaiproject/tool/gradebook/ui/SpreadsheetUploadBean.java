@@ -42,6 +42,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.poi.ss.usermodel.CellType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
@@ -2354,11 +2355,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         for (int i=0;i<l;i++){
             HSSFCell cell = row.getCell((short)i);
             String cellValue = "";
-            if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+            if (cell == null || cell.getCellType() == CellType.BLANK) {
                 cellValue = "";
-            } else if (cell.getCellType()== HSSFCell.CELL_TYPE_STRING){
+            } else if (cell.getCellType()== CellType.STRING){
                 cellValue = "\"" + cell.getStringCellValue() + "\"";
-            } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC){
+            } else if (cell.getCellType() == CellType.NUMERIC){
                 double value = cell.getNumericCellValue();
                 cellValue = getNumberFormat().format(value);
                 cellValue = "\"" + cellValue + "\"";
@@ -2404,11 +2405,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         for (int i=0;i<l;i++){
             XSSFCell cell = row.getCell((short)i);
             String cellValue = "";
-            if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+            if (cell == null || cell.getCellType() == CellType.BLANK) {
                 cellValue = "";
-            } else if (cell.getCellType()== HSSFCell.CELL_TYPE_STRING){
+            } else if (cell.getCellType()== CellType.STRING){
                 cellValue = "\"" + cell.getStringCellValue() + "\"";
-            } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC){
+            } else if (cell.getCellType() == CellType.NUMERIC){
                 double value = cell.getNumericCellValue();
                 cellValue = getNumberFormat().format(value);
                 cellValue = "\"" + cellValue + "\"";
