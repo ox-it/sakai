@@ -1,24 +1,24 @@
 [submodule "externals/ezproxy"]
 	path = externals/ezproxy
 	url = https://github.com/Western-OWL/EZProxy
-	branch = owl
+	branch = 11.3-owl.x
 [submodule "externals/turnitin"]
 	path = externals/turnitin
 	url = https://github.com/Western-OWL/turnitin
-	branch = owl
+	branch = 11.3-owl.x
 [submodule "externals/owl-quartz-jobs"]
 	path = externals/owl-quartz-jobs
 	url = https://github.com/Western-OWL/OWL-Quartz-Jobs
-	branch = owl
+	branch = 11.3-owl.x
 [submodule "externals/scorm"]
 	path = externals/scorm
 	url = https://github.com/Western-OWL/SCORM.2004.3ED.RTE
-	branch = owl
+	branch = 11.3-owl.x
 [submodule "externals/certification"]
 	path = externals/certification
 	url = https://github.com/Western-OWL/certification
-	branch = owl
+	branch = 11.3-owl.x
 [submodule "externals/sakora-csv"]
 	path = externals/sakora-csv
 	url = https://github.com/Western-OWL/sakora-csv
-	branch = owl
+	branch = 11.3-owl.x
