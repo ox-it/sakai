@@ -136,9 +136,9 @@ function clickSubmitForGrade(){
     <h:outputText value="#{deliveryMessages.table_of_contents} " />
     <h:outputText styleClass="tier10" value="#{deliveryMessages.tot_score} " />
     <h:outputText value="#{delivery.tableOfContents.maxScore}">
-      <f:convertNumber maxFractionDigits="2"/>
+      <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
     </h:outputText>
-    <h:outputText value="#{deliveryMessages.pt}" />
+    <h:outputText value=" #{deliveryMessages.pt}" />
   </h4>
  
 </div>
@@ -182,7 +182,7 @@ function clickSubmitForGrade(){
                 	<f:convertNumber maxFractionDigits="2"/>
                 </h:outputText>
                 <h:outputText escape="false" value=" (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" rendered="#{(delivery.settings.displayScoreDuringAssessments != '2' && question.itemData.scoreDisplayFlag) || question.pointsDisplayString!=''}">
-                	<f:convertNumber maxFractionDigits="2"/>
+                	<f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
                 </h:outputText>
                 <f:param name="partnumber" value="#{part.number}" />
                 <f:param name="questionnumber" value="#{question.number}" />
