@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.radeox.Messages;
 import org.radeox.api.macro.MacroParameter;
+import org.radeox.util.Encoder;
 
 /*
  * Macro to display quotations from other sources. The output is wrapped usually
@@ -68,13 +69,13 @@ public class QuoteMacro extends LocalePreserved
 		String source = Messages.getString("QuoteMacro.4"); // i18n //$NON-NLS-1$
 		if (params.getLength() == 2)
 		{
-			source = params.get(1);
+			source = Encoder.escape(params.get(1));
 		}
 		// if more than one was present, we
 		// should show a description for the link
 		if (params.getLength() > 0)
 		{
-			writer.write("<a href=\"" + params.get(0) + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+			writer.write("<a href=\"" + Encoder.escape(params.get(0)) + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
 			writer.write(source);
 			writer.write("</a>"); //$NON-NLS-1$
 		}
