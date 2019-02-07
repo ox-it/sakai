@@ -1043,6 +1043,7 @@ $(document).ready(function(){
 								#end
 							</ul>
 						#end
+						</div>
 					#end
 				#end
 				#if ($withGrade)

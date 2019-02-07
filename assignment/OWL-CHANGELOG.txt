@@ -1,10 +1,12 @@
-2017.02.07:
+2019.02.07:
+	- [OWL-3567] submit buttons are hidden when submitting on behalf of a student for a graded submission
+2018.02.07:
 	- [OWL-3360] extend the content review due date after a bulk upload as necessary
-2017.22.17:
+2017.11.22:
 	- [OWL-3334] assign grade to participants without a grade, multiplication by 100 display issue
 2017.11.17:
 	- [OWL-3199] submission emails for non-TII assignments list "Inline Submission.html" in the attachments list
-017.11.16:
+2017.11.16:
 	- [OWL-3282] fix issues with releasing grades for group submissions that have previously had dummy submissions created
 2017.11.15:
 	- [OWL-3310] format improvements for submission emails
