@@ -80,7 +80,7 @@
 		</ul>
 		</ul>
 	#if ($alertMessage)
-                 <br /><div class="messageValidation">$alertMessage</div><div class="clear"></div>
+                 <br /><div class="alertMessage">$alertMessage</div><div class="clear"></div>
 	#end
 	## display print success message
 	#if ($content_print_status_success)
@@ -207,12 +207,15 @@
                                                 disabled="disabled">$tlang.getString('avail.hide')
                                             </button>
                                     #end
-                                    <button  style="margin:0" class="btn btn-default" id="export-button" type="button"
-                                                onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='export';document.getElementById('showForm').submit();"
-                                                disabled="disabled" >$tlang.getString('avail.export')
-                                    </button>
+
                                  #end
                                  ####### end SAK-23304, add Show and Hide
+                                 #if ($canZipDownload)
+                                     <button  style="margin:0" class="btn btn-default" id="export-button" type="button"
+                                                onclick="document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='export';document.getElementById('showForm').submit();"
+                                                disabled="disabled" >$tlang.getString('avail.export')
+                                     </button>
+                                 #end
 
     					#end
     				</div>

@@ -1,8 +1,9 @@
 <!-- chef_resources_exportFinish.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<script src="/library/js/spinner.js" type="text/javascript"></script>
 <div class="portletBody specialLink">
     #if ($alertMessage)<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
     <div class="instruction">$tlang.getString("export.sure")</div><div style="display:block;clear:both" ></div>
-    <form action="#toolForm("ResourcesAction")" name="deleteFileForm" method="post" >
+    <form action="#toolForm("ResourcesAction")" name="zipDownloadFileForm" method="post" >
         <input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
         <table class ="listHier lines" cellspacing="0" summary="$tlang.getString("export.table")" border="0" cellpadding="0">
             <tr>
@@ -50,19 +51,19 @@
         </h3>
         <div class="radio">
             <label for="$tlang.getString("export.radio.imscc")">
-                <input id="$tlang.getString("export.radio.imscc")" name="export_type_name" type="radio" value="imscc" onclick="ASN.toggleAddOptions('none');" />
+                <input id="$tlang.getString("export.radio.imscc")" name="export_type_name" type="radio" value="imscc"/>
                 $tlang.getString("export.radio.imscc")
             </label>
         </div>
         <div class="radio">
             <label for="$tlang.getString("export.radio.zip")">
-                <input id="$tlang.getString("export.radio.zip")" name="export_type_name" type="radio" value="zip" onclick="ASN.toggleAddOptions('none');" />
+                <input id="$tlang.getString("export.radio.zip")" name="export_type_name" type="radio" value="zip"/>
                 $tlang.getString("export.radio.zip")
             </label>
         </div>
-        <p class ="act">
-            <input type="submit" class="active"  name="eventSubmit_doFinalizeExport" value="$tlang.getString("export.button")" accesskey="s" checked />
-            <input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("label.cancel")" accesskey="x" />
+        <p class ="act" id ="exportOptions">
+            <input type="submit" class="active"  name="eventSubmit_doFinalizeExportDownload" value="$tlang.getString("export.button")" onclick="SPNR.disableElementAndSpin('exportOptions', this, false)" accesskey="s" checked />
+            <input type="submit" name="eventSubmit_doCancel" id="cancel" value="$tlang.getString("label.cancel")" accesskey="x" />
         </p>
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
     </form>
