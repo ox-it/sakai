@@ -74,6 +74,9 @@ RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.o
 ENV LANG en_GB.UTF-8
 RUN /usr/sbin/locale-gen $LANG
 
+# This stops the error of Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper
+RUN sed -i '/^assistive_technologies/s/^/#/' /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/accessibility.properties
+
 COPY ./entrypoint.sh /opt/scripts/entrypoint.sh
 
 ENV CATALINA_OPTS_MEMORY -Xms256m -Xmx1524m
