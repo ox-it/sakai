@@ -126,7 +126,8 @@
                 <module>externals/ezproxy</module>
                 <module>externals/owl-quartz-jobs</module>
                 <module>externals/sakora-csv</module>
-		<module>externals/scorm</module>
+                <!-- OWLTODO: scorm currently breaks our startup - causes a fatal Hibernate exception to occur in kernel, BasicConfigurationService line 184; omitting Scorm resolves the issue -->
+                <!--module>externals/scorm</module-->
             </modules>
         </profile>
         <profile>
