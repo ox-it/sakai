@@ -15,6 +15,10 @@ WORKDIR /tmp
 RUN groupadd --gid 10000 sakai && \
   useradd --uid 10000 --gid 10000 sakai 
 
+# This sets the default locale and gets it to work correctly in Java we do this so when the locales
+# package installs it builds the correct locales and sets the default correctly
+RUN echo locales locales/default_environment_locale select en_GB.UTF-8  | debconf-set-selections
+RUN echo locales locales/locales_to_be_generated select "en_GB.UTF-8 UTF-8" | debconf-set-selections
 # Install locales and curl
 RUN \
   apt-get update && \
@@ -69,10 +73,6 @@ RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.o
   curl -s -o /opt/tomcat/bin/tomcat-juli.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.0/bin/extras/tomcat-juli.jar && \
   rm /opt/tomcat/conf/logging.properties && \
   touch /opt/tomcat/sakai/sakai.properties 
-
-# This sets the default locale and gets it to work correctly in Java
-ENV LANG en_GB.UTF-8
-RUN /usr/sbin/locale-gen $LANG
 
 # This stops the error of Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper
 RUN sed -i '/^assistive_technologies/s/^/#/' /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/accessibility.properties
