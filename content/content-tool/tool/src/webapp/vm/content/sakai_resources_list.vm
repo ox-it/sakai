@@ -376,6 +376,8 @@
 									onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end;adjustCount(this, 'export');adjustShowHideCount(this)"
  									value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select"): $validator.escapeHtml($item.name)</label>
 							#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
+							#if($selectedItems.contains($item.id))$counter.increment("exportselected")#end
+							$counter.increment("export")
 							<input type="hidden" name="itemHidden" id="itemHidden" value="$item.hidden" />
 							<input type="hidden" name="itemCanRevise" id="itemCanRevise" value="$item.canRevise" />
 						#end
@@ -657,6 +659,8 @@
 											onclick="adjustCountOther(this, 'copy')"
  											value="$dqid" /><label for="list$num" class="skip">$clang.getString("att.select")</label>
 									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
+									#if($selectedItems.contains($item.id))$counter.increment("exportselected")#end
+									$counter.increment("export")
 								#end
 							</td>
 							<th headers="title" style="text-indent:$width" class="specialLink" scope="row">
@@ -808,6 +812,9 @@
 		#if($counter.getValue("selectall") > 0)
 			document.getElementById("selectall").disabled = false;
 		#end
+		#if($counter.getValue("exportselected") > 0)
+			document.getElementById("export-button").disabled = false;
+		#end
 		function openCopyrightWindow(theURL,winName,winSettings) 
 		{ 
 		  window.open(theURL,winName,winSettings);
@@ -851,12 +858,12 @@
                         //let bd take care of this hide_button.className = 'enabled';
                 }
                 document.getElementById("hide-count").value = "$counter.getValue("hide")";
+#### end SAK-23304
                 var export_button = document.getElementById("export-button");
                 if(export_button) {
                         export_button.disabled = false;
-                        //let bd take care of this export_button.className = 'enabled';
                 }
-#### end SAK-23304
+                document.getElementById("export-count").value = "$counter.getValue("export")";
 			}
 			else
 			{
@@ -886,6 +893,11 @@
                 }
                 document.getElementById("hide-count").value = "0";
 #### end SAK-23304
+                var export_button = document.getElementById("export-button");
+                if(export_button) {
+                        export_button.disabled = true;
+                }
+                document.getElementById("export-count").value = "0";
 			}
 		}
 		
