@@ -103,7 +103,7 @@ public class ExportUtil {
 	private StringBuilder convertSlashToHyphen(StringBuilder parsedContent, Map<String, Boolean> savedLinks,  Map<String, ContentResource> selectedFilesToExport) {
 		// Check which links are to html files (need to use the unencoded href but not remove the encoding) and change 
 		// the folder slashes for hyphens when they are.
-		Pattern target = Pattern.compile("(?:href=)+(?:\"|')?(/group/[a-z0-9-]+/)([a-z0-9/%+._-]+)(?:\"|'| )?(?:[a-z0-9=\"'])*>(?:/group/[a-z0-9-]+/)([a-z0-9/%+._-]+)", Pattern.CASE_INSENSITIVE);
+		Pattern target = Pattern.compile("(?:href=)+(?:\"|')?(/group/[a-z0-9-]+/)([a-z0-9/%+._-]+)(?:\"|'| )?(?:[a-z0-9 _=\"'])*>(?:/group/[a-z0-9-]+/)([a-z0-9/%+._-]+)", Pattern.CASE_INSENSITIVE);
 		Matcher matcher = target.matcher(parsedContent);
 
 		try {

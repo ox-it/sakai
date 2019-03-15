@@ -1,6 +1,7 @@
 package org.sakaiproject.exporter.util;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
@@ -79,7 +80,7 @@ public class ForumsExport {
 		return true;
 	}
 
-	public boolean outputAllForums(ZipPrintStream out) throws IOException, TypeException, PermissionException, IdUnusedException, ServerOverloadException {
+	public boolean outputAllForums(ZipPrintStream out, Map<String, ContentResource> filesToExport) throws IOException, TypeException, PermissionException, IdUnusedException, ServerOverloadException {
 		// Output forum topics into the cc-objects directory.
 		for (Map.Entry<String, Resource> entry: forumsMap.entrySet()) {
 			Topic topic = forumManager.getTopicByIdWithAttachments(Long.parseLong(entry.getValue().getSakaiId()));
@@ -89,6 +90,9 @@ public class ForumsExport {
 				if (text != null) {
 					text = FormattedText.convertPlaintextToFormattedText(text);
 				}
+			} else {
+				text = exportUtil.linkFixup(text, filesToExport);
+				text = StringEscapeUtils.escapeXml(text);
 			}
 
 			// Create the xml file with the forum details.
@@ -100,7 +104,7 @@ public class ForumsExport {
 			out.println("  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsccv1p3/imsdt_v1p3 http://www.imsglobal.org/profile/cc/ccv1p3/ccv1p3_imsdt_v1p3.xsd\">");
 
 			out.println("  <title>" + entry.getValue().getTitle() + "</title>");
-			out.println("  <text texttype=\"text/html\"><div>" + text + "</div></text>");
+			out.println("  <text texttype=\"text/html\">" + text + "</text>");
 			if (!entry.getValue().getDependencies().isEmpty()) {
 				out.println("  <attachments>");
 				for (String dependancy: entry.getValue().getDependencies()) {
