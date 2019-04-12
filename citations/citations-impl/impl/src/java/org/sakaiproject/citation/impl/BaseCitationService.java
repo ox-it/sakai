@@ -23,6 +23,8 @@ package org.sakaiproject.citation.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -826,7 +828,10 @@ public abstract class BaseCitationService implements CitationService
 
 			// TODO: deal with real dates. Right now, just year
 
-  		exportRisField("Y1", getCitationProperty(Schema.YEAR, false) + "//", buffer);
+			exportRisField("Y1", getCitationProperty(Schema.YEAR, false) + "//", buffer);
+
+			// Extract the LCN (oxfaleph ID) from the otherIds citation field (if populated) and put in RIS U3.
+			exportRisField("U3", toOxfAlephId(getCitationProperty("otherIds", true)), buffer);
 
 			// Other stuff goes into the note field -- including the note
 			// itself of course.
@@ -4096,14 +4101,12 @@ public abstract class BaseCitationService implements CitationService
 	static
 	{
 		m_RISNoteFields.put("language", "Language: ");
-		m_RISNoteFields.put("doi", "DOI: ");
 		m_RISNoteFields.put("rights", "Rights: ");
 	}
 
 	static
 	{
 		m_RISSpecialFields.add("date");
-		m_RISSpecialFields.add("doi");
 	}
 
 	public static String escapeFieldName(String original)
@@ -5812,6 +5815,41 @@ public abstract class BaseCitationService implements CitationService
 		return citation;
 	}
 
+	/**
+	 * Extract a ID from the URL we get back from SOLO. This is a static method to make testing easier.
+	 * @param citationValue The full URL.
+	 * @return The extracted ID or an empty string if we can't.
+	 */
+	static String toOxfAlephId(Object citationValue) {
+		String value = "";
+		if (citationValue instanceof String) {
+			String otherId = (String)citationValue;
+			int position = 0;
+			position = otherId.indexOf("docId=oxfaleph");
+			if (position > 0) {
+				position +=  "docId=oxfaleph".length(); 
+			} else {
+				// URL can use doc= instead.
+				position = otherId.indexOf("doc=oxfaleph");
+				if (position > 0) {
+					position += "doc=oxfaleph".length();
+				}
+			}
+			if (position > 0) {
+				int endPosition = otherId.indexOf('&', position + 1);
+				if (endPosition == -1) {
+					endPosition = otherId.length();
+				}
+				value = otherId.substring(position, endPosition);
+				try {
+					value = URLDecoder.decode(value, "UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					M_log.warn("Could not decode oxfaleph value:" + value, e);
+				}
+			}
+		}
+		return value;
+	}
 
 } // BaseCitationService
 
