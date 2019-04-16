@@ -36,6 +36,7 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,6 +96,7 @@ import org.sakaiproject.content.api.providers.SiteContentAdvisor;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.exception.ZipMaxTotalSizeException;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -541,10 +543,11 @@ public class ResourcesAction
 	/************** the edit context *****************************************/
 
 	private static final String MODE_DELETE_FINISH = "deleteFinish";
-	private static final String MODE_EXPORT_FINISH = "exportFinish";
 	private static final String MODE_SHOW_FINISH = "showFinish";
-	private static final String MODE_HIDE_FINISH = "hideFinish"; 
-	
+	private static final String MODE_HIDE_FINISH = "hideFinish";
+
+	private static final String MODE_EXPORTDOWNLOAD_FINISH = "exportDownloadFinish";
+
 	private static final String MODE_DROPBOX_OPTIONS = "dropboxOptions";
 
 	public  static final String MODE_HELPER = "helper";
@@ -639,7 +642,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	protected static final String STATE_DELETE_SET = PREFIX + REQUEST + "delete_set";
 	
 	protected static final String STATE_SHOW_SET = PREFIX + "show_set";
-	protected static final String STATE_HIDE_SET = PREFIX + "hide_set"; 
+	protected static final String STATE_HIDE_SET = PREFIX + "hide_set";
+
+	protected static final String STATE_EXPORTDOWNLOAD_SET = PREFIX + "exportDownload_set";
 
 	protected static final String STATE_DROPBOX_HIGHLIGHT = PREFIX + REQUEST + "dropbox_highlight";
 
@@ -768,6 +773,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/** the site title */
 	private static final String STATE_SITE_TITLE = PREFIX + REQUEST + "site_title";
 
+	/** the site ID */
+	private static final String STATE_SITE_ID = PREFIX + REQUEST + "site_id";
+
 	/** The sort ascending or decending */
 	private static final String STATE_SORT_ASC = PREFIX + REQUEST + "sort_asc";
 
@@ -810,8 +818,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
 
-	private static final String TEMPLATE_EXPORT_FINISH = "content/sakai_resources_exportFinish";
-	private static final String TEMPLATE_ZIP_FINISH = "content/sakai_resources_zipFinish";
+	private static final String TEMPLATE_EXPORTDOWNLOAD_FINISH = "content/sakai_resources_exportDownloadFinish";
 
 	private static final String TEMPLATE_SHOW_FINISH = "content/sakai_resources_showFinish";
 	private static final String TEMPLATE_HIDE_FINISH = "content/sakai_resources_hideFinish";
@@ -4098,22 +4105,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}
 
-
-	public String buildExportFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
-	{
-		logger.debug(this + ".buildExportFinishContext()");
-		context.put("tlang",trb);
-		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
-		context.put ("collectionPath", state.getAttribute (STATE_COLLECTION_PATH));
-
-		List exportItems = (List) state.getAttribute(STATE_DELETE_SET);
-
-		context.put ("exportItems", exportItems);
-		context.put("homeCollection", state.getAttribute(STATE_HOME_COLLECTION_ID));
-
-		return TEMPLATE_EXPORT_FINISH;
-
-	}
 	/**
 	* Build the context for the new list view, which uses the resources type registry
 	*/
@@ -4460,7 +4451,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
                         context.put("canShowHide", canShowHide);
 
                         boolean canViewHidden= canViewHidden();
-                        context.put("canViewHidden", canViewHidden); 
+                        context.put("canViewHidden", canViewHidden);
+
+			// Note these properties will apply to the size of files to go in a Common Cartridge as well as a zip file.
+			String zipMaxIndividualFileSizeString = ServerConfigurationService.getString("content.zip.download.maxindividualfilesize","0");
+			String zipMaxTotalSizeString = ServerConfigurationService.getString("content.zip.download.maxtotalsize","0");
+			boolean canZipDownload = (!zipMaxIndividualFileSizeString.equals("0") && !zipMaxTotalSizeString.equals("0"));
+			context.put("canZipDownload", canZipDownload);
 
 			String containingCollectionId = contentService.getContainingCollectionId(item.getId());
 			if(contentService.COLLECTION_DROPBOX.equals(containingCollectionId))
@@ -4870,10 +4867,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			// build the context for the basic step of delete confirm page
 			template = buildDeleteFinishContext (portlet, context, data, state);
 		}
-		else if (mode.equals (MODE_EXPORT_FINISH))
+		else if (mode.equals (MODE_EXPORTDOWNLOAD_FINISH))
 		{
 			// build the context for the basic step of export confirm page
-			template = buildExportFinishContext (portlet, context, data, state);
+			template = buildExportDownloadFinishContext(portlet, context, data, state);
 		}
 		else if (mode.equals (MODE_SHOW_FINISH))
 		{
@@ -6589,52 +6586,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}	// doDeleteconfirm
 
-
-	/**
-	 * set the state name to be "exportconfirm" if any item has been selected for export to IMS common cartridge or a zip file.
-	 */
-	public void doExportconfirm ( RunData data)
-	{
-		logger.debug(this + ".doExportconfirm()");
-
-		if (!"POST".equals(data.getRequest().getMethod())) {
-			return;
-		}
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-		Set<String> zipIdSet  = new TreeSet<>();
-		String[] zipIds = data.getParameters ().getStrings ("selectedMembers");
-		if (zipIds == null)
-		{
-			// there is no resource selected, show the alert message to the user
-			addAlert(state, rb.getString("choosefile3"));
-		}
-		else
-		{
-			zipIdSet.addAll(Arrays.asList(zipIds));
-			addItemsToSession(state, zipIdSet);
-		}
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute (STATE_MODE, MODE_EXPORT_FINISH);
-			state.removeAttribute(STATE_LIST_SELECTIONS);
-		}
-	}	// doExportconfirm
-
 	public void doDispatchAction(RunData data)
 	{
 		logger.debug(this + ".doDispatchAction()");
@@ -7126,94 +7077,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}	// doDelete
 
 	/**
-	 * doFinalizeExport to create an IMS common cartridge or zip the selected collection or resource items
-	 */
-	public void doFinalizeExport( RunData data) throws IdUnusedException {
-		logger.debug(this + ".doFinalizeExport()");
-		if (!"POST".equals(data.getRequest().getMethod())) {
-			return;
-		}
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		
-		ParameterParser params = data.getParameters ();
-
-
-		String exportType = params.getString(EXPORT_TYPE_NAME);
-		
-		if (!("imscc".equals(exportType) || "zip".equals(exportType)))
-		{
-			addAlert(state, trb.getString("export.type.not.valid"));
-		}
-		
-		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-		List items = (List) state.getAttribute(STATE_DELETE_SET);
-
-		List<String> selectedFolderIds = new ArrayList<>();
-		List<String> selectedFiles = new ArrayList<>();
-		for (Object listItem : items) {
-			ListItem l = (ListItem) listItem;
-			if (l.isCollection()) {
-				selectedFolderIds.add(l.getId());
-			} else {
-				selectedFiles.add(l.getId());
-			}
-		}
-		ThreadLocalManager threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
-		HttpServletResponse response = (HttpServletResponse)threadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE);
-
-		if ("imscc".equals(exportType)) {
-			Reference ref = EntityManager.newReference(ContentHostingService.getReference(collectionId));
-			String siteId = ref.getContext();
-			CCExport ccExport = new org.sakaiproject.exporter.util.CCExport(siteId, ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class));
-			ccExport.doExport(selectedFolderIds, selectedFiles, response);
-		}
-		else if ("zip".equals(exportType)) {
-			try {
-				ZipContentUtil zipUtil = new ZipContentUtil();
-				try {
-					Reference r = EntityManager.newReference(ContentHostingService.getReference(collectionId));
-					zipUtil.compressFolder(r, selectedFolderIds, selectedFiles);
-				} catch (Exception e) {
-					logger.warn(e.getMessage());
-				}
-			} // try - catch
-			catch (RuntimeException e) {
-				logger.debug("ResourcesAction.doFinalizeZip ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, rb.getString("failed"));
-			}
-		}
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			// zip sucessful
-			state.setAttribute (STATE_MODE, MODE_LIST);
-			state.removeAttribute(STATE_DELETE_SET);
-			state.removeAttribute(STATE_NON_EMPTY_DELETE_SET);
-
-			if (state.getAttribute (STATE_SELECT_ALL_FLAG).equals(Boolean.TRUE.toString()))
-			{
-				state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
-			}
-		}	// if-else
-	}	// doZip
-
-
-
-	/**
 	 * @param data
 	 */
 	public void doHideOtherSites(RunData data)
@@ -7404,7 +7267,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		else if(ResourceToolAction.EXPORT.equals(actionId))
 		{
-			doExportconfirm(data);
+			doExportDownloadconfirm(data);
 		}
 		else if(ResourceToolAction.SHOW.equals(actionId))
 		{
@@ -8699,6 +8562,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{	// ignore
 			}
 			state.setAttribute(STATE_SITE_TITLE, title);
+		}
+
+		if (state.getAttribute(STATE_SITE_ID) == null)
+		{
+			String id = "";
+			try
+			{
+				id = ((Site) SiteService.getSite(ToolManager.getCurrentPlacement().getContext())).getId();
+			}
+			catch (IdUnusedException e)
+			{	// ignore
+			}
+			state.setAttribute(STATE_SITE_ID, id);
 		}
 
 		getExpandedCollections(state).clear();
@@ -10521,5 +10397,230 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_MODE, MODE_RESTORE);
 	}
-	
+
+	/**
+	 * set the state name to be "exportDownloadFinish" if any item has been selected for zip downloading
+	 * @param data
+	 */
+	public void doExportDownloadconfirm(RunData data)
+	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		Set<String> zipDownloadIdSet  = new TreeSet<>();
+		String[] zipDownloadIds = data.getParameters ().getStrings ("selectedMembers");
+		if (zipDownloadIds == null)
+		{
+			addAlert(state, rb.getString("choosefile3"));
+		}
+		else
+		{
+			zipDownloadIdSet.addAll(Arrays.asList(zipDownloadIds));
+			zipDownloadItems(state, zipDownloadIdSet); 
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_EXPORTDOWNLOAD_FINISH);
+			state.setAttribute(STATE_LIST_SELECTIONS, zipDownloadIdSet);
+		}
+	}       // doExportDownloadFinish
+
+	/**
+	 * @param state
+	 * @param zipDownloadIdSet
+	 */
+	protected void zipDownloadItems(SessionState state, Set<String> zipDownloadIdSet)
+	{
+		List<ListItem> zipDownloadItems = new ArrayList<>();
+
+		// Set to hold the names of files that exceed that maximum size for zipping. 
+		Set<String> zipSingleFileSizeExceeded = new HashSet<>();
+
+		long zipMaxIndividualFileSize = Long.parseLong(ServerConfigurationService.getString("content.zip.download.maxindividualfilesize","0"));
+		long zipMaxTotalSize = Long.parseLong(ServerConfigurationService.getString("content.zip.download.maxtotalsize","0"));
+		long accumulatedSize=0;
+		long currentEntitySize=0;
+
+		ContentHostingService contentService = ComponentManager.get(ContentHostingService.class);;
+
+		try {
+			for (String showId : zipDownloadIdSet) {
+				ContentEntity entity = null;
+
+				if (contentService.isCollection(showId)) {
+					if (contentService.allowGetCollection(showId)) {
+						entity = contentService.getCollection(showId);
+						currentEntitySize = getCollectionRecursiveSize((ContentCollection) entity, zipMaxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded);
+					}
+				} else if (contentService.allowGetResource(showId)) {
+					entity = contentService.getResource(showId);
+					currentEntitySize = ((ContentResource) entity).getContentLength();
+					if (currentEntitySize > zipMaxIndividualFileSize) {
+						// Work out the file path without the site ID.
+						String filePath = entity.getId().replace("/group/" + ToolManager.getCurrentPlacement().getContext(), "");
+						zipSingleFileSizeExceeded.add(filePath);
+					}
+				}
+
+				accumulatedSize = accumulatedSize + currentEntitySize;
+
+				ListItem item = new ListItem(entity);
+				if (item.isCollection() && contentService.allowGetCollection(showId)) {
+					item.setSize(ResourcesAction.getFileSizeString(currentEntitySize, rb));
+					zipDownloadItems.add(item);
+				} else if (!item.isCollection() && contentService.allowGetResource(showId)) {
+					zipDownloadItems.add(item);
+				}
+			}
+			// Check after all files have been processed so that all individual files that exceed the zipMaxIndividualFileSize are reported.
+			if (accumulatedSize > zipMaxTotalSize) {
+				throw new ZipMaxTotalSizeException();
+			}
+		} catch (ZipMaxTotalSizeException tse) {
+			addAlert(state, trb.getFormattedMessage("export.maxTotalSize", getFileSizeString(zipMaxTotalSize, rb)));
+			state.setAttribute(STATE_MODE, MODE_LIST);
+		} catch (IdUnusedException ide) {
+			logger.warn("IdUnusedException", ide);
+		} catch (TypeException te) {
+			logger.warn("TypeException", te);
+		} catch (PermissionException pe) {
+			logger.warn("PermissionException", pe);
+		}
+
+		if (!zipSingleFileSizeExceeded.isEmpty()) {
+			for (String zipSingleFile : zipSingleFileSizeExceeded) {
+				addAlert(state, trb.getFormattedMessage("export.maxIndividualSizeInFolder", zipSingleFile, getFileSizeString(zipMaxIndividualFileSize, rb)));
+			}
+			state.setAttribute(STATE_MODE, MODE_LIST);
+		}
+		state.setAttribute (STATE_EXPORTDOWNLOAD_SET, zipDownloadItems);
+	}
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	public String buildExportDownloadFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		context.put("tlang",trb);
+		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
+
+		List exportItems = (List) state.getAttribute(STATE_EXPORTDOWNLOAD_SET);
+		context.put ("exportItems", exportItems);
+
+		return TEMPLATE_EXPORTDOWNLOAD_FINISH;
+	}
+
+	public void doFinalizeExportDownload(RunData data)
+	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		List<ListItem> zipDownloadItems = (List<ListItem>) state.getAttribute(STATE_EXPORTDOWNLOAD_SET);
+
+		String exportType = data.getParameters().getString(EXPORT_TYPE_NAME);
+		if (!("imscc".equals(exportType) || "zip".equals(exportType)))
+		{
+			addAlert(state, trb.getString("export.type.not.valid"));
+		}
+
+		ThreadLocalManager threadLocalManager = ComponentManager.get(ThreadLocalManager.class);
+		HttpServletResponse response = (HttpServletResponse)threadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE);
+
+		List<String> selectedFolderIds = new ArrayList<>();
+		List<String> selectedFiles = new ArrayList<>();
+		for (ListItem listItem : zipDownloadItems) {
+			if (listItem.isCollection()) {
+				selectedFolderIds.add(listItem.getId());
+			} else {
+				selectedFiles.add(listItem.getId());
+			}
+		}
+
+		if ("imscc".equals(exportType)) {
+			String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+			Reference ref = EntityManager.newReference(ContentHostingService.getReference(collectionId));
+			String siteId = ref.getContext();
+			try {
+				CCExport ccExport = new org.sakaiproject.exporter.util.CCExport(siteId, ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class));
+				ccExport.doExport(selectedFolderIds, selectedFiles, response);
+			} catch (IdUnusedException ide) {
+				// Shouldn't happen by this stage.
+				logger.warn("IdInvalidException site ID:" + siteId + " collection ID: " + collectionId);
+			}
+		}
+		else if ("zip".equals(exportType)) {
+				// Use the site title for the zip name, remove spaces though.
+				String siteTitle = (String) state.getAttribute(STATE_SITE_TITLE);
+				siteTitle = siteTitle.replace(" ", "");
+				new ZipContentUtil().compressSelectedResources((String)state.getAttribute(STATE_SITE_ID), siteTitle, selectedFolderIds, selectedFiles, response);
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_LIST);
+			state.removeAttribute(STATE_EXPORTDOWNLOAD_SET);
+
+			if (state.getAttribute (STATE_SELECT_ALL_FLAG).equals(Boolean.TRUE.toString()))
+			{
+				state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
+			}
+		}
+	}
+
+	private long getCollectionRecursiveSize(ContentCollection currentCollection, long maxIndividualFileSize, long zipMaxTotalSize, Set<String> zipSingleFileSizeExceeded) throws ZipMaxTotalSizeException
+	{
+		long total=0;
+
+		List items = currentCollection.getMemberResources();
+		Iterator it = items.iterator();
+		while(it.hasNext())
+		{
+			ContentEntity myElement = (ContentEntity) it.next();
+			if (myElement.isResource()) 
+			{
+				long tempSize = ((ContentResource)myElement).getContentLength();
+				if (tempSize > maxIndividualFileSize) {
+					// Work out the file path without the site ID.
+					String filePath = myElement.getId().replace("/group/" + ToolManager.getCurrentPlacement().getContext(), "");
+					zipSingleFileSizeExceeded.add(filePath);
+				}
+				else {
+					total += tempSize;
+				}
+			}
+			else if (myElement.isCollection())
+			{
+				long tempSize = getCollectionRecursiveSize((ContentCollection)myElement, maxIndividualFileSize, zipMaxTotalSize, zipSingleFileSizeExceeded);
+				if (tempSize > zipMaxTotalSize) {
+					throw new ZipMaxTotalSizeException();
+				}
+				else {
+					total += tempSize;
+				}
+			}
+		}
+		return total;
+	}
 }	// ResourcesAction

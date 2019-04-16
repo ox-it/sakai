@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
@@ -20,6 +21,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import javax.activation.MimetypesFileTypeMap;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -81,6 +83,59 @@ public class ZipContentUtil {
 
 	public void compressFolder(Reference reference) {
 		compressFolder(reference, null, null);
+	}
+
+	public void compressSelectedResources(String siteId, String siteTitle, List<String> selectedFolderIds, List<String> selectedFiles, HttpServletResponse response) {
+		Map<String, ContentResource> resourcesToZip = new HashMap<>();
+
+		try {
+			// Add any files in the selected folders to the files to be in the zip.
+			if (selectedFolderIds.size() > 0) {
+				for (String selectedFolder : selectedFolderIds) {
+					List<ContentResource> folderContents = ContentHostingService.getAllResources(selectedFolder);
+					for (ContentResource folderFile : folderContents) {
+						resourcesToZip.put(folderFile.getId(), folderFile);
+					}
+				}
+			}
+
+			// Add any selected files to the list of resources to be in the zip.
+			for (String selectedFile : selectedFiles) {
+				ContentResource contentFile = ContentHostingService.getResource(selectedFile);
+				resourcesToZip.put(contentFile.getId(), contentFile);
+			}
+		} catch (IdUnusedException | PermissionException | TypeException e) {
+			// shouldn't happen by this stage.
+			LOG.error(e.getMessage(), e);
+		}
+
+		try (OutputStream zipOut = response.getOutputStream(); ZipOutputStream out = new ZipOutputStream(zipOut)) {
+			// If in dropbox need to add the word Dropbox to the end of the zip filename - use the first entry in the resourcesToZip map to find if we are in the dropthe user ID.
+			if (!resourcesToZip.isEmpty()) {
+				String firstContentResourceId = resourcesToZip.entrySet().iterator().next().getKey();
+				if (ContentHostingService.isInDropbox(firstContentResourceId) && ServerConfigurationService.getBoolean("dropbox.zip.haveDisplayname", true)) {
+					response.setHeader("Content-disposition", "attachment; filename=" + siteId + "DropBox.zip");
+				} else {
+					response.setHeader("Content-disposition", "attachment; filename=" + siteTitle + ".zip");
+				}
+			} else {
+				// Return an empty zip.
+				response.setHeader("Content-disposition", "attachment; filename=" + siteTitle + ".zip");
+			}
+			
+			response.setContentType("application/zip");
+
+			for (ContentResource contentResource : resourcesToZip.values()) {
+				// Find the file path.
+				int siteIdPosition = contentResource.getId().indexOf(siteId);
+				String rootId = contentResource.getId().substring(0, siteIdPosition) + siteId + "/";
+				storeContentResource(rootId, contentResource, out);
+			}
+		} catch (IOException ioe) {
+			LOG.error(ioe.getMessage(), ioe);
+		} catch (Exception e) {
+			LOG.error(e.getMessage(), e);
+		}
 	}
 	/**
 	 * Compresses a ContentCollection to a new zip archive with the same folder name
@@ -542,7 +597,7 @@ public class ZipContentUtil {
 	 * @throws Exception
 	 */
 	private void storeContentResource(String rootId, ContentResource resource, ZipOutputStream out) throws Exception {
-		// Don't include citations (reading lists) in the zip.
+		// Don't include citations (reading lists) in the zip/Common Cartridge.
 		if ("org.sakaiproject.citation.impl.CitationList".equals(resource.getResourceType())) {
 			return;
 		}
