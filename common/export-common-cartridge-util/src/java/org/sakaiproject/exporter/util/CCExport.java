@@ -110,7 +110,7 @@ public class CCExport {
 			response.setContentType("application/zip");
 
 			outputSelectedFiles(out);
-			forumsExport.outputAllForums(out);
+			forumsExport.outputAllForums(out, filesToExport);
 			assignmentsExport.outputAssignments(out);
 			outputCourseSettingsFiles(out);
 			outputManifest(out);
