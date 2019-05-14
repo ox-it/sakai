@@ -17760,20 +17760,20 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 						else
 						{
-							M_log.debug(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage());
+							M_log.error(this + ".doAttachupload ***** Runtime Exception ***** " + e.getMessage(), e);
 							addAlert(state, rb.getString("failed"));
 						}
 					}
 					catch (ServerOverloadException e)
 					{
 						// disk full or no writing permission to disk
-						M_log.debug(this + ".doAttachupload ***** Disk IO Exception ***** " + e.getMessage());
+						M_log.warn(this + ".doAttachupload ***** Disk IO Exception ***** " + e.getMessage(), e);
 						addAlert(state, rb.getString("failed.diskio"));
 					}
-					catch(Exception ignore)
+					catch(Exception e)
 					{
 						// other exceptions should be caught earlier
-						M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
+						M_log.error(this + ".doAttachupload ***** Unknown Exception ***** " + e.getMessage(), e);
 						addAlert(state, rb.getString("failed"));
 					}
 					finally
@@ -17787,7 +17787,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 			catch( IOException e){
-				M_log.debug(this + ".doAttachupload ***** IOException ***** " + e.getMessage());
+				M_log.warn(this + ".doAttachupload ***** IOException ***** " + e.getMessage(), e);
 				addAlert(state, rb.getString("failed"));
 			}
 		}
