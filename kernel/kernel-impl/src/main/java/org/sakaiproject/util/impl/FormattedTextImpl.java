@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +50,7 @@ import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
+import org.springframework.web.util.HtmlUtils;
 
 
 /**
@@ -592,9 +594,9 @@ public class FormattedTextImpl implements FormattedText
          * they also depend on this handling a null input and converting it to null
          */
         String val = "";
-        if (value != null && !"".equals(value)) {
-            val = StringEscapeUtils.escapeHtml(value);
-            if (escapeNewlines && val != null) {
+        if (StringUtils.isNotEmpty(value)){
+            val = HtmlUtils.htmlEscape(value, StandardCharsets.UTF_8.name());
+            if (escapeNewlines) {
                 val = val.replace("\n", "<br/>\n");
             }
         }
@@ -660,12 +662,8 @@ public class FormattedTextImpl implements FormattedText
      */
     public String unEscapeHtml(String value)
     {
-        if (value == null || value.equals("")) return "";
-        value = value.replaceAll("&lt;", "<");
-        value = value.replaceAll("&gt;", ">");
-        value = value.replaceAll("&amp;", "&");
-        value = value.replaceAll("&quot;", "\"");
-        return value;
+        if (StringUtils.isEmpty(value)) return StringUtils.EMPTY;
+        return HtmlUtils.htmlUnescape(value);
     }
 
     /* (non-Javadoc)
@@ -1510,4 +1508,12 @@ public class FormattedTextImpl implements FormattedText
             9002, 9674, 9824, 9827, 9829, 9830, 34, 38, 60, 62, 338, 339, 352, 353, 376, 710, 732, 8194, 8195, 8201, 8204, 8205,
             8206, 8207, 8211, 8212, 8216, 8217, 8218, 8220, 8221, 8222, 8224, 8225, 8240, 8249, 8250, 8364 };
 
+    public String sanitizeUserInput(final String userInput) {
+        if(StringUtils.EMPTY.equals(userInput)) {
+            return StringUtils.EMPTY;
+        }
+        String val = StringUtils.trimToNull(userInput);
+        val = HtmlUtils.htmlEscape(val, StandardCharsets.UTF_8.name());
+        return val;
+    }
 }
