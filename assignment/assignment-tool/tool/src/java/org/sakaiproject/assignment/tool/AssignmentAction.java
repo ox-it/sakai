@@ -1296,8 +1296,8 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			rv = AssignmentService.getAssignment(assignmentId);
 			
-			m_securityService.popAdvisor(contentAdvisor);
-			m_securityService.popAdvisor(secAdv);
+			popSecurityAdvisor(contentAdvisor);
+			popSecurityAdvisor(secAdv);
 		}
 		catch (IdUnusedException e)
 		{
@@ -2184,6 +2184,16 @@ public class AssignmentAction extends PagedResourceActionII
 				session.removeAttribute(sessionKey);
 		}
 		return asgnAdvisor;
+	}
+
+	/**
+	 * Removes a security advisor from the stack.
+	 * @param advisor The security advisor to remove, if <code>null</code> don't remove anything.
+	 */
+	private void popSecurityAdvisor(SecurityAdvisor advisor) {
+		if (advisor != null) {
+			m_securityService.popAdvisor(advisor);
+		}
 	}
 	
 	/**
