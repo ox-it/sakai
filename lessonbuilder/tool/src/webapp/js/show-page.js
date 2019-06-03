@@ -509,7 +509,6 @@ $(document).ready(function() {
 			$("#resource-group-inherited").hide();
 			$("#assignment-points").hide();
 			$("#assignment-points-label").hide();
-			$("#edit-item").hide();
 			$("#name").val("Calendar");
 			$("#description").val($("#calendar-descrip").text());
 			$("#item-id").val(row.find(".calendar-item-id").text());
