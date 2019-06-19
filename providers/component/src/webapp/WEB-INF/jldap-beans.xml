@@ -29,7 +29,7 @@
 			JLDAPDirectoryProvider.DEFAULT_LDAP_PORT (389). Secured
 			connections are usually on 636 -->
 		<!-- property name="ldapPort">
-			<value>389</value>
+			<value>636</value>
 		</property-->
         <property name="autoBind"> <!-- plukasew -->
 		  <value>true</value>
