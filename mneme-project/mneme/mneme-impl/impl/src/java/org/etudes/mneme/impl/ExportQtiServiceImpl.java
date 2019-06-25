@@ -1225,14 +1225,26 @@ public class ExportQtiServiceImpl implements ExportQtiService
 
 		// question feedback
 		if (question.getFeedback() != null && question.getFeedback().length() != 0)
-		{
+		{	// A responseProcessing element is required in order to show the feedback. 
+			Element processingElement = questionDocument.createElement("responseProcessing");
+			Element outcomeValue = questionDocument.createElement("setOutcomeValue");
+			outcomeValue.setAttribute("identifier", "FEEDBACK");
+			Element baseValue = questionDocument.createElement("baseValue");
+			baseValue.setAttribute("baseType", "identifier");
+			// identifier needs to be general_fb in order for the feedback to import into Canvas.
+			baseValue.setTextContent("general_fb");
+			outcomeValue.appendChild(baseValue);
+			processingElement.appendChild(outcomeValue);
+			questionParts.put("responseProcessing", processingElement);
+
 			Element feedbackElement = questionDocument.createElement("modalFeedback");
-			feedbackElement.setAttribute("showHide", "hide");
-			feedbackElement.setAttribute("identifier", "FB_Question");
+			feedbackElement.setAttribute("showHide", "show");
+			feedbackElement.setAttribute("identifier", "general_fb");
+			feedbackElement.setAttribute("outcomeIdentifier", "FEEDBACK");
 			ArrayList fbFiles = new ArrayList<String>();
 			String feedback = question.getFeedback();
 			feedback = translateEmbedData(zip,  testId + "/Resources/", "Resources/", feedback, fbFiles);
-			feedbackElement.appendChild(questionDocument.createCDATASection(feedback));
+			feedbackElement.setTextContent(feedback);
 			questionParts.put("modalFeedback", feedbackElement);
 		}
 		questionParts.put("itemBody", itemBody);
@@ -1284,7 +1296,7 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			answer = FormattedText.unEscapeHtml(answer);
 			ArrayList anFiles = new ArrayList<String>();
 			answer = translateEmbedData(zip,  testId + "/Resources/", "Resources/", answer, anFiles);
-			Element correctResponseValue = questionDocument.createElement("value");			
+			Element correctResponseValue = questionDocument.createElement("value");
 			correctResponseValue.appendChild(questionDocument.createCDATASection(answer));
 			correctResponse.appendChild(correctResponseValue);
 		}
@@ -1572,7 +1584,8 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			simpleChoice = translateEmbedData(zip, testId + "/Resources/", choiceText, simpleChoice, mediaFiles, questionDocument);
 			if (mediaFiles.isEmpty())
 			{
-				simpleChoice.appendChild(questionDocument.createCDATASection(choiceText));
+				// This is plain text in Canvas so need to remove HTML elements.
+				simpleChoice.setTextContent(FormattedText.stripHtmlFromText(choiceText, true, true));
 			}
 			choiceInteraction.appendChild(simpleChoice);
 		}
@@ -1705,7 +1718,8 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			simpleAssociableChoice = translateEmbedData(zip, testId + "/Resources/", choiceText, simpleAssociableChoice, mediaFiles, questionDocument);
 			if (mediaFiles.isEmpty())
 			{
-				simpleAssociableChoice.appendChild(questionDocument.createCDATASection(choiceText));
+				// This is plain text in Canvas so need to remove HTML elements.
+				simpleAssociableChoice.setTextContent(FormattedText.stripHtmlFromText(choiceText, true, true));
 			}
 			simpleMatchSet1.appendChild(simpleAssociableChoice);
 
@@ -1720,7 +1734,8 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			simpleAssociableMatch = translateEmbedData(zip, testId + "/Resources/", matchText, simpleAssociableMatch, mediaFiles, questionDocument);
 			if (mediaFiles.isEmpty())
 			{
-				simpleAssociableMatch.appendChild(questionDocument.createCDATASection(matchText));
+				// This is plain text in Canvas so need to remove HTML elements.
+				simpleAssociableMatch.setTextContent(FormattedText.stripHtmlFromText(matchText, true, true));
 			}
 			simpleMatchSet2.appendChild(simpleAssociableMatch);
 
