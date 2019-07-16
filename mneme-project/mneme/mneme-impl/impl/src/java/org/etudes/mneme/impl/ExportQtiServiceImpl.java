@@ -1244,7 +1244,8 @@ public class ExportQtiServiceImpl implements ExportQtiService
 			ArrayList fbFiles = new ArrayList<String>();
 			String feedback = question.getFeedback();
 			feedback = translateEmbedData(zip,  testId + "/Resources/", "Resources/", feedback, fbFiles);
-			feedbackElement.setTextContent(feedback);
+			// Bug in Canvas, it doesn't import HTML correctly with either a CDATA element or with encoding so removing all HTML for now.
+			feedbackElement.setTextContent(FormattedText.unEscapeHtml(FormattedText.stripHtmlFromText(feedback, true, false)));
 			questionParts.put("modalFeedback", feedbackElement);
 		}
 		questionParts.put("itemBody", itemBody);
