@@ -383,6 +383,12 @@ public class EntityEncodingManager {
                                 decoded = (Map<String, Object>) o;
                             }
                         }
+
+                        // OWL-3627
+                        if (ref.getPrefix().equals("user")) {
+                            decoded.remove("password");
+                        }
+
                         try {
                             ReflectUtils.getInstance().populate(entity, decoded);
                         } catch (RuntimeException e) {
