@@ -64,11 +64,11 @@ public class UserValidator implements Validator {
 		
 		Collection<User> c = this.userDirectoryService.findUsersByEmail(retUser.getEmail().trim());
 		if (c.size()>1) {
-			m_log.debug("more than one email!");
+			m_log.warn("more than one account with email: {}", retUser.getEmail());
 			errors.reject("morethanone","more than one email");
 			return;
 		} else if (c.size()==0) {
-			m_log.debug("no such email");
+			m_log.debug("no such email: {}", retUser.getEmail());
 			errors.reject("nosuchuser","no such user");
 			return;
 		}
