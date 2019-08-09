@@ -2,8 +2,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- NOTE: THIS FILE IS INCOMPLETE. CERTAIN VALUES DO NOT BELONG IN THE PUBLIC OWL CODE AND MUST BE FILLED IN MANUALLY. (plukasew) -->
 
-	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+	<!-- ORIGINAL BEAN CONFIG. NOW USING NEW CONFIG FOR USE WITH FEDERATING DIRECTORY PROVIDER. (plukasew) -->
+	<!--<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+		class="edu.amc.sakai.user.JLDAPDirectoryProvider" init-method="init"
+		destroy-method="destroy">-->
+		<bean id="org.sakaiproject.user.api.UserDirectoryProvider.provider1"
 		class="edu.amc.sakai.user.JLDAPDirectoryProvider" init-method="init"
 		destroy-method="destroy">
 		
@@ -13,38 +19,48 @@
 		<property name="memoryService">
 			<ref bean="org.sakaiproject.memory.api.MemoryService"/>
 		</property>
+			
+		<property name="serverConfigurationService">
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+		</property>
 		
 		<!-- Required. Host name or address of your LDAP server -->
 		<property name="ldapHost">
-			<value>ldap.university.edu</value>
+			<value>HOST GOES HERE</value>
 		</property>
 
 		<!-- Optional. LDAP connection port. Typically defaults to 
 			JLDAPDirectoryProvider.DEFAULT_LDAP_PORT (389). Secured
 			connections are usually on 636 -->
-		<!-- property name="ldapPort">
-			<value>389</value>
-		</property-->
+		<property name="ldapPort">
+			<value>636</value>
+		</property>
+		<property name="autoBind"> <!-- plukasew -->
+			<value>true</value>
+		</property>
 
 		<!--  If secureConnection is true, a keystore location must be provided
 			unless javax.net.ssl.trustStore system property has already been 
 			set -->
-		<!--property name="keystoreLocation">
-			<value>/usually/set/at/startup</value>
-		</property-->
+		<property name="keystoreLocation">
+			<value>$JAVA_HOME/jre/lib/security/cacerts</value>
+		</property>
 
 		<!--  If secureConnection is true, a keystore password must be provided
 			unless javax.net.ssl.trustStorePassword system property has already
 			been set -->
-		<!--property name="keystorePassword">
-			<value>usually-set-at-startup</value>
-		</property-->
+		<property name="keystorePassword">
+			<value>KEYSTORE PASSWORD HERE</value>
+		</property>
 
 		<!-- Optional. DN to which to bind for directory searches. 
 			Typically only necessary if autoBind is true -->
 		<!-- property name="ldapUser">
 			<value>attr=value,attr=value,attr=value</value>
 		</property -->
+		<property name="basePath"> <!-- plukasew -->
+			<value>BASE PATH GOES HERE</value>
+		</property>
 
 		<!-- Optional. Password for ldapUser defined above -->
 		<!--  property name="ldapPassword">
@@ -53,18 +69,18 @@
 
 		<!-- Optional. Enables/disables secure LDAP connections.
 			defaults to JLDAPDirectoryProvider.DEFAULT_IS_SECURE_CONNECTION (false) -->
-		<!-- property name="secureConnection">
-			<value>false</value>
-		</property -->
+		<property name="secureConnection">
+			<value>true</value>
+		</property>
 
 		<!-- Optional. If secureConnection is true, this socket factory
 			will be assigned globally to LDAPConnections. Defaults to an
 			instance of com.novell.ldap.LDAPJSSESecureSocketFactory, which
 			is appropriate for SSL connections. Use 
 			com.novell.ldap.LDAPJSSEStartTLSFactory for TLS. -->
-		<!-- property name="secureSocketFactory">
+		<property name="secureSocketFactory">
 			<bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" />
-		</property -->
+		</property>
 
 		<!-- Optional. Indicate if connection allocation should
 			implicitly bind as ${ldapUser}. Defaults to false -->
@@ -211,26 +227,39 @@
     attribute to Sakai User instance member mapping behaviors. This
     example describes availabel configuration options for SimpleLdapAttributeMapper
     (the default LdapAttributeMapper implementation). -->
-	<bean id="edu.amc.sakai.user.LdapAttributeMapper"
+	<!--<bean id="edu.amc.sakai.user.LdapAttributeMapper"
 			class="edu.amc.sakai.user.SimpleLdapAttributeMapper"
+			init-method="init">-->
+	<bean id="edu.amc.sakai.user.LdapAttributeMapper"
+			class="edu.amc.sakai.user.SimpleLdapCandidateAttributeMapper"
 			init-method="init">
+		<property name="encryption">
+			<ref bean="org.sakaiproject.user.detail.ValueEncryptionUtilities" />
+		</property>
+		<property name="serverConfigurationService">
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+		</property>
+		<property name="candidateIdLength"><value>10</value></property>
+		<property name="additionalInfoLength"><value>100</value></property>
+		<property name="studentNumberLength"><value>9</value></property>
 			
 		<!-- A typical set of attribute mappings. Keys are logical
 		names expected by the application. Values are physical LDAP
 		attribute names. If not specified or empty, defaults to
 		AttributeMappingConstants.DEFAULT_ATTR_MAPPINGS. -->
-		<!-- property name="attributeMappings">
+		<property name="attributeMappings">
 			<map>
-				<entry key="aid"><value>krb5PrincipalName</value></entry>
-				<entry key="login"><value>cn</value></entry>         
+				<!--<entry key="aid"><value>krb5PrincipalName</value></entry>-->
+				<entry key="login"><value>LOGIN GOES HERE</value></entry>         
 				<entry key="firstName"><value>givenName</value></entry> 
 				<entry key="preferredFirstName"><value>preferredName</value></entry>
 				<entry key="lastName"><value>sn</value></entry> 
-				<entry key="email"><value>email</value></entry>  
-				<entry key="groupMembership"><value>groupMembership</value></entry>   
+				<entry key="email"><value>EMAIL GOES HERE</value></entry>
+				<entry key="NUMBER KEY GOES HERE"><value>NUMBER VALUE GOES HERE</value></entry>
+				<entry key="groupMembership"><value>GROUP MEMBERSHIP GOES HERE</value></entry>   
 				<entry key="jpegPhoto"><value>jpegPhoto</value></entry>   
 			</map>
-		</property -->
+		</property>
 		
 		<!-- If any of the values need manipulating with message formats they can be set here. -->
 		<!-- property name="valueMappings">
@@ -243,8 +272,8 @@
 		on LDAP attributes. Defaults to an instance of EmptyStringUserTypeMapper -->
 		<property name="userTypeMapper">
 			<!-- Select one of the following beans -->
-			<ref bean="edu.amc.sakai.user.EmptyStringUserTypeMapper" />
-			<!-- ref bean="edu.amc.sakai.user.EntryAttributeToUserTypeMapper" /-->
+			<!-- <ref bean="edu.amc.sakai.user.EmptyStringUserTypeMapper" /> -->
+			<ref bean="edu.amc.sakai.user.EntryAttributeToUserTypeMapper" />
 			<!-- ref bean="edu.amc.sakai.user.EntryContainerRdnToUserTypeMapper" /-->
 			<!-- ref bean="edu.amc.sakai.user.StringUserTypeMapper" /-->
 		</property>
@@ -284,12 +313,11 @@
 		<!-- Optional. If not present or empty, behavior is
 		determined by the value of returnLiteralAttributeValueIfNoMapping
 		(see below). -->
-		<!-- property name="attributeValueToSakaiUserTypeMap">
+		<property name="attributeValueToSakaiUserTypeMap">
 			<map>
-				<entry key="faculty"><value>faculty</value></entry> 
-				<entry key="students"><value>student</value></entry> 
+				<!-- MAP GOES HERE -->
 			</map>
-		</property -->
+		</property>
 				
 		<!-- Required. The logical name of the LDAP attribute which
 		defines Sakai users' types. Value should be a key into the 
