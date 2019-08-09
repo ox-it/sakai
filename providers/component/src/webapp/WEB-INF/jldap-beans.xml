@@ -28,9 +28,9 @@
 		<!-- Optional. LDAP connection port. Typically defaults to 
 			JLDAPDirectoryProvider.DEFAULT_LDAP_PORT (389). Secured
 			connections are usually on 636 -->
-		<!-- property name="ldapPort">
+		<property name="ldapPort">
 			<value>636</value>
-		</property-->
+		</property>
         <property name="autoBind"> <!-- plukasew -->
 		  <value>true</value>
 		</property>
@@ -38,16 +38,16 @@
 		<!--  If secureConnection is true, a keystore location must be provided
 			unless javax.net.ssl.trustStore system property has already been 
 			set -->
-		<!--property name="keystoreLocation">
-			<value>/usually/set/at/startup</value>
-		</property-->
+		<property name="keystoreLocation">
+			<value>$JAVA_HOME/jre/lib/security/cacerts</value>
+		</property>
 
 		<!--  If secureConnection is true, a keystore password must be provided
 			unless javax.net.ssl.trustStorePassword system property has already
 			been set -->
-		<!--property name="keystorePassword">
-			<value>usually-set-at-startup</value>
-		</property-->
+		<property name="keystorePassword">
+			<value>KEYSTORE PASSWORD HERE</value>
+		</property>
 
 		<!-- Optional. DN to which to bind for directory searches. 
 			Typically only necessary if autoBind is true -->
@@ -65,18 +65,18 @@
 
 		<!-- Optional. Enables/disables secure LDAP connections.
 			defaults to JLDAPDirectoryProvider.DEFAULT_IS_SECURE_CONNECTION (false) -->
-		<!-- property name="secureConnection">
-			<value>false</value>
-		</property -->
+		<property name="secureConnection">
+			<value>true</value>
+		</property>
 
 		<!-- Optional. If secureConnection is true, this socket factory
 			will be assigned globally to LDAPConnections. Defaults to an
 			instance of com.novell.ldap.LDAPJSSESecureSocketFactory, which
 			is appropriate for SSL connections. Use 
 			com.novell.ldap.LDAPJSSEStartTLSFactory for TLS. -->
-		<!-- property name="secureSocketFactory">
+		<property name="secureSocketFactory">
 			<bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" />
-		</property -->
+		</property>
 
 		<!-- Optional. Indicate if connection allocation should
 			implicitly bind as ${ldapUser}. Defaults to false -->
