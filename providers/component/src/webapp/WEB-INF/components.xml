@@ -163,7 +163,7 @@
 -->
 
 <!-- Uncomment and configure to use the JLDAPDirectoryProvider -->
-	<import resource="jldap-beans.xml" />
+	<!--<import resource="jldap-beans.xml" />-->
 
 <!-- Uncomment and configure to use the CandidateDetailsProvider -->
 	<import resource="candidate-details.xml" />
@@ -184,7 +184,7 @@
 
 <!-- Uncomment and configure to use the Federating UserDirectoryProvider. -->
 
-   <bean
+   <!--<bean
   		id="org.sakaiproject.user.api.UserDirectoryProvider"
   		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
   		init-method="init" destroy-method="destroy">
@@ -208,7 +208,7 @@
         init-method="init"
         destroy-method="destroy">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-    </bean>
+    </bean>-->
 	
 	<bean id="org.sakaiproject.user.detail.ValueEncryptionUtilities"
 		class="org.sakaiproject.user.detail.ValueEncryptionUtilities" init-method="init">
