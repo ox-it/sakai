@@ -19,15 +19,6 @@
     <module>common</module>
     <module>shared</module>
   </modules>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-text</artifactId>
-      <scope>compile</scope>
-      <version>1.7</version>
-    </dependency>
-  </dependencies>
   
 	<repositories> 
 		<repository> 
