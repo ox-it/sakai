@@ -772,7 +772,7 @@
 																	<h:outputText value="&nbsp;" escape="false"/>
 															</h:panelGroup>	
 									   						<h:panelGroup>
-									   							<h:outputText value="#{waiterWrapper.displayName}" escape="false"/>
+									   							<h:outputText value="#{waiterWrapper.displayName}" />
 									   						</h:panelGroup>				   					
 									   					</h:panelGrid>		  
 									   				</h:column>				   		

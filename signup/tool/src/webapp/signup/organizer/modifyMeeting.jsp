@@ -412,7 +412,7 @@
 							<h:dataTable id="meeting_coordinators" value="#{EditMeetingSignupMBean.allPossibleCoordinators}" var="coUser">
 								<h:column>
 									<h:selectBooleanCheckbox value="#{coUser.checked}"/>
-								    <h:outputText value="&nbsp;#{coUser.displayName}" escape="false" styleClass="longtext"/>
+								    <h:outputText value="&nbsp;#{coUser.displayName}" styleClass="longtext"/>
 								</h:column>
 							</h:dataTable>
 						</div>

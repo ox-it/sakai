@@ -270,7 +270,7 @@
 								<h:dataTable id="meeting_coordinators" value="#{NewSignupMeetingBean.allPossibleCoordinators}" var="coUser" styleClass="coordinatorTab">
 									<h:column>
 										<h:selectBooleanCheckbox value="#{coUser.checked}"/>
-									    <h:outputText value="&nbsp;#{coUser.displayName}" escape="false" styleClass="longtext"/>				
+									    <h:outputText value="&nbsp;#{coUser.displayName}" styleClass="longtext"/>				
 									</h:column>
 								</h:dataTable>																
 								
