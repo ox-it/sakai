@@ -35,8 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
@@ -50,7 +48,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
-import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.HiddenGroup;
@@ -97,7 +94,6 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
-import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
@@ -1653,7 +1649,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	replyText.append(getResourceBundleString("pvt_msg_at"));
 	replyText.append(" " +formattedCreateTime);
 	replyText.append(getResourceBundleString("pvt_msg_comma"));
-    replyText.append(" " + pm.getAuthor() + " ");
+    replyText.append(" " + FormattedText.escapeHtml(pm.getAuthor(), false) + " ");
     replyText.append(getResourceBundleString("pvt_msg_wrote")); 
 	replyText.append("</span>");
     	
@@ -1715,7 +1711,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    
 	    // populate replyToBody with the forwarded text
 		forwardedText.append(getResourceBundleString("pvt_msg_fwd_heading") + "<br /><br />" +
-	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {pm.getAuthor(), formattedCreateDate}) +  "<br />" +
+	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {FormattedText.escapeHtml(pm.getAuthor(), false), formattedCreateDate}) +  "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_to", new Object[] {pm.getRecipientsAsText()}) + "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_subject", new Object[] {pm.getTitle()}) + "<br />" +
 	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {getDetailMsg().getLabel()}) + "<br />");
@@ -1826,7 +1822,7 @@ private   int   getNum(char letter,   String   a)
 		replyallText.append(getResourceBundleString("pvt_msg_at"));
 		replyallText.append(" " +formattedCreateTime);
 		replyallText.append(getResourceBundleString("pvt_msg_comma"));
-		replyallText.append(" " + pm.getAuthor() + " ");
+		replyallText.append(" " + FormattedText.escapeHtml(pm.getAuthor(), false) + " ");
 		replyallText.append(getResourceBundleString("pvt_msg_wrote")); 
 		replyallText.append("</span>");
 	    	

@@ -195,7 +195,7 @@ Markup note: Markup is defined in "fragments" (due to how Velocity parses, these
 		<div class="text-warning">
 		#foreach($duser in $!multipleGroupUsers)
 			#if ($velocityCount > 1), #end
-			$duser
+			$validator.escapeHtm($duser)
 		#end
 	</div>
 	</p>

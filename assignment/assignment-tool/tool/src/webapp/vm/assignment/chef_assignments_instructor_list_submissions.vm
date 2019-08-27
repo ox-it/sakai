@@ -660,9 +660,9 @@
 												<span>
 											#end
 											#if($reviewersMap.containsKey($item.getAssessorUserId()))
-												$!reviewersMap.get($item.getAssessorUserId()).sortName
+												$validator.escapeHtml($!reviewersMap.get($item.getAssessorUserId()).sortName)
 											#else
-												$!item.getAssessorUserId()
+												$validator.escapeHtml($!item.getAssessorUserId())
 											#end
 											</span>
 											</a>

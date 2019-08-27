@@ -55,7 +55,7 @@
 								
 								<%-- organiser --%>
 								<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
-								<h:outputText value="#{NewSignupMeetingBean.instructorName}" styleClass="longtext" escape="false"/>
+								<h:outputText value="#{NewSignupMeetingBean.instructorName}" styleClass="longtext"/>
 								
 								<%--  description --%>
 								<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>

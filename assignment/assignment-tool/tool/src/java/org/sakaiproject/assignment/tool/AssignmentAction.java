@@ -7386,7 +7386,7 @@ public class AssignmentAction extends PagedResourceActionII
 				if (_it.hasNext()) _sb.append(_it.next());
 				while (_it.hasNext())
 					_sb.append(", " + _it.next());
-				addAlert(state, _sb.toString());
+				addAlert(state, FormattedText.escapeHtml(_sb.toString(), false));
 				M_log.warn(this + ":post_save_assignment at least one user in multiple groups.");
 			}
 		}
@@ -16164,7 +16164,7 @@ public class AssignmentAction extends PagedResourceActionII
 	        while (_it.hasNext()) {
 	            _sb.append(", " + _it.next());
 	        }
-	        addAlert(state, _sb.toString());
+	        addAlert(state, FormattedText.escapeHtml(_sb.toString(), false));
 	    }
 	    return _dupUsers;
 	}
