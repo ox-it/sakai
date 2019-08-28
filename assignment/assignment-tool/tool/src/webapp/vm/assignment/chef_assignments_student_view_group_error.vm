@@ -56,7 +56,7 @@
                                                                         ##if ($!alertMessage.indexOf($user.getDisplayName() > 0)
                                                                         ##    <span style="color: #B11;">$user.getDisplayName()</span>
                                                                         ##else
-                                                                            $user.getDisplayName()
+                                                                            $validator.escapeHtml($user.getDisplayName())
                                                                         ##end
 									#if ($velocityCount < $gusers.size()),#end
 								#end
