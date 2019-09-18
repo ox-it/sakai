@@ -122,9 +122,9 @@
                 <module>webservices</module>
 
 		<!-- OWL -->
-                <module>externals/certification</module>
+                <!-- <module>externals/certification</module> OWLTODO: certification is currently breaking the build -->
                 <module>externals/ezproxy</module>
-                <module>externals/owl-quartz-jobs</module>
+                <!-- <module>externals/owl-quartz-jobs</module> OWLTODO: owl-quartz-jobs is currently breaking the build -->
                 <module>externals/sakora-csv</module>
                 <!-- OWLTODO: scorm currently breaks our startup - causes a fatal Hibernate exception to occur in kernel, BasicConfigurationService line 184; omitting Scorm resolves the issue -->
                 <!--module>externals/scorm</module-->
