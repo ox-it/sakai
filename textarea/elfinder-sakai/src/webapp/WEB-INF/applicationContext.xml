@@ -59,6 +59,13 @@
 							<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 							<property name="scormContentService" ref="org.sakaiproject.scorm.service.api.ScormContentService" />
 						</bean>
+
+						<bean class="org.sakaiproject.elfinder.sakai.ezproxy.EZProxySiteVolumeFactory">
+							<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+							<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+							<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+							<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+						</bean>
 					</set>
 				</property>
 			</bean>
