@@ -124,7 +124,7 @@
 		<!-- OWL -->
                 <!-- <module>externals/certification</module> OWLTODO: certification is currently breaking the build -->
                 <module>externals/ezproxy</module>
-                <!-- <module>externals/owl-quartz-jobs</module> OWLTODO: owl-quartz-jobs is currently breaking the build -->
+                <module>externals/owl-quartz-jobs</module>
                 <module>externals/sakora-csv</module>
                 <module>externals/scorm</module>
             </modules>
