@@ -1307,6 +1307,57 @@ ALTER TABLE SAM_ITEM_T ADD ISEXTRACREDIT NUMBER(1);
 ALTER TABLE SAM_PUBLISHEDITEM_T ADD ISEXTRACREDIT NUMBER(1);
 -- END SAK-34741
 
+-- START SAK-42700
+ALTER TABLE rbc_evaluation MODIFY (
+   ownerType varchar2(99),
+   evaluated_item_owner_id varchar2(99),
+   evaluator_id varchar2(99),
+   creatorId varchar2(99),
+   ownerId varchar2(99)
+);
+
+CREATE INDEX rbc_eval_owner ON rbc_evaluation(ownerId);
+
+ALTER TABLE rbc_tool_item_rbc_assoc MODIFY (
+   ownerType varchar2(99),
+   toolId varchar2(99),
+   creatorId varchar2(99),
+   ownerId varchar2(99)
+);
+
+CREATE INDEX rbc_tool_item_owner ON rbc_tool_item_rbc_assoc(toolId, itemId, ownerId);
+
+ALTER TABLE rbc_criterion MODIFY (
+   ownerType varchar2(99),
+   creatorId varchar2(99),
+   ownerId varchar2(99)
+);
+
+ALTER TABLE rbc_rating MODIFY (
+   ownerType varchar2(99),
+   creatorId varchar2(99),
+   ownerId varchar2(99)
+);
+
+ALTER TABLE rbc_rubric MODIFY (
+   ownerType varchar2(99),
+   creatorId varchar2(99),
+   ownerId varchar2(99)
+);
+-- End SAK-42700
+
+-- START SAK-42400
+ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD FEEDBACKENDDATE TIMESTAMP (6);
+ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD FEEDBACKENDDATE TIMESTAMP (6);
+ALTER TABLE SAM_ASSESSACCESSCONTROL_T ADD FEEDBACKSCORETHRESHOLD FLOAT(126);
+ALTER TABLE SAM_PUBLISHEDACCESSCONTROL_T ADD FEEDBACKSCORETHRESHOLD FLOAT(126);
+-- END SAK-42400
+
+---------------------------------------- CONTRIB -----------------------------------------
+
+ALTER TABLE SCORM_CONTENT_PACKAGE_T ADD (SHOW_TOC NUMBER(1,0) DEFAULT 0 NOT NULL);
+ALTER TABLE SCORM_CONTENT_PACKAGE_T ADD (SHOW_NAV_BAR NUMBER(1,0) DEFAULT 0 NOT NULL);
+
 ----------------------------------- OWL SPECIFIC STUFF -----------------------------------
 
 DELETE FROM QRTZ_TRIGGERS WHERE JOB_NAME IN ('TII Content Review Reports', 'TII Content Review Queue');
