@@ -38,10 +38,16 @@ body.is-logged-out{
 		@include transition( width 0.5s linear 0s );
 		.#{$namespace}headerLogo--institution{
 			background: url($logo) no-repeat center center;
-			width: 		$logo-width;
+			width: $tool-menu-width;
 			height: 100%; // align vertically center
 			float: left;
 			background-size: $logo-width $logo-height;
+			margin-left: -#{$standard-spacing};
+
+			@media #{$phone} {
+				width: $logo-width;
+				margin-left: 0;
+			}
 		}
 	}
 
