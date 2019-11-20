@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.novell.ldap.LDAPAttribute;
 import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.LDAPException;
@@ -36,11 +37,17 @@ import com.novell.ldap.LDAPJSSESecureSocketFactory;
 import com.novell.ldap.LDAPSearchConstraints;
 import com.novell.ldap.LDAPSearchResults;
 import com.novell.ldap.LDAPSocketFactory;
+
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.*;
 
 /**
@@ -63,7 +70,8 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public static final boolean DEFAULT_IS_SECURE_CONNECTION = false;
 
 	/**  Default LDAP access timeout in milliseconds */
-	public static final int DEFAULT_OPERATION_TIMEOUT_MILLIS = 5000;
+	//public static final int DEFAULT_OPERATION_TIMEOUT_MILLIS = 5000;  --plukasew
+	public static final int DEFAULT_OPERATION_TIMEOUT_MILLIS = 30000;
 
 	/** Default referral following behavior */
 	public static final boolean DEFAULT_IS_FOLLOW_REFERRALS = false;
@@ -219,6 +227,26 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 */
 	private boolean authenticateWithProviderFirst = DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST;
 
+	/* Begin authorize by attribute variables  --plukasew */
+
+	// sakai.properties names
+	private static final String AUTHORIZE_BY_ATTRIBUTE_ENABLED_SAKAI_PROPERTY = "jldap.authorizeByAttribute.enabled";
+	private static final String AUTHORIZE_BY_ATTRIBUTE_NAME_SAKAI_PROPERTY = "jldap.authorizeByAttribute.attributeName";
+	private static final String AUTHORIZE_BY_ATTRIBUTE_VALUES_SAKAI_PROPERTY = "jldap.authorizeByAttribute.restrictedValues";
+
+	@Getter @Setter private ServerConfigurationService serverConfigurationService;
+
+	// toggle switch for authorization by attribute (disabled if not set)
+	private boolean authorizeByAttributeEnabled;
+
+	// name of attribute to authorize on
+	private String authorizeByAttributeName;
+
+	// restricted values (postive match any of these values will cause authentication/authorization to fail )
+	private List<String> authorizeByAttributeRestrictedValues;
+
+	/* End authorize by attribute variables */
+
 	public JLDAPDirectoryProvider() {
 		if ( log.isDebugEnabled() ) {
 			log.debug("instantating JLDAPDirectoryProvider");
@@ -252,6 +280,10 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		initLdapConnectionManager();
 		initLdapAttributeMapper();
 
+		// authorization by attribute variable init  --plukasew
+		authorizeByAttributeEnabled = serverConfigurationService.getBoolean(AUTHORIZE_BY_ATTRIBUTE_ENABLED_SAKAI_PROPERTY, false);
+		authorizeByAttributeName = serverConfigurationService.getString(AUTHORIZE_BY_ATTRIBUTE_NAME_SAKAI_PROPERTY, "");
+		authorizeByAttributeRestrictedValues = Arrays.asList(ArrayUtils.nullToEmpty(serverConfigurationService.getStrings(AUTHORIZE_BY_ATTRIBUTE_VALUES_SAKAI_PROPERTY)));
 	}
 
 	/**
@@ -449,6 +481,59 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 				log.debug("authenticateUser(): successfully allocated bound connection [userLogin = " + 
 						userLogin + "][bind dn [" + endUserDN + "]");
 			}
+
+			/* Begin authorization by attribute check   --plukasew */
+			if (authorizeByAttributeEnabled)
+			{
+				log.debug("authenticateUser(): authorization by attribute: checking {} for restricted values.", authorizeByAttributeName);
+
+				// bjones86 - OWL-1363
+				// extra logging  --plukasew
+				if( conn == null)
+				{
+					log.warn("conn is null after successful bind [userLogin = {}][bind dn [{}]", userLogin, endUserDN);
+				}
+				else
+				{
+					String authenticationDN = conn.getAuthenticationDN();
+					if (authenticationDN == null)
+					{
+						log.warn("authenticationDN is null for [userLogin = {}][bind dn [{}]", userLogin, endUserDN);
+					}
+
+					if( authenticationDN != null && !authenticationDN.isEmpty() )
+					{
+						// now have a connection bound to the authenticated user
+						// grab their ldap entry and check to see if they have one of the restricted values
+						LDAPEntry entry = conn.read(authenticationDN);
+						if (entry != null)
+						{
+							LDAPAttribute restrictedAttribute = entry.getAttribute(authorizeByAttributeName);
+							if (restrictedAttribute != null)
+							{
+								// ldap attribute could be multi-value, so check them all
+								String[] restrictedValues = restrictedAttribute.getStringValueArray();
+								if (restrictedValues != null)
+								{
+									List<String> values = Arrays.asList(restrictedValues);
+									for (String value : values)
+									{
+										if (authorizeByAttributeRestrictedValues.contains(value))
+										{
+											AuthorizationByAttributeFailedException abafe = new AuthorizationByAttributeFailedException("Authorization check failed.");
+											abafe.setAttributeName(authorizeByAttributeName);
+											abafe.setAttributeValue(value);
+											throw abafe;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			/* End restricted attribute check */
+
 			return true;
 
 		}
@@ -467,7 +552,14 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 									userLogin + "][result code = " + e.resultCodeToString() +
 									"][error message = " + e.getLDAPErrorMessage() + "]", e);
 			}
-		} catch ( Exception e ) {
+		}
+		catch (AuthorizationByAttributeFailedException abafe)
+		{
+			log.warn("authenticateUser(): authorization by attribute failed [userLogin = {}][attribute = {}][value = {}]",
+					 userLogin, abafe.getAttributeName(), abafe.getAttributeValue());
+			return false;
+		}
+		catch ( Exception e ) {
 			throw new RuntimeException(
 					"authenticateUser(): Exception during authentication attempt [userLogin = "
 					+ userLogin + "]", e);

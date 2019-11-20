@@ -26,6 +26,8 @@ import org.jmock.cglib.MockObjectTestCase;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
 
+import org.sakaiproject.user.api.UserEdit;
+
 import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPEntry;
 import com.novell.ldap.LDAPException;
@@ -82,6 +84,7 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		mockEntry = mock(LDAPEntry.class);
 		entry = (LDAPEntry)mockEntry.proxy();
 		provider.setMemoryService(new MemoryService());
+		provider.setServerConfigurationService(new MockServerConfigurationService());
 		
 		mockConnManager.expects(once()).method("setConfig").with(same(provider));
 		mockConnManager.expects(once()).method("init");
