@@ -122,7 +122,7 @@
                 <module>webservices</module>
 
 		<!-- OWL -->
-                <!-- <module>externals/certification</module> OWLTODO: certification is currently breaking the build -->
+                <module>externals/certification</module>
                 <module>externals/ezproxy</module>
                 <module>externals/owl-quartz-jobs</module>
                 <module>externals/sakora-csv</module>
