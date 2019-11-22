@@ -1,7 +1,9 @@
 //*** OWL Custom Defaults ***\\
 
 // Colours
-$primary-color:    			 #4f2683;
+$primary-color:				 #4f2683;
+$primary-color-highlight:	 lighten($primary-color, 10);
+$primary-color-shadow:		 darken($primary-color, 5);
 $background-color-secondary: #000;
 
 // Banner
@@ -12,3 +14,12 @@ $logo-width: 120px;
 $focus-outline-width: 2px;
 $focus-outline-color: #807f83; //tried #a590c0; //was originally #5b9dd9;
 $focus-outline-offset: 1px;
+
+// Buttons
+$button-primary-border-color: 				$primary-color;
+$button-primary-background: 				linear-gradient(#6e43a5 0%, $primary-color 80%);
+$button-primary-hover-background: 			$primary-color;
+$button-primary-hover-border-color: 		$primary-color;
+$button-active-shadow-color: 				rgba(0, 0, 0, 0.6);
+
+$sites-nav-menu-item-selected-border-color: $primary-color-highlight;

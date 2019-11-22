@@ -35,7 +35,7 @@ $font-family: "Open Sans",sans-serif;
 $default-font-size: 14px !default;
 $default-font-size-small: 12px;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
-$default-line-height: 1.42857;											// 20px / 14px = 1.42857
+$default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
 $header-font-family: $font-family;
 $header-font-weight: 700 !default;										// 400 or 700 as you wish
 
@@ -130,8 +130,8 @@ $button-hover-shadow:           $button-shadow !default;
 $button-active-text-color:      $button-text-color;
 $button-active-background:      linear-gradient(#f9f9f9, #fff);	//note: inverse order from above
 $button-active-border-color:    $button-hover-border-color;
-$button-active-shadow-color:    rgba(0, 0, 0, 0.3);
 $button-active-shadow:          inset 0 0 $standard-spacing $button-active-shadow-color !default;
+$button-active-shadow-color:    rgba(0, 0, 0, 0.3) !default;
 // disabled state:
 $button-disabled-text-color:    #717171;
 $button-disabled-background:    #f6f6f6;
@@ -141,15 +141,15 @@ $button-disabled-font-weight:   300;
 
 // Primary action button design:
 $button-primary-text-color:                 #fff;
-$button-primary-background:                 $primary-color;
-$button-primary-border-color:               #326b97;
+$button-primary-background:                 $primary-color !default;
+$button-primary-border-color:               #326b97 !default;
 $button-primary-text-transform:             none !default;
 $button-primary-font-weight:                400 !default;
 $button-primary-shadow:                     $button-shadow !default;
 // hover and focus states for primary action button:
 $button-primary-hover-text-color:           $button-primary-text-color;
-$button-primary-hover-background:           #176691;
-$button-primary-hover-border-color:         #124466;
+$button-primary-hover-background:           #176691 !default;
+$button-primary-hover-border-color:         #124466 !default;
 $button-primary-hover-shadow:               $button-shadow !default;
 // active state for primary action button:
 $button-primary-active-text-color:          $button-primary-text-color;

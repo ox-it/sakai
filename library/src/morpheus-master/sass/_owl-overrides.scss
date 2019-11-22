@@ -1,0 +1,17 @@
+//*** OWL Overrides of Previously-defined Styles ***\\
+
+.#{$namespace}footer 
+{
+	.#{$namespace}footer--project 
+	{
+		display: flex;
+		align-items: center;
+	}
+	.#{$namespace}footer--poweredby__image
+	{
+		box-sizing: content-box; 					// so width only controls the image's size
+		width: 60px;
+		padding: 0 $standard-spacing;				// to center image for focus outline
+		margin-right: -#{$standard-spacing};		// to compensate for extra footer padding
+	}
+}
