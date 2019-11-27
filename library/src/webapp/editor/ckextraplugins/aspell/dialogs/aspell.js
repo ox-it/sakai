@@ -30,7 +30,8 @@ CKEDITOR.dialog.add('aspell', function( editor )
 				if (typeof interval !== 'undefined')
 					window.clearInterval(interval);
 
-				var spellCheckScript = editor.plugins.aspell.path+'spellerpages/server-scripts/spellchecker.php';
+				//var spellCheckScript = editor.plugins.aspell.path+'spellerpages/server-scripts/spellchecker.php';
+				var spellCheckScript = editor.plugins.aspell.path+'spellerpages/server-scripts/spellchecker.jsp'; // bjones86
 				if (typeof editor.config.aspell_scriptLanguage !== 'undefined') {
 					spellCheckScript = editor.plugins.aspell.path
 						+ 'spellerpages/server-scripts/spellchecker.'+editor.config.aspell_scriptLanguage;
