@@ -11391,6 +11391,13 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(RUBRIC_STATE_DETAILS);
 
         state.removeAttribute(NEW_ASSIGNMENT_PREVIOUSLY_ASSOCIATED);
+
+        state.removeAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW);
+        state.removeAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_CHECK_INSTITUTION);
+        state.removeAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_BIBLIOGRAPHIC);
+        state.removeAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_EXCLUDE_QUOTED);
+        state.removeAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_STORE_INST_INDEX);
+        state.removeAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO);
     } // resetNewAssignment
 
     /**
