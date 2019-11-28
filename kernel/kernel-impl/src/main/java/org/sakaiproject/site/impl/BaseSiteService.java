@@ -39,6 +39,7 @@ import org.w3c.dom.Element;
 import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -415,7 +416,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @return the AuthzGroupService collaborator.
 	 */
 	protected abstract AuthzGroupService authzGroupService();
-	
+
+	/**
+	 * @return the EmailService collaborator.
+	 */
+	protected abstract EmailService emailService();
+
 	/**
 	 * @return the ActiveToolManager collaborator.
 	 */
@@ -505,7 +511,7 @@ public abstract class BaseSiteService implements SiteService, Observer
                         
             // sfoster9@uwo.ca
             // assign a new JoinSiteDelegate to handle the join methods; provide it services from this class
-            joinSiteDelegate = new JoinSiteDelegate( this, securityService(), userDirectoryService() );
+            joinSiteDelegate = new JoinSiteDelegate( this, securityService(), userDirectoryService(), emailService() );
 			
 			// SAK-29138
 			m_siteTitleAdvisor = (SiteTitleAdvisor) ComponentManager.get( SiteTitleAdvisor.class );
@@ -1779,6 +1785,14 @@ public abstract class BaseSiteService implements SiteService, Observer
 			throw new PermissionException(user, AuthzGroupService.SECURE_UPDATE_OWN_AUTHZ_GROUP, siteReference(id));
 		}
 
+		// sfoster9@uwo.ca
+		// the user must have an allowed account type, if enabled
+		if (!isAllowedToJoin(id))
+		{
+			log.warn("User attempted to join the site '{}', but doesn't have the allowed account type:", id);
+			throw new PermissionException(user, AuthzGroupService.SECURE_UPDATE_OWN_AUTHZ_GROUP, siteReference(id));
+		}
+
 		// the role to assign
 		String roleId = site.getJoinerRole();
 		if (roleId == null)
@@ -1818,6 +1832,20 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			log.error(String.format("Unexpected exception joining user %s to group in site %s: ", user, id), e);
 		}
+
+		try
+		{
+			// if email notifications are set to be sent on join
+			if (isJoinNotificationToggled(id))
+			{
+				// ... send email notification
+				joinSiteDelegate.sendEmailNotification(id);
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("Unexpected exception when sending join notification email for user {} joined site {}", user, id, e);
+		}
 	}
         
     /**
@@ -1839,6 +1867,15 @@ public abstract class BaseSiteService implements SiteService, Observer
         
         // pass to the JoinDelegate method to handle the logic
         return joinSiteDelegate.isAllowedToJoin(site);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean isUserLoggedIn()
+	{
+		// pass to the JoinDelegate method to handle the logic
+		return joinSiteDelegate.isUserLoggedIn();
 	}
 
 	/**
@@ -1900,7 +1937,23 @@ public abstract class BaseSiteService implements SiteService, Observer
     {
         return joinSiteDelegate.isLimitByAccountTypeEnabled(siteID);
     }
-    
+
+    /**
+     * @inheritDoc
+     */
+    public boolean getBooleanSiteProperty(String siteID, String propertyName)
+    {
+        return joinSiteDelegate.getBooleanSiteProperty(siteID, propertyName);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public boolean isJoinNotificationToggled(String siteID)
+    {
+        return joinSiteDelegate.isJoinNotificationToggled(siteID);
+    }
+
     /** 
      * @inheritDoc
      */
@@ -1932,7 +1985,15 @@ public abstract class BaseSiteService implements SiteService, Observer
     {
     	return joinSiteDelegate.getGlobalJoinGroupEnabled();
     }
-    
+
+    /**
+     * @inheritDoc
+     */
+    public boolean isGlobalJoinNotificationEnabled()
+    {
+        return joinSiteDelegate.getGlobalJoinNotificationEnabled();
+    }
+
     /** 
      * @inheritDoc
      */
@@ -2285,6 +2346,23 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page) {
 	    return storage().getSiteIds(type, ofType, criteria, propertyCriteria, sort, page);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<Site> getUserSites(String userId)
+	{
+		return getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null,
+			org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null, userId);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, String userId)
+	{
+		return m_storage.getSites(type, ofType, criteria, propertyCriteria, sort, page, userId);
 	}
 
 	/**
@@ -3192,7 +3270,28 @@ public abstract class BaseSiteService implements SiteService, Observer
 		 * @return The List of Site objects that meet specified criteria.
 		 */
 		public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId);
-		
+
+		/**
+		 * Access a list of Site objects that meet specified criteria.
+		 *
+		 * @param type
+		 *        The SelectionType specifying what sort of selection is intended.
+		 * @param ofType
+		 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
+		 * @param criteria
+		 *        Additional selection criteria: sites returned will match this string somewhere in their id, title, description, or skin.
+		 * @param propertyCriteria
+		 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose return values match (somewhere in their value) the value in the map (may be null or empty).
+		 * @param sort
+		 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
+		 * @param page
+		 *        The PagePosition subset of items to return.
+		 * @param userId
+		 *        The returned sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
+		 * @return The List (Site) of Site objects that meet specified criteria.
+		 */
+		public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, String userId);
+
 		/**
 		 * Access a list of Site objects that meet specified criteria, with control over description retrieval.
 		 * Note that this signature is primarily provided to help with performance when retrieving lists of
