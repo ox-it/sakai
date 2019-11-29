@@ -4323,9 +4323,10 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
     }
 
     /**
-     * Gets all attachments in the submission that are acceptable to the content review service
+     * {@inheritDoc}
      */
-    private List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission s) {
+    @Override
+    public List<ContentResource> getAllAcceptableAttachments(AssignmentSubmission s) {
         List<ContentResource> attachments = new ArrayList<>();
         for (String attachment : s.getAttachments()) {
             Reference attachmentRef = entityManager.newReference(attachment);
