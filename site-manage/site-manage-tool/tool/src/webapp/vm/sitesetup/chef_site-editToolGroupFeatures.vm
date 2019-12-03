@@ -17,13 +17,15 @@
 
         #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 
+        #if (!$enableReUseMaterials)<div class="sak-banner-info">$tlang.getString("feat.notAvail")</div>#end
+
         <form name="featuresForm" action="#toolForm("$action")" method="post">
             <input type="hidden" name="option" value="add" />
             <input type="hidden" name="eventSubmit_doAdd_features" value="x" />
 
                 #parse("/vm/sitesetup/toolGroupMultipleDisplay.vm")
 
-                #if (!$existSite && !$createFromArchive && $sites.size() > 0)
+                #if ($enableReUseMaterials && !$existSite && !$createFromArchive && $sites.size() > 0)
                 <fieldset style="clear: both">
                     <legend>
                         <h4>$tlang.getString("feat.reuse")</h4>
@@ -58,7 +60,7 @@
                 <p class="instruction" id="importSelectInstructions">
                     $tlang.getString("feat.note")
                 </p>
-            #end
+                #end
             <input type="hidden" name="back" value="$!backIndex" />
             <input type="hidden" name="templateIndex" value="$!templateIndex" />
             <p class="act" style="float: none;clear:both">

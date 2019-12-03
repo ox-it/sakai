@@ -424,6 +424,9 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String SAK_PROP_DEFAULT_SITE_VIS = "wsetup.defaultSiteVisibility";
 	private static final boolean SAK_PROP_DEFAULT_SITE_VIS_DFLT = true;
 
+	private static final String SAK_PROP_ENABLE_RE_USE_MATERIALS = "wsetup.enable.reuse.materials";
+	private static final boolean SAK_PROP_ENABLE_RE_USE_MATERIALS_DFLT = true;
+
 	private final static String STATE_SITE_QUEST_UNIQNAME = "site_quest_uniqname";
 	
 	private static final String STATE_SITE_ADD_COURSE = "canAddCourse";
@@ -1802,6 +1805,7 @@ public class SiteAction extends PagedResourceActionII {
 					null, null, null, SortType.TITLE_ASC, null));
 			context.put("import", state.getAttribute(STATE_IMPORT));
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
+			context.put("enableReUseMaterials", ServerConfigurationService.getBoolean(SAK_PROP_ENABLE_RE_USE_MATERIALS, SAK_PROP_ENABLE_RE_USE_MATERIALS_DFLT));
 			if (site != null)
 			{
 				// Add the menus to vm
