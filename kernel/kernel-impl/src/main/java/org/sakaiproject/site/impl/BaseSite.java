@@ -836,7 +836,7 @@ public class BaseSite implements Site
 	}
 
 	public Date getCreatedDate() {
-		return new Date(m_createdTime.getTime());
+		return m_createdTime != null ? new Date(m_createdTime.getTime()) : null;
 	}
 	
 	/**
