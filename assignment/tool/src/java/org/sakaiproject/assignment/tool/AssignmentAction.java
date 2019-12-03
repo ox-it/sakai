@@ -9509,7 +9509,13 @@ public class AssignmentAction extends PagedResourceActionII {
                         // remove rubric association if there is one
                         rubricsService.deleteRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, id);
 
+                        // Before deleting, grab the taskId used for the content review service (only if the assignment uses content review)
+                        Optional<String> taskIdForContentReview = a.getContentReview() ? Optional.of(AssignmentReferenceReckoner.reckoner().assignment(a).reckon().getReference()) : Optional.empty();
+
                         assignmentService.deleteAssignment(a);
+
+                        // Do any necessary clean up wrt the content review service
+                        taskIdForContentReview.ifPresent(taskId -> contentReviewService.deleteAssignment((String) state.getAttribute(STATE_CONTEXT_STRING), taskId));
                     }
 
                 } catch (IdUnusedException | PermissionException e) {
