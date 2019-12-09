@@ -26,3 +26,4 @@ rsf/sakai-rsf-web/test/overlays
 assets
 reference/library/
 externals/turnitin
+library/src/webapp/js/mathjax
