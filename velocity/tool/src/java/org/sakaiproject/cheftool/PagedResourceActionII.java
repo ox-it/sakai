@@ -519,17 +519,22 @@ public abstract class PagedResourceActionII extends VelocityPortletPaneledAction
 		// find the position of the message that is the top first on the page
 		if ((state.getAttribute(STATE_TOP_PAGE_MESSAGE) != null) && (state.getAttribute(STATE_PAGESIZE) != null))
 		{
-			int topMsgPos = ((Integer) state.getAttribute(STATE_TOP_PAGE_MESSAGE)).intValue() + 1;
+			int pageSize = (Integer) state.getAttribute(STATE_PAGESIZE);
+			context.put("pagesize", Integer.toString(pageSize));
+			context.put("pagesizeInt", pageSize);
+			context.put("pagesizes", PAGESIZES);
+
+			int topMsgPos = ((Integer) state.getAttribute(STATE_TOP_PAGE_MESSAGE)) + 1;
 			context.put("topMsgPos", Integer.toString(topMsgPos));
-			context.put("topMsgPosInt", new Integer(topMsgPos));
-			int btmMsgPos = topMsgPos + ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue() - 1;
+			context.put("topMsgPosInt", topMsgPos);
+			int btmMsgPos = topMsgPos + pageSize - 1;
 			if (state.getAttribute(STATE_NUM_MESSAGES) != null)
 			{
-				int allMsgNumber = ((Integer) state.getAttribute(STATE_NUM_MESSAGES)).intValue();
+				int allMsgNumber = ((Integer) state.getAttribute(STATE_NUM_MESSAGES));
 				if (btmMsgPos > allMsgNumber) btmMsgPos = allMsgNumber;
 			}
 			context.put("btmMsgPos", Integer.toString(btmMsgPos));
-			context.put("btmMsgPosInt", new Integer(btmMsgPos));
+			context.put("btmMsgPosInt", btmMsgPos);
 		}
 
 		boolean goPPButton = state.getAttribute(STATE_PREV_PAGE_EXISTS) != null;
