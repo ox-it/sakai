@@ -9178,6 +9178,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 												userDeleted, true));
 					}
 				}
+
+				if (ServerConfigurationService.getBoolean(SiteHelper.WSETUP_FORCE_REFRESH_GROUP_ON_SECTION_CHANGE, false) && realmEdit != null)
+				{
+					authzGroupService.refreshAuthzGroup(realmEdit);
+				}
 			} catch (GroupNotDefinedException e) {
 				addAlert(state, rb.getString("java.problem2"));
 				log.error(this + ".doUpdate_participant: IdUnusedException " + s.getTitle() + "(" + realmId + "). ", e);
