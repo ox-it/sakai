@@ -251,8 +251,10 @@ public class EmailUtil {
         buffer.append(resourceLoader.getString("noti.site.title")).append(" ").append(siteTitle).append(NEW_LINE);
         buffer.append(resourceLoader.getString("noti.site.url")).append(" <a href=\"").append(siteUrl).append("\">").append(siteUrl).append("</a>").append(NEW_LINE).append(NEW_LINE);
         // notification text
-        String linkToToolInSite = "<a href=\"" + getAssignmentUrl(assignment) + "\">" + siteTitle + "</a>";
-        buffer.append(resourceLoader.getFormattedMessage("noti.releasegrade.text", assignment.getTitle(), linkToToolInSite));
+        String url = developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null);
+        String linkToToolInSite1 = "<a href=\"" + url + "\">" + siteTitle + "</a>";
+        String linkToToolInSite2 = "<a href=\"" + url + "\">" + url + "</a>";
+        buffer.append(resourceLoader.getFormattedMessage("noti.releasegrade.text", assignment.getTitle(), linkToToolInSite1, linkToToolInSite2));
 
         return buffer.toString();
     }
@@ -286,11 +288,13 @@ public class EmailUtil {
             }
         }
 
-        String linkToToolInSite = "<a href=\"" + getAssignmentUrl(assignment) + "\">" + siteTitle + "</a>";
+        String url = developerHelperService.getToolViewURL("sakai.assignment.grades", null, null, null);
+        String linkToToolInSite1 = "<a href=\"" + url + "\">" + siteTitle + "</a>";
+        String linkToToolInSite2 = "<a href=\"" + url + "\">" + url + "</a>";
         if (assignmentService.canSubmit(assignment, userId)) {
-            buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.text", assignment.getTitle(), linkToToolInSite));
+            buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.text", assignment.getTitle(), linkToToolInSite1, linkToToolInSite2));
         } else {
-            buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.noresubmit.text", assignment.getTitle(), linkToToolInSite));
+            buffer.append(resourceLoader.getFormattedMessage("noti.releaseresubmission.noresubmit.text", assignment.getTitle(), linkToToolInSite1, linkToToolInSite2));
         }
 
         return buffer.toString();

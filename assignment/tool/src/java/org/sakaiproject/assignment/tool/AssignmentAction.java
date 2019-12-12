@@ -9936,6 +9936,11 @@ public class AssignmentAction extends PagedResourceActionII {
 
     } // doReport_submissions
 
+    public void doAssignment_form(RunData data, Context context)
+    {
+        doAssignment_form(data);
+    }
+
     /**
      *
      *
