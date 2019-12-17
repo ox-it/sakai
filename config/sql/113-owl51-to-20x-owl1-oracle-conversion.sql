@@ -1415,3 +1415,27 @@ ALTER TABLE SAKORA_SESSION MODIFY INPUT_TIME NUMBER(10,0) DEFAULT NULL;
 -- SAK-42498
 ALTER TABLE BULLHORN_ALERTS DROP COLUMN ALERT_TYPE;
 -- END SAK-42498
+
+-- OWL-3739/CC-9
+ALTER TABLE cert_field_mapping RENAME TO certificate_field_mapping;
+
+UPDATE certificate_criterion
+SET type = 'org.sakaiproject.certification.api.criteria.gradebook.GreaterThanScoreCriterion'
+WHERE type = 'com.rsmart.certification.impl.hibernate.criteria.gradebook.GreaterThanScoreCriterionHibernateImpl';
+
+UPDATE certificate_criterion
+SET type = 'org.sakaiproject.certification.api.criteria.gradebook.WillExpireCriterion'
+WHERE type = 'com.rsmart.certification.impl.hibernate.criteria.gradebook.WillExpireCriterionHibernateImpl';
+
+UPDATE certificate_criterion
+SET type = 'org.sakaiproject.certification.api.criteria.gradebook.FinalGradeScoreCriterion'
+WHERE type = 'com.rsmart.certification.impl.hibernate.criteria.gradebook.FinalGradeScoreCriterionHibernateImpl';
+
+UPDATE certificate_criterion
+SET type = 'org.sakaiproject.certification.api.criteria.gradebook.DueDatePassedCriterion'
+WHERE type = 'com.rsmart.certification.impl.hibernate.criteria.gradebook.DueDatePassedCriterionHibernateImpl';
+
+UPDATE sakai_site_tool
+SET registration = 'sakai.certification'
+WHERE registration = 'com.rsmart.certification';
+-- END OWL-3739/CC-9
