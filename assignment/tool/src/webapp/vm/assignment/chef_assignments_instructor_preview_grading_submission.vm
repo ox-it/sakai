@@ -79,7 +79,7 @@
         ## Submission Attachments
         #set ($sAttachments = $!submission.Attachments)
         #if ($sAttachments)
-            #set ($size = $sAttachments.size())
+            #set ($size = $submissionAttachmentReferences.size())
             #if ($size > 0)
                 <h4>
                     #if ($!assignment.TypeOfSubmission.ordinal() == 5)
