@@ -11,6 +11,21 @@
     <artifactId>solr-impl</artifactId>
     <name>Sakai search - Solr impl</name>
 
+
+    <repositories>
+        <!-- The tika-parsers dependency is pulling in lots of other repositories and this one isn't responding -->
+        <repository>
+            <id>mvmsearch</id>
+            <url>http://www.mvnsearch.org/maven2/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- Dependencies -->
         <dependency>
@@ -26,6 +41,7 @@
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
         </dependency>
+        <!-- This causes the request to mvnsearch -->
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers</artifactId>
