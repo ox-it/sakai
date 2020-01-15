@@ -12,40 +12,6 @@ import java.io.OutputStream;
 public interface SakaiProxy {
 
 	/**
-	 * Get current siteid
-	 * @return
-	 */
-	public String getCurrentSiteId();
-	
-	/**
-	 * Get current user id
-	 * @return
-	 */
-	public String getCurrentUserId();
-	
-	/**
-	 * Get current user display name
-	 * @return
-	 */
-	public String getCurrentUserDisplayName();
-	
-	/**
-	 * Is the current user a superUser? (anyone in admin realm)
-	 * @return
-	 */
-	public boolean isSuperUser();
-	
-	/**
-	 * Post an event to Sakai
-	 * 
-	 * @param event			name of event
-	 * @param reference		reference
-	 * @param modify		true if something changed, false if just access
-	 * 
-	 */
-	public void postEvent(String event,String reference,boolean modify);
-	
-	/**
 	 * Wrapper for ServerConfigurationService.getString("skin.repo")
 	 * @return
 	 */
