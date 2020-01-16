@@ -24,6 +24,17 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
+        <!-- The solr-core dependency uses restlet which has moved it's repository and needs overriding -->
+        <repository>
+            <id>maven-restlet</id>
+            <url>https://maven.restlet.talend.com/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <dependencies>
