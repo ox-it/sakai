@@ -19,42 +19,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private static final Logger log = Logger.getLogger(SakaiProxyImpl.class);
-    
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getCurrentSiteId(){
-		return toolManager.getCurrentPlacement().getContext();
-	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getCurrentUserId() {
-		return sessionManager.getCurrentSessionUserId();
-	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getCurrentUserDisplayName() {
-	   return userDirectoryService.getCurrentUser().getDisplayName();
-	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public boolean isSuperUser() {
-		return securityService.isSuperUser();
-	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public void postEvent(String event,String reference,boolean modify) {
-		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
-	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -97,39 +62,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 		log.info("init");
 	}
 	
-	private ToolManager toolManager;
-	
 	private SessionManager sessionManager;
-	
-	private UserDirectoryService userDirectoryService;
-	
-	private SecurityService securityService;
-	
-	private EventTrackingService eventTrackingService;
-	
+
 	private ServerConfigurationService serverConfigurationService;
 	
 	private SiteService siteService;
 
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.eventTrackingService = eventTrackingService;
-	}
 
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
@@ -140,4 +78,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.siteService = siteService;
 	}
 
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
 }
