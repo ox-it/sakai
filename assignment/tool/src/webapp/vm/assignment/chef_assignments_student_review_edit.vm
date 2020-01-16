@@ -135,6 +135,7 @@
 						#else
 							<ul class="attachList indnt1">
 								#foreach ($attachmentReference in $attachments)
+									#set ($reference = false)
 									#set ($reference = $submissionAttachmentReferences.get($attachmentReference))
 									#if ($reference)
 										#set ($props = false)

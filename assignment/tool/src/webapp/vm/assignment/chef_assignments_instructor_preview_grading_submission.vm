@@ -90,6 +90,7 @@
                 </h4>
                 <ul class="attachList indnt1">
                     #foreach ($attachmentReference in $sAttachments)
+                        #set ($reference = false)
                         #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
                         #if ($reference)
                             #set ($props = false)
