@@ -303,6 +303,11 @@ fieldset .alertMessageInline,fieldset .alertMessage {
     border: 1px solid transparent;
 }
 
+label.shortUrlLabel {
+    margin: 5px 0 0px 5px;
+    font-weight: bold;
+}
+
 .reviewStyle{
     color: red !important;
     font-size: 15px !important;
