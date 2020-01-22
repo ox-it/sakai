@@ -964,8 +964,9 @@ ASN.handleReportsTriangleDisclosure = function (header, content)
     }
 }
 
-ASN.displayCopyLink = function(assignmentCount)
+ASN.displayCopyLink = function(assignmentCount, directUrl)
 {
+    $('.' + assignmentCount + '_urlholder').attr("value", ASN.toggleShortUrlOutput(directUrl, $('#directToolUrl'), assignmentCount + '_urlholder'));
     $('#' + assignmentCount + '_copyLink').dialog("open");
 }
 
@@ -973,14 +974,14 @@ ASN.displayCopyLink = function(assignmentCount)
 // Copied from the portal module.
 ASN.toggleShortUrlOutput = function(defaultUrl, checkbox, textbox) {
 
-    if($PBJQ(checkbox).is(':checked')) {
-        $PBJQ.ajax({
-            url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+    if($(checkbox).is(':checked')) {
+        $.ajax({
+            url:'/direct/url/shorten?path='+encodeURIComponent(defaultUrl),
             success: function(shortUrl) {
-                $PBJQ('.'+textbox).val(shortUrl);
+                $('.'+textbox).val(shortUrl);
             }
         });
     } else {
-        $PBJQ('.'+textbox).val(defaultUrl);
+        $('.'+textbox).val(defaultUrl);
     }
 }

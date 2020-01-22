@@ -281,10 +281,10 @@
 												#end
 											#end
 											#if ($allowAddAssignment)#if($prevAction) | #else #set($prevAction=true)#end #end
-											<a href="javascript:void(0)" onclick="ASN.displayCopyLink(${assignmentCount})" title="Direct link to this assignment">$!tlang.getString("copylink")
+											<a href="javascript:void(0)" onclick="ASN.displayCopyLink(${assignmentCount}, '#toolLinkParam("$action" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")')" title="Direct link to this assignment">$!tlang.getString("copylink")
 												<div id="${assignmentCount}_copyLink" class="copyLinkPlaceholder" style="display:none">
-													<input type="checkbox" id="directToolUrl" onclick="ASN.toggleShortUrlOutput('#toolLinkParam("$action" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")', this, '${assignmentCount}_urlholder');"><label for="directToolUrl" class="shortUrlLabel">$!tlang.getString("gen.shorturl")</label>
-													<textarea class="${assignmentCount}_urlholder" name="Assignment URL" cols="80" rows="10" wrap="virtual">#toolLinkParam("$action" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")</textarea>
+													<input type="checkbox" id="directToolUrl" checked onclick="ASN.toggleShortUrlOutput('#toolLinkParam("$action" "doView_submission" "assignmentReference=$validator.escapeUrl($assignmentReference)")', this, '${assignmentCount}_urlholder');"><label for="directToolUrl" class="shortUrlLabel">$!tlang.getString("gen.shorturl")</label>
+													<textarea class="${assignmentCount}_urlholder" name="Assignment URL" cols="80" rows="10" wrap="virtual"></textarea>
 												</div>
 											</a>
 											#if (!$assignment.draft && $!service.allowGradeSubmission($assignment.getReference()))#if($prevAction) |#end
