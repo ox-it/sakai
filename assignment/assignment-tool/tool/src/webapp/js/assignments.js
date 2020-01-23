@@ -966,7 +966,7 @@ ASN.handleReportsTriangleDisclosure = function (header, content)
 
 ASN.displayCopyLink = function(assignmentCount, directUrl)
 {
-    $('.' + assignmentCount + '_urlholder').attr("value", ASN.toggleShortUrlOutput(directUrl, $('#directToolUrl'), assignmentCount + '_urlholder'));
+    ASN.toggleShortUrlOutput(directUrl, $('#' + assignmentCount + '_directToolUrl'), assignmentCount + '_urlholder');
     $('#' + assignmentCount + '_copyLink').dialog("open");
 }
 
