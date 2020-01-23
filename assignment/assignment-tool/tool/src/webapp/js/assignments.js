@@ -963,3 +963,25 @@ ASN.handleReportsTriangleDisclosure = function (header, content)
         content.style.display = "none";
     }
 }
+
+ASN.displayCopyLink = function(assignmentCount, directUrl)
+{
+    ASN.toggleShortUrlOutput(directUrl, $('#' + assignmentCount + '_directToolUrl'), assignmentCount + '_urlholder');
+    $('#' + assignmentCount + '_copyLink').dialog("open");
+}
+
+//handles showing either the short url or the full url, depending on the state of the checkbox 
+// Copied from the portal module.
+ASN.toggleShortUrlOutput = function(defaultUrl, checkbox, textbox) {
+
+    if($(checkbox).is(':checked')) {
+        $.ajax({
+            url:'/direct/url/shorten?path='+encodeURIComponent(defaultUrl),
+            success: function(shortUrl) {
+                $('.'+textbox).val(shortUrl);
+            }
+        });
+    } else {
+        $('.'+textbox).val(defaultUrl);
+    }
+}
