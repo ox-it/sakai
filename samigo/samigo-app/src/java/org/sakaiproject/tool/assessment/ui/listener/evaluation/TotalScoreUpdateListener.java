@@ -104,8 +104,6 @@ public class TotalScoreUpdateListener
             throw new RuntimeException("failed to call saveTotalScores.");
         }
      }
- 
-
   }
 
   private Map prepareAssessmentGradingHash(List assessmentGradingList){
