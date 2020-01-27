@@ -1439,3 +1439,8 @@ UPDATE sakai_site_tool
 SET registration = 'sakai.certification'
 WHERE registration = 'com.rsmart.certification';
 -- END OWL-3739/CC-9
+
+-- OWL-3757
+update gb_category_t set is_equal_weight_assns = 0 where is_equal_weight_assns is null;
+alter table gb_category_t modify IS_EQUAL_WEIGHT_ASSNS number(1) default 0 not null;
+
