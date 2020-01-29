@@ -2976,12 +2976,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		
 		List<AssessmentGradingData> list = query.list();
 
-        Iterator iter = list.iterator();
+        Iterator<AssessmentGradingData> iter = list.iterator();
         String lastAgentId = "";
         Long lastPublishedAssessmentId = 0L;
         AssessmentGradingData adata = null;
-        Map sectionSetMap = new HashMap();
-
+        Map<Long, Set<PublishedSectionData>> sectionSetMap = new HashMap<>();
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
@@ -3000,25 +2999,21 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             updateGrades = true;
         }
         boolean autoSubmitCurrent;
-        Integer scoringType;
         int failures = 0;
         
         while (iter.hasNext()) {
 
             autoSubmitCurrent = false;
-            scoringType = -1;
 
             try {
                 adata = (AssessmentGradingData) iter.next();
                 adata.setHasAutoSubmissionRun(Boolean.TRUE);
 
-                Date endDate = new Date();
                 if (Boolean.FALSE.equals(adata.getForGrade())) {
 
                     // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
                     PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(
                             adata.getPublishedAssessmentId());
-                    scoringType = assessment.getEvaluationModel().getScoringType();
                     Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
                     Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
                     Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
@@ -3046,38 +3041,44 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     	continue;
                     }
 
-                    adata.setForGrade(Boolean.TRUE);
-                    if (adata.getTotalAutoScore() == null) {
-                        adata.setTotalAutoScore(0d);
-                    }
-                    if (adata.getFinalScore() == null) {
-                        adata.setFinalScore(0d);
-                    }
-
-                    if (adata.getAttemptDate() != null && dueDate != null &&
-                            adata.getAttemptDate().after(dueDate)) {
-                        adata.setIsLate(true);
-                    }
-                    // SAM-1088
-                    else if (adata.getSubmittedDate() != null && dueDate != null &&
-                            adata.getSubmittedDate().after(dueDate)) {
-                        adata.setIsLate(true);
-                    }
-                    // SAM-2729 user probably opened assessment and then never submitted a question
-                    if (adata.getSubmittedDate() == null && adata.getAttemptDate() != null) {
-                        adata.setSubmittedDate(endDate);
+                    // If it's an "empty" submission don't autosubmit; change status and save (status = 5, hasAutoSubmitRun = yes)
+                    // We determine "empty" if it has an attempt date but submitted date is null
+                    // Attempt date is populated as soon as student clicks "Begin"; submit date is populated as soon as student makes any progress (next, save, submit)
+                    // So if there is an attempt date but no submit date, we can safely assume this is a student who began a quiz and did nothing (either walked away, or logged out immediately)
+                    if (adata.getAttemptDate() != null && adata.getSubmittedDate() == null) {
+                        adata.setStatus(AssessmentGradingData.NO_SUBMISSION);
                     }
 
-                    autoSubmitCurrent = true;
-                    adata.setIsAutoSubmitted(Boolean.TRUE);
-                    if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
-                            && lastAgentId.equals(adata.getAgentId())) {
-                        adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
-                    } else {
-                        adata.setStatus(AssessmentGradingData.SUBMITTED);
+                    else {
+                        adata.setForGrade(Boolean.TRUE);
+                        if (adata.getTotalAutoScore() == null) {
+                            adata.setTotalAutoScore(0d);
+                        }
+                        if (adata.getFinalScore() == null) {
+                            adata.setFinalScore(0d);
+                        }
+
+                        if (adata.getAttemptDate() != null && dueDate != null &&
+                                adata.getAttemptDate().after(dueDate)) {
+                            adata.setIsLate(true);
+                        }
+                        // SAM-1088
+                        else if (adata.getSubmittedDate() != null && dueDate != null &&
+                                adata.getSubmittedDate().after(dueDate)) {
+                            adata.setIsLate(true);
+                        }
+
+                        autoSubmitCurrent = true;
+                        adata.setIsAutoSubmitted(Boolean.TRUE);
+                        if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
+                                && lastAgentId.equals(adata.getAgentId())) {
+                            adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
+                        } else {
+                            adata.setStatus(AssessmentGradingData.SUBMITTED);
+                        }
+
+                        completeItemGradingData(adata, sectionSetMap);
                     }
-                   
-                    completeItemGradingData(adata, sectionSetMap);
                 }
 
                 lastPublishedAssessmentId = adata.getPublishedAssessmentId();
@@ -3297,20 +3298,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
 
 
-    public void completeItemGradingData(AssessmentGradingData assessmentGradingData, Map sectionSetMap) {
-        List answeredPublishedItemIdList = new ArrayList();
-        List publishedItemIds = getPublishedItemIds(assessmentGradingData.getAssessmentGradingId());
-        Iterator iter = publishedItemIds.iterator();
-        Long answeredPublishedItemId;
-        while (iter.hasNext()) {
-            answeredPublishedItemId = (Long) iter.next();
-            log.debug("answeredPublishedItemId = " + answeredPublishedItemId);
-            answeredPublishedItemIdList.add(answeredPublishedItemId);
-        }
+    public void completeItemGradingData(AssessmentGradingData assessmentGradingData, Map<Long, Set<PublishedSectionData>> sectionSetMap) {
+        List<Long> publishedItemIds = getPublishedItemIds(assessmentGradingData.getAssessmentGradingId());
+        List<Long> answeredPublishedItemIdList = publishedItemIds;
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
         Long publishedAssessmentId = assessmentGradingData.getPublishedAssessmentId();
-        Set sectionSet;
+        Set<PublishedSectionData> sectionSet;
         if (sectionSetMap == null || !sectionSetMap.containsKey(publishedAssessmentId)) {
             sectionSet = publishedAssessmentService.getSectionSetForAssessment(publishedAssessmentId);
             if (sectionSetMap != null) {
@@ -3324,13 +3318,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             return;
         }
 
-        PublishedSectionData publishedSectionData;
-        List itemArrayList;
+        List<PublishedItemData> itemArrayList;
         Long publishedItemId;
         PublishedItemData publishedItemData;
-        iter = sectionSet.iterator();
-        while (iter.hasNext()) {
-            publishedSectionData = (PublishedSectionData) iter.next();
+        for (PublishedSectionData publishedSectionData : sectionSet) {
             log.debug("sectionId = " + publishedSectionData.getSectionId());
 
             String authorType = publishedSectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
@@ -3364,10 +3355,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             } else {
                 log.debug("Not random draw from questonpool");
                 itemArrayList = publishedSectionData.getItemArray();
-                Iterator itemIter = itemArrayList.iterator();
-                while (itemIter.hasNext()) {
-                    publishedItemData = (PublishedItemData) itemIter.next();
-                    publishedItemId = publishedItemData.getItemId();
+                for (PublishedItemData pid : itemArrayList) {
+                    publishedItemId = pid.getItemId();
                     log.debug("publishedItemId = " + publishedItemId);
                     if (!answeredPublishedItemIdList.contains(publishedItemId)) {
                         saveItemGradingData(assessmentGradingData, publishedItemId);
