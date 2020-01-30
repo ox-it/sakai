@@ -1112,4 +1112,8 @@ WHERE registration = 'com.rsmart.certification';
 update gb_category_t set is_equal_weight_assns = false where is_equal_weight_assns is null;
 alter table gb_category_t modify IS_EQUAL_WEIGHT_ASSNS bit not null default false;
 
+-- OWL-800
+UPDATE sam_assessaccesscontrol_t SET latehandling = 2, autosubmit = 1 WHERE assessmentid IN (1, 2, 3, 4, 5, 6, 7);
+-- END OWL-800
+
 -- OWLNOTE: User Activity (SAK-40018) is part of the Sakai master script but it is the same as OWL's existing table and permissions
