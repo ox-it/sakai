@@ -1253,6 +1253,15 @@ public class AssessmentSettingsBean implements Serializable {
 	}	  	  
   }
 
+  public String getRetractDateInClientTimezoneString() {
+    if (!this.isValidRetractDate) {
+      return this.originalRetractDateString;
+    }
+    else {
+      return getDisplayFormatFromDate(retractDate, true);
+    }
+  }
+
   public void setRetractDateString(String retractDateString)
   {
     if (retractDateString == null || retractDateString.trim().equals("")) {
