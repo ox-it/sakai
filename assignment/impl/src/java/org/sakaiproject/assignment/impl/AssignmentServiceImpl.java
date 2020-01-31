@@ -969,6 +969,31 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                 assignmentRepository.newAssignment(assignment);
                 log.debug("Created duplicate assignment {} from {}", assignment.getId(), assignmentId);
 
+                // Model answer
+                AssignmentModelAnswerItem existingModelAnswer = assignmentSupplementItemService.getModelAnswer(assignmentId);
+                if (existingModelAnswer != null) {
+                    AssignmentModelAnswerItem copy = assignmentSupplementItemService.newModelAnswer();
+                    copy.setAssignmentId(assignment.getId());
+                    copy.setText(existingModelAnswer.getText());
+                    copy.setShowTo(existingModelAnswer.getShowTo());
+
+                    // We have to save the model answer so it exists before it can have attachments; otherwise we get a Hibernate exception
+                    assignmentSupplementItemService.saveModelAnswer(copy); 
+
+                    Set<AssignmentSupplementItemAttachment> attachments = new HashSet<>();
+                    List<String> attachmentIDs = assignmentSupplementItemService.getAttachmentListForSupplementItem(existingModelAnswer);
+                    for (String attachmentID : attachmentIDs) {
+                        AssignmentSupplementItemAttachment attachment = assignmentSupplementItemService.newAttachment();
+                        attachment.setAssignmentSupplementItemWithAttachment(copy);
+                        attachment.setAttachmentId(attachmentID);
+                        assignmentSupplementItemService.saveAttachment(attachment);
+                        attachments.add(attachment);
+                    }
+
+                    copy.setAttachmentSet(attachments);
+                    assignmentSupplementItemService.saveModelAnswer(copy); // save again to persist attachments
+                }
+
                 //copy rubric
                 try {
                     Optional<ToolItemRubricAssociation> rubricAssociation = rubricsService.getRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, assignmentId);
