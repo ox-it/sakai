@@ -31,12 +31,12 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
-import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
+import org.sakaiproject.gradebookng.business.owl.finalgrades.OwlCourseGradeFormatter;
 import org.sakaiproject.service.gradebook.shared.CategoryScoreData;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -176,7 +176,7 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 
 		final CourseGrade studentCourseGrade = businessService.getCourseGrade(studentUuid);
 		final Gradebook gradebook = businessService.getGradebook();
-		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+		final OwlCourseGradeFormatter courseGradeFormatter = new OwlCourseGradeFormatter(
 				gradebook,
 				page.getCurrentRole(),
 				businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),

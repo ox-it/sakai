@@ -58,6 +58,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 	private static final long serialVersionUID = 1L;
 
+	private static final Double UNMAPPED = Double.NaN;
+
 	IModel<GbSettings> model;
 
 	WebMarkupContainer schemaWrap;
@@ -218,19 +220,21 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				final GbGradingSchemaEntry entry = item.getModelObject();
 
 				// grade
-				final TextField<Double> grade = new TextField<>("grade", new PropertyModel<Double>(entry, "grade"));
+				//final TextField<Double> grade = new TextField<>("grade", new PropertyModel<Double>(entry, "grade"));
+				final Label grade = new Label("grade", Model.of(entry.getGrade())); // OWL
 				item.add(grade);
 
 				// minpercent
 				final TextField<Double> minPercent = new TextField<>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
+				minPercent.setVisible(!UNMAPPED.equals(entry.getMinPercent())); // OWL
 				item.add(minPercent);
 
 				// attach the onchange behaviours
 				minPercent.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
-				grade.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
+				//grade.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE)); // OWL
 
 				// remove button
-				final AjaxButton remove = new AjaxButton("remove") {
+				/*final AjaxButton remove = new AjaxButton("remove") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -249,7 +253,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 				};
 				remove.setDefaultFormProcessing(false);
-				item.add(remove);
+				item.add(remove);*/ // OWL
 			}
 		};
 		this.schemaView.setOutputMarkupId(true);
@@ -310,6 +314,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 			}
 		};
 		addMapping.setDefaultFormProcessing(false);
+		addMapping.setVisible(false); // OWL
 		this.schemaWrap.add(addMapping);
 
 		// if there are no grades, display message instead of chart
@@ -362,7 +367,10 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		final Map<String, Double> bottomPercents = new HashMap<>();
 		for (final GbGradingSchemaEntry schemaEntry : schemaEntries) {
-			bottomPercents.put(schemaEntry.getGrade(), schemaEntry.getMinPercent());
+			if (!UNMAPPED.equals(schemaEntry.getMinPercent())) // OWL: ignore unmapped grades
+			{
+				bottomPercents.put(schemaEntry.getGrade(), schemaEntry.getMinPercent());
+			}
 		}
 
 		this.model.getObject().getGradebookInformation().setSelectedGradingScaleBottomPercents(bottomPercents);
@@ -376,7 +384,14 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * @return the list of {@link GbGradingSchemaEntry} for the currently selected grading schema id
 	 */
 	private List<GbGradingSchemaEntry> getGradingSchemaEntries() {
-		return SettingsHelper.asList(getBottomPercents());
+		//return SettingsHelper.asList(getBottomPercents());
+
+		// OWL: inject the unmapped grades here at the beginning of a new list to maintain expected presentation order
+		List<String> unmappedGrades = model.getObject().getGradebookInformation().getSelectedGradingScaleUnmappedGrades();
+		List<GbGradingSchemaEntry> finalEntries = unmappedGrades.stream().map(g -> new GbGradingSchemaEntry(g, UNMAPPED)).collect(Collectors.toList());
+		finalEntries.addAll(SettingsHelper.asList(getBottomPercents()));
+
+		return finalEntries;
 	}
 
 	/**

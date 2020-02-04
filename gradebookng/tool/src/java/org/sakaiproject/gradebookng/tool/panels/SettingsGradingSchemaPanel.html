@@ -37,14 +37,16 @@
 									<tr>
 										<th class="col-md-1"><wicket:message key="settingspage.gradingschema.grade" /></th>
 										<th class="col-md-1"><wicket:message key="settingspage.gradingschema.minpercent" /></th>
-										<th class="col-md-1"><wicket:message key="settingspage.gradingschema.removecolhead" /></th>
+										<!-- OWL <th class="col-md-1"><wicket:message key="settingspage.gradingschema.removecolhead" /></th>-->
 									</tr>
 									</thead>
 									<tbody>
 									<tr wicket:id="schemaView" class="gb-schema-row">
-										<td><input wicket:id="grade" type="text" size="10" class="form-control" /></td>
+										<!-- OWL -->
+										<!-- <td><input wicket:id="grade" type="text" size="10" class="form-control" /></td>-->
+										<td wicket:id="grade">A+</td>
 										<td><input wicket:id="minPercent" type="text" size="10" class="form-control" /></td>
-										<td><button wicket:id="remove" type="button" class="btn btn-default btn-table"><wicket:message key="button.remove" /></button></td>
+										<!-- <td><button wicket:id="remove" class="btn btn-default btn-table"><wicket:message key="button.remove" /></button></td> -->
 									</tr>
 									</tbody>
 								</table>

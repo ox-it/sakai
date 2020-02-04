@@ -29,5 +29,11 @@
       <artifactId>sections-api</artifactId>
       <scope>provided</scope>
     </dependency>
+	<!-- OWL dependencies -->
+	<dependency>
+		<groupId>org.sakaiproject.kernel</groupId>
+		<artifactId>sakai-kernel-api</artifactId>
+		<scope>provided</scope>
+	</dependency>
   </dependencies>
 </project>

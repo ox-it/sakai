@@ -27,6 +27,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
@@ -37,6 +38,7 @@ import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFile
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
+import org.sakaiproject.gradebookng.tool.owl.panels.importExport.OwlExportPanel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 import org.sakaiproject.gradebookng.tool.panels.BasePanel;
@@ -61,8 +63,20 @@ public class GradeImportUploadStep extends BasePanel {
 	public void onInitialize() {
 		super.onInitialize();
 
-		add(new ExportPanel("export"));
+		add(new OwlExportPanel("export")); // OWL
 		add(new UploadForm("form"));
+
+		// OWL - customize instructions for anonymous grading / DPC support
+		boolean hasAnon = !businessService.owl().anon.getAnonGradingIDsForCurrentSite().isEmpty();
+		String summaryMsgKey = "importExport.instructions.summary";
+		String normalInstructionsMsgKey1 = "importExport.instructions.1";
+		if (hasAnon) {
+			summaryMsgKey = "importExport.instructions.summary.anon";
+			normalInstructionsMsgKey1 = "importExport.instructions.1.anon";
+		}
+		add(new Label("summary", getString(summaryMsgKey)));
+		add(new Label("instructions1", getString(normalInstructionsMsgKey1)));
+		add(new Label("dpc3", getString("importExport.instructions.dpc.3")).setVisible(hasAnon));
 	}
 
 	/*

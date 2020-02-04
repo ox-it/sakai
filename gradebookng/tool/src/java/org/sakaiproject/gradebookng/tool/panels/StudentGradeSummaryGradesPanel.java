@@ -34,7 +34,7 @@ import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.business.GbCategoryType;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
-import org.sakaiproject.gradebookng.business.util.CourseGradeFormatter;
+import org.sakaiproject.gradebookng.business.owl.finalgrades.OwlCourseGradeStudentFormatter;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -95,17 +95,24 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final String userId = (String) modelData.get("studentUuid");
 
 		final Gradebook gradebook = getGradebook();
-		final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
-				gradebook,
-				GbRole.STUDENT,
-				gradebook.isCourseGradeDisplayed(),
-				gradebook.isCoursePointsDisplayed(),
-				true);
+		OwlCourseGradeStudentFormatter courseGradeFormatter = new OwlCourseGradeStudentFormatter(gradebook);
 
 		// build up table data
 		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
 		final SortType sortedBy = this.isGroupedByCategory ? SortType.SORT_BY_CATEGORY : SortType.SORT_BY_SORTING;
-		final List<Assignment> assignments = this.businessService.getGradebookAssignmentsForStudent(userId, sortedBy);
+		// OWL
+		final List<Assignment> assignments;
+		final GbRole role = businessService.getUserRoleOrNone();
+		if (role == GbRole.STUDENT)
+		{
+			assignments = businessService.getGradebookAssignmentsForStudent(userId, sortedBy);
+		}
+		else
+		{
+			// filter out anonymous columns, there is never a scenario where non-students should see them on this panel
+			assignments = businessService.getGradebookAssignmentsForStudent(userId).stream()
+					.filter(asn -> asn.isAnon() == false).collect(Collectors.toList()); 
+		}
 
 		final List<String> categoryNames = new ArrayList<>();
 		final Map<String, List<Assignment>> categoryNamesToAssignments = new HashMap<>();
@@ -187,12 +194,16 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		final WebMarkupContainer courseGradePanel = new WebMarkupContainer("course-grade-panel") {
 			private static final long serialVersionUID = 1L;
 
-			@Override
+			/*@Override - OWL
 			public boolean isVisible() {
 				return StudentGradeSummaryGradesPanel.this.serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
-			}
+			}*/
 		};
 		addOrReplace(courseGradePanel);
+		// OWL - if a non-student, don't show the course grade if it is pure anon
+		boolean showCourseGrade = serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
+		boolean pureAnon = role != GbRole.STUDENT && businessService.owl().anon.isCourseGradePureAnon();
+		courseGradePanel.setVisible(showCourseGrade && !pureAnon);
 
 		// course grade, via the formatter
 		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);

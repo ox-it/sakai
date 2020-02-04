@@ -32,8 +32,10 @@ import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -41,6 +43,7 @@ import org.sakaiproject.gradebookng.tool.actions.Action;
 import org.sakaiproject.gradebookng.tool.actions.ActionResponse;
 import org.sakaiproject.gradebookng.tool.model.GbGradeTableData;
 import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.portal.util.PortalUtils;
 
 public class GbGradeTable extends Panel implements IHeaderContributor {
@@ -103,6 +106,18 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		});
 
 		add(component);
+	}
+
+	// OWL - hack out the student messager webcomponent for anon
+	@Override
+	public void onInitialize()
+	{
+		super.onInitialize();
+		boolean anon = ((GradebookPage) getPage()).getOwlUiSettings().isContextAnonymous();
+		String msg = "<a href=\"javascript:void(0);\" class=\"gb-message-students\" role=\"menuitem\" data-assignment-id=\"${assignmentId}\">%s</a>";
+		String title = new ResourceModel("label.submission-messager.title").getObject();
+		add(new Label("messageStudents", String.format(msg, title)).setEscapeModelStrings(false).setVisible(!anon));
+		add(new WebMarkupContainer("subMsg").setVisible(!anon));
 	}
 
 	public void renderHead(final IHeaderResponse response) {

@@ -41,6 +41,7 @@ import org.sakaiproject.tool.gradebook.LetterGradeMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
 import org.sakaiproject.tool.gradebook.PassNotPassMapping;
+import org.sakaiproject.tool.gradebook.owl.OfficialRegistrarMapping;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.HibernateTemplate;
 
@@ -50,6 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 public class GradebookFrameworkServiceImpl extends BaseHibernateManager implements GradebookFrameworkService {
 
 	public static final String UID_OF_DEFAULT_GRADING_SCALE_PROPERTY = "uidOfDefaultGradingScale";
+	public static final String OFFICIAL_REGISTRAR_SCALE_UID = "OfficialRegistrarMapping";  // OWL
 	
 	public static final String PROP_COURSE_POINTS_DISPLAYED = "gradebook.coursepoints.displayed";
 	public static final String PROP_COURSE_GRADE_DISPLAYED = "gradebook.coursegrade.displayed";
@@ -171,7 +173,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
     		new LetterGradeMapping(),
     		new LetterGradePlusMinusMapping(),
     		new PassNotPassMapping(),
-    		new GradePointsMapping()
+    		new GradePointsMapping(),
+			new OfficialRegistrarMapping() // OWL
     	};
 
     	for (final GradeMapping sampleMapping : oldGradeMappings) {
@@ -190,7 +193,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 			}
 			gradingScales.add(gradingScale);
 		}
-		setDefaultGradingScale("LetterGradePlusMinusMapping");
+		setDefaultGradingScale(OFFICIAL_REGISTRAR_SCALE_UID); // OWL
 		session.flush();
 		return gradingScales;
 	}

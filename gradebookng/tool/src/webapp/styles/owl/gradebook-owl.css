@@ -1,0 +1,8 @@
+/* OWL customizations to the main gradebook pages */
+
+#gradebookSpreadsheet[data-owl-anon-context='true'] colgroup col:first-child,
+#gradebookSpreadsheet[data-owl-hide-course-grade='true'] colgroup col:nth-child(3)
+{
+	visibility: collapse;
+}
+

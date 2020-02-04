@@ -90,4 +90,9 @@ public class GradebookInformation implements Serializable {
 	 */
 	private boolean courseGradeStatsDisplayed;
 
+	// OWL
+	public List<String> getSelectedGradingScaleUnmappedGrades()
+	{
+		return gradeMappings.stream().filter(gm -> gm.getId().equals(selectedGradeMappingId)).findFirst().get().getUnmappedGrades();
+	}
 }

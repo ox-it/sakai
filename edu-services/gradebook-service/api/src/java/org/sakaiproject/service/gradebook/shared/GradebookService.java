@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.service.gradebook.shared.owl.OwlGradebookService;
 
 /**
  * This is the externally exposed API of the gradebook application.
@@ -43,7 +44,7 @@ import org.apache.commons.lang3.StringUtils;
  * <p>
  * WARNING: For documentation of the deprecated methods, please see the service interfaces which own them.
  */
-public interface GradebookService {
+public interface GradebookService extends OwlGradebookService {
 	// Application service hooks.
 
 	// These have been deprecated in favour of the {@link GradingType} enum
@@ -867,5 +868,4 @@ public interface GradebookService {
 	 * @return set of changes made
 	 */
 	List getGradingEvents(final List<Long> assignmentIds, final Date since);
-
 }

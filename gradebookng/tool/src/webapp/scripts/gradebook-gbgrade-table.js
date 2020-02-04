@@ -744,6 +744,12 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     return GbGradeTable.getColumnWidths().reduce(function (acc, cur) { return acc + cur; }, 0) + scrollbarWidth;
   };
 
+  // OWL - reset default sort if anonymous context - at this point our custom var owlAnonContext should be loaded
+  if (typeof owlAnonContext !== "undefined" && owlAnonContext === true)
+  {
+	  GbGradeTable.currentSortColumn = 1; // student number column (contains anon ids in this context)
+  }
+
   GbGradeTable.instance = new Handsontable(document.getElementById(elementId), {
     data: GbGradeTable.getFilteredData(),
     fixedColumnsLeft:  MorpheusViewportHelper.isPhone() ? 0 : GbGradeTable.FIXED_COLUMN_OFFSET,
@@ -2134,7 +2140,7 @@ GbGradeTable.setupToggleGradeItems = function() {
 
 
 GbGradeTable.currentSortColumn = 0;
-GbGradeTable.currentSortDirection = 'desc';
+GbGradeTable.currentSortDirection = 'asc'; // OWL
 
 GbGradeTable.setupColumnSorting = function() {
   var $table = $(GbGradeTable.instance.rootElement);

@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.sakaiproject.gradebookng.business.owl.finalgrades.OwlCourseGradeFormatter;
 
 public class ExcuseGradeAction extends InjectableAction implements Serializable {
 
@@ -130,12 +131,11 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
 
         final GradebookUiSettings uiSettings = page.getUiSettings();
         final Gradebook gradebook = businessService.getGradebook();
-        final CourseGradeFormatter courseGradeFormatter = new CourseGradeFormatter(
+        final OwlCourseGradeFormatter courseGradeFormatter = new OwlCourseGradeFormatter(
                 gradebook,
                 page.getCurrentRole(),
                 businessService.isCourseGradeVisible(businessService.getCurrentUser().getId()),
-                uiSettings.getShowPoints(),
-                true);
+                uiSettings.getShowPoints());
         if (studentCourseGrade != null)
             return courseGradeFormatter.format(studentCourseGrade);
         else
