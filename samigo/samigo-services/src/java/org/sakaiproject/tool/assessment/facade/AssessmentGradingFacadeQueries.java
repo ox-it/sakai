@@ -85,6 +85,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryDa
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -3009,11 +3010,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 adata = (AssessmentGradingData) iter.next();
                 adata.setHasAutoSubmissionRun(Boolean.TRUE);
 
-                if (Boolean.FALSE.equals(adata.getForGrade())) {
+                // If the assessment is deleted, or the submission is not forGrade just set hasAutoSubmissionRun = true; do not update gradebook
+                PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
+                if (Boolean.FALSE.equals(adata.getForGrade()) && assessment.getStatus() != AssessmentBaseIfc.DEAD_STATUS) {
 
-                    // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
-                    PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(
-                            adata.getPublishedAssessmentId());
+                    // SAM-1088 check to see if last user attempt was after due date
                     Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
                     Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
                     Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
@@ -3041,7 +3042,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     	continue;
                     }
 
-                    // If it's an "empty" submission don't autosubmit; change status and save (status = 5, hasAutoSubmitRun = yes)
+                    // If it's an "empty" submission don't autosubmit; change status and save (status = 5, hasAutoSubmitRun = true)
                     // We determine "empty" if it has an attempt date but submitted date is null
                     // Attempt date is populated as soon as student clicks "Begin"; submit date is populated as soon as student makes any progress (next, save, submit)
                     // So if there is an attempt date but no submit date, we can safely assume this is a student who began a quiz and did nothing (either walked away, or logged out immediately)
@@ -3084,15 +3085,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 lastPublishedAssessmentId = adata.getPublishedAssessmentId();
                 lastAgentId = adata.getAgentId();
 
-                PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(adata.getPublishedAssessmentId()
-                        .toString());
                 // this call happens in a separate transaction, so a rollback only affects this iteration
                 boolean success = saveOrUpdateAssessmentGrading(adata);
                 
                 if (success && updateGrades && autoSubmitCurrent) {
                     GradingService gs = new GradingService();
                     gs.updateAutosubmitEventLog(adata);
-                    gs.notifyGradebookByScoringType(adata, publishedAssessment);
+                    gs.notifyGradebookByScoringType(adata, assessment);
                 }
                 else if (!success) {
                     ++failures;
