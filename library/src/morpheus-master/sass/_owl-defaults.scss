@@ -23,3 +23,14 @@ $button-primary-hover-border-color: 		$primary-color;
 $button-active-shadow-color: 				rgba(0, 0, 0, 0.6);
 
 $sites-nav-menu-item-selected-border-color: $primary-color-highlight;
+
+/* Disabling Google Material Design inspired theme elements */
+/* that were added in SAK-42889 */
+$standard-spacing-as-material: false;
+$sites-nav-as-material: false;
+$portal-as-material: false;
+$tool-menu-as-material: false;
+$buttons-as-material: false;
+$top-header-as-material: false;
+$cards-as-material: false;
+$lessons-as-material: false;
