@@ -2572,6 +2572,8 @@ public class AssignmentAction extends PagedResourceActionII
 
                 context.put("group_submissions_enabled", Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.group.submission.enabled", true)));
 		context.put("visible_date_enabled", Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.visible.date.enabled", false)));
+
+		context.put("allow_resubmissions", isAllowResubmissions(state));
 			
 		String sortedBy = (String) state.getAttribute(SORTED_BY);
 		String sortedAsc = (String) state.getAttribute(SORTED_ASC);
@@ -2582,6 +2584,21 @@ public class AssignmentAction extends PagedResourceActionII
 		return template + TEMPLATE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT;
 
 	} // build_instructor_new_assignment_context
+
+	private Boolean isAllowResubmissions(SessionState state) {
+		try {
+			Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+			String[] types = ServerConfigurationService.getStrings("assignments.block.resubmission.site.types");
+			if (types != null) {
+				if (Arrays.asList(types).contains(site.getType())) {
+					return false;
+				}
+			}
+		} catch (IdUnusedException e) {
+			M_log.debug("Failed to find site to see if anonymous submissions are allowed.");
+		}
+		return true;
+	}
 
 	protected void setAssignmentFormContext(SessionState state, Context context)
 	{
@@ -3486,6 +3503,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("instructorAttachments", state.getAttribute(ATTACHMENTS));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		context.put("service", AssignmentService.getInstance());
+		context.put("allow_resubmissions", isAllowResubmissions(state));
+
 
 		// names
 		context.put("name_grade_assignment_id", GRADE_SUBMISSION_ASSIGNMENT_ID);
