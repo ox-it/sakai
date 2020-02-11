@@ -769,7 +769,7 @@
 							#set($resubmitStyle="display:none")
 						#end
 						<div class="form-group" id="tempAllowRes" #if ($submissionType == 4) style = "display:none"#end>
-							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $submissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitContainer').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitContainer').style.display = 'none';}" />
+							<input #if(!$allow_resubmissions)disabled#end type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $submissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitContainer').style.display = 'block';ASN.resizeFrame();}else{document.getElementById('allowResubmitContainer').style.display = 'none';}" />
 							<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
 	    				</div>
 						<div id="allowResubmitContainer" style="$!resubmitStyle">
