@@ -25,18 +25,51 @@
 <script>
      var portal = portal || { locale: "<h:outputText value="#{delivery.localeString}"/>" };
      var honorPledgeIsChecked = true;
-     var scoringType = <h:outputText value="#{delivery.scoringType}"/>;
-     var autoSubmit = <h:outputText value="#{delivery.settings.autoSubmit}"/>;
-     var totalSubmissions = <h:outputText value="#{delivery.totalSubmissions}"/>;
+     var understandPledgeIsChecked = true;
      var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
      var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
-     var submitButtonValue = "<h:outputText value='#{deliveryMessages.begin_assessment_}' />";
-     var selector = "input[value='" + submitButtonValue + "']";
-     var newAttemptAutoSubmitWarning = "<h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_average}" rendered="#{delivery.scoringType == 4}" /><h:outputText value="#{deliveryMessages.begin_assessment_msg_attempt_autosubmit_warn_last} " rendered="#{delivery.scoringType == 2}" />";
+     var beginButtonValue = "<h:outputText value='#{deliveryMessages.begin_assessment_}' />";
+     var continueButtonValue = "<h:outputText value='#{deliveryMessages.continue_assessment_}' />";
+     var selector = "input[value='" + beginButtonValue + "']";
 
-     $(document).ready(function(){
+     var time_30_warning = "<h:outputText value="#{deliveryMessages.time_30_warning} "/><h:outputText value="#{deliveryMessages.time_30_warning_2} " />";
+     var time_due_warning = "<h:outputText value="#{deliveryMessages.time_due_warning_1} "/><h:outputText value="#{deliveryMessages.time_due_warning_2} " />";
 
-                var timerSave = false;
+	function enableDisableSubmitButton() {
+		var honourPledgeRequired = $('#takeAssessmentForm\\:honor_pledge').length > 0;
+		var understandPledgeRequired = $("#takeAssessmentForm\\:understand_pledge").length > 0;
+
+		if (honourPledgeRequired) {
+			honorPledgeIsChecked = $('#takeAssessmentForm\\:honor_pledge').prop('checked');
+		}
+		if (understandPledgeRequired) {
+			understandPledgeIsChecked = $('#takeAssessmentForm\\:understand_pledge').prop('checked');
+		}
+
+		var enable = false;
+		if ((honourPledgeRequired && understandPledgeRequired && honorPledgeIsChecked && understandPledgeIsChecked) // both are required, both are checked
+				|| (honourPledgeRequired && honorPledgeIsChecked && !understandPledgeRequired)						// honour pledge only required and checked
+				|| (!honourPledgeRequired && understandPledgeRequired && understandPledgeIsChecked)) {				// understand pledge only required and checked
+			enable = true;
+		}
+
+		if (enable) {
+			$(selector).addClass('active');
+			$(selector).removeAttr('disabled');
+		} else {
+			$(selector).removeClass('active');
+			$(selector).attr('disabled','disabled');
+		}
+	}
+
+	$(document).ready(function(){
+
+		var timerSave = false;
+
+		// If there's no "begin" button, we need to grab the "continue" button
+		if ($(selector).length <= 0) {
+			 selector = "input[value='" + continueButtonValue + "']";
+		}
 	
 		//Turn off browser autocomplete on all forms
 		$("form").attr("autocomplete", "off");
@@ -44,39 +77,44 @@
 		// If instructor requires honor pledge, we check for it before allowing assessment to start
 		if($('#takeAssessmentForm\\:honor_pledge').length > 0) {
 			honorPledgeIsChecked = false;
-
-			$('#takeAssessmentForm\\:honor_pledge').change(function() {
-					honorPledgeIsChecked = $('#takeAssessmentForm\\:honor_pledge').prop('checked');
-					if(honorPledgeIsChecked) {
-						$(selector).addClass('active');
-						$(selector).removeAttr('disabled');
-					} else {
-						$(selector).removeClass('active');
-						$(selector).attr('disabled','disabled');
-					}
-				}
-			);
+			$('#takeAssessmentForm\\:honor_pledge').change(enableDisableSubmitButton);
 		}
 
-		// Check honor code checkbox, warn about autosubmitting empty attempts, lock the UI to avoid user double-clicks
+		// If this student requires an understand pledge, we check for it before allowing assessment to start
+		if ($("#takeAssessmentForm\\:understand_pledge").length > 0) {
+			understandPledgeIsChecked = false;
+			$("#takeAssessmentForm\\:understand_pledge").change(enableDisableSubmitButton);
+		}
+
+		// Check honor code checkbox, understand pledge checkbox, lock the UI to avoid user double-clicks
 		$("input.active[type='submit'][class!='noActionButton']").click(function() {
-			var beginButtonIds = ["takeAssessmentForm:beginAssessment1", "takeAssessmentForm:beginAssessment2", "takeAssessmentForm:beginAssessment3"];
+			var beginButtonIds = ["takeAssessmentForm:beginAssessment1", "takeAssessmentForm:beginAssessment2", "takeAssessmentForm:beginAssessment3", "takeAssessmentForm:continueAssessment1", "takeAssessmentForm:continueAssessment2"];
 			if (beginButtonIds.includes($(this).attr('id'))) {
+				var invalid = false
 				if (!honorPledgeIsChecked) {
-					alert("<h:outputText value='#{deliveryMessages.honor_pledge_select}'/>");
 					$('#takeAssessmentForm\\:honorPledgeRequired').show();
-					return false;
+					invalid = true;
+				} else {
+					$('#takeAssessmentForm\\:honorPledgeRequired').hide();
 				}
-				if (totalSubmissions > 0 && autoSubmit && (scoringType === 2 || scoringType === 4)) {
-					if (!confirm(newAttemptAutoSubmitWarning)) {
-						return false;
-					}
+
+				if (!understandPledgeIsChecked) {
+					$('#takeAssessmentForm\\:understandPledgeRequired').show();
+					invalid = true;
+				} else {
+					$('#takeAssessmentForm\\:understandPledgeRequired').hide();
+				}
+
+				// If any validation failed, do not continue
+				if (invalid) {
+					return false;
 				}
 			}
 			if (!timerSave) $.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		});
 
-		if($('#takeAssessmentForm\\:honor_pledge').length > 0) {
+		// If there's an honour or understand pledge present, disable the begin/continue button by default
+		if($('#takeAssessmentForm\\:honor_pledge').length > 0 || $("#takeAssessmentForm\\:understand_pledge").length > 0) {
 			$(selector).removeClass('active');
 			$(selector).attr('disabled','disabled');
 		}
