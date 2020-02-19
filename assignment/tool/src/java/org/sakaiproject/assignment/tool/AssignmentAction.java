@@ -904,14 +904,6 @@ public class AssignmentAction extends PagedResourceActionII {
      * To know if grade_submission go from view_students_assignment view or not
      **/
     private static final String FROM_VIEW = "from_view";
-    /**
-     * Sakai.property for enable/disable anonymous grading
-     */
-    private static final String SAK_PROP_ENABLE_ANON_GRADING = "assignment.anon.grading.enabled";
-    /**
-     * Site property for forcing anonymous grading in a site
-     */
-    private static final String SAK_PROP_FORCE_ANON_GRADING = "assignment.anon.grading.forced";
 
     private static final String FLAG_ON = "on";
     private static final String FLAG_TRUE = "true";
@@ -3026,10 +3018,10 @@ public class AssignmentAction extends PagedResourceActionII {
         String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
         // get all assignment
         Collection<Assignment> assignments = assignmentService.getAssignmentsForContext(contextString);
-        HashMap<String, String> gAssignmentIdTitles = new HashMap<String, String>();
+        HashMap<String, String> gAssignmentIdTitles = new HashMap<>();
 
-        HashMap<String, String> gradebookAssignmentsSelectedDisabled = new HashMap<String, String>();
-        HashMap<String, String> gradebookAssignmentsLabel = new HashMap<String, String>();
+        HashMap<String, String> gradebookAssignmentsSelectedDisabled = new HashMap<>();
+        HashMap<String, String> gradebookAssignmentsLabel = new HashMap<>();
 
         for (Assignment a : assignments) {
             String gradebookItem = a.getProperties().get(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
@@ -3048,44 +3040,47 @@ public class AssignmentAction extends PagedResourceActionII {
             }
         }
 
-        // get all assignments in Gradebook
-        try {
-            List gradebookAssignments = gradebookService.getAssignments(gradebookUid);
+        // get all assignments in Gradebook, only if sakai.properties says to do so
+        boolean allowLinkToExistingGradebookItem = serverConfigurationService.getBoolean(SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM, SAK_PROP_ALLOW_LINK_TO_EXISTING_GB_ITEM_DFLT);
+        if (allowLinkToExistingGradebookItem) {
+            try {
+                List gradebookAssignments = gradebookService.getAssignments(gradebookUid);
 
-            // filtering out those from Samigo
-            for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
-                org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-                if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(assignmentService.getToolTitle())) {
+                // filtering out those from Samigo
+                for (Iterator i = gradebookAssignments.iterator(); i.hasNext(); ) {
+                    org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+                    if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(assignmentService.getToolTitle())) {
 
-                    // gradebook item has been associated or not
-                    String gaId = gAssignment.isExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getName();
-                    String status = "";
-                    if (gAssignmentIdTitles.containsKey(gaId)) {
-                        String assignmentTitle = gAssignmentIdTitles.get(gaId);
-                        if (aTitle != null && aTitle.equals(assignmentTitle)) {
-                            // this gradebook item is associated with current assignment, make it selected
+                        // gradebook item has been associated or not
+                        String gaId = gAssignment.isExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getName();
+                        String status = "";
+                        if (gAssignmentIdTitles.containsKey(gaId)) {
+                            String assignmentTitle = gAssignmentIdTitles.get(gaId);
+                            if (aTitle != null && aTitle.equals(assignmentTitle)) {
+                                // this gradebook item is associated with current assignment, make it selected
+                                status = "selected";
+                            }
+                        }
+
+                        // check with the state variable
+                        if (StringUtils.equals((String) state.getAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT), gaId)) {
                             status = "selected";
                         }
-                    }
 
-                    // check with the state variable
-                    if (StringUtils.equals((String) state.getAttribute(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT), gaId)) {
-                        status = "selected";
-                    }
+                        gradebookAssignmentsSelectedDisabled.put(formattedText.escapeHtml(gaId), status);
 
-                    gradebookAssignmentsSelectedDisabled.put(formattedText.escapeHtml(gaId), status);
-
-                    // gradebook assignment label
-                    String label = gAssignment.getName();
-                    if (gAssignmentIdTitles.containsKey(gaId)) {
-                        label += " ( " + rb.getFormattedMessage("usedGradebookAssignment", new Object[]{gAssignmentIdTitles.get(gaId)}) + " )";
+                        // gradebook assignment label
+                        String label = gAssignment.getName();
+                        if (gAssignmentIdTitles.containsKey(gaId)) {
+                            label += " ( " + rb.getFormattedMessage("usedGradebookAssignment", new Object[]{gAssignmentIdTitles.get(gaId)}) + " )";
+                        }
+                        gradebookAssignmentsLabel.put(formattedText.escapeHtml(gaId), label);
                     }
-                    gradebookAssignmentsLabel.put(formattedText.escapeHtml(gaId), label);
                 }
+            } catch (GradebookNotFoundException e) {
+                // exception
+                log.debug(this + ":currentAssignmentGradebookIntegrationIntoContext " + rb.getFormattedMessage("addtogradebook.alertMessage", new Object[]{e.getMessage()}));
             }
-        } catch (GradebookNotFoundException e) {
-            // exception
-            log.debug(this + ":currentAssignmentGradebookIntegrationIntoContext " + rb.getFormattedMessage("addtogradebook.alertMessage", new Object[]{e.getMessage()}));
         }
         context.put("gradebookAssignmentsSelectedDisabled", gradebookAssignmentsSelectedDisabled);
 
