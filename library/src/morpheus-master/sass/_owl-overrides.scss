@@ -15,3 +15,29 @@
 		margin-right: -#{$standard-spacing};		// to compensate for extra footer padding
 	}
 }
+
+#toolMenu ul, #subSites ul
+{
+	li
+	{
+		border-bottom: 0 none;						// remove the borders from the tool menu
+
+		&:first-of-type a
+		{
+			border-top: 0 none;						// remove the borders from the tool menu
+		}
+
+		&.is-current .#{$namespace}toolsNav__menuitem--link
+		{	//put borders on the current tool without adding additional space
+			padding-top: calc(#{$tool-menu-item-padding} - 1px);
+			padding-bottom: calc(#{$tool-menu-item-padding} - 1px);
+			border-top: 1px solid $tool-menu-item-separator-color;
+			border-bottom: 1px solid $tool-menu-item-separator-color;
+		}
+
+		.#{$namespace}toolsNav__menuitem--link
+		{
+			font-size: 1em;
+		}
+	}
+}
