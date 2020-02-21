@@ -32,10 +32,14 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistry;
@@ -46,6 +50,7 @@ import org.sakaiproject.sitestats.api.parser.ToolFactory;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.sakaiproject.sitestats.impl.parser.EventFactoryImpl;
 import org.sakaiproject.sitestats.impl.parser.ToolFactoryImpl;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -79,6 +84,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	@Setter private ToolManager					toolManager;
 	@Setter private MemoryService				memoryService;
 	@Setter private ServerConfigurationService	serverConfigurationService;
+	@Setter private SecurityService				securityService;
 
 	// ################################################################
 	// Spring methods
@@ -416,9 +422,77 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			cloneRegistry.add(t.clone());
 		}
 
+		// If not admin, remove stealthed tools from clone
+		if (!securityService.isSuperUser()) {
+			final Site site = getCurrentSite();
+			cloneRegistry.removeIf(tool -> isToolStealthed(site, tool.getToolId()));
+		}
+
 		return cloneRegistry;
 	}
-	
+
+	/**
+	 * Utility function to remove stealthed tool from the list:
+	 *	1. If user has stealthed tool(s) in site, show stealthed tool(s) present but not those which aren't
+	 *	2. If user has no stealthed tools in site, do not show any stealthed tools
+	 * @param currentSite the site currently in context
+	 * @param toolID tool registration of the tool in question
+	 * @return true if the tool is stealthed and not present in the current site; false otherwise
+	 */
+	private boolean isToolStealthed(Site currentSite, String toolID) {
+		boolean isStealthed;
+
+		// Copied this logic from SiteAction.notStealthOrHiddenTool(String)
+		Tool tool = toolManager.getTool(toolID);
+		Set<Tool> tools = toolManager.findTools(Collections.EMPTY_SET, null);
+		isStealthed = tool == null || !tools.contains(tool);
+
+		// If we have a site and the tool is stealthed, check to see if it's present in the site
+		if (currentSite != null && isStealthed) {
+
+			// Stealthed tool is prsent in site, so we don't want to remove it
+			isStealthed = !isStealthedToolPresentInSite(currentSite, toolID);
+		}
+
+		return isStealthed;
+	}
+
+	/**
+	 * Utility function to determine if a stealthed tool is present in the given site.
+	 * NOTE: can't just do "currentSite.getTool(toolID) != null" because getTool() will not
+	 * report on stealthed tools; so we have to do it the long way.
+	 *
+	 * @param site the current site in question
+	 * @param toolID the ID of the stealthed tool to check for in the current site
+	 * @return true if the stealthed tool is present in the given site; false otherwise
+	 */
+	private boolean isStealthedToolPresentInSite(Site site, String toolID) {
+		List<SitePage> pages = site.getOrderedPages();
+		for (SitePage page : pages) {
+			List<ToolConfiguration> toolConfigs = page.getTools();
+			for (ToolConfiguration toolConfig : toolConfigs) {
+				if (toolConfig.getToolId().equals(toolID)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/*
+	 * Utility function to get the current Site.
+	 */
+	private Site getCurrentSite() {
+		Site site = null;
+		try {
+			String siteID = toolManager.getCurrentPlacement().getContext();
+			site = siteService.getSite(siteID);
+		} catch (Exception ex) {} // ignore
+
+		return site;
+	}
+
 	/** Process event registry expired notifications */
 	public void update(Observable obs, Object obj) {
 		if(NOTIF_EVENT_REGISTRY_EXPIRED.equals(obj)) {
