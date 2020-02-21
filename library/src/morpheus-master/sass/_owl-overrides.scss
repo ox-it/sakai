@@ -1,5 +1,8 @@
 //*** OWL Overrides of Previously-defined Styles ***\\
 
+// OWL-3820: changes made in base/_icons.scss because of mixin
+// OWL-3820: changed .fa-question to .fa-question-o for &--help-popup in modules/tool_base.scss because of extend
+
 .#{$namespace}footer 
 {
 	.#{$namespace}footer--project 
