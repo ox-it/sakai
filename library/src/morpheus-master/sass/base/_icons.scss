@@ -40,9 +40,9 @@
 //    sakai-gradebook-tool : ( extend : fa-book ),
 //    sakai-gradebookng : ( extend : fa-book ),
     sakai-help : ( extend : fa-question-circle ),
-    sakai-home : ( extend : fa-list-ul ),
+//    sakai-home : ( extend : fa-list-ul ),
     sakai-iframe : ( extend : fa-globe ),
-    sakai-iframe-site : ( extend : fa-list-ul ),
+//    sakai-iframe-site : ( extend : fa-list-ul ),
     sakai-summary-calendar: ( extend : fa-list-ul),
     sakai-synoptic-announcement: ( extend : fa-list-ul),
     sakai-synoptic-chat: ( extend : fa-list-ul),
@@ -68,7 +68,7 @@
     sakai-realms : ( extend : fa-sitemap ),
     sakai-resetpass : ( extend : fa-user ),
     sakai-resources : ( extend : fa-folder-open ),
-    sakai-rubrics : (extend :fa-table ),
+//    sakai-rubrics : (extend :fa-table ),
     sakai-rwiki : ( extend : fa-edit ),
     sakai-samigo : ( extend : fa-check-square-o ),
     sakai-schedule : ( extend : fa-calendar ),
@@ -128,6 +128,9 @@
     sakai-gradebookng : ( extend : fa-table ),
     // lessons: change from page to book
     sakai-lessonbuildertool : ( extend : fa-book ),
+    // overview: change from list-ul to list-alt
+    sakai-home : ( extend : fa-list-alt ),
+    sakai-iframe-site : ( extend : fa-list-alt ),
     // scorm: change from file archive to puzzle piece
     sakai-scorm-tool : ( extend : fa-puzzle-piece ),
     sakai-scorm-singlepackage-tool : ( extend : fa-puzzle-piece ),
@@ -135,7 +138,8 @@
     academic-bullhorn : ( extend : fa-bell ),
 
     //// OWL core tool overrides needed:
-    // rubrics: change from spreadsheet/table to ???
+    // rubrics: change from spreadsheet/table to th-list
+    sakai-rubrics : (extend :fa-th-large ),
     // samigo: change from confusing check-square-o to ???
     // chat: change from comments-o (used by VoiceThread)
     // commons: change from fa-university/fa-institution/fa-bank (used by EZProxy)
@@ -174,6 +178,7 @@
 
 @if $skin-with-icons {
   [class*="icon-sakai--"] {
+    @extend .fa-fw;
     @extend .fa-lg;
     @extend .fa;
   }
