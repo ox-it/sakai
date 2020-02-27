@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -87,6 +86,9 @@ public class AnnouncementsBullhornHandler extends AbstractBullhornHandler {
         String[] pathParts = ref.split("/");
 
         String siteId = pathParts[3];
+        if ("!site".equals(siteId)) {
+            siteId = "!admin";
+        }
 
         SecurityAdvisor sa = unlock(new String[] {AnnouncementService.SECURE_ANNC_READ, AnnouncementService.SECURE_ANNC_READ_DRAFT});
         AnnouncementMessage message = null;
