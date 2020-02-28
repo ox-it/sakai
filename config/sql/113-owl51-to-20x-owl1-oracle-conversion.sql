@@ -1566,3 +1566,11 @@ DROP TABLE old__osp_workflow CASCADE CONSTRAINTS;
 DROP TABLE old__osp_workflow_item CASCADE CONSTRAINTS;
 DROP TABLE old__osp_workflow_parent CASCADE CONSTRAINTS;
 -- END OWL-2800
+
+-- SAK-41175
+ALTER TABLE rbc_criterion_outcome MODIFY points DOUBLE PRECISION DEFAULT NULL;
+ALTER TABLE rbc_rating MODIFY points DOUBLE PRECISION DEFAULT NULL;
+-- END SAK-41175
+
+-- Gradbook Classic tool removed in 19, move tool reference to Gradebook NG
+UPDATE SAKAI_SITE_TOOL set REGISTRATION='sakai.gradebookng' where REGISTRATION='sakai.gradebook.tool';
