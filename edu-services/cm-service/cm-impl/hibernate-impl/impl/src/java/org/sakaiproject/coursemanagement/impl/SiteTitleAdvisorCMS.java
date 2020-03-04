@@ -126,7 +126,7 @@ public class SiteTitleAdvisorCMS implements SiteTitleAdvisor
                     Map<String, String> sectionRoles = cms.findSectionRoles( currentUser.getEid() );
 
                     /*
-                     * As we iterate over providers, track any sections in which the user has a student role.
+                     * As we iterate over providers, track any section in which the user has a student role.
                      * If the user is not enrolled as a student in any sections whose category is preferred (portalUseSecTitlePreferredCategory),
                      * we'll fall back to any other section in which the user is enrolled as a student.
                      */
