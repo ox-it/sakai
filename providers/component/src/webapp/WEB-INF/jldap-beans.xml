@@ -33,7 +33,7 @@
 			JLDAPDirectoryProvider.DEFAULT_LDAP_PORT (389). Secured
 			connections are usually on 636 -->
 		<property name="ldapPort">
-			<value>636</value>
+			<value>389</value>
 		</property>
 		<property name="autoBind"> <!-- plukasew -->
 			<value>true</value>
@@ -79,7 +79,7 @@
 			is appropriate for SSL connections. Use 
 			com.novell.ldap.LDAPJSSEStartTLSFactory for TLS. -->
 		<property name="secureSocketFactory">
-			<bean class="com.novell.ldap.LDAPJSSESecureSocketFactory" />
+			<bean class="com.novell.ldap.LDAPJSSEStartTLSFactory" />
 		</property>
 
 		<!-- Optional. Indicate if connection allocation should
