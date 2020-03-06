@@ -18,6 +18,8 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.wicket.AttributeModifier;
@@ -33,7 +35,9 @@ import org.apache.wicket.model.StringResourceModel;
 
 import org.sakaiproject.gradebookng.business.importExport.UserIdentificationReport;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonGradingService;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
+import org.sakaiproject.gradebookng.tool.panels.BasePanel;
 
 /**
  * This panel provides two tables displaying students in the Gradebook that were not found in the imported file, and students found in the imported file
@@ -42,7 +46,7 @@ import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
  *
  * @author bjones86
  */
-public class GradeItemImportOmissionsPanel extends Panel
+public class GradeItemImportOmissionsPanel extends BasePanel  // OWL
 {
     IModel<ImportWizardModel> model;
 
@@ -125,6 +129,15 @@ public class GradeItemImportOmissionsPanel extends Panel
         Collections.sort( missingUsersSorted );
         Collections.sort( unknownUsersSorted );
 
+		// OWL
+		final boolean isAnon = model.getObject().isContextAnonymous();
+		final OwlAnonGradingService anonServ = businessService.owl().anon;
+		final Map<String, Integer> anonIdMap = isAnon ? anonServ.getStudentAnonIdMap(anonServ.getAnonGradingIDsForCurrentSite()) : Collections.emptyMap();
+		if (isAnon)
+		{
+			missingUsersSorted = missingUsersSorted.stream().filter(u -> anonIdMap.containsKey(u.getDisplayId())).collect(Collectors.toList());
+		}
+
         // Create and populate the list of missing users
         final ListView<GbUser> missingUsers = new ListView<GbUser>( "missingUsers", missingUsersSorted )
         {
@@ -132,7 +145,13 @@ public class GradeItemImportOmissionsPanel extends Panel
             protected void populateItem( final ListItem<GbUser> item )
             {
                 final GbUser user = item.getModelObject();
-                item.add( new Label( "missingUser", user.getDisplayId() + " (" + user.getDisplayName() + ")" ) );
+				// OWL
+				String userDisplay = user.getDisplayId() + " (" + user.getDisplayName() + ")";
+				if (isAnon)
+				{
+					userDisplay = String.valueOf(anonIdMap.get(user.getDisplayId()));
+				}
+                item.add( new Label( "missingUser",  userDisplay) );
             }
         };
 

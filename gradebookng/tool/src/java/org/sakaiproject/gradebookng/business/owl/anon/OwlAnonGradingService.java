@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.owl.OwlGbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonTypes.StudentAnonId;
 import org.sakaiproject.gradebookng.tool.owl.model.OwlGbUiSettings;
@@ -133,7 +134,7 @@ public class OwlAnonGradingService
 			Integer gradingId = anonId.getAnonGradingID();
 			if (StringUtils.isBlank(eid) || gradingId == null)
 			{
-				log.error("Found OwlAnonGradingID with empty eid ({0}) or null gradingId ({1})", eid, gradingId);
+				log.error("Found OwlAnonGradingID with empty eid ({}) or null gradingId ({})", eid, gradingId);
 				continue;
 			}
 
@@ -260,6 +261,18 @@ public class OwlAnonGradingService
 			// If there are any normal items, we display the category score
 			categoryIDsToIncludeScores.addAll(categoriesContainingNormal);
 		}
+	}
+
+	/**
+	 * Maps anon id to a GbUser for quick lookup during file imports
+	 * @return map of anonID -> GbUser
+	 */
+	public Map<String, GbUser> getAnonIDUserMap()
+	{
+		Map<String, Integer> anonIdMap = getStudentAnonIdMap(getAnonGradingIDsForCurrentSite());
+
+		return bus.getUserEidMap().entrySet().stream().filter(e -> anonIdMap.get(e.getKey()) != null)
+				.collect(Collectors.toMap(e -> String.valueOf(anonIdMap.get(e.getKey())), e -> e.getValue()));
 	}
 
 	/**

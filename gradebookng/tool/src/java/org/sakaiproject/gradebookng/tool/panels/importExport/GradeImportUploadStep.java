@@ -37,7 +37,9 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.exception.GbImportExportInvalidFileTypeException;
 import org.sakaiproject.gradebookng.business.model.ImportedSpreadsheetWrapper;
 import org.sakaiproject.gradebookng.business.util.ImportGradesHelper;
+import org.sakaiproject.gradebookng.business.owl.importExport.DpcDelegate;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
+import org.sakaiproject.gradebookng.tool.owl.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.owl.panels.importExport.OwlExportPanel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
@@ -106,7 +108,9 @@ public class GradeImportUploadStep extends BasePanel {
 						String fileName = file.getClientFileName();
 						String mimeType = file.getContentType();
 						if((StringUtils.endsWithAny(fileName, ImportGradesHelper.CSV_FILE_EXTS) || ArrayUtils.contains(ImportGradesHelper.CSV_MIME_TYPES, mimeType))
-								|| (StringUtils.endsWithAny(fileName, ImportGradesHelper.XLS_FILE_EXTS) || ArrayUtils.contains(ImportGradesHelper.XLS_MIME_TYPES, mimeType))) {
+								|| (StringUtils.endsWithAny(fileName, ImportGradesHelper.XLS_FILE_EXTS) || ArrayUtils.contains(ImportGradesHelper.XLS_MIME_TYPES, mimeType))
+								|| DpcDelegate.isDpc(fileName))  // OWL
+						{
 							continueButton.setEnabled(true);
 							page.clearFeedback();
 						} else {
@@ -121,7 +125,7 @@ public class GradeImportUploadStep extends BasePanel {
 			});
 			add(this.fileUploadField);
 
-			this.continueButton = new AjaxButton("continuebutton") {
+			this.continueButton = new SakaiAjaxButton("continuebutton") {  // OWL
 				@Override
 				public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 					processUploadedFile(target);
@@ -131,7 +135,7 @@ public class GradeImportUploadStep extends BasePanel {
 			this.continueButton.setEnabled(false);
 			add(this.continueButton);
 
-			final AjaxButton cancel = new AjaxButton("cancelbutton") {
+			final AjaxButton cancel = new SakaiAjaxButton("cancelbutton") {  // OWL
 				@Override
 				public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 					setResponsePage(GradebookPage.class);

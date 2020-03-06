@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.model.ImportedRow;
+import org.sakaiproject.gradebookng.business.owl.importExport.UserIdentifier;
 
 /**
  * Identifier utility for user EIDs.
@@ -32,7 +33,7 @@ import org.sakaiproject.gradebookng.business.model.ImportedRow;
  * @author plukasew, bjones86
  */
 @Slf4j
-public class UsernameIdentifier implements Serializable
+public class UsernameIdentifier implements Serializable, UserIdentifier  // OWL
 {
     private final Map<String, GbUser> userEidMap;
 
@@ -51,7 +52,8 @@ public class UsernameIdentifier implements Serializable
      * @param row - the row data 
      * @return the user
      */
-    private GbUser getUser(ImportedRow row)
+	@Override
+    public GbUser getUser(ImportedRow row)  // OWL
     {
         String userEID = row.getStudentEid();
         GbUser user = userEidMap.get(userEID);

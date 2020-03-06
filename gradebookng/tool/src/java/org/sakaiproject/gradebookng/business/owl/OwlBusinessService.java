@@ -3,12 +3,14 @@ package org.sakaiproject.gradebookng.business.owl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Membership;
@@ -18,15 +20,13 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonGradingService;
 import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonGradingService.AnonIDComparator;
-import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonTypes;
 import org.sakaiproject.gradebookng.business.owl.finalgrades.OwlFinalGradesService;
-import org.sakaiproject.gradebookng.tool.owl.pages.IGradesPage;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.gradebook.facades.owl.OwlAuthz;
 import org.sakaiproject.user.api.CandidateDetailProvider;
@@ -38,6 +38,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  * Entry point for the OWL business services (final grades and anon grading). Also contains methods that are generally useful.
  * @author plukasew
  */
+@Slf4j
 public class OwlBusinessService
 {
 	private static final GbGroup ALL_GROUP = new GbGroup("", "", "", GbGroup.Type.ALL); // not localized, do not use for presentation layer
@@ -188,6 +189,18 @@ public class OwlBusinessService
 		}
 
 		return gbs.currentUserHasEditPerm(gradebookID);
+	}
+
+	/**
+	 * Returns map of student number -> GbUser. Used by the import process to identify students by number.
+	 * @return
+	 */
+	public Map<String, GbUser> getUserStudentNumMap()
+	{
+		return bus.getUserEidMap().entrySet().stream()
+				.filter(e -> StringUtils.isNotBlank(e.getValue().getStudentNumber()))
+				.collect(Collectors.toMap(e -> e.getValue().getStudentNumber(), e -> e.getValue(),
+				(user1, user2) -> { log.error("User {} already mapped to this student number, ignoring user {}", user1.getUserUuid(), user2.getUserUuid()); return user1; }));
 	}
 
 	/**

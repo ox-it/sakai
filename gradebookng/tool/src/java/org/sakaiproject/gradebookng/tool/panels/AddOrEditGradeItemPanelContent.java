@@ -362,8 +362,14 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		// OWL anon
 		WebMarkupContainer anonContainer = new WebMarkupContainer("anonContainer");
 		anonContainer.setVisible(!businessService.owl().anon.getAnonGradingIDsForCurrentSite().isEmpty());
-		anonymous = new CheckBox("anonymous", new PropertyModel<>(assignmentModel, "anon"));
-		anonymous.setEnabled(!isAnonymousLocked && assignment.getId() == null);
+		anonymous = new CheckBox("anonymous", new PropertyModel<>(assignmentModel, "anon"))
+		{
+			@Override
+			public boolean isEnabled()
+			{
+				return !isAnonymousLocked && assignment.getId() == null;
+			}
+		};
 		anonContainer.add(anonymous);
 		add(anonContainer);
 	}
