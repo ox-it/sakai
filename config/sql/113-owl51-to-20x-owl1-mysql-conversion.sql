@@ -1164,3 +1164,36 @@ UPDATE SAKAI_SITE_TOOL set REGISTRATION='sakai.gradebookng' where REGISTRATION='
 update GB_CATEGORY_T set IS_EQUAL_WEIGHT_ASSNS = false where IS_EQUAL_WEIGHT_ASSNS is null;
 alter table GB_CATEGORY_T modify IS_EQUAL_WEIGHT_ASSNS bit not null default false;
 -- END SAK-43077
+
+-- BEGIN SAK-42748
+ALTER TABLE BULLHORN_ALERTS ADD INDEX IDX_BULLHORN_ALERTS_EVENT_REF(EVENT, REF);
+-- END SAK-42748
+
+-- BEGIN SAK-42498
+-- likely doesn't exist --bbailla2:
+ALTER TABLE BULLHORN_ALERTS DROP INDEX IDX_BULLHORN_ALERTS_ALERT_TYPE_TO_USER;
+ALTER TABLE BULLHORN_ALERTS ADD INDEX IDX_BULLHORN_ALERTS_TO_USER(TO_USER);
+ -- END SAK-42498
+
+-- SAK-42190 ONEDRIVE
+CREATE TABLE ONEDRIVE_USER (
+  oneDriveUserId varchar(255) NOT NULL,
+  oneDriveName varchar(255) DEFAULT NULL,
+  refreshToken longtext,
+  sakaiUserId varchar(99) DEFAULT NULL,
+  token longtext,
+  PRIMARY KEY (oneDriveUserId)
+);
+-- END SAK-42190 ONEDRIVE
+
+-- SAK-42423 GOOGLEDRIVE
+CREATE TABLE GOOGLEDRIVE_USER (
+  sakaiUserId varchar(99) NOT NULL,
+  googleDriveName varchar(255) DEFAULT NULL,
+  refreshToken longtext,
+  googleDriveUserId varchar(255) DEFAULT NULL,
+  token longtext,
+  PRIMARY KEY (sakaiUserId),
+  UNIQUE (googleDriveUserId)
+);
+-- END SAK-42423 GOOGLEDRIVE
