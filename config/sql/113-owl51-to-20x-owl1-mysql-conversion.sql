@@ -1197,3 +1197,7 @@ CREATE TABLE GOOGLEDRIVE_USER (
   UNIQUE (googleDriveUserId)
 );
 -- END SAK-42423 GOOGLEDRIVE
+
+-- OWL-2994 - update viewExtraUserProperties to viewStudentNumbers
+update sakai_realm_function set function_name = 'gradebook.viewStudentNumbers' where function_name = 'gradebook.viewExtraUserProperties';
+-- END OWL-2994
