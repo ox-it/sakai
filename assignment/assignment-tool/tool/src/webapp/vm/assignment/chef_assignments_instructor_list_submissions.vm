@@ -345,6 +345,7 @@ function printView(url) {
 				</div>
 			</div>
 			<input type="hidden" name = "allowResToggle" id = "allowResToggle" value="" />
+			#if($!allow_resubmissions)
 			<div id="allowResubmissionPanel">
 				<p class="discTria">
 				<a href="javascript:void(0)" onclick="ASN.toggleAllowResubmissionPanel();">
@@ -413,12 +414,13 @@ function printView(url) {
 						</div> <!-- allowResubmissionPanelContent -->
 			</div>
 			#end
-			
+			#end
+
 			#if ($!isAdditionalNotesEnabled && !$assignment.isGroup())
 				<a href="#" onclick="window.open(printView('#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignment.Reference)&grade_showStudentDetails=true")'));return false"><span alt="$tlang.getString("assignment.print")" class="fa fa-print" /> $tlang.getString("assignment.print") $tlang.getString("assignment.additional.notes.export.title")</a>
 			#end
-			
-			
+
+
 			#if($disableGrade)
 				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $assignment.getPeerAssessmentPeriod().toStringLocalFull())</div>
 			#end
