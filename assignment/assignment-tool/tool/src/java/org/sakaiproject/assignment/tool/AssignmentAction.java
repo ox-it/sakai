@@ -4472,6 +4472,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("assignment_expand_flag", state.getAttribute(GRADE_ASSIGNMENT_EXPAND_FLAG));
 		context.put("submission_expand_flag", state.getAttribute(GRADE_SUBMISSION_EXPAND_FLAG));
 
+		context.put("allow_resubmissions", isAllowResubmissions(state));
+
 		add2ndToolbarFields(data, context);
 
 		pagingInfoToContext(state, context);
