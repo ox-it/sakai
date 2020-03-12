@@ -63,6 +63,8 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 import org.sakaiproject.component.cover.ComponentManager;
 
+import static org.sakaiproject.authz.api.DevolvedSakaiSecurity.ADMIN_REALM_PERMISSION_USE;
+
 /**
  * <p>
  * BaseSiteService is a base implementation of the SiteService.
@@ -1255,6 +1257,11 @@ public abstract class BaseSiteService implements SiteService, Observer
  		}
  		else 
  		{
+ 			// Check early to see if the user can use the admin realm
+			if (!devolvedSakaiSecurity().canUseAdminRealm(adminRealm)) {
+				User user = userDirectoryService().getCurrentUser();
+				throw new PermissionException(user.getId(), ADMIN_REALM_PERMISSION_USE, adminRealm);
+			}
  			unlock(SECURE_ADD_SITE_MANAGED, siteReference(id));
  		}
 
