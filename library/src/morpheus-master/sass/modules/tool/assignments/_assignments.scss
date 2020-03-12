@@ -425,6 +425,11 @@
 		color: #212121;
 	}
 
+	.contentReviewIconServiceUnsupported {
+		@extend .fa, .fa-chain-broken;
+		color: $gray-light;
+	}
+
 	.contentReviewIconThreshold-1 {
 		@extend .contentReviewIcon;
 		color: #F44336;
