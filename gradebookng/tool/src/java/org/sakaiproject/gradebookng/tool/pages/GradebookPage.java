@@ -77,6 +77,7 @@ import org.sakaiproject.gradebookng.tool.component.GbGradeTable;
 import org.sakaiproject.gradebookng.tool.model.GbGradeTableData;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.owl.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.owl.model.OwlGbGradeTableData;
 import org.sakaiproject.gradebookng.tool.owl.model.UiSettings;
 import org.sakaiproject.gradebookng.tool.owl.pages.IGradesPage;
@@ -321,7 +322,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 
 		this.tableArea.add(this.gradeTable);
 
-		final Button toggleCategoriesToolbarItem = new Button("toggleCategoriesToolbarItem") {
+		final SakaiAjaxButton toggleCategoriesToolbarItem = new SakaiAjaxButton("toggleCategoriesToolbarItem") {  // OWL
 			@Override
 			protected void onInitialize() {
 				super.onInitialize();
@@ -329,10 +330,11 @@ public class GradebookPage extends BasePage implements IGradesPage {
 					add(new AttributeAppender("class", " on"));
 				}
 				add(new AttributeModifier("aria-pressed", settings.isGroupedByCategory()));
+				setWillRenderOnClick(true); // OWL
 			}
 
 			@Override
-			public void onSubmit() {
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {  // OWL
 				settings.setGroupedByCategory(!settings.isGroupedByCategory());
 				setUiSettings(settings, true);
 
