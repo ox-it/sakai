@@ -1747,6 +1747,10 @@ GbGradeTable.applyStudentFilter = function(data) {
 
       var student = row[GbGradeTable.STUDENT_COLUMN_INDEX];
       var searchableFields = [student.firstName, student.lastName, student.eid];
+	  if (GbGradeTable.settings.isStudentNumberVisible) // OWL
+	  {
+		  searchableFields.push(student.studentNumber);
+	  }
       var studentSearchString = searchableFields.join(";")
 
       for (var i=0; i<queryStrings.length; i++) {
