@@ -3,3 +3,5 @@
 -- ----------------------------------------------------------------------------------
 
 alter table SST_PRESENCE_TOTALS modify column ID bigint(19) NOT NULL auto_increment;
+
+alter table SST_DETAILED_EVENTS modify EVENT_REF varchar(512) not null;

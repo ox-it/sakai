@@ -1611,3 +1611,11 @@ CREATE TABLE GOOGLEDRIVE_USER (
 update sakai_realm_function set function_name = 'gradebook.viewStudentNumbers' where function_name = 'gradebook.viewExtraUserProperties';
 -- END OWL-2994
 
+-- clear unchanged bundle properties
+DELETE from SAKAI_MESSAGE_BUNDLE where PROP_VALUE is NULL;;
+
+ALTER TABLE GB_GRADE_RECORD_T DROP (EXCLUDED);
+
+-- START SAK-41812
+ALTER TABLE SAKAI_PERSON_T ADD PHONETIC_PRONUNCIATION VARCHAR2(255) DEFAULT NULL;
+-- END SAK-4181
