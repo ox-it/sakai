@@ -106,6 +106,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 */
 	boolean dirty;
 
+	private boolean showStats = true; // OWL
+
 	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
 		this.model = model;
@@ -115,6 +117,9 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
+
+		// OWL - determine if we are showing course grade statistics
+		showStats = serverConfigService.getBoolean("gradebookng.showCourseGradeStatistics", true);
 
 		// get all mappings available for this gradebook
 		this.gradeMappings = this.model.getObject().getGradebookInformation().getGradeMappings();
@@ -324,7 +329,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 					@Override
 					public boolean isVisible() {
-						return SettingsGradingSchemaPanel.this.total == 0;
+						return showStats && SettingsGradingSchemaPanel.this.total == 0; // OWL
 					}
 				});
 
@@ -335,6 +340,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		this.stats = new CourseGradeStatistics("stats", getStatsData());
 		this.statsWrap.add(this.stats);
+		statsWrap.setVisible(showStats); // OWL
 
 		// if there are course grade overrides, add the list of students
 		final List<GbUser> usersWithOverrides = getStudentsWithCourseGradeOverrides();
@@ -348,12 +354,13 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 			@Override
 			public boolean isVisible() {
-				return !usersWithOverrides.isEmpty();
+				return showStats && !usersWithOverrides.isEmpty(); // OWL
 			}
 		});
 
 		// chart
 		this.chart = new CourseGradeChart("gradingSchemaChart", getCurrentSiteId(), null);
+		chart.setVisible(showStats);
 		settingsGradingSchemaPanel.add(this.chart);
 	}
 

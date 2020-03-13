@@ -118,6 +118,12 @@ public class GbGradeTable extends Panel implements IHeaderContributor {
 		String title = new ResourceModel("label.submission-messager.title").getObject();
 		add(new Label("messageStudents", String.format(msg, title)).setEscapeModelStrings(false).setVisible(!anon));
 		add(new WebMarkupContainer("subMsg").setVisible(!anon));
+
+		// OWL - also remove the course grade statistics menu item
+		boolean showStats = serverConfigService.getBoolean("gradebookng.showCourseGradeStatistics", true);
+		WebMarkupContainer cgStats = new WebMarkupContainer("cgStats");
+		cgStats.add(new Label("cgStatsMsg", new ResourceModel("coursegrade.option.viewcoursegradestatistics")).setRenderBodyOnly(true));
+		add(cgStats.setVisible(showStats));
 	}
 
 	public void renderHead(final IHeaderResponse response) {
