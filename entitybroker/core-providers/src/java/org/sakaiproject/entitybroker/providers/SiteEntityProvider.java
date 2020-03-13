@@ -693,6 +693,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
         String siteId = null;
+        Object adminRealm = (params != null)?params.get("adminRealm"):null;
         if (ref.getId() != null && ref.getId().length() > 0) {
             siteId = ref.getId();
         }
@@ -716,7 +717,11 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
             Site s = null;
             try {
-                s = siteService.addSite(siteId, site.getType());
+                if (adminRealm instanceof String) {
+                    s = siteService.addSite(siteId, site.getType(), (String)adminRealm);
+                } else {
+                    s = siteService.addSite(siteId, site.getType());
+                }
                 s.setCustomPageOrdered(site.isCustomPageOrdered());
                 s.setDescription(description);
                 s.setIconUrl(site.getIconUrl());
@@ -786,7 +791,11 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
             Site s = null;
             try {
-                s = siteService.addSite(siteId, site.getType());
+                if (adminRealm instanceof String) {
+                    s = siteService.addSite(siteId, site.getType(), (String)adminRealm);
+                } else {
+                    s = siteService.addSite(siteId, site.getType());
+                }
                 s.setCustomPageOrdered(site.isCustomPageOrdered());
                 s.setDescription(description);
                 s.setIconUrl(site.getIconUrl());
