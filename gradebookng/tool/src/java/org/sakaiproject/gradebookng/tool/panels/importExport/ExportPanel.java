@@ -72,7 +72,7 @@ public class ExportPanel extends BasePanel {
 	ExportFormat exportFormat = ExportFormat.CSV;
 	boolean includeStudentName = true;
 	boolean includeStudentId = true;
-	boolean includeStudentNumber = false;
+	boolean includeStudentNumber = true;
 	private boolean includeSectionMembership = false;
 	boolean includeStudentDisplayId = false;
 	boolean includeGradeItemScores = true;
@@ -320,7 +320,7 @@ public class ExportPanel extends BasePanel {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentDisplayId")));
 				}
 				if (isCustomExport && this.includeStudentNumber) {
-					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("column.header.studentNumber")));
+					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("importExport.export.csv.headers.studentNumber")));
 				}
 				if (isCustomExport && this.includeSectionMembership) {
 					header.add(String.join(" ", IGNORE_COLUMN_PREFIX, getString("column.header.section")));

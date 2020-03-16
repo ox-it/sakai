@@ -239,7 +239,7 @@ public class OwlExportFileBuilder implements Serializable
 		}
 		if (config.includeStudentNumber)
 		{
-			header.add(String.join(" ", IGNORE_COLUMN_PREFIX, panel.getString("column.header.studentNumber")));
+			header.add(String.join(" ", IGNORE_COLUMN_PREFIX, panel.getString("importExport.export.csv.headers.studentNumber")));
 		}
 	}
 
