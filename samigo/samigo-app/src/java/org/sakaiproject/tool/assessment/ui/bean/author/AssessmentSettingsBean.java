@@ -1258,7 +1258,7 @@ public class AssessmentSettingsBean implements Serializable {
       return this.originalRetractDateString;
     }
     else {
-      return getDisplayFormatFromDate(retractDate, true);
+      return getDisplayFormatFromDate(retractDate);
     }
   }
 
