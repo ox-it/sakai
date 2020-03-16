@@ -35,6 +35,8 @@ public class ProcessedGradeItem implements Serializable, Comparable {
 
 	private static final long serialVersionUID = 1L;
 
+	public static final String COURSE_GRADE_RESERVED_TITLE = "Course Grade";
+
 	/**
 	 * Indicate the type of column
 	 */
@@ -82,7 +84,12 @@ public class ProcessedGradeItem implements Serializable, Comparable {
 		/**
 		 * Title/points have been modified
 		 */
-		MODIFIED
+		MODIFIED,
+
+		/**
+		 * Course Grade column detected (not prefixed with ignore character)
+		 */
+		COURSE_GRADE
 	}
 
 	@Getter

@@ -75,15 +75,12 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import java.util.Collections;
-import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonGradingService;
 import org.sakaiproject.gradebookng.business.owl.importExport.AnonIdentifier;
 import org.sakaiproject.gradebookng.business.owl.importExport.DpcDelegate;
 import org.sakaiproject.gradebookng.business.owl.importExport.StudentNumberIdentifier;
-import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
 
 /**
  * Helper to handling parsing and processing of an imported gradebook file
@@ -666,7 +663,9 @@ public class ImportGradesHelper {
 		log.debug("Determining status for column: {}, type: {}", column.getColumnTitle(), column.getType());
 
 		if (column.isGradeItem()) {
-			if (assignment == null) {
+			if (ProcessedGradeItem.COURSE_GRADE_RESERVED_TITLE.equalsIgnoreCase(column.getColumnTitle())) {
+				status = Status.COURSE_GRADE;
+			} else if (assignment == null) {
 				status = Status.NEW;
 			} else if (assignment.getExternalId() != null) {
 				status = Status.EXTERNAL;

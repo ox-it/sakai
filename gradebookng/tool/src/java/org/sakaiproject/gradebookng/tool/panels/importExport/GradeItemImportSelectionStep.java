@@ -338,6 +338,14 @@ public class GradeItemImportSelectionStep extends BasePanel {
 				commentWrap.add(commentsStatus);
 				item.add(commentWrap);
 
+				// special handling for course grade column not prefixed with ignore character
+				if (gradeItem.getStatus() == Status.COURSE_GRADE) {
+					gradeItemCheckbox.setVisible(false);
+					commentsCheckbox.setVisible(false);
+					gbItemWrap.addStyle(GbStyle.NO_CHANGES);
+					commentWrap.addStyle(GbStyle.NO_CHANGES);
+				}
+
 				// special handling for external assignments
 				if (gradeItem.getStatus() == Status.EXTERNAL) {
 					gradeItemCheckbox.setVisible(false);
