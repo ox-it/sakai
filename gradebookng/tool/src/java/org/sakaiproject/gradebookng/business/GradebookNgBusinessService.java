@@ -848,7 +848,7 @@ public class GradebookNgBusinessService {
 			final Double newGradePoints = FormatHelper.validateDouble(newGradeAdjusted);
 
 			// if over limit, still save but return the warning
-			if (newGradePoints.compareTo(maxPoints) > 0) {
+			if (newGradePoints != null && newGradePoints.compareTo(maxPoints) > 0) {
 				log.debug("over limit. Max: {}", maxPoints);
 				rval = GradeSaveResponse.OVER_LIMIT;
 			}
