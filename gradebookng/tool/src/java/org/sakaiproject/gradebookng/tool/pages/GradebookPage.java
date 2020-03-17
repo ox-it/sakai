@@ -36,11 +36,9 @@ import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -48,7 +46,6 @@ import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonGradingService;
 import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonGradingService.AnonStatus;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
@@ -87,7 +84,6 @@ import org.sakaiproject.gradebookng.tool.panels.BulkEditItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.SortGradeItemsPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.portal.util.PortalUtils;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.GradingType;
@@ -168,9 +164,8 @@ public class GradebookPage extends BasePage implements IGradesPage {
 			}
 		}
 
-		final GbStopWatch stopwatch = new GbStopWatch();
-		stopwatch.start();
-		stopwatch.time("GradebookPage init", stopwatch.getTime());
+		final GbStopWatch stopwatch = new GbStopWatch("GradebookPage");
+		stopwatch.time("init");
 
 		this.form = new Form<>("form");
 		add(this.form);
@@ -500,7 +495,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 
 		toolbar.setVisible(this.hasStudents || this.hasGradebookItems);
 
-		stopwatch.time("Gradebook page done", stopwatch.getTime());
+		stopwatch.time("Gradebook page done");
 	}
 
 	/**

@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.gradebookng.tool.model;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,8 +50,8 @@ public class GbGradeTableData {
 
 	public GbGradeTableData(final GradebookNgBusinessService businessService,
 			final GradebookUiSettings settings) {
-		final GbStopWatch stopwatch = new GbStopWatch();
-		stopwatch.time("GbGradeTableData init", stopwatch.getTime());
+		final GbStopWatch stopwatch = new GbStopWatch("GbGradeTableData");
+		stopwatch.time("init");
 
 		uiSettings = settings;
 
@@ -70,22 +69,22 @@ public class GbGradeTableData {
 
 		isUserAbleToEditAssessments = businessService.isUserAbleToEditAssessments();
 		assignments = businessService.getGradebookAssignments(sortBy);
-		stopwatch.time("getGradebookAssignments", stopwatch.getTime());
+		stopwatch.time("getGradebookAssignments");
 
 		grades = businessService.buildGradeMatrix(
 				assignments,
 				settings);
-		stopwatch.time("buildGradeMatrix", stopwatch.getTime());
+		stopwatch.time("buildGradeMatrix");
 
 		categories = businessService.getGradebookCategories();
-		stopwatch.time("getGradebookCategories", stopwatch.getTime());
+		stopwatch.time("getGradebookCategories");
 
 		gradebookInformation = businessService.getGradebookSettings();
-		stopwatch.time("getGradebookSettings", stopwatch.getTime());
+		stopwatch.time("getGradebookSettings");
 
 		toolNameToIconCSS = businessService.getIconClassMap();
 		defaultIconCSS = businessService.getDefaultIconClass();
-		stopwatch.time("toolNameToIconCSS", stopwatch.getTime());
+		stopwatch.time("toolNameToIconCSS");
 
 		final Gradebook gradebook = businessService.getGradebook();
 		courseGradeMap = gradebook.getSelectedGradeMapping().getGradeMap();
