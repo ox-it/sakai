@@ -209,13 +209,17 @@ public class OwlExportFileBuilder implements Serializable
 		// build column header
 		items.forEach(assignment -> {
 			final String assignmentPoints = FormatHelper.formatGradeForDisplay(assignment.getPoints().toString());
+			String externalPrefix = "";
+			if (assignment.isExternallyMaintained()) {
+				externalPrefix = IGNORE_COLUMN_PREFIX;
+			}
 			if (config.includeGradeItemScores)
 			{
-				header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, decimalEnd) + "]");
+				header.add(externalPrefix + assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, decimalEnd) + "]");
 			}
 			if (config.includeGradeItemComments)
 			{
-				header.add(String.join(" ", COMMENTS_COLUMN_PREFIX, assignment.getName()));
+				header.add(String.join(" ", externalPrefix, COMMENTS_COLUMN_PREFIX, assignment.getName()));
 			}
 		});
 
