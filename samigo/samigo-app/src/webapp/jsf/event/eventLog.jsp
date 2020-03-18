@@ -29,7 +29,7 @@
   </div>
 
   <h:panelGroup layout="block" styleClass="sakai-table-buttonContainer act pull-right clear">
-    <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}" styleClass="button">
+    <h:commandButton action="eventLog" value="#{eventLogMessages.previous}" disabled="#{!eventLog.hasPreviousPage}" title="#{eventLogMessages.previous}" styleClass="button" id="previousEventPage">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogPreviousPageListener" />
     </h:commandButton>
     <h:commandButton action="eventLog" value="#{eventLogMessages.next}" disabled="#{!eventLog.hasNextPage}" title="#{eventLogMessages.previous}" styleClass="button">
@@ -47,7 +47,7 @@
         <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
      </h:selectOneMenu>
    </div>
-   <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12">
+   <div class="divRight col-md-8 col-lg-6 col-sm-7 col-xs-12" id="eventSearchContainer">
       <h:inputText id="IE_hidden" value="" disabled="true" style="display: none;" />
       <h:inputText id="filteredUser" value="#{eventLog.filteredUser}" size="30" autocomplete="off" />
       <h:outputText value="&#160;" escape="false" />
