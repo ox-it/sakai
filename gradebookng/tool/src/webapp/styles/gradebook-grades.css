@@ -322,6 +322,14 @@ div.wicket-modal div.w_right > div {
   box-shadow: 0 0 5px 2px #444;
 }
 
+/* OWL-3679 - port gradebook modifications - port and enhance OWL-2624 - override bootstrap negative margins */
+div.wicket-modal .form-horizontal .form-group,
+div.wicket-modal .gb-grade-summary-content .gb-summary-grade-panel .row
+{
+	margin-left: 0;
+	margin-right: 0;
+}
+
 /** temporary override for page width **/
 .Mrphs-pageColumns--single {
 	max-width: none !important;
