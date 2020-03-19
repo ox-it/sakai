@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -126,8 +127,33 @@ public class CourseGradeOverridePanel extends BasePanel {
 
 				if (StringUtils.isNotBlank(newGrade)) {
 					final Map<String, Double> schema = gbInfo.getSelectedGradingScaleBottomPercents();
+
+					// OWL
+					final List<String> unmapped = gbInfo.getSelectedGradingScaleUnmappedGrades();
+					boolean gradeFound = false;
+					for (String key : schema.keySet())
+					{
+						if (key.equalsIgnoreCase(newGrade))
+						{
+							newGrade = key;
+							gradeFound = true;
+							break;
+						}
+					}
+					if (!gradeFound)
+					{
+						for (String grade : unmapped)
+						{
+							if (grade.equalsIgnoreCase(newGrade))
+							{
+								newGrade = grade;
+								gradeFound = true;
+								break;
+							}
+						}
+					}
 					
-					if (!schema.containsKey(newGrade)) {
+					if (!gradeFound) {
 						try {
 							newGrade = getGradeFromNumber(newGrade, schema, currentUserLocale);
 						}
