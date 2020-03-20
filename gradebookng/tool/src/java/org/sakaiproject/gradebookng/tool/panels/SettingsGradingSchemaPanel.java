@@ -252,6 +252,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 						// repaint table
 						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 
+						refreshDuplicateCheck(target);
+
 						// repaint chart
 						refreshCourseGradeChart(target);
 					}
@@ -287,11 +289,13 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				SettingsGradingSchemaPanel.this.modifiedSchema.setVisible(SettingsGradingSchemaPanel.this.schemaModifiedFromDefault);
 				target.add(SettingsGradingSchemaPanel.this.modifiedSchema);
 
-				// refresh chart
-				refreshCourseGradeChart(target);
-
-				// refresh stats
-				refreshStats(target);
+				// OWL
+				refreshDuplicateCheck(target);
+				if (showStats)
+				{
+					refreshCourseGradeChart(target);
+					refreshStats(target);
+				}
 			}
 		});
 
@@ -515,7 +519,12 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		protected void onUpdate(final AjaxRequestTarget t) {
 			this.target = t;
 			refreshGradingSchemaTable();
-			refreshCourseGradeChart(this.target);
+			// OWL
+			refreshDuplicateCheck(target);
+			if (showStats)
+			{
+				refreshCourseGradeChart(this.target);
+			}
 			refreshMessages();
 		}
 
@@ -591,14 +600,18 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 		// we need the current data from model
 		final List<GbGradingSchemaEntry> schemaList = getGradingSchemaList();
 
-		// add warning for duplicates
-		this.duplicateEntries.setVisible(SettingsHelper.hasDuplicates(schemaList));
-		target.add(this.duplicateEntries);
-
 		// refresh the chart
 		Map<String, Double> schemaMap = SettingsHelper.asMap(schemaList);
 		schemaMap = GradeMappingDefinition.sortGradeMapping(schemaMap);
 		this.chart.refresh(target, schemaMap);
+	}
+
+	// OWL - move the duplicate entry check into its own method so we can call it independently of refreshing the chart
+	private void refreshDuplicateCheck(AjaxRequestTarget target)
+	{
+		// add warning for duplicates
+		this.duplicateEntries.setVisible(SettingsHelper.hasDuplicates(getGradingSchemaList()));
+		target.add(this.duplicateEntries);
 	}
 
 	/**
