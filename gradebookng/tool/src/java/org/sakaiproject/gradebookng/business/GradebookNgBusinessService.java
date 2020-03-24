@@ -252,7 +252,8 @@ public class GradebookNgBusinessService {
 			// note that this list MUST exclude TAs as it is checked in the
 			// GradebookService and will throw a SecurityException if invalid
 			// users are provided
-			final Set<String> userUuids = this.siteService.getSite(givenSiteId).getUsersIsAllowed(GbRole.STUDENT.getValue());
+			Site site = siteService.getSite(givenSiteId);
+			final Set<String> userUuids = site.getUsersIsAllowed(GbRole.STUDENT.getValue());
 
 			// filter the allowed list based on membership
 			if (groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
@@ -316,6 +317,7 @@ public class GradebookNgBusinessService {
 																// to this TA
 					} else {
 						userUuids.removeAll(sectionManager.getSectionEnrollmentsForStudents(givenSiteId, userUuids).getStudentUuids()); // TA can view/grade students without section
+						userUuids.removeAll(site.getMembers().stream().filter(m -> !m.isProvided()).map(Member::getUserId).collect(Collectors.toList())); // Filter out non-provided users
 					}
 				}
 			}
