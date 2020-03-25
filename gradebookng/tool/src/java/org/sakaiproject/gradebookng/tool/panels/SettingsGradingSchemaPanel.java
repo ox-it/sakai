@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -57,8 +58,6 @@ import org.sakaiproject.service.gradebook.shared.GradeMappingDefinition;
 public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelUpdateListener {
 
 	private static final long serialVersionUID = 1L;
-
-	private static final Double UNMAPPED = Double.NaN;
 
 	IModel<GbSettings> model;
 
@@ -106,7 +105,10 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 */
 	boolean dirty;
 
-	private boolean showStats = true; // OWL
+	// OWL
+	private static final Double UNMAPPED = Double.NaN;
+	private boolean showStats = true;
+	private String registrarSchemaId = "";
 
 	public SettingsGradingSchemaPanel(final String id, final IModel<GbSettings> model, final boolean expanded) {
 		super(id, model);
@@ -123,6 +125,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 		// get all mappings available for this gradebook
 		this.gradeMappings = this.model.getObject().getGradebookInformation().getGradeMappings();
+
+		registrarSchemaId = gradeMappings.stream().filter(m -> "Official Registrar Grades".equals(m.getName())).findFirst().map(m -> m.getId()).orElse(""); // OWL
 
 		// get current one
 		this.configuredGradeMappingId = this.model.getObject().getGradebookInformation().getSelectedGradeMappingId();
@@ -224,22 +228,28 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 				final GbGradingSchemaEntry entry = item.getModelObject();
 
+				final boolean isRegistrarSchema = registrarSchemaId.equals(currentGradeMappingId);  // OWL
+
 				// grade
-				//final TextField<Double> grade = new TextField<>("grade", new PropertyModel<Double>(entry, "grade"));
-				final Label grade = new Label("grade", Model.of(entry.getGrade())); // OWL
+				final TextField<Double> grade = new TextField<>("grade", new PropertyModel<Double>(entry, "grade"));
+				grade.setEnabled(!isRegistrarSchema);  // OWL
 				item.add(grade);
 
 				// minpercent
 				final TextField<Double> minPercent = new TextField<>("minPercent", new PropertyModel<Double>(entry, "minPercent"));
-				minPercent.setVisible(!UNMAPPED.equals(entry.getMinPercent())); // OWL
+				minPercent.setVisible(!isRegistrarSchema && !UNMAPPED.equals(entry.getMinPercent()));  // OWL
+				minPercent.setEnabled(!isRegistrarSchema);  // OWL
 				item.add(minPercent);
 
-				// attach the onchange behaviours
-				minPercent.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
-				//grade.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE)); // OWL
+				if (!isRegistrarSchema)  // OWL
+				{
+					// attach the onchange behaviours
+					minPercent.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
+					grade.add(new GradingSchemaChangeBehaviour(GradingSchemaChangeBehaviour.ONCHANGE));
+				}
 
 				// remove button
-				/*final AjaxButton remove = new AjaxButton("remove") {
+				final AjaxButton remove = new AjaxButton("remove") {
 					private static final long serialVersionUID = 1L;
 
 					@Override
@@ -252,7 +262,7 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 						// repaint table
 						target.add(SettingsGradingSchemaPanel.this.schemaWrap);
 
-						refreshDuplicateCheck(target);
+						refreshDuplicateCheck(target);  // OWL
 
 						// repaint chart
 						refreshCourseGradeChart(target);
@@ -260,7 +270,8 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 
 				};
 				remove.setDefaultFormProcessing(false);
-				item.add(remove);*/ // OWL
+				remove.setVisible(!isRegistrarSchema);  // OWL
+				item.add(remove);
 			}
 		};
 		this.schemaView.setOutputMarkupId(true);
@@ -321,9 +332,15 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 				// Note that we don't need to worry about showing warnings about modifications here as the change notifications will handle
 				// that once a value has been added to the schema
 			}
+
+			// OWL
+			@Override
+			public boolean isVisible()
+			{
+				return !registrarSchemaId.equals(currentGradeMappingId);
+			}
 		};
 		addMapping.setDefaultFormProcessing(false);
-		addMapping.setVisible(false); // OWL
 		this.schemaWrap.add(addMapping);
 
 		// if there are no grades, display message instead of chart
@@ -395,14 +412,19 @@ public class SettingsGradingSchemaPanel extends BasePanel implements IFormModelU
 	 * @return the list of {@link GbGradingSchemaEntry} for the currently selected grading schema id
 	 */
 	private List<GbGradingSchemaEntry> getGradingSchemaEntries() {
-		//return SettingsHelper.asList(getBottomPercents());
 
-		// OWL: inject the unmapped grades here at the beginning of a new list to maintain expected presentation order
-		List<String> unmappedGrades = model.getObject().getGradebookInformation().getSelectedGradingScaleUnmappedGrades();
-		List<GbGradingSchemaEntry> finalEntries = unmappedGrades.stream().map(g -> new GbGradingSchemaEntry(g, UNMAPPED)).collect(Collectors.toList());
-		finalEntries.addAll(SettingsHelper.asList(getBottomPercents()));
+		if (registrarSchemaId.equals(currentGradeMappingId)) // OWL
+		{
+			// inject the unmapped grades here at the beginning of a new list to maintain expected presentation order
+			// only do this for registrar's for now because it conflicts with removing mappings in other schemas
+			List<String> unmappedGrades = model.getObject().getGradebookInformation().getSelectedGradingScaleUnmappedGrades();
+			List<GbGradingSchemaEntry> finalEntries = unmappedGrades.stream().map(g -> new GbGradingSchemaEntry(g, UNMAPPED)).collect(Collectors.toList());
+			finalEntries.addAll(SettingsHelper.asList(getBottomPercents()));
 
-		return finalEntries;
+			return finalEntries;
+		}
+
+		return SettingsHelper.asList(getBottomPercents());
 	}
 
 	/**
