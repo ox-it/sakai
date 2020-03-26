@@ -2571,10 +2571,11 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("fField", state.getAttribute(NEW_ASSIGNMENT_FOCUS));
 
                 context.put("group_submissions_enabled", Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.group.submission.enabled", true)));
-		context.put("visible_date_enabled", Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.visible.date.enabled", false)));
+		Boolean visibleEnabled = Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.visible.date.enabled", false)) && isAllowVisible(state);
+		context.put("visible_date_enabled", visibleEnabled);
 
 		context.put("allow_resubmissions", isAllowResubmissions(state));
-			
+
 		String sortedBy = (String) state.getAttribute(SORTED_BY);
 		String sortedAsc = (String) state.getAttribute(SORTED_ASC);
 		context.put("sortedBy", sortedBy);
@@ -2584,6 +2585,22 @@ public class AssignmentAction extends PagedResourceActionII
 		return template + TEMPLATE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT;
 
 	} // build_instructor_new_assignment_context
+
+	private Boolean isAllowVisible(SessionState state) {
+		try {
+			Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+			String[] types = ServerConfigurationService.getStrings("assignments.block.visible.site.types");
+			if (types != null) {
+				if (Arrays.asList(types).contains(site.getType())) {
+					return false;
+				}
+			}
+		} catch (IdUnusedException e) {
+			M_log.debug("Failed to find site to see if visible dates are allowed.");
+		}
+		return true;
+	}
+
 
 	private Boolean isAllowResubmissions(SessionState state) {
 		try {
