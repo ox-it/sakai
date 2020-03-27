@@ -831,6 +831,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String UPLOAD_ALL_HAS_COMMENTS= "upload_all_has_comments";
 	private static final String UPLOAD_ALL_HAS_FEEDBACK_TEXT= "upload_all_has_feedback_text";
 	private static final String UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT = "upload_all_has_feedback_attachment";
+	private static final String UPLOAD_ALL_HAS_DOWNLOAD_TIMES = "upload_all_has_download_times";
 	private static final String UPLOAD_ALL_WITHOUT_FOLDERS = "upload_all_without_folders";
 	private static final String UPLOAD_ALL_RELEASE_GRADES = "upload_all_release_grades";
 	
@@ -5300,6 +5301,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("hasComments", state.getAttribute(UPLOAD_ALL_HAS_COMMENTS));
 		context.put("hasFeedbackText", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT));
 		context.put("hasFeedbackAttachment", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT));
+		context.put("hasDownloadTimes", state.getAttribute(UPLOAD_ALL_HAS_DOWNLOAD_TIMES));
 		context.put("releaseGrades", state.getAttribute(UPLOAD_ALL_RELEASE_GRADES));
 		// SAK-19147
 		context.put("withoutFolders", state.getAttribute(UPLOAD_ALL_WITHOUT_FOLDERS));
@@ -16272,6 +16274,7 @@ public class AssignmentAction extends PagedResourceActionII
 					state.removeAttribute(UPLOAD_ALL_HAS_COMMENTS);
 					state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT);
 					state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT);
+					state.removeAttribute(UPLOAD_ALL_HAS_DOWNLOAD_TIMES);
 					state.removeAttribute(UPLOAD_ALL_WITHOUT_FOLDERS);
 					state.removeAttribute(UPLOAD_ALL_RELEASE_GRADES);
 				}
@@ -16291,6 +16294,8 @@ public class AssignmentAction extends PagedResourceActionII
 					boolean hasComment = uploadAll_readChoice(choices, "feedbackComments");
 					// feedback attachment
 					boolean hasFeedbackAttachment = uploadAll_readChoice(choices, "feedbackAttachments");
+					// download times
+					boolean hasDownloadTimes = uploadAll_readChoice(choices, "downloadTimes");
 					// folders
 					//boolean withoutFolders = params.getString("withoutFolders") != null ? params.getBoolean("withoutFolders") : false;
 					boolean withoutFolders = uploadAll_readChoice(choices, "withoutFolders"); // SAK-19147
@@ -16304,6 +16309,7 @@ public class AssignmentAction extends PagedResourceActionII
 					state.setAttribute(UPLOAD_ALL_HAS_COMMENTS, Boolean.valueOf(hasComment));
 					state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT, Boolean.valueOf(hasFeedbackText));
 					state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, Boolean.valueOf(hasFeedbackAttachment));
+					state.setAttribute(UPLOAD_ALL_HAS_DOWNLOAD_TIMES, Boolean.valueOf(hasDownloadTimes));
 					state.setAttribute(UPLOAD_ALL_WITHOUT_FOLDERS, Boolean.valueOf(withoutFolders));
 					state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
 					
@@ -17102,6 +17108,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT);
 		state.removeAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT);
 		state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT);
+		state.removeAttribute(UPLOAD_ALL_HAS_DOWNLOAD_TIMES);
 		state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT);
 		state.removeAttribute(UPLOAD_ALL_HAS_GRADEFILE);
 		state.removeAttribute(UPLOAD_ALL_GRADEFILE_FORMAT);

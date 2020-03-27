@@ -110,6 +110,7 @@ import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -172,7 +173,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public void setContentReviewService(ContentReviewService contentReviewService) {
 		this.contentReviewService = contentReviewService;
 	}
-	
+
+	protected DownloadTrackingService downloadTrackingService;
+	public void setDownloadTrackingService(DownloadTrackingService downloadTrackingService) {
+		this.downloadTrackingService = downloadTrackingService;
+	}
 
 	protected ContentCopy contentCopy;
 	public void setContentCopy(ContentCopy contentCopy) {
@@ -4882,6 +4887,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String  gradeFileFormat = "csv";
 		boolean withFeedbackText = false;
 		boolean withFeedbackComment = false;
+		boolean withDownloadTimes = false;
 		boolean withFeedbackAttachment = false;
 		
 		boolean withoutFolders = false;
@@ -4937,6 +4943,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					// feedback attachment
 					withFeedbackAttachment = true;
+				}
+				else if (token.contains("downloadTimes"))
+				{
+					// download times
+					withDownloadTimes = true;
 				}
 				else if (token.contains("withoutFolders"))
 				{
@@ -5033,7 +5044,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						sortedIterator = new SortedIterator(submissions.iterator(), new AssignmentSubmissionComparator());
 					}
 					zipSubmissions(aRef, a.getTitle(), content.getTypeOfGradeString(), content.getTypeOfSubmission(),
-							sortedIterator, out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat, includeNotSubmitted, a.getContext());
+							sortedIterator, out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders, withDownloadTimes, gradeFileFormat, includeNotSubmitted, a.getContext(), content.getAttachments());
 	
 					if (exceptionMessage.length() > 0)
 					{
@@ -5288,7 +5299,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	    }
 	}
 
-	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders,String gradeFileFormat, boolean includeNotSubmitted, String siteId)
+	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders, boolean withDownloadTimes, String gradeFileFormat, boolean includeNotSubmitted, String siteId, List<Reference> attachments)
 	{
 		ZipOutputStream out = null;
 
@@ -5334,6 +5345,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String caughtException = null;
 			String caughtStackTrace = null;
 			String submittersAdditionalNotesHtml = "";
+
+			String[] attachmentPaths = attachments.stream().map(Reference::getId).toArray(String[]::new);
+
+
+			DownloadEventExporter downloadExporter = null;
+			if (withDownloadTimes) {
+				downloadExporter = new DownloadEventExporter(downloadTrackingService, attachmentPaths);
+				TimeZone timeZone = TimeService.getLocalTimeZone();
+				Locale locale = rb.getLocale();
+				downloadExporter.setTimeZone(timeZone);
+				downloadExporter.setLocale(locale);
+			}
+
 
 			while (submissions.hasNext())
 			{
@@ -5551,6 +5575,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									zipAttachments(out, submittersName, feedbackSubAttachmentFolder, s.getFeedbackAttachments());
 									out.closeEntry();
 								}
+
+								// Log this submission for the export.
+								if (downloadExporter != null) {
+								downloadExporter.addUser(u.getId(), submittersString, new Date(s.getTimeSubmitted().getTime()));
+								}
 							} // if
 
 							if(isAdditionalNotesEnabled && candidateDetailProvider != null){
@@ -5587,6 +5616,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					ZipEntry gradesCSVEntry = new ZipEntry(root + "grades."+ sheet.getFileExtension());
 					out.putNextEntry(gradesCSVEntry);
 					sheet.write(out);
+					out.closeEntry();
+				}
+
+				if (downloadExporter != null)
+				{
+					ZipEntry downloadsCSVEntry = new ZipEntry(root + "downloads.csv");
+					out.putNextEntry(downloadsCSVEntry);
+					downloadExporter.write(out);
 					out.closeEntry();
 				}
 

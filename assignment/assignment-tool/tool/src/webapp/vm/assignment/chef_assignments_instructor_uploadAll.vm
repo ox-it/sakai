@@ -70,6 +70,10 @@
 				<label for="feedbackComments"><input id="feedbackComments" type="checkbox" value="feedbackComments" name="choices" class="toggleSelectedAll" #if($!hasComments)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("uploadall.choose.file.feedbackComments")</label><br/>	
 			 ## feedback attachments
 				<label for="feedbackAttachments"><input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="choices" class="toggleSelectedAll" #if($!hasFeedbackAttachment)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("download.feedback.attachment")</label><br/>
+				## download times (only on download))
+				#if($!download)
+				<label for="downloadTimes"><input id="downloadTimes" type="checkbox" value="downloadTimes" name="choices" class="toggleSelectedAll" #if($!hasDownloadTimes)checked="checked"#end onclick="ASN.deselectSelectAll( this );" /> $tlang.getString("download.download.times")</label><br/>
+				#end
 			<br/>
 			## SAK-19147 output without folders
 			#if ($!download && $enableFlatDownload)
