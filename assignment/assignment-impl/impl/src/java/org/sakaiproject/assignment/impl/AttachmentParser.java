@@ -3,6 +3,9 @@ package org.sakaiproject.assignment.impl;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parses event references for assignment attachments and extracts out the useful data.
+ */
 public class AttachmentParser {
 
     // Pattern is thread-safe
@@ -16,6 +19,10 @@ public class AttachmentParser {
         return null;
     }
 
+    /**
+     * Object containing details of the parsed data out of the file reference.
+     * Wouldn't be needed if we had multivalue returns.
+     */
     public static class Details {
 
         private final String siteId;
