@@ -723,6 +723,10 @@ ASN.invokeDownloadUrl = function(accessPointUrl, actionString, alertMessage, par
     {
         extraInfoArray[extraInfoArray.length]="feedbackComments=true";
     }
+    if (document.getElementById('downloadTimes') && document.getElementById('downloadTimes').checked)
+    {
+        extraInfoArray[extraInfoArray.length]="downloadTimes=true";
+    }
     if (document.getElementById('feedbackAttachments') && document.getElementById('feedbackAttachments').checked)
     {
         extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";

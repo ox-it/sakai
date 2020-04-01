@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+    <class name="org.sakaiproject.assignment.api.model.DownloadEventItem" table="ASN_DOWNLOAD_ITEM">
+
+        <id name="id" column="ID">
+            <generator class="native">
+                <param name="sequence">ASN_DL_SEQ</param>
+            </generator>
+        </id>
+
+        <!-- This will contain a reference to the file in content hosting which is limited to 255 characters -->
+        <!-- We index this so that we lookup all downloads for an assignment attachment -->
+        <property name="attachment" not-null="true" length="255" index="ASN_DL_I_ATT" unique-key="ASN_DL_ATT_USER">
+            <column name="ATTACHMENT"/>
+        </property>
+        <!-- This is the uuid -->
+        <!-- The uniqie key is so that for each attachment a user can only have one record -->
+        <property name="userId" not-null="true" length="36" unique-key="ASN_DL_ATT_USER">
+            <column name="USER_ID"/>
+        </property>
+        <property name="datetime" not-null="true">
+            <column name="DATETIME"/>
+        </property>
+
+    </class>
+
+</hibernate-mapping>
