@@ -11,10 +11,13 @@
             </generator>
         </id>
 
+        <!-- This will contain a reference to the file in content hosting which is limited to 255 characters -->
+        <!-- We index this so that we lookup all downloads for an assignment attachment -->
         <property name="attachment" not-null="true" length="255" index="ASN_DL_I_ATT" unique-key="ASN_DL_ATT_USER">
             <column name="ATTACHMENT"/>
         </property>
         <!-- This is the uuid -->
+        <!-- The uniqie key is so that for each attachment a user can only have one record -->
         <property name="userId" not-null="true" length="36" unique-key="ASN_DL_ATT_USER">
             <column name="USER_ID"/>
         </property>
