@@ -2934,7 +2934,7 @@ public class SiteAction extends PagedResourceActionII {
 			List<String> selectedTools = new ArrayList<>();
 			List<String> filteredTools = new ArrayList<>();
 			for (String toolId : toolsToInclude) {
-				if (!filteredTools.contains(toolId)) {
+				if ((!filteredTools.contains(toolId) && notStealthOrHiddenTool(toolId)) || SecurityService.isSuperUser()) {
 					filteredTools.add(toolId);
 				}
 
