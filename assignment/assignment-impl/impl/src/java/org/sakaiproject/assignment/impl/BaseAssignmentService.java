@@ -5578,7 +5578,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 								// Log this submission for the export.
 								if (downloadExporter != null) {
-								downloadExporter.addUser(u.getId(), submittersString, new Date(s.getTimeSubmitted().getTime()));
+									Time timeSubmitted = s.getTimeSubmitted();
+									Date submitted = (timeSubmitted != null)?new Date(s.getTimeSubmitted().getTime()):null;
+									downloadExporter.addUser(u.getId(), submittersString, submitted);
 								}
 							} // if
 

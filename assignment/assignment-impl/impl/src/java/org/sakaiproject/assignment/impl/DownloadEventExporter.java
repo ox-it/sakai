@@ -89,8 +89,7 @@ public class DownloadEventExporter {
             }
             writeRow(writer, row.toArray(new String[]{}));
         });
-        writer.close();
-
+        writer.flush();
     }
 
     protected Duration between(Date end, Date start) {
