@@ -16238,12 +16238,11 @@ public class AssignmentAction extends PagedResourceActionII
 		FileItem fileFromUpload = null;
 		String fileName = null;
 		fileFromUpload = params.getFileItem("file");
-		String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
-		
+
 		if(fileFromUpload == null)
 		{
 			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{max_file_size_mb}));
+			addAlert(state, rb.getFormattedMessage("size.exceeded", data.getRequest().getAttribute("upload.limit")));
 		}
 		else 
 		{	
@@ -17663,12 +17662,10 @@ public class AssignmentAction extends PagedResourceActionII
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
 		}
-		
+
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ParameterParser params = data.getParameters ();
-
-		String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
 
 		String mode = (String) state.getAttribute(STATE_MODE);
 		List attachments;
@@ -17697,7 +17694,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if(fileitem == null)
 		{
 			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
+			addAlert(state, rb.getFormattedMessage("size.exceeded", data.getRequest().getAttribute("upload.limit")));
 			//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
 		}
 		else if (singleFileUpload && (fileitem.getFileName() == null || fileitem.getFileName().length() == 0))
