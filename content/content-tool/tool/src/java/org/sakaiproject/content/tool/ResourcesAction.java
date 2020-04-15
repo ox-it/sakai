@@ -4330,7 +4330,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			ContentCollection collection = contentHostingService.getCollection(collectionId);
 			
-			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false, null);
+			DropboxAuthz dropboxAuthz = dropboxMode ? new DropboxAuthz() : null;
+
+			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false, null, dropboxAuthz);
 			
 			Map<String, ResourceToolAction> listActions = new HashMap<>();
 			
