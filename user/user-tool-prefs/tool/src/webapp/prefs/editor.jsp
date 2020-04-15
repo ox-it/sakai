@@ -34,11 +34,11 @@
                         </t:div>
 
                         <h3 style="display: inline-block;">
-                                <h:outputText rendered="#{UserPrefsTool.prefShowTabLabelOption==true}" value="#{msgs.prefs_editor_tab_options}" />
+                                <h:outputText value="#{msgs.prefs_editor_tab_options}" />
                         </h3>
 
-                        <p class="instruction"><h:outputText value="#{msgs.editor_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/></p>
-                        <h:selectOneRadio value="#{UserPrefsTool.selectedEditorType}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                        <p class="instruction"><h:outputText value="#{msgs.editor_prompt}" /></p>
+                        <h:selectOneRadio value="#{UserPrefsTool.selectedEditorType}" layout="pageDirection" >
                                                 <f:selectItem itemValue="auto" itemLabel="#{msgs.editor_auto}"/>
                                                 <f:selectItem itemValue="basic" itemLabel="#{msgs.editor_basic}"/>
                                                 <f:selectItem itemValue="full" itemLabel="#{msgs.editor_full}"/>
