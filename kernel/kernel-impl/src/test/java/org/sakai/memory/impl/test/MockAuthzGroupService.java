@@ -313,4 +313,7 @@ public class MockAuthzGroupService implements AuthzGroupService {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public void refreshAuthzGroup(AuthzGroup authzGroup) {}
 }

@@ -676,6 +676,23 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	    return rv;
 	}
 
+		/**
+	 * @inheritDoc
+	 */
+	@Override
+	public void refreshAuthzGroup(AuthzGroup azGroup)
+	{
+		if (azGroup == null)
+		{
+			return;
+		}
+
+		// We're refreshing it now; no need to queue it
+		refreshQueue.remove(azGroup.getId());
+
+		handleRefreshAuthzGroup(azGroup);
+	}
+
 	/**
 	 * Step through queue and call refreshAuthzGroup on all groups queued up for
 	 * a refresh
@@ -2694,7 +2711,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 * 
 		 * @param realm the realm to be refreshed
 		 */
-		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
+		public void refreshAuthzGroupInternal(BaseAuthzGroup realm)
 		{
 			if ((realm == null) || (m_provider == null)) return;
 			log.debug("Refreshing authz group: {}", realm);

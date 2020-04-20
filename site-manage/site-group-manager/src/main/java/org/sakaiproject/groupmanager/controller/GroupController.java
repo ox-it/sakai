@@ -354,6 +354,11 @@ public class GroupController {
             });
         }
 
+        if (sakaiService.getBooleanProperty(SiteHelper.WSETUP_FORCE_REFRESH_GROUP_ON_SECTION_CHANGE, false) &&  group.getId() != null)
+        {
+            sakaiService.refreshAuthzGroup(group);
+        }
+
         return GroupManagerConstants.REDIRECT_MAIN_TEMPLATE;
     }
 

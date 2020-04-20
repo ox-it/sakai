@@ -47,6 +47,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sakaiproject.authz.api.AuthzGroupService;
 
 @Service
 @Slf4j
@@ -75,6 +76,9 @@ public class SakaiService  {
 
     @Inject
     private UserDirectoryService userDirectoryService;
+
+    @Inject
+    private AuthzGroupService authzGroupService;
 
     public Optional<Site> getCurrentSite() {
         String siteId = toolManager.getCurrentPlacement().getContext();
@@ -137,6 +141,10 @@ public class SakaiService  {
 
     public void postEvent(String event, String userId) {
         eventTrackingService.post(eventTrackingService.newEvent(event, userId, true/*update event*/));
+    }
+
+    public void refreshAuthzGroup(Group group) {
+        authzGroupService.refreshAuthzGroup(group);
     }
 
     public Map<String, List<String>> getGroupLockingEntities (Group group) {
