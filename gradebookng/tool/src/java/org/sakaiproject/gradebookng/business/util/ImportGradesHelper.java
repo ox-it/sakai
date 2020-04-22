@@ -75,8 +75,10 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import java.util.Collections;
+import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonGradingService;
 import org.sakaiproject.gradebookng.business.owl.importExport.AnonIdentifier;
 import org.sakaiproject.gradebookng.business.owl.importExport.DpcDelegate;
@@ -376,9 +378,17 @@ public class ImportGradesHelper {
 			return false;
 		}
 
-		// OWLTODO
 		// Track selections if coming back from the item creation steps
-
+		List<ProcessedGradeItem> oldSelections = importWizardModel.getSelectedGradeItems();
+		final Set<String> selectedItemTitles;
+		if (oldSelections != null)
+		{
+			selectedItemTitles = oldSelections.stream().map(ProcessedGradeItem::getItemTitle).collect(Collectors.toSet());
+		}
+		else
+		{
+			selectedItemTitles = Collections.emptySet();
+		}
 
 		// If there are duplicate headings, tell the user now
 		boolean hasValidationErrors = false;
@@ -510,9 +520,36 @@ public class ImportGradesHelper {
 		sourcePage.clearFeedback();
 		sourcePage.updateFeedback(target);
 
-		// OWLTODO:
-		// If returning from the creation pages, the ProcessedGradeItems in importWizardModel are now stale and don't reflect
-		// changes made in the creation pages. Update them matching on getItemTitle()
+		// If returning from the creation pages, the ProcessedGradeItems in importWizardModel are now stale and don't reflect changes made in the creation pages. Update them matching on getItemTitle()
+		if (!CollectionUtils.isEmpty(selectedItemTitles))
+		{
+			Map<String, Assignment> titlesToAssignments = new HashMap<>();
+			Map<ProcessedGradeItem, Assignment> staleAssignmentsToCreate = importWizardModel.getAssignmentsToCreate();
+			for (Map.Entry<ProcessedGradeItem, Assignment> entry : staleAssignmentsToCreate.entrySet())
+			{
+				titlesToAssignments.put(entry.getKey().getItemTitle(), entry.getValue());
+			}
+
+			List<ProcessedGradeItem> selectedGradeItems = new ArrayList<>();
+			Map<ProcessedGradeItem, Assignment> assignmentsToCreate = new HashMap<>();
+			for (ProcessedGradeItem item : processedGradeItems)
+			{
+				String title = item.getItemTitle();
+				if (selectedItemTitles.contains(title))
+				{
+					selectedGradeItems.add(item);
+				}
+
+				Assignment toCreate = titlesToAssignments.get(title);
+				if (toCreate != null)
+				{
+					assignmentsToCreate.put(item, toCreate);
+				}
+
+				importWizardModel.setSelectedGradeItems(selectedGradeItems);
+				importWizardModel.setAssignmentsToCreate(assignmentsToCreate);
+			}
+		}
 
 		// Setup and return the model
 		importWizardModel.setProcessedGradeItems(processedGradeItems);
