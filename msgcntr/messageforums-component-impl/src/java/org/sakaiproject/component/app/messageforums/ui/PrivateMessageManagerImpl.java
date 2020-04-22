@@ -717,7 +717,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     getHibernateTemplate().initialize(pmReturn.getRecipients());
     return pmReturn;
   }
-  
+
   /**
    * helper method to get messages by type
    * @param typeUuid
@@ -1063,7 +1063,9 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
       throw new IllegalArgumentException("Null Argument");
     }
 
-    if (recipients.size() == 0 && !message.getDraft().booleanValue())
+	final boolean draft = message.getDraft();
+
+    if (recipients.isEmpty() && !draft)
     {
       /** for no just return out
         throw new IllegalArgumentException("Empty recipient list");
@@ -1074,19 +1076,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     String currentUserAsString = getCurrentUser();
     User currentUser = userDirectoryService.getCurrentUser();
     List recipientList = new UniqueArrayList();
-
-    /** test for draft message */
-    if (message.getDraft().booleanValue())
-    {
-      PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-      		currentUserAsString, typeManager.getDraftPrivateMessageType(),
-          getContextId(), Boolean.TRUE, false);
-
-      recipientList.add(receiver);
-      message.setRecipients(recipientList);
-      savePrivateMessage(message, false);
-      return;
-    }
 
     //build the message body
     List additionalHeaders = new ArrayList(1);
@@ -1166,21 +1155,17 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     			}
     		}
 
-    		/** determine if current user is equal to recipient */
-    		Boolean isRecipientCurrentUser = 
-    			(currentUserAsString.equals(userId) ? Boolean.TRUE : Boolean.FALSE);      
-
-
-    			PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(
-    					userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
-    					isRecipientCurrentUser, bcc);
-    			recipientList.add(receiver);                    
-    		}      
+    		// if saving a draft, set the recipient type to "draft received" so that the message will not show up for the recipient yet
+    		String type = draft ? typeManager.getDraftReceivedPrivateMessageType() : typeManager.getReceivedPrivateMessageType();
+    		PrivateMessageRecipientImpl receiver = new PrivateMessageRecipientImpl(userId, type, getContextId(),
+    				currentUserAsString.equals(userId), bcc);
+    		recipientList.add(receiver);
+    	}
 
     
     /** add sender as a saved recipient */
     PrivateMessageRecipientImpl sender = new PrivateMessageRecipientImpl(
-    		currentUserAsString, typeManager.getSentPrivateMessageType(),
+            currentUserAsString, draft ? typeManager.getDraftPrivateMessageType() : typeManager.getSentPrivateMessageType(),
         getContextId(), Boolean.TRUE, false);
 
     recipientList.add(sender);
@@ -1188,6 +1173,12 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements Pr
     message.setRecipients(recipientList);
 
     Message savedMessage = savePrivateMessage(message, false);
+
+	if (draft)
+	{
+		return;
+	}
+
     message.setId(savedMessage.getId());
 
     String bodyString = buildMessageBody(message);
