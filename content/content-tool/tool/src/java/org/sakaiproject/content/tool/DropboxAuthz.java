@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
@@ -210,6 +211,14 @@ public class DropboxAuthz
 	 */
 	public void configureDropboxItemPermissions(ListItem item)
 	{
+		item.setPermissions(getDropboxPermissionsForEntity(item.getEntity()));
+	}
+
+	/**
+	 * Determines the permissions that the user is authorized to perform to the specified entity
+	 */
+	public Collection<ContentPermissions> getDropboxPermissionsForEntity(Entity entity)
+	{
 		ContentHostingService contentService = getContentHostingService();
 
 		// Get the permissions - but only if we haven't already done so
@@ -220,22 +229,18 @@ public class DropboxAuthz
 		}
 
 		/*
-		 * Prepare a set of permissions to assign to the item.
+		 * Prepare a set of permissions to assign to the entity.
 		 * Start empty, but with capacity to hold all ContentPermission values
 		 */
-		Set<ContentPermissions> itemPermissions = new HashSet<>(ContentPermissions.values().length);
+		Set<ContentPermissions> entityPermissions = new HashSet<>(ContentPermissions.values().length);
 
 		if (isSuperUser)
 		{
-			itemPermissions = EnumSet.allOf(ContentPermissions.class);
-			item.setPermissions(itemPermissions);
-			return;
+			return EnumSet.allOf(ContentPermissions.class);
 		}
 		else
 		{
-			Entity entity = item.getEntity();
 			String entityId = entity.getId();
-
 			/*
 			 * Dropbox entities have the form: /group-user/<siteId>/...
 			 * Verify the entity is from the current site:
@@ -246,14 +251,14 @@ public class DropboxAuthz
 			{
 				// Not a dropbox context, or this is the wrong site
 				log.warn("Attempted to apply permissions on an entity from another site: " + entityId);
-				return;
+				return Collections.emptySet();
 			}
 
 			if (contentService.isSiteLevelDropbox(entityId))
 			{
 				// Level 1
 				// No additional logic required beyond what was completed in loadPermissions()
-				itemPermissions.addAll(level1Permissions);
+				entityPermissions.addAll(level1Permissions);
 			}
 			else if (contentService.isIndividualDropbox(entityId))
 			{
@@ -271,12 +276,12 @@ public class DropboxAuthz
 					{
 						// It's an individual's dropbox - filter out destructive permissions
 						Collection<ContentPermissions> level2NonDestructivePermissions = level2Permissions.stream().filter(cp -> cp != ContentPermissions.DELETE).collect(Collectors.toSet());
-						filterAndCopyLevelPermissionsForItem(level2NonDestructivePermissions, itemPermissions, item);
+						filterAndCopyLevelPermissionsForEntity(level2NonDestructivePermissions, entityPermissions, entity);
 					}
 					else
 					{
 						// It's a sibling - treat like a regular resource
-						filterAndCopyLevelPermissionsForItem(level2Permissions, itemPermissions, item);
+						filterAndCopyLevelPermissionsForEntity(level2Permissions, entityPermissions, entity);
 					}
 				}
 			}
@@ -285,43 +290,43 @@ public class DropboxAuthz
 				// Level 3
 				if (canMaintainEntity(entityId))
 				{
-					filterAndCopyLevelPermissionsForItem(level3Permissions, itemPermissions, item);
+					filterAndCopyLevelPermissionsForEntity(level3Permissions, entityPermissions, entity);
 				}
 			}
 			else
 			{
 				log.warn("The specified entity is not a dropbox entity: " + entityId);
-				return;
+				return Collections.emptySet();
 			}
 
 			if (hasSiteUpdate)
 			{
-				itemPermissions.add(ContentPermissions.SITE_UPDATE);
+				entityPermissions.add(ContentPermissions.SITE_UPDATE);
 			}
 		}
 
-		item.setPermissions(itemPermissions);
+		return entityPermissions;
 	}
 
 	/**
-	 * Populates the specified itemPermissions collection with a subset of the specified levelPermissions.
+	 * Populates the specified entityPermissions collection with a subset of the specified levelPermissions.
 	 * DELETE and REVISE will only be copied in consideration with who the file owner is, in combination with the realm permissions:
 	 * content.delete.any, content.delete.own, content.revise.any, and content.revise.own
-	 * @param levelPermissions the list of permissions that the item *might* get at its level
-	 * @param itemPermissions the target collection to copy permissions into
-	 * @param item the ListItem that the user is being assigned permissions over
+	 * @param levelPermissions the list of permissions that the entity *might* get at its level
+	 * @param entityPermissions the target collection to copy permissions into
+	 * @param entity the entity that the user is being assigned permissions over
 	 */
-	private void filterAndCopyLevelPermissionsForItem(Collection<ContentPermissions> levelPermissions, Collection<ContentPermissions> itemPermissions, ListItem item)
+	private void filterAndCopyLevelPermissionsForEntity(Collection<ContentPermissions> levelPermissions, Collection<ContentPermissions> entityPermissions, Entity entity)
 	{
-		itemPermissions.addAll(
+		entityPermissions.addAll(
 			levelPermissions.stream().filter(permission ->
 			{
 				switch (permission)
 				{
 					case DELETE:
-						return canDeleteItem(item);
+						return canDeleteEntity(entity);
 					case REVISE:
-						return canReviseItem(item);
+						return canReviseEntity(entity);
 					default:
 						return true;
 				}
@@ -371,25 +376,43 @@ public class DropboxAuthz
 	}
 
 	/**
-	 * Determines if we can delete an item from a resource permissions / ownership standpoint
+	 * Determines if we can delete an entity from a resource permissions standpoint
 	 */
-	private boolean canDeleteItem(ListItem item)
+	private boolean canDeleteEntity(Entity entity)
 	{
-		if (hasContentDeleteAny)
+		ContentHostingService contentService = getContentHostingService();
+
+		// Match behaviour of the Resources tool - to delete folders requires both delete and revise permission
+		boolean requiresRevise = contentService.isCollection(entity.getId());
+
+		// Use mutable booleans to benefit performance if we need to check the file's creator twice
+		MutableBoolean isUserIsCreatorKnown = new MutableBoolean(false);
+		MutableBoolean isUserCreator = new MutableBoolean(false);
+
+		if (hasContentDeleteAny && (!requiresRevise || canReviseEntity(entity, isUserIsCreatorKnown, isUserCreator)))
 		{
 			return true;
 		}
-		if (hasContentDeleteOwn)
+		if (hasContentDeleteOwn && (!requiresRevise || canReviseEntity(entity, isUserIsCreatorKnown, isUserCreator)))
 		{
-			return isCurrentUserCreator(item);
+			return isCurrentUserCreator(entity, isUserIsCreatorKnown, isUserCreator);
 		}
 		return false;
 	}
 
 	/**
-	 * Determines if we can revise an item from a resource permissions / ownership standpoint
+	 * Convenience overload
 	 */
-	private boolean canReviseItem(ListItem item)
+	private boolean canReviseEntity(Entity entity)
+	{
+		return canReviseEntity(entity, new MutableBoolean(false), new MutableBoolean(false));
+	}
+
+	/**
+	 * Determines if we can revise an entity from a resource permissions standpoint
+	 * Takes MutableBooleans to benefit performance when called more than once on the same entity
+	 */
+	private boolean canReviseEntity(Entity entity, MutableBoolean isUserIsCreatorKnown, MutableBoolean userIsCreator)
 	{
 		if (hasContentReviseAny)
 		{
@@ -397,19 +420,33 @@ public class DropboxAuthz
 		}
 		if (hasContentReviseOwn)
 		{
-			return isCurrentUserCreator(item);
+			return isCurrentUserCreator(entity, isUserIsCreatorKnown, userIsCreator);
 		}
 		return false;
 	}
 
 	/**
-	 * True iff the user is the creator of the specified item
+	 * True iff the user is the creator of the specified entity.
+	 *
+	 * Takes MutableBooleans to benefit performance when called more than once on the same entity:
+	 * If isUserIsCreatorKnown is false, it is mutated to true, and userIsCreator is mutated to the return value. Otherwise,
+	 * short circuits and returns the value of userIsCreator.
+	 *
+	 * @param entity the entity on which we're checking the PROP_CREATOR property
+	 * @param isUserIsCreatorKnown whether to short circuit, returning the userIsCreator param
+	 * @param userIsCreator the value to return
 	 */
-	private boolean isCurrentUserCreator(ListItem item)
+	private boolean isCurrentUserCreator(Entity entity, MutableBoolean isUserIsCreatorKnown, MutableBoolean userIsCreator)
 	{
-		ResourceProperties properties = item.getEntity().getProperties();
+		if (isUserIsCreatorKnown.isTrue())
+		{
+			return userIsCreator.isTrue();
+		}
+		ResourceProperties properties = entity.getProperties();
 		String creator = properties.getProperty(ResourceProperties.PROP_CREATOR);
-		return getCurrentUserId().equals(creator);
+		userIsCreator.setValue(getCurrentUserId().equals(creator));
+		isUserIsCreatorKnown.setValue(true);
+		return userIsCreator.isTrue();
 	}
 
 	private String getCurrentUserId()
