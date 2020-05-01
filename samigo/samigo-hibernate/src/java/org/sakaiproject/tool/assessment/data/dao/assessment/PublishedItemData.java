@@ -77,7 +77,7 @@ public class PublishedItemData
   private Date createdDate;
   private String lastModifiedBy;
   private Date lastModifiedDate;
-  @Getter private Boolean isExtraCredit = Boolean.FALSE;
+  @Getter @Setter private Boolean isExtraCredit = Boolean.FALSE;
   private Set itemTextSet;
   private Set itemMetaDataSet;
   private Set itemFeedbackSet;
