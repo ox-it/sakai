@@ -32,9 +32,6 @@
      var continueButtonValue = "<h:outputText value='#{deliveryMessages.continue_assessment_}' />";
      var selector = "input[value='" + beginButtonValue + "']";
 
-     var time_30_warning = "<h:outputText value="#{deliveryMessages.time_30_warning} "/><h:outputText value="#{deliveryMessages.time_30_warning_2} " />";
-     var time_due_warning = "<h:outputText value="#{deliveryMessages.time_due_warning_1} "/><h:outputText value="#{deliveryMessages.time_due_warning_2} " />";
-
 	function enableDisableSubmitButton() {
 		var honourPledgeRequired = $('#takeAssessmentForm\\:honor_pledge').length > 0;
 		var understandPledgeRequired = $("#takeAssessmentForm\\:understand_pledge").length > 0;
