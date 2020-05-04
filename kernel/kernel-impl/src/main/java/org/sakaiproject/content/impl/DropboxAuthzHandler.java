@@ -45,8 +45,8 @@ public class DropboxAuthzHandler
 	protected static UserDirectoryService userDirectoryService = null;
 
 	private static final List<String> destructiveLocks = Arrays.asList(
-		ContentHostingService.AUTH_RESOURCE_REMOVE_OWN,
-		ContentHostingService.AUTH_RESOURCE_REMOVE_ANY
+		ContentHostingService.AUTH_DROPBOX_REMOVE_OWN,
+		ContentHostingService.AUTH_DROPBOX_REMOVE_ANY
 	);
 
 	/**
@@ -70,6 +70,8 @@ public class DropboxAuthzHandler
 		{
 			return true;
 		}
+
+		lock = convertLockToDropbox(lock);
 
 		/*
 		 * Dropbox entity format:
@@ -115,6 +117,25 @@ public class DropboxAuthzHandler
 	}
 
 	/**
+	 * Convert resources' write and delete locks to use dropbox's permissions
+	 */
+	private static String convertLockToDropbox(String lock)
+	{
+		switch(lock)
+		{
+			case ContentHostingService.AUTH_RESOURCE_WRITE_ANY:
+				return ContentHostingService.AUTH_DROPBOX_WRITE_ANY;
+			case ContentHostingService.AUTH_RESOURCE_WRITE_OWN:
+				return ContentHostingService.AUTH_DROPBOX_WRITE_OWN;
+			case ContentHostingService.AUTH_RESOURCE_REMOVE_ANY:
+				return ContentHostingService.AUTH_DROPBOX_REMOVE_ANY;
+			case ContentHostingService.AUTH_RESOURCE_REMOVE_OWN:
+				return ContentHostingService.AUTH_DROPBOX_REMOVE_OWN;
+		}
+		return lock;
+	}
+
+	/**
 	 * Determines if the user has authorization for the specified lock on the specified site dropbox (/group-user/<siteId>).
 	 * Users with dropbox.maintain can add, read, and if applicable via content permissions, write.
 	 * Users with dropbox.groups.own and dropbox.own can only read.
@@ -129,14 +150,14 @@ public class DropboxAuthzHandler
 				case ContentHostingService.AUTH_RESOURCE_ADD:
 				case ContentHostingService.AUTH_RESOURCE_READ:
 					return true;
-				case ContentHostingService.AUTH_RESOURCE_WRITE_OWN:
+				case ContentHostingService.AUTH_DROPBOX_WRITE_OWN:
 					// reject if user didn't create the site dropbox
 					if (!isCurrentUserCreator(ContentHostingService.COLLECTION_DROPBOX + siteId))
 					{
 						return false;
 					}
 					// user created it; flow through:
-				case ContentHostingService.AUTH_RESOURCE_WRITE_ANY:
+				case ContentHostingService.AUTH_DROPBOX_WRITE_ANY:
 					return securityService.unlock(lock, siteService.siteReference(siteId));
 			}
 		}
@@ -212,11 +233,11 @@ public class DropboxAuthzHandler
 			case ContentHostingService.AUTH_RESOURCE_ADD:
 			case ContentHostingService.AUTH_RESOURCE_READ:
 				return true;
-			case ContentHostingService.AUTH_RESOURCE_WRITE_ANY:
-			case ContentHostingService.AUTH_RESOURCE_REMOVE_ANY:
+			case ContentHostingService.AUTH_DROPBOX_WRITE_ANY:
+			case ContentHostingService.AUTH_DROPBOX_REMOVE_ANY:
 				return securityService.unlock(lock, siteReference);
-			case ContentHostingService.AUTH_RESOURCE_WRITE_OWN:
-			case ContentHostingService.AUTH_RESOURCE_REMOVE_OWN:
+			case ContentHostingService.AUTH_DROPBOX_WRITE_OWN:
+			case ContentHostingService.AUTH_DROPBOX_REMOVE_OWN:
 				return isCurrentUserCreator(entityId) && securityService.unlock(lock, siteReference);
 		}
 		return false;

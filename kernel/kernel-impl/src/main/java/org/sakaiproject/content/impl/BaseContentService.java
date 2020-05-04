@@ -923,6 +923,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, HardDeleteAware
 			functionManager.registerFunction(AUTH_DROPBOX_OWN, false);
 			functionManager.registerFunction(AUTH_DROPBOX_GROUPS, false);
 			functionManager.registerFunction(AUTH_DROPBOX_MAINTAIN, false);
+			functionManager.registerFunction(AUTH_DROPBOX_WRITE_OWN, false);
+			functionManager.registerFunction(AUTH_DROPBOX_WRITE_ANY, false);
+			functionManager.registerFunction(AUTH_DROPBOX_REMOVE_OWN, false);
+			functionManager.registerFunction(AUTH_DROPBOX_REMOVE_ANY, false);
 
 			// quotas
 			m_siteQuota = Long.parseLong(m_serverConfigurationService.getString("content.quota", Long.toString(m_siteQuota)));

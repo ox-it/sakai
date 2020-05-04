@@ -183,6 +183,18 @@ public interface ContentHostingService extends EntityProducer
 	/** Security function for those who may maintain dropboxes. */
 	public static final String AUTH_DROPBOX_MAINTAIN = "dropbox.maintain";
 
+	/** Security function for those who may modify their own content within dropboxes they maintain. */
+	public static final String AUTH_DROPBOX_WRITE_OWN = "dropbox.write.own";
+
+	/** Security function for those who may modify any content within dropboxes they maintain. */
+	public static final String AUTH_DROPBOX_WRITE_ANY = "dropbox.write.any";
+
+	/** Security function for those who may remove their own content within dropboxes they maintain. */
+	public static final String AUTH_DROPBOX_REMOVE_OWN = "dropbox.delete.own";
+
+	/** Security function for those who may remove any content within dropboxes they maintain. */
+	public static final String AUTH_DROPBOX_REMOVE_ANY = "dropbox.delete.any";
+
 	/** Security function for accessing hidden entities */
 	public static final String AUTH_RESOURCE_HIDDEN = "content.hidden";
 	

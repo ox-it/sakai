@@ -148,10 +148,10 @@ public class DropboxAuthz
 
 			hasSiteUpdate = siteService.allowUpdateSite(siteId);
 
-			hasContentReviseAny = securityService.unlock(ContentHostingService.AUTH_RESOURCE_WRITE_ANY, siteReference);
-			hasContentReviseOwn = securityService.unlock(ContentHostingService.AUTH_RESOURCE_WRITE_OWN, siteReference);
-			hasContentDeleteAny = securityService.unlock(ContentHostingService.AUTH_RESOURCE_REMOVE_ANY, siteReference);
-			hasContentDeleteOwn = securityService.unlock(ContentHostingService.AUTH_RESOURCE_REMOVE_OWN, siteReference);
+			hasContentReviseAny = securityService.unlock(ContentHostingService.AUTH_DROPBOX_WRITE_ANY, siteReference);
+			hasContentReviseOwn = securityService.unlock(ContentHostingService.AUTH_DROPBOX_WRITE_OWN, siteReference);
+			hasContentDeleteAny = securityService.unlock(ContentHostingService.AUTH_DROPBOX_REMOVE_ANY, siteReference);
+			hasContentDeleteOwn = securityService.unlock(ContentHostingService.AUTH_DROPBOX_REMOVE_OWN, siteReference);
 		}
 
 
