@@ -32,6 +32,7 @@
 	#if ($alertMessage)
 		<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>
 	#end
+	#chef_flashnotif()
 	#if($importQueued)
 		<div class="sak-banner-info">
 			#if($importQueuedNoEmail)
@@ -451,5 +452,4 @@
 		</div>
 		<div style="clear:both"> </div>
 		#end
-	#chef_flashnotif()
 </div>

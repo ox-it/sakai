@@ -866,26 +866,3 @@ blockquote p {
 .ui-datepicker-trigger:hover{font-size:1em;}
 .ui-datepicker-trigger span.fa{color:#000;}
 .ui-datepicker-trigger:hover span.fa{color:#000;}
-
-/* css for duplicate site alert*/
-#flashNotif  a.flashNotifClose {
-    text-decoration: none;
-    font-size:120%;
-    position:absolute;
-    top:5px;
-    right:5px;
-}
-#flashNotif {
-    position:fixed;
-    top:45px;
-    left:30%;
-    right:30%;
-    padding:15px;
-    border:1px solid #ccc;
-    background: #ffe;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    box-shadow:2px 2px 2px #cccccc;
-    vertical-align:middle;
-}
