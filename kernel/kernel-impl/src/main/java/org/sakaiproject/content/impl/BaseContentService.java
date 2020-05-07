@@ -4270,6 +4270,28 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	} // allowGetResource
 
 	/**
+	 * Check that we should be allowing access to the context of the reference.
+	 * This is used to prevent people downloading assignment related files when a site is unpublished.
+	 * @param id The reference being looked up.
+	 * @return true if the user is allowed.
+	 */
+	boolean allowGetResourceContext(String id)
+	{
+		// id = /attachment/db52f761-fda4-447a-a757-2c83effb99c9/Assignments/6dde06a2-5f59-43a7-846b-4757a17a28a9/folders.zip
+		if (id.startsWith(ATTACHMENTS_COLLECTION)) {
+			String[] parts = id.split("/");
+			if (parts.length > 3) {
+				String siteId = parts[2];
+				// Limit our extra strictness to just assignments.
+				if (StringUtils.isNotEmpty(siteId) && "Assignments".equals(parts[3]) && m_siteService.siteExists(siteId)) {
+					return m_siteService.allowAccessSite(siteId);
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Check access to the resource with this local resource id. For non-collection resources only.
 	 * 
 	 * @param id
@@ -6868,7 +6890,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (ref.getId().endsWith(Entity.SEPARATOR)) throw new EntityNotDefinedException(ref.getReference());
 
 		// need read permission
-		if (!allowGetResource(ref.getId()))
+		if (!allowGetResource(ref.getId()) || !allowGetResourceContext(ref.getId()))
 			throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), AUTH_RESOURCE_READ, ref.getReference());
 
 		ContentResource resource = null;
