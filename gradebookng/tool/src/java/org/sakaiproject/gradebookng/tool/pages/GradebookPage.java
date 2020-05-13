@@ -561,6 +561,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 
 		if (settings == null) {
 			settings = new GradebookUiSettings();
+			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
 			settings.initializeCategoryColors(this.businessService.getGradebookCategories());
 			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), GradebookUiSettings.generateRandomRGBColorString(null));
 			setUiSettings(settings);
@@ -569,10 +570,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 		// See if the user has a database-persisted preference for Group by Category
 		String userGbUiCatPref = this.businessService.getUserGbPreference("GROUP_BY_CAT");
 		if (StringUtils.isNotBlank(userGbUiCatPref)) {
-			settings.setCategoriesEnabled(new Boolean(userGbUiCatPref));
-		}
-		else {
-			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
+			settings.setGroupedByCategory(Boolean.valueOf(userGbUiCatPref));
 		}
  
 		return settings;
