@@ -25,30 +25,8 @@ UPDATE SAKAI_EVENT SET EVENT = 'sam.assessment.submit.timer.url' WHERE EVENT = '
 
 -- SAM-3016
 ALTER TABLE SAM_EVENTLOG_T ADD IPADDRESS varchar2(99);
-
--- SAK-30207
-/*CREATE TABLE CONTENTREVIEW_ITEM (
-    ID                  NUMBER(19) NOT NULL,
-    VERSION             INTEGER NOT NULL,
-    PROVIDERID          INTEGER NOT NULL,
-    CONTENTID           VARCHAR2(255) NOT NULL,
-    USERID              VARCHAR2(255),
-    SITEID              VARCHAR2(255),
-    TASKID              VARCHAR2(255),
-    EXTERNALID          VARCHAR2(255),
-    DATEQUEUED          TIMESTAMP NOT NULL,
-    DATESUBMITTED       TIMESTAMP,
-    DATEREPORTRECEIVED  TIMESTAMP,
-    STATUS              NUMBER(19),
-    REVIEWSCORE         INTEGER,
-    LASTERROR           CLOB,
-    RETRYCOUNT          NUMBER(19),
-    NEXTRETRYTIME       TIMESTAMP NOT NULL,
-    ERRORCODE           INTEGER,
-    CONSTRAINT ID PRIMARY KEY (ID),
-    CONSTRAINT PROVIDERID UNIQUE (PROVIDERID, CONTENTID)
-);*/
--- END SAK-30207
+-- ^ "ORA-01430: column being added already exists in table" -saktest
+-- Was ran twice due to slash of block comment
 
 -- Alterations for OWL:
 -- alter table to add the version, providerId
@@ -58,7 +36,8 @@ ALTER TABLE CONTENTREVIEW_ITEM ADD PROVIDERID INTEGER default -1 NOT NULL;
 -- TODO: Eventually drop URLACCESSED, SUBMISSIONID, RESUBMISSION, EXTERNALGRADE, but for now let them be null
 ALTER TABLE CONTENTREVIEW_ITEM MODIFY (URLACCESSED NULL);
 -- SUBMISSIONID already allows null
-ALTER TABLE CONTENTREVIEW_ITEM MODIFY (EXTERNALGRADE NULL);
+-- ALTER TABLE CONTENTREVIEW_ITEM MODIFY (EXTERNALGRADE NULL);
+-- "ORA-01451: column to be modified to NULL cannot be modified to NULL" -saktest
 -- EXTERNALGRADE already allows null
 
 -- SAK-33723 Content review item properties
@@ -171,9 +150,21 @@ DELETE FROM SAKAI_POSTEM_STUDENT_GRADES WHERE student_id IN (SELECT id FROM SAKA
 DELETE FROM SAKAI_POSTEM_STUDENT WHERE id IN (SELECT id FROM SAKAI_POSTEM_STUDENT_DUPES);
 DROP TABLE SAKAI_POSTEM_STUDENT_DUPES;
 
+-- Original; ran on saktest:
+-- DROP INDEX POSTEM_STUDENT_USERNAME_I;
+-- ^ "ORA_01418: specified index does not exist" -saktest
+--ALTER TABLE SAKAI_POSTEM_STUDENT MODIFY ( "USERNAME" VARCHAR2(99 CHAR) ) ;
+--CREATE UNIQUE INDEX POSTEM_USERNAME_SURROGATE ON SAKAI_POSTEM_STUDENT ("USERNAME" ASC, "SURROGATE_KEY" ASC);
+-- ^ "name is already used by an existing object" -saktest. Column is altered, play it safe and rebuild the index
+
+-- Amended:
+-- Despite error, this is harmless so leave uncommented:
 DROP INDEX POSTEM_STUDENT_USERNAME_I;
+-- Saktest claims the POSTEM_USERNAME_SURROGATE index exists, and since we're about to modify a column used by it, play it safe and rebuild it
+DROP INDEX POSTEM_USERNAME_SURROGATE;
 ALTER TABLE SAKAI_POSTEM_STUDENT MODIFY ( "USERNAME" VARCHAR2(99 CHAR) ) ;
 CREATE UNIQUE INDEX POSTEM_USERNAME_SURROGATE ON SAKAI_POSTEM_STUDENT ("USERNAME" ASC, "SURROGATE_KEY" ASC);
+
 -- END SAK-15708
 
 -- BEGIN SAK-32083 TAGS
@@ -238,133 +229,14 @@ VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, t.function_name);
 -- END SAK-32083 TAGS
 
 -- Decided that 3432 is inappropriate for OWL
-/*
--- BEGIN 3432 Grade Points Grading Scale
--- We have a few grading scales in production already; the registrar grades are the only ones accepted for course grade submission. So this isn't an issue --bbailla2
--- add the new grading scale
-INSERT INTO gb_grading_scale_t (id, object_type_id, version, scale_uid, name, unavailable)
-VALUES (gb_grading_scale_s.nextval, 0, 0, 'GradePointsMapping', 'Grade Points', 0);
-
--- add the grade ordering
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'A (4.0)', 0);
-
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'A- (3.67)', 1);
-
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'B+ (3.33)', 2);
-
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'B (3.0)', 3);
-
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'B- (2.67)', 4);
-
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'C+ (2.33)', 5);
-
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'C (2.0)', 6);
-
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'C- (1.67)', 7);
-
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'D (1.0)', 8);
-
-INSERT INTO gb_grading_scale_grades_t (grading_scale_id, letter_grade, grade_idx)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 'F (0)', 9);
-
--- add the percent mapping
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 100, 'A (4.0)');
-
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 90, 'A- (3.67)');
-
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 87, 'B+ (3.33)');
-
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 83, 'B (3.0)');
-
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 80, 'B- (2.67)');
-
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 77, 'C+ (2.33)');
-
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 73, 'C (2.0)');
-
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 70, 'C- (1.67)');
-
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 67, 'D (1.0)');
-
-INSERT INTO gb_grading_scale_percents_t (grading_scale_id, percent, letter_grade)
-VALUES(
-(SELECT id FROM gb_grading_scale_t WHERE scale_uid = 'GradePointsMapping')
-, 0, 'F (0)');
-
--- add the new scale to all existing gradebook sites
-INSERT INTO gb_grade_map_t (id, object_type_id, version, gradebook_id, gb_grading_scale_t)
-SELECT 
-  gb_grade_mapping_s.nextval
-, 0
-, 0
-, gb.id
-, gs.id
-FROM gb_gradebook_t gb
-JOIN gb_grading_scale_t gs
-  ON gs.scale_uid = 'GradePointsMapping';
--- END 3432
-*/
 
 -- SAM-1129 Change the column DESCRIPTION of SAM_QUESTIONPOOL_T from VARCHAR2(255) to CLOB
 
-ALTER TABLE SAM_QUESTIONPOOL_T ADD DESCRIPTION_COPY VARCHAR2(255);
+ALTER TABLE SAM_QUESTIONPOOL_T ADD DESCRIPTION_COPY VARCHAR2(255 CHAR);
 UPDATE SAM_QUESTIONPOOL_T SET DESCRIPTION_COPY = DESCRIPTION;
+-- ^ "ORA-12899: value too large for column
+-- "SAKAIADMIN"."SAM_QUESTIONPOOL_T"."DESCRIPTION_COPY" (actual: 261, maximum: 255)" -saktest
+-- Changed DESCRIPTION_COPY from VARCHAR(255) to VARCHAR(255 CHAR)
 
 UPDATE SAM_QUESTIONPOOL_T SET DESCRIPTION = NULL;
 ALTER TABLE SAM_QUESTIONPOOL_T MODIFY DESCRIPTION LONG;
@@ -501,7 +373,8 @@ ALTER TABLE user_audits_log MODIFY (role_name varchar2(99));
 -- Added this alter table, as the 'drop index' command breaks without it --bbailla2
 ALTER TABLE user_audits_log DROP PRIMARY KEY DROP INDEX;
 -- I suspect this is now unneeded --bbailla2
-DROP INDEX user_audits_log_index;
+-- DROP INDEX user_audits_log_index;
+-- Indeed: ^ "ORA-01418: specified index does not exist" -saktest
 CREATE INDEX user_audits_log_index on user_audits_log (site_id);
 -- END SAK-33430
 
@@ -840,6 +713,7 @@ begin
         execute immediate stc;
     end loop;
 end;
+/
 
 -- KNL-945 Hibernate changes
 
@@ -890,6 +764,7 @@ BEGIN
    INTO   seq_start   FROM SAM_PUBLISHEDSECTIONMETADATA_T;
    EXECUTE IMMEDIATE 'CREATE SEQUENCE SAM_PUBSECTIONMETADATA_ID_S START WITH '||seq_start||' INCREMENT BY 1 NOMAXVALUE';
 END;
+/
 
 -- End SAK-40182
 
@@ -1229,7 +1104,10 @@ ALTER TABLE RBC_CRITERION_OUTCOME DROP COLUMN COMMENTS_COPY;
 -- SAK_41228
 -- We did this; doesn't hurt: --bbailla2
 UPDATE CM_MEMBERSHIP_T SET USER_ID = LOWER(USER_ID);
-UPDATE CM_ENROLLMENT_T SET USER_ID = LOWER(USER_ID);
+-- UPDATE CM_ENROLLMENT_T SET USER_ID = LOWER(USER_ID);
+-- "ORA-00001: unique constraint (SAKAIADMIN.SYS_C0015617) violated" -saktest
+-- Confirmed that every row whose USER_ID value contains uppercase letters already has a duplicate lowercase row in production. There are 4 such occurrences. So delete them:
+DELETE FROM CM_ENROLLMENT_T WHERE USER_ID != LOWER(USER_ID);
 UPDATE CM_OFFICIAL_INSTRUCTORS_T SET INSTRUCTOR_ID = LOWER(INSTRUCTOR_ID);
 -- End of SAK_41228
 
@@ -1244,65 +1122,9 @@ UPDATE CM_OFFICIAL_INSTRUCTORS_T SET INSTRUCTOR_ID = LOWER(INSTRUCTOR_ID);
 -- Removed "column" keyword, that's invalid in Oracle (should contribute this) --bbailla2
 ALTER TABLE SAM_ASSESSMENTBASE_T ADD CATEGORYID NUMBER(19);
 ALTER TABLE SAM_PUBLISHEDASSESSMENT_T ADD CATEGORYID NUMBER(19);
+-- ^ "ORA-01430: column being added already exists in table" -saktest.
+-- Was executed twice due to the slash of a block comment
 -- END SAK-41825
-
--- User Activity
-
--- We did this! --bbailla2
-/*CREATE TABLE SST_DETAILED_EVENTS
-   (ID NUMBER(19,0) NOT NULL,
-	USER_ID VARCHAR2(99 CHAR) NOT NULL,
-	SITE_ID VARCHAR2(99 CHAR) NOT NULL,
-	EVENT_ID VARCHAR2(32 CHAR) NOT NULL,
-	EVENT_DATE TIMESTAMP (6) NOT NULL,
-	EVENT_REF VARCHAR2(512 CHAR) NOT NULL,
-	 PRIMARY KEY (ID));
-
-create index IDX_DE_SITE_ID_DATE on SST_DETAILED_EVENTS(SITE_ID,EVENT_DATE);
-create index IDX_DE_SITE_ID_USER_ID_DATE on SST_DETAILED_EVENTS(SITE_ID,USER_ID,EVENT_DATE);
-
-create sequence SST_DETAILED_EVENTS_ID;
-
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'sitestats.usertracking.track');
-INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'sitestats.usertracking.be.tracked');
-
-INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'sitestats.usertracking.track'));
-INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'sitestats.usertracking.be.tracked'));
-INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'sitestats.usertracking.track'));
-INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'sitestats.usertracking.be.tracked'));
-
-CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
-
-INSERT INTO PERMISSIONS_SRC_TEMP VALUES ('maintain','sitestats.usertracking.track');
-INSERT INTO PERMISSIONS_SRC_TEMP VALUES ('access','sitestats.usertracking.be.tracked');
-INSERT INTO PERMISSIONS_SRC_TEMP VALUES ('Instructor','sitestats.usertracking.track');
-INSERT INTO PERMISSIONS_SRC_TEMP VALUES ('Student','sitestats.usertracking.be.tracked');
-
-CREATE TABLE PERMISSIONS_TEMP (ROLE_KEY INTEGER, FUNCTION_KEY INTEGER);
-INSERT INTO PERMISSIONS_TEMP (ROLE_KEY, FUNCTION_KEY)
-SELECT SRR.ROLE_KEY, SRF.FUNCTION_KEY
-FROM PERMISSIONS_SRC_TEMP TMPSRC
-JOIN SAKAI_REALM_ROLE SRR ON (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
-JOIN SAKAI_REALM_FUNCTION SRF ON (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
-
-INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
-SELECT
-    SRRFD.REALM_KEY, SRRFD.ROLE_KEY, TMP.FUNCTION_KEY
-FROM
-    (SELECT DISTINCT SRRF.REALM_KEY, SRRF.ROLE_KEY FROM SAKAI_REALM_RL_FN SRRF) SRRFD
-    JOIN PERMISSIONS_TEMP TMP ON (SRRFD.ROLE_KEY = TMP.ROLE_KEY)
-    JOIN SAKAI_REALM SR ON (SRRFD.REALM_KEY = SR.REALM_KEY)
-    WHERE SR.REALM_ID != '!site.helper' AND SR.REALM_ID NOT LIKE '!user.template%'
-    AND NOT EXISTS (
-        SELECT 1
-            FROM SAKAI_REALM_RL_FN SRRFI
-            WHERE SRRFI.REALM_KEY=SRRFD.REALM_KEY AND SRRFI.ROLE_KEY=SRRFD.ROLE_KEY AND SRRFI.FUNCTION_KEY=TMP.FUNCTION_KEY
-    );
-
-DROP TABLE PERMISSIONS_TEMP;
-DROP TABLE PERMISSIONS_SRC_TEMP;*/
-
--- End User Activity
 
 -- SAK-34741
 ALTER TABLE SAM_ITEM_T ADD ISEXTRACREDIT NUMBER(1) DEFAULT 0 NOT NULL;
@@ -1362,8 +1184,10 @@ ALTER TABLE SCORM_CONTENT_PACKAGE_T ADD (SHOW_NAV_BAR NUMBER(1,0) DEFAULT 0 NOT 
 
 ----------------------------------- OWL SPECIFIC STUFF -----------------------------------
 
-DELETE FROM QRTZ_TRIGGERS WHERE JOB_NAME IN ('TII Content Review Reports', 'TII Content Review Queue');
-DELETE FROM QRTZ_JOB_DETAILS WHERE JOB_NAME IN ('TII Content Review Queue', 'TII Content Review Reports');
+-- Commented these out - likely left behind from when we were initially setting up sakdev. We delete and recreate triggers before and after deployment anyways
+--DELETE FROM QRTZ_TRIGGERS WHERE JOB_NAME IN ('TII Content Review Reports', 'TII Content Review Queue');
+-- ^ 'ORA-02292: integrity constraint (SAKAIADMIN.SYS_C0015893) violated - child record found' -saktest
+--DELETE FROM QRTZ_JOB_DETAILS WHERE JOB_NAME IN ('TII Content Review Queue', 'TII Content Review Reports');
 -- Temporary (applied on dev):
 --DELETE FROM QRTZ_JOB_DETAILS WHERE JOB_NAME IN ('Anon-grading ID sync', 'Poll Option Order Backfill');
 
@@ -1393,6 +1217,7 @@ BEGIN
     RETURN ROUND(l_unix_ts);
 
 END;
+/
 
 ALTER TABLE SAKORA_MEMBERSHIP ADD INPUT_INT NUMBER(10,0) NULL;
 UPDATE SAKORA_MEMBERSHIP SET INPUT_INT = DATE_TO_UNIX_TS(INPUT_TIME);
@@ -1538,7 +1363,9 @@ DROP TABLE old__osp_presentation CASCADE CONSTRAINTS;
 DROP TABLE old__osp_presentation_comment CASCADE CONSTRAINTS;
 DROP TABLE old__osp_presentation_item CASCADE CONSTRAINTS;
 DROP TABLE old__osp_presentation_item_def CASCADE CONSTRAINTS;
-DROP TABLE old__osp_presentation_item_prop CASCADE CONSTRAINTS;
+--DROP TABLE old__osp_presentation_item_prop CASCADE CONSTRAINTS;
+-- "ORA-00972: identifier is too long" -saktest. We have already adusted the table's name to exactly 30 characters:
+DROP TABLE old__osp_presentation_itm_prop CASCADE CONSTRAINTS;
 DROP TABLE old__osp_presentation_layout CASCADE CONSTRAINTS;
 DROP TABLE old__osp_presentation_log CASCADE CONSTRAINTS;
 DROP TABLE old__osp_presentation_page CASCADE CONSTRAINTS;
@@ -1612,7 +1439,10 @@ update sakai_realm_function set function_name = 'gradebook.viewStudentNumbers' w
 -- END OWL-2994
 
 -- clear unchanged bundle properties
-DELETE from SAKAI_MESSAGE_BUNDLE where PROP_VALUE is NULL;;
+--DELETE from SAKAI_MESSAGE_BUNDLE where PROP_VALUE is NULL;;
+-- "ORA-00933: SQL command not properly ended" -saktest. An identical line is found earlier in the script with one semicolon; easy fix:
+DELETE from SAKAI_MESSAGE_BUNDLE where PROP_VALUE is NULL;
+
 
 ALTER TABLE GB_GRADE_RECORD_T DROP (EXCLUDED);
 
@@ -1757,6 +1587,7 @@ INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY) VALUES (
 
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
+-- ^ "ORA-00955: name is already used by an existing object" -saktest -> this table is created and dropped over several parts of this script without issue. But the table was created in a block comment between here and the last time it was dropped; I've removed the block comment.
 
 INSERT INTO PERMISSIONS_SRC_TEMP VALUES('maintain','dropbox.write.any');
 INSERT INTO PERMISSIONS_SRC_TEMP VALUES('maintain','dropbox.delete.any');
