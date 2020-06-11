@@ -657,7 +657,19 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					//The events are something like "lessonbuilder.page.create" the action is in the third position
 					lessonBuilderAction = eventId.split("\\.")[2];
 				} catch (ArrayIndexOutOfBoundsException ex){
-					lessonBuilderAction = eventId;
+					// OWL: one-time backwards compatibility code, no need to port
+					// this may be a historical lessons event using the old event names (ie. lessonbuilder.create)
+					// if so, process to match 11.3 behaviour
+					// only events with "page" in the ref (as opposed to "item") are counted
+					String[] splitEventId = eventId.split("\\.");
+					if (splitEventId.length > 1 && "page".equals(resourceParts[2]))
+					{
+						lessonBuilderAction = splitEventId[1];
+					}
+					else
+					{
+						lessonBuilderAction = eventId;
+					}
 				}
 
 				String key = userId + siteId + lessonBuilderAction + pageId + date;
