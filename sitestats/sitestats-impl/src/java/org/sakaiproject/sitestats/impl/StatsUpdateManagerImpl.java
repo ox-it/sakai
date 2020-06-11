@@ -660,11 +660,18 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					// OWL: one-time backwards compatibility code, no need to port
 					// this may be a historical lessons event using the old event names (ie. lessonbuilder.create)
 					// if so, process to match 11.3 behaviour
-					// only events with "page" in the ref (as opposed to "item") are counted
 					String[] splitEventId = eventId.split("\\.");
-					if (splitEventId.length > 1 && "page".equals(resourceParts[2]))
+					if (splitEventId.length > 1)
 					{
-						lessonBuilderAction = splitEventId[1];
+						// only events with "page" in the ref (as opposed to "item") are counted in 11.3
+						if ("page".equals(resourceParts[2]))
+						{
+							lessonBuilderAction = splitEventId[1];
+						}
+						else
+						{
+							lessonBuilderAction = ""; // skip this event, as default behaviour causes an error on table insert
+						}
 					}
 					else
 					{
@@ -716,10 +723,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						}
 					}
 
-					if (creatorUserId == null || !creatorUserId.equals(userId)) {
+					if (!lessonBuilderAction.isEmpty() && (creatorUserId == null || !creatorUserId.equals(userId))) { // OWL one-time fix, no port
 						addToLessonBuilderStatMap(key, userId, siteId, resourceRef, pageId, lessonBuilderAction, date);
 					}
-				} else {
+				} else if (!lessonBuilderAction.isEmpty()) {  // OWL one-time fix, no port
 					addToLessonBuilderStatMap(key, userId, siteId, resourceRef, pageId, lessonBuilderAction, date);
 				}
 			}
