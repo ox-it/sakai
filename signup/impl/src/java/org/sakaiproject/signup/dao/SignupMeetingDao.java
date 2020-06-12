@@ -229,7 +229,7 @@ public interface SignupMeetingDao extends GeneralGenericDao {
 	 * 			search ending date
 	 * @return the total record counts
 	 */
-	int getAutoReminderTotalEventCounts(Date startDate, Date endDate);
+	long getAutoReminderTotalEventCounts(Date startDate, Date endDate);
 	
 	/**
 	 * Get all the Categories from a site

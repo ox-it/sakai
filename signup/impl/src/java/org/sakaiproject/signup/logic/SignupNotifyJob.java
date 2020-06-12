@@ -125,7 +125,7 @@ public class SignupNotifyJob implements Job {
 		calendar.add(Calendar.HOUR, ONE_DAY_INTERVAL);//next day 24 hours
 		Date searchEndDate = calendar.getTime();
 					
-		int totalCounts = signupMeetingDao.getAutoReminderTotalEventCounts(searchStarDate, searchEndDate);
+		long totalCounts = signupMeetingDao.getAutoReminderTotalEventCounts(searchStarDate, searchEndDate);
 		if(totalCounts ==0){
 			log.info("There is no upcoming event today for Signup Auto Reminder Notification");
 			return;

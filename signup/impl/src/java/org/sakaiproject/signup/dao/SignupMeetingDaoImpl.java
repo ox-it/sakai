@@ -289,7 +289,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 	/**
 	 * {@inheritDoc}
 	 */
-	public int getAutoReminderTotalEventCounts(Date startDate, Date endDate) {
+	public long getAutoReminderTotalEventCounts(Date startDate, Date endDate) {
 		DetachedCriteria criteria = DetachedCriteria.forClass(
 				SignupMeeting.class).setResultTransformer(
 				Criteria.DISTINCT_ROOT_ENTITY).add(Restrictions.eq("autoReminder", true))
@@ -300,9 +300,9 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 		if (ls == null || ls.isEmpty())
 			return 0;
 		
-		Integer rowCount = (Integer) ls.get(0);
+		Long rowCount = (Long) ls.get(0);
 		
-		return rowCount !=null? rowCount.intValue():0;
+		return rowCount !=null? rowCount : 0;
 	}
 	
 	/**
