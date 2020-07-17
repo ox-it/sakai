@@ -444,7 +444,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 
 		// Copied this logic from SiteAction.notStealthOrHiddenTool(String)
 		Tool tool = toolManager.getTool(toolID);
-		Set<Tool> tools = toolManager.findTools(Collections.EMPTY_SET, null);
+		Set<Tool> tools = toolManager.findTools(Collections.emptySet(), null);
 		isStealthed = tool == null || !tools.contains(tool);
 
 		// If we have a site and the tool is stealthed, check to see if it's present in the site
