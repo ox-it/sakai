@@ -863,6 +863,10 @@
 					{
 						newElement.maxLength = oldElement.maxLength;
 					}
+					if(oldElement.oninput)
+					{
+						newElement.oninput = oldElement.oninput;
+					}
 				}
 				else if(oldElement.type == "file")
 				{
