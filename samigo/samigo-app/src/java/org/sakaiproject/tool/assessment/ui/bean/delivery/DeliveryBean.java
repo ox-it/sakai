@@ -79,6 +79,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener;
@@ -4057,5 +4058,11 @@ public class DeliveryBean implements Serializable
 
     public String getQuestionProgressMardPath () {
       return questionProgressMardPath;
+    }
+
+    public String getPublishedURL() {
+        PublishedAssessmentSettingsBean pasBean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
+        pasBean.generatePublishedURL(publishedAssessment);
+        return pasBean.getPublishedUrl();
     }
 }

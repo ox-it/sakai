@@ -387,18 +387,8 @@ public class PublishedAssessmentSettingsBean
       setIpAddresses(assessment);
 
       // publishedUrl
-      FacesContext context = FacesContext.getCurrentInstance();
-      ExternalContext extContext = context.getExternalContext();
-      // get the alias to the pub assessment
-      this.alias = assessment.getAssessmentMetaDataByLabel(
-          AssessmentMetaDataIfc.ALIAS);
-      String server = ( (javax.servlet.http.HttpServletRequest) extContext.
-                       getRequest()).getRequestURL().toString();
-      int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo-app/"
-      server = server.substring(0, index);
-      String url = server + extContext.getRequestContextPath();
-      this.publishedUrl = url + "/servlet/Login?id=" + this.alias;
-      
+      generatePublishedURL(assessment);
+
       // secure delivery
       SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
       this.secureDeliveryAvailable = secureDeliveryService.isSecureDeliveryAvaliable();
@@ -1654,7 +1644,17 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
  	public void setDisplayScoreDuringAssessments(String displayScoreDuringAssessments){
  		this.displayScoreDuringAssessments = displayScoreDuringAssessments;
  	}
+
+    public void generatePublishedURL(PublishedAssessmentFacade paf) {
+        FacesContext context = FacesContext.getCurrentInstance();
+        ExternalContext extContext = context.getExternalContext();
+
+        // get the alias to the pub assessment
+        this.alias = paf.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.ALIAS);
+        String server = ((javax.servlet.http.HttpServletRequest) extContext.getRequest()).getRequestURL().toString();
+        int index = server.indexOf(extContext.getRequestContextPath() + "/"); // "/samigo-app/"
+        server = server.substring(0, index);
+        String url = server + extContext.getRequestContextPath();
+        this.publishedUrl = url + "/servlet/Login?id=" + this.alias;
+    }
 }
-
-
-
