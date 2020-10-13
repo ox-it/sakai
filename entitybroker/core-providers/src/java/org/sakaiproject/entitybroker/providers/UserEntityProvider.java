@@ -240,7 +240,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             edit.setEmail(u.getEmail());
             edit.setFirstName(u.getFirstName());
             edit.setLastName(u.getLastName());
-            edit.setType(u.getType());
             // put in properties
             ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
             rpe.set(u.getProperties());
@@ -250,10 +249,6 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             edit.setEmail(u.getEmail());
             edit.setFirstName(u.getFirstName());
             edit.setLastName(u.getLastName());
-            if (u.getPassword() != null && !"".equals(u.getPassword())) {
-                edit.setPassword(u.getPassword());
-            }
-            edit.setType(u.getType());
             // put in properties
             ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
             for (String key : u.getProps().keySet()) {
