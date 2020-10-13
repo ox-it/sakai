@@ -63,6 +63,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -1443,6 +1444,7 @@ public class SakaiBLTIUtil {
 	public static String[] postLaunchHTML(String placementId, ResourceLoader rb)
 	{
 		if ( placementId == null ) return postError("<p>" + getRB(rb, "error.missing" ,"Error, missing placementId")+"</p>" );
+		placementId = FormattedText.escapeHtml(placementId, false);
 		ToolConfiguration placement = SiteService.findTool(placementId);
 		if ( placement == null ) return postError("<p>" + getRB(rb, "error.load" ,"Error, cannot load placement=")+placementId+".</p>");
 
