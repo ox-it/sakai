@@ -40,7 +40,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -85,6 +86,27 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
   {
     boolean mediaIsValid = true;
     ServletContext context = super.getServletContext();
+
+    SessionManager sessionManager = ComponentManager.get(SessionManager.class);
+    String mediaParameter = req.getParameter("media");
+    String agentId  = req.getParameter("agent");
+
+    // A media parameter has this format jsf/upload_tmp/assessmentXX/questionYY/USEREID/audio_ZZ_WW, the 4th part is the userEid.
+    String mediaUser = null;
+    String[] mediaParts = mediaParameter.split("/");
+    if (mediaParts.length == 6) {
+        mediaUser = mediaParts[4];
+    } else {
+        res.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permissions on the requested folder.");
+    }
+
+    // Check that there is a session, check the session user and agent matches, check the session userEid and media folder matches.
+    if (sessionManager.getCurrentSessionUserId() == null || 
+        !sessionManager.getCurrentSessionUserId().equals(agentId) ||
+        !sessionManager.getCurrentSession().getUserEid().equals(mediaUser) ) {
+        res.sendError(HttpServletResponse.SC_FORBIDDEN, "The assessment agent and the session user does not match.");
+    }
+
     String repositoryPath = (String)context.getAttribute("FILEUPLOAD_REPOSITORY_PATH");
     String saveToDb = (String)context.getAttribute("FILEUPLOAD_SAVE_MEDIA_TO_DB");
 
@@ -95,7 +117,7 @@ private static Logger log = LoggerFactory.getLogger(UploadAudioMediaServlet.clas
     String suffix = req.getParameter("suffix");
     if (suffix == null || ("").equals(suffix))
       suffix = "au";
-    String mediaLocation = req.getParameter("media")+"."+suffix;
+    String mediaLocation = mediaParameter + "." + suffix;
     log.debug("****media location="+mediaLocation);
     String response = "empty";
 
