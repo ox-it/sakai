@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.sakaiproject.content.metadata.model.MetadataConverter;
 import org.sakaiproject.content.metadata.model.MetadataRenderer;
 import org.sakaiproject.content.metadata.model.MetadataType;

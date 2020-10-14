@@ -1,6 +1,6 @@
 package org.sakaiproject.citation.impl.soloapi;
 
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.Schema;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -69,7 +69,7 @@ public class SoloApiServiceImplTest extends AbstractSingleSpringContextTests {
 		ContextObject ContextObjectObject = service.parse(req);
 		assertNotNull(ContextObjectObject);
 		JsonNode book = ContextObjectObject.getNode();
-		assertEquals("BOOK", book.get("SEGMENTS").get("JAGROOT").get("RESULT").get("DOCSET").get("DOC").get("PrimoNMBib").get("record").get("addata").get("ristype").getTextValue());
+		assertEquals("BOOK", book.get("SEGMENTS").get("JAGROOT").get("RESULT").get("DOCSET").get("DOC").get("PrimoNMBib").get("record").get("addata").get("ristype").textValue());
 
 		Citation bookCitation = service.convert(ContextObjectObject);
 		assertEquals("Linux in a nutshell", bookCitation.getCitationProperty(Schema.TITLE, false));

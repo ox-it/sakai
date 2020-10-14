@@ -7,8 +7,7 @@ package org.sakaiproject.citation.impl.soloapi;
  *
  */
 
-import org.codehaus.jackson.JsonNode;
-
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class ContextObject {
 
