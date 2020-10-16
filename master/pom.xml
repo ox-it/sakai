@@ -655,8 +655,8 @@
         <scope>provided</scope>
         <exclusions>
           <exclusion>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
           </exclusion>
           <exclusion>
             <groupId>javax.jms</groupId>
@@ -778,9 +778,9 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>javax.mail</groupId>
-        <artifactId>mail</artifactId>
-        <version>1.4.5</version>
+        <groupId>com.sun.mail</groupId>
+        <artifactId>javax.mail</artifactId>
+        <version>1.6.2</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
