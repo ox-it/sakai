@@ -1,7 +1,7 @@
 package org.sakaiproject.citation.impl.soloapi;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.node.ArrayNode;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationService;
 
@@ -37,14 +37,14 @@ public abstract class AbstractConverter implements Converter {
 			// if jsonnode contains array
 			if (primoNMBibNode instanceof ArrayNode){
 				for (JsonNode jsonNode : primoNMBibNode) {
-					value = jsonNode.getTextValue();
+					value = jsonNode.textValue();
 					if (value != null) {
 						citation.setCitationProperty(citationKey, value);
 					}
 				}
 			}
 			else {
-				value = primoNMBibNode.getTextValue();
+				value = primoNMBibNode.textValue();
 				if (value != null) {
 					value = formatSpecialCases(citationKey, value);
 					citation.setCitationProperty(citationKey, value);

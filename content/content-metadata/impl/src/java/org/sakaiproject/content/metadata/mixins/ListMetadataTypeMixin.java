@@ -21,7 +21,7 @@
 
 package org.sakaiproject.content.metadata.mixins;
 
-import org.codehaus.jackson.annotate.*;
+import com.fasterxml.jackson.annotation.*;
 import org.sakaiproject.content.metadata.model.MetadataType;
 
 /**

@@ -21,10 +21,9 @@
 
 package org.sakaiproject.content.metadata.mixins;
 
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonMethod;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize; 
 
 /**
  * Jackson description for {@link org.sakaiproject.content.metadata.model.MetadataType}
@@ -36,8 +35,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  * @author Colin Hebert
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-@JsonAutoDetect(value = JsonMethod.FIELD,
-		fieldVisibility = JsonAutoDetect.Visibility.ANY,
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY,
 		creatorVisibility = JsonAutoDetect.Visibility.NONE,
 		getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE,

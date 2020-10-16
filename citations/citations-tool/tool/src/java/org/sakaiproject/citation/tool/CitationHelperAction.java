@@ -55,8 +55,8 @@ import net.sf.json.JSONObject;
 import org.apache.commons.io.input.BOMInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.TypeFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.cheftool.Context;
@@ -1142,7 +1142,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 						.replaceAll("\\}\\],\\[\\{", "},{");
 
 				citationCollectionOrders = mapper.readValue(nestedCitations,
-						TypeFactory.collectionType(List.class, CitationCollectionOrder.class));
+						mapper.getTypeFactory().constructCollectionType(List.class, CitationCollectionOrder.class));
 
 				CitationCollection collection = getCitationCollection(state, false);
 				errorMessage = getCitationValidator().getDragAndDropErrorMessage(citationCollectionOrders, collection);

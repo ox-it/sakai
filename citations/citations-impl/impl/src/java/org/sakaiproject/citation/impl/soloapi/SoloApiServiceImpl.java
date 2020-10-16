@@ -2,10 +2,10 @@ package org.sakaiproject.citation.impl.soloapi;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
@@ -82,7 +82,7 @@ public class SoloApiServiceImpl {
 		if (node==null){
 			throw new IllegalArgumentException("null jsonNode passed to convert(Context context)");
 		}
-		String genre = node.get("SEGMENTS").get("JAGROOT").get("RESULT").get("DOCSET").get("DOC").get("PrimoNMBib").get("record").get("addata").get("ristype").getTextValue();
+		String genre = node.get("SEGMENTS").get("JAGROOT").get("RESULT").get("DOCSET").get("DOC").get("PrimoNMBib").get("record").get("addata").get("ristype").textValue();
 		AbstractConverter converter = (AbstractConverter) converterMap.get(genre);
 		return converter.convert(context);
 	}
