@@ -73,7 +73,7 @@ public class TwoFactorLogin extends HttpServlet
 
 	private TwoFactorAuthentication twoFactorAuthentication;
 
-	private long gracePeriod = 5000; // 5 seconds
+	private long gracePeriod;
 
 	/**
 	 * Access the Servlet's information display.
@@ -102,9 +102,7 @@ public class TwoFactorLogin extends HttpServlet
 		shibbolethUrl = config.getInitParameter("shibbolethUrl");
 		twoFactorAuthentication = (TwoFactorAuthentication)ComponentManager.get(TwoFactorAuthentication.class);
 		
-		if (config.getInitParameter("gracePeriod") != null) {
-			gracePeriod = Long.parseLong(config.getInitParameter("gracePeriod"));
-		}
+		gracePeriod = ServerConfigurationService.getInt("twofactor.grace", 5000);
 	}
 
 	/**
