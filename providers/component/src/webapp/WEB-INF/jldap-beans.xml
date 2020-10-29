@@ -17,9 +17,13 @@
 			Caching is done centrally in the UserDirectoryService.callCache -->
 			
 		<property name="serverConfigurationService">
-            <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
-        </property>
-		
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+		</property>
+
+		<property name="memoryService">
+			<ref bean="org.sakaiproject.memory.api.MemoryService"/>
+		</property>
+
 		<!-- Required. Host name or address of your LDAP server -->
 		<property name="ldapHost">
 			<value>HOST GOES HERE</value>
