@@ -15,6 +15,7 @@
       <ckeditor.autosave.version>8541f541d9985cfd0859c7d8eb6be404afe95a2d</ckeditor.autosave.version>
       <!-- Source at https://github.com/w8tcha/CKEditor-WordCount-Plugin -->
       <ckeditor.wordcount.version>4897cb23a9f2ca7fb6b792add4350fb9e2a1722c</ckeditor.wordcount.version>
+	  <ckeditor.html5video.version>1.2.1</ckeditor.html5video.version>
   </properties>
   <name>Sakai Library Project</name>
   <groupId>org.sakaiproject</groupId>
