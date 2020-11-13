@@ -518,11 +518,6 @@ a.hideDivision {
 	height: 100%;
 }
 
-
-.mcAnswerText:hover {
-    background-color: #009dce;
-}
-
 #timer-expired-warning{
 	text-align: center;	
 }
