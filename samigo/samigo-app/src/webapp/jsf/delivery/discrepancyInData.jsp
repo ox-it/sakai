@@ -63,13 +63,13 @@
 
  <h:form id="discrepancyInData">
  <p class="act">
-       <h:commandButton value="#{deliveryMessages.button_return}" type="submit"
+       <h:commandButton value="#{deliveryMessages.data_discrepancy_button}" type="submit"
          styleClass="active" action="select" rendered="#{delivery.actionString=='takeAssessment'}">
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
        <h:outputLink rendered="#{delivery.actionString == 'takeAssessmentViaUrl'}" value="#{delivery.getPublishedURL()}">
-           <h:outputText value="#{deliveryMessages.button_return}" />
+           <h:outputText value="#{deliveryMessages.data_discrepancy_link}" />
        </h:outputLink>
  </p>
  </h:form>
