@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -117,8 +119,15 @@ public class CourseGradeSubmissionCsv
     public boolean addRevisedGrades(Set<OwlGradeSubmissionGrades> currentGrades, Set<OwlGradeSubmissionGrades> lastApprovedGrades)
     {
         // OWLTODO: This method could probably be more efficient
+
         Set<OwlGradeSubmissionGrades> currentCopy = new HashSet<>(currentGrades);
-        currentCopy.removeAll(lastApprovedGrades);
+		// OWL-4082 - only compare student number and grade when determining if a grade has changed (allow names to change)
+        //currentCopy.removeAll(lastApprovedGrades);
+		Map<String, String> lastApprovedMap = lastApprovedGrades.stream().collect(Collectors.toMap(g -> g.getStudentNumber(), g -> g.getGrade()));
+		Set<OwlGradeSubmissionGrades> unchangedGrades = currentCopy.stream()
+				.filter(g -> lastApprovedMap.containsKey(g.getStudentNumber()) && g.getGrade().equals(lastApprovedMap.get(g.getStudentNumber())))
+				.collect(Collectors.toSet());
+		currentCopy.removeAll(unchangedGrades);
         
         prefix = PREFIX_REVISION;
         gradeList = new ArrayList();
