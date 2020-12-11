@@ -898,3 +898,14 @@ div.wicket-mask-transparent, div.wicket-mask-dark {
 }
 
 /*** END MODALS ***/
+
+.panel-heading {
+	padding:0 !important;
+}
+
+.panel-heading > .panel-title > a {
+	display: inline-block;
+	height: 100%;
+	width: 100%;
+	padding: 10px 15px;
+}
