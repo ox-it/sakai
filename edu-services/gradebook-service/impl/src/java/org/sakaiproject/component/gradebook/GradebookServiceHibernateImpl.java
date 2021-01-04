@@ -654,7 +654,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 
 		return createAssignment(gradebook.getId(), validatedName, assignmentDefinition.getPoints(), assignmentDefinition.getDueDate(),
-				!assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit(), assignmentDefinition.getSortOrder()),
+				!assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit(), assignmentDefinition.getSortOrder(),
 				assignmentDefinition.isAnon()); // OWL
 	}
 
