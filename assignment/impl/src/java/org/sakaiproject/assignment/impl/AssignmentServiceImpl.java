@@ -15,6 +15,9 @@
  */
 package org.sakaiproject.assignment.impl;
 
+import static org.sakaiproject.assignment.api.AssignmentConstants.*;
+import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
+import static org.sakaiproject.assignment.api.model.Assignment.Access.*;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
