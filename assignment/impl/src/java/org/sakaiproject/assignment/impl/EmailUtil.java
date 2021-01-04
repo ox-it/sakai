@@ -22,6 +22,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.user.api.User;
@@ -40,6 +41,7 @@ public class EmailUtil {
     private static final String INDENT = "    ";
 
     @Setter private AssignmentService assignmentService;
+    @Setter private DeveloperHelperService developerHelperService;
     @Setter private EntityManager entityManager;
     @Setter private FormattedText formattedText;
     @Setter private ResourceLoader resourceLoader;
