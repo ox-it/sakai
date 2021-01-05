@@ -24,6 +24,7 @@
 		<module>ldap</module>
 		<module>pack</module>
 		<module>tool</module>
+		<module>xcri4j</module>
 	</modules>
 
 
