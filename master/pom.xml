@@ -269,15 +269,6 @@
       </releases>
     </pluginRepository>
     <pluginRepository>
-        <id>maven-repo.oucs</id>
-        <name>OUCS Maven Repository</name>
-        <layout>default</layout>
-        <url>https://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-    </pluginRepository>
-    <pluginRepository>
         <id>opencast</id>
         <name>Opencast Repo</name>
         <url>https://nexus.opencast.org/nexus/content/groups/public</url>

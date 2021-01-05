@@ -14,17 +14,6 @@
     <description>Converter between dates and term weeks in an academic year</description>
     <packaging>pom</packaging>
 
-    <distributionManagement>
-        <repository>
-            <id>maven-repo.oucs</id>
-            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>maven-repo.oucs</id>
-            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 

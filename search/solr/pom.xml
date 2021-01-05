@@ -16,7 +16,6 @@
 
     <name>Sakai search - Solr</name>
     <description>Solr implementation of the Search API in Sakai.</description>
-    <url>https://github.com/ColinHebert/Sakai-Solr</url>
     <inceptionYear>2012</inceptionYear>
 
     <developers>
@@ -35,32 +34,6 @@
         <module>impl</module>
         <module>pack</module>
     </modules>
-
-
-    <scm>
-        <url>https://github.com/ColinHebert/Sakai-Solr</url>
-        <connection>scm:git:git://github.com/ColinHebert/Sakai-Solr.git</connection>
-        <developerConnection>scm:git:git@github.com:ColinHebert/Sakai-Solr.git</developerConnection>
-    </scm>
-    <issueManagement>
-        <url>https://github.com/ColinHebert/Sakai-Solr/issues</url>
-        <system>GitHub Issues</system>
-    </issueManagement>
-    <ciManagement>
-        <system>Travis-CI</system>
-        <url>https://travis-ci.org/ColinHebert/Sakai-Solr</url>
-    </ciManagement>
-
-    <distributionManagement>
-        <repository>
-            <id>maven-repo.oucs</id>
-            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>maven-repo.oucs</id>
-            <url>http://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
