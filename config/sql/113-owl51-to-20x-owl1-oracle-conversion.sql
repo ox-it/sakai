@@ -1662,4 +1662,8 @@ ALTER TABLE lti_tools ADD pl_lessonsselection NUMBER(1) DEFAULT 0;
 UPDATE lti_tools SET pl_lessonsselection = 1;
 -- END SAK-44635
 
+-- SAK-44753
+alter table rbc_tool_item_rbc_assoc add constraint UKq4btc0dfymi80bb5mp3vp3r7u unique (rubric_id, toolId, itemId);
+-- END SAK-44753
+
 -- END 20.1 -> 20.2
