@@ -3719,6 +3719,35 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
 
                     if (!createGroupsOnImport) {
                         nAssignment.setTypeOfAccess(SITE);
+                    } else {
+                        // group assignment
+                        if (oAssignment.getTypeOfAccess() == GROUP) {
+                            nAssignment.setTypeOfAccess(GROUP);
+                            Site oSite = siteService.getSite(oAssignment.getContext());
+                            Site nSite = siteService.getSite(nAssignment.getContext());
+
+                            boolean siteChanged = false;
+                            Collection<Group> nGroups = nSite.getGroups();
+                            for (String groupId : oAssignment.getGroups()) {
+                                Group oGroup = oSite.getGroup(groupId);
+                                Optional<Group> existingGroup = nGroups.stream().filter(g -> StringUtils.equals(g.getTitle(), oGroup.getTitle())).findAny();
+                                Group nGroup;
+                                if (existingGroup.isPresent()) {
+                                    // found a matching group
+                                    nGroup = existingGroup.get();
+                                } else {
+                                    // create group
+                                    nGroup = nSite.addGroup();
+                                    nGroup.setTitle(oGroup.getTitle());
+                                    nGroup.setDescription(oGroup.getDescription());
+                                    nGroup.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
+                                    siteChanged = true;
+                                }
+                                nAssignment.getGroups().add(nGroup.getReference());
+                            }
+                            if (siteChanged) siteService.save(nSite);
+                            nAssignment.setIsGroup(oAssignment.getIsGroup());
+                        }
                     }
 
                     // review service
