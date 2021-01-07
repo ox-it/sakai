@@ -57,11 +57,8 @@
 
 				$(document).ready(function() {
 				  	if(document.getElementById('compose:list2').selectedIndex != -1){
-				  		//BCC has selected items, so show it but don't clear selection
-				  		//fadeInBcc();
-						$('.bccLink').fadeOut();
-						$('.bcc').fadeIn();
-						resize();
+				  		//BCC has selected items, so show it
+				  		fadeInBcc(false);
 				  	}
 				  	addTagSelector(document.getElementById('compose:list1'));
 				  	addTagSelector(document.getElementById('compose:list2'));
