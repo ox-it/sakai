@@ -34,21 +34,6 @@
         <module>web-ifp</module>
     </modules>
 
-	<scm>
-		<connection>scm:git:git://github.com/ox-it/wl-basiclti.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/ox-it/wl-basiclti.git</developerConnection>
-	</scm>
-
-	<distributionManagement>
-	    <repository>
-	        <id>maven-repo.oucs</id>
-	        <url>https://maven-repo.oucs.ox.ac.uk/content/repositories/releases</url>
-	    </repository>
-	    <snapshotRepository>
-	        <id>maven-repo.oucs</id>
-	        <url>https://maven-repo.oucs.ox.ac.uk/content/repositories/snapshots</url>
-	    </snapshotRepository>
-	</distributionManagement>
 	<pluginRepositories>
 	    <pluginRepository>
 	        <id>maven2-central-repo</id>
@@ -110,7 +95,7 @@
 	        </snapshots>
 	    </repository>
 	</repositories>
-    
+
     <profiles>
         <profile>
             <id>default</id>
