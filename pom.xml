@@ -139,6 +139,7 @@
                 <module>sirlouie</module>
                 <module>simple-signup-entityprovider</module>
                 <module>switch-server</module>
+                <module>sentry-sakai</module>
                 <module>shoal</module>
                 <module>termdates</module>
                 <module>tetraelf-hierarchy</module>
