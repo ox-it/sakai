@@ -49,28 +49,9 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonGradingService;
 import org.sakaiproject.gradebookng.business.owl.anon.OwlAnonGradingService.AnonStatus;
 import org.sakaiproject.gradebookng.business.util.GbStopWatch;
-import org.sakaiproject.gradebookng.tool.actions.DeleteAssignmentAction;
-import org.sakaiproject.gradebookng.tool.actions.EditAssignmentAction;
-import org.sakaiproject.gradebookng.tool.actions.EditCommentAction;
-import org.sakaiproject.gradebookng.tool.actions.EditSettingsAction;
-import org.sakaiproject.gradebookng.tool.actions.ExcuseGradeAction;
-import org.sakaiproject.gradebookng.tool.actions.GradeUpdateAction;
-import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentLeftAction;
-import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentRightAction;
-import org.sakaiproject.gradebookng.tool.actions.OverrideCourseGradeAction;
-import org.sakaiproject.gradebookng.tool.actions.SetScoreForUngradedAction;
-import org.sakaiproject.gradebookng.tool.actions.SetStudentNameOrderAction;
-import org.sakaiproject.gradebookng.tool.actions.SetZeroScoreAction;
-import org.sakaiproject.gradebookng.tool.actions.ToggleCourseGradePoints;
-import org.sakaiproject.gradebookng.tool.actions.ViewAssignmentStatisticsAction;
-import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeLogAction;
-import org.sakaiproject.gradebookng.tool.actions.ViewCourseGradeStatisticsAction;
-import org.sakaiproject.gradebookng.tool.actions.ViewGradeLogAction;
-import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
-import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxLink;
-import org.sakaiproject.gradebookng.tool.component.GbGradeTable;
+import org.sakaiproject.gradebookng.tool.component.GbLazyLoadGradeTable;
 import org.sakaiproject.gradebookng.tool.model.GbGradeTableData;
 import org.sakaiproject.gradebookng.tool.model.GbModalWindow;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -128,7 +109,6 @@ public class GradebookPage extends BasePage implements IGradesPage {
 
 	List<PermissionDefinition> permissions = new ArrayList<>();
 	boolean showGroupFilter = true;
-	private GbGradeTable gradeTable;
 
 	private final WebMarkupContainer tableArea;
 
@@ -288,34 +268,13 @@ public class GradebookPage extends BasePage implements IGradesPage {
 		final WebMarkupContainer toggleGradeItemsToolbarItem = new WebMarkupContainer("toggleGradeItemsToolbarItem");
 		toolbarColumnTools.add(toggleGradeItemsToolbarItem);
 
-		this.gradeTable = new GbGradeTable("gradeTable",
-				new LoadableDetachableModel() {
-					@Override
-					public GbGradeTableData load() {
-						return new OwlGbGradeTableData(GradebookPage.this.businessService, uiSettings);
-					}
-				});
-		this.gradeTable.addEventListener("setScore", new GradeUpdateAction());
-		this.gradeTable.addEventListener("gradeRubric", new ViewRubricGradeAction());
-		this.gradeTable.addEventListener("viewLog", new ViewGradeLogAction());
-		this.gradeTable.addEventListener("editAssignment", new EditAssignmentAction());
-		this.gradeTable.addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());
-		this.gradeTable.addEventListener("overrideCourseGrade", new OverrideCourseGradeAction());
-		this.gradeTable.addEventListener("editComment", new EditCommentAction());
-		this.gradeTable.addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
-		this.gradeTable.addEventListener("setZeroScore", new SetZeroScoreAction());
-		this.gradeTable.addEventListener("viewCourseGradeLog", new ViewCourseGradeLogAction());
-		this.gradeTable.addEventListener("deleteAssignment", new DeleteAssignmentAction());
-		this.gradeTable.addEventListener("setUngraded", new SetScoreForUngradedAction());
-		this.gradeTable.addEventListener("setStudentNameOrder", new SetStudentNameOrderAction());
-		this.gradeTable.addEventListener("toggleCourseGradePoints", new ToggleCourseGradePoints());
-		this.gradeTable.addEventListener("editSettings", new EditSettingsAction());
-		this.gradeTable.addEventListener("moveAssignmentLeft", new MoveAssignmentLeftAction());
-		this.gradeTable.addEventListener("moveAssignmentRight", new MoveAssignmentRightAction());
-		this.gradeTable.addEventListener("viewCourseGradeStatistics", new ViewCourseGradeStatisticsAction());
-		this.gradeTable.addEventListener("excuseGrade", new ExcuseGradeAction());
-
-		this.tableArea.add(this.gradeTable);
+		// OWL
+		tableArea.add(new GbLazyLoadGradeTable("gradeTable", new LoadableDetachableModel() {
+			@Override
+			public GbGradeTableData load() {
+				return new OwlGbGradeTableData(GradebookPage.this.businessService, uiSettings);
+			}
+		}));
 
 		final SakaiAjaxButton toggleCategoriesToolbarItem = new SakaiAjaxButton("toggleCategoriesToolbarItem") {  // OWL
 			@Override

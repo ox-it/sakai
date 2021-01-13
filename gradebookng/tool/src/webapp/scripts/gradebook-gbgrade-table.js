@@ -184,7 +184,8 @@ TrimPathFragmentCache.prototype.setHTML = function (target, values) {
 
 
 
-$(document).ready(function() {
+// OWL
+GbGradeTable.loadTemplates = function() {
   // need TrimPath to load before parsing templates
   GbGradeTable.templates = {
     cell: new TrimPathFragmentCache('cell', TrimPath.parseTemplate(
@@ -222,7 +223,7 @@ $(document).ready(function() {
     newGradeItemPopoverMessage: TrimPath.parseTemplate(
        $("#newGradeItemPopoverMessage").html().trim().toString()),
   };
-});
+};
 
 GbGradeTable.courseGradeRenderer = function (instance, td, row, col, prop, value, cellProperties) {
 
