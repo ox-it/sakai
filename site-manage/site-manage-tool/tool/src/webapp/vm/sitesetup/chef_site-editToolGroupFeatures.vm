@@ -17,7 +17,7 @@
 
         #if ($alertMessage)<div class="sak-banner-error">$tlang.getString("gen.alert") $alertMessage</div>#end
 
-        #if (!$enableReUseMaterials)<div class="sak-banner-info">$tlang.getString("feat.notAvail")</div>#end
+        #if (!$enableReUseMaterials && !$existSite)<div class="sak-banner-info">$tlang.getString("feat.notAvail")</div>#end
 
         <form name="featuresForm" action="#toolForm("$action")" method="post">
             <input type="hidden" name="option" value="add" />
