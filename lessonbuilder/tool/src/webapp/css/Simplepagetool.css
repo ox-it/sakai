@@ -942,10 +942,8 @@ a.peer-eval-stats {
 	padding-left: 2em !important
 }
 
-/* negative bottom margin because we set a top margin for the section below for the case where there's no toolbar */
 #toolbar {
   margin: 0;
-  margin-bottom: -10px;
   display: inline-block;
 }
 
@@ -1824,7 +1822,7 @@ span.nextprev {
   padding-right: 10px;
 }
 .startupHelp {
-  margin-top: 45px;
+  margin-top: 1.0em;
 }
 /* this section is to make things work when lessons is in an iframe */
 .contentButton span a {
@@ -1860,7 +1858,7 @@ body > .portletBody {
 }
 /* put back default value if an instructor */
 .navIntraTool ~ div.itemclass {
-  margin-top: 2.0em !important;
+  margin-top: 1.0em !important;
 }
 .title-tools {
   float:none;
@@ -2017,8 +2015,7 @@ nav.Mrphs-container--toolTitleNav .Mrphs-directUrl__dropDown .active {
 }
 
 .subpage-breadcrumb-div {
-    margin-top: 1.5em;
-    margin-bottom: -1em
+    margin-top: 1.0em;
 }
 
 /*
