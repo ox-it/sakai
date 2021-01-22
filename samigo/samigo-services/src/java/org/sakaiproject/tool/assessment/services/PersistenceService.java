@@ -56,7 +56,8 @@ public class PersistenceService{
 	private ExtendedTimeFacade extendedTimeFacade;
 	
 	
-        private EventLogFacadeQueriesAPI eventLogFacadeQueries;  
+	private EventLogFacadeQueriesAPI eventLogFacadeQueries;
+	private SecureDeliveryFacadeQueriesAPI secureDeliveryFacadeQueries;
 
 	public static PersistenceService getInstance(){
 	    return (PersistenceService)ComponentManager.get("PersistenceService");
@@ -247,8 +248,12 @@ public class PersistenceService{
 	public ExtendedTimeFacade getExtendedTimeFacade() {
 		return extendedTimeFacade;
 	}
+
+	public void setSecureDeliveryFacadeQueries(SecureDeliveryFacadeQueriesAPI secureDeliveryFacadeQueries) {
+		this.secureDeliveryFacadeQueries = secureDeliveryFacadeQueries;
+	}
+
+	public SecureDeliveryFacadeQueriesAPI getSecureDeliveryFacadeQueries() {
+		return secureDeliveryFacadeQueries;
+	}
 }
-
-
-
-
