@@ -5,73 +5,69 @@
 	left: calc(50% - 15em);
 	width: 29em;
 	min-height: 14em;
-
 	background: $background-color;
 	box-shadow: 0 0 5px rgba( $text-color , 0.25 );
+
 	.logo{
 		background: $top-header-background url($logo) no-repeat center center;
-		background-size: $logo-width $logo-height;
+//		background-size: $logo-width $logo-height;
+		background-size: auto 75px;
 		width: 100%;
-		height: 64px;
+		height: 100px;
 		margin: 0 auto;
 		overflow: hidden;
-		@include border-radius( 0px );
 	}
 	h1{
-		padding: 0.6em;
-  		font-size: 1.8em;
-  		color: $primary-color;
-  		text-align: center;
-	}
-	.alertMessage{
-		background: $error-background-color;
-		border: $error-color;
-		color: $error-color;
-		padding: 0.8em;
+		margin: $standard-spacing;
+		padding: $standard-spacing;
+		font-size: 2em;
+		color: $primary-color;
 		text-align: center;
 	}
+	.sak-banner-error{
+		margin: $standard-spacing $standard-spacing 0 $standard-spacing;
+	}
 	fieldset{
-		padding: 1em;
+		padding: $standard-spacing;
+
 		label{
-			font-size: 1.2em;
-			display: inline-block;
-			min-width: 38%;
-			min-height: 3em;
-			@media #{$phone}{
-				display: block;
-				min-height: 0.5em;
-			}
+			display: block;
+			font-size: $default-font-size-large;
 		}
 		input[type="text"],input[type="password"]{
-			display: inline-block;
-			min-width: 56%;
+			display: block;
+			width: 100%;
 			border: 1px solid darken($background-color-secondary, 15%);
 			padding: 0.3em;
-			@media #{$phone}{
-				display: block;
-				width: 95%;
-			}
 		}
 		input[type="submit"]{
-			font-size: 1.1em;
-			margin: 0 0 1em 0;
+			font-size: $default-font-size-large;
+		}
+		.buttons {
+			justify-content: flex-end;
+		}
+		.buttons > input:last-of-type{
+			margin-right: 0;
 		}
 		p{
 			text-align: right;
 			@media #{$phone}{
 				margin: 1em 0 0 0;
 			}
+			&:last-of-type {
+				margin-bottom: 0;
+			}
 		}
 	}
 
 	&.with-errors{
 		input[type="text"],input[type="password"]{			
-			border: 1px solid $error-color;
-			background: $error-background-color;
+			border: 1px solid $errorBanner-bordercolor;
+			background: $errorBanner-bgcolor;
 		}
 
 		input[type="password"].capsLockOnDisplay {
-			background: $error-background-color url("images/capsLock.png") no-repeat right;
+			background: $errorBanner-bgcolor url("images/capsLock.png") no-repeat right;
 		}
 	}
 

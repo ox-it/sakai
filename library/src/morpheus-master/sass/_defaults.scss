@@ -34,6 +34,7 @@ $font-family-url: "https://fonts.googleapis.com/css?family=Open+Sans:400,600,700
 $font-family: "Open Sans",sans-serif;
 $default-font-size: 14px !default;
 $default-font-size-small: 12px;
+$default-font-size-large: 16px;
 $default-font-weight: 400 !default;										// 400 or 700 as you wish
 $default-line-height: 1.42857 !default;											// 20px / 14px = 1.42857
 $header-font-family: $font-family;
@@ -167,7 +168,7 @@ $ok-background-color:        lighten($ok-color, 45%) !default;
 $warn-background-color:     #F6ECB7 !default;
 $warn-color:                darken($warn-background-color, 35%) !default;
 $error-background-color:    #f2dede !default;
-$error-color:               darken($error-background-color, 30%) !default;
+$error-color:               #900 !default;
 $instruction-size:          $default-font-size-small;
 $instruction-color:         #555;
 
