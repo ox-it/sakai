@@ -1,9 +1,11 @@
-.#{$namespace}quickLinksNav__popup {
+.#{$namespace}quickLinksNav {
   @extend .view-all-sites-btn;
+}
+
+.#{$namespace}quickLinksNav__popup {
   @include display-flex;
   @include align-items(center);
   height: 100%;
-  border-right: 1px solid $topNav-alt-color;
 
   .fa-external-link-square{
     @extend .all-sites-icon;
