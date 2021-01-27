@@ -178,6 +178,7 @@
 	max-width: 100%;
 	@include appearance(none);
 	@include border-radius(3px);
+	border: 1px solid $button-border-color;
 	&::-ms-expand {
 	    display: none;
 	}
