@@ -386,7 +386,6 @@ ul.alertMessage{
 /*highlight certain texts*/
 /*see: create a draft announcement - see the list*/
 .highlight{
-	color: #b01111;
     font-weight:bold;
 }
 
