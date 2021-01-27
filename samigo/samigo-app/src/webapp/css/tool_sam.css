@@ -116,9 +116,9 @@ h4.samigo-category-subhead-2 {
 {background-color:#CCC;text-align:left;padding:.3em;vertical-align:middle font-size:1.2ems}
 */
 .navViewAction {
-background-color:#CCC;
+background-color:#eee;
 text-align:left;
-padding:.3em;
+padding:10px;
 vertical-align: bottom;
 font-size:1.2em
 }
@@ -415,13 +415,6 @@ ul.ui-tabs-nav li a {
 }
 ul.ui-tabs-nav li.ui-tabs-selected a {
 	color: #000000;
-}
-#authorIndexForm\:import {
-	display: block;
-	margin-top: 12px;
-}
-#authorIndexForm\:createnew {
-	margin-top: 12px;
 }
 tr.list-row-even td, tr.list-row-odd td {
 	border-bottom: 1px solid #C6C6C6;
