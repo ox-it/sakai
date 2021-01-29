@@ -54,24 +54,46 @@ CREATE TABLE CONTENTREVIEW_ITEM_PROPERTIES (
 --
 -- SAK-31641 Switch from INTs to VARCHARs in Oauth
 --
-ALTER TABLE oauth_accessors
-MODIFY (
-  status VARCHAR2(255)
-, type VARCHAR2(255)
-);
+-- ALTER TABLE oauth_accessors
+-- MODIFY (
+--   status VARCHAR2(255)
+-- , type VARCHAR2(255)
+-- );
 
-UPDATE oauth_accessors SET status = CASE
-  WHEN status = 0 THEN 'VALID'
-  WHEN status = 1 THEN 'REVOKED'
-  WHEN status = 2 THEN 'EXPIRED'
-END;
+-- UPDATE oauth_accessors SET status = CASE
+--  WHEN status = 0 THEN 'VALID'
+--  WHEN status = 1 THEN 'REVOKED'
+--  WHEN status = 2 THEN 'EXPIRED'
+-- END;
 
-UPDATE oauth_accessors SET type = CASE
-  WHEN type = 0 THEN 'REQUEST'
-  WHEN type = 1 THEN 'REQUEST_AUTHORISING'
-  WHEN type = 2 THEN 'REQUEST_AUTHORISED'
-  WHEN type = 3 THEN 'ACCESS'
-END;
+-- UPDATE oauth_accessors SET type = CASE
+--   WHEN type = 0 THEN 'REQUEST'
+--   WHEN type = 1 THEN 'REQUEST_AUTHORISING'
+--  WHEN type = 2 THEN 'REQUEST_AUTHORISED'
+--  WHEN type = 3 THEN 'ACCESS'
+-- END;
+
+-- The above doesn't work on Oracle when the table has data in it (ORA-01439)
+
+ALTER TABLE oauth_accessors ADD ( status_temp VARCHAR2(255), type_temp VARCHAR2(255) );
+
+UPDATE oauth_accessors SET status_temp = 'VALID' where status = 0;
+UPDATE oauth_accessors SET status_temp = 'REVOKED' where status = 1;
+UPDATE oauth_accessors SET status_temp = 'EXPIRED' where status = 2;
+
+UPDATE oauth_accessors SET type_temp = 'REQUEST' where type = 0;
+UPDATE oauth_accessors SET type_temp = 'REQUEST_AUTHORISING' where type = 1;
+UPDATE oauth_accessors SET type_temp = 'REQUEST_AUTHORISED' where type = 2;
+UPDATE oauth_accessors SET type_temp = 'ACCESS' where type = 3;
+
+UPDATE oauth_accessors SET status = NULL, type = NULL;
+
+ALTER TABLE oauth_accessors MODIFY ( status VARCHAR2(255), type VARCHAR2(255) );
+
+UPDATE oauth_accessors SET status = status_temp, type = type_temp;
+
+ALTER TABLE oauth_accessors DROP COLUMN status_temp;
+ALTER TABLE oauth_accessors DROP COLUMN type_temp;
 
 --
 -- SAK-31636 Rename existing 'Home' tools
