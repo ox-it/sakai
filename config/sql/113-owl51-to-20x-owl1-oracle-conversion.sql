@@ -1359,7 +1359,7 @@ DROP TABLE old__ell_meeting_metadata_tmp CASCADE CONSTRAINTS;
 DROP TABLE old__ell_session_data CASCADE CONSTRAINTS;
 DROP TABLE old__ell_session_data_tmp CASCADE CONSTRAINTS;
 
-DROP TABLE old__metaobj_form_def CASCADE CONSTRAINTS
+DROP TABLE old__metaobj_form_def CASCADE CONSTRAINTS;
 
 DROP TABLE old__osp_authz_simple CASCADE CONSTRAINTS;
 DROP TABLE old__osp_completed_wiz_cat CASCADE CONSTRAINTS;
@@ -1401,6 +1401,8 @@ DROP TABLE old__osp_scaffolding_c_f_d CASCADE CONSTRAINTS;
 DROP TABLE old__osp_wiz_page_def_att CASCADE CONSTRAINTS;
 DROP TABLE old__osp_scaffolding_criteria CASCADE CONSTRAINTS;
 DROP TABLE old__osp_scaffolding_levels CASCADE CONSTRAINTS;
+DROP TABLE old__osp_scaffolding_att CASCADE CONSTRAINTS;
+DROP TABLE old__osp_scaffolding_form_defs CASCADE CONSTRAINTS;
 DROP TABLE old__osp_site_tool CASCADE CONSTRAINTS;
 DROP TABLE old__osp_style CASCADE CONSTRAINTS;
 DROP TABLE old__osp_template_file_ref CASCADE CONSTRAINTS;
