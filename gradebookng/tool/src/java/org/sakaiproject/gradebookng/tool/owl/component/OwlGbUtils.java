@@ -8,7 +8,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.owl.pages.IGradesPage;
 
 /**
  *
@@ -44,7 +44,7 @@ public class OwlGbUtils
 
 	public static StringResourceModel getModalTitleModel(GradebookNgBusinessService bus, GbUser user, Page page, String normalKey, Object[] normalArgs, Object[] anonArgs)
 	{
-		if (((GradebookPage) page).getOwlUiSettings().isContextAnonymous())
+		if (((IGradesPage) page).getOwlUiSettings().isContextAnonymous())
 		{
 			String anonId = bus.owl().anon.getSectionAnonIdForUser(user.getDisplayId()).map(String::valueOf).orElse("");
 			return new StringResourceModel(normalKey + ".anonymous", null, ArrayUtils.addAll(new Object[] { anonId }, anonArgs));
