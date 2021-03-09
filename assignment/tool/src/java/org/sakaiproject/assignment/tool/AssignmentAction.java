@@ -20,7 +20,6 @@ import static org.sakaiproject.assignment.api.AssignmentServiceConstants.*;
 import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
 
 import java.io.*;
-import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -67,7 +66,6 @@ import java.util.zip.ZipFile;
 import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -134,7 +132,6 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.*;
 import org.sakaiproject.user.api.CandidateDetailProvider;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -3624,22 +3621,22 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String template = (String) getContext(data).get("template");
 
-        boolean useSakaiGrader = serverConfigurationService.getBoolean("assignment.usegraderbydefault", false);
+        boolean useSakaiGrader = false;/*serverConfigurationService.getBoolean("assignment.usegraderbydefault", false);*/
 
-        Preferences prefs = preferencesService.getPreferences(sessionManager.getCurrentSessionUserId());
-        ResourceProperties props = prefs.getProperties("viewpreferences");
-        if (props != null) {
-            try {
-                String assignmentsViewPrefs = (String) props.getProperty("assignments");
-                if (assignmentsViewPrefs != null) {
-                    ObjectMapper m = new ObjectMapper();
-                    Map<String, Object> prefsMap = m.readValue(URLDecoder.decode(assignmentsViewPrefs, "UTF-8"), Map.class);
-                    useSakaiGrader = (Boolean) prefsMap.get("usegrader");
-                }
-            } catch (Exception e) {
-                log.error("Failed to parse assignments view preferences", e);
-            }
-        }
+//        Preferences prefs = preferencesService.getPreferences(sessionManager.getCurrentSessionUserId());
+//        ResourceProperties props = prefs.getProperties("viewpreferences");
+//        if (props != null) {
+//            try {
+//                String assignmentsViewPrefs = (String) props.getProperty("assignments");
+//                if (assignmentsViewPrefs != null) {
+//                    ObjectMapper m = new ObjectMapper();
+//                    Map<String, Object> prefsMap = m.readValue(URLDecoder.decode(assignmentsViewPrefs, "UTF-8"), Map.class);
+//                    useSakaiGrader = (Boolean) prefsMap.get("usegrader");
+//                }
+//            } catch (Exception e) {
+//                log.error("Failed to parse assignments view preferences", e);
+//            }
+//        }
 
         if (useSakaiGrader) {
             return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION_WITH_GRADER;
