@@ -18,6 +18,7 @@ public class OwlGbUiSettings implements Serializable
 	public static final int DEFAULT_PAGE_SIZE = 100;
 
 	private int pageSize;
+	private boolean anonPossible = false;
 	private boolean isContextAnonymous = false;
 	private boolean isGradebookMixed = false; // true iff both normal and anonymous items exist, or all items are anonymous but none count toward the course grade so the course grade is normal
 	private Set<Long> anonAwareAssignmentIDsForContext; // Tracks which assignments are visible. Contains all assignments whose isAnon() matches isContextAnonymous

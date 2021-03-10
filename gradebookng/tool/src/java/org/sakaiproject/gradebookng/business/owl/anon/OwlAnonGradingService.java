@@ -275,6 +275,12 @@ public class OwlAnonGradingService
 				.collect(Collectors.toMap(e -> String.valueOf(anonIdMap.get(e.getKey())), e -> e.getValue()));
 	}
 
+	public List<Assignment> filterByAnonContext(List<Assignment> items, OwlGbUiSettings settings)
+	{
+		Set<Long> itemIdsToKeep = settings.getAnonAwareAssignmentIDsForContext();
+		return items.stream().filter(i -> itemIdsToKeep.contains(i.getId())).collect(Collectors.toList());
+	}
+
 	/**
 	 * Orders OwlAnonGradingIDs: primary sort by sections, secondary sort by userEids. This is mainly used to ensure the order in which OwlAnonGradingID data is added into LinkedHashMaps is deterministic.
 	 */

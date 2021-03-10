@@ -442,7 +442,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 		this.tableArea.add(groupFilter);
 
 		final Map<String, Object> togglePanelModel = new HashMap<>();
-		togglePanelModel.put("assignments", this.businessService.getGradebookAssignments(sortBy));
+		togglePanelModel.put("assignments", uiSettings.owl.isAnonPossible() ? businessService.owl().anon.filterByAnonContext(assignments, uiSettings.owl) : assignments); // OWL
 		togglePanelModel.put("settings", settings);
 		togglePanelModel.put("categoriesEnabled", categoriesEnabled);
 
@@ -653,6 +653,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 		// and there is both anonymous and normal content to view.
 		boolean isGradebookMixed = false;
 		boolean siteHasAnonIds = !anonServ.getAnonGradingIDsForCurrentSite().isEmpty();
+		settings.owl.setAnonPossible(siteHasAnonIds);
 
 		if (siteHasAnonIds)
 		{
