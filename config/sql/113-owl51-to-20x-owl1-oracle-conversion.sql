@@ -838,8 +838,8 @@ UPDATE SAKAI_SITE_PAGE SET layout = '0' WHERE page_id = '!urlError-100';
 -- End of SAK-41017
 
 -- SAK-33855 add settings for display of stats
-ALTER TABLE gb_gradebook_t ADD assignment_stats_displayed NUMBER(1,0) DEFAULT 1 NOT NULL;
-ALTER TABLE gb_gradebook_t ADD course_grade_stats_displayed NUMBER(1,0) DEFAULT 1 NOT NULL;
+ALTER TABLE gb_gradebook_t ADD assignment_stats_displayed NUMBER(1,0) DEFAULT 0 NOT NULL;
+ALTER TABLE gb_gradebook_t ADD course_grade_stats_displayed NUMBER(1,0) DEFAULT 0 NOT NULL;
 -- end SAK-33855
 
 -- SAK-41225
