@@ -17,8 +17,11 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +60,7 @@ import org.apache.wicket.validation.IErrorMessageSource;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
 import org.apache.wicket.validation.ValidationError;
+import org.sakaiproject.gradebookng.tool.owl.component.SakaiDateTimeField;
 
 /**
  * The panel for the add grade item window
@@ -74,8 +78,6 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 	private boolean categoriesEnabled;
 
-	private static final String DATEPICKER_FORMAT = "yyyy-MM-dd";
-
 	private Double existingPoints = null;
 	private boolean scaleGradesTriggered = false;
 	private WebMarkupContainer scaleGradesContainer;
@@ -91,11 +93,6 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
 
 		final Assignment assignment = assignmentModel.getObject();
-
-		String dueDateString = "";
-		if (assignment.getDueDate() != null) {
-			dueDateString = DateFormatterUtil.format(assignment.getDueDate(), DATEPICKER_FORMAT, getSession().getLocale());
-		}
 
 		this.categoriesEnabled = true;
 		if (gradebook.getCategory_type() == GbCategoryType.NO_CATEGORY.getValue()) {
@@ -251,17 +248,16 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		this.scaleGradesContainer.add(new CheckBox("scaleGrades", new PropertyModel<Boolean>(assignmentModel, "scaleGrades")));
 		add(this.scaleGradesContainer);
 
-		// due date
-		// TODO date format needs to come from i18n
-		final TextField dueDate = new TextField("duedate", Model.of(dueDateString)) {
-			private static final long serialVersionUID = 1L;
+		// OWL - switch to SakaiDateTimeField
+		final SakaiDateTimeField dueDateField = new SakaiDateTimeField("duedate", new PropertyModel<ZonedDateTime>(this, "dueDate"), ZoneId.systemDefault()) {
 
 			@Override
 			public boolean isEnabled() {
 				return !assignment.isExternallyMaintained();
 			}
 		};
-		add(dueDate);
+		add(dueDateField);
+		dueDateField.setUseTime(false);
 
 		// category
 		final List<CategoryDefinition> categories = new ArrayList<>();
@@ -440,6 +436,18 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 		Assignment assignment = (Assignment) getDefaultModel().getObject();
 		assignment.setAnon(isItemAnonymous);
 		isAnonymousLocked = true;
+	}
+
+	// OWL
+	public ZonedDateTime getDueDate() {
+		Date dueDate = ((Assignment) getDefaultModelObject()).getDueDate();
+		return dueDate == null ? null : ZonedDateTime.ofInstant(dueDate.toInstant(), ZoneId.systemDefault());
+	}
+
+	// OWL
+	public void setDueDate(ZonedDateTime zoned)	{
+		Assignment asn = (Assignment) getDefaultModelObject();
+		asn.setDueDate(zoned == null ? null : Date.from(zoned.toInstant()));
 	}
 
 	public void renderHead(final IHeaderResponse response) {
