@@ -564,6 +564,7 @@ public class GbGradebookData {
 			// categories, put out a total.
 			if (userSettings.isGroupedByCategory() &&
 					a1.getCategoryId() != null &&
+					categoryMap.containsKey(a1.getCategoryId()) && // OWL - prevent adding category column for mixed categories in anon view by checking if category is allowed
 					(a2 == null || !a1.getCategoryId().equals(a2.getCategoryId()))) {
 				result.add(new CategoryAverageDefinition(a1.getCategoryId(),
 						a1.getCategoryName(),

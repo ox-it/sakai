@@ -3141,8 +3141,22 @@ GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore
 
     // update model
     var modelRow = GbGradeTable.modelIndexForStudent(studentId);
-    var modelCol = $.inArray(GbGradeTable.colModelForCategoryId(categoryId), GbGradeTable.columns);
-    GbGradeTable.grades[modelRow][modelCol + GbGradeTable.FIXED_COLUMN_OFFSET] = categoryScore;
+
+	// OWL - colModelForCategoryId will throw an exception if category column can't be found
+	// normally this is a legit error, but in an anon context a mixed category won't have a column
+	// therefore, we have to catch the exception and check
+	try
+	{
+		var modelCol = $.inArray(GbGradeTable.colModelForCategoryId(categoryId), GbGradeTable.columns);
+		GbGradeTable.grades[modelRow][modelCol + GbGradeTable.FIXED_COLUMN_OFFSET] = categoryScore;
+	}
+	catch (e)
+	{
+		if (typeof owlAnonContext === "undefined" || owlAnonContext !== true)
+		{
+			throw e;
+		}
+	}
 
     // update dropped status of all items in this category
     var categoryItems = GbGradeTable.itemsInCategory(categoryId);
