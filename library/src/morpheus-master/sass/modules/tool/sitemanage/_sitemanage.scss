@@ -116,7 +116,7 @@
   }
   .toggledContent {
     margin: 0;
-    border: 2px solid #cef;
+    border: 1px solid #ddd;
     border-top: none;
     padding: .5em;
   }
@@ -562,15 +562,16 @@
     }
   }
   h4.toggleAnchor {
-    border: 1px solid #cef;
-    background: #cef !important;
-    padding: 5px !important;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    padding: $standard-spacing;
     cursor: pointer;
-    outline: none;
-    color: black;
+    color: $link-color;
+    font-size: $default-font-size-large;
+    font-weight: bold;
   }
   .toggleAnchor:hover {
-    border: 1px solid #9cf;
+    border: 1px solid #ccc;
   }
   dl.defList {
     margin: 0;

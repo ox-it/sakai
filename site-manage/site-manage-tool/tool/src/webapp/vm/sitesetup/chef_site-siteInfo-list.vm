@@ -320,7 +320,7 @@
 		<div id="accordion">
 			#if ($!sections.size() > 0)
 			<h4 class="toggleAnchor specialLink">
-				<span  style="padding-left:1.5em">#if ($!viewRoster) $tlang.getString("sinfo.list.sections")#else $tlang.getString("sinfo.list.sections.student") #end</span>
+				<span>#if ($!viewRoster) $tlang.getString("sinfo.list.sections")#else $tlang.getString("sinfo.list.sections.student") #end</span>
 			</h4>		
 			<div class="toggledContent">
 			<ul class="defList" style="list-style: none;" id="accordion">
@@ -330,7 +330,7 @@
 						<span style="width: 80%;">
 							<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
 							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id)) 
-									<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+									<span class="itemAction">(<a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
 							#end
 							#if ($g.Description)
 								<br/>
@@ -356,7 +356,7 @@
 			#if ($!groups.size() > 0)
 			
 			<h4 class="toggleAnchor specialLink">
-				<span  style="padding-left:1.5em">#if ($!viewRoster) $tlang.getString("sinfo.list.groups")#else $tlang.getString("sinfo.list.groups.student") #end</span>
+				<span>#if ($!viewRoster) $tlang.getString("sinfo.list.groups")#else $tlang.getString("sinfo.list.groups.student") #end</span>
 			</h4>		
 			<div class="toggledContent">
 			<ul class="defList groups-site" id="accordion">
@@ -367,7 +367,7 @@
 							<div class="col-lg-10 col-sm-10 col-xs-12">
 								<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
 								#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
-									<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+									<span class="itemAction">(<a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
 								#end
 								#if ($g.Description)
 									<br/>
@@ -395,7 +395,7 @@
 			#end
 			#if ($!joinableGroups.size() > 0)
 				<h4 class="toggleAnchor specialLink">
-					<span style="padding-left:1.5em">#if ($!allowUpdate) $tlang.getString("sinfo.list.joinable.joinable-sets") #else $tlang.getString("sinfo.list.joinable.groups") #end</span>
+					<span>#if ($!allowUpdate) $tlang.getString("sinfo.list.joinable.joinable-sets") #else $tlang.getString("sinfo.list.joinable.groups") #end</span>
 				</h4>
 				<div class="toggledContent">
 				<dl class="defList" id="accordion">
