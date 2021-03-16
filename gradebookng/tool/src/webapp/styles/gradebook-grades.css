@@ -84,12 +84,6 @@
 #toggleCategoriesToolbarItem.on:before {
   content: '\f046';
 }
-#filterByGroup {
-  line-height: 1em;
-  max-width: 80%;
-  max-width: calc(100% - 50px);
-  font-size: 12px;
-}
 #gradebookGradesToolbar .gb-item-summary.warn-items-hidden .gb-item-summary-counts {
   color: #CA7311;
   font-weight: bold;
