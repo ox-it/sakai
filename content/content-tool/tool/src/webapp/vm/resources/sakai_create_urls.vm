@@ -53,7 +53,7 @@
 						<span class="reqStar">*</span>
 						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
 						## TODO add onchange event handler to seed file-name into displayName field
-						<input type="url" name="content${DOT}$i" id="content${DOT}$i" class="form-control" maxlength="512" />
+						<input type="url" name="content${DOT}$i" id="content${DOT}$i" class="form-control" maxlength="512" value="https://" />
 						#if($ezproxyPrefix)
 						  <a class="indnt2" href="#" id="ezproxyTrigger${DOT}$i" title="$tlang.getString("label.ezproxy")">$tlang.getString("label.ezproxy")</a>
 						#end
