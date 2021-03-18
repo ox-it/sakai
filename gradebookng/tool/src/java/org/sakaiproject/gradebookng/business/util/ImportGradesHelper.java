@@ -378,16 +378,14 @@ public class ImportGradesHelper {
 			return false;
 		}
 
-		// Track selections if coming back from the item creation steps
+		// OWL - Track selections if coming back from the item creation steps
 		List<ProcessedGradeItem> oldSelections = importWizardModel.getSelectedGradeItems();
-		final Set<String> selectedItemTitles;
+		Set<String> selectedGbItemTitles = Collections.emptySet();
+		Set<String> selectedCommentTitles = Collections.emptySet();
 		if (oldSelections != null)
 		{
-			selectedItemTitles = oldSelections.stream().map(ProcessedGradeItem::getItemTitle).collect(Collectors.toSet());
-		}
-		else
-		{
-			selectedItemTitles = Collections.emptySet();
+			selectedGbItemTitles = oldSelections.stream().filter(p -> p.getType() == ProcessedGradeItem.Type.GB_ITEM).map(ProcessedGradeItem::getItemTitle).collect(Collectors.toSet());
+			selectedCommentTitles = oldSelections.stream().filter(p -> p.getType() == ProcessedGradeItem.Type.COMMENT).map(ProcessedGradeItem::getItemTitle).collect(Collectors.toSet());
 		}
 
 		// If there are duplicate headings, tell the user now
@@ -520,8 +518,8 @@ public class ImportGradesHelper {
 		sourcePage.clearFeedback();
 		sourcePage.updateFeedback(target);
 
-		// If returning from the creation pages, the ProcessedGradeItems in importWizardModel are now stale and don't reflect changes made in the creation pages. Update them matching on getItemTitle()
-		if (!CollectionUtils.isEmpty(selectedItemTitles))
+		// OWL - If returning from the creation pages, the ProcessedGradeItems in importWizardModel are now stale and don't reflect changes made in the creation pages. Update them matching on getItemTitle()
+		if (!selectedGbItemTitles.isEmpty() || !selectedCommentTitles.isEmpty())
 		{
 			Map<String, Assignment> titlesToAssignments = new HashMap<>();
 			Map<ProcessedGradeItem, Assignment> staleAssignmentsToCreate = importWizardModel.getAssignmentsToCreate();
@@ -531,24 +529,35 @@ public class ImportGradesHelper {
 			}
 
 			List<ProcessedGradeItem> selectedGradeItems = new ArrayList<>();
-			Map<ProcessedGradeItem, Assignment> assignmentsToCreate = new HashMap<>();
+			Map<ProcessedGradeItem, Assignment> assignmentsToCreate = new LinkedHashMap<>();
 			for (ProcessedGradeItem item : processedGradeItems)
 			{
 				String title = item.getItemTitle();
-				if (selectedItemTitles.contains(title))
+				switch (item.getType())
 				{
-					selectedGradeItems.add(item);
-				}
+					case COMMENT:
+						if (selectedCommentTitles.contains(title))
+						{
+							selectedGradeItems.add(item);
+						}
+						break;
+					case GB_ITEM:
+						if (selectedGbItemTitles.contains(title))
+						{
+							selectedGradeItems.add(item);
+						}
 
-				Assignment toCreate = titlesToAssignments.get(title);
-				if (toCreate != null)
-				{
-					assignmentsToCreate.put(item, toCreate);
+						Assignment toCreate = titlesToAssignments.get(title);
+						if (toCreate != null)
+						{
+							assignmentsToCreate.put(item, toCreate);
+						}
+						break;
 				}
-
-				importWizardModel.setSelectedGradeItems(selectedGradeItems);
-				importWizardModel.setAssignmentsToCreate(assignmentsToCreate);
 			}
+
+			importWizardModel.setSelectedGradeItems(selectedGradeItems);
+			importWizardModel.setAssignmentsToCreate(assignmentsToCreate);
 		}
 
 		// Setup and return the model
