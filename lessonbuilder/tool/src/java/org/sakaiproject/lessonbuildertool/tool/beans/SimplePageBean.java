@@ -3465,31 +3465,34 @@ public class SimplePageBean {
 
 	    return ret;
 	}
-	
-	public String getSubPagePath(SimplePageItem item, boolean subPageTitleContinue) {
-		String subPageTitle = "";
-		List<SimplePageItem> items = simplePageToolDao.findItemsBySakaiId(String.valueOf(item.getPageId()));
-		while(items != null && items.size()>0)
-		{
-			if("".equals(subPageTitle) && subPageTitleContinue)
-			{
-				subPageTitle = items.get(0).getName() + " (" + messageLocator.getMessage("simplepage.printall.continuation") + ")";
-			}
-			else if("".equals(subPageTitle))
-			{
-				subPageTitle = items.get(0).getName();
-			}
-			else
-			{
-				subPageTitle = items.get(0).getName() +" > "+ subPageTitle;
-			}
-			items = simplePageToolDao.findItemsBySakaiId(String.valueOf(items.get(0).getPageId()));
-		}
-				
-		if("".equals(subPageTitle)) subPageTitle = null;
-			
-		return subPageTitle;
-	}
+
+	private String getParentTitle(SimplePageItem item, boolean continuation, Set<Long> seen) {
+        if (item != null) {
+            // get parent item
+            List<SimplePageItem> parentItems = simplePageToolDao.findItemsBySakaiId(Long.toString(item.getPageId()));
+            if (!parentItems.isEmpty()) {
+                SimplePageItem parent = parentItems.get(0);
+                // skip if this parent was already seen, guard against infinite loop
+                if (!seen.contains(parent.getId())) {
+                    seen.add(parent.getId());
+                    String title = parent.getName();
+					if (continuation) {
+						title += " (" + messageLocator.getMessage("simplepage.printall.continuation") + ") ";
+					}
+                    if (seen.size() > 1) {
+                        title += " > ";
+                    }
+                    return getParentTitle(parent, false, seen) + title;
+                }
+            }
+        }
+        return "";
+    }
+
+    public String getSubPagePath(SimplePageItem item, boolean subPageTitleContinue) {
+        String subPageTitle = getParentTitle(item, subPageTitleContinue, new HashSet<>());
+        return StringUtils.trimToNull(subPageTitle);
+    }
 
     // too much existing code to convert to throw at the moment
         public String getItemGroupString (SimplePageItem i, LessonEntity entity, boolean nocache) {
