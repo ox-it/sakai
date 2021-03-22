@@ -296,6 +296,13 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private Boolean mayViewSubmissionFullSourceOverrideInstructor = null;
 	private Boolean mayViewMatchSubmissionInfoOverrideInstructor = null;
 
+	/**
+	  * Sakai property that determines whether indexing is enabled. Default: true.
+	  * Set to false to disable indexing on QA nodes to prevent production papers from having 100% matches.
+	  */
+	private String PROP_INDEXING_ENABLED = "turnitin.oc.indexing.enabled";
+	private boolean indexingEnabled = true;
+
 	public void init() {
 		EULA_CACHE = memoryService.createCache("org.sakaiproject.contentreview.turnitin.oc.ContentReviewServiceTurnitinOC.LATEST_EULA_CACHE", new SimpleConfiguration<>(10000, 24 * 60 * 60, -1));
 		// Retrieve Service URL and API key
@@ -329,6 +336,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		mayViewMatchSubmissionInfoOverrideInstructor = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc.may_view_match_submission_info.instructor")) 
 				? serverConfigurationService.getBoolean("turnitin.oc.may_view_match_submission_info.instructor", false)
 				: null;
+
+		indexingEnabled = serverConfigurationService.getBoolean(PROP_INDEXING_ENABLED, true);
 				
 		// Override default Sakai->Turnitin roles mapping
 		for(ROLES role : ROLES.values()) {
@@ -761,6 +770,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 	
 	private void indexSubmission(String reportId) throws Exception {
+		if (!indexingEnabled) {
+			return;
+		}
+
 		HashMap<String, Object> response = makeHttpCall("PUT",
 				getNormalizedServiceUrl() + "submissions/" + reportId + "/index",
 				SIMILARITY_REPORT_HEADERS,
@@ -801,7 +814,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		reportData.put("view_settings", viewSettings);
 		
 		Map<String, Object> indexingSettings = new HashMap<String, Object>();
-		indexingSettings.put("add_to_index", "true".equals(assignmentSettings.get("store_inst_index")));
+		boolean addToIndex = indexingEnabled && "true".equals(assignmentSettings.get("store_inst_index"));
+		indexingSettings.put("add_to_index", addToIndex);
 		reportData.put("indexing_settings", indexingSettings);
 
 		HashMap<String, Object> response = makeHttpCall("PUT",
@@ -1386,7 +1400,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						Map<String, String> assignmentSettings = assignment.getProperties();
 						//set item retryTime to due date
 						cal.setTime(getDueDateRetryTime(assignmentDueDate));
-						if("true".equals(assignmentSettings.get("store_inst_index"))){
+						if(indexingEnabled && "true".equals(assignmentSettings.get("store_inst_index"))){
 							indexSubmission(item.getExternalId());
 						}
 					}catch (Exception e) {
