@@ -22,15 +22,7 @@ function printView(url) {
 <div class="portletBody container-fluid">
     #navBarHREF( $allowAddAssignment $withGrade $allowGradeSubmission $allowAddAssignment $allowRecoverAssignment $allowAllGroups $assignmentscheck $allowUpdateSite $enableViewOption $view "" )
 	<div class="page-header">
-		<h1>
-		$formattedText.escapeHtml($assignment.Title)
-		<small>
-		#if ($!assignment.IsGroup )
-			<i class="fa fa-users" aria-hidden="true" title="$tlang.getString('gen.groupassignment')"></i>
-		#end
-		  - $tlang.getString('gen.subm2')
-		</small>
-		</h1>
+		<h1>#assignmentTitleIcon($!assignment) $formattedText.escapeHtml($assignment.Title)<small> - $tlang.getString('gen.subm2')</small></h1>
 	</div>
 
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
