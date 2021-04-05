@@ -12,7 +12,7 @@ public class OwlExportConfig implements Serializable
 	// default export options
 	public boolean includeStudentName = true;
 	public boolean includeStudentId = true;
-	public boolean includeStudentNumber = true;
+	public boolean includeStudentNumber = false;
 	public boolean includeGradeItemScores = true;
 	public boolean includeGradeItemComments = true;
 	public boolean includeFinalGrade = false;
@@ -22,5 +22,8 @@ public class OwlExportConfig implements Serializable
 	public boolean includeGradeOverride = false;
 	public GbGroup group = null;
 
-	public static final OwlExportConfig DEFAULTS = new OwlExportConfig();
+	public OwlExportConfig(boolean isStudentNumberVisible)
+	{
+		includeStudentNumber = isStudentNumberVisible;
+	}
 }

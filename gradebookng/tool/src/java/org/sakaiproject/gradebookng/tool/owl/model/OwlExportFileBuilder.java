@@ -53,9 +53,9 @@ public class OwlExportFileBuilder implements Serializable
 		decimalEnd = decimalSeparator + "0";
 	}
 
-	public File buildFile(OwlExportPanel panel, List<Assignment> allItems)
+	public File buildFile(OwlExportPanel panel, OwlExportConfig config, List<Assignment> allItems)
 	{
-		return buildFile(panel, OwlExportConfig.DEFAULTS, false, false, allItems);
+		return buildFile(panel, config, false, false, allItems);
 	}
 
 	public File buildCustomFile(OwlExportPanel panel, OwlExportConfig config, List<Assignment> allItems)
@@ -63,9 +63,9 @@ public class OwlExportFileBuilder implements Serializable
 		return buildFile(panel, config, true, false, allItems);
 	}
 
-	public File buildRevealedFile(OwlExportPanel panel, List<Assignment> allItems)
+	public File buildRevealedFile(OwlExportPanel panel, OwlExportConfig config, List<Assignment> allItems)
 	{
-		return buildFile(panel, OwlExportConfig.DEFAULTS, false, true, allItems);
+		return buildFile(panel, config, false, true, allItems);
 	}
 
 	public File buildCustomRevealedFile(OwlExportPanel panel, OwlExportConfig config, List<Assignment> allItems)

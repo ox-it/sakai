@@ -1079,8 +1079,9 @@ public class GradebookNgBusinessService {
 		stopwatch.time("putCourseGradesInMatrix");
 
 		// ------------- Assignments -------------
-		putAssignmentsAndCategoryItemsInMatrix(matrix, gbStudents, studentUUIDs, assignments, gradebook, currentUserUuid, role, settings);
-		stopwatch.time("putAssignmentsAndCategoryItemsInMatrix");
+		// OWL - temporarily revert SAK-27821
+		putAssignmentsInMatrixForExport(matrix, gbStudents, studentUUIDs, assignments, gradebook, currentUserUuid, role);
+		stopwatch.time("putAssignmentsInMatrixForExport");
 
 		// ------------- Sorting -------------
 		List<GbStudentGradeInfo> items = sortGradeMatrix(matrix, settings);

@@ -51,6 +51,8 @@ public class OwlExportPanel extends BasePanel
 	// Model for file names; gets updated by buildFileName(), which is invoked by buildFile for effiency with determining csv vs zip wrt anonymity
 	private final Model<String> fileNameModel = new Model<>("");
 
+	private boolean stuNumVisible = false; // current user can see student numbers
+
 	public OwlExportPanel(String id)
 	{
 		super(id);
@@ -73,11 +75,11 @@ public class OwlExportPanel extends BasePanel
 
 		fileBuilder = new OwlExportFileBuilder(ComponentManager.get(FormattedText.class).getDecimalSeparator());
 
-		config = new OwlExportConfig();
+		stuNumVisible = businessService.isStudentNumberVisible();
+		config = new OwlExportConfig(stuNumVisible);
 		
 		add(new AjaxToggleCheckBox("includeStudentName", new PropertyModel<>(config, "includeStudentName")));
 		add(new AjaxToggleCheckBox("includeStudentId", new PropertyModel<>(config, "includeStudentId")));
-		final boolean stuNumVisible = businessService.isStudentNumberVisible();
 		add(new AjaxToggleCheckBox("includeStudentNumber", new PropertyModel<>(config, "includeStudentNumber")).setVisible(stuNumVisible));
 		add(new AjaxToggleCheckBox("includeGradeItemScores", new PropertyModel<>(config, "includeGradeItemScores")));
 		add(new AjaxToggleCheckBox("includeGradeItemComments", new PropertyModel<>(config, "includeGradeItemComments")));
@@ -114,7 +116,7 @@ public class OwlExportPanel extends BasePanel
 			@Override
 			public File load()
 			{
-				return fileBuilder.buildFile(OwlExportPanel.this, allAssignments);
+				return fileBuilder.buildFile(OwlExportPanel.this, new OwlExportConfig(stuNumVisible), allAssignments);
 			}
 		});
 		add(new GbDownloadLink("revealedExport", fileNameModel)
@@ -122,7 +124,7 @@ public class OwlExportPanel extends BasePanel
 			@Override
 			public File load()
 			{
-				return fileBuilder.buildRevealedFile(OwlExportPanel.this, allAssignments);
+				return fileBuilder.buildRevealedFile(OwlExportPanel.this, new OwlExportConfig(stuNumVisible), allAssignments);
 			}
 		}.setVisible(showRevealed));
 		add(new GbDownloadLink("downloadCustomGradebook", fileNameModel)
