@@ -2244,6 +2244,7 @@ public class SiteAction extends PagedResourceActionII {
 					List<Group> filteredSections = new ArrayList<Group>();
 					Collection<String> viewMembershipGroups = new ArrayList<String>();
 					Collection<String> unjoinableGroups = new ArrayList<String>();
+					Collection<String> unjoinableLockedGroups = new ArrayList<>();  // OWL
 					for (Group g : groups)
 					{
 						Object gProp = g.getProperties().getProperty(g.GROUP_PROP_WSETUP_CREATED);
@@ -2265,6 +2266,10 @@ public class SiteAction extends PagedResourceActionII {
 								&& unjoinableProp != null && unjoinableProp.equals(Boolean.TRUE.toString())
 								&& g.getMember(UserDirectoryService.getCurrentUser().getId()) != null){
 							unjoinableGroups.add(g.getId());
+							if (AuthzGroup.RealmLockMode.ALL.equals(g.getRealmLock()) || AuthzGroup.RealmLockMode.MODIFY.equals(g.getRealmLock()))
+							{
+								unjoinableLockedGroups.add(g.getId());
+							}
 						}
 					}
 					Collections.sort(filteredGroups, new GroupTitleComparator());
@@ -2273,6 +2278,7 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("sections", filteredSections);
 					context.put("viewMembershipGroups", viewMembershipGroups);
 					context.put("unjoinableGroups", unjoinableGroups);
+					context.put("unjoinableLockedGroups", unjoinableLockedGroups);
 				}
 				
 				//joinable groups:
@@ -2346,7 +2352,8 @@ public class SiteAction extends PagedResourceActionII {
 							{
 								log.debug(this + "joinablegroups: cannot find group " + group.getReference());
 							}
-							joinableGroups.add(new JoinableGroup(reference, title, joinableSet, size, max, groupMembers, preview));
+							boolean locked = AuthzGroup.RealmLockMode.ALL.equals(group.getRealmLock()) || AuthzGroup.RealmLockMode.MODIFY.equals(group.getRealmLock());  // OWL
+							joinableGroups.add(new JoinableGroup(reference, title, joinableSet, size, max, groupMembers, preview, locked));
 						}
 					}
 					if(joinableGroups.size() > 0){
@@ -15505,8 +15512,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		private int max;
 		private String members;
 		private boolean preview;
+		private boolean locked;  // OWL
 
-		public JoinableGroup(String reference, String title, String joinableSet, int size, int max, String members, boolean preview){
+		public JoinableGroup(String reference, String title, String joinableSet, int size, int max, String members, boolean preview, boolean locked){
 			this.reference = reference;
 			this.title = title;
 			this.joinableSet = joinableSet;
@@ -15514,6 +15522,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			this.max = max;
 			this.members = members;
 			this.preview = preview;
+			this.locked = locked;
 		}
 
 		public String getTitle() {
@@ -15561,6 +15570,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 		public void setReference(String reference) {
 			this.reference = reference;
+		}
+
+		public boolean isLocked()
+		{
+			return locked;
 		}
 
 	}
