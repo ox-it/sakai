@@ -57,7 +57,6 @@ import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
 import org.sakaiproject.gradebookng.tool.model.GbGradeTableData;
 import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 public class GbGradeTable extends GenericPanel<GbGradeTableData> {
 
@@ -126,11 +125,13 @@ public class GbGradeTable extends GenericPanel<GbGradeTableData> {
 	public void onInitialize()
 	{
 		super.onInitialize();
-		boolean anon = ((GradebookPage) getPage()).getOwlUiSettings().isContextAnonymous();
+		//boolean anon = ((GradebookPage) getPage()).getOwlUiSettings().isContextAnonymous();
 		String msg = "<a href=\"javascript:void(0);\" class=\"gb-message-students\" role=\"menuitem\" data-assignment-id=\"${assignmentId}\">%s</a>";
 		String title = new ResourceModel("label.submission-messager.title").getObject();
-		add(new Label("messageStudents", String.format(msg, title)).setEscapeModelStrings(false).setVisible(!anon));
-		add(new WebMarkupContainer("subMsg").setVisible(!anon));
+		//add(new Label("messageStudents", String.format(msg, title)).setEscapeModelStrings(false).setVisible(!anon));
+		//add(new WebMarkupContainer("subMsg").setVisible(!anon));
+		add(new Label("messageStudents", String.format(msg, title)).setEscapeModelStrings(false).setVisible(false));
+		add(new WebMarkupContainer("subMsg").setVisible(false));
 
 		// OWL - also remove the course grade statistics menu item
 		boolean showStats = serverConfigService.getBoolean("gradebookng.showCourseGradeStatistics", true);
