@@ -1053,7 +1053,7 @@ public class GradingService
       // This is for DeliveryBean.checkDataIntegrity()
       if (!regrade && persistToDB)
       {
-    	data.setSubmittedDate(new Date());
+        data.setSubmittedDate(data.getSubmitFromTimeoutPopup() ? pub.getAssessmentAccessControl().getDueDate() : new Date());
         setIsLate(data, pub);
       }
       
@@ -2343,7 +2343,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   private void setIsLate(AssessmentGradingData data, PublishedAssessmentIfc pub){
     Boolean isLate = Boolean.FALSE;
     AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
-    if (a.getDueDate() != null && a.getDueDate().before(new Date())) {
+    if (a.getDueDate() != null && a.getDueDate().before(new Date()) && !data.getSubmitFromTimeoutPopup()) {
       isLate = Boolean.TRUE;
     }
 
