@@ -101,6 +101,11 @@
   line-height: 2.6em;
 }
 
+#gradebookGrades .gb-userid-cell > div 
+{
+	word-break: break-all;
+}
+
 #gradebookGrades td.gb-student-cell > div
 {
 	padding: 0 4px;
