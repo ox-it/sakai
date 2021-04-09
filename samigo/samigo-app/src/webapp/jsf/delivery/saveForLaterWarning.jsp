@@ -41,7 +41,7 @@
 <h:form id="saveForLater">
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="previewMessage"></f:verbatim>
+ <f:verbatim><div class="sak-banner-warn"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}"
         action="#{person.cleanResourceIdListInPreview}"
@@ -54,7 +54,6 @@
 <h3 style="insColor insBak">
    <h:outputText value="#{deliveryMessages.assessment_exit_warning_title}" />
 </h3>
-<br/>
   <!-- content... -->
   <h:panelGroup styleClass="sak-banner-warn">
   <h:panelGrid border="0">
@@ -78,7 +77,7 @@
 </div>
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="previewMessage"></f:verbatim>
+ <f:verbatim><div class="sak-banner-warn"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}"
         action="#{person.cleanResourceIdListInPreview}"

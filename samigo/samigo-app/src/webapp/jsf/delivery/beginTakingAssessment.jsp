@@ -49,7 +49,7 @@
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
-  <div class="previewMessage">
+  <div class="sak-banner-warn">
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}"
         action="#{person.cleanResourceIdListInPreview}"
@@ -77,7 +77,7 @@
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
 
 
-<div class="tier2">
+<div>
 <h:panelGrid columns="1" border="0">
     <!--  Due Message -->
     <h:panelGroup rendered="#{delivery.firstTimeTaking}">
@@ -279,7 +279,7 @@
 
 <!-- DONE BUTTON, FOR PREVIEW ONLY --> 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="previewMessage"></f:verbatim>
+ <f:verbatim><div class="sak-banner-warn"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}"
         action="#{person.cleanResourceIdListInPreview}"
