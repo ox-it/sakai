@@ -31,9 +31,7 @@
 		}
 
 		&.is-current .#{$namespace}toolsNav__menuitem--link
-		{	//put borders on the current tool without adding additional space
-			padding-top: calc(#{$tool-menu-item-padding} - 1px);
-			padding-bottom: calc(#{$tool-menu-item-padding} - 1px);
+		{
 			border-top: 1px solid $tool-menu-item-separator-color;
 			border-bottom: 1px solid $tool-menu-item-separator-color;
 		}
@@ -41,6 +39,9 @@
 		.#{$namespace}toolsNav__menuitem--link
 		{
 			font-size: 1em;
+			line-height: 20px;
+			border-top: 1px solid transparent;
+			border-bottom: 1px solid transparent;
 		}
 	}
 }

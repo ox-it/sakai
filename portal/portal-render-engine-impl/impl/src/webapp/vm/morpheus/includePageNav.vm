@@ -19,6 +19,9 @@
 	<div id="toolSubsitesContainer">
 		<nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
 			<ul>
+			#if ($viewAsStudentLink)
+				#parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+			#end ## END of IF ($viewAsStudentLink)
 			#set( $categoryMap = {})
 			#set( $categoryList = [])
 	

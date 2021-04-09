@@ -199,8 +199,8 @@ $errorBanner-icon: ".fa-ban";
 /* end of Sakai Banners */
 
 /* Swapped 'View As' view */
-$swapped-view-enabled: false !default;
-$swapped-view-primary: 		 #bf360c !default;
+$swapped-view-enabled: true !default;
+$swapped-view-primary: #900 !default;
 
 /* Admin Become User view */
 $become-user-primary: hsl(147, 93%, 22%) !default;
