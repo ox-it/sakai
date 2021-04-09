@@ -73,7 +73,7 @@ public class OwlAnonGradingService
 			}
 		}
 
-		// Return true iff there is at least one assignment and all assignments are anonymous
+		// Return true iff there is at least one counting assignment and all counting assignments are anonymous
 		return anonFound && !normalFound;
 	}
 

@@ -185,7 +185,9 @@ public class GradeUpdateAction extends InjectableAction implements Serializable 
 		final GbCourseGrade gbcg = new GbCourseGrade(studentCourseGrade);
 		gbcg.setDisplayString(courseGradeFormatter.format(studentCourseGrade));
 
-		final String[] courseGradeData = GbGradebookData.getCourseGradeData(gbcg, gradebook.getSelectedGradeMapping().getGradeMap());
+		// OWL anon - don't send course grade data if course grade is hidden
+		boolean hideCourseGrade = page.getOwlUiSettings().isCourseGradeHiddenInCurrentContext();
+		final String[] courseGradeData = hideCourseGrade ? new String[] {"", "", "0"} : GbGradebookData.getCourseGradeData(gbcg, gradebook.getSelectedGradeMapping().getGradeMap());
 
 		Optional<CategoryScoreData> catData = categoryId == null ?
 				Optional.empty() : businessService.getCategoryScoreForStudent(Long.valueOf(categoryId), studentUuid, true);

@@ -102,11 +102,14 @@ public class ExcuseGradeAction extends InjectableAction implements Serializable 
 
         final CourseGrade studentCourseGrade = businessService.getCourseGrade(studentUuid);
 
-        boolean isOverride = false;
-        String grade = getGrade(studentCourseGrade, page);
-        String points = "0";
+		// OWL - don't send course grade if it is hidden
+		boolean hideCourseGrade = page.getOwlUiSettings().isCourseGradeHiddenInCurrentContext();
 
-        if (studentCourseGrade != null) {
+        boolean isOverride = false;
+        String grade = hideCourseGrade ? "" : getGrade(studentCourseGrade, page);
+        String points = hideCourseGrade ? "" : "0";
+
+        if (!hideCourseGrade && studentCourseGrade != null) {
             if (studentCourseGrade.getPointsEarned() != null) {
                 points = FormatHelper.formatDoubleToDecimal(studentCourseGrade.getPointsEarned());
             }

@@ -45,6 +45,7 @@ import org.sakaiproject.gradebookng.tool.actions.GradeUpdateAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentLeftAction;
 import org.sakaiproject.gradebookng.tool.actions.MoveAssignmentRightAction;
 import org.sakaiproject.gradebookng.tool.actions.OverrideCourseGradeAction;
+import org.sakaiproject.gradebookng.tool.actions.owl.OwlEmptyAction;
 import org.sakaiproject.gradebookng.tool.actions.SetScoreForUngradedAction;
 import org.sakaiproject.gradebookng.tool.actions.SetStudentNameOrderAction;
 import org.sakaiproject.gradebookng.tool.actions.SetZeroScoreAction;
@@ -57,6 +58,7 @@ import org.sakaiproject.gradebookng.tool.actions.ViewGradeSummaryAction;
 import org.sakaiproject.gradebookng.tool.actions.ViewRubricGradeAction;
 import org.sakaiproject.gradebookng.tool.model.GbGradeTableData;
 import org.sakaiproject.gradebookng.tool.model.GbGradebookData;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 public class GbGradeTable extends GenericPanel<GbGradeTableData> {
 
@@ -125,7 +127,10 @@ public class GbGradeTable extends GenericPanel<GbGradeTableData> {
 	public void onInitialize()
 	{
 		super.onInitialize();
-		//boolean anon = ((GradebookPage) getPage()).getOwlUiSettings().isContextAnonymous();
+
+		boolean anon = ((GradebookPage) getPage()).getOwlUiSettings().isContextAnonymous();
+		boolean hideCourseGrade = ((GradebookPage) getPage()).getOwlUiSettings().isCourseGradeHiddenInCurrentContext();
+
 		String msg = "<a href=\"javascript:void(0);\" class=\"gb-message-students\" role=\"menuitem\" data-assignment-id=\"${assignmentId}\">%s</a>";
 		String title = new ResourceModel("label.submission-messager.title").getObject();
 		//add(new Label("messageStudents", String.format(msg, title)).setEscapeModelStrings(false).setVisible(!anon));
@@ -139,21 +144,23 @@ public class GbGradeTable extends GenericPanel<GbGradeTableData> {
 		cgStats.add(new Label("cgStatsMsg", new ResourceModel("coursegrade.option.viewcoursegradestatistics")).setRenderBodyOnly(true));
 		add(cgStats.setVisible(showStats));
 
-		// OWL
+		// OWL - attach event listeners, replacing with empty action as required for anon grading support
+		// in anonymous gradebooks the student and/or course grade columns can be hidden using CSS
+		// to prevent anyone from tampering with the CSS and exposing these actions, we disable them on the server side
 		addEventListener("setScore", new GradeUpdateAction());
 		addEventListener("gradeRubric", new ViewRubricGradeAction());
 		addEventListener("viewLog", new ViewGradeLogAction());
 		addEventListener("editAssignment", new EditAssignmentAction());
 		addEventListener("viewStatistics", new ViewAssignmentStatisticsAction());
-		addEventListener("overrideCourseGrade", new OverrideCourseGradeAction());
+		addEventListener("overrideCourseGrade", hideCourseGrade ? new OwlEmptyAction() : new OverrideCourseGradeAction());
 		addEventListener("editComment", new EditCommentAction());
-		addEventListener("viewGradeSummary", new ViewGradeSummaryAction());
-		addEventListener("setZeroScore", new SetZeroScoreAction());
-		addEventListener("viewCourseGradeLog", new ViewCourseGradeLogAction());
+		addEventListener("viewGradeSummary", anon ? new OwlEmptyAction() : new ViewGradeSummaryAction());
+		addEventListener("setZeroScore", hideCourseGrade ? new OwlEmptyAction() : new SetZeroScoreAction());
+		addEventListener("viewCourseGradeLog", hideCourseGrade ? new OwlEmptyAction() : new ViewCourseGradeLogAction());
 		addEventListener("deleteAssignment", new DeleteAssignmentAction());
 		addEventListener("setUngraded", new SetScoreForUngradedAction());
-		addEventListener("setStudentNameOrder", new SetStudentNameOrderAction());
-		addEventListener("toggleCourseGradePoints", new ToggleCourseGradePoints());
+		addEventListener("setStudentNameOrder", anon ? new OwlEmptyAction() : new SetStudentNameOrderAction());
+		addEventListener("toggleCourseGradePoints", hideCourseGrade ? new OwlEmptyAction() :new ToggleCourseGradePoints());
 		addEventListener("editSettings", new EditSettingsAction());
 		addEventListener("moveAssignmentLeft", new MoveAssignmentLeftAction());
 		addEventListener("moveAssignmentRight", new MoveAssignmentRightAction());

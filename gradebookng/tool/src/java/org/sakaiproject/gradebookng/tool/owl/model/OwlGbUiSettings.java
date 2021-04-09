@@ -21,6 +21,7 @@ public class OwlGbUiSettings implements Serializable
 	private boolean anonPossible = false;
 	private boolean isContextAnonymous = false;
 	private boolean isGradebookMixed = false; // true iff both normal and anonymous items exist, or all items are anonymous but none count toward the course grade so the course grade is normal
+	private boolean isCourseGradeAnon = false;
 	private Set<Long> anonAwareAssignmentIDsForContext; // Tracks which assignments are visible. Contains all assignments whose isAnon() matches isContextAnonymous
 	private Set<Long> anonAwareCategoryIDsForContext; // Tracks which categories' scores are visible. Note: mixed category scores are displayed in normal contexts, but hidden in anonymous contexts. If the context is normal, this contains pure normal and mixed categories; if the context is anonymous, this contains only pure anonymous categories.
 	private SortDirection finalGradeSortOrder; // final grade column
@@ -84,5 +85,14 @@ public class OwlGbUiSettings implements Serializable
 	{
 		clearSortOrder();
 		userIdSortOrder = value;
+	}
+
+	/**
+	 * Convenience method to tell if the course grade column should be hidden in the current context
+	 * @return true if the course grade column should be hidden
+	 */
+	public boolean isCourseGradeHiddenInCurrentContext()
+	{
+		return isContextAnonymous != isCourseGradeAnon;
 	}
 }

@@ -591,10 +591,6 @@ public class GradebookPage extends BasePage implements IGradesPage {
 
 		// OWL
 		response.render(CssHeaderItem.forUrl(String.format("/gradebookng-tool/styles/owl/gradebook-owl.css%s", version)));
-		if (getGbUiSettings().owl.isContextAnonymous())
-		{
-			response.render(JavaScriptHeaderItem.forUrl(String.format("/gradebookng-tool/scripts/owl/gradebook-anon.js%s", version)));
-		}
 
 		final StringValue focusAssignmentId = getPageParameters().get(FOCUS_ASSIGNMENT_ID_PARAM);
 		final StringValue showPopupForNewItem = getPageParameters().get(NEW_GBITEM_POPOVER_PARAM);
@@ -657,6 +653,10 @@ public class GradebookPage extends BasePage implements IGradesPage {
 
 		if (siteHasAnonIds)
 		{
+			// determine if course grade column is anon or normal
+			boolean cgAnon = anonServ.isCourseGradePureAnonForAllAssignments(assignments);
+			settings.owl.setCourseGradeAnon(cgAnon);
+
 			AnonStatus status = anonServ.detectAnonStatus(assignments);
 			switch (status)
 			{
@@ -691,12 +691,11 @@ public class GradebookPage extends BasePage implements IGradesPage {
 			anonServ.setupAnonAwareAssignmentIDsAndCategoryIDsForContext(settings.owl, assignments);
 
 			// add data attributes to indicate if we're in an anonymous context and/or need to hide the course grade column
-			List<String> css = new ArrayList<>(2);
 			if (settings.owl.isContextAnonymous())
 			{
 				form.add(new AttributeModifier("data-owl-anon-context", "true"));
 			}
-			if (settings.owl.isContextAnonymous() != businessService.owl().anon.isCourseGradePureAnonForAllAssignments(assignments))
+			if (settings.owl.isCourseGradeHiddenInCurrentContext())
 			{
 				form.add(new AttributeModifier("data-owl-hide-course-grade", "true"));
 			}

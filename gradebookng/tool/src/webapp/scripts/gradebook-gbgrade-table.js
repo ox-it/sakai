@@ -648,7 +648,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     headerTemplate: GbGradeTable.templates.studentHeader,
     _data_: GbGradeTable.students,
     editor: false,
-    width: 220,
+    width: 'owlAnonContext' in document.getElementById('gradebookSpreadsheet').dataset ? 1 : 220,
     sortCompare: function(a, b) {
         return GbGradeTable.studentSorter(a, b);
     }
@@ -659,7 +659,7 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     headerTemplate: GbGradeTable.templates.courseGradeHeader,
     _data_: tableData.courseGrades,
     editor: false,
-    width: GbGradeTable.settings.showPoints ? 220 : 140,
+    width: 'owlHideCourseGrade' in document.getElementById('gradebookSpreadsheet').dataset ? 1 : GbGradeTable.settings.showPoints ? 220 : 140,
     sortCompare: function(a, b) {
         const a_percent = parseFloat(a[1]);
         const b_percent = parseFloat(b[1]);
@@ -745,8 +745,8 @@ GbGradeTable.renderTable = function (elementId, tableData) {
     return GbGradeTable.getColumnWidths().reduce(function (acc, cur) { return acc + cur; }, 0) + scrollbarWidth;
   };
 
-  // OWL - reset default sort if anonymous context - at this point our custom var owlAnonContext should be loaded
-  if (typeof owlAnonContext !== "undefined" && owlAnonContext === true)
+  // OWL - reset default sort if anonymous context
+  if ('owlAnonContext' in document.getElementById('gradebookSpreadsheet').dataset === true)
   {
 	  GbGradeTable.currentSortColumn = 1; // student number column (contains anon ids in this context)
   }
@@ -2660,6 +2660,21 @@ GbGradeTable.setupKeyboardNavigation = function() {
       if (!editing && event.keyCode == 32) {
         iGotThis();
 
+		// OWL - abort if this is a hidden student cell or course grade cell so a menu doesn't pop up
+		const gs = document.getElementById('gradebookSpreadsheet');
+		const currentIsStudentCell = $current.find('.gb-view-grade-summary').length > 0;
+		const anonContext = 'owlAnonContext' in gs.dataset === true;
+		if (currentIsStudentCell && anonContext)
+		{
+			return;
+		}
+		const currentIsCourseGradeCell = $current.find('.gb-course-grade-override').length > 0;
+		const hideCourseGrade = 'owlHideCourseGrade' in gs.dataset === true;
+		if (currentIsCourseGradeCell && hideCourseGrade)
+		{
+			return;
+		}
+
         var $dropdown;
 
         // ctrl+space to open the header menu
@@ -3152,7 +3167,7 @@ GbGradeTable.syncCategoryAverage = function(studentId, categoryId, categoryScore
 	}
 	catch (e)
 	{
-		if (typeof owlAnonContext === "undefined" || owlAnonContext !== true)
+		if ('owlAnonContext' in document.getElementById('gradebookSpreadsheet').dataset === false)
 		{
 			throw e;
 		}
