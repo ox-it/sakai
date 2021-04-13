@@ -152,7 +152,7 @@
 		display: flex;
 		justify-content: center;
 		
-		input {
+		input, button {
 			margin: $standard-space $standard-space 0 0;
 		}
 		
@@ -274,7 +274,7 @@
 		border: $assignments-disclosure-border;
 		background-color: $assignments-disclosure-bg;
 		
-		.shorttext {
+		.shorttext, .shorttext > label {
 			margin: 0;
 		}
 	}
