@@ -1053,6 +1053,8 @@ public class GradingService
       // This is for DeliveryBean.checkDataIntegrity()
       if (!regrade && persistToDB)
       {
+        // OWLTODO: this needs to use the effective due date (due, late, exception)
+        // it's safe to leave as is for now becasue getSubmitFromTimeoutPopup is only true when the button is clicked, and we removed the button entirely for now
         data.setSubmittedDate(data.getSubmitFromTimeoutPopup() ? pub.getAssessmentAccessControl().getDueDate() : new Date());
         setIsLate(data, pub);
       }

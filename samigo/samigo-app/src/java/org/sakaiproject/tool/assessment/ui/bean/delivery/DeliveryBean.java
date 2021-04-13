@@ -741,7 +741,8 @@ public class DeliveryBean implements Serializable {
 	  // Don't save any progress if this was called from timeoutPopup (due date forced submission) and the due date has actually passed
 	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 	  PublishedAssessmentFacade paf = publishedAssessmentService.getPublishedAssessment(adata.getPublishedAssessmentId().toString());
-	  if (!"1".equals(navigation) && (!submitFromTimeoutPopup || (submitFromTimeoutPopup && new Date().before(paf.getDueDate())))) {
+	  // OWLTODO: this needs to use the effective due date (due, late, exception)
+	  if (!"1".equals(navigation) /*&& (!submitFromTimeoutPopup || (submitFromTimeoutPopup && new Date().before(paf.getDueDate())))*/) {
           GradingService gradingService = new GradingService();
 		  gradingService.completeItemGradingData(adata);
 	  }

@@ -317,7 +317,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 		// Don't process any changes from the form submission if it was submited from timeoutPopup (due date forced submission)
 		// and it's after the due date
-		if (!delivery.isSubmitFromTimeoutPopup() && new Date().before(publishedAssessment.getDueDate())) {
+		// OWLTODO: this needs to use the effective due date (due, late, exception)
+		//if (!delivery.isSubmitFromTimeoutPopup() && new Date().before(publishedAssessment.getDueDate())) {
 			// we go through all the answer collected from JSF form per each
 			// publsihedItem and
 			// work out which answer is an new addition and in cases like
@@ -335,7 +336,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 					log.debug("****** after prepareItemGradingPerItem");
 				}
 			}
-		}
+		//}
 
 		AssessmentGradingData adata = persistAssessmentGrading(ae, delivery,
 				itemGradingHash, publishedAssessment, adds, removes, invalidFINMap, invalidSALengthList);
