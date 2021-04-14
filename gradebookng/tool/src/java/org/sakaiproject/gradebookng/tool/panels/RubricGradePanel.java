@@ -34,6 +34,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
+import org.sakaiproject.gradebookng.tool.owl.component.OwlGbUtils;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 
@@ -100,7 +101,11 @@ public class RubricGradePanel extends BasePanel {
         add(form);
 
         this.window.setInitialWidth(1100);
-        RubricGradePanel.this.window.setTitle(new StringResourceModel("rubrics.option.graderubric.for", null, new Object[] { student.getDisplayName(), student.getDisplayId() }));
+
+		// OWL
+		Object[] normalArgs = new Object[] { student.getDisplayName(), student.getDisplayId() };
+		StringResourceModel title = OwlGbUtils.getModalTitleModel(businessService, student, getPage(), "rubrics.option.graderubric.for", normalArgs);
+        window.setTitle(title);
     }
 
 	public void renderHead(final IHeaderResponse response) {
