@@ -2703,13 +2703,13 @@ GbGradeTable.setupKeyboardNavigation = function() {
             $(".btn-group.open .dropdown-toggle").dropdown("toggle");
             $current.focus();
           } else {
-            $focus.closest("li").prev().find("a").focus();
+            GbGradeTable.focusAdjascentMenuItem($focus, false);
           }
         }
         // down arrow
         if (event.keyCode == 40) {
           iGotThis();
-          $focus.closest("li").next().find("a").focus();
+          GbGradeTable.focusAdjascentMenuItem($focus, true);
         }
         // esc
         if (event.keyCode == 27) {
@@ -2751,6 +2751,19 @@ GbGradeTable.setupKeyboardNavigation = function() {
     }
   });
 };
+
+GbGradeTable.focusAdjascentMenuItem = function(focus, downward) {
+    var menuItem = focus.closest('li');
+    var anchor;
+    while (menuItem) {
+        menuItem = downward ? menuItem.next() : menuItem.prev();
+        anchor = menuItem.find('a');
+        if (anchor && anchor.css('display') != 'none') {
+            anchor.focus();
+            break;
+        }
+    }
+}
 
 
 GbGradeTable.clearMetadata = function() {
