@@ -15,8 +15,6 @@ package org.sakaiproject.datemanager.impl;
 
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -24,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.Setter;
@@ -82,7 +79,6 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
@@ -1296,33 +1292,35 @@ public class DateManagerServiceImpl implements DateManagerService {
 	@Override
 	public JSONArray getLessonsForContext(String siteId) {
 		JSONArray jsonLessons = new JSONArray();
-		jsonLessons = addAllSubpages(simplePageToolDao.findItemsInSite(siteId), null, jsonLessons, "false");
+		List<Long> processedItemIDs = new ArrayList<>();
+		jsonLessons = addAllSubpages(simplePageToolDao.findItemsInSite(siteId), null, jsonLessons, "false", processedItemIDs);
 		return jsonLessons;
 	}
 
-	private JSONArray addAllSubpages(List<SimplePageItem> items, Long pageId, JSONArray jsonLessons, String extraInfo) {
+	private JSONArray addAllSubpages(List<SimplePageItem> items, Long pageId, JSONArray jsonLessons, String extraInfo, List<Long> processedItemIDs) {
 		if (items != null) {
 			String url = getUrlForTool(DateManagerConstants.COMMON_ID_LESSONS);
 			String toolTitle = toolManager.getTool(DateManagerConstants.COMMON_ID_LESSONS).getTitle();
 			for (SimplePageItem item : items) {
-				if (item.getType() == SimplePageItem.PAGE // Avoid creating a infinite loop
-					&& !Long.valueOf(item.getSakaiId()).equals(pageId) 
-					&& !jsonLessons.toString().contains("\"id\":\""+item.getSakaiId()+"\"")) {
-					JSONObject lobj = new JSONObject();
-					lobj.put("id", Long.parseLong(item.getSakaiId()));
-					lobj.put("title", item.getName());
-					SimplePage page = simplePageToolDao.getPage(Long.parseLong(item.getSakaiId()));
-					if(page.getReleaseDate() != null) {
-						lobj.put("open_date", formatToUserDateFormat(page.getReleaseDate()));
-					} else {
-						lobj.put("open_date", null);
+				if (item.getType() == SimplePageItem.PAGE) {
+					Long itemId = Long.parseLong(item.getSakaiId());
+					if (itemId != null && !itemId.equals(pageId) && !processedItemIDs.contains(itemId)) { // Avoid creating a infinite loop
+						processedItemIDs.add(itemId);
+						JSONObject lobj = new JSONObject();
+						lobj.put("id", itemId);
+						lobj.put("title", item.getName());
+						SimplePage page = simplePageToolDao.getPage(itemId);
+						if(page.getReleaseDate() != null) {
+							lobj.put("open_date", formatToUserDateFormat(page.getReleaseDate()));
+						} else {
+							lobj.put("open_date", null);
+						}
+						lobj.put("tool_title", toolTitle);
+						lobj.put("url", url);
+						lobj.put("extraInfo", extraInfo);
+						jsonLessons.add(lobj);
+						jsonLessons = addAllSubpages(simplePageToolDao.findItemsOnPage(itemId), itemId, jsonLessons, rb.getString("tool.lessons.extra.subpage"), processedItemIDs);
 					}
-					lobj.put("tool_title", toolTitle);
-					lobj.put("url", url);
-					lobj.put("extraInfo", extraInfo);
-					jsonLessons.add(lobj);
-					long itemId = Long.parseLong(item.getSakaiId());
-					jsonLessons = addAllSubpages(simplePageToolDao.findItemsOnPage(itemId), itemId, jsonLessons, rb.getString("tool.lessons.extra.subpage"));
 				}
 			}
 		}
