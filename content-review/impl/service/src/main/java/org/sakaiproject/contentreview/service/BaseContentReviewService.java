@@ -378,4 +378,10 @@ public abstract class BaseContentReviewService implements ContentReviewService{
 	public boolean allowSubmissionsOnBehalf() {
 		return false;
 	}
+
+	@Override
+	public boolean itemsExistForSiteAndTaskId(String siteId, String taskId)
+	{
+		return crqs.itemsExistForSiteAndTaskId(siteId, taskId);
+	}
 }
