@@ -321,7 +321,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		autoExcludeSelfMatchingScope =Arrays.stream(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.values())
 				.filter(e -> e.name().equalsIgnoreCase(serverConfigurationService.getString("turnitin.oc.auto_exclude_self_matching_scope")))
 				.findAny().orElse(AUTO_EXCLUDE_SELF_MATCHING_SCOPE.GROUP).name();
-		log.info("Exclude Scope: " + autoExcludeSelfMatchingScope);
+		log.debug("Exclude Scope: " + autoExcludeSelfMatchingScope);
 		
 		// Find any permission overrides, if not set, set value to null to skip overrides
 		mayViewSubmissionFullSourceOverrideStudent = StringUtils.isNotEmpty(serverConfigurationService.getString("turnitin.oc.may_view_submission_full_source.student")) 
@@ -375,7 +375,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				boolean webhooksSetup = false;
 				// Check to see if any webhooks have already been set up for this url
 				for (Webhook webhook : getWebhooks()) {
-					log.info("Found webhook: " + webhook.getUrl());
+					log.debug("Found webhook: " + webhook.getUrl());
 					if (StringUtils.isNotEmpty(webhook.getUrl()) && webhook.getUrl().equals(webhookUrl)) {
 						webhooksSetup = true;
 						break;
@@ -384,10 +384,10 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 				if (!webhooksSetup) {
 					// No webhook set up for this url, set one up
-					log.info("No matching webhook for " + webhookUrl);
+					log.debug("No matching webhook for " + webhookUrl);
 					String id = setupWebhook(webhookUrl);
 					if(StringUtils.isNotEmpty(id)) {
-						log.info("successfully created webhook: " + id);
+						log.debug("successfully created webhook: " + id);
 					}
 				}
 			} catch (Exception e) {
@@ -434,7 +434,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		}
 		
 		if(StringUtils.isEmpty(id)) {
-			log.info("Error setting up webhook: " + error);
+			log.error("Error setting up webhook: " + error);
 		}
 		return id;
 	}
@@ -466,7 +466,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 				}
 			}
 		}else {
-			log.info("getWebhooks: " + responseMessage);
+			log.debug("getWebhooks: " + responseMessage);
 		}
 		
 		return webhooks;
@@ -630,7 +630,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			}
 		}else {
 			// Only generate viewerUrl if report is available
-			log.info("Content review item is not ready for the report: " + contentId + ", " + (item != null ? item.getStatus() : ""));
+			log.debug("Content review item is not ready for the report: " + contentId + ", " + (item != null ? item.getStatus() : ""));
 		}
 	
 		return viewerUrl;
@@ -753,7 +753,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			InputStream inputStream = connection.getErrorStream() != null ? connection.getErrorStream() : connection.getInputStream();
 			// getInputStream() throws an exception in this case, but getErrorStream() has the information necessary for troubleshooting
 			responseBody = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-			log.warn("Turnitin response code: " + responseCode + "; message: " + responseMessage + "; body:\n" + responseBody);
+			log.debug("Turnitin response code: " + responseCode + "; message: " + responseMessage + "; body:\n" + responseBody);
 		}
 		else
 		{
@@ -786,9 +786,9 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 		String responseBody = !response.containsKey(RESPONSE_BODY) ? "" : (String) response.get(RESPONSE_BODY);
 
 		if ((responseCode >= 200) && (responseCode < 300)) {
-			log.info("Successfully indexed submission: " + reportId);
+			log.debug("Successfully indexed submission: " + reportId);
 		} else if ((responseCode == 400)) {
-			log.info("File must be uploaded to submission before indexing for submission: " + reportId);
+			log.debug("File must be uploaded to submission before indexing for submission: " + reportId);
 		} else {
 			throw new ContentReviewProviderException("Submission failed to be indexed: " + responseCode + ", " + responseMessage + ", " + responseBody,
 					createLastError(doc -> createFormattedMessageXML(doc, "report.error.unsuccessful", responseMessage, responseCode)));
@@ -928,7 +928,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 
 			submissionOwners.addAll(userDirectoryService.getUsers(ownerIds));
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		}
 
 		String submissionId = null;
@@ -1055,7 +1055,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	// Stage three checks status of similarity reports and retrieves report score
 	// processUnsubmitted contains stage one and two, checkForReport contains stage three
 	public void processQueue() {
-		log.info("Processing Turnitin OC submission queue");
+		log.debug("Processing Turnitin OC submission queue");
 		// Create new session object to ensure permissions are carried correctly to each new thread
 		final Session session = sessionManager.getCurrentSession();
 		ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -1232,7 +1232,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					// If fileName is empty set default
 					if (StringUtils.isEmpty(fileName)) {
 						fileName = "submission_" + item.getUserId() + "_" + item.getSiteId();
-						log.info("Using Default Filename " + fileName);
+						log.debug("Using Default Filename " + fileName);
 					}				
 					// Add .html for inline submissions				
 					if ("true".equals(resource.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))
@@ -1241,7 +1241,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					}
 					boolean updateLastError = true;
 					try {
-						log.info("Submission starting...");
+						log.debug("Submission starting...");
 						// Retrieve submissionId from TCA and set to externalId
 						//get site title
 						Site site = null;
@@ -1350,7 +1350,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	}
 
 	private void createPlaceholderItem(ContentReviewItem item, Date dueDate) {
-		log.info("Creating placeholder item for when due date is passed for ItemID: " + item.getId());						
+		log.debug("Creating placeholder item for when due date is passed for ItemID: " + item.getId());
 		ContentReviewItem placeholderItem = new ContentReviewItem();
 		// Review score is used as flag for placeholder items in checkForReport
 		placeholderItem.setReviewScore(PLACEHOLDER_ITEM_REVIEW_SCORE); 
@@ -1444,7 +1444,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 					setLastError(item, doc->createFormattedMessageXML(doc, terminalKey));
 					item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMISSION_ERROR_NO_RETRY_CODE);
 				} else {
-					log.info("Unknown submission status, will retry: " + submissionStatus);
+					log.debug("Unknown submission status, will retry: " + submissionStatus);
 					String recoverableKey = "submission.recoverable.status." + errorCode;
 					if (rb.containsKey(recoverableKey)) {
 						// Currently these don't exist, but this implementation is ready should recoverable errors become identified
@@ -1466,7 +1466,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	private void handleReportStatus(ContentReviewItem item, int status) throws Exception {
 		// Any status above -1 is the report score
 		if (status > -1) {
-			log.info("Report complete! Score: " + status);
+			log.debug("Report complete! Score: " + status);
 			// Status value is report score
 			item.setReviewScore(status);
 			item.setStatus(ContentReviewConstants.CONTENT_REVIEW_SUBMITTED_REPORT_AVAILABLE_CODE);
@@ -1477,7 +1477,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 			crqs.update(item);
 		} else if (status == -1) {
 			// Similarity report is still generating, will try again
-			log.info("Processing report " + item.getExternalId() + "...");
+			log.debug("Processing report " + item.getExternalId() + "...");
 		} else if(status == -2){
 			throw new ContentReviewProviderException("Unknown error during report status call",
 				createLastError(doc -> createFormattedMessageXML(doc, "report.error.unknown")));
@@ -1783,7 +1783,7 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 	
 	@Override
 	public void webhookEvent(HttpServletRequest request, int providerId, Optional<String> customParam) {
-		log.info("providerId: " + providerId + ", custom: " + (customParam.isPresent() ? customParam.get() : ""));
+		log.debug("providerId: " + providerId + ", custom: " + (customParam.isPresent() ? customParam.get() : ""));
 		int errors = 0;
 		int success = 0;
 		String body = null;
@@ -1831,8 +1831,8 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 						// Allow cb to access assignment settings, needed for due date check
 						SecurityAdvisor advisor = pushAdvisor();
 						try {
-							log.info("Submission complete webhook cb received");
-							log.info(webhookJSON.toString());
+							log.debug("Submission complete webhook cb received");
+							log.debug(webhookJSON.toString());
 							Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("id"));
 							ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
 							Assignment assignment = assignmentService.getAssignment(entityManager.newReference(item.getTaskId()));
@@ -1846,24 +1846,24 @@ public class ContentReviewServiceTurnitinOC extends BaseContentReviewService {
 							popAdvisor(advisor);
 						}
 					} else {
-						log.warn("Callback item received without needed information");
+						log.debug("Callback item received without needed information");
 						errors++;
 					}
 				} else if (SIMILARITY_COMPLETE_EVENT_TYPE.equals(eventType) || SIMILARITY_UPDATED_EVENT_TYPE.equals(eventType)) {
 					if (webhookJSON.has("submission_id") && STATUS_COMPLETE.equals(webhookJSON.get("status"))) {
-						log.info("Similarity complete webhook cb received");
-						log.info(webhookJSON.toString());
+						log.debug("Similarity complete webhook cb received");
+						log.debug(webhookJSON.toString());
 						Optional<ContentReviewItem> optionalItem = crqs.getQueuedItemByExternalId(getProviderId(), webhookJSON.getString("submission_id"));
 						ContentReviewItem item = optionalItem.isPresent() ? optionalItem.get() : null;
 						handleReportStatus(item, webhookJSON.getInt("overall_match_percentage"));
 						success++;
 					} else {
-						log.warn("Callback item received without needed information");
+						log.debug("Callback item received without needed information");
 						errors++;
 					}
 				}
 			} else {
-				log.warn("Callback signatures did not match");
+				log.debug("Callback signatures did not match");
 				errors++;
 			}
 		} catch (Exception e1) {
