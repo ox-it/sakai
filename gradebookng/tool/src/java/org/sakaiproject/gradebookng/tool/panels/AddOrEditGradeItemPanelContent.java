@@ -53,7 +53,6 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.util.DateFormatterUtil;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.wicket.validation.IErrorMessageSource;
@@ -203,12 +202,14 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 					final Double existing = AddOrEditGradeItemPanelContent.this.existingPoints;
 					final Double current = points.getModelObject();
+					Assignment gradebookItem = (Assignment) AddOrEditGradeItemPanelContent.this.getDefaultModelObject();
 
 					log.debug("existingPoints: " + existing);
 					log.debug("currentPoints: " + current);
 
+					// Don't show "Scale existing grades?" checkbox if this is a newly imported gradebook item (there are no existing grades to scale)
 					AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = false;
-					if (existing != null && existing != current) {
+					if (gradebookItem.getId() != null && existing != null && existing != current) {
 						AddOrEditGradeItemPanelContent.this.scaleGradesTriggered = true;
 					}
 
