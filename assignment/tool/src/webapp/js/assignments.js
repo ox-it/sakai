@@ -979,4 +979,11 @@ $(document).ready(function() {
 	saveButton && saveButton.addEventListener("click", saveRubric);
 	const returnButton = document.getElementById("save-and-return");
 	returnButton && returnButton.addEventListener("click", saveRubric);
+
+	const navButtons = document.querySelectorAll("#topSubmissionNavigator input[type=button], #bottomSubmissionNavigator input[type=button]");
+	for (let nb of navButtons)
+	{
+		nb.addEventListener("click", saveRubric);
+	}
+
 });

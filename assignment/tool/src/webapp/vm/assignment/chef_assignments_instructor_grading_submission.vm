@@ -64,7 +64,7 @@
 
         <div class="gradingTopBar">
             ## SAK-29314
-            <div class="navigator">
+            <div id="topSubmissionNavigator" class="navigator">
                 <fieldset class="roundedBorder">
                     <legend>$tlang.getString( "nav.header" ) <span class="small text-muted">$tlang.getString( "nav.message" )</span></legend>
                     <div id="subsOnlyContainer">
@@ -742,7 +742,7 @@
                         <input type="hidden" name="prevUngradedWithSubmissionID" id="prevUngradedWithSubmissionID" value="$!prevUngradedWithSubmissionID"/>
                     #end
             </div>
-            <div class="navigator">
+            <div id="bottomSubmissionNavigator" class="navigator">
                 <fieldset class="roundedBorder">
                     <legend>$tlang.getString( "nav.header" ) <span class="small text-muted">$tlang.getString( "nav.message" )</span></legend>
                     <div id="subsOnlyContainer">
