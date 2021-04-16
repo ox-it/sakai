@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -295,7 +296,7 @@ public class CourseGradePdfGenerator
         //get the width of the text in pixels
         /* I don't know why this needs to be divided by 1000f, 
          * it's just a magic number that shows up in all the examples*/
-        float textWidth = (HEADER_FONT.getStringWidth(text) * HEADER_FONT_SIZE) / 1000f ;
+        float textWidth = getStringWidth(text, HEADER_FONT, HEADER_FONT_SIZE);
         //center the text
         contentStream.newLineAtOffset(-textWidth/2, 0);
         //draw the text
@@ -359,7 +360,7 @@ public class CourseGradePdfGenerator
 		//contentStream.newLineAtOffset(rx, by);
 
 		String please="(Please Print)";
-		float textWidth = SIGNATURE_FONT.getStringWidth(please)/1000f * SIGNATURE_FONT_SIZE;
+		float textWidth = getStringWidth(please, SIGNATURE_FONT, SIGNATURE_FONT_SIZE);
 
 		toMoveX=-toMoveX + center - cellMargin - textWidth - signatureRightMargin;
 
@@ -395,7 +396,7 @@ public class CourseGradePdfGenerator
 		// After upgrading to PDFBOX 2.x the offset math below this point broke so I reworked it  --plukasew
 		String date = "Date";
 		final float SIG_BEGIN_X = center + cellMargin;
-		final float DATE_WIDTH = SIGNATURE_FONT.getStringWidth(date)/1000f * SIGNATURE_FONT_SIZE;
+		final float DATE_WIDTH = getStringWidth(date, SIGNATURE_FONT, SIGNATURE_FONT_SIZE);
 		final float DATE_BEGIN_X = center - SIGNATURE_MARGIN_X - signatureRightMargin - DATE_WIDTH - 2*cellMargin;
 		final float INSTRUCTOR_Y = ty - SIGNATURE_UPPER_PADDING - SIGNATURE_TEXT_MARGIN;
 		final float CHAIR_Y = INSTRUCTOR_Y - SIGNATURE_TEXT_MARGIN;
@@ -465,7 +466,7 @@ public class CourseGradePdfGenerator
         while (lastFittingChar<text.length())
         {
             test=text.substring(0, lastFittingChar);
-            float width = font.getStringWidth(test)/1000f * fontSize;
+            float width = getStringWidth(test, font, fontSize);
             if (width>maxWidth)
             {
                 lastFittingChar--;
@@ -562,7 +563,7 @@ public class CourseGradePdfGenerator
                 //get the line
                 String line = content[i][0].substring(j,lineEndCharIndex);
                 //use this line's width as the whole column's width if it's the longest line so far
-                firstColumnWidth = Math.max(font.getStringWidth(line)/1000f * TABLE_FONT_SIZE, firstColumnWidth);
+                firstColumnWidth = Math.max(getStringWidth(line, font, TABLE_FONT_SIZE), firstColumnWidth);
                 cellLines.add(line);
             }
             //add the new cell
@@ -588,9 +589,9 @@ public class CourseGradePdfGenerator
             }
 	    //we just care about its width
 	    //use this cell's width as the whole column's width if it's the widest cell so far
-	    secondColumnWidth = Math.max(font.getStringWidth(content[i][1])/1000f * TABLE_FONT_SIZE, secondColumnWidth);
-	    thirdColumnWidth = Math.max(thirdColumnWidth, TABLE_FONT.getStringWidth("->")/1000f * TABLE_FONT_SIZE);
-	    fourthColumnWidth = Math.max(font.getStringWidth(content[i][3])/1000f * TABLE_FONT_SIZE, fourthColumnWidth);
+	    secondColumnWidth = Math.max(getStringWidth(content[i][1], font, TABLE_FONT_SIZE), secondColumnWidth);
+	    thirdColumnWidth = Math.max(thirdColumnWidth, getStringWidth("->", TABLE_FONT, TABLE_FONT_SIZE));
+	    fourthColumnWidth = Math.max(getStringWidth(content[i][3], font, TABLE_FONT_SIZE), fourthColumnWidth);
         }
         
         //This is how far column5 is from the left side of the page
@@ -628,7 +629,7 @@ public class CourseGradePdfGenerator
                  */
                 int numCharsThatFit = numCharsThatFit(remainingText, maxWidthFor5thColumn, font, TABLE_FONT_SIZE);
                 String line = remainingText.substring(0,numCharsThatFit);
-                float width = font.getStringWidth(line)/1000f * TABLE_FONT_SIZE;
+                float width = getStringWidth(line, font, TABLE_FONT_SIZE);
                 fifthColumnWidth = Math.max(fifthColumnWidth, width);
                 remainingText=remainingText.substring(numCharsThatFit);
                 cellLines.add(line);
@@ -845,6 +846,27 @@ public class CourseGradePdfGenerator
 	private String cleanUnprintableChars(String input)
 	{
 		return input.replaceAll("\uFFFD", "_");
+	}
+
+	private float getStringWidth(String line, PDFont font, int fontSize)
+	{
+		float width;
+		try
+		{
+			width = font.getStringWidth(line);
+		}
+		catch (IllegalArgumentException | IOException e1)
+		{
+			try
+			{
+				width = font.getStringWidth(StringUtils.stripAccents(line));
+			}
+			catch (IllegalArgumentException | IOException e2)
+			{
+				width=font.getStringWidth("M");
+			}
+		}
+		return width/1000f * fontSize;
 	}
     
     /********************* BEGIN NESTED CLASSES ************************/
