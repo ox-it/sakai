@@ -848,7 +848,7 @@ public class CourseGradePdfGenerator
 		return input.replaceAll("\uFFFD", "_");
 	}
 
-	private float getStringWidth(String line, PDFont font, int fontSize)
+	private float getStringWidth(String line, PDFont font, int fontSize) throws IOException
 	{
 		float width;
 		try
