@@ -730,7 +730,7 @@ public class CourseGradePdfGenerator
             while (it.hasNext())
             {
                 //draw this line, descend a line
-                contentStream.showText(it.next());
+                sanitizeAndShowText(it.next(), contentStream, font);
                 contentStream.newLineAtOffset(0, -TABLE_LINE_HEIGHT);
             }
             
@@ -738,16 +738,16 @@ public class CourseGradePdfGenerator
             contentStream.newLineAtOffset(firstColumnWidth + TABLE_COLUMN_SEPARATION, -TABLE_ROW_MARGIN_HEIGHT + firstColumnCellHeights[i]);
 
             //draw the second column
-	    contentStream.showText(content[i][1]);
+            sanitizeAndShowText(content[i][1], contentStream, font);
             
             //move over to the third column
             contentStream.newLineAtOffset(secondColumnWidth + TABLE_ARROW_SEPARATION, 0);
             
-	    contentStream.showText(content[i][2]);
+            sanitizeAndShowText(content[i][2], contentStream, font);
 
 	    contentStream.newLineAtOffset(thirdColumnWidth + TABLE_ARROW_SEPARATION, 0);
 
-	    contentStream.showText(content[i][3]);
+            sanitizeAndShowText(content[i][3], contentStream, font);
 
 	    contentStream.newLineAtOffset(fourthColumnWidth + TABLE_COLUMN_SEPARATION, 0);
 
@@ -756,7 +756,7 @@ public class CourseGradePdfGenerator
             while (it.hasNext())
             {
                 //draw this line, descend a line
-                contentStream.showText(it.next());
+                sanitizeAndShowText(it.next(), contentStream, font);
                 contentStream.newLineAtOffset(0, -TABLE_LINE_HEIGHT);
             }
             
@@ -848,25 +848,72 @@ public class CourseGradePdfGenerator
 		return input.replaceAll("\uFFFD", "_");
 	}
 
+	/**
+	 * Calculates the width of the specified line after any characters that cannot be encoded in the specified font are substituted
+	 */
 	private float getStringWidth(String line, PDFont font, int fontSize) throws IOException
 	{
-		float width;
+		float width = font.getStringWidth(sanitizeLine(line, font));
+		return width/1000f * fontSize;
+	}
+
+	/**
+	 * Draws the line into the specified content stream.
+	 *
+	 * NB: the font parameter does not specify which font will be used to draw the line; it is used only in the sanitization process. Make sure that this font is the same as that assigned to the content stream.
+	 *
+	 * @param line the line to draw. Characters that cannot be encoded will be substituted
+	 * @param contentStream
+	 * @param font used to determine which characters cannot be encoded. 
+	 */
+	private void sanitizeAndShowText(String line, PDPageContentStream contentStream, PDFont font) throws IOException
+	{
+		contentStream.showText(sanitizeLine(line, font));
+	}
+
+	/**
+	 * Returns the line such that it's encodable in the given font.
+	 * Any character that cannot be encoded will have accents stripped.
+	 * If the resulting character still cannot be encoded, it will be substituted with a "?".
+	 */
+	private String sanitizeLine(String line, PDFont font) throws IOException
+	{
 		try
 		{
-			width = font.getStringWidth(line);
+			font.encode(line);
+			return line;
 		}
-		catch (IllegalArgumentException | IOException e1)
+		catch (IllegalArgumentException e)
+		{
+
+		}
+
+		StringBuilder sb = new StringBuilder();
+		String[] chars = line.split("");
+		for (String character : chars)
 		{
 			try
 			{
-				width = font.getStringWidth(StringUtils.stripAccents(line));
+				font.encode(character);
+				sb.append(character);
 			}
-			catch (IllegalArgumentException | IOException e2)
+			catch (IllegalArgumentException e1)
 			{
-				width=font.getStringWidth("M");
+				try
+				{
+					// Try without an accent so that the character is still legible
+					String noAccent = StringUtils.stripAccents(character);
+					font.encode(noAccent);
+					sb.append(noAccent);
+				}
+				catch (IllegalArgumentException e2)
+				{
+					// We can't encode the character in a legible way. Substitute with "?"
+					sb.append("?");
+				}
 			}
 		}
-		return width/1000f * fontSize;
+		return sb.toString();
 	}
     
     /********************* BEGIN NESTED CLASSES ************************/
