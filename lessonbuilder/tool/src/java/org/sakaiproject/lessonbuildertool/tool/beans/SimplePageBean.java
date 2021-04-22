@@ -6028,9 +6028,17 @@ public class SimplePageBean {
 
 	}
 
+	public String getCollectionId(boolean urls) {
+		return getCollectionId(urls, true);
+	}
 
 // for group-owned student pages, put it in the worksite of the current user
-	public String getCollectionId(boolean urls) {
+	/**
+	 * Gets a Lessons collection associated with this page from resources.
+	 * @param urls
+	 * @param checkHidden when false, bypasses ContentHostingService authz. Passing 'false' is needed for students to see embedded content if the Lessons collection is hidden in Resources
+	 */
+	public String getCollectionId(boolean urls, boolean checkHidden) {
 		String siteId = getCurrentPage().getSiteId();
 		String baseDir = ServerConfigurationService.getString("lessonbuilder.basefolder", null);
 		boolean hiddenDir = ServerConfigurationService.getBoolean("lessonbuilder.folder.hidden",false);
@@ -6119,7 +6127,10 @@ public class SimplePageBean {
 
 	    // OK?
 		try {
-			contentHostingService.checkCollection(folder);
+			if (checkHidden)
+			{
+				contentHostingService.checkCollection(folder);
+			}
 			// OK, let's use it
 			return folder;
 		} catch (Exception ignore) {};

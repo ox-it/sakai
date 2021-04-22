@@ -1284,7 +1284,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// The Lessons folder can be hidden by default via sakai.properties (lessonbuilder.folder.hidden = true). 
 						// If this hidden resource is not Lessons uploaded content, it should be skipped.
 						String resourceId = String.valueOf(i.getSakaiId());
-						String lessonsCollection = simplePageBean.getCollectionId(false);
+						String lessonsCollection = simplePageBean.getCollectionId(false, false);
 						if (resourceId == null || lessonsCollection == null || !resourceId.startsWith(lessonsCollection))
 						{
 							continue;
