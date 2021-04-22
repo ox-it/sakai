@@ -201,14 +201,7 @@
                             </h:panelGroup>
                         </f:facet>
 
-                        <h:panelGroup rendered="#{not empty takeable.alternativeDeliveryUrl}">
-                            <a href="<h:outputText value="#{takeable.alternativeDeliveryUrl}" escape="false" />" title="Proctored Assessment Link">
-                              <span class="fa fa-user-circle-o" title="Proctored Assessment Link"></span>
-                              <h:outputText value="#{takeable.assessmentTitle}" escape="false" />
-                            </a>
-                        </h:panelGroup>
-
-                        <h:commandLink title="#{selectIndexMessages.t_takeAssessment}" id="takeAssessment" action="beginAssessment" rendered="#{empty takeable.alternativeDeliveryUrl}">
+                        <h:commandLink title="#{selectIndexMessages.t_takeAssessment}" id="takeAssessment" action="beginAssessment">
                             <f:param name="publishedId" value="#{takeable.assessmentId}" />
                             <f:param name="actionString" value="takeAssessment"/>
                             <f:actionListener

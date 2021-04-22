@@ -1700,14 +1700,15 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
 		Set<RegisteredSecureDeliveryModuleIfc> modules = secureDeliveryService.getSecureDeliveryModules( new ResourceLoader().getLocale() );
  		  
-		List<SelectItem> selections = new ArrayList<>();
+		SelectItem[] selections = new SelectItem[ modules.size() ];
+		int index = 0;
 		for ( RegisteredSecureDeliveryModuleIfc module : modules ) {
-			if (!SecureDeliveryServiceAPI.NONE_ID.equals(module.getId()) && !module.isEnabled()) continue;
  
-			selections.add(new SelectItem( module.getId(), module.getName() ));
+			selections[index] = new SelectItem( module.getId(), module.getName() );
+			++index;
 		}
  		  
-		return selections.toArray(new SelectItem[selections.size()]);
+		return selections;
 	}
 
 	public void setExtendedTimes(List<ExtendedTime> extendedTimes) {

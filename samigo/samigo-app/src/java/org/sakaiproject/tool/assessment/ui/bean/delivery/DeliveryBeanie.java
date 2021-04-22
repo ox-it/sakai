@@ -75,7 +75,6 @@ public class DeliveryBeanie
   private int timeLimit_hour;
   private int timeLimit_minute;
   private String finalScore;
-  private String alternativeDeliveryUrl;
   private boolean isAssessmentBeanie=false;
 
   // display * and notes for multiple submissions 
@@ -531,15 +530,6 @@ public class DeliveryBeanie
 	public void setFinalScore(String finalScore) {
 		this.finalScore = finalScore;
 	}
-
-	public String getAlternativeDeliveryUrl() {
-		return alternativeDeliveryUrl;
-	}
-
-	public void setAlternativeDeliveryUrl(String url) {
-		this.alternativeDeliveryUrl = url;
-	}
-
 	public boolean getIsAssessmentBeanie() {
 		return isAssessmentBeanie;
 	}
