@@ -1281,7 +1281,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				// a Sakai content reference. We can then check if it's available to the current user
 				if (i.getType() == SimplePageItem.MULTIMEDIA && StringUtils.isNotBlank(i.getSakaiId())) {
 				    if (!contentHostingService.isAvailable(String.valueOf(i.getSakaiId()))) {
-				        continue;
+						// The Lessons folder can be hidden by default via sakai.properties (lessonbuilder.folder.hidden = true). 
+						// If this hidden resource is not Lessons uploaded content, it should be skipped.
+						String resourceId = String.valueOf(i.getSakaiId());
+						String lessonsCollection = simplePageBean.getCollectionId(false);
+						if (resourceId == null || lessonsCollection == null || !resourceId.startsWith(lessonsCollection))
+						{
+							continue;
+						}
 				    }
 				}
 				
