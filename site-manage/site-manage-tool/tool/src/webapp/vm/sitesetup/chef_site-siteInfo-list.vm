@@ -368,7 +368,7 @@
 					<li>	
 						<div class="row">
 							<div class="col-lg-10 col-sm-10 col-xs-12">
-								#if ($glocked)<span class="fa fa-fw fa-lock" aria-hidden="true"></span><span class="sr-only">$tlang.getString("sinfo.list.groups.locked")</span>#end
+								#if ($glocked)<span class="fa fa-fw fa-lock" aria-hidden="true"></span><span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>#end
 								<span id ="group$g.Id">$formattedText.escapeHtml($g.Title)</span>
 								#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
 									<span class="itemAction">(<a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
@@ -430,7 +430,7 @@
 							#set ($disabled = $g.size >= $g.max || $g.locked)
 							<tr #if ($$disabled) style="color:gray"#end >
 								<td>
-									#if ($g.locked)<span class="fa fa-fw fa-lock" aria-hidden="true"></span><span class="sr-only">$tlang.getString("sinfo.list.groups.locked")</span>#end
+									#if ($g.locked)<span class="fa fa-fw fa-lock" aria-hidden="true"></span><span class="sr-only">$tlang.getString("sinfo.list.joinable.locked")</span>#end
 									<span>$formattedText.escapeHtml($g.title)</span>
 								</td>
 								<td>
