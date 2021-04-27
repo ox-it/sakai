@@ -612,6 +612,7 @@
             #end
 
             <input type="button" name="attach" aria-label="$attachButtonText" value="$attachButtonText" onclick="ASN.submitForm( 'gradeForm', 'attach', null, null ); return false;" accesskey="a"/>
+            #if ($!hasAssociatedRubric) <span class="sak-banner-warn">$tlang.getString('rubrics.savebeforeattach')</span> #end
         </p>
         #if ($!prevFeedbackAttachments)
         ## show previous grading/feedback attachments if any
