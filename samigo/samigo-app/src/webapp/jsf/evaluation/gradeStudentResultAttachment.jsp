@@ -77,17 +77,20 @@ document.links[newindex].click();
     <h:outputText escape="false" value="#{assessmentSettingsMessages.no_attachments}" />
   </h:panelGroup>
 
+<h:panelGroup>
   <h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_attachments}" type="button" id="addAttachments" rendered="#{!question.hasItemGradingAttachment}"
        style="act" onclick="addAttachments(event, this);" onkeypress="addAttachments(event, this);" />
 
   <h:commandButton tabindex="-1" value="#{assessmentSettingsMessages.add_remove_attachments}" type="button" id="addRemoveAttachments" rendered="#{question.hasItemGradingAttachment}"
        style="act" onclick="addRemoveAttachments(event, this);" onkeypress="addRemoveAttachments(event, this);" />
 
+  <h:outputText rendered="#{question.hasAssociatedRubric}" value="#{assessmentSettingsMessages.warn_userDataLoss}" styleClass="sak-banner-warn" style="display: inline;" />
+
     <h:commandLink tabindex="-1" id="hiddenlink" action="#{studentScores.addAttachmentsRedirect}">
       <f:param name="itemGradingId" value="#{question.itemGradingIdForFilePicker}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.StudentScoreAttachmentListener"/>
     </h:commandLink>
-
+</h:panelGroup>
   </h:panelGrid>
 <f:verbatim></div></f:verbatim>
 
