@@ -2689,7 +2689,7 @@ GbGradeTable.setupKeyboardNavigation = function() {
 
         $dropdown.dropdown("toggle");
         setTimeout(function() {
-          $(".dropdown-menu:visible a:first").focus();
+          $(".dropdown-menu:visible li:not(.hidden):first a").focus();
         });
       }
 
