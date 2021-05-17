@@ -141,7 +141,7 @@
             <ref bean="org.sakaiproject.webservices.LessonBuilder"/>
         </jaxrs:serviceBeans>
         <jaxrs:providers>
-            <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
+            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider"/>
             <ref bean="exceptionMapper"/>
         </jaxrs:providers>
     </jaxrs:server>
