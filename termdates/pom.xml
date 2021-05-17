@@ -22,7 +22,6 @@
         <maven.compiler.target>6</maven.compiler.target>
 
         <joda-time.version>2.1</joda-time.version>
-        <guava.version>11.0.2</guava.version>
     </properties>
 
     <modules>
@@ -64,7 +63,6 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
             </dependency>
 
             <dependency>
