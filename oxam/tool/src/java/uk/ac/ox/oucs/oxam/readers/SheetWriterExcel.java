@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -35,7 +36,7 @@ abstract public class SheetWriterExcel implements SheetWriter {
 	}
 
 	public void writeColumn(String value) {
-		Cell cell = row.createCell(columnNum++, Cell.CELL_TYPE_STRING);
+		Cell cell = row.createCell(columnNum++, CellType.STRING);
 		cell.setCellValue(value);
 	}
 

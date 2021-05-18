@@ -2893,7 +2893,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 		HSSFCellStyle style = workbook.createCellStyle();
 		HSSFFont font = workbook.createFont();
-		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		font.setBold(true);
 		style.setFont(font);
 		// Printing header row and question text
 		HSSFCell cell0 = headerRow.createCell((short) (0));
@@ -2998,7 +2998,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				HSSFCellStyle style = workbook.createCellStyle();
 				HSSFFont font = workbook.createFont();
-				font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+				font.setBold(true);
 				style.setFont(font);
 				// Printing header row
 				HSSFCell cell0 = headerRow.createCell((short) (0));
@@ -3093,7 +3093,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				HSSFCellStyle style = workbook.createCellStyle();
 				HSSFFont font = workbook.createFont();
-				font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+				font.setBold(true);
 				style.setFont(font);
 				// Printing header row
 				HSSFCell cell0 = headerRow.createCell((short) (0));
@@ -3209,7 +3209,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 					HSSFCellStyle style = workbook.createCellStyle();
 					HSSFFont font = workbook.createFont();
-					font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+					font.setBold(true);
 					style.setFont(font);
 					// Printing header row
 					HSSFCell cell0 = headerRow.createCell((short) (0));
@@ -3438,7 +3438,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				HSSFCellStyle style = workbook.createCellStyle();
 				HSSFFont font = workbook.createFont();
-				font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+				font.setBold(true);
 				style.setFont(font);
 				// Printing header row
 				HSSFCell cell0 = headerRow.createCell((short) (0));
@@ -3520,7 +3520,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				HSSFCellStyle style = workbook.createCellStyle();
 				HSSFFont font = workbook.createFont();
-				font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+				font.setBold(true);
 				style.setFont(font);
 				// Printing header row
 				HSSFCell cell0 = headerRow.createCell((short) (0));
@@ -3631,7 +3631,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				HSSFCellStyle style = workbook.createCellStyle();
 				HSSFFont font = workbook.createFont();
-				font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+				font.setBold(true);
 				style.setFont(font);
 				// Printing header row
 				HSSFCell cell0 = headerRow.createCell((short) (0));
@@ -3752,7 +3752,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				HSSFCellStyle style = workbook.createCellStyle();
 				HSSFFont font = workbook.createFont();
-				font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+				font.setBold(true);
 				style.setFont(font);
 				// Printing header row
 				HSSFCell cell0 = headerRow.createCell((short) (0));
@@ -3857,7 +3857,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 		HSSFCellStyle style = workbook.createCellStyle();
 		HSSFFont font = workbook.createFont();
-		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+		font.setBold(true);
 		style.setFont(font);
 		// Printing header row and question text
 		if (!isSurvey)
@@ -4275,7 +4275,7 @@ public class AttachmentServiceImpl implements AttachmentService, EntityProducer
 
 				HSSFCellStyle style = workbook.createCellStyle();
 				HSSFFont font = workbook.createFont();
-				font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+				font.setBold(true);
 				style.setFont(font);
 				// Printing header row
 				HSSFCell cell0 = headerRow.createCell((short) (0));
