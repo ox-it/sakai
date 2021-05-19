@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -467,7 +468,7 @@ public class OwlGradebookServiceImpl implements OwlGradebookService
 			throw new IllegalArgumentException("grading id set cannot be null");
 		}
 
-		List<OwlAnonGradingID> merged = mergeAll(gradingIds);
+		List<OwlAnonGradingID> merged = mergeAll(gradingIds.stream().filter(id -> id != null && id.getAnonGradingID() != 0).collect(Collectors.toSet()));
 		gbServ.getHibernateTemplate().deleteAll(merged);
 		return merged.size();
 	}
