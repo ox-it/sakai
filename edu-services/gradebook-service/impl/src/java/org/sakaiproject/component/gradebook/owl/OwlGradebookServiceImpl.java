@@ -456,13 +456,7 @@ public class OwlGradebookServiceImpl implements OwlGradebookService
 			throw new IllegalArgumentException("grading id cannot be null or a \"null\" object");
 		}
 
-		HibernateCallback hc = (Session session)->
-		{
-			session.delete(gradingId);
-			return null;
-		};
-
-		gbServ.getHibernateTemplate().execute(hc);
+		gbServ.getHibernateTemplate().delete(gbServ.getHibernateTemplate().merge(gradingId));
 	}
 
 	@Override
@@ -473,22 +467,16 @@ public class OwlGradebookServiceImpl implements OwlGradebookService
 			throw new IllegalArgumentException("grading id set cannot be null");
 		}
 
-		HibernateCallback hc = (Session session)->
-		{
-			int deleteCount = 0;
-			for (OwlAnonGradingID id : gradingIds)
-			{
-				if (id != null && id.getAnonGradingID() != 0)
-				{
-					session.delete(id);
-					++deleteCount;
-				}
-			}
+		List<OwlAnonGradingID> merged = mergeAll(gradingIds);
+		gbServ.getHibernateTemplate().deleteAll(merged);
+		return merged.size();
+	}
 
-			return deleteCount;
-		};
-
-		return (Integer) gbServ.getHibernateTemplate().execute(hc);
+	private List<OwlAnonGradingID> mergeAll(final Set<OwlAnonGradingID> gradingIds)
+	{
+		List<OwlAnonGradingID> merged = new ArrayList<>();
+		gradingIds.forEach(id -> merged.add(gbServ.getHibernateTemplate().merge(id)));
+		return merged;
 	}
 
 	/** End OWL anonymous grading methods */
