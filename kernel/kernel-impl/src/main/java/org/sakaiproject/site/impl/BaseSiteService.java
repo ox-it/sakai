@@ -2501,7 +2501,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		try
 		{
-			rv = getSite(ref.getId());
+			rv = getSiteVisit(ref.getId());
 		}
 		catch (IdUnusedException e)
 		{
@@ -2509,6 +2509,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (NullPointerException e)
 		{
+			M_log.warn("getEntity(): " + e);
+		}
+		catch (PermissionException e) {
 			M_log.warn("getEntity(): " + e);
 		}
 
