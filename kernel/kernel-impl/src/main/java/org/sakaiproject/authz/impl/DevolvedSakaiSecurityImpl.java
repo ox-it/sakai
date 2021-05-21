@@ -2,6 +2,7 @@ package org.sakaiproject.authz.impl;
 
 import org.sakaiproject.authz.api.DevolvedAdminDao;
 import org.sakaiproject.authz.api.DevolvedSakaiSecurity;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.hbm.DevolvedAdmin;
 import org.sakaiproject.entity.api.Entity;
@@ -34,6 +35,17 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 	private static Logger log = LoggerFactory
 			.getLogger(DevolvedSakaiSecurityImpl.class);
 	
+	private static SecurityAdvisor advisor = (userId, function, reference) -> {
+		if (
+				function.equals(SiteService.SITE_VISIT) ||
+				function.equals(SiteService.SITE_VISIT_UNPUBLISHED) ||
+				function.equals(SiteService.SITE_VISIT_SOFTLY_DELETED)
+				) {
+			return SecurityAdvisor.SecurityAdvice.ALLOWED;
+		}
+		return SecurityAdvisor.SecurityAdvice.PASS;
+	};
+
 	private Collection restrictedSiteTypes;
 
 	private String adminSiteType;
@@ -156,11 +168,17 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 	 * @return The String type of the site or <code>null</code> if the site doesn't have one or the reference isn't a site.
 	 */
 	private String getSiteType(Reference siteRef) {
+		try {
+			// Needed because the current user might not have access to the site.
+			pushAdvisor(advisor);
 		Entity entity = siteRef.getEntity();
 		if (entity instanceof Site) {
-			return ((Site)entity).getType();
+				return ((Site) entity).getType();
 		}
 		return null;
+		} finally {
+			popAdvisor(advisor);
+		}
 	}
 	
 	public boolean canUseAdminRealm(String adminRealm) {
@@ -189,14 +207,18 @@ public abstract class DevolvedSakaiSecurityImpl extends SakaiSecurity implements
 	public List<Entity> findUsesOfAdmin(String adminRealm) {
 		List<DevolvedAdmin> devolvedAdmins = dao().findByAdminRealm(adminRealm);
 		List <Entity> sites = new ArrayList<Entity>(devolvedAdmins.size());
-		for (DevolvedAdmin devolvedAdmin: devolvedAdmins)
-		{
+		try {
+			pushAdvisor(advisor);
+			for (DevolvedAdmin devolvedAdmin : devolvedAdmins) {
 			Entity entity = getSiteReference(devolvedAdmin.getRealm()).getEntity();
 			if (entity != null) {
 				sites.add(entity);
 			}
 		}
 		return sites;
+		} finally {
+			popAdvisor(advisor);
+		}
 	}
 	
 	public void removeAdminRealm(String entityRef) throws PermissionException {
