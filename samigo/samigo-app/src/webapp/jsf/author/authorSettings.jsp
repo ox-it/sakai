@@ -172,8 +172,7 @@
           });
           
           var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
-          lockdownAnonyGrading(releaseToVal);
-          lockdownGradebook(releaseToVal);
+          handleAnonymousUsers(releaseToVal, "");
           showHideReleaseGroups();
           initTimedCheckBox();
           checkUncheckTimeBox();
@@ -356,9 +355,11 @@
   <div class="form-group row">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
       <div class="col-md-10">
-          <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);" onchange="showHideReleaseGroups();">
+          <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();" onchange="handleAnonymousUsersChange(this);showHideReleaseGroups();">
               <f:selectItems value="#{assessmentSettings.publishingTargets}" />
           </h:selectOneMenu>
+          <h:outputLabel rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true || (assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"
+                         styleClass="help-block info-text small" value="#{assessmentSettingsMessages.released_to_help}" />
        </div>
   </div>
 
@@ -584,13 +585,19 @@
         </t:selectOneRadio>
       </div>
     </h:panelGroup>
-  
+
+    <!-- info message about the anonymous and gradebook options below, will be shown only if quiz released to "Anonymous Users" -->
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true || (assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"
+                  layout="block" id="gradingOptionsDisabledInfo" styleClass="row sak-banner-info" style="display: none">
+        <h:outputText value="#{assessmentSettingsMessages.grading_options_disabled_info}" />
+    </h:panelGroup>
+
     <!--  ANONYMOUS OPTION -->
     <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.student_identity_label}"/>
       <div class="col-md-10 samigo-checkbox">
         <h:selectBooleanCheckbox id="anonymousGrading" value="#{assessmentSettings.anonymousGrading}"/>
-        <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" />
+        <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" for="anonymousGrading"/>
       </div>
     </h:panelGroup>
     
