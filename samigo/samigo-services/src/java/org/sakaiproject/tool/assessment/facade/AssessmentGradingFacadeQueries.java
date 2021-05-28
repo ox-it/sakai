@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.NullPrecedence;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -157,9 +158,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             final HibernateCallback<List<AssessmentGradingData>> hcb = session -> {
                 Criteria q = session.createCriteria(AssessmentGradingData.class)
                         .add(Restrictions.eq("publishedAssessmentId", Long.parseLong(publishedId)))
-                        .addOrder(Order.asc("agentId"))
-                        .addOrder(Order.desc("finalScore"))
-                        .addOrder(Order.desc("submittedDate"));
+                        .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
+                        .addOrder(Order.desc("finalScore").nulls(NullPrecedence.LAST))
+                        .addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST));
 
                 if (getSubmittedOnly) {
                     q.add(Restrictions.eq("forGrade", true));
@@ -189,8 +190,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                 final HibernateCallback<List<AssessmentGradingData>> hcb2 = session -> {
                     Criteria q = session.createCriteria(AssessmentGradingData.class)
                             .add(Restrictions.eq("publishedAssessmentId", Long.parseLong(publishedId)))
-                            .addOrder(Order.asc("agentId"))
-                            .addOrder(Order.desc("submittedDate"));
+                            .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
+                            .addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST));
 
                     if (getSubmittedOnly) {
                         q.add(Restrictions.eq("forGrade", true));
@@ -301,8 +302,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                     criteria.add(Expression.and(pubCriterion, disjunction));
                     //criteria.add(Expression.isNotNull("submittedDate"));
                 }
-                criteria.addOrder(Order.asc("agentId"));
-                criteria.addOrder(Order.desc("submittedDate"));
+                criteria.addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST));
+                criteria.addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST));
                 return criteria.list();
                 //large list cause out of memory error (java heap space)
                 //return criteria.setMaxResults(10000).list();
@@ -1241,8 +1242,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         Restrictions.and(
                                 Restrictions.eq("forGrade", false),
                                 Restrictions.eq("status", AssessmentGradingData.NO_SUBMISSION))))
-                .addOrder(Order.asc("agentId"))
-                .addOrder(Order.desc("submittedDate"))
+                .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
+                .addOrder(Order.desc("submittedDate").nulls(NullPrecedence.LAST))
                 .list();
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);
 
@@ -1276,8 +1277,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
                         Restrictions.and(
                                 Restrictions.eq("forGrade", false),
                                 Restrictions.eq("status", AssessmentGradingData.NO_SUBMISSION))))
-                .addOrder(Order.asc("agentId"))
-                .addOrder(Order.desc("finalScore"))
+                .addOrder(Order.asc("agentId").nulls(NullPrecedence.LAST))
+                .addOrder(Order.desc("finalScore").nulls(NullPrecedence.LAST))
                 .list();
 
         List<AssessmentGradingData> assessmentGradings = getHibernateTemplate().execute(hcb);

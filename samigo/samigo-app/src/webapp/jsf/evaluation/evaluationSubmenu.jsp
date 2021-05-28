@@ -19,7 +19,6 @@
 --%>
 <h:panelGroup>
   <ul class='navIntraTool actionToolbar' role='menu'>
-<<<<<<< HEAD
     <h:panelGroup rendered="#{(histogramScores.hasNav==null || histogramScores.hasNav=='true') && totalScores.anonymous eq 'false'}">
     <li role='menuitem'>
       <h:panelGroup id="submissionStatusMenuLink" rendered="#{totalScores.anonymous eq 'false'}">
