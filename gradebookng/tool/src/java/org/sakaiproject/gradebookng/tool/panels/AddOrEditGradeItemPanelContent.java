@@ -351,7 +351,8 @@ public class AddOrEditGradeItemPanelContent extends BasePanel {
 
 		if (assignment.getId() != null) {
 			sakaiRubricAssociation.add(AttributeModifier.append("entity-id", assignment.getId()));
-		} else {
+		}
+		if (UiMode.IMPORT == mode) {
 			sakaiRubricAssociation.setVisible(false);
 		}
 		add(sakaiRubricAssociation);

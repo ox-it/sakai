@@ -15,7 +15,6 @@
  */
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -148,7 +147,7 @@ public class CreateGradeItemStep extends BasePanel {
 				new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
 
 		// OWL
-		AddOrEditGradeItemPanelContent newItemPanel = new AddOrEditGradeItemPanelContent("subComponents", assignmentModel, UiMode.ADD);
+		AddOrEditGradeItemPanelContent newItemPanel = new AddOrEditGradeItemPanelContent("subComponents", assignmentModel, UiMode.IMPORT);
 		newItemPanel.lockAnonymousToValue(importWizardModel.isContextAnonymous());
 		form.add(newItemPanel);
 

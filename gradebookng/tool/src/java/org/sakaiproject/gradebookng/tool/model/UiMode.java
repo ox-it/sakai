@@ -6,5 +6,6 @@ package org.sakaiproject.gradebookng.tool.model;
  */
 public enum UiMode {
 	ADD,
-	EDIT;
+	EDIT,
+	IMPORT;
 }
