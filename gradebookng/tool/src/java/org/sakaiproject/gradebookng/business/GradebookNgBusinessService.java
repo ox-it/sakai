@@ -523,7 +523,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get a list of categories in the gradebook in the current site
 	 *
-	 * @return list of categories or null if no gradebook
+	 * @return list of categories or empty if no gradebook
 	 */
 	public List<CategoryDefinition> getGradebookCategories() {
 		return getGradebookCategories(getCurrentSiteId());
@@ -2484,7 +2484,14 @@ public class GradebookNgBusinessService {
 
 		final Gradebook gradebook = getGradebook();
 
-		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, categoryId, isInstructor);
+		List<CategoryDefinition> cats = isInstructor ? getGradebookCategories() : getGradebookCategoriesForStudent(studentUuid);
+		Optional<CategoryDefinition> cat = cats.stream().filter(c -> c.getId().equals(categoryId)).findFirst();
+		if (!cat.isPresent()) {
+			log.warn("Expected to find category for id {} but found none. Unable to calculate category score.", categoryId);
+			return Optional.empty();
+		}
+
+		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, cat.get(), isInstructor);
 		log.debug("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
 
 		return result;
