@@ -439,11 +439,15 @@ public class ItemConfigBean implements Serializable {
       list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
     }
 
-    List<SelectItem> ret = new ArrayList<SelectItem>();
-    ret.add(new SelectItem("", getResourceDisplayName("select_qtype")));
-    ret.addAll(list);
-    
-    return ret;
+    return list;
+  }
+
+  public List<SelectItem> getAddItemTypeSelectList()
+  {
+    List<SelectItem> list = getItemTypeSelectList();
+    list.add(0, new SelectItem("", getResourceDisplayName("select_qtype")));
+
+    return list;
   }
 
   /**
