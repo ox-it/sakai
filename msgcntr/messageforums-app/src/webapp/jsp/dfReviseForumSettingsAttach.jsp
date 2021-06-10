@@ -251,25 +251,26 @@
 					<h:selectBooleanCheckbox
 						title="ForumLocked" value="#{ForumTool.selectedForum.forumLocked}"
 						id="forum_locked">
-					</h:selectBooleanCheckbox> <h:outputLabel id="forum_locked_label" value="#{msgs.cdfm_lock_forum}" />
+					</h:selectBooleanCheckbox>
+					<h:outputLabel for="forum_locked" value="#{msgs.cdfm_lock_forum}" />
 				</p>
 				<p class="checkbox">
 					<h:selectBooleanCheckbox
 						title="Moderated" value="#{ForumTool.selectedForum.forumModerated}"
 						id="moderated">
-					</h:selectBooleanCheckbox> <h:outputLabel id="moderated_label" value="#{msgs.cdfm_moderate_forum}" />
+					</h:selectBooleanCheckbox>
+					<h:outputLabel for="moderated" value="#{msgs.cdfm_moderate_forum}" />
 				</p>
 				<p class="checkbox">
 					<h:selectBooleanCheckbox
 						title="postFirst" value="#{ForumTool.selectedForum.forumPostFirst}"
 						id="postFirst">
-					</h:selectBooleanCheckbox> <h:outputLabel id="postFirst_label" value="#{msgs.cdfm_postFirst}" />
+					</h:selectBooleanCheckbox>
+					<h:outputLabel for="postFirst" value="#{msgs.cdfm_postFirst}" />
 				</p>
 
 			<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h2>
-			
 			<h:panelGroup layout="block" styleClass="indnt1">
-			<%-- <h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0"> --%>
               <h:panelGroup styleClass="checkbox">
                  <h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedForum.availabilityRestricted}">
                   <f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_forum_avail_show}"/>
@@ -360,7 +361,7 @@
 		></sakai-rubric-association>
 
 			<h:panelGroup rendered="#{ForumTool.selectedForum.forum.id==null && !empty ForumTool.siteGroups}">
-					<f:verbatim><h4></f:verbatim><h:outputText  value="#{msgs.cdfm_autocreate_forums_header}" /><f:verbatim></h4></f:verbatim>
+					<f:verbatim><h2></f:verbatim><h:outputText  value="#{msgs.cdfm_autocreate_forums_header}" /><f:verbatim></h2></f:verbatim>
 				</h:panelGroup>
 				<h:panelGroup layout="block" styleClass="indnt1">
 					<h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0" >
