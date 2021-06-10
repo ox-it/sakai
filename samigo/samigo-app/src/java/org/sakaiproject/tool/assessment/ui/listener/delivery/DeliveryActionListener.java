@@ -2304,6 +2304,11 @@ public class DeliveryActionListener
       // texts is the display text that will show in the question. AnswersMap gets populated with
       // pairs such as key:x, value:42.0
       List<String> texts = service.extractCalcQAnswersArray(answersMap, item, gradingId, agentId);
+      if (texts.isEmpty())
+      {
+          log.error("Unable to extract any question text from calculated question with item id {}. The formula for this question may be invalid.", item.getItemId());
+          texts = Collections.singletonList(rb.get("calc.extract_text_error").toString());
+      }
       String questionText = texts.get(0);
 
       ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
