@@ -51,7 +51,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 public class ItemData
     implements java.io.Serializable,
     ItemDataIfc, Comparable<ItemDataIfc> {
-  static ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
+  private static final ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   private static final long serialVersionUID = 7526471155622776147L;
   public static final Long ADMIN = Long.valueOf(34);

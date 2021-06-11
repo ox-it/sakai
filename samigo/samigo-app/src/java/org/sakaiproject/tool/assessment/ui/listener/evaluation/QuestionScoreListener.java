@@ -101,7 +101,7 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 		ValueChangeListener {
 
 	// private static EvaluationListenerUtil util;
-	private static BeanSort bs;
+	private BeanSort bs;
 
 	private static final String MSG_BUNDLE = "org.sakaiproject.tool.assessment.bundle.EvaluationMessages";
 	private static final ResourceLoader rb = new ResourceLoader(MSG_BUNDLE);

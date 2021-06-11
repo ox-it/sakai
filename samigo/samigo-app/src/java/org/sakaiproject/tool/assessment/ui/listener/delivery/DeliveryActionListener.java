@@ -110,13 +110,12 @@ public class DeliveryActionListener
   implements ActionListener
 {
 
-  static String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   private boolean resetPageContents = true;
   private long previewGradingId = (long)(Math.random() * 1000);
   private static final ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
   private static final ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
   private static final ResourceLoader ra = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-
   private EventTrackingService eventTrackingService = ComponentManager.get(EventTrackingService.class);
 
   /**
@@ -1836,9 +1835,8 @@ public class DeliveryActionListener
       iter2 = shuffled.iterator();
 
       int i = 0;
-      ResourceLoader d_rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
-      ResourceLoader a_rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-      choices.add(new SelectItem("0", d_rb.getString("matching_select"), "")); // default value for choice
+      
+      choices.add(new SelectItem("0", rb.getString("matching_select"), "")); // default value for choice
       while (iter2.hasNext())
       {
         AnswerIfc answer = (AnswerIfc) iter2.next();
@@ -1852,7 +1850,7 @@ public class DeliveryActionListener
       GradingService gs = new GradingService();
       if (gs.hasDistractors(item)) {
         String noneOfTheAboveOption = Character.toString(alphabet.charAt(i++));
-        newAnswers.add(noneOfTheAboveOption + ". " + a_rb.getString("none_above"));
+        newAnswers.add(noneOfTheAboveOption + ". " + ra.getString("none_above"));
         choices.add(new SelectItem(NONE_OF_THE_ABOVE.toString(), noneOfTheAboveOption, ""));
       }
 

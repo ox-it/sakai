@@ -21,7 +21,6 @@
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
-import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentTemplateIfc;
@@ -73,8 +72,8 @@ public class AssessmentAccessControl
   public static final Integer CONTINUOUS_NUMBERING = Integer.valueOf(1);
   public static final Integer RESTART_NUMBERING_BY_PART = Integer.valueOf(2);
   //itemScoreDisplay
-  public static Integer DISPLAY_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(1);
-  public static Integer HIDE_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(2);
+  public static final Integer DISPLAY_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(1);
+  public static final Integer HIDE_ITEM_SCORE_DURING_ASSESSMENT = Integer.valueOf(2);
   // markForReview
   public static final Integer MARK_FOR_REVIEW = Integer.valueOf(1);
   public static final Integer NOT_MARK_FOR_REVIEW = Integer.valueOf(0);

@@ -40,22 +40,22 @@ public interface TypeIfc extends java.io.Serializable {
   public static final Long MATRIX_CHOICES_SURVEY = Long.valueOf(13);
   public static final Long EXTENDED_MATCHING_ITEMS = Long.valueOf(14);
   public static final Long CALCULATED_QUESTION = Long.valueOf(15); // CALCULATED_QUESTION
-  public static Long IMAGEMAP_QUESTION = Long.valueOf(16); // IMAGEMAP_QUESTION
+  public static final Long IMAGEMAP_QUESTION = Long.valueOf(16); // IMAGEMAP_QUESTION
   // these are section type available in this site,
-  public static Long DEFAULT_SECTION = Long.valueOf(21);
+  public static final Long DEFAULT_SECTION = Long.valueOf(21);
   // these are assessment template type available in this site,
   public static final Long TEMPLATE_SYSTEM_DEFINED = Long.valueOf(142);
-  public static Long TEMPLATE_QUIZ = Long.valueOf(41);
-  public static Long TEMPLATE_HOMEWORK = Long.valueOf(42);
-  public static Long TEMPLATE_MIDTERM = Long.valueOf(43);
-  public static Long TEMPLATE_FINAL = Long.valueOf(44);
+  public static final Long TEMPLATE_QUIZ = Long.valueOf(41);
+  public static final Long TEMPLATE_HOMEWORK = Long.valueOf(42);
+  public static final Long TEMPLATE_MIDTERM = Long.valueOf(43);
+  public static final Long TEMPLATE_FINAL = Long.valueOf(44);
   // these are assessment type available in this site,
-  public static Long QUIZ = Long.valueOf(61);
-  public static Long HOMEWORK = Long.valueOf(62);
-  public static Long MIDTERM = Long.valueOf(63);
-  public static Long FINAL = Long.valueOf(64);
-  public static String SITE_AUTHORITY = "stanford.edu";
-  public static String DOMAIN_ASSESSMENT_ITEM = "assessment.item";
+  public static final Long QUIZ = Long.valueOf(61);
+  public static final Long HOMEWORK = Long.valueOf(62);
+  public static final Long MIDTERM = Long.valueOf(63);
+  public static final Long FINAL = Long.valueOf(64);
+  public static final String SITE_AUTHORITY = "stanford.edu";
+  public static final String DOMAIN_ASSESSMENT_ITEM = "assessment.item";
   
   enum TypeId{
 	  MULTIPLE_CHOICE_ID(MULTIPLE_CHOICE);

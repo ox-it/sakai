@@ -30,9 +30,9 @@ import java.util.Map;
 public interface ItemTextIfc
     extends Comparable<ItemTextIfc>, java.io.Serializable
 {
-  public static Long EMI_THEME_TEXT_SEQUENCE = Long.valueOf(-1);
-  public static Long EMI_ANSWER_OPTIONS_SEQUENCE = Long.valueOf(-2);
-  public static Long EMI_LEAD_IN_TEXT_SEQUENCE = Long.valueOf(-3);
+  public static final Long EMI_THEME_TEXT_SEQUENCE = Long.valueOf(-1);
+  public static final Long EMI_ANSWER_OPTIONS_SEQUENCE = Long.valueOf(-2);
+  public static final Long EMI_LEAD_IN_TEXT_SEQUENCE = Long.valueOf(-3);
  
   Long getId();
 
