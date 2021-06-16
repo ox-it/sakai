@@ -38,7 +38,6 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.component.GbFeedbackPanel;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -51,6 +50,7 @@ import org.sakaiproject.util.api.FormattedText;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.gradebookng.tool.owl.component.SakaiAjaxButton;
 
 /**
  *
@@ -90,7 +90,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		// modal window forms must be submitted via AJAX so we do not specify an onSubmit here
 		final Form<GradeOverride> form = new Form<GradeOverride>("form", formModel);
 
-		final GbAjaxButton submit = new GbAjaxButton("submit") {
+		final SakaiAjaxButton submit = new SakaiAjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -133,7 +133,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 		};
 		form.add(submit);
 
-		final GbAjaxButton cancel = new GbAjaxButton("cancel") {
+		final SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
