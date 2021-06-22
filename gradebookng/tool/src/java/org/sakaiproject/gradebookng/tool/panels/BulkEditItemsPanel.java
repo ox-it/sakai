@@ -17,6 +17,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -32,13 +33,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
-import org.sakaiproject.gradebookng.tool.component.GbAjaxButton;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.gradebookng.tool.owl.component.SakaiAjaxButton;
 import org.sakaiproject.gradebookng.tool.owl.model.OwlGbUiSettings;
 
 /**
@@ -85,7 +87,7 @@ public class BulkEditItemsPanel extends BasePanel {
 
 		final Form<List<Assignment>> form = new Form<>("form", model);
 		form.add(new GradebookItemView("listView", model.getObject()));
-		form.add(new SubmitButton("submit"));
+		form.add(new SubmitButton("submit").setWillRenderOnClick(true));
 		form.add(new CancelButton("cancel"));
 		form.add(new Label("releaseToggleAllLabel", getString("label.addgradeitem.toggle.all")));
 		form.add(new Label("includeToggleAllLabel", getString("label.addgradeitem.toggle.all")));
@@ -139,7 +141,7 @@ public class BulkEditItemsPanel extends BasePanel {
 
 	}
 
-	class CancelButton extends GbAjaxButton {
+	class CancelButton extends SakaiAjaxButton {
 
 		private static final long serialVersionUID = 1L;
 
@@ -156,7 +158,7 @@ public class BulkEditItemsPanel extends BasePanel {
 
 	}
 
-	class SubmitButton extends GbAjaxButton {
+	class SubmitButton extends SakaiAjaxButton {
 
 		private static final long serialVersionUID = 1L;
 
@@ -176,11 +178,18 @@ public class BulkEditItemsPanel extends BasePanel {
 					log.debug("Bulk edit assignment: {}", a);
 					BulkEditItemsPanel.this.businessService.updateAssignment(a);
 				}
-				for (int count=0; count < BulkEditItemsPanel.this.getDeletableItemsList().size(); count++){
-					BulkEditItemsPanel.this.businessService.removeAssignment(BulkEditItemsPanel.this.getDeletableItemsList().get(count));
+				List<Long> deletableItems = BulkEditItemsPanel.this.getDeletableItemsList();
+				int deleteCount = deletableItems.size();
+				for (int count=0; count < deleteCount; count++){
+					BulkEditItemsPanel.this.businessService.removeAssignment(deletableItems.get(count));
+				}
+				getSession().success(getString("bulkedit.update.success"));
+				if (deleteCount > 0) {
+					String deletedList = assignments.stream().filter(a -> deletableItems.contains(a.getId())).map(Assignment::getName)
+						.collect(Collectors.joining());
+					getSession().success(new StringResourceModel("bulkedit.delete.success", null, new Object[] { deletedList }).getString());
 				}
 				BulkEditItemsPanel.this.clearDeletableItemsList();
-				getSession().success(getString("bulkedit.update.success"));
 			}
 			catch (final Exception e) {
 				getSession().error(getString("bulkedit.update.error"));
