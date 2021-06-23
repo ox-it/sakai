@@ -76,6 +76,7 @@
         <dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
+			<version>${sakai.httpclient.version}</version>
 		</dependency>
 		
 		<!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
