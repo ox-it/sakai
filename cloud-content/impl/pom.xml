@@ -66,6 +66,12 @@
       <version>${jclouds.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${sakai.guava.version}</version>
+    </dependency>
+
     <!-- 3rd party dependencies -->
     <dependency>
       <groupId>junit</groupId>

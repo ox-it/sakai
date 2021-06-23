@@ -282,6 +282,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${sakai.guava.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
