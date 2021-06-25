@@ -136,7 +136,6 @@
                 <module>oxford-url-shortener</module>
                 <module>proxy</module>
                 <module>root-webapp</module>
-                <module>sirlouie</module>
                 <module>simple-signup-entityprovider</module>
                 <module>switch-server</module>
                 <module>sentry-sakai</module>
