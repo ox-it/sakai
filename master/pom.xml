@@ -118,7 +118,7 @@
     <sakai.spring.security.version>3.2.9.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>4.1.9.RELEASE</sakai.spring.test.version>
-    <sakai.tika.version>1.24.1</sakai.tika.version>
+    <sakai.tika.version>1.26</sakai.tika.version>
     <sakai.tomcat.version>8.0.20</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.11.0</sakai.xerces.impl.version>
@@ -126,6 +126,7 @@
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.21</sakai.slf4j.version>
     <sakai.poi.version>4.0.1</sakai.poi.version>
+    <sakai.pdfbox.version>2.0.24</sakai.pdfbox.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <joda.time.version>2.9.4</joda.time.version>
     <sakai.genericdao.version>0.10.0</sakai.genericdao.version>
@@ -832,6 +833,16 @@
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
         <version>${sakai.tika.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.pdfbox</groupId>
+          <artifactId>pdfbox</artifactId>
+          <version>${sakai.pdfbox.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.pdfbox</groupId>
+          <artifactId>pdfbox-tools</artifactId>
+          <version>${sakai.pdfbox.version}</version>
       </dependency>
 
       <!-- provided by the JDK, here to ensure its not packaged in child poms child poms may still override if necessary -->
