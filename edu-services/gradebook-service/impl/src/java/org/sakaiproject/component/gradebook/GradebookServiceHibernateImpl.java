@@ -1557,23 +1557,31 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 
 				final Long categoryId = gbItem.getCategory() != null ? gbItem.getCategory().getId() : null;
-				final Map enrRecFunctionMap = this.authz.findMatchingEnrollmentsForItem(gradebook.getUid(), categoryId,
-						gradebook.getCategory_type(), null, null);
-				final Set enrRecs = enrRecFunctionMap.keySet();
-				final Map studentIdEnrRecMap = new HashMap();
-				if (enrRecs != null) {
-					for (final Iterator enrIter = enrRecs.iterator(); enrIter.hasNext();) {
-						final EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
-						if (enr != null) {
-							studentIdEnrRecMap.put(enr.getUser().getUserUid(), enr);
-						}
+				if (studentIds.size() == 1) {
+					// For performance, skip filtering the entire class list:
+					if (!this.authz.isUserAbleToGradeItemForStudent(gradebook.getUid(), gradableObjectId, studentIds.get(0))) {
+						// This is still an empty list
+						return studentGrades;
 					}
 				}
+				else {
+					final Map enrRecFunctionMap = this.authz.findMatchingEnrollmentsForItem(gradebook.getUid(), categoryId, gradebook.getCategory_type(), null, null);
+					final Set enrRecs = enrRecFunctionMap.keySet();
+					final Map studentIdEnrRecMap = new HashMap();
+					if (enrRecs != null) {
+						for (final Iterator enrIter = enrRecs.iterator(); enrIter.hasNext();) {
+							final EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
+							if (enr != null) {
+								studentIdEnrRecMap.put(enr.getUser().getUserUid(), enr);
+							}
+						}
+					}
 
-				// filter the provided studentIds if user doesn't have permissions
-				studentIds.removeIf(studentId -> {
-					return !studentIdEnrRecMap.containsKey(studentId);
-				});
+					// filter the provided studentIds if user doesn't have permissions
+					studentIds.removeIf(studentId -> {
+						return !studentIdEnrRecMap.containsKey(studentId);
+					});
+				}
 
 				// retrieve the grading comments for all of the students
 				final List<Comment> commentRecs = getComments(gbItem, studentIds);
