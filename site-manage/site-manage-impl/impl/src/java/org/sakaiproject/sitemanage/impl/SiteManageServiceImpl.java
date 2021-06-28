@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -339,6 +340,13 @@ public class SiteManageServiceImpl implements SiteManageService {
         SitePage page = site.addPage(); //inherit the tool's title.
 
         ToolConfiguration tool = page.addTool();
+		if (serverConfigurationService.getStringList("sitemanage.toolsHiddenByDefault", Collections.emptyList()).contains(toolId))
+		{
+			// these tools start in a locked but not hidden state, we want to make sure they are hidden also
+			// so the appropriate icon appears in the tool menu to let instructors know students can't see them
+			// this reflects what happens when a user locks a tool: it is also made hidden
+			tool.getPlacementConfig().setProperty("sakai-portal:visible", "false");
+		}
         tool.setTool(toolId, toolManager.getTool(toolId));
         tool.setTitle(toolManager.getTool(toolId).getTitle());
 

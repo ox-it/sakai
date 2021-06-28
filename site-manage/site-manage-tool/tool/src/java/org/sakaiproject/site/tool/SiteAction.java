@@ -11548,6 +11548,13 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 					    page.setPopup(true);
 					}
 					ToolConfiguration tool = page.addTool();
+					if (Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings("sitemanage.toolsHiddenByDefault"))).contains(toolId))
+					{
+						// these tools start in a locked but not hidden state, we want to make sure they are hidden also
+						// so the appropriate icon appears in the tool menu to let instructors know students can't see them
+						// this reflects what happens when a user locks a tool: it is also made hidden
+						tool.getPlacementConfig().setProperty("sakai-portal:visible", "false");
+					}
 					tool.setTool(toolRegFound.getId(), toolRegFound);
 					addPage.toolId = toolId;
 					wSetupPageList.add(addPage);
