@@ -42,9 +42,9 @@
             <version>${cxf.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-jaxrs</artifactId>
-            <version>1.9.0</version>
+            <groupId>com.fasterxml.jackson.jaxrs</groupId>
+            <artifactId>jackson-jaxrs-json-provider</artifactId>
+            <version>${sakai.jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
