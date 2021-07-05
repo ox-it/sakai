@@ -602,6 +602,12 @@ div.wicket-modal .gb-grade-summary-content .gb-summary-grade-panel .row
   margin: 0;
 }
 
+.gb-summary-grade-flags .gb-flag-extra-credit:before,
+.gb-summary-grade-category-flags .gb-flag-extra-credit:before
+{
+  color: #999999;
+}
+
 .gb-noGbItems
 {
   display: flex;

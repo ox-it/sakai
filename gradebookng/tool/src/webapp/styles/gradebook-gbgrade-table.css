@@ -294,7 +294,7 @@
 }
 .gb-flag-equal-weight:before {
   content: '\2696';
-  color: rgb(200,144,0);
+  color: #999999;
 }
 .gb-flag-extra-credit:before {
   content: '\f0fe';
