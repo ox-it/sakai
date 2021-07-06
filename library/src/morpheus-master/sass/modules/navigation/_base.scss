@@ -33,9 +33,9 @@ body.is-logged-out{
 		padding: 0 $standard-spacing;
 		height: $banner-height;
 		background: $top-header-background;
-
 		text-align: center;
-		@include transition( width 0.5s linear 0s );
+		z-index: 1000;		// needed for Safari when account menu is open
+		
 		.#{$namespace}headerLogo--institution{
 			background: url($logo) no-repeat center center;
 			width: $tool-menu-width;
