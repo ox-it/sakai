@@ -1202,6 +1202,7 @@ td.feedbackColumn2 {
        color: #022f6a;
         border: 1px solid #022f6a;
         border-bottom-left-radius: 10px;
+	z-index: 10;
 }
 
 div#questionProgressPanel div.tier1 {
@@ -1211,7 +1212,7 @@ div#questionProgressPanel div.tier1 {
 #questionProgressClick {
 	height: 200px;
 	width: 40px;
-	background: #022f6a;
+	background: #4f2683;
 	right:299px;
 	margin-top: 200px;
 	position: absolute;
@@ -1222,7 +1223,8 @@ div#questionProgressPanel div.tier1 {
 	-moz-border-radius-bottomleft: 15px;
 	border-bottom-left-radius: 15px;
 	cursor: pointer;
-	top: 20px
+	top: 20px;
+	z-index: 10;
 }
 .currentQuestion {
 	border: 1px solid #74acde;

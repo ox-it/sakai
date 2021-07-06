@@ -24,9 +24,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 -->
 
 <%-- TITLE --%>
-<h1>
-   <h:outputText value="#{delivery.assessmentTitle}" escape="false"/>
-</h1>
+<div class="page-header"><h1><h:outputText value="#{delivery.assessmentTitle}" escape="false"/></h1></div>
 <%-- NAV BAR --%>
   <ul class="navIntraTool actionToolbar" role="menu">
   <h:panelGroup rendered="#{(delivery.feedbackComponent.showImmediate || delivery.feedbackOnDate) 
@@ -85,7 +83,6 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 </ul>
 
 <!-- GRADER COMMENT FOR REVIEW ASSESSMENT -->
-<f:verbatim><br /></f:verbatim> 
 <h:panelGrid rendered="#{delivery.feedbackComponent.showGraderComment && delivery.actionString=='reviewAssessment' 
 					&& (delivery.graderComment ne '' || delivery.hasAssessmentGradingAttachment)}" columns="1" border="0">
     <h:panelGroup>  

@@ -20,43 +20,40 @@
 #timeoutWarning {
 	display: none;
 	background-color: #f2dede;
-	border-color: #ebccd1;
 	color: #a94442;
 	padding: 15px;
-	margin-bottom: 20px;
 	border: 1px solid transparent;
 	border-radius: 4px;
-	margin: 10px 15px 0px 15px;
+	margin: 10px 10px 0px 10px;
 }
 
 #progressbar {
-	width: 98%;
-	margin: auto;
-	margin-top: 10px;
+	display: block;
+	margin: 10px 10px 0 10px;
 }
 
 #timerBlock {
-	position: absolute;
+	position: relative;
 	top: 0px;
-	width: 75%;
-	background-color: #000036; 
-	margin: 0;
-	margin-left: 15px;
-	padding: 0;
+	width: max-content;
+	min-width: 400px;
+	margin: 10px auto;
+	padding: 1px; /* to contain the margin of the .progressBar */
+	border-radius: 10px;
 	z-index: 2;
+	background-color: #4f2683; 
 }
 
-#timerBlank {
-	height: 110px;
-	border: 0;
-	padding: 0;
-	margin: 0;
+#timerBlock.stuckToTop {
+	margin-top: 0;
+	border-radius: 0 0 10px 10px;
 }
 
 #showHide {
-	text-align: center;
-	margin-top: 8px;
-	margin-bottom: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
 	cursor: pointer;
 }
 
@@ -68,11 +65,8 @@ div#showHide:focus {
 */
 
 #showHideText {
-	padding-right: 3px;
-	padding-left: 3px;
-	font-family: sans-serif;
+	padding: 10px;
 	color: #ffffff;
-	font-weight: bold;
 }
 
 .showHideSym {
@@ -85,6 +79,7 @@ div#showHide:focus {
 
 #warnClose {
 	float: right;
+	margin-left: 10px;
 	text-decoration: underline;
 	cursor: pointer;
 }
@@ -107,17 +102,4 @@ div#showHide:focus {
 
 tr.timerSubmission:nth-child(even) {
 	background-color: #eee;
-}
-
-@media only screen and (max-width: 770px) {
-	#timerBlock {
-		position: absolute;
-		top: 0px;
-		width: 100%;
-		background-color: #022f6a;
-		margin: 0;
-		padding: 0;
-		z-index: 2;
-		left: 0px;
-	}
 }

@@ -56,8 +56,8 @@
           }
       });
 
-      var parnetBlock = $("main").length === 0 ? $("body") : $("main");
-      parnetBlock.prepend("<link href=\"/samigo-app/css/timerbar.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" /><div id=\"timerBlank\"></div></div><div id=\"timerBlock\" aria-hidden=\"true\"><div id=\"progressbar\"><div class=\"progress-label\"></div></div><div id=\"timeoutWarning\"><div tabindex=0 id=\"warnClose\" style=\"float: right\">" + closeAlertMessage + "</div><b>" + alertTitle + "</b> <span id=\"alertMessage\"></span></div><div tabindex=0 id=\"showHide\"><span class=\"showHideSym\">▲</span><span id=\"showHideText\">" + hideMessage + "</span><span class=\"showHideSym\">▲</span></div></div><div id=\"dialog-timeout\"><div id=\"indicator\"><img class=\"ajaxImg\" src=\"/samigo-app/images/ajaxReq.gif\"><span style=\"margin-left: 70px;\">" + savedMessage + "</span></div></div>");
+      var parentBlock = $("#timer").length === 0 ? $("body") : $("#timer");
+      parentBlock.prepend("<link href=\"/samigo-app/css/timerbar.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" /><div id=\"timerBlock\" aria-hidden=\"true\"><div id=\"progressbar\"><div class=\"progress-label\"></div></div><div id=\"timeoutWarning\"><div tabindex=0 id=\"warnClose\">" + closeAlertMessage + "</div><strong>" + alertTitle + "</strong> <span id=\"alertMessage\"></span></div><div tabindex=0 id=\"showHide\"><span class=\"showHideSym\">▲</span><span id=\"showHideText\">" + hideMessage + "</span><span class=\"showHideSym\">▲</span></div></div><div id=\"dialog-timeout\"><div id=\"indicator\"><img class=\"ajaxImg\" src=\"/samigo-app/images/ajaxReq.gif\"><span style=\"margin-left: 70px;\">" + savedMessage + "</span></div></div>");
       var timeoutDialog = $("#dialog-timeout");
       var timerBlock = $("#timerBlock");
 
@@ -66,10 +66,10 @@
           while (topWindow !== window.top) {
               var frameName = topWindow.name;
               inFrame = true;
-
               // If we are inside an external-site iframe, this will throw CORS errors
               try {
                   headerHeight = $("header", topWindow.document).height();
+                  // Lessons
                   if ($(".reload", topWindow.document).length > 0) {
                       reloadLink = $(".reload", topWindow.document);
                   }
@@ -83,34 +83,31 @@
               }
           }
 
-          if (inFrame) {
-              scrollSep = scrollSep + 1;
+          viewType = topWindow.document.getElementById("timerBlock");
+          if (viewType === null) {
+              scrollSep = 0;
           } else {
-              viewType = topWindow.document.getElementById("content");
-              if (viewType === null) {
-                  scrollSep = 0;
-              } else {
-                  scrollSep = scrollSep + viewType.offsetTop;
-              }
-              inFrame = $("main").length === 0 ? false : true;
+              // calculate the starting point of the timer to the top of the window:
+              scrollSep = scrollSep + Math.round(viewType.getBoundingClientRect().top);
           }
+          inFrame = $("main").length === 0 ? false : true;
       }
 
       function updateScroll() {
+          viewGap = 0;
           if (window !== null) {
               var frameTop = $(window).width() < 801 && inFrame ? $(topWindow).scrollTop() - headerHeight : $(topWindow).scrollTop();
+              // Tests & Quizzes, Lessons, iFrame as new tab (no portal)
               var newTop;
               frameTop = frameTop + headerHeight;
               if (frameTop > scrollSep) {
-                  newTop = (frameTop - viewGap) + "px";
-                  if (inFrame) {
-                      timerBlock.css("border-radius", "0px 0px 10px 10px");
-                  }
+                  // Scrolling:
+                  newTop = (frameTop - scrollSep) + "px";
+                  timerBlock.addClass("stuckToTop");
               } else {
-                  newTop = (scrollSep - viewGap) + "px";
-                  if (inFrame) {
-                      timerBlock.css("border-radius", "10px");
-                  }
+                  // On load / At the top
+                  newTop = viewGap + "px";
+                  timerBlock.removeClass("stuckToTop");
               }
               timerBlock.css({
                   "top": newTop,
@@ -130,12 +127,7 @@
 
 
       updateScroll();
-      if (!inFrame) {
-          timerBlock.width("100%");
-          timerBlock.css({
-              margin: 0
-          });
-      }
+
       var progressbar = timerBlock.find("#progressbar");
       var timeoutWarning = timerBlock.find("#timeoutWarning");
       var showHide = timerBlock.find("#showHide");
@@ -243,7 +235,7 @@
           var tminutes = parseInt(totalTime / 60) % 60;
           var tseconds = totalTime % 60;
           if (readerAnnounce) {
-              parnetBlock.append("<span id=\"timerReader\" role=\"alert\" style=\"position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;\">This is a timed assessment, With a time limit of " + thours + " hours, " + tminutes + " minutes, and " + tseconds + " seconds, use hotkey control alt T to get current time remaining</span>");
+              parentBlock.append("<span id=\"timerReader\" role=\"alert\" style=\"position:absolute; left:-10000px; top:auto; width:1px; height:1px; overflow:hidden;\">This is a timed assessment, With a time limit of " + thours + " hours, " + tminutes + " minutes, and " + tseconds + " seconds, use hotkey control alt T to get current time remaining</span>");
               $(document).keydown(function(event) {
                   if (event.which === 84 && event.ctrlKey && event.altKey) { 
                       readTime(false);

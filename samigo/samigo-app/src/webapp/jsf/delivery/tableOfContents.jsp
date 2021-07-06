@@ -88,14 +88,12 @@ function saveTime()
 <h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
 <h:inputHidden id="showTimer" value="#{delivery.showTimer}"/>
 
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="sak-banner-warn"></f:verbatim>
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}" layout="block" styleClass="sak-banner-warn">
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}"
         action="#{person.cleanResourceIdListInPreview}"
         type="submit"
         onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
- <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
 <h3><h:outputText value="#{delivery.assessmentTitle} " escape="false"/></h3>
@@ -117,13 +115,9 @@ function saveTime()
 <!-- END OF TIMER -->
 
 
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'&& delivery.hasTimeLimit}" >
-  <f:verbatim><div style="margin:10px 0px 0px 0px;"><span style="background-color:#bab5b5; padding:5px"></f:verbatim>
-  <h:outputText value="#{deliveryMessages.timer_preview_not_available}"/>
-  <f:verbatim></div></span></f:verbatim>
+<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'&& delivery.hasTimeLimit}" layout="block" styleClass="sak-banner-info">
+     <h:outputText value="#{deliveryMessages.timer_preview_not_available}"/>
 </h:panelGroup>
-
-<f:verbatim><br/></span></f:verbatim>
 
 <f:verbatim><div class="tier1"></f:verbatim>
   <f:verbatim><b></f:verbatim><h:outputText value="#{deliveryMessages.warning}#{deliveryMessages.column} "/><f:verbatim></b></f:verbatim>
