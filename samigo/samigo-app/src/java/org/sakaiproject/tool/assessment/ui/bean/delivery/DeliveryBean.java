@@ -2614,6 +2614,16 @@ public class DeliveryBean implements Serializable {
         return pasBean.generatePublishedURL(publishedAssessment);
     }
 
+    public String getSubmittedDateString() {
+        Date time = getAssessmentGrading().getSubmittedDate();
+
+        return userTimeService.timeFormat(time, locale, DateFormat.MEDIUM);
+    }
+
+    public void setSubmittedDateString(String value) {
+        // derived property but JSF needs a setter to be happy
+    }
+
     /**
      * Ensure that the ExtendedTimeDeliveryService instance is making reference to the correct assessment.
      */

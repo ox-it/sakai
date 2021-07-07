@@ -1556,3 +1556,11 @@ td.stats-correctness {
 .sam-data-discrepancy-ol {
 	margin-top: 10px;
 }
+
+#autosave-msg {
+	visibility: hidden;
+}
+
+#autosave-lasttime-msg {
+	display: none;
+}
