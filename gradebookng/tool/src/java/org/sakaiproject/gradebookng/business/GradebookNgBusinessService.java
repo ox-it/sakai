@@ -1323,21 +1323,26 @@ public class GradebookNgBusinessService {
 				}
 				categoryAssignments.put(categoryId, values);
 			}
+		}
 
-			// get grades
-			final List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), studentUuids);
+		// get grades
+		Map<String, Map<Long, GradeDefinition>> studentsToGrades = this.gradebookService.getGradesForStudentsForItems(gradebook.getUid(), studentUuids, assignments);
+		for (String studentId : studentUuids) {
+			GbStudentGradeInfo sg = matrix.get(studentId);
+			Map<Long, GradeDefinition> studentGrades = studentsToGrades.get(studentId);
 
-			// iterate the definitions returned and update the record for each
-			// student with the grades
-			for (final GradeDefinition def : defs) {
-				final GbStudentGradeInfo sg = matrix.get(def.getStudentUid());
-
-				if (sg == null) {
-					log.warn("No matrix entry seeded for: {}. This user may have been removed from the site", def.getStudentUid());
-				} else {
+			if (sg == null) {
+				log.warn("No matrix entry seeded for: {}. This user may have been removed from the site", studentId);
+			} else if (studentGrades == null) {
+				// Skip - student has no grades visible to the current user
+				// Likely causes: grades don't exist for this user, or the current user is a TA and the categories that this TA is authorized to view do not contain grades for this user.
+				log.debug("No grades returned for student {}" + studentId);
+			} else {
+				for (Map.Entry<Long, GradeDefinition>  itemIdToGrade : studentGrades.entrySet())
+				{
 					// this will overwrite the stub entry for the TA matrix if
 					// need be
-					sg.addGrade(assignment.getId(), new GbGradeInfo(def));
+					sg.addGrade(itemIdToGrade.getKey(), new GbGradeInfo(itemIdToGrade.getValue()));
 				}
 			}
 		}

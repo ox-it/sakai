@@ -1242,6 +1242,23 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return getHibernateTemplate().execute(hc);
     }
 
+	/**
+	 * Gets all comments for the specified students on the specified assignments.
+	 * Results are not ordered.
+	 */
+	public List<Comment> getCommentsForStudentsForItems(Collection<String> studentIds, List<Long> assignmentIds) {
+		if (assignmentIds == null || assignmentIds.isEmpty() || studentIds == null || studentIds.isEmpty()) {
+			return new ArrayList<>(0);
+		}
+
+		HibernateCallback<List<Comment>> hc = session -> session.createCriteria(Comment.class)
+			.add(HibernateCriterionUtils.CriterionInRestrictionSplitter("gradableObject.id", assignmentIds))
+			.add(HibernateCriterionUtils.CriterionInRestrictionSplitter("studentId", studentIds))
+			.list();
+
+		return getHibernateTemplate().execute(hc);
+	}
+
     protected Map<String, Set<GradebookAssignment>> getVisibleExternalAssignments(final Gradebook gradebook, final Collection<String> studentIds, final List<GradebookAssignment> assignments) {
         final String gradebookUid = gradebook.getUid();
         final Map<String, List<String>> allExternals = this.externalAssessmentService.getVisibleExternalAssignments(gradebookUid, studentIds);

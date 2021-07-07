@@ -523,6 +523,19 @@ public interface GradebookService extends OwlGradebookService {
 	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, Long assignmentId, List<String> studentIds);
 
 	/**
+	 * Gets a map of students IDs to their associated grades. Results contain comments.
+	 * Results filter out any grades that the current user is not authorized to view.
+	 *
+	 * @param gradebookUid
+	 * @param studentIds
+	 * @param assignments
+	 * @return a mapping of the specified studentIds to a map of assignmentIds to their GradeDefinitions (populated with comments) for the specified assignmentIds
+	 * @throws GradebookSecurityException if the current user has no grading authorization in the specified gradebook
+	 * @throws IllegalArgumentException if any assignments do not belong to the specified gradebook
+	 */
+	public Map<String, Map<Long, GradeDefinition>> getGradesForStudentsForItems(String gradebookUid, List<String> studentIds, List<Assignment> assignments);
+
+	/**
 	 * This method gets grades for multiple gradebook items with emphasis on performance. This is particularly useful for reporting tools
 	 *
 	 * @param gradebookUid

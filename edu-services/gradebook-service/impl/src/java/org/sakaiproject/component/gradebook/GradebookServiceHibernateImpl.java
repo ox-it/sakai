@@ -36,6 +36,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -1235,7 +1236,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					int maxStudent = Math.min(studentUids.size(), 1000);
 					while (minStudent < studentUids.size()) {
 						final Query q = session
-								.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed = false and " +
+								.createQuery("from AssignmentGradeRecord as agr join fetch agr.gradableObject where agr.gradableObject.removed = false and " +
 										"agr.gradableObject.id in (:gradableObjectIds) and agr.studentId in (:studentUids)");
 						q.setParameterList("gradableObjectIds", gradableObjectIds.subList(minGbo, maxGbo));
 						q.setParameterList("studentUids", studentUids.subList(minStudent, maxStudent));
@@ -1557,14 +1558,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 
 				final Long categoryId = gbItem.getCategory() != null ? gbItem.getCategory().getId() : null;
-				if (studentIds.size() == 1) {
-					// For performance, skip filtering the entire class list:
-					if (!this.authz.isUserAbleToGradeItemForStudent(gradebook.getUid(), gradableObjectId, studentIds.get(0))) {
-						// This is still an empty list
-						return studentGrades;
-					}
-				}
-				else {
+
+				if (studentIds.size() == 1 && this.authz.isUserAbleToGradeItemForStudent(gradebook.getUid(), gradableObjectId, studentIds.get(0))) {
+					// This condition boosts performance when this method is called for a single user:
+					// it skips filtering the entire class list
+				} else {
 					final Map enrRecFunctionMap = this.authz.findMatchingEnrollmentsForItem(gradebook.getUid(), categoryId, gradebook.getCategory_type(), null, null);
 					final Set enrRecs = enrRecFunctionMap.keySet();
 					final Map studentIdEnrRecMap = new HashMap();
@@ -1632,6 +1630,151 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 
 		return studentGrades;
+	}
+
+	@Override
+	public Map<String, Map<Long, GradeDefinition>> getGradesForStudentsForItems(String gradebookUid, List<String> studentIds, List<Assignment> assignments) {
+		if (!this.authz.isUserAbleToGrade(gradebookUid)) {
+			throw new GradebookSecurityException();
+		}
+		if (studentIds == null || studentIds.isEmpty()) {
+			return new HashMap<>(0);
+		}
+		if (assignments == null || assignments.isEmpty()) {
+			return new HashMap<>(0);
+		}
+
+		// Our return map
+		Map<String, Map<Long, GradeDefinition>> studentsToGrades = new HashMap<>(studentIds.size());
+
+		// Authz data:
+		// canGradeAll: lets us shortcircuit TA authz
+		// gbItemsToViewableStudents: for TAs since the list of students whose grades they can view varies from item to item
+		boolean canGradeAll = this.authz.isUserAbleToGradeAll(gradebookUid);
+		final Map<Long, Set<String>> gbItemsToViewableStudents = canGradeAll ? null : getGbItemsToViewableStudents(gradebookUid, assignments, studentIds.size());
+
+		// List assignment IDs on which the user is authorized to view grades
+		Stream<Long> assignmentIdStream = assignments.stream().map(Assignment::getId);
+		if (!canGradeAll) {
+			assignmentIdStream.filter(itemId -> !gbItemsToViewableStudents.containsKey(itemId));
+		}
+		List<Long> assignmentIds = assignmentIdStream.collect(Collectors.toList());
+
+		// Get all the grades for these assignmentIds / students; we'll filter unauthorized grades after
+		final List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecordsForGbItems(assignmentIds, studentIds);
+
+		if (gradeRecords.stream().anyMatch(record -> !gradebookUid.equals(record.getGradableObject().getGradebook().getUid()))) {
+			throw new IllegalArgumentException("getGradesForStudentsForItems - assignmentIds must belong to grades within this gradebook");
+		}
+
+		// Populate grade records
+		gradeRecords.stream().forEach(record -> {
+			String studentId = record.getStudentId();
+			Map<Long, GradeDefinition> studentGrades = studentsToGrades.get(studentId);
+			if (studentGrades == null) {
+				studentGrades = new HashMap<>(assignmentIds.size());
+				studentsToGrades.put(studentId, studentGrades);
+			}
+			GradebookAssignment gbo = (GradebookAssignment)record.getGradableObject();
+			Gradebook gradebook = gbo.getGradebook();
+			GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(record, gbo, gradebook, null);
+			Long gbItem = record.getGradableObject().getId();
+
+			// Include only if authorized
+			if (canGradeAll || gbItemsToViewableStudents.get(gbItem).contains(studentId)) {
+				studentGrades.put(gbItem, gradeDef);
+			}
+		});
+
+		// Populate comments
+		getCommentsForStudentsForItems(studentIds, assignmentIds).stream().forEach(comment -> {
+			String studentId = comment.getStudentId();
+			Long itemId = comment.getGradableObject().getId();
+
+			if (!canGradeAll && !gbItemsToViewableStudents.get(itemId).contains(studentId)) {
+				// Not authz'd to view this comment; skip
+				return;
+			}
+
+			Map<Long, GradeDefinition> studentGrades = studentsToGrades.get(studentId);
+			if (studentGrades == null) {
+				studentGrades = new HashMap<>(assignmentIds.size());
+				studentsToGrades.put(studentId, studentGrades);
+			}
+
+			String commentText = comment.getCommentText();
+			GradeDefinition gradeDef = studentGrades.get(itemId);
+			if (gradeDef == null) {
+				/*
+				 * User doesn't have a grade, so the GradeDefinition wasn't created
+				 * by the "Populate grade records" block above.
+				 * Create an empty grade record to represent the comment.
+				 */
+				GradableObject gbo = comment.getGradableObject();
+				if (!(gbo instanceof GradebookAssignment)) {
+					log.warn("gbo is not a GradebookAssignment");
+				} else {
+					GradebookAssignment gbItem = (GradebookAssignment)gbo;
+					AssignmentGradeRecord emptyGradeRecord = new AssignmentGradeRecord(gbItem, studentId, null);
+					gradeDef = convertGradeRecordToGradeDefinition(emptyGradeRecord, gbItem, gbo.getGradebook(), commentText);
+					studentGrades.put(itemId, gradeDef);
+				}
+			} else {
+				gradeDef.setGradeComment(commentText);
+			}
+		});
+
+		return studentsToGrades;
+	}
+
+	/**
+	 * Maps items to the list of students whose grades can be viewed by the current user.
+	 * E.g. TA permissions - the set of students whose grades may be viewed by a TA may vary from item to item
+	 *
+	 * Note: TA permissions are per category, so the value sets will be redundant for items within the same category. Consider changing the keys to Category IDs to preserve memory / reduce garbage collection.
+	 */
+	private Map<Long, Set<String>> getGbItemsToViewableStudents(String gradebookUid, List<Assignment> assignments, int numStudents) {
+		final Map enrRecFunctionMap = this.authz.findMatchingEnrollmentsForViewableItems(gradebookUid, assignments, null, null);
+		Map<Long, Set<String>> gbItemsToViewableStudents = new HashMap<>(assignments.size());
+		for (Map.Entry enrRecToMapEntry : (Set<Map.Entry>)enrRecFunctionMap.entrySet()) {
+			// Key: enrollment record
+			Object objRec = enrRecToMapEntry.getKey();
+			EnrollmentRecord rec = null;
+			if (objRec instanceof EnrollmentRecord) {
+				rec = (EnrollmentRecord) objRec;
+			} else {
+				log.warn("key returned from findMatchingEnrollmentsForViewableItems is not expected type: " + objRec);
+			}
+
+			// Value: Map: gbItemId -> function
+			Object objMap = enrRecToMapEntry.getValue();
+			Map gbItemsToFunctions = null;
+			if (objMap instanceof Map) {
+				gbItemsToFunctions = (Map) objMap;
+			} else {
+				log.warn("value returned from findMatchingEnrollmentsForViewableItems is not expected type: " + objMap);
+			}
+
+			// The gbItemsToFunctions map's possible values are 'view' or 'grade'; both permit viewing.
+			// So the presence of a key implies that this user's grade can be viewed
+			for(Object objItem : gbItemsToFunctions.keySet()) {
+				Long gbItem = null;
+				if (objItem instanceof Long) {
+					gbItem = (Long) objItem;
+				} else {
+					log.warn("gbItemToFunction key type should be Long: " + objItem);
+				}
+
+				// Possible values are 'view' and 'grade', both of which permit viewing.
+				Set<String> students = gbItemsToViewableStudents.get(gbItem);
+				if (students == null) {
+					students = new HashSet<>(numStudents);
+					gbItemsToViewableStudents.put(gbItem, students);
+				}
+				students.add(rec.getUser().getUserUid());
+			}
+		}
+		return gbItemsToViewableStudents;
 	}
 
 	@Override
