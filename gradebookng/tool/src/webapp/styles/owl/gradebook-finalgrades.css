@@ -177,6 +177,11 @@
 	width: 700px;
 }
 
+.gb-final-grades-table
+{
+	margin-bottom: 10px;
+}
+
 .finalGradesForm
 {
 	display: -webkit-flex;
@@ -198,7 +203,6 @@
 	.gb-final-grades-table
 	{
 		margin-right: 2em;
-		margin-top: 10px;
 	}
 }
 
