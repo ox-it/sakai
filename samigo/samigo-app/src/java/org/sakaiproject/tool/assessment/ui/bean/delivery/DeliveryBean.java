@@ -1689,7 +1689,7 @@ public class DeliveryBean implements Serializable {
   public void setPublishedAssessment(PublishedAssessmentFacade publishedAssessment) {
 	  this.publishedAssessment = publishedAssessment;
 	  //Setup extendedTimeDeliveryService
-	  if (extendedTimeDeliveryService == null && 
+	  if ((extendedTimeDeliveryService == null || StringUtils.isBlank(extendedTimeDeliveryService.getAgentId())) &&
 			  (publishedAssessment != null && publishedAssessment.getPublishedAssessmentId() != null)) {
 		  extendedTimeDeliveryService = new ExtendedTimeDeliveryService(publishedAssessment);
 	  }
