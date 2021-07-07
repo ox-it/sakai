@@ -1656,7 +1656,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// List assignment IDs on which the user is authorized to view grades
 		Stream<Long> assignmentIdStream = assignments.stream().map(Assignment::getId);
 		if (!canGradeAll) {
-			assignmentIdStream.filter(itemId -> !gbItemsToViewableStudents.containsKey(itemId));
+			assignmentIdStream = assignmentIdStream.filter(itemId -> gbItemsToViewableStudents.containsKey(itemId));
 		}
 		List<Long> assignmentIds = assignmentIdStream.collect(Collectors.toList());
 
