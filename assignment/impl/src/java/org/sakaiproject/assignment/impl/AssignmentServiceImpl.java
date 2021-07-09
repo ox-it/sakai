@@ -2301,11 +2301,6 @@ public class AssignmentServiceImpl implements AssignmentService, EntityTransferr
                                     submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
 
                                     String assignmentAllowResubmitCloseDate = assignmentProperties.get(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME);
-                                    // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
-                                    submissionProperties.put(AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME,
-                                            StringUtils.isNotBlank(assignmentAllowResubmitCloseDate)
-                                                    ? assignmentAllowResubmitCloseDate
-                                                    : String.valueOf(a.getCloseDate().toEpochMilli()));
                                 }
                                 assignmentRepository.updateSubmission(submission);
                                 submitterMap.put(user, submission);
