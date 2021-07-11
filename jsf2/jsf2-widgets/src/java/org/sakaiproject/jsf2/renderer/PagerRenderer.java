@@ -126,17 +126,20 @@ public class PagerRenderer extends Renderer {
         // Output HTML
 
         out.startElement("div", null);
-        out.writeAttribute("class", "listNav", null);
-
-        out.startElement("div", null);
-        out.writeAttribute("class", "inlineForm", null);
+        out.writeAttribute("class", "sakai-table-pagerContainer", null);
 
         writeStatus(out, textStatus);
+
+        out.startElement("div", null);
+        out.writeAttribute("class", "sakai-table-pagerControls", null);
+
         writeButton(out, renderFirst, idFirst, labelFirst, disabledFirst, titleFirst, accesskeyFirst);
         writeButton(out, renderPrev, idPrev, labelPrev, disabledPrev, titlePrev, accesskeyPrev);
         writeSelect(out, renderPageSize, idSelect, optionTexts, optionValues, selectedValue, onchangeHandler);
         writeButton(out, renderNext, idNext, labelNext, disabledNext, titleNext, accesskeyNext);
         writeButton(out, renderLast, idLast, labelLast, disabledLast, titleLast, accesskeyLast);
+
+        out.endElement("div");
 
         // hidden state that prevents browser reloads from re-performing actions
         // for example, if the user presses the button for the next page of items,
@@ -146,15 +149,13 @@ public class PagerRenderer extends Renderer {
         out.writeAttribute("name", idPastItem, null);
         out.writeAttribute("value", String.valueOf(firstItem), null);
         out.endElement("input");
-
-        out.endElement("div");
         out.endElement("div");
     }
 
     /** Output status display */
     private static void writeStatus(ResponseWriter out, String status) throws IOException {
         out.startElement("div", null);
-        out.writeAttribute("class", "pager-instruction", null);
+        out.writeAttribute("class", "sakai-table-pagerLabel", null);
         out.writeText(status, null);
         out.endElement("div");
     }
@@ -163,16 +164,11 @@ public class PagerRenderer extends Renderer {
     private static void writeButton(ResponseWriter out, boolean render, String name, String label, boolean disabled, String title, String accesskey) throws IOException {
         if (!render) return;
 
-        //SAK-22812 wrap each button with a fieldset and legend, for accessibility
-        out.startElement("fieldset", null);
-        out.startElement("legend", null);
-        out.writeText(title, null);
-        out.endElement("legend");
-
         out.startElement("input", null);
         out.writeAttribute("type", "submit", null);
         out.writeAttribute("name", name, null);
         out.writeAttribute("value", label, null);
+        out.writeAttribute("aria-label", title, null);
         // TODO: i18n
         if (!disabled) {
             out.writeAttribute("title", title, null);
@@ -182,14 +178,14 @@ public class PagerRenderer extends Renderer {
             out.writeAttribute("disabled", "disabled", null);
         }
         out.endElement("input");
-        out.endElement("fieldset");
-        out.write("\n");
     }
 
     /** Output an HTML drop-down select */
     private static void writeSelect(ResponseWriter out, boolean render, String selectId, String[] optionTexts, String[] optionValues, String selectedValue, String onchangeHandler) throws IOException {
         if (!render) return;
 
+        out.startElement("div", null);
+        out.writeAttribute("class", "sakai-table-pagerPageSize", null);
         out.startElement("select", null);
         out.writeAttribute("name", selectId, null);
         out.writeAttribute("id", selectId, null);
@@ -206,7 +202,7 @@ public class PagerRenderer extends Renderer {
             out.write("\n");
         }
         out.endElement("select");
-        out.write("\n");
+        out.endElement("div");
     }
 
     public void decode(FacesContext context, UIComponent component) {

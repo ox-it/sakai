@@ -44,8 +44,9 @@
 <%-- content... --%>
 <%-- some back end stuff stubbed --%>
 <%-- TODO need to add validation--%>
-
-<h3><h:outputText value="#{authorMessages.create_modify_p} #{authorMessages.dash} #{sectionBean.assessmentTitle}" escape="false"/></h3>
+<div class="page-header">
+    <h1><h:outputText value="#{authorMessages.create_modify_p} #{authorMessages.dash} #{sectionBean.assessmentTitle}" escape="false"/></h1>
+</div>
 <h:form id="modifyPartForm"  onsubmit="return editorCheck();">
     <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
     <h:inputHidden id="assessmentId" value="#{sectionBean.assessmentId}"/>

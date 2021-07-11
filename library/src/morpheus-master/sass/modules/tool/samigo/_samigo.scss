@@ -266,8 +266,8 @@
 		}
 	}
 	
-	.navIntraTool {
-		margin: 0px !important;
+	.navIntraTool.actionToolbar {
+		margin-bottom: $standard-spacing;
 	}
 
 	.ui-autocomplete-input {
@@ -431,6 +431,10 @@
 
 	.downloanQuestionCheckbox label {
 		display: none;
+	}
+	
+	#editTotalResults .apply-grades {
+		margin: $standard-spacing 0;
 	}
 
 }

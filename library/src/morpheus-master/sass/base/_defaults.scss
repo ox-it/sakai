@@ -88,6 +88,11 @@ input, textarea{
 	max-width: 100%;
 }
 
+input[type="text"], textarea {
+	border: 1px solid $button-border-color;
+	@include border-radius(3px);
+}
+
 form, table{
 	textarea{
 		@media #{$phone}{

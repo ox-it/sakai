@@ -86,18 +86,17 @@ function checkUpdate()
     </li>
 </ul>
 
-
- <h3><h:outputText value="#{questionPoolMessages.share_pool}"/></h3>
+<div class="page-header">
+    <h1><h:outputText value="#{questionPoolMessages.share_pool}"/></h1>
+</div>
 
 <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
  
-<div class="tier1">
-<h4><h:outputText value="#{questionPoolMessages.members_with_access} #{questionpoolshare.questionPoolName}"/></h4>
-</div>
+<h2><h:outputText value="#{questionPoolMessages.members_with_access} #{questionpoolshare.questionPoolName}"/></h2>
 
-<div class="tier2">
+<div class="tier1">
 <h:dataTable cellpadding="0" cellspacing="0" id="withAccessTable" value="#{questionpoolshare.agentsWithAccess}"
-    var="agent" styleClass="listHier" >
+    var="agent" styleClass="table table-hover table-striped table-bordered" >
 
     <h:column id="col1">
 
@@ -177,15 +176,11 @@ function checkUpdate()
 </h:dataTable>
 </div>
 
-<br/>
+<h2><h:outputText value="#{questionPoolMessages.members_without_access} #{questionpoolshare.questionPoolName}"/></h2>
 
 <div class="tier1">
-<h4><h:outputText value="#{questionPoolMessages.members_without_access} #{questionpoolshare.questionPoolName}"/></h4>
-</div>
-
-<div class="tier2">
 <h:dataTable cellpadding="0" cellspacing="0" id="withoutAccessTable" value="#{questionpoolshare.agentsWithoutAccess}"
-    var="agent" styleClass="listHier" >
+    var="agent" styleClass="table table-hover table-striped table-bordered" >
 
     <h:column id="col1" >
 
@@ -268,12 +263,10 @@ function checkUpdate()
 <p class="act">
  
   <h:commandButton type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.t_updateSharedPoolAccess}"
-                   action="#{questionpoolshare.sharePool}" onclick="SPNR.disableControlsAndSpin(this, null);">
-  </h:commandButton>
+                   action="#{questionpoolshare.sharePool}" onclick="SPNR.disableControlsAndSpin(this, null);" styleClass="active" />
 
   <h:commandButton type="submit" immediate="true" id="cancel" value="#{commonMessages.cancel_action}"
-                   action="poolList" onclick="SPNR.disableControlsAndSpin(this, null);">
-  </h:commandButton>
+                   action="poolList" onclick="SPNR.disableControlsAndSpin(this, null);" />
 </p>
 
 </h:form>

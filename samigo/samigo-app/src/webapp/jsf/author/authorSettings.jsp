@@ -223,9 +223,9 @@
 
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
-  <h1>
-     <h:outputText value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{assessmentSettings.title}"/>
-  </h1>
+  <div class="page-header">
+    <h1><h:outputText value="#{assessmentSettings.title} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}"/></h1>
+  </div>
 
   <div class="pull-right">
       <a href="javascript:void(0)" id="expandLink" onclick="expandAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>')">

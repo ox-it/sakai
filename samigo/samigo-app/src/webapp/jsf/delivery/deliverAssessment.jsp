@@ -297,18 +297,16 @@ document.links[newindex].onclick();
   <div class="tier1">
   <h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part">
     <h:column>
-    <h4 class="part-header">
+    <h2 class="part-header">
         <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
-        <small class="part-text">
-            <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
-        </small>
+        <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
         <span class="badge"><h:outputText value="#{part.pointsDisplayString} #{deliveryMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/></span>
-    </h4>
-    <h4 class="tier1">
+    </h2>
+    <h2 class="tier1">
         <small class="part-text">
             <h:outputText value="#{part.description}" escape="false"/>
         </small>
-    </h4>
+    </h2>
 
   <!-- PART ATTACHMENTS -->
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>

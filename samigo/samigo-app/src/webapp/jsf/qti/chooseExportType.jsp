@@ -54,17 +54,13 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
 <!-- content... -->
 <h:form id="exportAssessmentForm">
   <h:inputHidden id="assessmentBaseId" value="#{assessmentBean.assessmentId}" />
-  <h1>
-    <h:outputText value="#{authorImportExport.export_a}" escape="false" />
-    <small>
-      <h:outputText value="#{authorImportExport.dash} #{assessmentBean.title}" escape="false"/>
-    </small>
-  </h1>
-
-  <div class="tier1">
+  <div class="page-header">
+    <h1><h:outputText value="#{assessmentBean.title} #{authorImportExport.dash} #{authorImportExport.export_a}" escape="false" /></h1>
+  </div>
+  <div>
     <div class="form_label">
       <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-      <p class="text-info">
+      <p class="instruction">
         <h:outputText value="#{authorImportExport.choose_type_1}" escape="true" />
         <h:outputText value="&#160;" escape="false" />
         <h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/question/')" onkeypress="window.open('http://www.imsglobal.org/question/')">
@@ -80,47 +76,40 @@ function getSelectedType(qtiUrl, cpUrl, emtUrl, e2mt){
 		<h:outputText value="#{authorImportExport.markup_text}" escape="true" />
         <h:outputText value="#{authorImportExport.choose_type_3}" escape="true" />
         <h:outputText value="#{authorImportExport.markup_text_note}" escape="true" />
-		<br />
       </p>
-      <p class="text-warning">
+      <div class="sak-banner-warn">
         <h:outputText value="#{authorImportExport.importExport_warningHeader}" escape="false" />
-        <ul class="text-warning">
+        <ul>
             <li><h:outputText value="#{authorImportExport.importExport_warning1}" escape="false" /></li>
             <li><h:outputText value="#{authorImportExport.importExport_warning2}" escape="false" /></li>
         </ul>
-      </p>
+        <h:outputText value="#{authorImportExport.cp_message}"/>
+      </div>
     </div>
-    <br />
-    <h:panelGroup layout="block">
-     <h:outputText value="#{authorImportExport.choose_export_type}"/>
+
+    <fieldset>
+     <legend><h:outputText value="#{authorImportExport.choose_export_type}"/></legend>
      <t:selectOneRadio id="exportType" layout="spread" value="1">
        <f:selectItem itemLabel="#{authorImportExport.qti12}" itemValue="1"/>
        <f:selectItem itemLabel="#{authorImportExport.content_packaging}" itemValue="2"/>
        <f:selectItem itemLabel="#{authorImportExport.markup_text}" itemValue="3"/>
      </t:selectOneRadio>
-     <h:panelGrid>
+     <h:panelGrid styleClass="tier2">
      	<t:radio renderLogicalId="true" for="exportType" index="0" />
      	<t:radio renderLogicalId="true" for="exportType" index="1" />
      	<t:radio renderLogicalId="true" for="exportType" index="2" />
      </h:panelGrid>
-     <!-- For formatting -->
-     <div class="text-warning">
-       <h:outputText value="#{authorImportExport.cp_message}"/>
-     </div>
-     <br/>
-    </h:panelGroup>
+    </fieldset>
 
-    <br/>
-    <br/>
      <%-- activates the valueChangeListener --%>
+     <div class="act">
      <h:commandButton value="#{authorImportExport.export}" type="submit"
-       style="act" onclick="getSelectedType( '/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
+       styleClass="active" onclick="getSelectedType( '/portal/tool/#{requestScope['sakai.tool.placement.id']}/jsf/qti/exportAssessment.faces?exportAssessmentId=#{assessmentBean.assessmentId}',
        '/samigo-app/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}', 
        '/samigo-app/servlet/ExportMarkupText?&assessmentId=#{assessmentBean.assessmentId}', '#{!assessmentBean.exportable2MarkupText}'); return false;" />
      <%-- immediate=true bypasses the valueChangeListener --%>
-     <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
-       style="act" action="author" immediate="true"/>
-
+     <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="author" immediate="true"/>
+     </div>
   </div>
  </h:form>
 </div>

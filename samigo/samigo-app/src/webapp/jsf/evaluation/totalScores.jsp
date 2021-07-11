@@ -130,10 +130,7 @@ $(document).ready(function(){
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
   <h:panelGroup layout="block" styleClass="page-header">
-    <h1>
-      <h:outputText value="#{commonMessages.total_scores}#{evaluationMessages.column} " escape="false"/>
-      <small><h:outputText value="#{totalScores.assessmentName} " escape="false"/></small>
-    </h1>
+    <h1><h:outputText value="#{totalScores.assessmentName} #{evaluationMessages.dash} #{commonMessages.total_scores} " escape="false"/></h1>
   </h:panelGroup>
 
   <!-- EVALUATION SUBMENU -->
@@ -143,14 +140,14 @@ $(document).ready(function(){
     <h:outputText value="#{evaluationMessages.auto_scored_tip}" rendered="#{totalScores.isAutoScored}" />
   </div>
 
-<div class="tier1">
+<div>
   <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
 
   <sakai:flowState bean="#{totalScores}" />
 
-  <h:panelGroup styleClass="max-score-possible" layout="block" rendered="#{!totalScores.hasRandomDrawPart}">
-    <h:outputText value="<h2>#{evaluationMessages.max_score_poss}<small>: #{totalScores.maxScore}</small></h2>" escape="false"/>
+  <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
+    <h:outputText value="<h2>#{evaluationMessages.max_score_poss}: #{totalScores.maxScore}</h2>" escape="false"/>
   </h:panelGroup>
 
   <h:panelGroup styleClass="apply-grades" layout="block">
@@ -162,64 +159,63 @@ $(document).ready(function(){
     <h:outputText value=" #{totalScores.allSubmissions ne '4' ? evaluationMessages.applyGradesDesc : evaluationMessages.applyGradesDescAvg}"/>
   </h:panelGroup>
 
-<h:panelGroup styleClass="row total-score-box" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
-  <h:panelGroup styleClass="col-md-6" layout="block">
-    <h:panelGroup styleClass="all-submissions form-group row" layout="block">
-      <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.view}"/>
-      <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4'}">
-      <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
-      <f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}" />
-      <f:valueChangeListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-     </h:selectOneMenu>
+<h:panelGroup styleClass="sakai-table-toolBar" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
+  <h:panelGroup styleClass="sakai-table-filterContainer" layout="block">
+    <h:panelGroup styleClass="sakai-table-viewFilter" layout="block">
 
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL1"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
-      <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
-      <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
-      <f:valueChangeListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-     </h:selectOneMenu>
+        <h:panelGroup rendered="#{totalScores.scoringOption eq '4'}">
+          <h:outputLabel value="#{evaluationMessages.view}" for="allSubmissionsA1" />
+          <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1" required="true" onchange="document.forms[0].submit();">
+            <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+            <f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}" />
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:selectOneMenu>
+        </h:panelGroup>
 
-     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH1"
-        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
-      <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
-      <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
-      <f:valueChangeListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-     </h:selectOneMenu>
+        <h:panelGroup rendered="#{totalScores.scoringOption eq '2'}">
+          <h:outputLabel value="#{evaluationMessages.view}" for="allSubmissionsL1" />
+          <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL1" required="true" onchange="document.forms[0].submit();">
+            <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+            <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:selectOneMenu>
+        </h:panelGroup>
+
+        <h:panelGroup rendered="#{totalScores.scoringOption eq '1'}">
+          <h:outputLabel value="#{evaluationMessages.view}" for="allSubmissionsH1" />
+          <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH1" required="true" onchange="document.forms[0].submit();">
+            <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+            <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+          </h:selectOneMenu>
+        </h:panelGroup>
      
      <!-- SECTION AWARE -->
-     <h:outputText value="&nbsp;" escape="false" rendered="#{totalScores.multipleSubmissionsAllowed eq 'true'}"/>
-     <h:outputText value="&nbsp;#{evaluationMessages.forAllSectionsGroups}" escape="false" rendered="#{totalScores.availableSectionSize < 1 && totalScores.multipleSubmissionsAllowed eq 'true'}"/>
-     <h:outputText value="&nbsp;#{evaluationMessages.all_sections}" escape="false" rendered="#{totalScores.availableSectionSize < 1 && !totalScores.multipleSubmissionsAllowed eq 'true'}"/>
-     <h:outputText value="&nbsp;#{evaluationMessages.for_s}&nbsp;&nbsp;" rendered="#{totalScores.availableSectionSize >= 1}" escape="false"/>
+        <h:outputText value="&nbsp;" escape="false" rendered="#{totalScores.multipleSubmissionsAllowed eq 'true'}"/>
+        <h:outputText value="&nbsp;#{evaluationMessages.forAllSectionsGroups}" escape="false" rendered="#{totalScores.availableSectionSize < 1 && totalScores.multipleSubmissionsAllowed eq 'true'}"/>
+        <h:outputText value="&nbsp;#{evaluationMessages.all_sections}" escape="false" rendered="#{totalScores.availableSectionSize < 1 && !totalScores.multipleSubmissionsAllowed eq 'true'}"/>
 
+        <h:outputLabel value="&nbsp;#{evaluationMessages.for_s}&nbsp;" rendered="#{totalScores.availableSectionSize >= 1}" escape="false" for="sectionpicker"/>
         <h:selectOneMenu value="#{totalScores.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.availableSectionSize >= 1}">
           <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
-          <f:valueChangeListener
-           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener"/>
+          <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener"/>
         </h:selectOneMenu>
       </h:panelGroup>
 
-	  <h:panelGroup styleClass="search-student form-group row" layout="block">
-      <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.search}"/>
- 	        <h:inputText
+      <h:panelGroup styleClass="sakai-table-searchFilter" layout="block">
+      <h:outputLabel value="#{evaluationMessages.search}" for="searchString" />
+			<h:inputText
 				id="searchString"
 				value="#{totalScores.searchString}"
 				onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
-				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
-			<h:outputText value="&nbsp;" escape="false" />
+				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"
+				styleClass="sakai-table-searchFilter-searchField" />
 			<h:commandButton actionListener="#{totalScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
-			<h:outputText value="&nbsp;" escape="false" />
 			<h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}"/>
 	  </h:panelGroup>
   </h:panelGroup>
    
-  <h:panelGroup layout="block" styleClass="samigo-pager col-md-6" style="text-align: right">
-    <sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
-  </h:panelGroup>
+  <sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
 </h:panelGroup>
 
 <h:panelGroup styleClass="total-scores-anon" layout="block" rendered="#{totalScores.anonymous eq 'true'}">
@@ -295,7 +291,7 @@ $(document).ready(function(){
         <f:param name="sortAscending" value="true"/>        
         </h:commandLink>
      </f:facet>
-     <h:panelGroup> <span class="tier2">
+     <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
@@ -330,8 +326,6 @@ $(document).ready(function(){
          <h:outputText value="</a>" escape="false" />
 	   </h:panelGroup>
 	 </span>
-   	</span>
-	
     </h:column>
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && totalScores.sortAscending}">
@@ -344,7 +338,7 @@ $(document).ready(function(){
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-     <h:panelGroup> <span class="tier2">
+     <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
@@ -379,8 +373,6 @@ $(document).ready(function(){
          <h:outputText value="</a>" escape="false" />
 	   </h:panelGroup>
 	 </span>
-   	</span>
-	
     </h:column>
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && !totalScores.sortAscending}">
@@ -393,7 +385,7 @@ $(document).ready(function(){
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-            <h:panelGroup> <span class="tier2">
+            <h:panelGroup>
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
@@ -430,7 +422,6 @@ $(document).ready(function(){
          <h:outputText value="</a>" escape="false" />
 	   </h:panelGroup>
 	  </span>
-   	</span>
 	</h:column>
     
 

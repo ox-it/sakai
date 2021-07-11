@@ -58,10 +58,12 @@
   </div>
 </h:panelGroup>
 
+<div class="page-header">
   <h1>
     <h:outputText value="#{deliveryMessages.begin_assessment_}" rendered="#{delivery.firstTimeTaking}"/>
     <h:outputText value="#{deliveryMessages.continue_assessment_}" rendered="#{!delivery.firstTimeTaking && !delivery.timeExpired}"/>
   </h1>
+</div>
 
   <div class="lead">
     <h:outputText value="\"#{delivery.assessmentTitle}\" #{deliveryMessages.t_for} #{delivery.courseName} " escape="false"/>
@@ -71,7 +73,7 @@
   
   <div class="sak-banner-info">
     <!-- ASSESSMENT INTRODUCTION -->
-    <h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
+    <h:outputText value="#{delivery.instructorMessage}" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
 
   <!-- ASSESSMENT ATTACHMENTS -->
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
@@ -276,17 +278,6 @@
   </h:commandButton>
 
 </p>
-
-<!-- DONE BUTTON, FOR PREVIEW ONLY --> 
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="sak-banner-warn"></f:verbatim>
-     <h:outputText value="#{deliveryMessages.ass_preview}" />
-     <h:commandButton value="#{deliveryMessages.done}"
-        action="#{person.cleanResourceIdListInPreview}"
-        type="submit"
-        onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
- <f:verbatim></div></f:verbatim>
-</h:panelGroup>
 
 </h:form>
   <!-- end content -->

@@ -96,7 +96,9 @@ function saveTime()
         onclick="return returnToHostUrl(\"#{delivery.selectURL}\");" />
 </h:panelGroup>
 
-<h3><h:outputText value="#{delivery.assessmentTitle} " escape="false"/></h3>
+<div class="page-header">
+    <h1><h:outputText value="#{delivery.assessmentTitle} " escape="false"/></h1>
+</div>
 
 <!-- BEGIN OF TIMER -->
 <h:panelGroup rendered="#{(delivery.timeElapseAfterFileUpload == null || delivery.timeElapseDouble ge delivery.timeElapseAfterFileUploadDouble) && delivery.hasTimeLimit == true}">
@@ -119,20 +121,20 @@ function saveTime()
      <h:outputText value="#{deliveryMessages.timer_preview_not_available}"/>
 </h:panelGroup>
 
-<f:verbatim><div class="tier1"></f:verbatim>
-  <f:verbatim><b></f:verbatim><h:outputText value="#{deliveryMessages.warning}#{deliveryMessages.column} "/><f:verbatim></b></f:verbatim>
-  <h:outputText value="#{deliveryMessages.instruction_submitGrading}" />
-<f:verbatim></div></f:verbatim>
+<div class="sak-banner-warn">
+    <strong><h:outputText value="#{deliveryMessages.warning}#{deliveryMessages.column} "/></strong> 
+    <h:outputText value="#{deliveryMessages.instruction_submitGrading}" />
+</div>
 
 <div class="tier1">
-  <h4>
+  <h2>
     <h:outputText value="#{deliveryMessages.table_of_contents} " />
     <h:outputText styleClass="tier10" value="#{deliveryMessages.tot_score} " />
     <h:outputText value="#{delivery.tableOfContents.maxScore}">
       <f:convertNumber maxFractionDigits="2" groupingUsed="false"/>
     </h:outputText>
     <h:outputText value=" #{deliveryMessages.pt}" />
-  </h4>
+  </h2>
  
 </div>
 

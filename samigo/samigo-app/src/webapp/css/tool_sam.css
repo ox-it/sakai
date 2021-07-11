@@ -120,7 +120,7 @@ background-color:#eee;
 text-align:left;
 padding:10px;
 vertical-align: bottom;
-font-size:1.2em
+font-size:1em
 }
 
 .textTable
@@ -1464,19 +1464,6 @@ label#itemForm\:noFeedbackMsg {
 
 .eventLogDeleted {
 	color: #aaa;
-}
-
-input#eventLogId\:previousEventPage,
-input#eventLogId\:search {
-	margin-right: 4px;
-}
-
-input#eventLogId\:clear {
-	margin-right: 8px;
-}
-
-div#eventSearchContainer {
-	margin-top: 4px;
 }
 
 .noListStyle {

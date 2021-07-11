@@ -99,7 +99,7 @@ $(window).load( function() {
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/editAssessmentHeadings.jsp" %>
 
-  <div class="navView">
+  <div class="page-header">
     <h1>
        <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" escape="false" />
        <h:outputText value=" #{authorMessages.dash} #{author.editPoolSectionName}" escape="false" rendered="#{author.isEditPoolFlow}"/>

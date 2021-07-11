@@ -305,9 +305,12 @@ body.is-logged-out{
 			}
 		}
 		input[type="text"],input[type="password"],input[type="email"]{
+			align-self: stretch;
 			margin: 0 1em 0 0;
 			padding: 0.25em;
 			border: 0px none;
+			border-radius: 0;
+			
 			@media #{$phone}{
 				width: 40%;
 				margin-right: 0.6em;
