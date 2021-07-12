@@ -65,8 +65,9 @@
             var notEmptySelectTableTd = $("#selectIndexForm\\:selectTable td:not(:empty)").length;
             if (notEmptySelectTableTd > 0) {
               var table = $("#selectIndexForm\\:selectTable").DataTable({
+                    "dom": '<"sakai-table-toolBar"<"sakai-table-filterContainer"<"sakai-table-searchFilter"f>><"sakai-table-pagerContainer"<"sakai-table-pagerLabel"i><"sakai-table-pagerControls"l>>>tp',
                     "paging": true,
-                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, viewAllText]],
+                    "lengthMenu": [[5, 10, 20, 50, 100, 200], [<h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu5}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu10}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu20}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu50}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu100}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu200}'" />]],
                     "pageLength": 20,
                     "aaSorting": [[2, "asc"]],
                     "columns": [

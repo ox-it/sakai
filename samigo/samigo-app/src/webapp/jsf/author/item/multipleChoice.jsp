@@ -94,7 +94,7 @@
         <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
       </t:selectOneRadio>
-      <ul class="show-item-score">
+      <ul class="show-item-score samigo-radio">
         <li><t:radio renderLogicalId="true" for="itemScoreDisplay" index="0" /></li>
         <li><t:radio renderLogicalId="true" for="itemScoreDisplay" index="1" /></li>
       </ul>
@@ -343,7 +343,7 @@
         <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
       </t:selectOneRadio>
-      <ul class="question-randomize">
+      <ul class="question-randomize samigo-checkbox">
         <li><t:radio renderLogicalId="true" for="question-randomize" index="0" /></li> 
         <li><t:radio renderLogicalId="true" for="question-randomize" index="1" /></li> 
       </ul>
@@ -358,7 +358,7 @@
         <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}"/>
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
       </t:selectOneRadio>
-      <ul class="question-rationale">
+      <ul class="question-rationale samigo-checkbox">
         <li><t:radio renderLogicalId="true" for="question-rationale" index="0" /></li> 
         <li><t:radio renderLogicalId="true" for="question-rationale" index="1" /></li> 
       </ul>

@@ -605,14 +605,31 @@ span.author_mcLabelText {
 }
 
 #jqueryui-accordion .ui-accordion-content {
-    background-color: #efefef;
+    background-color: #fff;
 }
 #jqueryui-accordion .ui-accordion-header {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    padding: 0 10px;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     border: 1px solid #ddd;
+    background-color: #f5f5f5;
+    font-size: 16px;
 }
-
+#jqueryui-accordion .jqueryui-hideDivision {
+    display: inline-block;
+    padding: 10px;
+    width: 100%;
+    font-weight: bold;
+}
+#jqueryui-accordion .ui-state-default a, #jqueryui-accordion .ui-state-default a:link, #jqueryui-accordion .ui-state-default a:visited, #jqueryui-accordion .ui-state-default a:hover, #jqueryui-accordion .ui-state-default a:focus {
+    color: #4f2683;
+}
+#jqueryui-accordion .ui-state-active a, #jqueryui-accordion .ui-state-active a:link, #jqueryui-accordion .ui-state-active a:visited, #jqueryui-accordion .ui-state-active a:hover, #jqueryui-accordion .ui-state-active a:focus {
+    color: #4f2683;
+}
 .html {
 	overflow: hidden;
 	height: 100%;

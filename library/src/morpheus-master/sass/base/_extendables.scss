@@ -298,7 +298,7 @@
 		}
 	}
 
-	&[disabled="disabled"], &[disabled], &[disabled="true"], &[class="disabled"] {
+	&[disabled="disabled"], &[disabled], &[disabled="true"], &[class="disabled"], &.disabled {
 		&, &:hover, &:active, &:focus {
 			color: $button-disabled-text-color;
 			text-decoration: none;

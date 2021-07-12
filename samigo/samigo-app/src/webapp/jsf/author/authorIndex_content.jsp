@@ -65,8 +65,9 @@
 
             if (notEmptyTableTd > 0) {
                 var table = $("#authorIndexForm\\:coreAssessments").DataTable({
+                    "dom": '<"sakai-table-toolBar"<"sakai-table-filterContainer"<"sakai-table-searchFilter"f>><"sakai-table-pagerContainer"<"sakai-table-pagerLabel"i><"sakai-table-pagerControls"l>>>tp',
                     "paging": true,
-                    "lengthMenu": [[5, 10, 20, 50, 100, 200, -1], [5, 10, 20, 50, 100, 200, <h:outputText value="'#{authorFrontDoorMessages.assessment_view_all}'" />]],
+                    "lengthMenu": [[5, 10, 20, 50, 100, 200], [<h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu5}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu10}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu20}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu50}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu100}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu200}'" />]],
                     "pageLength": 20,
                     "aaSorting": [[2, "desc"]],
                     "columns": [
@@ -257,30 +258,29 @@
             </div>
 
             <h:panelGroup rendered="#{author.allAssessments.size() > 0}">
-                <div>
-                    <f:verbatim><label></f:verbatim>
-                        <h:outputText value="#{authorFrontDoorMessages.assessment_view} "/>
-                        <h:selectOneMenu value="select" id="filter-type">
-                            <f:selectItem itemValue="" itemLabel="#{authorFrontDoorMessages.assessment_view_all}" />
-                            <f:selectItem itemValue="status_draft" itemLabel="#{authorFrontDoorMessages.assessment_pending}" />
-                            <f:selectItem itemValue="status_published" itemLabel="#{authorFrontDoorMessages.assessment_pub}" />
-                            <f:selectItem itemValue="status_true" itemLabel="#{authorFrontDoorMessages.assessment_status_active}" />
-                            <f:selectItem itemValue="status_false" itemLabel="#{authorFrontDoorMessages.assessment_status_inactive}" />
-                        </h:selectOneMenu>
-                    <f:verbatim></label></f:verbatim>
-                </div>
-            </h:panelGroup>
-
-            <h:panelGroup rendered="#{author.groupFilterEnabled and author.allAssessments.size() > 0}">
-                <div>
-                    <f:verbatim><label></f:verbatim>
-                        <h:outputText value="#{authorFrontDoorMessages.filterbygroup} "/>
-                        <h:selectOneMenu value="select" id="group-select">
-                            <f:selectItem itemValue="releaseto_anon" itemLabel="#{authorFrontDoorMessages.anonymous_users}" />
-                            <f:selectItem itemValue="releaseto_entire" itemLabel="#{authorFrontDoorMessages.entire_site}" />
-                            <t:selectItems value="#{author.groups.entrySet()}" var="group" itemValue="#{group.key}" itemLabel="#{group.value}" />
-                        </h:selectOneMenu>
-                    <f:verbatim></label></f:verbatim>
+                <div class="sakai-table-toolBar">
+                    <div class="sakai-table-filterContainer samigo-mainPage-filters">
+                        <div class="sakai-table-viewFilter">
+                            <h:outputLabel value="#{authorFrontDoorMessages.assessment_view} "/>
+                            <h:selectOneMenu value="select" id="filter-type">
+                                <f:selectItem itemValue="" itemLabel="#{authorFrontDoorMessages.assessment_view_all}" />
+                                <f:selectItem itemValue="status_draft" itemLabel="#{authorFrontDoorMessages.assessment_pending}" />
+                                <f:selectItem itemValue="status_published" itemLabel="#{authorFrontDoorMessages.assessment_pub}" />
+                                <f:selectItem itemValue="status_true" itemLabel="#{authorFrontDoorMessages.assessment_status_active}" />
+                                <f:selectItem itemValue="status_false" itemLabel="#{authorFrontDoorMessages.assessment_status_inactive}" />
+                            </h:selectOneMenu>
+                        </div>
+                        <div class="sakai-table-viewFilter">
+                            <h:panelGroup layout="block" styleClass="sakai-table-viewFilter" rendered="#{author.groupFilterEnabled and author.allAssessments.size() > 0}">
+                                <h:outputLabel value="#{authorFrontDoorMessages.filterbygroup} "/>
+                                <h:selectOneMenu value="select" id="group-select">
+                                    <f:selectItem itemValue="releaseto_anon" itemLabel="#{authorFrontDoorMessages.anonymous_users}" />
+                                    <f:selectItem itemValue="releaseto_entire" itemLabel="#{authorFrontDoorMessages.entire_site}" />
+                                    <t:selectItems value="#{author.groups.entrySet()}" var="group" itemValue="#{group.key}" itemLabel="#{group.value}" />
+                                </h:selectOneMenu>
+                            </h:panelGroup>
+                        </div>
+                    </div>
                 </div>
             </h:panelGroup>
 
@@ -629,24 +629,17 @@
                 <t:column rendered="#{!authorization.deleteAnyAssessment and !authorization.deleteOwnAssessment}" headerstyleClass="hidden" styleClass="hidden">
                 </t:column>
             </t:dataTable>
-
-            <div class="clearfix"></div>
-
-            <h:panelGroup rendered="#{author.isAnyAssessmentRetractForEdit == true && author.allAssessments.size() > 0}">
-                <f:verbatim><p></f:verbatim>
-                    <h:outputText styleClass="highlight fa fa-fw fa-exclamation-circle" />
-                    <h:outputText id="assessment-retracted" value="#{authorFrontDoorMessages.retracted_for_edit}" styleClass="highlight" />
-                <f:verbatim></p></f:verbatim>
+            <div class="act samigo-dataTable-footer">
+                <h:commandLink type="submit" id="remove-selected" value="#{authorFrontDoorMessages.assessment_remove_selected}" rendered="#{(authorization.deleteAnyAssessment or authorization.deleteOwnAssessment) and author.allAssessments.size() > 0}" styleClass="disabled active" onclick="if (!removeSelectedButtonAction(this)) return false;" action="#{author.getOutcome}">
+                    <f:param name="action" value="remove_selected" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
+                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+                </h:commandLink>
+            </div>
+            <h:panelGroup styleClass="sak-banner-warn" layout="block" rendered="#{author.isAnyAssessmentRetractForEdit == true && author.allAssessments.size() > 0}">
+                <h:outputText id="assessment-retracted" value="#{authorFrontDoorMessages.retracted_for_edit}" />
             </h:panelGroup>
         </div>
-
-        <div class="clearfix"></div>
-
-        <h:commandLink type="submit" id="remove-selected" value="#{authorFrontDoorMessages.assessment_remove_selected}" rendered="#{(authorization.deleteAnyAssessment or authorization.deleteOwnAssessment) and author.allAssessments.size() > 0}" styleClass="disabled" onclick="if (!removeSelectedButtonAction(this)) return false;" action="#{author.getOutcome}">
-            <f:param name="action" value="remove_selected" />
-            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ActionSelectListener" />
-            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-        </h:commandLink>
     </h:form>
 <!-- end content -->
 </div>

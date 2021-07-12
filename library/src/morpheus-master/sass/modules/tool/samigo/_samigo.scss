@@ -80,13 +80,13 @@
 	
 	.samigo-checkbox {
 		label {
-			margin: 0 0 0 0.5em;
+			margin: 0 0 0 $standard-space;
 		}
 	}
 
 	.samigo-radio {
 		label {
-			margin: 0 0 0 0.5em;
+			margin: 0 0 0 $standard-space;
 		}
 	}
 	
@@ -212,7 +212,7 @@
 	table{
 	   	td{
 	   		input[type="checkbox"],input[type="radio"]{
-	   			margin-right: 5px;
+	   			margin-right: $standard-space;
 	   		}
 	   	}
 	   	&.listHier td:empty{
@@ -285,67 +285,32 @@
 	}
 
 	.dataTables_wrapper {
+		.table {
+			margin-bottom: $standard-spacing;
+		}
 		.dataTables_length {
-			float: left;
-
-			@media #{$phone}{
-				float: initial;
+			label {
+				display: inline-block;
+				margin-bottom: 0;
+				font-weight: normal;
 			}
 		}
 
 		.dataTables_filter {
-			float: right;
-			text-align: right;
-
-			@media #{$phone}{
-				float: initial;
-				text-align: initial;
-			}
-
 			input {
-				@extend .form-control;
-
-				width: initial;
-				max-width: initial;
 				display: inline-block;
-				margin-left: 6px;
+				margin-left: $standard-space;
+				font-weight: normal;
 			}
 		}
 
-		.dataTables_info {
-			clear: both;
-			float: left;
-		}
 
 		.dataTables_paginate {
-			float: right;
-			text-align: right;
+			.paginate_button {
+				@include sakai_secondary_button();
 
-			> a.paginate_button {
-				@extend input[type="submit"];
-
-				&.disabled {
-					@extend input[type="submit"][disabled="disabled"];
-				}
-			}
-
-			span {
-				.paginate_button {
-					color: #333 !important;
-
-					@extend button;
-
-					&:hover {
-						color: #333 !important;
-					}
-
-					&.current {
-						@extend .btn-default:active:hover;
-					}
-				}
-
-				a.paginate_button {
-					@extend .btn-default;
+				&.current {
+					border-color: $button-active-border-color;
 				}
 			}
 
@@ -386,22 +351,20 @@
 			}
 		}
 	}
+	@media #{$desktop} {
+		#authorIndexForm .samigo-mainPage-filters {
+			margin-bottom: -1em;	// to align the Sakai filter with the DataTables filters
+		}
+	}
+	
+	.samigo-dataTable-footer {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: -2.5em;		// to align the Sakai footer with the DataTables footer
+	}
 
 	#{'#authorIndexForm\\:remove-selected'} {
-		@extend button;
-
-		&.disabled {
-			@extend input[type="submit"][disabled="disabled"];
-			background: #f3f3f3;
-			border-color: #e7e7e7;
-			color: #717171 !important;
-
-			&:hover {
-				background: #f3f3f3;
-				border-color: #e7e7e7;
-				color: #717171 !important;
-			}
-		}
+		@include sakai_primary_button()
 	}
 
 	.parts-table {
@@ -436,5 +399,8 @@
 	#editTotalResults .apply-grades {
 		margin: $standard-spacing 0;
 	}
-
+	.rationaleContainer {
+		display: block;
+		margin-top: 2em;
+	}
 }

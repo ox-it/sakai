@@ -112,9 +112,9 @@
        PREDEFINED_SCALE: YES, AGREE, UNDECIDED, AVERAGE, STRONGLY_AGREE, EXCELLENT, 5, 10 
     -->
 
-    <div class="longtext">
-        <h:outputLabel value="#{authorMessages.answer} " /> </div>
-        <div class="samigo-radio">
+    <div class="form-group row">
+        <h:outputLabel value="#{authorMessages.answer} " styleClass="col-md-4 col-lg-2 form-control-label" />
+        <div class="col-md-8 samigo-radio">
             <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale">
                 <f:selectItem itemValue="YES" itemLabel="#{authorMessages.yes_no}" />
                 <f:selectItem itemValue="AGREE" itemLabel="#{authorMessages.disagree_agree}" />
@@ -128,7 +128,7 @@
                 <f:selectItem itemValue="5" itemLabel="#{authorMessages.scale5}" />
                 <f:selectItem itemValue="10" itemLabel="#{authorMessages.scale10}" />
             </h:selectOneRadio>
-        <br />
+        </div>
     </div>
 
     <!-- 4 PART -->

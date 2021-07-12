@@ -291,9 +291,9 @@
     <!-- Honor Pledge -->
     <div class="form-group row">
         <h:outputLabel styleClass="col-md-2" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
-        <div class="col-md-10">
+        <div class="col-md-10 samigo-checkbox">
             <h:selectBooleanCheckbox id="honor_pledge" value="#{assessmentSettings.honorPledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
-            <h:outputText  value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
+            <h:outputLabel for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         </div>
     </div>
 
@@ -340,9 +340,9 @@
             <h:outputLabel value="#{assessmentSettingsMessages.record_metadata}" />
         </div>
          <div class="samigo-checkbox">
-         <h:selectBooleanCheckbox rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
+         <h:selectBooleanCheckbox id="metadataQuestions" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}"
             value="#{assessmentSettings.valueMap.hasMetaDataForQuestions}"/>
-         <h:outputLabel value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
+         <h:outputLabel for="metadataQuestions" value="#{assessmentSettingsMessages.metadata_questions}" rendered="#{assessmentSettings.valueMap.metadataQuestions_isInstructorEditable==true}" />
        </div>
       </div>
     </h:panelGroup>
@@ -379,7 +379,7 @@
                 <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
                 <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
               </t:selectOneRadio>
-              <ul class="submissions-allowed">
+              <ul class="submissions-allowed samigo-radio">
                 <li><t:radio renderLogicalId="true" for="unlimitedSubmissions" index="0" /></li>
                 <li>
                   <t:radio renderLogicalId="true" for="unlimitedSubmissions" index="1" />
@@ -435,7 +435,7 @@
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.no_late}"/>
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.yes_late}"/>
         </t:selectOneRadio>
-        <ul class="late-handling">
+        <ul class="late-handling samigo-radio">
           <li><t:radio renderLogicalId="true" for="lateHandling" index="0" /></li>
           <li>
             <t:radio renderLogicalId="true" for="lateHandling" index="1" />
@@ -470,7 +470,7 @@
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.digestEmail}" />
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.noEmail}" />
       </t:selectOneRadio>
-      <ul class="email-notification">
+      <ul class="email-notification samigo-radio">
         <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="0" /></li>
         <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="1" /></li>
         <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="2" /></li>
@@ -487,7 +487,7 @@
            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.displayScores_show}"/>
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.displayScores_hide}"/>
          </t:selectOneRadio>
-         <ul class="display-scores">
+         <ul class="display-scores samigo-radio">
            <li><t:radio renderLogicalId="true" for="displayScores" index="0" /></li>
            <li><t:radio renderLogicalId="true" for="displayScores" index="1" /></li>
          </ul>
@@ -636,7 +636,7 @@
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.sectionlevel_feedback}"/>
            <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.both_feedback}"/>
         </t:selectOneRadio>
-        <ul class="feedback-authoring">
+        <ul class="feedback-authoring samigo-radio">
           <li><t:radio renderLogicalId="true" for="feedbackAuthoring" index="0" /></li>
           <li><t:radio renderLogicalId="true" for="feedbackAuthoring" index="1" /></li>
           <li><t:radio renderLogicalId="true" for="feedbackAuthoring" index="2" /></li>
@@ -654,13 +654,13 @@
           <f:selectItem itemValue="4" itemLabel="#{commonMessages.feedback_on_submission}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date}"/>
         </t:selectOneRadio>
-        <ul class="feedback-delivery">
+        <ul class="feedback-delivery samigo-radio">
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="0" /></li>
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="1" /></li>
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="2" /></li>
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="3" /></li>
         </ul>
-        <div id="feedbackByDatePanel" style="display:none;">
+        <div id="feedbackByDatePanel" style="display:none;" class="tier2 samigo-checkbox">
             <h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}"/> <h:inputText value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" /></br>
             <h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}"/> <h:inputText value="#{assessmentSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" /></br>
             <h:selectBooleanCheckbox value="#{assessmentSettings.feedbackScoreThresholdEnabled}" id="feedbackScoreThresholdEnabled"/> <h:outputLabel for="feedbackScoreThresholdEnabled" value="#{assessmentSettingsMessages.feedback_score_threshold}"/> <h:inputText id="feedbackScoreThreshold" size="4" value="#{assessmentSettings.feedbackScoreThreshold}"/>&#37;
@@ -678,7 +678,7 @@
                 <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_totalscore_only}"/>
                 <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
             </t:selectOneRadio>
-            <div class="respChoice indent1">
+            <div class="respChoice indent1 samigo-checkbox">
                 <h:panelGroup styleClass="form-inline" layout="block">
                     <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"/>
                     <h:outputLabel for="feedbackCheckbox1" value="#{commonMessages.student_response}" />
@@ -732,7 +732,7 @@
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
         </t:selectOneRadio>
-        <ul class="layout-navigation">
+        <ul class="samigo-radio">
           <li><t:radio renderLogicalId="true" for="itemNavigation" index="0" /></li>
           <li><t:radio renderLogicalId="true" for="itemNavigation" index="1" /></li>
         </ul>
@@ -751,7 +751,7 @@
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.layout_by_part}"/>
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.layout_by_assessment}"/>
         </t:selectOneRadio>
-        <ul class="layout-format">
+        <ul class="layout-format samigo-radio">
           <li><t:radio renderLogicalId="true" for="assessmentFormat" index="0" /></li>
           <li><t:radio renderLogicalId="true" for="assessmentFormat" index="1" /></li>
           <li><t:radio renderLogicalId="true" for="assessmentFormat" index="2" /></li>
@@ -767,7 +767,7 @@
            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.continous_numbering}"/>
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.part_numbering}"/>
          </t:selectOneRadio>
-         <ul class="layout-numbering">
+         <ul class="layout-numbering samigo-radio">
            <li><t:radio renderLogicalId="true" for="itemNumbering" index="0" /></li>
            <li><t:radio renderLogicalId="true" for="itemNumbering" index="1" /></li>
          </ul>
@@ -779,17 +779,16 @@
   <!-- *** (disabled for linear assessment) *** -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.markForReview_isInstructorEditable==true}">
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.mark_for_review}" />
-    <div class="col-md-10">
+    <div class="col-md-10 samigo-checkbox">
       <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
-      <h:outputText value="&#160;" escape="false" />
-      <h:outputText value="#{assessmentSettingsMessages.mark_for_review_label}"/>
+      <h:outputLabel for="markForReview1" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
     </div>
   </h:panelGroup>
  
   <!-- *** COLORS AND GRAPHICS	*** -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
     <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.background_label}" />
-    <div class="col-md-10">
+    <div class="col-md-10 samigo-radio">
       <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}"/>
       </h:selectOneRadio>

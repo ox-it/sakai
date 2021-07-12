@@ -91,7 +91,7 @@
         <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}" />
         <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
       </t:selectOneRadio>
-      <ul class="item-score">
+      <ul class="item-score samigo-radio">
         <li><t:radio renderLogicalId="true" for="itemScore" index="0" /></li> 
         <li><t:radio renderLogicalId="true" for="itemScore" index="1" /></li> 
       </ul>

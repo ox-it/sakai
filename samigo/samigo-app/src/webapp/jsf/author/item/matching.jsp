@@ -196,7 +196,7 @@
     </div>
     
     <!-- WYSIWYG -->
-    <div class="tier2">
+    <div>
         <div class="form-group row">
             <h:outputLabel value=" #{authorMessages.matching_choice_col}" styleClass="col-md-4 col-lg-2 form-control-label"/>
             <div class="col-md-8">
@@ -252,7 +252,7 @@
      </h:panelGroup>
 
     <f:verbatim><br/></f:verbatim>
-    <div class="tier2">
+    <div>
         <h:commandButton value="#{commonMessages.action_save_pair}" action="#{itemauthor.currentItem.addMatchPair}"></h:commandButton>
     </div>
     <f:verbatim><br/></f:verbatim>

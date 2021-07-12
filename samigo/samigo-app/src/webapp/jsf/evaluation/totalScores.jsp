@@ -218,37 +218,34 @@ $(document).ready(function(){
   <sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
 </h:panelGroup>
 
-<h:panelGroup styleClass="total-scores-anon" layout="block" rendered="#{totalScores.anonymous eq 'true'}">
-  <h:panelGroup>
-	  <h:outputText value="#{evaluationMessages.view}" rendered="#{totalScores.multipleSubmissionsAllowed eq 'true' }"/>
-      <h:panelGroup>
+<h:panelGroup styleClass="sakai-table-toolBar total-scores-anon" layout="block" rendered="#{totalScores.anonymous eq 'true'}">
+  <h:panelGroup styleClass="sakai-table-filterContainer" layout="block">
+    <h:panelGroup styleClass="sakai-table-viewFilter" layout="block" rendered="#{totalScores.multipleSubmissionsAllowed eq 'true'}" >
+        <h:outputLabel for="allSubmissionsL2" value="#{evaluationMessages.view}" rendered="#{totalScores.scoringOption eq '2'}"/>
         <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL2"
-         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2' && totalScores.multipleSubmissionsAllowed eq 'true' }">
-        <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
-        <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
-        <f:valueChangeListener
-         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
+            <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+            <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         </h:selectOneMenu>
 
+        <h:outputLabel for="allSubmissionsH2" value="#{evaluationMessages.view}" rendered="#{totalScores.scoringOption eq '1'}"/>
         <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsH2"
-         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1' && totalScores.multipleSubmissionsAllowed eq 'true' }">
-          <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
-          <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
-          <f:valueChangeListener
-           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
+            <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+            <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
         </h:selectOneMenu>
 
-		<h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA2" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4' && totalScores.multipleSubmissionsAllowed eq 'true' }">
-		  <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
-		  <f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}" />
-          <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-		 </h:selectOneMenu>
-      </h:panelGroup>
+        <h:outputLabel for="allSubmissionsA2" value="#{evaluationMessages.view}" rendered="#{totalScores.scoringOption eq '4'}"/>
+        <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA2" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4'}">
+            <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+            <f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}" />
+            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+        </h:selectOneMenu>
+    </h:panelGroup>
   </h:panelGroup>
-  
-  <h:panelGroup>
-	<sakai:pager id="pager2" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
-  </h:panelGroup>
+    <sakai:pager id="pager2" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
 </h:panelGroup>
 
   <!-- STUDENT RESPONSES AND GRADING -->
@@ -952,9 +949,11 @@ $(document).ready(function(){
     </h:column>
   </h:dataTable>
 
+<div class="sak-banner-info">
 <h:outputText value="#{evaluationMessages.mult_sub_highest}" rendered="#{totalScores.scoringOption eq '1'&& totalScores.multipleSubmissionsAllowed eq 'true' }"/>
 <h:outputText value="#{evaluationMessages.mult_sub_last}" rendered="#{totalScores.scoringOption eq '2' && totalScores.multipleSubmissionsAllowed eq 'true' }"/>
 <h:outputText value="#{evaluationMessages.mult_sub_average}" rendered="#{totalScores.scoringOption eq '4' && totalScores.multipleSubmissionsAllowed eq 'true' }"/>
+</div>
 </div>
 <p class="act">
 

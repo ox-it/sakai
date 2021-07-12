@@ -83,7 +83,7 @@ table{
 	{
 		@include flex-grow(1);
 
-		.sakai-table-searchFilter-searchField
+		.sakai-table-searchFilter-searchField, input[type="search"]
 		{
 			margin-right: 4px;
 			width: 200px;
