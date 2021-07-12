@@ -307,7 +307,7 @@ public class SecureDeliveryProctorio implements SecureDeliveryModuleIfc {
 	 * // Return the fully-RFC3986-escaped string. return escaped.toString(); }
 	 */
 
-	private static String toNormalizedString(Map<String, String> collection, List<String> excludedNames) {
+	private static String toNormalizedString(Map<String, String> collection, List<String> excludedNames) throws java.io.UnsupportedEncodingException {
 		StringBuilder normalizedString = new StringBuilder();
 
 		for (String key : collection.keySet()) {
