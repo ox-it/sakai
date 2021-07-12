@@ -299,7 +299,7 @@ document.links[newindex].onclick();
     <h:column>
     <h2 class="part-header">
         <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
-        <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
+        <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false" rendered="#{! empty part.nonDefaultText}"/>
         <span class="badge"><h:outputText value="#{part.pointsDisplayString} #{deliveryMessages.splash} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/></span>
     </h2>
     <h2 class="tier1">

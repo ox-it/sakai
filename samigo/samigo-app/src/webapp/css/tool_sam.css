@@ -1561,3 +1561,9 @@ td.stats-correctness {
   font-size: 14px;
   font-weight: normal;
 }
+
+#importAssessmentForm legend {
+  margin-top: 1em;
+  padding-left: 0;
+  font-size: 1em;
+}
