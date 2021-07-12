@@ -569,7 +569,7 @@
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_grading_feedback}" >
 
   <!-- *** GRADING *** -->
-  <div class="tier3">
+  <div>
   <!-- RECORDED SCORE AND MULTIPLES -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.recorded_score} " />
@@ -593,7 +593,7 @@
     </h:panelGroup>
 
     <!--  ANONYMOUS OPTION -->
-    <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}">
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.student_identity_label}"/>
       <div class="col-md-10 samigo-checkbox">
         <h:selectBooleanCheckbox id="anonymousGrading" value="#{assessmentSettings.anonymousGrading}"/>
@@ -602,7 +602,7 @@
     </h:panelGroup>
     
     <!-- GRADEBOOK OPTION -->
-    <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
+    <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
       <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.gradebook_options}"/>
       <div class="col-md-10 samigo-checkbox">
         <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}" onclick="toggleCategories(this);"/>
