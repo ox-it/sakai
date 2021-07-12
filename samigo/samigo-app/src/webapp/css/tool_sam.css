@@ -1551,3 +1551,13 @@ td.stats-correctness {
 #autosave-lasttime-msg {
 	display: none;
 }
+
+#itemFormHeading h2 {
+  display: flex;
+}
+
+#itemFormHeading .removeLink {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: normal;
+}

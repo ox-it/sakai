@@ -40,6 +40,7 @@
    <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
    <div class="page-header">
    <h1>
+      <h:outputText value="#{assessmentSettings.title} #{authorMessages.dash} " escape="false" />
       <h:outputText value="#{assessmentSettingsMessages.publish_assessment}" escape="false" rendered="#{author.isEditPendingAssessmentFlow}"/>
       <h:outputText value="#{assessmentSettingsMessages.republish_assessment}" escape="false" rendered="#{!author.isEditPendingAssessmentFlow && !author.isRepublishAndRegrade}"/>
       <h:outputText value="#{assessmentSettingsMessages.regrade_republish_assessment}" escape="false" rendered="#{!author.isEditPendingAssessmentFlow && author.isRepublishAndRegrade}"/>
