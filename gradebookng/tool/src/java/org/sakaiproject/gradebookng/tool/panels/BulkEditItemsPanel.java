@@ -186,7 +186,7 @@ public class BulkEditItemsPanel extends BasePanel {
 				getSession().success(getString("bulkedit.update.success"));
 				if (deleteCount > 0) {
 					String deletedList = assignments.stream().filter(a -> deletableItems.contains(a.getId())).map(Assignment::getName)
-						.collect(Collectors.joining());
+						.collect(Collectors.joining(", "));
 					getSession().success(new StringResourceModel("bulkedit.delete.success", null, new Object[] { deletedList }).getString());
 				}
 				BulkEditItemsPanel.this.clearDeletableItemsList();
