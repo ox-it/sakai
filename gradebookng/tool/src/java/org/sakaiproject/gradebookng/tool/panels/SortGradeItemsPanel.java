@@ -119,6 +119,7 @@ public class SortGradeItemsPanel extends Panel {
 				setResponsePage(getPage().getPageClass());
 			}
 		};
+		submit.setWillRenderOnClick(true);
 
 		if (categoriesEnabled) {
 			tabs.add(new AbstractTab(new Model<String>(getString("sortgradeitems.bycategory"))) {
@@ -167,6 +168,7 @@ public class SortGradeItemsPanel extends Panel {
 			}
 		};
 		cancel.setDefaultFormProcessing(false);
+		cancel.setWillRenderOnClick(true);
 
 		form.add(cancel);
 		form.add(submit);
