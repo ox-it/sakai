@@ -131,6 +131,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 				}
 			}
 		};
+		submit.setWillRenderOnClick(true);
 		form.add(submit);
 
 		final SakaiAjaxButton cancel = new SakaiAjaxButton("cancel") {
@@ -142,6 +143,7 @@ public class UpdateUngradedItemsPanel extends BasePanel {
 			}
 		};
 		cancel.setDefaultFormProcessing(false);
+		cancel.setWillRenderOnClick(true);
 		form.add(cancel);
 
 		form.add(new TextField<Double>("grade").setRequired(true));
