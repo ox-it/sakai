@@ -421,6 +421,7 @@ public class EnrolmentsHandler
             this.sectionTitle = sectionTitle;
             this.sessionEID = sessionEID;
             this.siteWrappers = siteWrappers;
+            Collections.sort( siteWrappers, Comparator.comparing( SiteTitleUrlWrapper::getSiteTitle ) );
         }
 
         // Getters
