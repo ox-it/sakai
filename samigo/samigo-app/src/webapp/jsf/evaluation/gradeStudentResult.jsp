@@ -138,7 +138,7 @@ function toPoint(id)
   <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <div class="form-group row">
-   <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.comments_for} #{studentScores.firstName}#{deliveryMessages.column}" for="commentForStudent"/>
+   <h:outputLabel styleClass="col-md-2" value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}" for="commentForStudent"/>
    <div class="col-md-6">
      <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30" styleClass="awesomplete" id="commentForStudent" />
    </div>
