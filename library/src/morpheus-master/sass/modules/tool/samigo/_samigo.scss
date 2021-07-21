@@ -398,8 +398,33 @@
 		display: none;
 	}
 	
-	#editTotalResults .apply-grades {
-		margin: $standard-spacing 0;
+	#editTotalResults {
+		.apply-grades {
+			display: flex;
+			align-items: center;
+			margin: $standard-spacing 0;
+
+			input[type="text"] {
+				align-self: stretch;	// make input field the same height as button
+				margin: 0 $standard-space 0 0;
+			}
+			label {
+				margin: 0;
+				font-weight: normal;
+			}
+		}
+		.deleteSubmission {
+			display: inline-block;
+			width: 100%;
+			text-align: center;
+		}
+		.attachmentsTableContainer {
+			border: 0 none;
+
+			input[type="submit"] {
+				margin-top: 8px; // to match Bootstrap's table cell padding
+			}
+		}
 	}
 	.rationaleContainer {
 		display: block;

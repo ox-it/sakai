@@ -150,13 +150,18 @@ $(document).ready(function(){
     <h:outputText value="<h2>#{evaluationMessages.max_score_poss}: #{totalScores.maxScore}</h2>" escape="false"/>
   </h:panelGroup>
 
+  <div class="sak-banner-info">
+    <h:outputText value="#{evaluationMessages.mult_sub_highest}" rendered="#{totalScores.scoringOption eq '1'&& totalScores.multipleSubmissionsAllowed eq 'true' }"/>
+    <h:outputText value="#{evaluationMessages.mult_sub_last}" rendered="#{totalScores.scoringOption eq '2' && totalScores.multipleSubmissionsAllowed eq 'true' }"/>
+    <h:outputText value="#{evaluationMessages.mult_sub_average}" rendered="#{totalScores.scoringOption eq '4' && totalScores.multipleSubmissionsAllowed eq 'true' }"/>
+  </div>
+  
   <h:panelGroup styleClass="apply-grades" layout="block">
     <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
     </h:commandButton>
-    <h:outputText value="&#160;" escape="false" />
     <h:inputText id="applyScoreUnsubmitted" value="#{totalScores.applyToUngraded}"  onkeydown="inIt()" onchange="toPoint(this.id);" size="5"/>
-    <h:outputText value=" #{totalScores.allSubmissions ne '4' ? evaluationMessages.applyGradesDesc : evaluationMessages.applyGradesDescAvg}"/>
+    <h:outputLabel for="applyScoreUnsubmitted" value=" #{totalScores.allSubmissions ne '4' ? evaluationMessages.applyGradesDesc : evaluationMessages.applyGradesDescAvg}"/>
   </h:panelGroup>
 
 <h:panelGroup styleClass="sakai-table-toolBar" layout="block" rendered="#{totalScores.anonymous eq 'false'}">
@@ -204,6 +209,7 @@ $(document).ready(function(){
 
       <h:panelGroup styleClass="sakai-table-searchFilter" layout="block">
       <h:outputLabel value="#{evaluationMessages.search}" for="searchString" />
+          <h:panelGroup styleClass="sakai-table-searchFilterControls" layout="block">
 			<h:inputText
 				id="searchString"
 				value="#{totalScores.searchString}"
@@ -212,7 +218,8 @@ $(document).ready(function(){
 				styleClass="sakai-table-searchFilter-searchField" />
 			<h:commandButton actionListener="#{totalScores.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
 			<h:commandButton actionListener="#{totalScores.clear}" value="#{evaluationMessages.search_clear}"/>
-	  </h:panelGroup>
+          </h:panelGroup>
+      </h:panelGroup>
   </h:panelGroup>
    
   <sakai:pager id="pager1" totalItems="#{totalScores.dataRows}" firstItem="#{totalScores.firstRow}" pageSize="#{totalScores.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
@@ -249,22 +256,26 @@ $(document).ready(function(){
 </h:panelGroup>
 
   <!-- STUDENT RESPONSES AND GRADING -->
-  <!-- note that we will have to hook up with the back end to get N at a time -->
+  <%-- note that we will have to hook up with the back end to get N at a time --%>
 <div class="table-responsive">
   <h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable">
 
 	<!-- Add Submission Attempt Deleter-->
 	<h:column rendered="#{person.isAdmin || !totalScores.restrictedDelete}">
      <f:facet name="header">
-       <h:outputText value="#{commonMessages.delete}" rendered="true" />
+       <h:outputText styleClass="deleteSubmission" value="#{commonMessages.delete}" rendered="true" />
      </f:facet>
-     <h:panelGroup> <span class="tier2">
+     <h:panelGroup> <span class="deleteSubmission">
        <h:outputText value="<a name=\"" escape="false" />
        <h:outputText value="#{description.lastInitial}" />
        <h:outputText value="\"></a>" escape="false" />
 
        <h:commandLink styleClass="sam-scoretable-deleteattempt" title="#{commonMessages.delete_attempt}" action="totalScores" immediate="true" rendered="true" >
-         <h:outputText value="X" rendered="#{description.assessmentGradingId ne '-1'}" />
+         <h:panelGroup styleClass="fa fa-remove" rendered="#{description.assessmentGradingId ne '-1'}">
+             <h:panelGroup styleClass="sr-only">
+                 <h:outputText value="#{commonMessages.delete_attempt}" />
+             </h:panelGroup>
+         </h:panelGroup>
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.GrantSubmissionListener" />
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
          <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
@@ -945,11 +956,6 @@ $(document).ready(function(){
     </h:column>
   </h:dataTable>
 
-<div class="sak-banner-info">
-<h:outputText value="#{evaluationMessages.mult_sub_highest}" rendered="#{totalScores.scoringOption eq '1'&& totalScores.multipleSubmissionsAllowed eq 'true' }"/>
-<h:outputText value="#{evaluationMessages.mult_sub_last}" rendered="#{totalScores.scoringOption eq '2' && totalScores.multipleSubmissionsAllowed eq 'true' }"/>
-<h:outputText value="#{evaluationMessages.mult_sub_average}" rendered="#{totalScores.scoringOption eq '4' && totalScores.multipleSubmissionsAllowed eq 'true' }"/>
-</div>
 </div>
 <p class="act">
 
