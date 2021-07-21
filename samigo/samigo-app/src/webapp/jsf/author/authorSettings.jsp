@@ -237,9 +237,7 @@
   </div>
   <br/>
   
-  <p>
-    <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
-  </p>
+  <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <div class="tier1" id="jqueryui-accordion">
 
@@ -250,34 +248,34 @@
       
     <!-- *** GENERAL TEMPLATE INFORMATION *** -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate and template.showAssessmentTypes}" >
-        <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.heading_template_information}"/>
+        <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.heading_template_information}"/>
         <div class="col-md-10">
           <h:outputText escape="false" rendered="#{assessmentSettings.templateDescription!=null}" value="#{assessmentSettings.templateDescription}" />
         </div>
     </h:panelGroup>
     <div class="form-group row">
-        <h:outputLabel styleClass="col-md-2" for="creator" value="#{assessmentSettingsMessages.assessment_creator}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
+        <h:outputLabel styleClass="col-md-2 form-control-label" for="creator" value="#{assessmentSettingsMessages.assessment_creator}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
         <div class="col-md-10">
             <h:outputText id="creator" value="#{assessmentSettings.creator}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
         </div>
     </div>
 
     <div class="form-group row">
-        <h:outputLabel styleClass="col-md-2" for="assessment_title" value="#{assessmentSettingsMessages.assessment_title}"/>
+        <h:outputLabel styleClass="col-md-2 form-control-label" for="assessment_title" value="#{assessmentSettingsMessages.assessment_title}"/>
         <div class="col-md-10">
             <h:inputText styleClass="form-control" id="assessment_title" size="80" maxlength="255" value="#{assessmentSettings.title}" />
         </div>
     </div>
 
     <div class="form-group row hidden">
-        <h:outputLabel styleClass="col-md-2" for="assessment_author" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_authors}"/>
+        <h:outputLabel styleClass="col-md-2 form-control-label" for="assessment_author" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}" value="#{assessmentSettingsMessages.assessment_authors}"/>
         <div class="col-md-10">
             <h:inputText styleClass="form-control" id="assessment_author" value="#{assessmentSettings.authors}" rendered="#{assessmentSettings.valueMap.assessmentAuthor_isInstructorEditable==true}"/>
         </div>
     </div>
 
     <div class="form-group row">
-        <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.assessment_description}" rendered="#{assessmentSettings.valueMap.description_isInstructorEditable==true}"/>
+        <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.assessment_description}" rendered="#{assessmentSettings.valueMap.description_isInstructorEditable==true}"/>
 
         <div class="col-md-10">
             <h:panelGrid>
@@ -290,7 +288,7 @@
 
     <!-- Honor Pledge -->
     <div class="form-group row">
-        <h:outputLabel styleClass="col-md-2" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
+        <h:outputLabel styleClass="col-md-2 form-control-label" for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
         <div class="col-md-10 samigo-checkbox">
             <h:selectBooleanCheckbox id="honor_pledge" value="#{assessmentSettings.honorPledge}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
             <h:outputLabel for="honor_pledge" value="#{assessmentSettingsMessages.honor_pledge_add}" rendered="#{assessmentSettings.valueMap.honorpledge_isInstructorEditable==true}"/>
@@ -353,25 +351,24 @@
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_availability}"> 
   <!-- *** RELEASED TO *** -->
   <div class="form-group row">
-      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.released_to} " />
+      <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.released_to} " />
       <div class="col-md-10">
           <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();" onchange="handleAnonymousUsersChange(this);showHideReleaseGroups();">
               <f:selectItems value="#{assessmentSettings.publishingTargets}" />
           </h:selectOneMenu>
           <h:outputLabel rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true || (assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true)}"
                          styleClass="help-block info-text small" value="#{assessmentSettingsMessages.released_to_help}" />
-       </div>
-  </div>
-
-  <div id="groupDiv" class="groupTable">
-    <h:selectManyListbox id="groupsForSite" value="#{assessmentSettings.groupsAuthorized}">
-      <f:selectItems value="#{assessmentSettings.groupsForSite}" />
-    </h:selectManyListbox>
+          <div id="groupDiv" class="groupTable">
+            <h:selectManyListbox id="groupsForSite" value="#{assessmentSettings.groupsAuthorized}">
+              <f:selectItems value="#{assessmentSettings.groupsForSite}" />
+            </h:selectManyListbox>
+          </div>
+      </div>
   </div>
 
   <!-- NUMBER OF SUBMISSIONS -->
   <h:panelGroup styleClass="row" layout="block" rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.submissions_allowed}" />
+      <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.submissions_allowed}" />
       <div class="col-md-10 form-inline">
           <div class="radio">
               <!-- Use the custom Tomahawk layout spread to style this radio http://myfaces.apache.org/tomahawk-project/tomahawk12/tagdoc/t_selectOneRadio.html -->
@@ -396,13 +393,13 @@
       
   <!-- *** DELIVERY DATES *** -->
       <div class="form-group row">
-          <h:outputLabel styleClass="col-md-2" for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
+          <h:outputLabel styleClass="col-md-2 form-control-label" for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
           <div class="col-md-10">
               <h:inputText value="#{assessmentSettings.startDateString}" size="25" id="startDate" />
           </div>
       </div>
       <div class="form-group row">
-          <h:outputLabel styleClass="col-md-2" for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
+          <h:outputLabel styleClass="col-md-2 form-control-label" for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
           <div class="col-md-10">
               <h:inputText value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
               <h:outputText value="&#160;" escape="false" />
@@ -429,7 +426,7 @@
     <!-- LATE HANDLING -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.lateHandling_isInstructorEditable==true}">
       <div class="row">
-        <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.late_accept}" />
+        <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.late_accept}" />
         <div class="col-md-10">
         <t:selectOneRadio id="lateHandling" value="#{assessmentSettings.lateHandling}" onclick="checkLastHandling();" layout="spread">
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.no_late}"/>
@@ -450,7 +447,7 @@
 
   <!-- AUTOMATIC SUBMISSION -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.auto_submit}" />
+    <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.auto_submit}" />
     <div class="col-md-10">
       <div class="samigo-checkbox">
         <h:selectBooleanCheckbox id="automaticSubmission" value="#{assessmentSettings.autoSubmit}" />
@@ -463,8 +460,9 @@
 
   <!-- SUBMISSION EMAILS -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.instructorNotification_isInstructorEditable==true}">
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.instructorNotificationLabel}" />
+    <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.instructorNotificationLabel}" />
     <div class="col-md-10">
+      <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.instructorNotification}" />
       <t:selectOneRadio id="notificationEmailChoices" value="#{assessmentSettings.instructorNotification}" layout="spread">
         <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.oneEmail}" />
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.digestEmail}" />
@@ -475,13 +473,12 @@
         <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="1" /></li>
         <li><t:radio renderLogicalId="true" for="notificationEmailChoices" index="2" /></li>
       </ul>
-      <h:outputLabel styleClass="help-block info-text small" value="#{assessmentSettingsMessages.instructorNotification}" />
     </div>
   </h:panelGroup>
 
     <!-- Display Scores -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayScores_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> 
+      <h:outputLabel styleClass="col-md-2 form-control-label" for="displayScores" value="#{assessmentSettingsMessages.displayScores}" /> 
       <div class="col-md-10">
          <t:selectOneRadio id="displayScores" value="#{assessmentSettings.displayScoreDuringAssessments}" layout="spread">
            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.displayScores_show}"/>
@@ -502,18 +499,17 @@
     
     
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true}">
-        <h:outputLabel value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="allowedIpAddresses" value="#{assessmentSettingsMessages.high_security_allow_only_specified_ip}" styleClass="col-md-2 form-control-label"/>
         <%-- no WYSIWYG for IP addresses --%>
         <div class="col-md-10">
-            <h:inputTextarea value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"/>
-            <h:outputText escape="false" value="<br/>#{assessmentSettingsMessages.ip_note} <br/>#{assessmentSettingsMessages.ip_example}#{assessmentSettingsMessages.ip_ex}<br/>"/> 
+            <h:inputTextarea id="allowedIpAddresses" value="#{assessmentSettings.ipAddresses}" cols="40" rows="5"/>
+            <h:outputLabel escape="false" value="#{assessmentSettingsMessages.ip_note} <br/>#{assessmentSettingsMessages.ip_example}#{assessmentSettingsMessages.ip_ex}" styleClass="help-block info-text small" />
         </div>
     </h:panelGroup>
     
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}">
-        <h:outputLabel value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" styleClass="col-md-2 form-control-label"/>
+        <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_secondary_id_pw}" styleClass="col-md-2 form-control-label"/>
         <div class="col-md-10">
-            <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
             <h:inputText id="password" size="20" value="#{assessmentSettings.password}" styleClass="form-control"/>
         </div>
     </h:panelGroup>
@@ -551,7 +547,7 @@
         <h:outputLabel for="finalPageUrl" value="#{assessmentSettingsMessages.submission_final_page_url}"  styleClass="col-md-2 form-control-label"/>
         <div class="col-md-10">
             <h:inputText size="80" id="finalPageUrl" value="#{assessmentSettings.finalPageUrl}" styleClass="form-control"/>
-            <h:commandButton value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
+            <h:commandButton id="finalPageUrlValidate" value="#{assessmentSettingsMessages.validateURL}" type="button" onclick="javascript:validateUrl();"/>
         </div>
     </h:panelGroup>
    </div>
@@ -572,14 +568,14 @@
   <div>
   <!-- RECORDED SCORE AND MULTIPLES -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.recordedScore_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.recorded_score} " />
+      <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.recorded_score} " />
       <div class="col-md-10 form-inline">
-        <t:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType1" rendered="#{author.canRecordAverage}" layout="pageDirection">
+        <t:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType1" rendered="#{author.canRecordAverage}" layout="pageDirection" styleClass="samigo-radio">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}"/>
           <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.average_score}"/>
         </t:selectOneRadio>
-        <t:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType2" rendered="#{!author.canRecordAverage}" layout="pageDirection">
+        <t:selectOneRadio value="#{assessmentSettings.scoringType}" id="scoringType2" rendered="#{!author.canRecordAverage}" layout="pageDirection" styleClass="samigo-radio">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.highest_score}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.last_score}"/>
         </t:selectOneRadio>
@@ -594,7 +590,7 @@
 
     <!--  ANONYMOUS OPTION -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.student_identity_label}"/>
+      <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.student_identity_label}"/>
       <div class="col-md-10 samigo-checkbox">
         <h:selectBooleanCheckbox id="anonymousGrading" value="#{assessmentSettings.anonymousGrading}"/>
         <h:outputLabel value="#{assessmentSettingsMessages.student_identity}" for="anonymousGrading"/>
@@ -603,7 +599,7 @@
     
     <!-- GRADEBOOK OPTION -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
-      <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.gradebook_options}"/>
+      <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.gradebook_options}"/>
       <div class="col-md-10 samigo-checkbox">
         <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}" onclick="toggleCategories(this);"/>
         <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options_help}" for="toDefaultGradebook"/>
@@ -621,15 +617,13 @@
     <!-- *** FEEDBACK *** -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true or assessmentSettings.valueMap.feedbackType_isInstructorEditable==true or assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}" >
 
-      <div class="page-header">
-        <h4 class="samigo-category-subhead-2">
-          <h:outputText escape="false" value="#{assessmentSettingsMessages.heading_feedback}"/>
-        </h4>
+      <div class="samigo-subheading">
+          <h:outputLabel escape="false" value="#{assessmentSettingsMessages.heading_feedback}"/>
       </div>
 
     <!-- FEEDBACK AUTHORING -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" for="feedbackAuthoring" value="#{assessmentSettingsMessages.feedback_level}"/>
+      <h:outputLabel styleClass="col-md-2 form-control-label" for="feedbackAuthoring" value="#{assessmentSettingsMessages.feedback_level}"/>
       <div class="col-md-10">
         <t:selectOneRadio id="feedbackAuthoring" value="#{assessmentSettings.feedbackAuthoring}" layout="spread">
            <f:selectItem itemValue="1" itemLabel="#{commonMessages.question_level_feedback}"/>
@@ -646,7 +640,7 @@
 
     <!-- FEEDBACK DELIVERY -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" for="feedbackDelivery" value="#{assessmentSettingsMessages.feedback_type}"/>
+      <h:outputLabel styleClass="col-md-2 form-control-label" for="feedbackDelivery" value="#{assessmentSettingsMessages.feedback_type}"/>
       <div class="col-md-10">
         <t:selectOneRadio id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}" onclick="setBlockDivs();disableAllFeedbackCheck(this.value);" layout="spread">
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.no_feedback}"/>
@@ -661,9 +655,9 @@
           <li><t:radio renderLogicalId="true" for="feedbackDelivery" index="3" /></li>
         </ul>
         <div id="feedbackByDatePanel" style="display:none;" class="tier2 samigo-checkbox">
-            <h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}"/> <h:inputText value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" /></br>
-            <h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}"/> <h:inputText value="#{assessmentSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" /></br>
-            <h:selectBooleanCheckbox value="#{assessmentSettings.feedbackScoreThresholdEnabled}" id="feedbackScoreThresholdEnabled"/> <h:outputLabel for="feedbackScoreThresholdEnabled" value="#{assessmentSettingsMessages.feedback_score_threshold}"/> <h:inputText id="feedbackScoreThreshold" size="4" value="#{assessmentSettings.feedbackScoreThreshold}"/>&#37;
+            <p><h:outputLabel for="feedbackDate" value="#{assessmentSettingsMessages.feedback_start_date}&nbsp;" escape="false" /> <h:inputText value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" /></p>
+            <p><h:outputLabel for="feedbackEndDate" value="#{assessmentSettingsMessages.feedback_end_date}&nbsp;" escape="false" /> <h:inputText value="#{assessmentSettings.feedbackEndDateString}" size="25" id="feedbackEndDate" /></p>
+            <p><h:selectBooleanCheckbox value="#{assessmentSettings.feedbackScoreThresholdEnabled}" id="feedbackScoreThresholdEnabled"/> <h:outputLabel for="feedbackScoreThresholdEnabled" value="#{assessmentSettingsMessages.feedback_score_threshold}&nbsp;" escape="false" /> <h:inputText id="feedbackScoreThreshold" size="4" value="#{assessmentSettings.feedbackScoreThreshold}"/>&#37;</p>
         </div>
       </div>
     </h:panelGroup>
@@ -672,9 +666,9 @@
     <h:panelGroup rendered="#{assessmentSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
 
       <div class="form-group row">
-        <h:outputLabel styleClass="col-md-2" for="feedbackComponentOption" value="#{assessmentSettingsMessages.feedback_components}"/>
+        <h:outputLabel styleClass="col-md-2 form-control-label" for="feedbackComponentOption" value="#{assessmentSettingsMessages.feedback_components}"/>
         <div class="col-md-10">
-            <t:selectOneRadio id="feedbackComponentOption" value="#{assessmentSettings.feedbackComponentOption}" onclick="setBlockDivs();disableOtherFeedbackComponentOption(this);" layout="pageDirection">
+            <t:selectOneRadio id="feedbackComponentOption" value="#{assessmentSettings.feedbackComponentOption}" onclick="setBlockDivs();disableOtherFeedbackComponentOption(this);" layout="pageDirection" styleClass="samigo-radio">
                 <f:selectItem itemValue="1" itemLabel="#{templateMessages.feedback_components_totalscore_only}"/>
                 <f:selectItem itemValue="2" itemLabel="#{templateMessages.feedback_components_select}"/>
             </t:selectOneRadio>
@@ -726,7 +720,7 @@
 
     <!-- NAVIGATION -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" />
+      <h:outputLabel styleClass="col-md-2 form-control-label" for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" />
       <div class="col-md-10">
         <t:selectOneRadio id="itemNavigation" value="#{assessmentSettings.itemNavigation}" layout="spread" onclick="setBlockDivs();updateItemNavigation(true);">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
@@ -744,7 +738,7 @@
 
     <!-- QUESTION LAYOUT -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayChunking_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" for="assessmentFormat" value="#{assessmentSettingsMessages.question_layout}" />
+      <h:outputLabel styleClass="col-md-2 form-control-label" for="assessmentFormat" value="#{assessmentSettingsMessages.question_layout}" />
       <div class="col-md-10">
         <t:selectOneRadio id="assessmentFormat" value="#{assessmentSettings.assessmentFormat}" layout="spread">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.layout_by_question}"/>
@@ -761,7 +755,7 @@
 
     <!-- NUMBERING -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.displayNumbering_isInstructorEditable==true}">
-      <h:outputLabel styleClass="col-md-2" for="itemNumbering" value="#{assessmentSettingsMessages.numbering}" />
+      <h:outputLabel styleClass="col-md-2 form-control-label" for="itemNumbering" value="#{assessmentSettingsMessages.numbering}" />
       <div class="col-md-10">
          <t:selectOneRadio id="itemNumbering" value="#{assessmentSettings.itemNumbering}" layout="spread">
            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.continous_numbering}"/>
@@ -778,7 +772,7 @@
   <!-- *** MARK FOR REVIEW *** -->
   <!-- *** (disabled for linear assessment) *** -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.markForReview_isInstructorEditable==true}">
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.mark_for_review}" />
+    <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.mark_for_review}" />
     <div class="col-md-10 samigo-checkbox">
       <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
       <h:outputLabel for="markForReview1" value="#{assessmentSettingsMessages.mark_for_review_label}"/>
@@ -787,7 +781,7 @@
  
   <!-- *** COLORS AND GRAPHICS	*** -->
   <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
-    <h:outputLabel styleClass="col-md-2" value="#{assessmentSettingsMessages.background_label}" />
+    <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.background_label}" />
     <div class="col-md-10 samigo-radio">
       <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.background_color}"/>

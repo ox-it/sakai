@@ -20,8 +20,8 @@
 --%>
 -->
 <!-- ASSESSMENT ATTACHMENTS -->
-<h:outputLabel value="#{assessmentSettingsMessages.attachments}" />
-  <br/>
+<h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.attachments}" />
+  <div class="col-md-10">
   <h:panelGroup rendered="#{publishedSettings.hasAttachment}">
     <h:dataTable value="#{publishedSettings.attachmentList}" var="attach">
       <h:column>
@@ -56,5 +56,4 @@
              value="#{assessmentSettingsMessages.add_remove_attachments}"/>
     </sakai:button_bar>
   </h:panelGroup>
-  
-
+  </div>

@@ -69,17 +69,6 @@ table.presentation p {
   font-size: 1.1em;
   margin: 8px 0;
 }
-h4.samigo-category-subhead {
-  font-weight: bold;
-  padding-bottom: 8px;
-  color: black;
-}
-
-h4.samigo-category-subhead-2 {
-  font-weight: bold;
-  margin-top: -2px;
-  color: black;
-}
 
 .treefolder {
  background-repeat: no-repeat;
@@ -569,6 +558,9 @@ a.hideDivision {
 {
   color: #aaa;
 }
+#assessmentSettingsAction\:finalPageUrlValidate {
+    margin-top: 4px;
+}
 .submissionInfoCol1{
     width: 200px; 
 }
@@ -975,9 +967,8 @@ background-color:#DBDBDB;
     margin-top: 3px;
 }
 
-.groupTable {
-	margin-top: 4px;
-    margin-left: 269px;
+#assessmentSettingsAction .hasDatepicker {
+    height: 34px;
 }
 
 label.inactive
