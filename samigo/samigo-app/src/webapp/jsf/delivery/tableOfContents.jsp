@@ -48,14 +48,6 @@
 
 <!-- content... -->
 <script type="text/javascript">
-function isFromLink() {
-  if (${delivery.actionMode} == 5) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 function noenter(){
 return!(window.event && window.event.keyCode == 13);
 }
@@ -100,26 +92,7 @@ function saveTime()
     <h1><h:outputText value="#{delivery.assessmentTitle} " escape="false"/></h1>
 </div>
 
-<!-- BEGIN OF TIMER -->
-<h:panelGroup rendered="#{(delivery.timeElapseAfterFileUpload == null || delivery.timeElapseDouble ge delivery.timeElapseAfterFileUploadDouble) && delivery.hasTimeLimit == true}">
-  <samigo:timerBar height="15" width="300"
-    wait="#{delivery.timeLimit}"
-    elapsed="#{delivery.timeElapse}"
-    expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
- </h:panelGroup>
- <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null && delivery.timeElapseDouble lt delivery.timeElapseAfterFileUploadDouble && delivery.hasTimeLimit == true}">
- <samigo:timerBar height="15" width="300"
-     wait="#{delivery.timeLimit}"
-     elapsed="#{delivery.timeElapseAfterFileUpload}"
-     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=10*'#{delivery.timeElapse}'; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; " />
-</h:panelGroup>
-
-<!-- END OF TIMER -->
-
-
-<h:panelGroup rendered="#{delivery.actionString=='previewAssessment'&& delivery.hasTimeLimit}" layout="block" styleClass="sak-banner-info">
-     <h:outputText value="#{deliveryMessages.timer_preview_not_available}"/>
-</h:panelGroup>
+<%@ include file="/jsf/delivery/assessmentDeliveryTimer.jsp" %>
 
 <div class="sak-banner-warn">
     <strong><h:outputText value="#{deliveryMessages.warning}#{deliveryMessages.column} "/></strong> 
@@ -151,8 +124,6 @@ function saveTime()
 
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
-<h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
-<h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 
     <h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
     <p style="margin-bottom:0"><h:outputText value="#{deliveryMessages.seeOrHide}" /> </p>

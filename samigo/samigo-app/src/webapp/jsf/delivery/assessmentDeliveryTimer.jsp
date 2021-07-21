@@ -31,7 +31,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     || delivery.actionString=='takeAssessmentViaUrl')
     && (delivery.hasTimeLimit || delivery.turnIntoTimedAssessment)}" >
 
-<h:panelGroup rendered="#{delivery.hasTimeLimit}">                        
+<h:panelGroup rendered="#{delivery.hasTimeLimit}">
 <f:verbatim><span id="timer"></span></f:verbatim>
 </h:panelGroup>
 
