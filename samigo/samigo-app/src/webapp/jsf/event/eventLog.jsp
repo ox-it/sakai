@@ -62,7 +62,7 @@
   </div>
 
  <div class="table-responsive">
- <h:dataTable styleClass="table table-striped" value="#{eventLog.eventLogDataList}" var="log">
+ <h:dataTable styleClass="table table-hover table-striped table-bordered" value="#{eventLog.eventLogDataList}" var="log">
   <!-- Assessment Title... -->
     <h:column>
     <f:facet name="header">

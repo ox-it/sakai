@@ -1048,8 +1048,11 @@ label.inactive
 
 #modifyPartForm fieldset
 {
-    padding: 1em 0 1em 0;
+    padding: 10px 0;
     margin: 0;
+}
+#modifyPartForm legend {
+    padding: 10px 0 0 0;
 }
 
 #modifyPartForm fieldset.addEditPartOptions

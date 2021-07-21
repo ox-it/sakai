@@ -38,7 +38,7 @@
   </h:panelGroup>	 
 
   <div class="table-responsive">
-   <h:dataTable styleClass="table table-striped" value="#{sectionActivity.sectionActivityDataList}" var="pageData">
+   <h:dataTable styleClass="table table-hover table-striped table-bordered" value="#{sectionActivity.sectionActivityDataList}" var="pageData">
 	 <!-- Title.. -->
 	 <h:column rendered="#{sectionActivity.sortType != 'assessmentName'}">
 	  <f:facet name="header">

@@ -60,32 +60,6 @@ function checkUpdate()
 <!-- content... -->
 <h:form id="questionpoolshare">
 
-<ul class="navIntraTool actionToolbar" role="menu">
-    <li role="menuitem">
-        <span>
-            <h:commandLink title="#{generalMessages.t_assessment}" action="author"  immediate="true">
-                <h:outputText value="#{generalMessages.assessment}"/>
-                <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
-            </h:commandLink>
-        </span>
-    </li>
-    <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">
-        <li role="menuitem">
-            <span>
-                <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
-                    <h:outputText value="#{generalMessages.template}"/>
-                    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-                </h:commandLink>
-            </span>
-        </li>
-    </h:panelGroup>
-    <li role="menuitem">
-        <span class="current">
-            <h:outputText value="#{questionPoolMessages.qps}"/>
-        </span>
-    </li>
-</ul>
-
 <div class="page-header">
     <h1><h:outputText value="#{questionPoolMessages.share_pool}"/></h1>
 </div>
