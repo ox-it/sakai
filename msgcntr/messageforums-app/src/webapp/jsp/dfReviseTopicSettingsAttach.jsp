@@ -245,17 +245,19 @@
 				<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-info" rendered="#{!ForumTool.postAnonymousRevisable && ForumTool.existingTopic}"/>
 			</h:outputLabel>
 		</t:htmlTag>
-		<t:htmlTag value="p" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="checkbox indnt1 anonTopic" rendered="#{ForumTool.anonymousEnabled}">
-			<h:selectBooleanCheckbox
-				title="revealIDsToRoles" value="#{ForumTool.selectedTopic.topicRevealIDsToRoles}"
-				id="topic_revealIDsToRoles"
-				disabled="#{!ForumTool.newTopicOrRevealIDsToRolesRevisable}">
-			</h:selectBooleanCheckbox>
-			<h:outputLabel for="topic_revealIDsToRoles">
-				<h:outputText value="#{msgs.cdfm_revealIDsToRoles}"/>
-				<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-info" rendered="#{!ForumTool.revealIDsToRolesRevisable && !ForumTool.existingTopic}"/>
-				<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-info" rendered="#{!ForumTool.revealIDsToRolesRevisable && ForumTool.existingTopic}"/>
-			</h:outputLabel>
+		<t:htmlTag value="div" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="indnt2 anonTopic" rendered="#{ForumTool.anonymousEnabled}">
+			<p class="checkbox">
+				<h:selectBooleanCheckbox
+					title="revealIDsToRoles" value="#{ForumTool.selectedTopic.topicRevealIDsToRoles}"
+					id="topic_revealIDsToRoles"
+					disabled="#{!ForumTool.newTopicOrRevealIDsToRolesRevisable}">
+				</h:selectBooleanCheckbox>
+				<h:outputLabel for="topic_revealIDsToRoles">
+					<h:outputText value="#{msgs.cdfm_revealIDsToRoles}"/>
+					<h:outputText value="#{msgs.cdfm_noReviseAfter}" styleClass="sak-banner-info" rendered="#{!ForumTool.revealIDsToRolesRevisable && !ForumTool.existingTopic}"/>
+					<h:outputText value="#{msgs.cdfm_noRevise}" styleClass="sak-banner-info" rendered="#{!ForumTool.revealIDsToRolesRevisable && ForumTool.existingTopic}"/>
+				</h:outputLabel>
+			</p>
 		</t:htmlTag>
 
 		<h2><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h2>
