@@ -80,7 +80,7 @@ public class RubricsApplication extends SpringBootServletInitializer {
         };
         srb.setName("sakai.rubrics");
         srb.setLoadOnStartup(0);
-        srb.addUrlMappings("/", "/index");
+        srb.addUrlMappings("/", "/index", "/getSiteTitleForRubric", "/getCreatorDisplayNameForRubric");
         return srb;
     }
 

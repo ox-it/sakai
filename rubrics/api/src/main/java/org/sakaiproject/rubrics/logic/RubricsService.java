@@ -69,4 +69,17 @@ public interface RubricsService {
 
     void deleteSiteRubrics(String siteId);
 
+    /**
+     * Gets the user-specific site title in which this Rubric is owned.
+     * @param token a JwtToken
+     * @throws Exception if any error occurs at all
+     */
+    public String getSiteTitleForRubric(long rubricId, String token) throws Exception;
+
+    /**
+     * Gets the display name for a Rubric's creator via UserDirectoryService.
+     * @param token a JwtToken
+     * @throws Exception if any error occurs at all
+     */
+    public String getCreatorDisplayNameForRubric(long rubricId, String token) throws Exception;
 }

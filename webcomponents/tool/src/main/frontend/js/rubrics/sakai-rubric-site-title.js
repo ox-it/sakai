@@ -6,20 +6,34 @@ export class SakaiRubricSiteTitle extends RubricsElement {
   constructor() {
 
     super();
-
+    this.rubricId = "";
     this.siteId = "";
     this.siteTitle = "";
+    this.token = "";
   }
 
   static get properties() {
-    return { siteId: {attribute: "site-id", type: String}, siteTitle: {attribute: true, type: String} };
+    return {
+        rubricId: {attribute: "rubric-id", type: String},
+        siteId: {attribute: "site-id", type: String},
+        siteTitle: {type: String},
+        token: {type: String}
+    };
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
 
     super.attributeChangedCallback(name, oldValue, newValue);
 
-    if ("site-id" === name) {
+    if (name === "rubric-id") {
+        this.rubricId = newValue;
+    } else if (name === "site-id") {
+        this.siteId = newValue;
+    } else if (name === "token") {
+        this.token = newValue;
+    }
+
+    if (this.rubricId && this.siteId && this.token) {
       this.setSiteTitle();
     }
   }
@@ -32,7 +46,9 @@ export class SakaiRubricSiteTitle extends RubricsElement {
 
     var self = this;
     jQuery.ajax({
-      url: '/sakai-ws/rest/sakai/getSiteTitle?sessionid=' + sakaiSessionId + '&siteid=' + this.siteId
+      url: `/rubrics-service/getSiteTitleForRubric?rubricId=${this.rubricId}`,
+      headers: {"authorization": this.token},
+      contentType: "application/json"
     }).done(function (response) {
       self.siteTitle = response;
     }).fail(function () {

@@ -72,9 +72,11 @@ import org.sakaiproject.rubrics.logic.model.Evaluation;
 import org.sakaiproject.rubrics.logic.model.Rating;
 import org.sakaiproject.rubrics.logic.model.Rubric;
 import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.hateoas.Link;
@@ -1263,4 +1265,55 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         }
     }
 
+    /**
+     * Gets a rubric by its id.
+     * Implementation invokes a Rest call - essentially calls RubricsRepository in the API module.
+     * A refactor to accomplish this in pure-java is welcome.
+     * @param token the user's JwtToken (should be prefixed with "Bearer ")
+     * @throws Exception if any error occurs at all
+     */
+    private Rubric getRubric(long rubricId, String token) throws Exception {
+        URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Authorization", token);
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<Rubric> rubricEntity = restTemplate.exchange(apiBaseUrl + "rubrics/" + rubricId + "?projection=inlineRubric", HttpMethod.GET, requestEntity, Rubric.class);
+        Rubric rubric = rubricEntity.getBody();
+        if (rubric.getMetadata().isShared()) {
+            return rubric;
+        }
+        else if (securityService.unlock("rubrics.editor", "/site/" + rubric.getMetadata().getOwnerId())) {
+            return rubric;
+        }
+        throw new SecurityException("Attempt to access a rubric that isn't shared, and the user does not have access to the site in which it is owned");
+    }
+
+    @Override
+    public String getSiteTitleForRubric(long rubricId, String token) throws Exception {
+        try {
+            Rubric rubric = getRubric(rubricId, token);
+            String siteId = rubric.getMetadata().getOwnerId();
+            String userId = sessionManager.getCurrentSessionUserId();
+            Site site = siteService.getSite(siteId);
+            return siteService.getUserSpecificSiteTitle(site, userId);
+        } catch (Exception e) {
+            log.warn("An error occurred resolving the site title", e);
+            throw e;
+        }
+    }
+
+    @Override
+    public String getCreatorDisplayNameForRubric(long rubricId, String token) throws Exception {
+        try {
+            Rubric rubric = getRubric(rubricId, token);
+            String creatorId = rubric.getMetadata().getCreatorId();
+            User user = userDirectoryService.getUser(creatorId);
+            return user.getDisplayName();
+        } catch (Exception e) {
+            log.warn("An error occurred resolving the user's display name", e);
+            throw e;
+        }
+    }
 }

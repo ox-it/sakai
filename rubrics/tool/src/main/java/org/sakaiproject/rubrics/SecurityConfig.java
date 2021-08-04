@@ -87,6 +87,8 @@ public class SecurityConfig extends GlobalMethodSecurityConfiguration {
                     .authorizeRequests().antMatchers(
                             "/",
                             "/index",
+                            "/getSiteTitleForRubric",
+                            "/getCreatorDisplayNameForRubric",
                             "/favicon.ico",
                             "/*.html",
                             "/**/*.html",

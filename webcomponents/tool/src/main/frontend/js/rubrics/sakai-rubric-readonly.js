@@ -9,7 +9,6 @@ export class SakaiRubricReadonly extends RubricsElement {
   constructor() {
 
     super();
-
     this.rubricExpanded = true;
   }
 
@@ -17,11 +16,12 @@ export class SakaiRubricReadonly extends RubricsElement {
 
     return {
       rubric: { type: Object },
+      token: { type: String }
     };
   }
 
   shouldUpdate(changedProperties) {
-    return changedProperties.has("rubric");
+    return changedProperties.has("rubric") && changedProperties.has("token");
   }
 
   render() {
@@ -35,8 +35,8 @@ export class SakaiRubricReadonly extends RubricsElement {
           </span>
         </div>
 
-        <div class="hidden-xs"><sakai-rubric-site-title site-id="${this.rubric.metadata.ownerId}"></sakai-rubric-site-title></div>
-        <div class="hidden-xs"><sakai-rubric-creator-name creator-id="${this.rubric.metadata.creatorId}"></sakai-rubric-creator-name></div>
+        <div class="hidden-xs"><sakai-rubric-site-title rubric-id="${this.rubric.id}" site-id="${this.rubric.metadata.ownerId}" token="${this.token}"></sakai-rubric-site-title></div>
+        <div class="hidden-xs"><sakai-rubric-creator-name rubric-id="${this.rubric.id}" creator-id="${this.rubric.metadata.creatorId}" token="${this.token}"></sakai-rubric-creator-name></div>
         <div class="hidden-xs"><sakai-rubric-modified-date modified="${this.rubric.metadata.modified}"></sakai-rubric-modified-date></div>
 
         <div class="actions">
