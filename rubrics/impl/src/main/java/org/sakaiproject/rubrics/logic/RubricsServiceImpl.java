@@ -1270,9 +1270,10 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
      * Implementation invokes a Rest call - essentially calls RubricsRepository in the API module.
      * A refactor to accomplish this in pure-java is welcome.
      * @param token the user's JwtToken (should be prefixed with "Bearer ")
+     * @param currentSiteId the user's current context
      * @throws Exception if any error occurs at all
      */
-    private Rubric getRubric(long rubricId, String token) throws Exception {
+    private Rubric getRubric(long rubricId, String token, String currentSiteId) throws Exception {
         URI apiBaseUrl = new URI(serverConfigurationService.getServerUrl() + RBCS_SERVICE_URL_PREFIX);
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -1281,7 +1282,7 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
         ResponseEntity<Rubric> rubricEntity = restTemplate.exchange(apiBaseUrl + "rubrics/" + rubricId + "?projection=inlineRubric", HttpMethod.GET, requestEntity, Rubric.class);
         Rubric rubric = rubricEntity.getBody();
-        if (rubric.getMetadata().isShared()) {
+        if (rubric.getMetadata().isShared() && securityService.unlock("rubrics.editor", "/site/" + currentSiteId)) {
             return rubric;
         }
         else if (securityService.unlock("rubrics.editor", "/site/" + rubric.getMetadata().getOwnerId())) {
@@ -1291,9 +1292,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     @Override
-    public String getSiteTitleForRubric(long rubricId, String token) throws Exception {
+    public String getSiteTitleForRubric(long rubricId, String token, String currentSiteId) throws Exception {
         try {
-            Rubric rubric = getRubric(rubricId, token);
+            Rubric rubric = getRubric(rubricId, token, currentSiteId);
             String siteId = rubric.getMetadata().getOwnerId();
             String userId = sessionManager.getCurrentSessionUserId();
             Site site = siteService.getSite(siteId);
@@ -1305,9 +1306,9 @@ public class RubricsServiceImpl implements RubricsService, EntityProducer, Entit
     }
 
     @Override
-    public String getCreatorDisplayNameForRubric(long rubricId, String token) throws Exception {
+    public String getCreatorDisplayNameForRubric(long rubricId, String token, String currentSiteId) throws Exception {
         try {
-            Rubric rubric = getRubric(rubricId, token);
+            Rubric rubric = getRubric(rubricId, token, currentSiteId);
             String creatorId = rubric.getMetadata().getCreatorId();
             User user = userDirectoryService.getUser(creatorId);
             return user.getDisplayName();

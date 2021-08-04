@@ -72,14 +72,16 @@ public interface RubricsService {
     /**
      * Gets the user-specific site title in which this Rubric is owned.
      * @param token a JwtToken
+     * @param currentSiteId the user's current context
      * @throws Exception if any error occurs at all
      */
-    public String getSiteTitleForRubric(long rubricId, String token) throws Exception;
+    public String getSiteTitleForRubric(long rubricId, String token, String currentSiteId) throws Exception;
 
     /**
      * Gets the display name for a Rubric's creator via UserDirectoryService.
      * @param token a JwtToken
+     * @param currentSiteId the user's current context
      * @throws Exception if any error occurs at all
      */
-    public String getCreatorDisplayNameForRubric(long rubricId, String token) throws Exception;
+    public String getCreatorDisplayNameForRubric(long rubricId, String token, String currentSiteId) throws Exception;
 }

@@ -127,6 +127,11 @@ public class JwtTokenUtil implements Serializable {
         }
     }
 
+    public String getContextFromToken(String token) {
+        JWT jwt = decodeToken(token);
+        return jwt.getClaim(JWT_CUSTOM_CLAIM_CONTEXT_ID).asString();
+    }
+
     private boolean isSakaiSessionStillValid(String session) {
         try {
 
