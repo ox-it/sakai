@@ -123,7 +123,7 @@ GradebookGradeSummary.prototype.setupStudentNavigation = function() {
     previousStudentId = studentsAsRendered[currentStudentIndex - 1].userId;
 
   }
-  if (currentStudentIndex < GbGradeTable.students.length - 1) {
+  if (currentStudentIndex < studentsAsRendered.length - 1) {
     nextStudentId = studentsAsRendered[currentStudentIndex + 1].userId;
   } 
 
