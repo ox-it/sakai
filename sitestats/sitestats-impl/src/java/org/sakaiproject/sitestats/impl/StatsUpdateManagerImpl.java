@@ -283,7 +283,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
             JobRun jobRun = null;
             Criteria c = session.createCriteria(JobRunImpl.class);
             c.setMaxResults(1);
-            c.addOrder(Order.desc("id"));
+            c.addOrder(Order.desc("jobStartDate"));
             List jobs = c.list();
             if(jobs != null && jobs.size() > 0){
                 jobRun = (JobRun) jobs.get(0);
@@ -301,7 +301,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
             Criteria c = session.createCriteria(JobRunImpl.class);
             c.add(Expression.isNotNull("lastEventDate"));
             c.setMaxResults(1);
-            c.addOrder(Order.desc("id"));
+            c.addOrder(Order.desc("jobStartDate"));
             List jobs = c.list();
             if(jobs != null && jobs.size() > 0){
                 JobRun jobRun = (JobRun) jobs.get(0);
