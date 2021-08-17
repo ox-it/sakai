@@ -62,7 +62,7 @@
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
        <h:outputLink rendered="#{delivery.actionString == 'takeAssessmentViaUrl'}" value="#{delivery.getPublishedURL()}">
-           <h:outputText value="#{deliveryMessages.data_discrepancy_button}" />
+           <h:outputText value="#{deliveryMessages.data_discrepancy_link}" />
        </h:outputLink>
  </p>
  </h:form>
