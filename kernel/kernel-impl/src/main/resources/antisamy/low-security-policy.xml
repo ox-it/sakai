@@ -38,6 +38,7 @@
 
 
     <regexp name="anything" value=".*" />
+    <regexp name="anyWithPara" value="(?s).*" />
     <regexp name="numberOrPercent" value="(\d)+(%{0,1})" />
     <regexp name="paragraph" value="([\p{L}\p{N},'\.\s\-_\(\)\?]|&amp;[0-9]{2};)*" />
     <regexp name="htmlId" value="[a-zA-Z0-9\:\-_\.]+" />
@@ -188,7 +189,7 @@
          
          <attribute name="alt" description="The 'alt' attribute provides alternative text to users when its visual representation is not available">
             <regexp-list>
-                <regexp name="paragraph"/>
+                <regexp name="anyWithPara"/>
             </regexp-list>
          </attribute>
 
@@ -477,13 +478,13 @@
         </attribute>
         <attribute name="mathsize">
             <regexp-list>
-                <literal-list>
-                    <literal value="small"/>
-                    <literal value="normal"/>
-                    <literal value="big"/>
-                </literal-list>
                 <regexp name="length"/>
             </regexp-list>
+            <literal-list>
+                <literal value="small"/>
+                <literal value="normal"/>
+                <literal value="big"/>
+            </literal-list>
         </attribute>
         <attribute name="xmlns">
             <regexp-list>
@@ -545,13 +546,13 @@
             </literal-list>
         </attribute>
         <attribute name="maxsize">
-            <literal-list>
-                <literal value="infinity"/>
-            </literal-list>
             <regexp-list>
                 <regexp name="length"/>
                 <regexp name="numberOrPercent"/>
             </regexp-list>
+            <literal-list>
+                <literal value="infinity"/>
+            </literal-list>
         </attribute>
         <attribute name="minsize">
             <regexp-list>
@@ -646,22 +647,22 @@
             </regexp-list>
         </attribute>
         <attribute name="indentshiftfirst">
-            <literal-list>
-                <literal value="indentshift"/>
-            </literal-list>
             <regexp-list>
                 <regexp name="length"/>
                 <regexp name="numberOrPercent"/>
             </regexp-list>
+            <literal-list>
+                <literal value="indentshift"/>
+            </literal-list>
         </attribute>
         <attribute name="indentshiftlast">
-            <literal-list>
-                <literal value="indentshift"/>
-            </literal-list>
             <regexp-list>
                 <regexp name="length"/>
                 <regexp name="numberOrPercent"/>
             </regexp-list>
+            <literal-list>
+                <literal value="indentshift"/>
+            </literal-list>
         </attribute>
         <attribute name="depth">
             <regexp-list>
@@ -670,20 +671,20 @@
             </regexp-list>
         </attribute>
         <attribute name="lquote">
-            <literal-list>
-                <literal value="&quot;"/>
-            </literal-list>
             <regexp-list>
                 <regexp name="extendedAlphaNumeric"/>
             </regexp-list>
+            <literal-list>
+                <literal value="&quot;"/>
+            </literal-list>
         </attribute>
         <attribute name="rquote">
-            <literal-list>
-                <literal value="&quot;"/>
-            </literal-list>
             <regexp-list>
                 <regexp name="extendedAlphaNumeric"/>
             </regexp-list>
+            <literal-list>
+                <literal value="&quot;"/>
+            </literal-list>
         </attribute>
         <attribute name="src">
             <regexp-list>
@@ -692,15 +693,15 @@
             </regexp-list>
         </attribute>
         <attribute name="linethickness">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
             <literal-list>
                 <literal value="thin"/>
                 <literal value="medium"/>
                 <literal value="thick"/>
             </literal-list>
-            <regexp-list>
-                <regexp name="length"/>
-                <regexp name="numberOrPercent"/>
-            </regexp-list>
         </attribute>
         <attribute name="numalign">
             <literal-list>
@@ -1099,6 +1100,7 @@
         <!-- Not valid in base, br, frame, frameset, hr, iframe, param, and script elements.  -->
         <attribute name="lang"/>
         <attribute name="dir"/>
+        <attribute name="role"/>
     </global-tag-attributes>
 
     <dynamic-tag-attributes>
@@ -1130,6 +1132,11 @@
 
         <!-- Frame & related tags -->
         <tag name="iframe" action="validate">
+            <attribute name="allow">
+                <regexp-list>
+                    <regexp name="anything"/>
+                </regexp-list>
+            </attribute>
             <attribute name="height"/>
             <attribute name="width"/>
             <attribute name="frameborder">
@@ -1412,9 +1419,9 @@
                 </regexp-list>
             </attribute>
             <attribute name="rel">
-                <literal-list>
-                    <literal value="nofollow"/>
-                </literal-list>
+                <regexp-list>
+                    <regexp name="anything"/>
+                </regexp-list>
             </attribute>
             <attribute name="name"/>
             <attribute name="target" onInvalid="filterTag">
@@ -1465,46 +1472,56 @@
             <attribute name="height"/>
             <attribute name="width"/>
             <attribute name="autoplay">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
                 <literal-list>
                     <literal value="autoplay"/>
                 </literal-list>
+            </attribute>
+            <attribute name="controls">
                 <regexp-list>
                     <regexp name="boolean"/>
                 </regexp-list>
-            </attribute>
-            <attribute name="controls">
                 <literal-list>
                     <literal value="controls"/>
                 </literal-list>
+            </attribute>
+            <attribute name="controlslist">
                 <regexp-list>
                     <regexp name="boolean"/>
                 </regexp-list>
+                <literal-list>
+                    <literal value="nodownload"/>
+                    <literal value="nofullscreen"/>
+                    <literal value="noremoteplayback"/>
+                </literal-list>
             </attribute>
             <attribute name="muted">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
                 <literal-list>
                     <literal value="muted"/>
                 </literal-list>
+            </attribute>
+            <attribute name="loop">
                 <regexp-list>
                     <regexp name="boolean"/>
                 </regexp-list>
-            </attribute>
-            <attribute name="loop">
                 <literal-list>
                     <literal value="loop"/>
                 </literal-list>
+            </attribute>
+            <attribute name="preload">
                 <regexp-list>
                     <regexp name="boolean"/>
                 </regexp-list>
-            </attribute>
-            <attribute name="preload">
                 <literal-list>
                     <literal value="auto"/>
                     <literal value="metadata"/>
                     <literal value="none"/>
                 </literal-list>
-                <regexp-list>
-                    <regexp name="boolean"/>
-                </regexp-list>
             </attribute>
             <attribute name="src" onInvalid="removeTag">
                 <regexp-list>
@@ -1522,46 +1539,46 @@
 
         <tag name="audio" action="validate">
             <attribute name="autoplay">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
                 <literal-list>
                     <literal value="autoplay"/>
                 </literal-list>
+            </attribute>
+            <attribute name="controls">
                 <regexp-list>
                     <regexp name="boolean"/>
                 </regexp-list>
-            </attribute>
-            <attribute name="controls">
                 <literal-list>
                     <literal value="controls"/>
                 </literal-list>
+            </attribute>
+            <attribute name="muted">
                 <regexp-list>
                     <regexp name="boolean"/>
                 </regexp-list>
-            </attribute>
-            <attribute name="muted">
                 <literal-list>
                     <literal value="muted"/>
                 </literal-list>
+            </attribute>
+            <attribute name="loop">
                 <regexp-list>
                     <regexp name="boolean"/>
                 </regexp-list>
-            </attribute>
-            <attribute name="loop">
                 <literal-list>
                     <literal value="loop"/>
                 </literal-list>
+            </attribute>
+            <attribute name="preload">
                 <regexp-list>
                     <regexp name="boolean"/>
                 </regexp-list>
-            </attribute>
-            <attribute name="preload">
                 <literal-list>
                     <literal value="auto"/>
                     <literal value="metadata"/>
                     <literal value="none"/>
                 </literal-list>
-                <regexp-list>
-                    <regexp name="boolean"/>
-                </regexp-list>
             </attribute>
             <attribute name="src" onInvalid="removeTag">
                 <regexp-list>
@@ -1614,12 +1631,12 @@
                 </regexp-list>
             </attribute>
             <attribute name="default">
-                <literal-list>
-                    <literal value="default"/>
-                </literal-list>
                 <regexp-list>
                     <regexp name="boolean"/>
                 </regexp-list>
+                <literal-list>
+                    <literal value="default"/>
+                </literal-list>
             </attribute>
         </tag>
 
@@ -1708,11 +1725,11 @@
               </regexp-list>
             </attribute>
             <attribute name="reversed">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
                 <literal-list>
                     <literal value="reversed" />
-                    <regexp-list>
-                        <regexp name="boolean"/>
-                    </regexp-list>
                 </literal-list>
             </attribute>
             <attribute name="type">
@@ -1864,12 +1881,7 @@
             <attribute name="width"/>
         </tag>
 
-        <tag name="caption" action="validate">
-            <regexp-list>
-                <regexp name="basicAlphaNumeric"/>
-            </regexp-list>
-        </tag>
-
+        <tag name="caption" action="validate"/>
         <tag name="fieldset" action="validate"/>
         <tag name="legend" action="validate"/>
         
@@ -2620,12 +2632,12 @@
             <attribute name="alignmentscope"/>
             <attribute name="columnwidth"/>
             <attribute name="width">
-                <literal-list>
-                    <literal value="auto"/>
-                </literal-list>
                 <regexp-list>
                     <regexp name="extendedAlphaNumeric"/>
                 </regexp-list>
+                <literal-list>
+                    <literal value="auto"/>
+                </literal-list>
             </attribute>
             <attribute name="rowspacing"/>
             <attribute name="columnspacing"/>
