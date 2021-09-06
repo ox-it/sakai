@@ -286,7 +286,7 @@
     <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
-      <version>1.7.3</version>
+      <version>${sakai.jsoup.version}</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
