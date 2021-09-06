@@ -255,6 +255,13 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>${sakai.commons-compress.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!--Used in Webservices, Oxam, Shoal and CM -->
         <dependency>
             <groupId>org.hibernate</groupId>
