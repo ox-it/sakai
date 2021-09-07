@@ -114,9 +114,9 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 		    // go to the database for reads, to make sure we get most recent item data
 			simplePageToolDao.setRefreshMode();
 
-			simplePageBean.fixorder();
-
 			SimplePage page = simplePageBean.getCurrentPage();
+			simplePageBean.fixorder(page.getPageId());
+
 			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(page.getPageId());
 			
 		        SimplePage secondPage = null;
@@ -141,6 +141,8 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 
 			List<Long> moreItemIds = new ArrayList<>();
 			if (secondPage != null) {
+			    simplePageBean.fixorder(secondPageId);
+
 			    List<SimplePageItem> moreItems = simplePageToolDao.findItemsOnPage(secondPageId);
 
 			    if (moreItems != null && moreItems.size() > 0) {
