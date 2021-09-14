@@ -94,7 +94,6 @@ import org.sakaiproject.lessonbuildertool.SimpleStudentPageImpl;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderConstants;
 import org.sakaiproject.lessonbuildertool.api.LessonBuilderEvents;
 import org.sakaiproject.lessonbuildertool.util.LessonsSubNavBuilder;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -1245,7 +1244,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		item.setDescription(old.getDescription());
 		item.setHeight(old.getHeight());
 		item.setWidth(old.getWidth());
-		item.setAlt(old.getAlt());
+		item.setAlt(Objects.toString(old.getAlt(), ""));
 		item.setNextPage(old.getNextPage());
 		item.setFormat(old.getFormat());
 		item.setRequired(old.isRequired());
