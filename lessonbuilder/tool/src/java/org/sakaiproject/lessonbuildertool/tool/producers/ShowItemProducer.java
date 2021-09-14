@@ -319,8 +319,12 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			        messageLocator.getMessage("simplepage.reset-button")));
 	    }
 
+		String name = "";
 	    if (item != null)
-		simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());
+		{
+			name = Objects.toString(item.getName(), "");
+			simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), name);
+		}
 
 	    UIComponent nav = UIOutput.make(tofill, "nav");
 	    if (inline)
@@ -347,7 +351,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			if (index == breadcrumbs.size() - 1) {
 			    UIBranchContainer finalcrumb = UIBranchContainer.make(tofill, "crumb:");
 
-			    UIOutput.make(finalcrumb, "crumb-follow", item.getName());
+			    UIOutput.make(finalcrumb, "crumb-follow", name);
 			}
 			index++;
 		    }
@@ -377,7 +381,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			if (index == breadcrumbs.size() - 1) {
 			    UIBranchContainer finalcrumb = UIBranchContainer.make(tofill, "crumb:");
 
-			    UIOutput.make(finalcrumb, "crumb-follow", item.getName());
+			    UIOutput.make(finalcrumb, "crumb-follow", name);
 			}
 			index++;
 		    }
