@@ -1580,7 +1580,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 						descriptiondiv = UIOutput.make(tableRow, "description", messageLocator.getMessage(code));
 					} else {
-						descriptiondiv = UIOutput.make(tableRow, "description", i.getDescription());
+						descriptiondiv = UIOutput.make(tableRow, "description", Objects.toString(i.getDescription(), ""));
 					}
 					if (isInline)
 					    descriptiondiv.decorate(new UIFreeAttributeDecorator("style", "margin-top: 4px"));
@@ -1984,7 +1984,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UILink.make(tableRow, "image-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
-						UIOutput.make(tableRow, "description2", i.getDescription());
+						UIOutput.make(tableRow, "description2", Objects.toString(i.getDescription(), ""));
 
 					} else if (mmDisplayType == null && (youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
 						String youtubeUrl = SimplePageBean.getYoutubeUrlFromKey(youtubeKey);
@@ -2049,7 +2049,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UILink.make(tableRow, "youtube-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.youtube")));
 						}
 
-						UIOutput.make(tableRow, "description4", i.getDescription());
+						UIOutput.make(tableRow, "description4", Objects.toString(i.getDescription(), ""));
 						
 						// as of Oct 28, 2010, we store the mime type. mimeType
 						// null is an old entry.
@@ -2275,7 +2275,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    } 
                                 }
                             }
-			    UIOutput.make(tableRow, "description3", i.getDescription());
+			    UIOutput.make(tableRow, "description3", Objects.toString(i.getDescription(), ""));
                         } else {
 			    UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
                         }
@@ -2367,7 +2367,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UILink.make(tableRow, "iframe-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
-						UIOutput.make(tableRow, "description5", i.getDescription());
+						UIOutput.make(tableRow, "description5", Objects.toString(i.getDescription(), ""));
 					    } else {
 					        UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
 					    }
@@ -3359,7 +3359,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 					}
 
-					UIOutput.make(tableRow, "checklistDescription", i.getDescription());
+					UIOutput.make(tableRow, "checklistDescription", Objects.toString(i.getDescription(), ""));
 
 					List<SimpleChecklistItem> checklistItems = simplePageToolDao.findChecklistItems(i);
 
