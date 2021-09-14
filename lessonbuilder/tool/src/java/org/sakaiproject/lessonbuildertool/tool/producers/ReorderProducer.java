@@ -25,6 +25,7 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
@@ -225,7 +226,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 					text = messageLocator.getMessage("simplepage.break-column-here");
 				    UIOutput.make(row, "text-snippet", text);
 				} else {
-				    UIOutput.make(row, "description", i.getDescription());
+				    UIOutput.make(row, "description", Objects.toString(i.getDescription(), ""));
 				    showPageProducer.makeLink(row, "link", i, simplePageBean, simplePageToolDao, messageLocator, true, currentPage, false, Status.NOT_REQUIRED);
 				}
 				UIComponent del = UIOutput.make(row, "dellink").decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.delete")));
