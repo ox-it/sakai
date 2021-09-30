@@ -531,6 +531,8 @@ public class AssignmentAction extends PagedResourceActionII {
     private static final String NEW_ASSIGNMENT_SUBMISSION_TYPE = "new_assignment_submission_type";
     private static final String NEW_ASSIGNMENT_CATEGORY = "new_assignment_category";
     private static final String NEW_ASSIGNMENT_GRADE_TYPE = "new_assignment_grade_type";
+    private static final String NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING = "new_assignment_grade_type_switching";
+    private static final String NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM = "new_assignment_grade_type_switch_confirm";
     private static final String NEW_ASSIGNMENT_GRADE_POINTS = "new_assignment_grade_points";
     private static final String NEW_ASSIGNMENT_DESCRIPTION = "new_assignment_instructions";
     private static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
@@ -6636,6 +6638,24 @@ public class AssignmentAction extends PagedResourceActionII {
             state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, gradeType.ordinal());
         }
 
+        // check if grade type is switching and prompt for confirmation if graded submissions exist
+        if (StringUtils.isNotBlank(assignmentRef)) {
+            Assignment asn = getAssignment(assignmentRef, "setNewAssignmentParameters", state);
+            if (asn != null && gradeType != GRADE_TYPE_NONE && asn.getTypeOfGrade() != gradeType) {
+                state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING, Boolean.TRUE);
+                Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(asn);
+                if (submissions.stream().anyMatch(s -> s.getGraded())) {
+                    if (state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM) == null && validify) {
+                        state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM, Boolean.TRUE);
+                        addAlert(state, rb.getString("gradetype.change.confirm"));
+                    }
+                    else {
+                        state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM); // user has confirmed or we aren't validating
+                    }
+                }
+            }
+        }
+
         boolean sendToGradebook = gradeType == SCORE_GRADE_TYPE && params.getBoolean(NEW_ASSIGNMENT_SEND_TO_GRADEBOOK);
         String grading = sendToGradebook ? params.getString(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) : GRADEBOOK_INTEGRATION_NO;
         state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, grading);
@@ -7495,10 +7515,10 @@ public class AssignmentAction extends PagedResourceActionII {
 
         String assignmentId = params.getString("assignmentId");
 
-        // whether this is an editing which changes non-point graded assignment to point graded assignment?
-        boolean bool_change_from_non_point = false;
         // whether there is a change in the assignment resubmission choice
         boolean bool_change_resubmit_option = false;
+
+        boolean switchingGradeType = state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING) != null;
 
         // if there is a message at this point usually means there was some type of error
         if (StringUtils.isNotBlank((String) state.getAttribute(STATE_MESSAGE))) {
@@ -7528,11 +7548,6 @@ public class AssignmentAction extends PagedResourceActionII {
             addAlert(state, rb.getFormattedMessage("theisno"));
         } else {
             Map<String, String> p = a.getProperties();
-
-            if ((a.getTypeOfGrade() != SCORE_GRADE_TYPE) && ((Integer) state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE) == SCORE_GRADE_TYPE.ordinal())) {
-                // changing from non-point grade type to point grade type?
-                bool_change_from_non_point = true;
-            }
 
             if (propertyValueChanged(state, p, AssignmentConstants.ALLOW_RESUBMIT_NUMBER) || propertyValueChanged(state, p, AssignmentConstants.ALLOW_RESUBMIT_CLOSETIME)) {
                 bool_change_resubmit_option = true;
@@ -7723,14 +7738,14 @@ public class AssignmentAction extends PagedResourceActionII {
 
                 if (post) {
                     // we need to update the submission
-                    if (bool_change_from_non_point || bool_change_resubmit_option) {
+                    if (switchingGradeType || bool_change_resubmit_option) {
                         Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(a);
                         if (submissions != null) {
                             // assignment already exist and with submissions
                             for (AssignmentSubmission s : submissions) {
                                 if (s != null) {
                                     Map<String, String> sProperties = s.getProperties();
-                                    if (bool_change_from_non_point) {
+                                    if (switchingGradeType) {
                                         // set the grade to be empty for now
                                         s.setGrade("");
                                         s.setGraded(false);
@@ -11406,6 +11421,7 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_DUEYEAR);
         state.removeAttribute(NEW_ASSIGNMENT_DUEHOUR);
         state.removeAttribute(NEW_ASSIGNMENT_DUEMIN);
+        state.removeAttribute(NEW_ASSIGNMENT_PAST_DUE_DATE);
 
         state.removeAttribute(NEW_ASSIGNMENT_VISIBLEMONTH);
         state.removeAttribute(NEW_ASSIGNMENT_VISIBLEDAY);
@@ -11432,6 +11448,8 @@ public class AssignmentAction extends PagedResourceActionII {
         state.removeAttribute(NEW_ASSIGNMENT_SECTION);
         state.removeAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE);
+        state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING);
+        state.removeAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM);
         state.removeAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
         state.removeAttribute(NEW_ASSIGNMENT_DESCRIPTION);
         state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
