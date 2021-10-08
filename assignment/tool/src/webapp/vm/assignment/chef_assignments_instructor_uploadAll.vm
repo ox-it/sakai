@@ -8,19 +8,24 @@
 	#end
 	</h3>
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
-	<p class="instruction">
 		#if ($!download)
+			<p class="instruction">
 			$tlang.getString('downloadall.instruction')
 			<br />
 			<div class="highlight">
 				$tlang.getString('downloadall.note')
 			</div>
+			</p>
 		#else
+			<p class="instruction">
 			$tlang.getString('uploadall.instruction')<span class="reqStarInline">*</span>
-			<br />
+			</p>
+			<div class="sak-banner-info"><ul>
 			#set($downloadTemplateUrl="$accessPointUrl?contextString=" + $contextString + "&studentSubmissionText=true&studentSubmissionAttachment=true&gradeFile=true&feedbackTexts=true&feedbackComments=true&feedbackAttachments=true")
-			$tlang.getString('uploadall.instruction2')(<a href="$downloadTemplateUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>) $tlang.getString('uploadall.instruction4')
-			<br />
+			<li>$tlang.getString('uploadall.instruction2')(<a href="$downloadTemplateUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>)</li>
+			<li>$tlang.getString('uploadall.instruction4')</li>
+			<li>$uploadallInstruction5</li>
+			</ul></div>
 			<p class="highlight">
 				$tlang.getString('uploadall.note')
 			</p>
@@ -33,7 +38,7 @@
 				</p>
 			#end
 		#end
-	</p>
+
 	<form id="uploadAllForm" name="uploadAllForm" action="#toolForm('AssignmentAction')" method="post" onsubmit="return true;" enctype="multipart/form-data">
 			<input type="hidden" name="sakai_action" id="sakai_action" value="doUpload_all" />
 			<input type="hidden" name="flow" id="flow" value="upload" />
