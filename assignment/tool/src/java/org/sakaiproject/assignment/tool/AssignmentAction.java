@@ -6686,6 +6686,17 @@ public class AssignmentAction extends PagedResourceActionII {
                     addAlert(state, rb.getString("addtogradebook.wrongGradeScale"));
                 }
 
+                if (GRADEBOOK_INTEGRATION_ADD.equals(grading) && validify) {
+                    try {
+                        String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
+                        gradebookExternalAssessmentService.validateNewExternalAssessmentTitle(siteId, title);
+                    } catch (ConflictingAssignmentNameException cane) {
+                        addAlert(state, rb.getString("addtogradebook.validate.nonUniqueTitle"));
+                    } catch (InvalidGradeItemNameException igine) {
+                        addAlert(state, rb.getString("addtogradebook.validate.titleInvalidCharacters"));
+                    }
+                }
+
                 // if chosen as "associate", have to choose one assignment from Gradebook
                 if (grading.equals(GRADEBOOK_INTEGRATION_ASSOCIATE) && StringUtils.trimToNull(associateAssignment) == null) {
                     addAlert(state, rb.getString("grading.associate.alert"));
