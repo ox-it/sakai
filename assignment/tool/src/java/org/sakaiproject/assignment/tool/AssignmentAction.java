@@ -1740,7 +1740,7 @@ public class AssignmentAction extends PagedResourceActionII {
         Map<String, Reference> submissionAttachmentReferences = new HashMap<>();
         submission.getAttachments().forEach(refId -> {
             Reference reference = entityManager.newReference(refId);
-            if (!"true".equals(reference.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
+            if (reference.getProperties() != null && !"true".equals(reference.getProperties().getProperty(AssignmentConstants.PROP_INLINE_SUBMISSION))) {
                 submissionAttachmentReferences.put(refId, reference);
             }
         });
