@@ -10500,6 +10500,9 @@ public class AssignmentAction extends PagedResourceActionII {
             //this is only set during the read only view, so just return
             return false;
         }
+
+        boolean preExistingAlerts = state.getAttribute(STATE_MESSAGE) != null;
+
         ParameterParser params = data.getParameters();
         String submissionId = params.getString("submissionId");
         if (submissionId != null) {
@@ -10636,8 +10639,8 @@ public class AssignmentAction extends PagedResourceActionII {
                             addAlert(state, rb.getString("peerassessment.alert.savenoscorecomment"));
                         }
                     }
-                    if (("submit".equals(gradeOption) || "save".equals(gradeOption)) && state.getAttribute(STATE_MESSAGE) == null) {
-                        if (changed) {
+                    if (("submit".equals(gradeOption) || "save".equals(gradeOption)) ) {
+                        if (changed && state.getAttribute(STATE_MESSAGE) == null) {
                             //save this in the DB
                             assignmentPeerAssessmentService.savePeerAssessmentItem(item);
                             if (scoreChanged) {
@@ -10662,8 +10665,8 @@ public class AssignmentAction extends PagedResourceActionII {
                                 state.setAttribute(GRADE_SUBMISSION_SUBMIT, Boolean.TRUE);
                             }
                         }
-                        if (attachmentsChanged) {
-                            //save new attachments to the DB
+                        if (attachmentsChanged && !preExistingAlerts) {
+                            //save new attachments to the DB as long as there weren't any pre-existing alerts from prior to the form validation
                             assignmentPeerAssessmentService.savePeerAssessmentAttachments(item);
                         }
                     }
