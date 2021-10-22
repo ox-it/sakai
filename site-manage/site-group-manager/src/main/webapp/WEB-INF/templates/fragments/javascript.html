@@ -13,8 +13,36 @@
       }
     }
 
-  }
+  };
   /*]]>*/
+</script>
+<script th:fragment="importJs" th:inline="javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+        // Button spinners
+        $('#bulk-creation-submit-button').click(function(event) {
+            SPNR.disableControlsAndSpin(this, null);
+        });
+        $('#bulk-creation-cancel-button').click(function(event) {
+            SPNR.disableControlsAndSpin(this, null);
+            window.location.href = this.getAttribute('data-url');
+        });
+    });
+    /*]]>*/
+</script>
+<script th:fragment="importConfirmJs" th:inline="javascript">
+    /*<![CDATA[*/
+    $(document).ready(function() {
+        // Button spinners
+        $('#bulk-creation-submit-button').click(function(event) {
+            SPNR.disableControlsAndSpin(this, null);
+        });
+        $('#bulk-creation-back-button,#bulk-creation-cancel-button').click(function(event) {
+            SPNR.disableControlsAndSpin(this, null);
+            window.location.href = this.getAttribute('data-url');
+        });
+    });
+    /*]]>*/
 </script>
 <script th:fragment="indexJs" th:inline="javascript">
   /*<![CDATA[*/
@@ -34,10 +62,11 @@
       }
     }
 
-  }
+  };
 
   $('#delete-groups-cancel-button').click(function(e) {
     e.preventDefault;
+    SPNR.disableControlsAndSpin(this, null);
     window.location = window.location.href.replace('/sakai-site-group-manager.helper', '');
   });
 
@@ -60,7 +89,7 @@
       $('#confirmation-modal').modal('show');
       $('#deleted-groups-list').empty();
       $(':checkbox').each(function() {
-        if(this.checked && this.name == 'deletedGroupList') {
+        if(this.checked && this.name === 'deletedGroupList') {
           $('#deleted-groups-list').append('<li>' + this.getAttribute('groupinfo') + '</li>');
         }
       });
@@ -93,7 +122,19 @@
 
     //Enable or disable the submit button depending on the required fields
     $('input[type="text"], input[type="number"]').keyup(function() {
-      $(':input[type="submit"]').prop('disabled', !($('#groupTitle').val() != '' && $('#groupNumber').val() != '' && $('#groupMaxMembers').val() != ''));
+      $(':input[type="submit"]').prop('disabled', !($('#groupTitle').val() !== '' && $('#groupNumber').val() !== '' && $('#groupMaxMembers').val() !== ''));
+    });
+
+    // Button spinners
+    $('#create-joinableset-submit-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+    });
+    $('#save-joinableset-submit-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+    });
+    $('#create-joinableset-cancel-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+        window.location.href = this.getAttribute('data-url');
     });
   });
 
@@ -150,12 +191,12 @@
       window.location = 'group?'+new URLSearchParams(groupParams);
     });
 
-    if ($('#groupJoinableSet').val() == '') {
+    if ($('#groupJoinableSet').val() === '') {
       $('#joinableOptionsDiv').hide();
     }
 
     $('#groupJoinableSet').on('change', function() {
-      this.value != '' ? $('#joinableOptionsDiv').show() : $('#joinableOptionsDiv').hide();
+      this.value !== '' ? $('#joinableOptionsDiv').show() : $('#joinableOptionsDiv').hide();
     });
 
     //Initialize the multiselect component
@@ -165,10 +206,21 @@
       startUp: true,
       search: {
         left: '<input type="text" name="q" class="form-control" placeholder="'+searchPlaceHolderText+'" />',
-        right: '<input type="text" name="q" class="form-control" placeholder="'+searchPlaceHolderText+'" />',
+        right: '<input type="text" name="q" class="form-control" placeholder="'+searchPlaceHolderText+'" />'
       }
     });
 
+    // Button spinners
+    $('#create-group-submit-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+    });
+    $('#save-group-submit-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+    });
+    $('#create-group-cancel-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+        window.location.href = this.getAttribute('data-url');
+    });
   });
   /*]]>*/
 </script>
@@ -181,6 +233,15 @@
       this.checked = selectAllChecked;
     });
   });
+
+    // Button spinners
+    $('#autogroups-continue-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+    });
+    $('#autogroups-cancel-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+        window.location.href = this.getAttribute('data-url');
+    });
   /*]]>*/
 </script>
 
@@ -197,10 +258,19 @@
     });
   });
 
-  $("#autogroups-back-button").on('click', function () {
-    $('#wizardAction').val('back');
-    $('#autogroups-wizard-step2-form').submit();
-  });
+    // Button spinners
+    $('#autogroups-continue-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+    });
+    $('#autogroups-cancel-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+        window.location.href = this.getAttribute('data-url');
+    });
+    $("#autogroups-back-button").on('click', function () {
+        SPNR.disableControlsAndSpin(this, null);
+        $('#wizardAction').val('back');
+        $('#autogroups-wizard-step2-form').submit();
+    });
   /*]]>*/
 </script>
 
@@ -225,19 +295,37 @@
     }
   });
 
-  $("#autogroups-back-button").on('click', function () {
-    $('#wizardAction').val('back');
-    $('#autogroups-wizard-step3-form').submit();
-  });
+    // Button spinners
+    $('#autogroups-continue-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+    });
+    $('#autogroups-cancel-button').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+        window.location.href = this.getAttribute('data-url');
+    });
+    $("#autogroups-back-button").on('click', function () {
+        SPNR.disableControlsAndSpin(this, null);
+        $('#wizardAction').val('back');
+        $('#autogroups-wizard-step3-form').submit();
+    });
   /*]]>*/
 </script>
 
 <script th:fragment="autoGroupsStep4Js" th:inline="javascript">
   /*<![CDATA[*/
-  $("#autogroups-back-button-top,#autogroups-back-button").on('click', function () {
-    $('#wizardAction').val('back');
-    $('#autogroups-wizard-step4-form').submit();
-  });
+  // Button spinners
+    $('#autogroups-creategroups-button,#autogroups-creategroups-button-top').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+    });
+    $('#autogroups-cancel-button,#autogroups-cancel-button-top').click(function(event) {
+        SPNR.disableControlsAndSpin(this, null);
+        window.location.href = this.getAttribute('data-url');
+    });
+    $("#autogroups-back-button-top,#autogroups-back-button").on('click', function () {
+        SPNR.disableControlsAndSpin(this, null);
+        $('#wizardAction').val('back');
+        $('#autogroups-wizard-step4-form').submit();
+    });
   /*]]>*/
 </script>
 
