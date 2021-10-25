@@ -22,11 +22,12 @@
 
 package org.sakaiproject.tool.assessment.util;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.text.*;
+import org.apache.commons.beanutils.PropertyUtils;
 
 
 /**
@@ -67,41 +68,30 @@ public class BeanDateComparator
    * @param o2 object
    *
    * @return lt, eq, gt zero depending on whether o1 numerically lt,eq,gt o2
-   *
-   * @throws java.lang.UnsupportedOperationException DOCUMENTATION PENDING
    */
+  @Override
   public int compare(Object o1, Object o2)
   {
-    Map m1 = describeBean(o1);
-    Map m2 = describeBean(o2);
-    String s1 = (String) m1.get(propertyName);
-    String s2 = (String) m2.get(propertyName);
-    // we do not want to use null values for sorting
-    if(s1 == null) s1="";
-    if(s2 == null) s2="";
-
-    // This is the Date string produced: Mon Oct 05 18:48:15 CDT 2020
-    DateFormat dateFormat=new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
     Date i1 = null;
     Date i2 = null;
 
     try
     {
-      i1 = dateFormat.parse(s1);
+      Object d1 = PropertyUtils.getProperty(o1, propertyName);
+      Object d2 = PropertyUtils.getProperty(o2, propertyName);
+      if (d1 instanceof Date && d2 instanceof Date)
+      {
+        i1 = (Date) d1;
+        i2 = (Date) d2;
+      }
+      else
+      {
+        log.warn("Attempted to use date comparator on bean property {}, which is not a date.", propertyName);
+      }
     }
-    catch (ParseException e)
+    catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
     {
-      if (s1 != "") log.warn("Could not parse date in comparator, s1={}", s1);
-    }
-
-    try
-    {
-      
-      i2 = dateFormat.parse(s2);
-    }
-    catch (ParseException e)
-    {
-      if (s2 != "") log.warn("Could not parse date in comparator, s2={}", s2);
+      log.warn("Could not access bean property {}", propertyName);
     }
 
     if (i1 != null && i2 != null) return i1.compareTo(i2);
