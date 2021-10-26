@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -48,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -61,7 +61,6 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.api.FormattedText;
 import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
@@ -327,6 +326,9 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 		    log.info("Samigo export ("+columns+" columns): Using xslx format");
 		    wb = new XSSFWorkbook();
 		}
+		CellStyle dateStyle = wb.createCellStyle();
+		// get the only built-in format that displays date and time by default
+		dateStyle.setDataFormat(wb.getCreationHelper().createDataFormat().getFormat("m/d/yy h:mm"));
 
 		CellStyle boldStyle = wb.createCellStyle();
 		Font font = wb.createFont();
@@ -396,10 +398,8 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 							if (data instanceof Double) {
 								cell.setCellValue(ContextUtil.getRoundedValue(((Double)data).doubleValue(), 2));
 							} else if (data instanceof Date) {
-								// tell Excel this is a date
-								CellStyle style = wb.createCellStyle();
-								style.setDataFormat((short) 15);
-								cell.setCellStyle(style);
+								// tell Excel this is a date and time
+								cell.setCellStyle(dateStyle);
 								cell.setCellValue((Date) data);
 							} else {
 								AnswerSurveyConverter converter = new AnswerSurveyConverter();
