@@ -95,6 +95,7 @@ public class MessageForumStatisticsBean {
 		private String siteId;
 		private String siteUser;
 		private String siteUserId;
+		private String siteUserDisplayId;
 		private String siteAnonId = null;
 		private boolean useAnonId;
 		private int authoredForumsAmt;
@@ -133,6 +134,14 @@ public class MessageForumStatisticsBean {
 		
 		public void setSiteUserId(String newValue){
 			this.siteUserId = newValue;
+		}
+
+		public String getSiteUserDisplayId() {
+			return this.siteUserDisplayId;
+		}
+
+		public void setSiteUserDisplyaId(String newValue) {
+			this.siteUserDisplayId = newValue;
 		}
 
 		public String getSiteAnonId(){
@@ -344,6 +353,7 @@ public class MessageForumStatisticsBean {
 
 	private static final String LIST_PAGE = "dfStatisticsList";
 	private static final String NAME_SORT = "sort_by_name";
+	private static final String ID_SORT = "sort_by_id";
 	private static final String AUTHORED_SORT = "sort_by_num_authored";
 	private static final String READ_SORT = "sort_by_num_read";
 	private static final String UNREAD_SORT = "sort_by_num_unread";
@@ -398,12 +408,14 @@ public class MessageForumStatisticsBean {
 	
 	//Comparatibles
 	public static Comparator nameComparatorAsc;
+	public static Comparator displayNameComparatorAsc;
 	public static Comparator authoredComparatorAsc;
 	public static Comparator readComparatorAsc;
 	public static Comparator unreadComparatorAsc;
 	public static Comparator percentReadComparatorAsc;
 	public static Comparator GradeComparatorAsc;
 	public static Comparator nameComparatorDesc;
+	public static Comparator displayNameComparatorDesc;
 	public static Comparator authoredComparatorDesc;
 	public static Comparator readComparatorDesc;
 	public static Comparator unreadComparatorDesc;
@@ -639,6 +651,7 @@ public class MessageForumStatisticsBean {
 				String userId = item.getUser().getId();
 				userInfo.setSiteUserId(userId);
 				userInfo.setSiteUser(item.getName());
+				userInfo.setSiteUserDisplyaId(item.getUser().getDisplayId());
 				if (m_displayAnonIds)
 				{
 					String anonId = userIdAnonIdMap.get(userId);
@@ -850,7 +863,7 @@ public class MessageForumStatisticsBean {
 					Entry entry = (Entry) i.next();
 					MembershipItem item = (MembershipItem) entry.getValue();
 					if (null != item.getUser()) {
-						dUsers.add(new DecoratedUser(item.getUser().getId(), item.getName()));
+						dUsers.add(new DecoratedUser(item.getUser().getId(), item.getName(), item.getUser().getDisplayId()));
 					}
 				}
 			}
@@ -879,6 +892,7 @@ public class MessageForumStatisticsBean {
 
 				userInfo.setSiteUserId(item.getId());
 				userInfo.setSiteUser(item.getName());
+				userInfo.setSiteUserDisplyaId(item.getDisplayId());
 				// Set up the anonId for this userInfo if appropriate
 				userInfo.setUseAnonId(m_displayAnonIds);
 				if (m_displayAnonIds)
@@ -1304,6 +1318,11 @@ public class MessageForumStatisticsBean {
 		toggleSort(NAME_SORT);
 		return LIST_PAGE;
 	}
+
+	public String toggleIdSort() {
+		toggleSort(ID_SORT);
+		return LIST_PAGE;
+	}
 	
 	public String toggleAuthoredSort()	{
 		toggleSort(AUTHORED_SORT);
@@ -1490,6 +1509,11 @@ public class MessageForumStatisticsBean {
 		toggleSort(NAME_SORT);	    
 		return FORUM_STATISTICS_BY_TOPIC;
 	}
+
+	public String toggleTopicIdSort() {
+		toggleSort(ID_SORT);
+		return FORUM_STATISTICS_BY_TOPIC;
+	}
 	
 	public String toggleTopicAuthoredSort()	{    
 		toggleSort(AUTHORED_SORT);	    
@@ -1522,7 +1546,11 @@ public class MessageForumStatisticsBean {
 			return true;
 		return false;
 	}
-		
+
+	public boolean isIdSort() {
+		return sortBy.equals(ID_SORT);
+	}
+
 	public boolean isAuthoredSort() {
 		if (sortBy.equals(AUTHORED_SORT))
 			return true;
@@ -1577,6 +1605,8 @@ public class MessageForumStatisticsBean {
 		if(ascending){
 			if (sortBy.equals(NAME_SORT)){
 				return nameComparatorAsc;
+			}else if (sortBy.equals(ID_SORT)){
+				return displayNameComparatorAsc;
 			}else if (sortBy.equals(AUTHORED_SORT)){
 				return authoredComparatorAsc;
 			}else if (sortBy.equals(READ_SORT)){
@@ -1591,6 +1621,8 @@ public class MessageForumStatisticsBean {
 		}else{
 			if (sortBy.equals(NAME_SORT)){
 				return nameComparatorDesc;
+			}else if (sortBy.equals(ID_SORT)){
+				return displayNameComparatorDesc;
 			}else if (sortBy.equals(AUTHORED_SORT)){
 				return authoredComparatorDesc;
 			}else if (sortBy.equals(READ_SORT)){
@@ -1719,6 +1751,14 @@ public class MessageForumStatisticsBean {
 				return name1.compareTo(name2);
 			}
 		};
+
+		displayNameComparatorAsc = new Comparator(){
+			public int compare(Object item1, Object item2) {
+				String displayName1 = ((DecoratedCompiledMessageStatistics) item1).getSiteUserDisplayId();
+				String displayName2 = ((DecoratedCompiledMessageStatistics) item2).getSiteUserDisplayId();
+				return displayName1.compareTo(displayName2);
+			}
+		};
 		
 		authoredComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
@@ -1790,6 +1830,8 @@ public class MessageForumStatisticsBean {
 				return name2.compareTo(name1);
 			}
 		};
+
+		displayNameComparatorDesc = displayNameComparatorAsc.reversed();
 		
 		forumTitleComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
@@ -2973,12 +3015,17 @@ public class MessageForumStatisticsBean {
 	private class DecoratedUser{
 		private String id;
 		private String name;
+		private String displayId;
 		
 		public DecoratedUser(String id, String name){
 			this.id = id;
 			this.name = name;
 		}
-		
+		public DecoratedUser(String id, String name, String displayId){
+			this.id = id;
+			this.name = name;
+			this.displayId = displayId;
+		}
 		public String getId() {
 			return id;
 		}
@@ -2991,7 +3038,12 @@ public class MessageForumStatisticsBean {
 		public void setName(String name) {
 			this.name = name;
 		}
-		
+		public String getDisplayId() {
+			return displayId;
+		}
+		public void setDisplayId(String displayId) {
+			this.displayId = displayId;
+		}
 	}
 	
 	public Map<String, Integer> getStudentTopicMessagCount(){
