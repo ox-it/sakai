@@ -140,7 +140,7 @@ public class MessageForumStatisticsBean {
 			return this.siteUserDisplayId;
 		}
 
-		public void setSiteUserDisplyaId(String newValue) {
+		public void setSiteUserDisplayId(String newValue) {
 			this.siteUserDisplayId = newValue;
 		}
 
@@ -651,7 +651,7 @@ public class MessageForumStatisticsBean {
 				String userId = item.getUser().getId();
 				userInfo.setSiteUserId(userId);
 				userInfo.setSiteUser(item.getName());
-				userInfo.setSiteUserDisplyaId(item.getUser().getDisplayId());
+				userInfo.setSiteUserDisplayId(item.getUser().getDisplayId());
 				if (m_displayAnonIds)
 				{
 					String anonId = userIdAnonIdMap.get(userId);
@@ -892,7 +892,7 @@ public class MessageForumStatisticsBean {
 
 				userInfo.setSiteUserId(item.getId());
 				userInfo.setSiteUser(item.getName());
-				userInfo.setSiteUserDisplyaId(item.getDisplayId());
+				userInfo.setSiteUserDisplayId(item.getDisplayId());
 				// Set up the anonId for this userInfo if appropriate
 				userInfo.setUseAnonId(m_displayAnonIds);
 				if (m_displayAnonIds)
