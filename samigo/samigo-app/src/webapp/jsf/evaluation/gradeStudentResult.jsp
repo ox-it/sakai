@@ -127,7 +127,7 @@ function toPoint(id)
 
   <h:panelGroup layout="block" styleClass="page-header">
     <h1>
-      <h:outputText value="#{totalScores.assessmentName} #{deliveryMessages.dash} #{studentScores.studentName}" rendered="#{totalScores.anonymous eq 'false'}"/>
+      <h:outputText value="#{totalScores.assessmentName} #{deliveryMessages.dash} #{studentScores.studentName} (#{studentScores.displayId})" rendered="#{totalScores.anonymous eq 'false'}"/>
       <h:outputText value="#{totalScores.assessmentName} #{deliveryMessages.dash} #{evaluationMessages.submission_id}#{deliveryMessages.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/>
     </h1>
   </h:panelGroup>

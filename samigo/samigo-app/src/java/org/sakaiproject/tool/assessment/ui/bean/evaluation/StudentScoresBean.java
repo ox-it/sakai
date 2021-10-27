@@ -55,6 +55,7 @@ public class StudentScoresBean implements Serializable {
   private String comments;
   private String publishedId;
   private String studentId;
+  private String displayId;
   private String assessmentGradingId;
   private String itemId; // ID of the first item; used by QuestionScores
   private String email;
@@ -126,6 +127,16 @@ public class StudentScoresBean implements Serializable {
   public void setStudentId(String newId)
   {
     studentId = newId;
+  }
+
+  public String getDisplayId()
+  {
+    return displayId;
+  }
+
+  public void setDisplayId(String displayId)
+  {
+    this.displayId = displayId;
   }
 
   public String getAssessmentGradingId()
