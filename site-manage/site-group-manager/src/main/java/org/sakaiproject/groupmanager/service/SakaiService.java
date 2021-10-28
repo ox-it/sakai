@@ -80,8 +80,24 @@ public class SakaiService  {
     @Inject
     private AuthzGroupService authzGroupService;
 
+    private final String STATE_SITE_ID = "site.instance.id";
+
     public Optional<Site> getCurrentSite() {
-        String siteId = toolManager.getCurrentPlacement().getContext();
+        String siteId = null;
+
+        // Try to get site ID from session context first
+        try {
+            siteId = sessionManager.getCurrentToolSession().getAttribute(STATE_SITE_ID).toString();
+        } catch (NullPointerException ex) {
+            // Site ID wasn't set in the helper call
+            log.debug("Site ID not found in session data");
+        }
+
+        // If we don't have a site ID from the session context, get the current site ID
+        if (siteId == null) {
+            siteId = toolManager.getCurrentPlacement().getContext();
+        }
+
         try {
             return Optional.of(siteService.getSite(siteId));
         } catch (Exception ex) {
