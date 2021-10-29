@@ -91,10 +91,6 @@
 			<input type="hidden" name="source" value="0" />
 			<table class="table table-hover table-striped table-bordered" summary="$tlang.getString("gen.ass.lis.sum")">
 				<tr>
-					<th id="attachments" class="attach hidden-xs" scope="col"> 
-						&nbsp;
-						<span class="sr-only">$tlang.getString("gen.att")</span>
-					</th>				
 					<th id="title" scope="col">
 						<a href="javascript:void(0)" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
 							$tlang.getString("gen.asstit")
@@ -225,13 +221,6 @@
 					## no need to do permission check again, since it was done when the list was constructed
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr>
-							<td headers="attachments" class="attach hidden-xs">
-								#if (!$assignment.getAttachments().isEmpty())
-									<i class="icon-sakai--clip"></i>
-								#else
-									&nbsp;
-								#end
-							</td>						
 							<td headers="title" scope="row">
 								#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignmentReference)) && $!view.equals('lisofass1'))
 									<strong>
@@ -247,6 +236,11 @@
 										#end
 											$formattedText.escapeHtml($!assignment.Title)
 										</a>
+
+										#if (!$assignment.getAttachments().isEmpty())
+											<i class="icon-sakai--clip" aria-hidden="true"></i>
+											<span class="sr-only">$tlang.getString("gen.has.att")</span>
+										#end
 
 										#if ($assignment.getContentReview())
 											<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
