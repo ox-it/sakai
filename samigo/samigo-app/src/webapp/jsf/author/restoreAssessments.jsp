@@ -13,9 +13,21 @@
             <script>includeWebjarLibrary('datatables');</script>
             <script>
                 $(document).ready(function() {
+                    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+                        "numeric-asc": function (a, b) {
+                            var numA = parseInt($(a).text()) || 0;
+                            var numB = parseInt($(b).text()) || 0;
+                            return ((numB < numA) ? 1 : ((numB > numA) ? -1 : 0));
+                        },
+                        "numeric-desc": function (a, b) {
+                            var numA = parseInt($(a).text()) || 0;
+                            var numB = parseInt($(b).text()) || 0;
+                            return ((numA < numB) ? 1 : ((numA > numB) ? -1 : 0));
+                        }
+                    });
                     var notEmptyTableTd = $("#restoreAssessmentsForm\\:deletedAssessmentsTable td:not(:empty)").length;
                     if (notEmptyTableTd > 0) {
-                        var table = $("#restoreAssessmentsForm\\:deletedAssessmentsTable").DataTable({
+                        $("#restoreAssessmentsForm\\:deletedAssessmentsTable").DataTable({
                             "dom": '<"sakai-table-toolBar"<"sakai-table-filterContainer"<"sakai-table-searchFilter"f>><"sakai-table-pagerContainer"<"sakai-table-pagerLabel"i><"sakai-table-pagerControls"l>>>tp',
                             "paging": true,
                             "lengthMenu": [[5, 10, 20, 50, 100, 200], [<h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu5}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu10}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu20}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu50}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu100}'" />, <h:outputText value="'#{authorFrontDoorMessages.datatables_lengthMenu200}'" />]],
@@ -24,8 +36,8 @@
                             "columns": [
                                 {"bSortable": true, "bSearchable": true, "type": "span"},
                                 {"bSortable": true, "bSearchable": true},
-                                {"bSortable": true, "bSearchable": true},
-                                {"bSortable": false, "bSearchable": false},
+                                {"bSortable": true, "bSearchable": true, "type": "numeric"},
+                                {"bSortable": false, "bSearchable": false}
                             ],
                             "language": {
                                 "search": <h:outputText value="'#{authorFrontDoorMessages.datatables_sSearch}'" />,
@@ -37,11 +49,11 @@
                                 "emptyTable": <h:outputText value="'#{authorFrontDoorMessages.datatables_infoEmpty}'" />,
                                 "paginate": {
                                     "next": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_next}'" />,
-                                    "previous": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_previous}'" />,
+                                    "previous": <h:outputText value="'#{authorFrontDoorMessages.datatables_paginate_previous}'" />
                                 },
                                 "aria": {
                                     "sortAscending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortAscending}'" />,
-                                    "sortDescending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortDescending}'" />,
+                                    "sortDescending": <h:outputText value="'#{authorFrontDoorMessages.datatables_aria_sortDescending}'" />
                                 }
                             },
                             "fnDrawCallback": function(oSettings) {
@@ -90,6 +102,7 @@
                             <h:outputText value="#{authorFrontDoorMessages.assessment_draft} - " styleClass="highlight" rendered="#{deletedAssessment.draft}" />
                             <h:outputText value="#{deletedAssessment.title}" />
                         </h:column>
+
                         <h:column>
                             <f:facet name="header">
                                 <h:outputText value="#{eventLogMessages.id}" />
@@ -102,7 +115,10 @@
                                 <h:outputText value="#{authorMessages.restore_assessments_deleted_on}" />
                             </f:facet>
                             <h:outputText value="#{deletedAssessment.lastModifiedDate}">
-                                <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                               <f:convertDateTime dateStyle="medium" timeStyle="short" timeZone="#{author.userTimeZone}" />
+                            </h:outputText>
+                            <h:outputText value="#{deletedAssessment.lastModifiedDate}" styleClass="hidden spanValue">
+                                <f:convertDateTime pattern="yyyyMMddHHmmss" />
                             </h:outputText>
                         </h:column>
 
