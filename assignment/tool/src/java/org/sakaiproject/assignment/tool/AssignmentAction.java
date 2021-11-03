@@ -14822,8 +14822,11 @@ public class AssignmentAction extends PagedResourceActionII {
                     String anon2 = u2.getSubmission().getId();
                     result = compareString(anon1, anon2);
                 } else {
-                    String lName1 = u1.getUser() == null ? u1.getGroup().getTitle() : u1.getUser().getSortName();
-                    String lName2 = u2.getUser() == null ? u2.getGroup().getTitle() : u2.getUser().getSortName();
+                    String context = u1.getSubmission().getAssignment().getContext();
+                    User user1 = u1.getUser();
+                    User user2 = u2.getUser();
+                    String lName1 = user1 == null ? u1.getGroup().getTitle() : user1.getSortName() + user1.getDisplayId(context);
+                    String lName2 = user2 == null ? u2.getGroup().getTitle() : user2.getSortName() + user2.getDisplayId(context);
                     result = compareString(lName1, lName2);
                 }
             } else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME)) {
@@ -14960,7 +14963,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 } else {
                     try {
-                        s1 = userDirectoryService.getUser(a1.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter()).getSortName();
+                        User u1 = userDirectoryService.getUser(a1.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter());
+                        s1 = u1.getSortName() + u1.getDisplayId(a1.getAssignment().getContext());
                     } catch (UserNotDefinedException e) {
                         log.warn("Cannot find user id while sorting by last name for submission: {}, {}", a1.getId(), e.getMessage());
                     }
@@ -14973,7 +14977,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     }
                 } else {
                     try {
-                        s2 = userDirectoryService.getUser(a2.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter()).getSortName();
+                        User u2 = userDirectoryService.getUser(a2.getSubmitters().toArray(new AssignmentSubmissionSubmitter[0])[0].getSubmitter());
+                        s2 = u2.getSortName() + u2.getDisplayId(a2.getAssignment().getContext());
                     } catch (UserNotDefinedException e) {
                         log.warn("Cannot find user id while sorting by last name for submission: {}, {}", a2.getId(), e.getMessage());
                     }
@@ -15079,8 +15084,11 @@ public class AssignmentAction extends PagedResourceActionII {
             /*************** sort user by sort name ***************/
             else if (m_criteria.equals(SORTED_USER_BY_SORTNAME)) {
                 // sort by user's sort name
-                String name1 = ((User) o1).getSortName();
-                String name2 = ((User) o2).getSortName();
+                String context = m_state == null ? "" : (String) m_state.getAttribute(STATE_CONTEXT_STRING);
+                User u1 = (User) o1;
+                User u2 = (User) o2;
+                String name1 = u1.getSortName() + u1.getDisplayId(context);
+                String name2 = u2.getSortName() + u2.getDisplayId(context);
 
                 result = compareString(name1, name2);
             }
