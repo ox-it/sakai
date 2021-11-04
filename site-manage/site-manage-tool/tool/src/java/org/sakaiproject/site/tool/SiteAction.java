@@ -4060,12 +4060,12 @@ public class SiteAction extends PagedResourceActionII {
 		List<Map<String, Object>> visibleTools, allTools;
 		String siteId = site == null? UUID.randomUUID().toString(): site.getId();
 		// get the list of launchable tools - visible and including stealthed
-		visibleTools = m_ltiService.getToolsLaunch(siteId);
+		visibleTools = m_ltiService.getToolsLaunch(siteId, true);
 		if (site == null) {
 			allTools = visibleTools;
 		} else {
 			// Get tools specfic for this site or that are available in all sites.
-			allTools = m_ltiService.getToolsLaunch(site.getId());
+			allTools = m_ltiService.getToolsLaunch(site.getId(), true);
 		}
 		if (visibleTools != null && !visibleTools.isEmpty()) {
 			HashMap<String, Map<String, Object>> ltiTools = new HashMap<>();
@@ -4074,8 +4074,8 @@ public class SiteAction extends PagedResourceActionII {
 			if (site != null) {
 				List<Map<String, Object>> contents = m_ltiService.getContentsDao(null, null, 0, 0, site.getId(), m_ltiService.isAdmin(site.getId()));
 				for (Map<String, Object> content : contents) {
-					String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
-					String ltiSiteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
+					String ltiToolId = content.get(LTIService.LTI_TOOL_ID).toString();
+					String ltiSiteId = StringUtils.trimToNull((String) content.get(LTIService.LTI_SITE_ID));
 					if (siteId != null) {
 						// whether the tool is already enabled in site
 						String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
@@ -4101,7 +4101,7 @@ public class SiteAction extends PagedResourceActionII {
          // First search list of visibleTools for those not selected (excluding stealthed tools)
 			for (Map<String, Object> toolMap : visibleTools ) {
 				String ltiToolId = toolMap.get("id").toString();
-				String ltiSiteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
+				String ltiSiteId = StringUtils.trimToNull((String) toolMap.get(LTIService.LTI_SITE_ID));
 				toolMap.put("selected", linkedLtiContents.containsKey(ltiSiteId));
 				if ( ltiSiteId == null || (site != null && siteId.equals(site.getId())))
 				{
@@ -4121,8 +4121,7 @@ public class SiteAction extends PagedResourceActionII {
                ltiTools.put(ltiToolId, toolMap);
             }
 			}
-         
-         
+
 			state.setAttribute(STATE_LTITOOL_LIST, ltiTools);
 			state.setAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST, linkedLtiContents);
 			context.put("ltiTools", ltiTools);
@@ -6273,7 +6272,7 @@ public class SiteAction extends PagedResourceActionII {
 		// set tool registration list
 		if (!"copy".equals(type))
 		{
-			setToolRegistrationList(state, type);
+			setToolRegistrationList(state, type, false);
 		}
 	}
 
@@ -6360,7 +6359,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		List<MyTool> toolsInOrderedList = new ArrayList<>();
 		
 		// see setToolRegistrationList()
-		List toolList = (List)state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+		List<MyTool> toolList = (List)state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+		List<String> chosenList = (List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+		Collection<String> stealthedToolIds = ToolManager.getStealthedToolIds();
 
 		// mark the required tools
 		List requiredTools = ServerConfigurationService.getToolsRequired(SiteTypeUtil.getTargetSiteType(type));
@@ -6394,7 +6395,10 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 				if (defaultTools != null && defaultTools.contains(toolId)) {
 					newTool.selected = true;
 				}
-				toolsInOrderedList.add(newTool);
+
+				if (!stealthedToolIds.contains(toolId) || (stealthedToolIds.contains(toolId) && chosenList.contains(toolId))) {
+					toolsInOrderedList.add(newTool);
+				}
 			}
 		}
 		
@@ -6511,12 +6515,11 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	}
 
 
-	private List selectedLTITools(Site site) {
+	private List<String> selectedLTITools(Site site) {
 		List selectedLTI = new ArrayList();
 		if (site !=null) {
 			String siteId = site.getId();
 			List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0, site.getId());
-			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
 			for ( Map<String,Object> content : contents ) {
 				String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
 				String ltiSiteId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
@@ -6603,26 +6606,25 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @return	list of MyTool items 
 	 */
 	private List<MyTool> getLtiToolGroup(String groupName, File moreInfoDir, Site site) {
-		List ltiSelectedTools = selectedLTITools(site);
+		List<String> ltiSelectedTools = selectedLTITools(site);
 		List <MyTool> ltiTools = new ArrayList<>();
 		List<Map<String, Object>> allTools;
 		Map <String, Integer> toolOrder = new HashMap<>();
 		String siteId = "";
 		if ( site == null ) {
 			// We dont' have a site yet so just ask for all the available ones.
-			allTools = m_ltiService.getToolsLaunch(siteId);
+			allTools = m_ltiService.getToolsLaunch(siteId, true);
 		}
 		else
 		{
 			siteId = Objects.toString(site.getId(), "");
-			allTools = m_ltiService.getToolsLaunch(siteId);
+			allTools = m_ltiService.getToolsLaunch(siteId, true);
 		}
 
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
-				Set keySet = tool.keySet();
-				String toolIdString = ObjectUtils.toString(tool.get(m_ltiService.LTI_ID));
-				boolean toolStealthed = "1".equals(ObjectUtils.toString(tool.get(m_ltiService.LTI_VISIBLE)));
+				String toolIdString = ObjectUtils.toString(tool.get(LTIService.LTI_ID));
+				boolean toolStealthed = "1".equals(ObjectUtils.toString(tool.get(LTIService.LTI_VISIBLE)));
 				boolean ltiToolSelected = ltiSelectedTools.contains(toolIdString); 
 				String siteRestriction = Objects.toString(tool.get(LTIService.LTI_SITE_ID), "");
 				boolean allowedForSite = siteRestriction.isEmpty() || siteRestriction.equals(siteId);
@@ -6679,7 +6681,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param state
 	 * @param type
 	 */
-	private void setToolRegistrationList(SessionState state, String type) {
+	private void setToolRegistrationList(SessionState state, String type, boolean includeStealthed) {
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_HOME);
@@ -6689,9 +6691,9 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		Set multipleToolIdSet = new HashSet();
 		HashMap multipleToolConfiguration = new HashMap<String, HashMap<String, String>>();
 		// get registered tools list
-		Set<Tool> toolRegistrations = getToolRegistrations(state, type);
+		Set<Tool> toolRegistrations = getToolRegistrations(state, type, includeStealthed);
 
-		List tools = new Vector();
+		List<MyTool> tools = new Vector();
 		SortedIterator i = new SortedIterator(toolRegistrations.iterator(), new ToolTitleComparator());
 		for (; i.hasNext();) {
 			// form a new Tool
@@ -7894,7 +7896,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 		else
 		{
-			Set<Tool>toolRegistrationSet = getToolRegistrations(state, (String) state.getAttribute(STATE_SITE_TYPE));
+			Set<Tool>toolRegistrationSet = getToolRegistrations(state, (String) state.getAttribute(STATE_SITE_TYPE), false);
 			String rv = null;
 			if (toolRegistrationSet != null)
 			{
@@ -11410,7 +11412,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		boolean inChosenList;
 		boolean inWSetupPageList;
 
-		Set toolRegistrationSet = getToolRegistrations(state, siteType);
+		Set toolRegistrationSet = getToolRegistrations(state, siteType, false);
 
 		// first looking for any tool for removal
 		Vector removePageIds = new Vector();
@@ -11725,14 +11727,14 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 	 * @param siteType The type of the site to get the list of tools for.
 	 * @return A Set of possible tools.
 	 */
-	Set<Tool> getToolRegistrations(SessionState state, String siteType) {
+	Set<Tool> getToolRegistrations(SessionState state, String siteType, boolean includeStealthed) {
 		if (siteType == null) {
 			return Collections.emptySet();
 		}
 		Set<String> categories = new HashSet<>();
 		// UMICH 1035
 		categories.add(SiteTypeUtil.getTargetSiteType(siteType));
-		Set toolRegistrationSet = ToolManager.findTools(categories, null);
+		Set toolRegistrationSet = ToolManager.findTools(categories, null, includeStealthed);
 		if ((toolRegistrationSet == null || toolRegistrationSet.size() == 0)
 				&& state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
 		{
@@ -11740,7 +11742,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 			String type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
 			categories.clear();
 			categories.add(SiteTypeUtil.getTargetSiteType(type));
-			toolRegistrationSet = ToolManager.findTools(categories, null);
+			toolRegistrationSet = ToolManager.findTools(categories, null, includeStealthed);
 		}
 		return toolRegistrationSet;
 	}
@@ -11955,11 +11957,6 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 
 			if (!ltiSelectedTools.isEmpty() || MapUtils.isNotEmpty(existingLtiIds))
 			{
-				// add in existing lti tools where visibility is stealth
-				existingLtiIds.keySet().stream()
-						.map(k -> m_ltiService.getTool(Long.valueOf(k), Objects.toString(state.getAttribute(STATE_SITE_INSTANCE_ID), "")))
-						.filter(m -> StringUtils.equals("1", Objects.toString(m.get(m_ltiService.LTI_VISIBLE), null)))
-						.forEach(o -> ltiSelectedTools.put(Objects.toString(o.get(m_ltiService.LTI_ID), ""), o));
 				state.setAttribute(STATE_LTITOOL_SELECTED_LIST, ltiSelectedTools);
 			}
 			else
@@ -12450,7 +12447,7 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		}
 		
 		// set tool registration list
-		setToolRegistrationList(state, type);
+		setToolRegistrationList(state, type, true);
 		multipleToolIdAttributeMap = state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION) != null? (Map<String, Map<String, String>>) state.getAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION):new HashMap();
 		
 		// for the selected tools
