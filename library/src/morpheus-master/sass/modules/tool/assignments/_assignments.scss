@@ -723,6 +723,9 @@
 	  top: 3px;
 	  margin-left: 4px;
   }
+  #groupTableContainer .multiselect-clear-filter {
+	  font-size: $default-font-size;
+  }
 
   #categoryList label {
 	  margin-bottom: 0; /* kill off bootstrap margin to reduce jitter during animation transitions */
