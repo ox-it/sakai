@@ -649,6 +649,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 }
 
 .flc-reorderer-module {
+    min-height: 2em;
     border: 1px solid #ccc;
     margin:5px 0;
     position:relative;
