@@ -1384,10 +1384,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	}
 
 	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final Long assignmentId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
+		final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
+		return getAssignmentScoreComment(gradebookUid, assignmentId, studentUid, assignment);
+	}
+
+	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final Long assignmentId, final String studentUid, final GradebookAssignment assignment) throws AssessmentNotFoundException {
 		if (gradebookUid == null || assignmentId == null || studentUid == null) {
 			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment. Values are gradebookUid:" + gradebookUid + " assignmentId:" + assignmentId + " studentUid:"+ studentUid);
 		}
-		final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
 		if (assignment == null) {
 			throw new AssessmentNotFoundException("There is no assignmentId " + assignmentId + " for gradebookUid " + gradebookUid);
 		}

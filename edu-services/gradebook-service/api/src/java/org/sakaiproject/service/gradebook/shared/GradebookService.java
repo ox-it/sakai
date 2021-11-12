@@ -173,6 +173,17 @@ public interface GradebookService extends OwlGradebookService {
 	public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long assignmentId, String studentUid);
 
 	/**
+	 * Check to see if the current user is allowed to view the given item for the given student in the given gradebook. This will give
+	 * clients a chance to avoid a security exception.
+	 *
+	 * @param gradebook
+	 * @param assignmentId
+	 * @param studentUid
+	 * @return
+	 */
+	public boolean isUserAbleToViewItemForStudent(Object gradebook, Long assignmentId, String studentUid);
+
+	/**
 	 * Check to see if current user may grade or view the given student for the given item in the given gradebook. Returns string
 	 * representation of function per GradebookService vars (view/grade) or null if no permission
 	 *
@@ -196,6 +207,12 @@ public interface GradebookService extends OwlGradebookService {
 	 */
 	public List<Assignment> getAssignments(String gradebookUid, SortType sortBy)
 			throws GradebookNotFoundException;
+
+	/**
+	 * @return Returns a list of Assignment objects describing the assignments that are currently defined in the given gradebook, sorted by
+	 *         the given sort type.
+	 */
+	public List<Assignment> getAssignments(Object gradebook, SortType sortBy);
 
 	/**
 	 * Get an assignment based on its id
@@ -254,6 +271,18 @@ public interface GradebookService extends OwlGradebookService {
 	public GradeDefinition getGradeDefinitionForStudentForItem(String gradebookUid,
 			Long assignmentId, String studentUid)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
+
+	/**
+	 *
+	 * @param gradebook
+	 * @param assignmentId
+	 * @param studentUid
+	 * @return Returns a GradeDefinition for the student, respecting the grade entry type for the gradebook (ie in %, letter grade, or
+	 *         points format). Returns null if no grade
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public GradeDefinition getGradeDefinitionForStudentForItem(Object gradebook, Long assignmentId, String studentUid) throws AssessmentNotFoundException;
 
 	/**
 	 * Get the comment (if any) currently provided for the given combination of student and assignment.
@@ -324,6 +353,15 @@ public interface GradebookService extends OwlGradebookService {
 	public GradebookInformation getGradebookInformation(String gradebookUid);
 
 	/**
+	 *
+	 * @param gradebook
+	 * @return a {@link GradebookInformation} object that contains information about this Gradebook that may be useful to consumers outside
+	 *         the Gradebook tool
+	 *
+	 */
+	public GradebookInformation getGradebookInformation(Object gradebook);
+
+	/**
 	 * Removes an assignment from a gradebook. The assignment should not be deleted, but the assignment and all grade records associated
 	 * with the assignment should be ignored by the application. A removed assignment should not count toward the total number of points in
 	 * the gradebook.
@@ -356,6 +394,16 @@ public interface GradebookService extends OwlGradebookService {
 	 * @throws GradebookNotFoundException
 	 */
 	public List<CategoryDefinition> getCategoryDefinitions(String gradebookUid);
+
+	/**
+	 * Get the categories for the given gradebook
+	 *
+	 * @param gradebook
+	 * @return {@link CategoryDefinition}s for the categories defined for the given gradebook. Returns an empty list if the gradebook does
+	 *         not have categories.
+	 * @throws GradebookNotFoundException
+	 */
+	public List<CategoryDefinition> getCategoryDefinitions(Object gradebook);
 
 	/**
 	 * remove category from gradebook
@@ -407,6 +455,17 @@ public interface GradebookService extends OwlGradebookService {
 	 *         have grading privileges but does have viewOwnGrades perm, will return all released gb items.
 	 */
 	public List<Assignment> getViewableAssignmentsForCurrentUser(String gradebookUid, SortType sortBy);
+
+	/**
+	 *
+	 * @param gradebook
+	 * @param sortBy
+	 * @return list of gb items that the current user is authorized to view sorted by the provided SortType. If user has gradeAll
+	 *         permission, returns all gb items. If user has gradeSection perm with no grader permissions, returns all gb items. If user has
+	 *         gradeSection with grader perms, returns only the items that the current user is authorized to view or grade. If user does not
+	 *         have grading privileges but does have viewOwnGrades perm, will return all released gb items.
+	 */
+	public List<Assignment> getViewableAssignmentsForCurrentUser(Object gradebook, SortType sortBy);
 
 	/**
 	 *
@@ -804,6 +863,15 @@ public interface GradebookService extends OwlGradebookService {
 	CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid);
 
 	/**
+	 * Get the course grade for a student
+	 *
+	 * @param gradebook
+	 * @param userUuid uuid of the user
+	 * @return The {@link CourseGrade} for the student
+	 */
+	CourseGrade getCourseGradeForStudent(Object gradebook, String userUuid);
+
+	/**
 	 * Get the course grade for a list of students
 	 *
 	 * @param gradebookUid
@@ -811,6 +879,15 @@ public interface GradebookService extends OwlGradebookService {
 	 * @return a Map of {@link CourseGrade} for the students. Key is the student uuid.
 	 */
 	Map<String, CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids);
+
+	/**
+	 * Get the course grade for a list of students
+	 *
+	 * @param gradebook
+	 * @param userUuids uuids of the users
+	 * @return a Map of {@link CourseGrade} for the students. Key is the student uuid.
+	 */
+	Map<String, CourseGrade> getCourseGradeForStudents(Object gradebook, List<String> userUuids);
 
 	/**
 	 * Get the course grade for a list of students using the given grading schema
@@ -821,6 +898,16 @@ public interface GradebookService extends OwlGradebookService {
 	 * @return a Map of {@link CourseGrade} for the students. Key is the student uuid.
 	 */
 	Map<String, CourseGrade> getCourseGradeForStudents(String gradebookUid, List<String> userUuids, Map<String, Double> schema);
+
+	/**
+	 * Get the course grade for a list of students using the given grading schema
+	 *
+	 * @param gradebook
+	 * @param userUuids uuids of the users
+	 * @param schema the grading schema (bottom percents) to use in the calculation
+	 * @return a Map of {@link CourseGrade} for the students. Key is the student uuid.
+	 */
+	Map<String, CourseGrade> getCourseGradeForStudents(Object gradebook, List<String> userUuids, Map<String, Double> schema);
 
 	/**
 	 * Get a list of CourseSections that the current user has access to in the given gradebook. This is a combination of sections and groups

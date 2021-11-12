@@ -67,7 +67,6 @@ import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
-import org.sakaiproject.service.gradebook.shared.GradingType;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -120,13 +119,13 @@ public class GradebookPage extends BasePage implements IGradesPage {
 			sendToAccessDeniedPage(getString("error.role"));
 		}
 
-		// get Gradebook to save additional calls later
-		final Gradebook gradebook = this.businessService.getGradebook();
-
 		// students cannot access this page, they have their own
 		if (this.role == GbRole.STUDENT) {
 			throw new RestartResponseException(StudentPage.class);
 		}
+
+		// get Gradebook to save additional calls later
+		final Gradebook gradebook = this.businessService.getGradebook();
 
 		// TAs with no permissions or in a roleswap situation
 		if (this.role == GbRole.TA) {
@@ -137,7 +136,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 			}
 
 			// no perms
-			this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid);
+			this.permissions = this.businessService.getPermissionsForUser(this.currentUserUuid, gradebook);
 			if (this.permissions.isEmpty()
 					|| (this.permissions.size() == 1 && StringUtils.equals(((PermissionDefinition) this.permissions.get(0)).getFunction(), GraderPermission.NONE.toString()))) {
 				sendToAccessDeniedPage(getString("ta.nopermission"));
@@ -216,7 +215,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 			this.form.add(new AttributeAppender("class", "gb-grouped-by-category"));
 		}
 
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy);
+		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy, gradebook);
 		final List<String> students = this.businessService.getGradeableUsers();
 
 		initAnon(form, assignments); // OWL
@@ -224,10 +223,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 		this.hasGradebookItems = !assignments.isEmpty();
 		this.hasStudents = !students.isEmpty();
 		// categories enabled?
-		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled();
-
-		// grading type?
-		final GradingType gradingType = GradingType.valueOf(gradebook.getGrade_type());
+		final boolean categoriesEnabled = this.businessService.categoriesAreEnabled(gradebook);
 
 		this.tableArea = new WebMarkupContainer("gradeTableArea");
 		if (!this.hasGradebookItems) {
@@ -350,7 +346,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 		toolbarColumnTools.add(bulkEditItemsToolbarItem);
 
 		// section and group dropdown
-		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups(gradebook);
 
 		// if only one group, just show the title
 		// otherwise add the 'all groups' option
@@ -413,7 +409,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 				final GbGroup selected = (GbGroup) groupFilter.getDefaultModelObject();
 
 				// store selected group (null ok)
-				final GradebookUiSettings settings = getUiSettings();
+				final GradebookUiSettings settings = getUiSettings(gradebook);
 				settings.setGroupFilter(selected);
 				setUiSettings(settings);
 
@@ -517,13 +513,21 @@ public class GradebookPage extends BasePage implements IGradesPage {
 	 *
 	 */
 	public GradebookUiSettings getUiSettings() {
+		return getUiSettings(businessService.getGradebook());
+	}
+
+	/**
+	 * Getter for the GradebookUiSettings. Used to store a few UI related settings in the PreferencesService (serialized to db)
+	 *
+	 */
+	public GradebookUiSettings getUiSettings(final Gradebook gradebook) {
 
 		GradebookUiSettings settings = (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
 
 		if (settings == null) {
 			settings = new GradebookUiSettings();
-			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled());
-			settings.initializeCategoryColors(this.businessService.getGradebookCategories());
+			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled(gradebook));
+			settings.initializeCategoryColors(this.businessService.getGradebookCategories(gradebook));
 			settings.setCategoryColor(getString(GradebookPage.UNCATEGORISED), GradebookUiSettings.generateRandomRGBColorString(null));
 			setUiSettings(settings);
 		}

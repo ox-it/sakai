@@ -33,6 +33,7 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradebookAssignment;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
@@ -70,10 +71,16 @@ public class AuthzSectionsImpl implements Authz {
 	public boolean isUserAbleToGradeAll(String gradebookUid, String userUid) {
 		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.INSTRUCTOR);
 	}
-	
+
 	public boolean isUserHasGraderPermissions(String gradebookUid) {
 		String userUid = authn.getUserUid();
 		List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebookUid, userUid);
+		return permissions != null && permissions.size() > 0;
+	}
+	
+	public boolean isUserHasGraderPermissions(final Object gradebook) {
+		String userUid = authn.getUserUid();
+		List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebook, userUid);
 		return permissions != null && permissions.size() > 0;
 	}
 	
@@ -82,9 +89,14 @@ public class AuthzSectionsImpl implements Authz {
 		List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebookId, userUid);
 		return permissions != null && permissions.size() > 0;
 	}
-	
+
 	public boolean isUserHasGraderPermissions(String gradebookUid, String userUid) {
-		List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebookUid, userUid);
+List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebookUid, userUid);
+		return permissions != null && permissions.size() > 0;
+	}
+	
+	public boolean isUserHasGraderPermissions(final Object gradebook, String userUid) {
+		List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradebook, userUid);
 		return permissions != null && permissions.size() > 0;
 	}
 	
@@ -178,19 +190,24 @@ public class AuthzSectionsImpl implements Authz {
 			return null;
 		}
 	}
-	
+
 	private boolean isUserAbleToGradeOrViewItemForStudent(String gradebookUid, Long itemId, String studentUid, String function) throws IllegalArgumentException {
+		return isUserAbleToGradeOrViewItemForStudent(gradebookPermissionService.getGB(gradebookUid), itemId, studentUid, function);
+	}
+	
+	private boolean isUserAbleToGradeOrViewItemForStudent(final Object gb, Long itemId, String studentUid, String function) throws IllegalArgumentException {
 		if (itemId == null || studentUid == null || function == null) {
 			throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
 		}
-		
-		if (isUserAbleToGradeAll(gradebookUid)) {
+
+		final Gradebook gradebook = (Gradebook) gb;
+		if (isUserAbleToGradeAll(gradebook.getUid())) {
 			return true;
 		}
 		
 		String userUid = authn.getUserUid();
 		
-		List viewableSections = getViewableSections(gradebookUid);
+		List viewableSections = getViewableSections(gradebook);
 		List sectionIds = new ArrayList();
 		if (viewableSections != null && !viewableSections.isEmpty()) {
 			for (Iterator sectionIter = viewableSections.iterator(); sectionIter.hasNext();) {
@@ -199,10 +216,10 @@ public class AuthzSectionsImpl implements Authz {
 			}
 		}
 		
-		if (isUserHasGraderPermissions(gradebookUid, userUid)) {
+		if (isUserHasGraderPermissions(gradebook, userUid)) {
 
 			// get the map of authorized item (assignment) ids to grade/view function
-			Map itemIdFunctionMap = gradebookPermissionService.getAvailableItemsForStudent(gradebookUid, userUid, studentUid, viewableSections);
+			Map itemIdFunctionMap = gradebookPermissionService.getAvailableItemsForStudent(gradebook, userUid, studentUid, viewableSections);
 			
 			if (itemIdFunctionMap == null || itemIdFunctionMap.isEmpty()) {
 				return false;  // not authorized to grade/view any items for this student
@@ -239,14 +256,24 @@ public class AuthzSectionsImpl implements Authz {
 	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId, String studentUid) throws IllegalArgumentException {	
 		return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradebookService.gradePermission);
 	}
-	
+
 	public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid) throws IllegalArgumentException {
 		return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradebookService.viewPermission);
 	}
 	
+	public boolean isUserAbleToViewItemForStudent(final Object gradebook, Long itemId, String studentUid) throws IllegalArgumentException {
+		return isUserAbleToGradeOrViewItemForStudent(gradebook, itemId, studentUid, GradebookService.viewPermission);
+	}
+
 	public List getViewableSections(String gradebookUid) {
+		return getViewableSections(gradebookPermissionService.getGB(gradebookUid));
+	}
+	
+	public List getViewableSections(final Object gb) {
 		List viewableSections = new ArrayList();
-		
+
+		final Gradebook gradebook = (Gradebook) gb;
+		final String gradebookUid = gradebook.getUid();
 		List allSections = getAllSections(gradebookUid);
 		if (allSections == null || allSections.isEmpty()) {
 			return viewableSections;
@@ -265,9 +292,9 @@ public class AuthzSectionsImpl implements Authz {
 		
 		String userUid = authn.getUserUid();
 		
-		if (isUserHasGraderPermissions(gradebookUid, userUid)) {	
+		if (isUserHasGraderPermissions(gradebook, userUid)) {
 
-			List viewableSectionIds =  gradebookPermissionService.getViewableGroupsForUser(gradebookUid, userUid, new ArrayList(sectionIdCourseSectionMap.keySet()));
+			List viewableSectionIds =  gradebookPermissionService.getViewableGroupsForUser(gradebook, userUid, new ArrayList(sectionIdCourseSectionMap.keySet()));
 			if (viewableSectionIds != null && !viewableSectionIds.isEmpty()) {
 				for (Iterator idIter = viewableSectionIds.iterator(); idIter.hasNext();) {
 					String sectionUuid = (String) idIter.next();

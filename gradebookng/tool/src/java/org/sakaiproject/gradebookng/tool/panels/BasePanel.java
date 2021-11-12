@@ -118,6 +118,16 @@ public abstract class BasePanel extends Panel {
 	}
 
 	/**
+	 * Get the settings for the gradebook
+	 *
+	 * @param gradebook
+	 * @return
+	 */
+	protected GradebookInformation getSettings(Gradebook gradebook) {
+		return this.businessService.getGradebookSettings(gradebook);
+	}
+
+	/**
 	 * Get the Rubric request parameters
 	 *
 	 * @return A map with key and value of those parameters

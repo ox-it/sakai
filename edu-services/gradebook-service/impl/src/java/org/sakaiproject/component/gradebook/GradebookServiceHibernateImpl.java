@@ -166,6 +166,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
+	public boolean isUserAbleToViewItemForStudent(final Object gradebook, final Long itemId, final String studentUid) {
+		return getAuthz().isUserAbleToViewItemForStudent(gradebook, itemId, studentUid);
+	}
+
+	@Override
 	public String getGradeViewFunctionForUserForStudentForItem(final String gradebookUid, final Long itemId, final String studentUid) {
 		return getAuthz().getGradeViewFunctionForUserForStudentForItem(gradebookUid, itemId, studentUid);
 	}
@@ -177,16 +182,24 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
-	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(final String gradebookUid, final SortType sortBy)
-			throws GradebookNotFoundException {
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(final String gradebookUid, final SortType sortBy) throws GradebookNotFoundException {
+		return getAssignments(getGradebook(gradebookUid), sortBy);
+	}
+
+	@Override
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(final Object gb, final SortType sortBy) {
+		final Gradebook gradebook = (Gradebook) gb;
+		if (gradebook == null || gb == null) {
+			throw new IllegalArgumentException("gradebook cannot be null");
+		}
+
+		final String gradebookUid = gradebook.getUid();
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
 			log.warn("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to get assignments list", getUserUid(), gradebookUid);
 			throw new GradebookSecurityException();
 		}
 
-		final Long gradebookId = getGradebook(gradebookUid).getId();
-
-		final List<GradebookAssignment> internalAssignments = getAssignments(gradebookId);
+		final List<GradebookAssignment> internalAssignments = getAssignments(gradebook.getId());
 
 		sortAssignments(internalAssignments, sortBy, true);
 
@@ -314,14 +327,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	return assignmentDefinition;
     }
 
-
-
 	@Override
 	public GradeDefinition getGradeDefinitionForStudentForItem(final String gradebookUid, final Long assignmentId, final String studentUid) {
+		Gradebook gradebook = getGradebook(gradebookUid);
+		return getGradeDefinitionForStudentForItem(gradebook, assignmentId, studentUid);
+	}
 
-		if (gradebookUid == null || assignmentId == null || studentUid == null) {
+	@Override
+	public GradeDefinition getGradeDefinitionForStudentForItem(final Object gb, final Long assignmentId, final String studentUid) {
+
+		if (gb == null || assignmentId == null || studentUid == null) {
 			throw new IllegalArgumentException("Null paraemter passed to getGradeDefinitionForStudentForItem");
 		}
+
+		final Gradebook gradebook = (Gradebook) gb;
+		final String gradebookUid = gradebook.getUid();
 
 		// studentId can be a groupId (from Assignments)
 		final boolean studentRequestingOwnScore = this.authn.getUserUid().equals(studentUid)
@@ -339,13 +359,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 							"There is no assignment with the assignmentId " + assignmentId + " in gradebook " + gradebookUid);
 				}
 
-				if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
+				if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebook, assignment.getId(), studentUid)) {
 					log.error("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to retrieve grade for student {} for assignment {}",
 							getUserUid(), gradebookUid, studentUid, assignmentId);
 					throw new GradebookSecurityException();
 				}
-
-				final Gradebook gradebook = assignment.getGradebook();
 
 				final GradeDefinition gradeDef = new GradeDefinition();
 				gradeDef.setStudentUid(studentUid);
@@ -365,7 +383,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				} else {
 
 					final AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid);
-					final CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, assignmentId, studentUid);
+					final CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, assignmentId, studentUid, assignment);
 					final String commentText = gradeComment != null ? gradeComment.getCommentText() : null;
 					if (log.isDebugEnabled()) {
 						log.debug("gradeRecord=" + gradeRecord);
@@ -417,19 +435,30 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	@Override
 	public GradebookInformation getGradebookInformation(final String gradebookUid) {
-
 		if (gradebookUid == null) {
 			throw new IllegalArgumentException("null gradebookUid " + gradebookUid);
-		}
-
-		if (!currentUserHasEditPerm(gradebookUid) && !currentUserHasGradingPerm(gradebookUid)) {
-			log.error("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to access gb information", getUserUid(), gradebookUid);
-			throw new GradebookSecurityException();
 		}
 
 		final Gradebook gradebook = getGradebook(gradebookUid);
 		if (gradebook == null) {
 			throw new IllegalArgumentException("Their is no gradbook associated with this Id: " + gradebookUid);
+		}
+
+		return getGradebookInformation(gradebook);
+	}
+
+	@Override
+	public GradebookInformation getGradebookInformation(final Object gb) {
+
+		final Gradebook gradebook = (Gradebook) gb;
+		if (gb == null || gradebook == null) {
+			throw new IllegalArgumentException("null gradebook");
+		}
+
+		final String gradebookUid = gradebook.getUid();
+		if (!currentUserHasEditPerm(gradebookUid) && !currentUserHasGradingPerm(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to access gb information", getUserUid(), gradebookUid);
+			throw new GradebookSecurityException();
 		}
 
 		final GradebookInformation rval = new GradebookInformation();
@@ -456,7 +485,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setDisplayReleasedGradeItemsToStudents(gradebook.isAssignmentsDisplayed());
 
 		// add in the category definitions
-		rval.setCategories(getCategoryDefinitions(gradebookUid));
+		rval.setCategories(getCategoryDefinitions(gradebook));
 
 		// add in the course grade display settings
 		rval.setCourseGradeDisplayed(gradebook.isCourseGradeDisplayed());
@@ -736,8 +765,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				.findByNamedParam("from CourseGrade as cg where cg.gradebook.id = :gradebookid", "gradebookid", gradebookId).get(0);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids) {
+		return getPointsEarnedCourseGradeRecords(courseGrade, studentUids, getGradebook(courseGrade.getGradebook().getId()));
+	}
+
+	public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids, final Object gb) {
 		final HibernateCallback hc = new HibernateCallback() {
 			@Override
 			public Object doInHibernate(final Session session) throws HibernateException {
@@ -753,7 +785,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				final List records = filterAndPopulateCourseGradeRecordsByStudents(courseGrade, q.list(), studentUids);
 
 				final Long gradebookId = courseGrade.getGradebook().getId();
-				final Gradebook gradebook = getGradebook(gradebookId);
+				final Gradebook gradebook = (Gradebook) gb;
 				final List cates = getCategories(gradebookId);
 
 				// get all of the AssignmentGradeRecords here to avoid repeated db calls
@@ -1349,35 +1381,51 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String, java.)
 	 */
 	@Override
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(final String gradebookUid,
-			final SortType sortBy)
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(final String gradebookUid, final SortType sortBy)
 			throws GradebookNotFoundException {
+		if (gradebookUid == null) {
+			throw new IllegalArgumentException("gradebookUid cannot be null");
+		}
+
+		return getViewableAssignmentsForCurrentUser(getGradebook(gradebookUid), sortBy);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.sakaiproject.service.gradebook.shared.GradebookService#getViewableAssignmentsForCurrentUser(java.lang.String, java.)
+	 */
+	@Override
+	public List<org.sakaiproject.service.gradebook.shared.Assignment> getViewableAssignmentsForCurrentUser(final Object gb, final SortType sortBy)  {
 
 		List<GradebookAssignment> viewableAssignments = new ArrayList<>();
 		final LinkedHashSet<org.sakaiproject.service.gradebook.shared.Assignment> assignmentsToReturn = new LinkedHashSet<>();
 
-		final Gradebook gradebook = getGradebook(gradebookUid);
+		final Gradebook gradebook = (Gradebook) gb;
+		if (gradebook == null || gb == null) {
+			throw new IllegalArgumentException("gradebook cannot be null");
+		}
 
 		// will send back all assignments if user can grade all
+		final String gradebookUid = gradebook.getUid();
 		if (getAuthz().isUserAbleToGradeAll(gradebookUid)) {
 			viewableAssignments = getAssignments(gradebook.getId(), sortBy, true);
 		} else if (getAuthz().isUserAbleToGrade(gradebookUid)) {
 			// if user can grade and doesn't have grader perm restrictions, they
 			// may view all assigns
-			if (!getAuthz().isUserHasGraderPermissions(gradebookUid)) {
+			if (!getAuthz().isUserHasGraderPermissions(gradebook)) {
 				viewableAssignments = getAssignments(gradebook.getId(), sortBy, true);
 			} else {
 				// this user has grader perms, so we need to filter the items returned
 				// if this gradebook has categories enabled, we need to check for category-specific restrictions
 				if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
-					assignmentsToReturn.addAll(getAssignments(gradebookUid, sortBy));
+					assignmentsToReturn.addAll(getAssignments(gradebook, sortBy));
 				} else {
 					final String userUid = getUserUid();
 					if (getGradebookPermissionService().getPermissionForUserForAllAssignment(gradebook.getId(), userUid)) {
-						assignmentsToReturn.addAll(getAssignments(gradebookUid, sortBy));
+						assignmentsToReturn.addAll(getAssignments(gradebook, sortBy));
 					} else {
-						final List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = getAssignments(gradebookUid, sortBy);
+						final List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = getAssignments(gradebook, sortBy);
 						final List<Long> categoryIds = ((List<Category>) getCategories(gradebook.getId())).stream().map(Category::getId)
 								.collect(Collectors.toList());
 						// categories are enabled, so we need to check the category restrictions
@@ -2629,10 +2677,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	@Override
 	public List<CategoryDefinition> getCategoryDefinitions(final String gradebookUid) {
-		if (gradebookUid == null) {
-			throw new IllegalArgumentException("Null gradebookUid passed to getCategoryDefinitions");
+		return getCategoryDefinitions(getGradebook(gradebookUid));
+	}
+
+	@Override
+	public List<CategoryDefinition> getCategoryDefinitions(final Object gb) {
+		if (gb == null) {
+			throw new IllegalArgumentException("Null gradebook passed to getCategoryDefinitions");
 		}
 
+		final Gradebook gradebook = (Gradebook) gb;
+		final String gradebookUid = gradebook.getUid();
 		if (!isUserAbleToViewAssignments(gradebookUid)) {
 			log.warn("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to retrieve all categories without permission", getUserUid(),
 					gradebookUid);
@@ -2641,7 +2696,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		final List<CategoryDefinition> categoryDefList = new ArrayList<>();
 
-		final List<Category> gbCategories = getCategories(getGradebook(gradebookUid).getId());
+		final List<Category> gbCategories = getCategories(gradebook.getId());
 
 		if (gbCategories != null) {
 			for (final Category category : gbCategories) {
@@ -3311,22 +3366,31 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
-	public org.sakaiproject.service.gradebook.shared.CourseGrade getCourseGradeForStudent(final String gradebookUid,
-			final String userUuid) {
-		return this.getCourseGradeForStudents(gradebookUid, Collections.singletonList(userUuid)).get(userUuid);
+	public org.sakaiproject.service.gradebook.shared.CourseGrade getCourseGradeForStudent(final String gradebookUid, final String userUuid) {
+		return getCourseGradeForStudent(getGradebook(gradebookUid), userUuid);
 	}
 
 	@Override
-	public Map<String, org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(final String gradebookUid,
-			final List<String> userUuids) {
+	public org.sakaiproject.service.gradebook.shared.CourseGrade getCourseGradeForStudent(final Object gb, final String userUuid) {
+		final Gradebook gradebook = (Gradebook) gb;
+		return this.getCourseGradeForStudents(gradebook, Collections.singletonList(userUuid)).get(userUuid);
+	}
+
+	@Override
+	public Map<String, org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(final String gradebookUid, final List<String> userUuids) {
+		return getCourseGradeForStudents(getGradebook(gradebookUid), userUuids);
+	}
+
+	@Override
+	public Map<String, org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(final Object gb, final List<String> userUuids) {
 
 		final Map<String, org.sakaiproject.service.gradebook.shared.CourseGrade> rval = new HashMap<>();
 
 		try {
-			final Gradebook gradebook = getGradebook(gradebookUid);
+			final Gradebook gradebook = (Gradebook) gb;
 			final GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
 
-			rval.putAll(this.getCourseGradeForStudents(gradebookUid, userUuids, gradeMap.getGradeMap()));
+			rval.putAll(this.getCourseGradeForStudents(gradebook, userUuids, gradeMap.getGradeMap()));
 		} catch (final Exception e) {
 			log.error("Error in getCourseGradeForStudents", e);
 		}
@@ -3336,10 +3400,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Override
 	public Map<String, org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(final String gradebookUid,
 			final List<String> userUuids, final Map<String, Double> gradeMap) {
+		return getCourseGradeForStudents(getGradebook(gradebookUid), userUuids, gradeMap);
+	}
+
+	@Override
+	public Map<String, org.sakaiproject.service.gradebook.shared.CourseGrade> getCourseGradeForStudents(final Object gb,
+			final List<String> userUuids, final Map<String, Double> gradeMap) {
 		final Map<String, org.sakaiproject.service.gradebook.shared.CourseGrade> rval = new HashMap<>();
 
 		try {
-			final Gradebook gradebook = getGradebook(gradebookUid);
+			final Gradebook gradebook = (Gradebook) gb;
+			final String gradebookUid = gradebook.getUid();
 
 			// if not released, and not instructor or TA, don't do any work
 			// note that this will return a course grade for Instructor and TA even if not released, see SAK-30119
@@ -3350,7 +3421,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			final List<GradebookAssignment> assignments = getAssignmentsCounted(gradebook.getId());
 
 			// this takes care of drop/keep scores
-			final List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), userUuids);
+			final List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), userUuids, gradebook);
 
 			// gradeMap MUST be sorted for the grade mapping to apply correctly
 			final Map<String, Double> sortedGradeMap = GradeMappingDefinition.sortGradeMapping(gradeMap);

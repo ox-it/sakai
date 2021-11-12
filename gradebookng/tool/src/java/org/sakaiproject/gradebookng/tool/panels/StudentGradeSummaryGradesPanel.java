@@ -80,7 +80,7 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		this.categoriesEnabled = this.configuredCategoryType != GbCategoryType.NO_CATEGORY;
 		this.isAssignmentsDisplayed = gradebook.isAssignmentsDisplayed();
 
-		final GradebookInformation settings = getSettings();
+		final GradebookInformation settings = getSettings(gradebook);
 		this.courseGradeStatsEnabled = settings.isCourseGradeStatsDisplayed();
 
 		setOutputMarkupId(true);
@@ -98,19 +98,19 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		OwlCourseGradeStudentFormatter courseGradeFormatter = new OwlCourseGradeStudentFormatter(gradebook);
 
 		// build up table data
-		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
+		final Map<Long, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId, gradebook.getUid(), gradebook);
 		final SortType sortedBy = this.isGroupedByCategory ? SortType.SORT_BY_CATEGORY : SortType.SORT_BY_SORTING;
 		// OWL
 		final List<Assignment> assignments;
 		final GbRole role = businessService.getUserRoleOrNone();
 		if (role == GbRole.STUDENT)
 		{
-			assignments = businessService.getGradebookAssignmentsForStudent(userId, sortedBy);
+			assignments = businessService.getGradebookAssignmentsForStudent(userId, sortedBy, gradebook);
 		}
 		else
 		{
 			// filter out anonymous columns, there is never a scenario where non-students should see them on this panel
-			assignments = businessService.getGradebookAssignmentsForStudent(userId).stream()
+			assignments = businessService.getGradebookAssignmentsForStudent(userId, gradebook).stream()
 					.filter(asn -> asn.isAnon() == false).collect(Collectors.toList()); 
 		}
 
@@ -149,12 +149,12 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 				if (!catItems.isEmpty()) {
 					final Long catId = catItems.get(0).getCategoryId();
 					if (catId != null) {
-						this.businessService.getCategoryScoreForStudent(catId, userId, false) // Dont include non-released items in the category calc
+						this.businessService.getCategoryScoreForStudent(catId, userId, false, gradebook) // Dont include non-released items in the category calc
 							.ifPresent(avg -> storeAvgAndMarkIfDropped(avg, catId, categoryAverages, grades));
 					}
 				}
 			}
-			categoriesMap = this.businessService.getGradebookCategoriesForStudent(userId).stream()
+			categoriesMap = this.businessService.getGradebookCategoriesForStudent(userId, gradebook).stream()
 				.collect(Collectors.toMap(cat -> cat.getName(), cat -> cat));
 		}
 
@@ -202,11 +202,11 @@ public class StudentGradeSummaryGradesPanel extends BasePanel {
 		addOrReplace(courseGradePanel);
 		// OWL - if a non-student, don't show the course grade if it is pure anon
 		boolean showCourseGrade = serverConfigService.getBoolean(SAK_PROP_SHOW_COURSE_GRADE_STUDENT, SAK_PROP_SHOW_COURSE_GRADE_STUDENT_DEFAULT);
-		boolean pureAnon = role != GbRole.STUDENT && businessService.owl().anon.isCourseGradePureAnon();
+		boolean pureAnon = role != GbRole.STUDENT && businessService.owl().anon.isCourseGradePureAnon(gradebook);
 		courseGradePanel.setVisible(showCourseGrade && !pureAnon);
 
 		// course grade, via the formatter
-		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
+		final CourseGrade courseGrade = this.businessService.getCourseGrade(userId, gradebook);
 
 		courseGradePanel.addOrReplace(new Label("courseGrade", courseGradeFormatter.format(courseGrade)).setEscapeModelStrings(false));
 

@@ -24,6 +24,7 @@ import org.sakaiproject.gradebookng.tool.owl.model.UiSettings;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.owl.anongrading.OwlAnonGradingID;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  *
@@ -44,6 +45,15 @@ public class OwlAnonGradingService
 	public boolean isCourseGradePureAnon()
 	{
 		return isCourseGradePureAnonForAllAssignments(bus.getGradebookAssignments());
+	}
+
+	/**
+	 * Convenience method; use isCourseGradePureAnonForAllAssignments if you already have access to the assignment list
+	 * @return
+	 */
+	public boolean isCourseGradePureAnon(final Gradebook gradebook)
+	{
+		return isCourseGradePureAnonForAllAssignments(bus.getGradebookAssignments(gradebook));
 	}
 
 	/**

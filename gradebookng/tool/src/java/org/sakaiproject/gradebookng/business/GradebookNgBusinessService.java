@@ -442,6 +442,16 @@ public class GradebookNgBusinessService {
 	}
 
 	/**
+	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
+	 *
+	 * @param gradebook
+	 * @return a list of assignments or empty list if none/no gradebook
+	 */
+	public List<Assignment> getGradebookAssignments(final Gradebook gradebook) {
+		return getGradebookAssignments(SortType.SORT_BY_SORTING, gradebook);
+	}
+
+	/**
 	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access sorted by the provided
 	 * SortType
 	 *
@@ -450,6 +460,18 @@ public class GradebookNgBusinessService {
 	 */
 	public List<Assignment> getGradebookAssignments(final SortType sortBy) {
 		return getGradebookAssignments(getCurrentSiteId(), sortBy);
+	}
+
+	/**
+	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access sorted by the provided
+	 * SortType
+	 *
+	 * @param sortBy
+	 * @param gradebook
+	 * @return a list of assignments or empty list if none/no gradebook
+	 */
+	public List<Assignment> getGradebookAssignments(final SortType sortBy, final Gradebook gradebook) {
+		return getGradebookAssignments(gradebook, sortBy);
 	}
 
 	/**
@@ -473,6 +495,21 @@ public class GradebookNgBusinessService {
 	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
 	 * are an instructor using the student review mode)
 	 *
+	 * @param studentUuid
+	 * @param gradebook
+	 * @return a list of assignments or empty list if none/no gradebook
+	 */
+	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid, final Gradebook gradebook) {
+		return getGradebookAssignmentsForStudent(studentUuid, SortType.SORT_BY_SORTING, gradebook);
+	}
+
+	/**
+	 * Special operation to get a list of assignments in the gradebook that the specified student has access to. This taked into account
+	 * externally defined assessments that may have grouping permissions applied.
+	 *
+	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
+	 * are an instructor using the student review mode)
+	 *
 	 * Define the sortedBy to return these assignments back in the desired order.
 	 *
 	 * @return a list of assignments or empty list if none/no gradebook
@@ -480,7 +517,22 @@ public class GradebookNgBusinessService {
 	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid, final SortType sortedBy) {
 
 		final Gradebook gradebook = getGradebook(getCurrentSiteId());
-		final List<Assignment> assignments = getGradebookAssignments(sortedBy);
+		return getGradebookAssignmentsForStudent(studentUuid, sortedBy, gradebook);
+	}
+
+	/**
+	 * Special operation to get a list of assignments in the gradebook that the specified student has access to. This taked into account
+	 * externally defined assessments that may have grouping permissions applied.
+	 *
+	 * This should only be called if you are wanting to view the assignments that a student would see (ie if you ARE a student, or if you
+	 * are an instructor using the student review mode)
+	 *
+	 * Define the sortedBy to return these assignments back in the desired order.
+	 *
+	 * @return a list of assignments or empty list if none/no gradebook
+	 */
+	public List<Assignment> getGradebookAssignmentsForStudent(final String studentUuid, final SortType sortedBy, final Gradebook gradebook) {
+		final List<Assignment> assignments = getGradebookAssignments(sortedBy, gradebook);
 
 		// NOTE: cannot do a role check here as it assumes the current user but this could have been called by an instructor (unless we add
 		// a new method to handle this)
@@ -491,8 +543,8 @@ public class GradebookNgBusinessService {
 		while (iter.hasNext()) {
 			final Assignment a = iter.next();
 			if (a.isExternallyMaintained()) {
-				if (this.gradebookExternalAssessmentService.isExternalAssignmentGrouped(gradebook.getUid(), a.getExternalId()) &&
-					!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gradebook.getUid(), a.getExternalId(),
+				if (this.gradebookExternalAssessmentService.isExternalAssignmentGrouped(gradebook, a.getExternalId()) &&
+					!this.gradebookExternalAssessmentService.isExternalAssignmentVisible(gradebook, a.getExternalId(),
 						studentUuid)) {
 					iter.remove();
 				}
@@ -510,12 +562,24 @@ public class GradebookNgBusinessService {
 	 */
 	public List<Assignment> getGradebookAssignments(final String siteId, final SortType sortBy) {
 
-		final List<Assignment> assignments = new ArrayList<>();
 		final Gradebook gradebook = getGradebook(siteId);
+		return getGradebookAssignments(gradebook, sortBy);
+	}
+
+	/**
+	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order
+	 *
+	 * @param siteId the siteId
+	 * @param sortBy
+	 * @return a list of assignments or empty list if none/no gradebook
+	 */
+	public List<Assignment> getGradebookAssignments(final Gradebook gradebook, final SortType sortBy) {
+
+		final List<Assignment> assignments = new ArrayList<>();
 		if (gradebook != null) {
 			// applies permissions (both student and TA) and default sort is
 			// SORT_BY_SORTING
-			assignments.addAll(this.gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid(), sortBy));
+			assignments.addAll(this.gradebookService.getViewableAssignmentsForCurrentUser(gradebook, sortBy));
 		}
 		return assignments;
 	}
@@ -536,8 +600,16 @@ public class GradebookNgBusinessService {
 	 * @return a list of categories or empty if no gradebook
 	 */
 	public List<CategoryDefinition> getGradebookCategories(final String siteId) {
-		final Gradebook gradebook = getGradebook(siteId);
+		return getGradebookCategories(getGradebook(siteId));
+	}
 
+	/**
+	 * Get a list of categories in the gradebook in the specified site
+	 *
+	 * @param gradebook
+	 * @return a list of categories or empty if no gradebook
+	 */
+	public List<CategoryDefinition> getGradebookCategories(final Gradebook gradebook) {
 		List<CategoryDefinition> rval = new ArrayList<>();
 
 		if (gradebook == null) {
@@ -545,12 +617,12 @@ public class GradebookNgBusinessService {
 		}
 
 		if (categoriesAreEnabled()) {
-			rval = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
+			rval = this.gradebookService.getCategoryDefinitions(gradebook);
 		}
 
 		GbRole role;
 		try {
-			role = this.getUserRole(siteId);
+			role = this.getUserRole(gradebook.getUid());
 		} catch (final GbAccessDeniedException e) {
 			log.warn("GbAccessDeniedException trying to getGradebookCategories", e);
 			return rval;
@@ -578,7 +650,7 @@ public class GradebookNgBusinessService {
 			//if categories is empty (no fine grain permissions enabled), Check permissions, if they are not empty then realms perms exist 
 			//and they don't filter to category level so allow all.
 			//This should still allow the gb_permission_t perms to override if the TA is restricted to certain categories
-			if(viewableCategoryIds.isEmpty() && !this.getPermissionsForUser(user.getId()).isEmpty()){
+			if(viewableCategoryIds.isEmpty() && !this.getPermissionsForUser(user.getId(), gradebook).isEmpty()){
 				viewableCategoryIds = allCategoryIds;
 			}
 
@@ -609,8 +681,21 @@ public class GradebookNgBusinessService {
 	* @return list of visible categories
 	*/
 	public List<CategoryDefinition> getGradebookCategoriesForStudent(String studentUuid) {
+		return getGradebookCategoriesForStudent(studentUuid, getGradebook());
+	}
+
+	/**
+	* Retrieve the categories visible to the given student.
+	*
+	* This should only be called if you are wanting to view the categories that a student would see (ie if you ARE a student, or if you
+	* are an instructor using the student review mode)
+	*
+	* @param studentUuid
+	* @return list of visible categories
+	*/
+	public List<CategoryDefinition> getGradebookCategoriesForStudent(String studentUuid, final Gradebook gradebook) {
 		// find the categories that this student's visible assignments belong to
-		List<Assignment> viewableAssignments = getGradebookAssignmentsForStudent(studentUuid);
+		List<Assignment> viewableAssignments = getGradebookAssignmentsForStudent(studentUuid, gradebook);
 		final List<Long> catIds = new ArrayList<>();
 		for (Assignment a : viewableAssignments) {
 			Long catId = a.getCategoryId();
@@ -623,7 +708,7 @@ public class GradebookNgBusinessService {
 		SecurityAdvisor gbAdvisor = (String userId, String function, String reference)
 						-> "gradebook.gradeAll".equals(function) ? SecurityAdvice.ALLOWED : SecurityAdvice.PASS;
 		securityService.pushAdvisor(gbAdvisor);
-		List<CategoryDefinition> catDefs = gradebookService.getCategoryDefinitions(getGradebook().getUid());
+		List<CategoryDefinition> catDefs = gradebookService.getCategoryDefinitions(gradebook);
 		securityService.popAdvisor(gbAdvisor);
 
 		// filter out the categories that don't match the categories of the viewable assignments
@@ -695,9 +780,19 @@ public class GradebookNgBusinessService {
 	 * @return coursegrade. May have null fields if the coursegrade has not been released
 	 */
 	public CourseGrade getCourseGrade(final String studentUuid) {
+		return getCourseGrade(studentUuid, getGradebook());
+	}
 
-		final Gradebook gradebook = this.getGradebook();
-		final CourseGrade courseGrade = this.gradebookService.getCourseGradeForStudent(gradebook.getUid(), studentUuid);
+	/**
+	 * Get the course grade for a student. Safe to call when logged in as a student.
+	 *
+	 * @param studentUuid
+	 * @param gradebook
+	 * @return coursegrade. May have null fields if the coursegrade has not been released
+	 */
+	public CourseGrade getCourseGrade(final String studentUuid, final Gradebook gradebook) {
+
+		final CourseGrade courseGrade = this.gradebookService.getCourseGradeForStudent(gradebook, studentUuid);
 
 		// handle the special case in the gradebook service where totalPointsPossible = -1
 		if (courseGrade != null && (courseGrade.getTotalPointsPossible() == null || courseGrade.getTotalPointsPossible() == -1)) {
@@ -1699,9 +1794,17 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public List<GbGroup> getSiteSectionsAndGroups() {
-		final String siteId = getCurrentSiteId();
+		return getSiteSectionsAndGroups(getGradebook(getCurrentSiteId()));
+	}
 
+	/**
+	 * Get a list of sections and groups in a site
+	 *
+	 * @return
+	 */
+	public List<GbGroup> getSiteSectionsAndGroups(final Gradebook gradebook) {
 		final List<GbGroup> rval = new ArrayList<>();
+		final String siteId = gradebook.getUid();
 
 		// get groups (handles both groups and sections)
 		try {
@@ -1728,7 +1831,6 @@ public class GradebookNgBusinessService {
 		// if user is a TA, get the groups they can see and filter the GbGroup
 		// list to keep just those
 		if (role == GbRole.TA) {
-			final Gradebook gradebook = this.getGradebook(siteId);
 			final User user = getCurrentUser();
 			boolean canGradeAll = false;
 
@@ -1740,8 +1842,7 @@ public class GradebookNgBusinessService {
 
 			// get the ones the TA can actually view
 			// note that if a group is empty, it will not be included.
-			List<String> viewableGroupIds = this.gradebookPermissionService
-					.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
+			List<String> viewableGroupIds = this.gradebookPermissionService.getViewableGroupsForUser(gradebook, user.getId(), allGroupIds);
 
 			//FIXME: Another realms hack. The above method only returns groups from gb_permission_t. If this list is empty,
 			//need to check realms to see if user has privilege to grade any groups. This is already done in 
@@ -2435,12 +2536,22 @@ public class GradebookNgBusinessService {
 	 * @return map of assignment to GbGradeInfo
 	 */
 	public Map<Long, GbGradeInfo> getGradesForStudent(final String studentUuid) {
+		String siteID = getCurrentSiteId();
+		return getGradesForStudent(studentUuid, siteID, getGradebook(siteID));
+	}
 
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+	/**
+	 * Get a map of grades for the given student. Safe to call when logged in as a student.
+	 *
+	 * @param studentUuid
+	 * @param siteId
+	 * @param gradebook
+	 * @return map of assignment to GbGradeInfo
+	 */
+	public Map<Long, GbGradeInfo> getGradesForStudent(final String studentUuid, final String siteId, final Gradebook gradebook) {
 
 		// will apply permissions and only return those the student can view
-		final List<Assignment> assignments = getGradebookAssignmentsForStudent(studentUuid);
+		final List<Assignment> assignments = getGradebookAssignmentsForStudent(studentUuid, gradebook);
 
 		final Map<Long, GbGradeInfo> rval = new LinkedHashMap<>();
 
@@ -2465,8 +2576,7 @@ public class GradebookNgBusinessService {
 		}
 
 		for (final Assignment assignment : assignments) {
-			final GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(),
-					assignment.getId(), studentUuid);
+			final GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook, assignment.getId(), studentUuid);
 			rval.put(assignment.getId(), new GbGradeInfo(def));
 		}
 
@@ -2474,7 +2584,11 @@ public class GradebookNgBusinessService {
 	}
 
 	public GradeDefinition getGradeForStudentForItem(String studentId, Long assignmentId) {
-		return this.gradebookService.getGradeDefinitionForStudentForItem(getCurrentSiteId(), assignmentId, studentId);
+		return getGradeForStudentForItem(studentId, assignmentId, getGradebook());
+	}
+
+	public GradeDefinition getGradeForStudentForItem(String studentId, Long assignmentId, final Gradebook gradebook) {
+		return this.gradebookService.getGradeDefinitionForStudentForItem(gradebook, assignmentId, studentId);
 	}
 
 	/**
@@ -2486,10 +2600,20 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid, final boolean isInstructor) {
+		return getCategoryScoreForStudent(categoryId, studentUuid, isInstructor, getGradebook());
+	}
 
-		final Gradebook gradebook = getGradebook();
+	/**
+	 * Get the category score for the given student.
+	 *
+	 * @param categoryId id of category
+	 * @param studentUuid uuid of student
+	 * @param isInstructor will calculate the category score with non-released items for instructors but not for students
+	 * @return
+	 */
+	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid, final boolean isInstructor, final Gradebook gradebook) {
 
-		List<CategoryDefinition> cats = isInstructor ? getGradebookCategories() : getGradebookCategoriesForStudent(studentUuid);
+		List<CategoryDefinition> cats = isInstructor ? getGradebookCategories(gradebook) : getGradebookCategoriesForStudent(studentUuid, gradebook);
 		Optional<CategoryDefinition> cat = cats.stream().filter(c -> c.getId().equals(categoryId)).findFirst();
 		if (!cat.isPresent()) {
 			log.warn("Expected to find category for id {} but found none. Unable to calculate category score.", categoryId);
@@ -2512,18 +2636,20 @@ public class GradebookNgBusinessService {
 		return getGradebookSettings(getCurrentSiteId());
 	}
 
+	public GradebookInformation getGradebookSettings(final String siteId) {
+		return getGradebookSettings(getGradebook(siteId));
+	}
+
 	/**
 	 * Get the settings for this gradebook. Safe to use from an entityprovider.
 	 *
 	 * @return
 	 */
-	public GradebookInformation getGradebookSettings(final String siteId) {
-		final Gradebook gradebook = getGradebook(siteId);
-
+	public GradebookInformation getGradebookSettings(final Gradebook gradebook) {
 		SecurityAdvisor advisor = null;
 		try {
 			advisor = addSecurityAdvisor();
-			final GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook.getUid());
+			final GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook);
 			Collections.sort(settings.getCategories(), CategoryDefinition.orderComparator);
 			return settings;
 		} finally {
@@ -2589,15 +2715,24 @@ public class GradebookNgBusinessService {
 	 */
 	public List<PermissionDefinition> getPermissionsForUser(final String userUuid) {
 		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+		return getPermissionsForUser(userUuid, getGradebook(siteId));
+	}
 
-		List<PermissionDefinition> permissions = this.gradebookPermissionService
-				.getPermissionsForUser(gradebook.getUid(), userUuid);
+	/**
+	 * Get a list of permissions defined for the given user. Note: These are currently only defined/used for a teaching assistant.
+	 *
+	 * @param userUuid
+	 * @param gradebook
+	 * @param siteId
+	 * @return list of permissions or empty list if none
+	 */
+	public List<PermissionDefinition> getPermissionsForUser(final String userUuid, final Gradebook gradebook) {
+		List<PermissionDefinition> permissions = this.gradebookPermissionService.getPermissionsForUser(gradebook, userUuid);
 
 		//if db permissions are null, check realms permissions.
 		if (permissions == null || permissions.isEmpty()) {
 			//This method should return empty arraylist if they have no realms perms
-			permissions = this.gradebookPermissionService.getRealmsPermissionsForUser(userUuid, siteId, Role.TA);
+			permissions = this.gradebookPermissionService.getRealmsPermissionsForUser(userUuid, gradebook.getUid(), Role.TA);
 		}
 		return permissions;
 	}
@@ -2821,16 +2956,23 @@ public class GradebookNgBusinessService {
 
 		return rval;
 	}
-	
+
 	/**
 	 * Have categories been enabled for the gradebook?
 	 *
 	 * @return if the gradebook is setup for either "Categories Only" or "Categories & Weighting"
 	 */
 	public boolean categoriesAreEnabled() {
-		final String siteId = getCurrentSiteId();
-		final Gradebook gradebook = getGradebook(siteId);
+		return categoriesAreEnabled(getGradebook(getCurrentSiteId()));
+	}
 
+	/**
+	 * Have categories been enabled for the gradebook?
+	 *
+	 * @param gradebook
+	 * @return if the gradebook is setup for either "Categories Only" or "Categories & Weighting"
+	 */
+	public boolean categoriesAreEnabled(final Gradebook gradebook) {
 		return GbCategoryType.ONLY_CATEGORY.getValue() == gradebook.getCategory_type()
 				|| GbCategoryType.WEIGHTED_CATEGORY.getValue() == gradebook.getCategory_type();
 	}
