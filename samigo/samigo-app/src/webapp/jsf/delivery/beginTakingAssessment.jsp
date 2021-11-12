@@ -200,6 +200,8 @@
 		<h:outputLink value="#{delivery.recURL}" target="_blank"><h:outputText value="#{deliveryMessages.please_read_2}"/></h:outputLink >
 		<h:outputText value=" #{deliveryMessages.please_read_3}" /> 
 	</h:panelGroup>
+
+	<h:outputText value="#{deliveryMessages.begin_assessment_msg_warn_tabs}" />
 	
 </h:panelGrid>
 	
