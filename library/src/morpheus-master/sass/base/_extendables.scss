@@ -347,6 +347,11 @@
 	margin-right: $standard-space;
 }
 
+// must be above the .act .active selector so it can be overriden
+.ui-dialog-buttonpane .ui-button{
+	@include sakai_secondary_button();
+}
+
 button.btn-primary, .act .active {
 	@include sakai_primary_button();
 }
@@ -453,10 +458,6 @@ a.noPointers, input.noPointers {
 		width: 95% !important; 
 		left: 2.5% !important;
 	}
-}
-
-.ui-dialog .ui-dialog-buttonpane button{
-	@include sakai_primary_button();
 }
 
 label.panelGridLabel{
