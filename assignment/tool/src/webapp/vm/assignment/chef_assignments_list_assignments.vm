@@ -545,8 +545,6 @@
 							<!-- only show to "students" -->
 							<!-- peer assessment overview row -->
 							<tr>
-								<!-- attachments col -->
-								<td></td>
 								<!-- title col -->
 								<td class="peer-header">
 									<strong title="$formattedText.escapeHtml($!assignment.Title)"><span class="fa fa-caret-square-o-right" aria-hidden="true"></span> $formattedText.escapeHtml($assignment.Title)</strong>
