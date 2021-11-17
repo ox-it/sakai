@@ -639,8 +639,6 @@
 								#foreach ($review in $reviews)
 									#set ($reviewCount = $reviewCount + 1)
 									<tr>
-										<!-- attachments col -->
-										<td></td>
 										<!-- title col -->
 										<td>
 											<span class="indnt2">
