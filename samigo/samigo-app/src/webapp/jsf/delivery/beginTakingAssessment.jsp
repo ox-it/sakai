@@ -200,9 +200,6 @@
 		<h:outputLink value="#{delivery.recURL}" target="_blank"><h:outputText value="#{deliveryMessages.please_read_2}"/></h:outputLink >
 		<h:outputText value=" #{deliveryMessages.please_read_3}" /> 
 	</h:panelGroup>
-
-	<h:outputText value="#{deliveryMessages.begin_assessment_msg_warn_tabs}" />
-	
 </h:panelGrid>
 	
 <h:panelGrid columns="2" border="0">
@@ -214,6 +211,10 @@
 </h:panelGrid>
 
  </div></div>
+
+  <h:panelGroup layout="block" styleClass="sak-banner-warn">
+	  <h:outputText value="#{deliveryMessages.begin_assessment_msg_warn_tabs}" />
+  </h:panelGroup>
  
  <h:panelGroup layout="block" styleClass="honor-container" rendered="#{delivery.honorPledge && delivery.firstTimeTaking}">
 	<h:selectBooleanCheckbox id="honor_pledge" />
