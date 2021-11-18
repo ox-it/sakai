@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzRealmLockException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -199,16 +200,18 @@ public class RoleGroupEventWatcher implements Observer
 
 				// importing from template, bypass the permission checking:
 				// temporarily allow the user to read and write to site, authzgroup, etc.
-		        securityService.pushAdvisor(new SecurityAdvisor()
+				SecurityAdvisor advisor = new SecurityAdvisor()
 	            {
-	                public SecurityAdvice isAllowed(String userId, String function, String reference)
+					@Override
+	                public SecurityAdvisor.SecurityAdvice isAllowed(String userId, String function, String reference)
 	                {
-	                    return SecurityAdvice.ALLOWED;
+	                    return SecurityAdvisor.SecurityAdvice.ALLOWED;
 	                }
-	            });
+	            };
 
 				try
 				{
+					securityService.pushAdvisor(advisor);
 					String realmId = ref.getId();
 					if (realmId != null && realmId.indexOf(SiteService.GROUP_SUBTYPE) == -1 && realmId.startsWith("/" + SiteService.SITE_SUBTYPE + "/"))
 					{
@@ -246,8 +249,9 @@ public class RoleGroupEventWatcher implements Observer
 											{
 												try {
 													g.deleteMember(m.getUserId());
-												} catch (IllegalStateException e) {
-													log.error(".update: User with id {} cannot be deleted from group with id {} because the group is locked", m.getUserId(), g.getId());
+												} catch (AuthzRealmLockException e) {
+													log.warn(".update: User with id {} cannot be deleted from group with id {} because the group is locked. Aborting deletions for this group.", m.getUserId(), g.getId());
+													break;
 												}
 											}
 										}
@@ -260,8 +264,9 @@ public class RoleGroupEventWatcher implements Observer
 											{
 												try {
 													g.insertMember(userId, role.trim(), true, false);
-												} catch (IllegalStateException e) {
-													log.error(".update: User with id {} cannot be inserted in group with id {} because the group is locked", userId, g.getId());
+												} catch (AuthzRealmLockException e) {
+													log.warn(".update: User with id {} cannot be inserted in group with id {} because the group is locked. Aborting insertions for this group.", userId, g.getId());
+													break;
 												}
 											}
 										}
@@ -286,8 +291,10 @@ public class RoleGroupEventWatcher implements Observer
 				{
 					log.warn(this + ".update:" + e + ": " + event.getResource());
 				}
-
-				securityService.popAdvisor();
+				finally
+				{
+					securityService.popAdvisor(advisor);
+				}
 
 				// reset
 				threadLocalManager.set("current.event.resource.ref", null);
