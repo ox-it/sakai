@@ -7764,7 +7764,7 @@ public class AssignmentAction extends PagedResourceActionII {
                         submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeSelfPlag, storeInstIndex, studentPreview, excludeType, excludeValue);
 
                 //RUBRICS, Save the binding between the assignment and the rubric
-                rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params));
+                rubricsService.saveRubricAssociation(RubricsConstants.RBCS_TOOL_ASSIGNMENT, a.getId(), getRubricConfigurationParameters(params, gradeType));
 
                 // Locking and unlocking groups
                 rangeAndGroups.postSaveAssignmentGroupLocking(state, post, rangeAndGroupSettings, aOldGroups, siteId, assignmentReference);
@@ -8043,7 +8043,7 @@ public class AssignmentAction extends PagedResourceActionII {
      * @param params
      * @return
      */
-    private HashMap<String,String> getRubricConfigurationParameters(ParameterParser params){
+    private HashMap<String,String> getRubricConfigurationParameters(ParameterParser params, Assignment.GradeType gradeType){
 
         HashMap<String,String> parametersHash = new HashMap<>();
         //Get the parameters
@@ -8054,6 +8054,12 @@ public class AssignmentAction extends PagedResourceActionII {
                 parametersHash.put(name,params.getString(name));
             }
         }
+
+        // if the grading type is not points (score) remove the rubric association regardless of the posted rubric params
+        if (gradeType != Assignment.GradeType.SCORE_GRADE_TYPE && "1".equals(parametersHash.get("rbcs-associate"))) {
+            parametersHash.put("rbcs-associate", "0");
+        }
+
         return parametersHash;
     }
 
