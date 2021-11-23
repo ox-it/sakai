@@ -79,15 +79,14 @@ public class BeanDateComparator
     {
       Object d1 = PropertyUtils.getProperty(o1, propertyName);
       Object d2 = PropertyUtils.getProperty(o2, propertyName);
-      if (d1 instanceof Date && d2 instanceof Date)
-      {
-        i1 = (Date) d1;
-        i2 = (Date) d2;
-      }
-      else
+      if ((d1 != null && !(d1 instanceof Date)) || (d2 != null && !(d2 instanceof Date)))
       {
         log.warn("Attempted to use date comparator on bean property {}, which is not a date.", propertyName);
+        return 0;
       }
+
+      i1 = (Date) d1;
+      i2 = (Date) d2;
     }
     catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
     {
