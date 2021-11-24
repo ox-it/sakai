@@ -224,7 +224,6 @@
 							<td headers="title" scope="row">
 								#if (($!allowAddAssignment || $!allowUpdateAssignment || $!service.allowGradeSubmission($assignmentReference)) && $!view.equals('lisofass1'))
 									<strong>
-										#assignmentTitleIcon($assignment)
 										## normal instructor view
 										#if ($assignment.Draft && $!allowUpdateAssignment )
 											<a name="asnActionLink" href="#toolLinkParam("$action" "doEdit_assignment" "assignmentId=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
@@ -236,6 +235,8 @@
 										#end
 											$formattedText.escapeHtml($!assignment.Title)
 										</a>
+
+										#assignmentTitleIcon($assignment)
 
 										#if (!$assignment.getAttachments().isEmpty())
 											<i class="icon-sakai--clip" aria-hidden="true"></i>
