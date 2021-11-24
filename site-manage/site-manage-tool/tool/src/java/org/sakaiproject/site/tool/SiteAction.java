@@ -6361,7 +6361,8 @@ private Map<String, List<MyTool>> getTools(SessionState state, String type, Site
 		// see setToolRegistrationList()
 		List<MyTool> toolList = (List)state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
 		List<String> chosenList = (List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-		Collection<String> stealthedToolIds = ToolManager.getStealthedToolIds();
+		String[] stealthToolIds = ServerConfigurationService.getStrings("stealthTools@org.sakaiproject.tool.api.ActiveToolManager");
+		List<String> stealthedToolIds = stealthToolIds != null ? Arrays.asList(stealthToolIds) : Collections.emptyList();
 
 		// mark the required tools
 		List requiredTools = ServerConfigurationService.getToolsRequired(SiteTypeUtil.getTargetSiteType(type));

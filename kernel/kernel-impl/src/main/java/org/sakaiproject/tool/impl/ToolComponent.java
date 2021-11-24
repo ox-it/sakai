@@ -754,9 +754,4 @@ public abstract class ToolComponent implements ToolManager
 			return false;
 		return requiredPermissionsString.contains("site.upd");
 	}
-
-	public Collection<String> getStealthedToolIds()
-	{
-		return this.m_stealthToolIds;
-	}
 }

@@ -23,7 +23,6 @@ package org.sakaiproject.tool.api;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.Set;
 
 import org.sakaiproject.site.api.Site;
@@ -178,10 +177,4 @@ public interface ToolManager
 	 * If the configuration tag is not set or is null, then all users see the tool.
 	 */
 	public boolean allowTool(Site site, Placement placement);
-
-	/**
-	 * Get a list of all stealthed tool IDs in the system.
-	 * @return a list of unique tool IDs which are stealthed
-	 */
-	public Collection<String> getStealthedToolIds();
 }

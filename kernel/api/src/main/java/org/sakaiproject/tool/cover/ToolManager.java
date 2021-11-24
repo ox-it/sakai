@@ -142,11 +142,4 @@ public class ToolManager
 
 		return manager.getLocalizedToolProperty(toolId, key);
 	}
-
-	public static java.util.Collection<String> getStealthedToolIds() {
-		org.sakaiproject.tool.api.ToolManager manager = getInstance();
-		if (manager == null) return null;
-
-		return manager.getStealthedToolIds();
-	}
 }
