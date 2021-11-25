@@ -2590,14 +2590,6 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
-	public GradeDefinition getGradeForStudentForItem(String studentId, Long assignmentId) {
-		return getGradeForStudentForItem(studentId, assignmentId, getGradebook());
-	}
-
-	public GradeDefinition getGradeForStudentForItem(String studentId, Long assignmentId, final Gradebook gradebook) {
-		return this.gradebookService.getGradeDefinitionForStudentForItem(gradebook, assignmentId, studentId);
-	}
-
 	/**
 	 * Get the category score for the given student.
 	 *

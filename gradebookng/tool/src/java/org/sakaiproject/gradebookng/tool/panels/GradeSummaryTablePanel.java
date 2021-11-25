@@ -47,7 +47,6 @@ import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradingType;
 
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +74,6 @@ public class GradeSummaryTablePanel extends BasePanel {
 		// settings for stats display
 		final GradebookInformation settings = getSettings();
 		this.assignmentStatsEnabled = settings.isAssignmentStatsDisplayed();
-
 	}
 
 	@Override
@@ -317,7 +315,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 							sakaiRubricButton.add(AttributeModifier.append("evaluated-item-id", assignment.getId() + "." + studentUuid));
 							sakaiRubricButton.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
-							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView, gradebook);
+							addInstructorAttributeOrHide(sakaiRubricButton, assignment, showingStudentView, gradeInfo);
 
 							if (assignment.getId() != null) {
 								sakaiRubricButton.add(AttributeModifier.append("entity-id", assignment.getId()));
@@ -334,7 +332,7 @@ public class GradeSummaryTablePanel extends BasePanel {
 							sakaiRubricButton.add(AttributeModifier.append("display", "icon"));
 							sakaiRubricButton.add(AttributeModifier.append("token", rubricsService.generateJsonWebToken(RubricsConstants.RBCS_TOOL_GRADEBOOKNG)));
 
-							addInstructorAttributeOrHide(sakaiRubricButton, assignment, studentUuid, showingStudentView, gradebook);
+							addInstructorAttributeOrHide(sakaiRubricButton, assignment, showingStudentView, gradeInfo);
 
 							if (assignment.isExternallyMaintained()) {
 								sakaiRubricButton.add(AttributeModifier.append("tool-id", RubricsConstants.RBCS_TOOL_ASSIGNMENT));
@@ -388,15 +386,13 @@ public class GradeSummaryTablePanel extends BasePanel {
 		});
 	}
 
-	private void addInstructorAttributeOrHide(WebMarkupContainer sakaiRubricButton, Assignment assignment, String studentId, boolean showingStudentView,
-			final Gradebook gradebook) {
+	private void addInstructorAttributeOrHide(WebMarkupContainer sakaiRubricButton, Assignment assignment, boolean showingStudentView, final GbGradeInfo gradeInfo) {
 
 		if (!showingStudentView && (GradeSummaryTablePanel.this.getUserRole() == GbRole.INSTRUCTOR
 					|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
 			sakaiRubricButton.add(AttributeModifier.append("instructor", true));
 		} else {
-			GradeDefinition gradeDefinition = businessService.getGradeForStudentForItem(studentId, assignment.getId(), gradebook);
-			if (assignment.isExternallyMaintained() && gradeDefinition.getGrade() == null) {
+			if (assignment.isExternallyMaintained() && gradeInfo.getGrade() == null) {
 				sakaiRubricButton.add(AttributeModifier.replace("force-preview", true));
 			}
 		}
