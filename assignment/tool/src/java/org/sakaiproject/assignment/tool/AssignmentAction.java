@@ -6708,14 +6708,44 @@ public class AssignmentAction extends PagedResourceActionII {
                     addAlert(state, rb.getString("addtogradebook.wrongGradeScale"));
                 }
 
-                if (GRADEBOOK_INTEGRATION_ADD.equals(grading) && validify) {
-                    try {
-                        String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
-                        gradebookExternalAssessmentService.validateNewExternalAssessmentTitle(siteId, title);
-                    } catch (ConflictingAssignmentNameException cane) {
-                        addAlert(state, rb.getString("addtogradebook.validate.nonUniqueTitle"));
-                    } catch (InvalidGradeItemNameException igine) {
-                        addAlert(state, rb.getString("addtogradebook.validate.titleInvalidCharacters"));
+                /*
+                 * If this operation will set a gradebook item's title, we have to use gradebookExternalAssessmentService to validate the assignment title.
+                 * The cases that set a title are:
+                 * 1) Creating new Gradebook item.
+                 * 2) Associating with an existing item, and the gradebook item is already associated with an existing assignment.
+                 * Notes:
+                 * If we associate with a gradebook item that is not already associated with an existing assignment, it keeps its name; so title validation is not required.
+                 * Gradebook items maintained by tools other than assignments do not appear in the UI.
+                 * So we can almost safely ignore these, but rare cases such as the following are not yet addressed:
+                 * Create gb item "A" -> add assignment associated "A" (don't post yet) -> delete gb item "A" -> create & post a quiz "A" w send grades to gb -> post assignment
+                 */
+                if (validify)
+                {
+                    switch (grading) {
+                        case GRADEBOOK_INTEGRATION_ASSOCIATE:
+                            org.sakaiproject.service.gradebook.shared.Assignment gbItem = null;
+                            try {
+                                gbItem = gradebookService.getExternalAssignment(contextString, associateAssignment);
+                            } catch (AssessmentNotFoundException anfe) {
+                                // gbItem is null
+                            }
+                            if (gbItem == null) {
+                                addAlert(state, rb.getString("addtogradebook.validate.associatedItemNotFound"));
+                                break;
+                            } else if (!gbItem.isExternallyMaintained()) {
+                                // The title will not be updated; validation is not required
+                                break;
+                            }
+                            // gbItem exists and is externally maintained, so its title will be updated: flow through to the next case for validation.
+                        case GRADEBOOK_INTEGRATION_ADD:
+                            try {
+                                gradebookExternalAssessmentService.validateNewExternalAssessmentTitle(contextString, title);
+                            } catch (ConflictingAssignmentNameException cane) {
+                                addAlert(state, rb.getString("addtogradebook.validate.nonUniqueTitle"));
+                            } catch (InvalidGradeItemNameException igine) {
+                                addAlert(state, rb.getString("addtogradebook.validate.titleInvalidCharacters"));
+                            }
+                        default:
                     }
                 }
 
