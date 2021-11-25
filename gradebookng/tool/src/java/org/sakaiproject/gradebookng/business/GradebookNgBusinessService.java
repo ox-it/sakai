@@ -33,6 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -2575,10 +2576,16 @@ public class GradebookNgBusinessService {
 			}
 		}
 
-		for (final Assignment assignment : assignments) {
-			final GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook, assignment.getId(), studentUuid);
-			rval.put(assignment.getId(), new GbGradeInfo(def));
+		final List<Long> assignmentIds = assignments.stream().map(Assignment::getId).collect(Collectors.toList());
+		final Map<Long, GradeDefinition> defs = gradebookService.getGradeDefinitionsForStudentForItems(gradebook, assignmentIds, studentUuid);
+		for (Entry<Long, GradeDefinition> entry : defs.entrySet()) {
+			rval.put(entry.getKey(), new GbGradeInfo(entry.getValue()));
 		}
+
+//		for (final Assignment assignment : assignments) {
+//			final GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook, assignment.getId(), studentUuid);
+//			rval.put(assignment.getId(), new GbGradeInfo(def));
+//		}
 
 		return rval;
 	}

@@ -237,6 +237,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                 .uniqueResult();
 	}
 
+	protected List<GradebookAssignment> getAssignmentsWithoutStats(final String gradebookUid, final List<Long> assignmentIds) throws HibernateException {
+		return getSessionFactory().getCurrentSession()
+				.createQuery("from GradebookAssignment as asn where asn.id in :assignmentIds and asn.gradebook.uid = :gradebookUid and asn.removed is false")
+				.setParameterList("assignmentIds", assignmentIds)
+				.setString("gradebookUid", gradebookUid)
+				.list();
+	}
+
 	protected void updateAssignment(final GradebookAssignment assignment) throws ConflictingAssignmentNameException, HibernateException {
 		// Ensure that we don't have the assignment in the session, since
 		// we need to compare the existing one in the db to our edited assignment

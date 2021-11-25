@@ -285,6 +285,18 @@ public interface GradebookService extends OwlGradebookService {
 	public GradeDefinition getGradeDefinitionForStudentForItem(Object gradebook, Long assignmentId, String studentUid) throws AssessmentNotFoundException;
 
 	/**
+	 *
+	 * @param gradebook
+	 * @param assignmentIds
+	 * @param studentUid
+	 * @return Returns a Map of assignment ID -> GradeDefinition for the student, respecting the grade entry type for the gradebook (ie in %, letter grade, or
+	 *         points format). Returns null if no grade
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public  Map<Long, GradeDefinition> getGradeDefinitionsForStudentForItems(Object gradebook, List<Long> assignmentIds, String studentUid) throws AssessmentNotFoundException;
+
+	/**
 	 * Get the comment (if any) currently provided for the given combination of student and assignment.
 	 *
 	 * @param gradebookUid

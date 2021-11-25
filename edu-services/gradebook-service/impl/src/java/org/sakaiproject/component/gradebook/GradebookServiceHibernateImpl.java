@@ -98,6 +98,7 @@ import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureExcep
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
 import org.sakaiproject.component.gradebook.owl.OwlGradebookServiceImpl;
 import org.sakaiproject.service.gradebook.shared.owl.OwlGradebookService;
 
@@ -335,8 +336,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	@Override
 	public GradeDefinition getGradeDefinitionForStudentForItem(final Object gb, final Long assignmentId, final String studentUid) {
+		Map<Long, GradeDefinition> grades = getGradeDefinitionsForStudentForItems(gb, Collections.singletonList(assignmentId), studentUid);
+		return MapUtils.isNotEmpty(grades) ? grades.get(0) : null;
+	}
 
-		if (gb == null || assignmentId == null || studentUid == null) {
+	@Override
+	public Map<Long, GradeDefinition> getGradeDefinitionsForStudentForItems(final Object gb, final List<Long> assignmentIds, final String studentUid) {
+
+		if (gb == null || assignmentIds == null || studentUid == null) {
 			throw new IllegalArgumentException("Null paraemter passed to getGradeDefinitionForStudentForItem");
 		}
 
@@ -344,93 +351,98 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final String gradebookUid = gradebook.getUid();
 
 		// studentId can be a groupId (from Assignments)
-		final boolean studentRequestingOwnScore = this.authn.getUserUid().equals(studentUid)
-				|| isCurrentUserFromGroup(gradebookUid, studentUid);
+		final boolean studentRequestingOwnScore = this.authn.getUserUid().equals(studentUid) || isCurrentUserFromGroup(gradebookUid, studentUid);
 
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		final GradeDefinition gradeDef = (GradeDefinition) getHibernateTemplate().execute(new HibernateCallback() {
-			@Override
-			public Object doInHibernate(final Session session) throws HibernateException {
+		final List<GradebookAssignment> assignments = getAssignmentsWithoutStats(gradebookUid, assignmentIds);
+		final Map<Long, GradeDefinition> retVal = new HashMap<>(assignments.size());
 
-				final GradebookAssignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId);
+		for (GradebookAssignment assignment : assignments) {
+			final GradeDefinition gradeDef = (GradeDefinition) getHibernateTemplate().execute(new HibernateCallback() {
+				@Override
+				public Object doInHibernate(final Session session) throws HibernateException {
 
-				if (assignment == null) {
-					throw new AssessmentNotFoundException(
-							"There is no assignment with the assignmentId " + assignmentId + " in gradebook " + gradebookUid);
-				}
-
-				if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebook, assignment.getId(), studentUid)) {
-					log.error("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to retrieve grade for student {} for assignment {}",
-							getUserUid(), gradebookUid, studentUid, assignmentId);
-					throw new GradebookSecurityException();
-				}
-
-				final GradeDefinition gradeDef = new GradeDefinition();
-				gradeDef.setStudentUid(studentUid);
-				gradeDef.setGradeEntryType(gradebook.getGrade_type());
-				gradeDef.setGradeReleased(assignment.isReleased());
-
-				// If this is the student, then the global setting needs to be enabled and the assignment needs to have
-				// been released. Return null score information if not released
-				if (studentRequestingOwnScore && (!gradebook.isAssignmentsDisplayed() || !assignment.isReleased())) {
-					gradeDef.setDateRecorded(null);
-					gradeDef.setGrade(null);
-					gradeDef.setGraderUid(null);
-					gradeDef.setGradeComment(null);
-					log.debug("Student {} in gradebook {} retrieving score for unreleased assignment {}", getUserUid(), gradebookUid,
-							assignment.getName());
-
-				} else {
-
-					final AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid);
-					final CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, assignmentId, studentUid, assignment);
-					final String commentText = gradeComment != null ? gradeComment.getCommentText() : null;
-					if (log.isDebugEnabled()) {
-						log.debug("gradeRecord=" + gradeRecord);
+					if (assignment == null) {
+						return null;
 					}
 
-					if (gradeRecord == null) {
+					Long assignmentId = assignment.getId();
+					if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebook, assignment.getId(), studentUid)) {
+						log.error("AUTHORIZATION FAILURE: User {} in gradebook {} attempted to retrieve grade for student {} for assignment {}",
+								getUserUid(), gradebookUid, studentUid, assignmentId);
+						throw new GradebookSecurityException();
+					}
+
+					final GradeDefinition gradeDef = new GradeDefinition();
+					gradeDef.setStudentUid(studentUid);
+					gradeDef.setGradeEntryType(gradebook.getGrade_type());
+					gradeDef.setGradeReleased(assignment.isReleased());
+
+					// If this is the student, then the global setting needs to be enabled and the assignment needs to have
+					// been released. Return null score information if not released
+					if (studentRequestingOwnScore && (!gradebook.isAssignmentsDisplayed() || !assignment.isReleased())) {
 						gradeDef.setDateRecorded(null);
 						gradeDef.setGrade(null);
 						gradeDef.setGraderUid(null);
-						gradeDef.setGradeComment(commentText);
-						gradeDef.setExcused(false);
+						gradeDef.setGradeComment(null);
+						log.debug("Student {} in gradebook {} retrieving score for unreleased assignment {}", getUserUid(), gradebookUid,
+								assignment.getName());
+
 					} else {
-						gradeDef.setDateRecorded(gradeRecord.getDateRecorded());
-						gradeDef.setGraderUid(gradeRecord.getGraderId());
-						gradeDef.setGradeComment(commentText);
 
-						gradeDef.setExcused(gradeRecord.isExcludedFromGrade());
+						final AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid);
+						final CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, assignmentId, studentUid, assignment);
+						final String commentText = gradeComment != null ? gradeComment.getCommentText() : null;
+						if (log.isDebugEnabled()) {
+							log.debug("gradeRecord=" + gradeRecord);
+						}
 
-						if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-							final List<AssignmentGradeRecord> gradeList = new ArrayList<>();
-							gradeList.add(gradeRecord);
-							convertPointsToLetterGrade(gradebook, gradeList);
-							final AssignmentGradeRecord gradeRec = gradeList.get(0);
-							if (gradeRec != null) {
-								gradeDef.setGrade(gradeRec.getLetterEarned());
-							}
-						} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-							final Double percent = calculateEquivalentPercent(assignment.getPointsPossible(),
-									gradeRecord.getPointsEarned());
-							if (percent != null) {
-								gradeDef.setGrade(percent.toString());
-							}
+						if (gradeRecord == null) {
+							gradeDef.setDateRecorded(null);
+							gradeDef.setGrade(null);
+							gradeDef.setGraderUid(null);
+							gradeDef.setGradeComment(commentText);
+							gradeDef.setExcused(false);
 						} else {
-							if (gradeRecord.getPointsEarned() != null) {
-								gradeDef.setGrade(gradeRecord.getPointsEarned().toString());
+							gradeDef.setDateRecorded(gradeRecord.getDateRecorded());
+							gradeDef.setGraderUid(gradeRecord.getGraderId());
+							gradeDef.setGradeComment(commentText);
+
+							gradeDef.setExcused(gradeRecord.isExcludedFromGrade());
+
+							if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+								final List<AssignmentGradeRecord> gradeList = new ArrayList<>();
+								gradeList.add(gradeRecord);
+								convertPointsToLetterGrade(gradebook, gradeList);
+								final AssignmentGradeRecord gradeRec = gradeList.get(0);
+								if (gradeRec != null) {
+									gradeDef.setGrade(gradeRec.getLetterEarned());
+								}
+							} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
+								final Double percent = calculateEquivalentPercent(assignment.getPointsPossible(),
+										gradeRecord.getPointsEarned());
+								if (percent != null) {
+									gradeDef.setGrade(percent.toString());
+								}
+							} else {
+								if (gradeRecord.getPointsEarned() != null) {
+									gradeDef.setGrade(gradeRecord.getPointsEarned().toString());
+								}
 							}
 						}
 					}
-				}
 
-				return gradeDef;
+					return gradeDef;
+				}
+			});
+
+			if (gradeDef != null) {
+				retVal.put(assignment.getId(), gradeDef);
 			}
-		});
-		if (log.isDebugEnabled()) {
-			log.debug("returning grade def for " + studentUid);
 		}
-		return gradeDef;
+
+		log.debug("returning grade def for {}", studentUid);
+
+		return retVal;
 	}
 
 	@Override
