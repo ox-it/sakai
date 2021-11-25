@@ -391,10 +391,8 @@ public class GradeSummaryTablePanel extends BasePanel {
 		if (!showingStudentView && (GradeSummaryTablePanel.this.getUserRole() == GbRole.INSTRUCTOR
 					|| GradeSummaryTablePanel.this.getUserRole() == GbRole.TA)) {
 			sakaiRubricButton.add(AttributeModifier.append("instructor", true));
-		} else {
-			if (assignment.isExternallyMaintained() && gradeInfo.getGrade() == null) {
-				sakaiRubricButton.add(AttributeModifier.replace("force-preview", true));
-			}
+		} else if (assignment.isExternallyMaintained() && gradeInfo.getGrade() == null) {
+			sakaiRubricButton.add(AttributeModifier.replace("force-preview", true));
 		}
 	}
 
