@@ -337,7 +337,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Override
 	public GradeDefinition getGradeDefinitionForStudentForItem(final Object gb, final Long assignmentId, final String studentUid) {
 		Map<Long, GradeDefinition> grades = getGradeDefinitionsForStudentForItems(gb, Collections.singletonList(assignmentId), studentUid);
-		return MapUtils.isNotEmpty(grades) ? grades.get(0) : null;
+		if (MapUtils.isEmpty(grades)) {
+			final Gradebook gradebook = (Gradebook) gb;
+			throw new AssessmentNotFoundException("There is no assignment with the assignmentId " + assignmentId + " in gradebook " + gradebook.getUid());
+		} else {
+			return grades.get(assignmentId);
+		}
 	}
 
 	@Override
