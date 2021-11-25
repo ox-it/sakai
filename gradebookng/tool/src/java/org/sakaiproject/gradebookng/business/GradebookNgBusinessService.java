@@ -2600,30 +2600,33 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid, final boolean isInstructor) {
-		return getCategoryScoreForStudent(categoryId, studentUuid, isInstructor, getGradebook());
+		return getCategoryScoresForStudent(Collections.singletonList(categoryId), studentUuid, isInstructor, getGradebook()).get(categoryId);
 	}
 
 	/**
 	 * Get the category score for the given student.
 	 *
-	 * @param categoryId id of category
+	 * @param categoryIds ids of categories
 	 * @param studentUuid uuid of student
 	 * @param isInstructor will calculate the category score with non-released items for instructors but not for students
-	 * @return
+	 * @return map of category id -> category score
 	 */
-	public Optional<CategoryScoreData> getCategoryScoreForStudent(final Long categoryId, final String studentUuid, final boolean isInstructor, final Gradebook gradebook) {
+	public Map<Long, Optional<CategoryScoreData>> getCategoryScoresForStudent(final List<Long> categoryIds, final String studentUuid, final boolean isInstructor, final Gradebook gradebook) {
 
 		List<CategoryDefinition> cats = isInstructor ? getGradebookCategories(gradebook) : getGradebookCategoriesForStudent(studentUuid, gradebook);
-		Optional<CategoryDefinition> cat = cats.stream().filter(c -> c.getId().equals(categoryId)).findFirst();
-		if (!cat.isPresent()) {
-			log.warn("Expected to find category for id {} but found none. Unable to calculate category score.", categoryId);
-			return Optional.empty();
+		Map<Long, Optional<CategoryScoreData>> scores = new HashMap<>(categoryIds.size());
+		for (Long catId : categoryIds) {
+			Optional<CategoryDefinition> cat = cats.stream().filter(c -> c.getId().equals(catId)).findAny();
+			if (!cat.isPresent()) {
+				log.warn("Expected to find category for id {} but found none. Unable to calculate category score.", catId);
+				scores.put(catId, Optional.empty());
+			}
+			else {
+				scores.put(catId, gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, cat.get(), isInstructor));
+			}
 		}
 
-		final Optional<CategoryScoreData> result = gradebookService.calculateCategoryScore(gradebook.getId(), studentUuid, cat.get(), isInstructor);
-		log.debug("Category score for category: {}, student: {}:{}", categoryId, studentUuid, result.map(r -> r.score).orElse(null));
-
-		return result;
+		return scores;
 	}
 
 	/**
