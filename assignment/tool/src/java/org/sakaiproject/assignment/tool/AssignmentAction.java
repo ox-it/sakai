@@ -6661,11 +6661,12 @@ public class AssignmentAction extends PagedResourceActionII {
         }
 
         // check if grade type is switching and prompt for confirmation if graded submissions exist
+        Assignment existingAssignment = null;
         if (StringUtils.isNotBlank(assignmentRef)) {
-            Assignment asn = getAssignment(assignmentRef, "setNewAssignmentParameters", state);
-            if (asn != null && gradeType != GRADE_TYPE_NONE && asn.getTypeOfGrade() != gradeType) {
+            existingAssignment = getAssignment(assignmentRef, "setNewAssignmentParameters", state);
+            if (existingAssignment != null && gradeType != GRADE_TYPE_NONE && existingAssignment.getTypeOfGrade() != gradeType) {
                 state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCHING, Boolean.TRUE);
-                Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(asn);
+                Set<AssignmentSubmission> submissions = assignmentService.getSubmissions(existingAssignment);
                 if (submissions.stream().anyMatch(s -> s.getGraded())) {
                     if (state.getAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM) == null && validify) {
                         state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE_SWITCH_CONFIRM, Boolean.TRUE);
@@ -6712,31 +6713,13 @@ public class AssignmentAction extends PagedResourceActionII {
                  * If this operation will set a gradebook item's title, we have to use gradebookExternalAssessmentService to validate the assignment title.
                  * The cases that set a title are:
                  * 1) Creating new Gradebook item.
-                 * 2) Associating with an existing item, and the gradebook item is already associated with an existing assignment.
-                 * Notes:
-                 * If we associate with a gradebook item that is not already associated with an existing assignment, it keeps its name; so title validation is not required.
-                 * Gradebook items maintained by tools other than assignments do not appear in the UI.
-                 * So we can almost safely ignore these, but rare cases such as the following are not yet addressed:
-                 * Create gb item "A" -> add assignment associated "A" (don't post yet) -> delete gb item "A" -> create & post a quiz "A" w send grades to gb -> post assignment
+                 * 2) Associating with an existing item, and the existing item is managed by assignments.
+                 * Note:
+                 * If we associate with a gradebook item that is not already associated with an existing assignment, the gradebook item keeps its name; so title validation is not required.
                  */
                 if (validify)
                 {
                     switch (grading) {
-                        case GRADEBOOK_INTEGRATION_ASSOCIATE:
-                            org.sakaiproject.service.gradebook.shared.Assignment gbItem = null;
-                            try {
-                                gbItem = gradebookService.getExternalAssignment(contextString, associateAssignment);
-                            } catch (AssessmentNotFoundException anfe) {
-                                // gbItem is null
-                            }
-                            if (gbItem == null) {
-                                addAlert(state, rb.getString("addtogradebook.validate.associatedItemNotFound"));
-                                break;
-                            } else if (!gbItem.isExternallyMaintained()) {
-                                // The title will not be updated; validation is not required
-                                break;
-                            }
-                            // gbItem exists and is externally maintained, so its title will be updated: flow through to the next case for validation.
                         case GRADEBOOK_INTEGRATION_ADD:
                             try {
                                 gradebookExternalAssessmentService.validateNewExternalAssessmentTitle(contextString, title);
@@ -6745,6 +6728,52 @@ public class AssignmentAction extends PagedResourceActionII {
                             } catch (InvalidGradeItemNameException igine) {
                                 addAlert(state, rb.getString("addtogradebook.validate.titleInvalidCharacters"));
                             }
+                            break;
+                        case GRADEBOOK_INTEGRATION_ASSOCIATE:
+
+                            org.sakaiproject.service.gradebook.shared.Assignment gbItem = null;
+
+                            // If we are associating with a gradebook item that wasn't created by an assignment, we will be associating by name.
+                            try {
+                                gbItem = gradebookService.getAssignmentByNameOrId(contextString, associateAssignment);
+                                if (gbItem != null && (!gbItem.isExternallyMaintained() || !assignmentService.getToolTitle().equals(gbItem.getExternalAppName()))) {
+                                    // We don't change the names of gradebook items that aren't managed by assignments.
+                                    break;
+                                }
+                            } catch (AssessmentNotFoundException anfe) {
+                                // gbItem is null
+                            }
+
+                            // If we are associating with a gradebook item that is already associated with an assignment, we will be associating by external ID.
+                            if (gbItem == null) {
+                                try {
+                                    gbItem = gradebookService.getExternalAssignment(contextString, associateAssignment);
+                                }
+                                catch (AssessmentNotFoundException anfe) {
+                                    // gbItem is null
+                                }
+                            }
+
+                            // By now, a gradebook item should be identified; if not, it may have been removed.
+                            if (gbItem == null){
+                                addAlert(state, rb.getString("addtogradebook.validate.associate.itemNotFound"));
+                                break;
+                            }
+
+                            if (StringUtils.equals(gbItem.getName(), title))
+                            {
+                                // The title will not change. Validating the name in this case will detect itself as a duplicate.
+                                break;
+                            }
+
+                            try {
+                                gradebookExternalAssessmentService.validateNewExternalAssessmentTitle(contextString, title);
+                            } catch (ConflictingAssignmentNameException cane) {
+                                addAlert(state, rb.getFormattedMessage("addtogradebook.validate.associate.nonUniqueTitle", formattedText.escapeHtml(gbItem.getName()), formattedText.escapeHtml(title)));
+                            } catch (InvalidGradeItemNameException igine) {
+                                addAlert(state, rb.getFormattedMessage("addtogradebook.validate.associate.titleInvalidCharacters", formattedText.escapeHtml(gbItem.getName()), formattedText.escapeHtml(title)));
+                            }
+                            break;
                         default:
                     }
                 }
@@ -7095,15 +7124,8 @@ public class AssignmentAction extends PagedResourceActionII {
                     addAlert(state, rb.getString("plespethe3"));
                 } else {
                     Integer scaleFactor = assignmentService.getScaleFactor();
-                    try {
-                        if (StringUtils.isNotEmpty(assignmentRef)) {
-                            Assignment assignment = assignmentService.getAssignment(assignmentId);
-                            if (assignment != null && assignment.getScaleFactor() != null) {
-                                scaleFactor = assignment.getScaleFactor();
-                            }
-                        }
-                    } catch (IdUnusedException | PermissionException e) {
-                        log.error(e.getMessage());
+                    if (existingAssignment != null && existingAssignment.getScaleFactor() != null) {
+                        scaleFactor = existingAssignment.getScaleFactor();
                     }
 
                     validPointGrade(state, gradePoints, scaleFactor);
