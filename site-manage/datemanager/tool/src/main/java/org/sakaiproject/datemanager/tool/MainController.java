@@ -52,7 +52,12 @@ public class MainController {
 	@RequestMapping(value = {"/", "/index"}, method = RequestMethod.GET)
 	public String showIndex(@RequestParam(required=false) String code, Model model) {
 		Locale locale = dateManagerService.getUserLocale();
-		String siteId = dateManagerService.getCurrentSiteId();
+
+		// Try to get site ID from session context first, if we don't have a site ID from the session context, get the current site ID
+		String siteId = dateManagerService.getCurrentToolSessionAttribute(DateManagerService.STATE_SITE_ID);
+		if (StringUtils.isEmpty(siteId)) {
+			siteId = dateManagerService.getCurrentSiteId();
+		}
 
 		model.addAttribute("userCountry", locale.getCountry());
 		model.addAttribute("userLanguage", locale.getLanguage());

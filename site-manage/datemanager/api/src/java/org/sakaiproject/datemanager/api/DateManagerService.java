@@ -13,15 +13,16 @@
 
 package org.sakaiproject.datemanager.api;
 
-import java.time.Instant;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import org.json.simple.JSONArray;
 
 import org.sakaiproject.datemanager.api.model.DateManagerValidation;
 
 public interface DateManagerService {
+
+	public final String STATE_SITE_ID = "site.instance.id";
+
 	// Global methods
 	public String getCurrentUserId();
 	public String getCurrentSiteId();
@@ -29,6 +30,7 @@ public interface DateManagerService {
 	public String getMessage(String messageId);
 	public boolean currentSiteContainsTool(String commonId);
 	public String getToolTitle(String commonId);
+	public String getCurrentToolSessionAttribute(String name);
 
 	// Assignments methods
 	public JSONArray getAssignmentsForContext(String siteId);

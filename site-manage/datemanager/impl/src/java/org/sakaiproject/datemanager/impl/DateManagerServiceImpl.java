@@ -71,6 +71,7 @@ import org.sakaiproject.time.api.UserTimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -118,8 +119,22 @@ public class DateManagerServiceImpl implements DateManagerService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public String getCurrentToolSessionAttribute(String name) {
+		ToolSession session = sessionManager.getCurrentToolSession();
+		return session != null ? session.getAttribute(name).toString() : "";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getCurrentSiteId() {
-		return toolManager.getCurrentPlacement().getContext();
+		String siteID = getCurrentToolSessionAttribute(STATE_SITE_ID);
+		if (StringUtils.isEmpty(siteID)) {
+			siteID = toolManager.getCurrentPlacement().getContext();
+		}
+
+		return siteID;
 	}
 
 	/**

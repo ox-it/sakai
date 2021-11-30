@@ -28,7 +28,6 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.Collator;
 import java.text.DateFormat;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -45,6 +44,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
@@ -75,8 +75,11 @@ public class UserAuditEventLog {
 	private transient SiteService siteService = (SiteService) ComponentManager.get(SiteService.class.getName());
 	private transient ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private transient UserDirectoryService userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
+	private transient SessionManager sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
 	
 	private ResourceLoader rb = new ResourceLoader("UserAuditMessages");
+
+	private final String STATE_SITE_ID = "site.instance.id";
 	
 	static {
 		displayNameComparatorEL = new Comparator<EventLog>() {
@@ -304,7 +307,13 @@ public class UserAuditEventLog {
 			Statement statement = null;
 			ResultSet result = null;
 			String sql = "";
-			String siteId = toolManager.getCurrentPlacement().getContext();
+			String siteId;
+			try {
+				siteId = sessionManager.getCurrentToolSession().getAttribute(STATE_SITE_ID).toString();
+			} catch (Exception ex) {
+				siteId = toolManager.getCurrentPlacement().getContext();
+			}
+
 			try
 			{
 				conn = sqlService.borrowConnection();
