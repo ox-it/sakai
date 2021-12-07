@@ -296,7 +296,6 @@
 												#end
 											#end
 											## if not submitted or returned and still allowed to submit within the due time
-											#assignmentTitleIcon($assignment)
 											#if ($service.canSubmit($assignment))
 												## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
@@ -304,6 +303,7 @@
 												<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($!assignment.Title)">
 											#end
 											$formattedText.escapeHtml($assignment.Title)</a>
+											#assignmentTitleIcon($assignment)
 											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
 												<sakai-rubric-student-button
 													token="$!rbcs-token"
@@ -313,8 +313,8 @@
 												</sakai-rubric-student-button>
 											#end
 										#else
-											#assignmentTitleIcon($assignment)
 											$formattedText.escapeHtml($assignment.Title)
+											#assignmentTitleIcon($assignment)
 											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
 												<sakai-rubric-student-button
 													token="$!rbcs-token"
@@ -368,22 +368,25 @@
                                                         <a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#else
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<strong>#assignmentTitleIcon($assignment)
+														<strong>
 															<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+															#assignmentTitleIcon($assignment)
 														</strong>
 													#end
 												#else
-													<strong>#assignmentTitleIcon($assignment)
+													<strong>
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$formattedText.escapeUrl($submissionReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
+														#assignmentTitleIcon($assignment)
 													</strong>
 												#end
 											#else
-												<strong>#assignmentTitleIcon($assignment)
+												<strong>
 													#if ($assignment.HonorPledge)
 														<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_assignment_honorPledge" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#else
                                                     	<a name="asnActionLink" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$formattedText.escapeUrl($assignmentReference)")" title="$formattedText.escapeHtml($!assignment.Title)">$formattedText.escapeHtml($assignment.Title)</a>
 													#end
+													#assignmentTitleIcon($assignment)
 												</strong>
 											#end
 											#set($submissionId="undefined")
