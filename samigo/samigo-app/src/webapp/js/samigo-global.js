@@ -172,9 +172,11 @@ $(function () {
     $("#editform\\:questionpool-questions").tablesorter({
       headers: {
         0: {
-          sorter: false
-        }
-      }
+          sorter: false // disable sorting on the first column, which is a checkbox column
+        },
+        1: { sortInitialOrder: "desc" }
+      },
+      sortList: [[1,0]]
     });
   }
 
