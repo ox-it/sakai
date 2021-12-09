@@ -39,6 +39,7 @@ package org.sakaiproject.component.gradebook;
  import java.math.BigDecimal;
  import java.util.ArrayList;
  import java.util.Collection;
+import java.util.Collections;
  import java.util.Date;
  import java.util.HashMap;
  import java.util.HashSet;
@@ -90,6 +91,7 @@ package org.sakaiproject.component.gradebook;
  import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
  import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 
 
  /**
@@ -238,6 +240,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	}
 
 	protected List<GradebookAssignment> getAssignmentsWithoutStats(final String gradebookUid, final List<Long> assignmentIds) throws HibernateException {
+
+		// Hibernate is dumb and will explode if you try to set the param to an empty list
+		if (CollectionUtils.isEmpty(assignmentIds)) {
+			return Collections.emptyList();
+		}
+
 		return getSessionFactory().getCurrentSession()
 				.createQuery("from GradebookAssignment as asn where asn.id in :assignmentIds and asn.gradebook.uid = :gradebookUid and asn.removed is false")
 				.setParameterList("assignmentIds", assignmentIds)
