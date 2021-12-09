@@ -91,7 +91,7 @@ import java.util.Collections;
  import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
  import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 
  /**
