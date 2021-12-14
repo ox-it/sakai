@@ -304,6 +304,10 @@
 											#end
 											$formattedText.escapeHtml($assignment.Title)</a>
 											#assignmentTitleIcon($assignment)
+											#if (!$assignment.getAttachments().isEmpty())
+												<i class="icon-sakai--clip" aria-hidden="true"></i>
+												<span class="sr-only">$tlang.getString("gen.has.att")</span>
+											#end
 											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
 												<sakai-rubric-student-button
 													token="$!rbcs-token"
@@ -315,6 +319,10 @@
 										#else
 											$formattedText.escapeHtml($assignment.Title)
 											#assignmentTitleIcon($assignment)
+											#if (!$assignment.getAttachments().isEmpty())
+												<i class="icon-sakai--clip" aria-hidden="true"></i>
+												<span class="sr-only">$tlang.getString("gen.has.att")</span>
+											#end
 											#if ($rubricsService.hasAssociatedRubric("sakai.assignment", $assignment.getId()))
 												<sakai-rubric-student-button
 													token="$!rbcs-token"
@@ -392,6 +400,10 @@
 											#set($submissionId="undefined")
 											#if ($submission.Graded && ($submission.GradeReleased || $submission.Returned))
 												#set($submissionId=$submission.Id)
+											#end
+											#if (!$assignment.getAttachments().isEmpty())
+												<i class="icon-sakai--clip" aria-hidden="true"></i>
+												<span class="sr-only">$tlang.getString("gen.has.att")</span>
 											#end
 											<sakai-rubric-student-button
 												token="$!rbcs-token"
