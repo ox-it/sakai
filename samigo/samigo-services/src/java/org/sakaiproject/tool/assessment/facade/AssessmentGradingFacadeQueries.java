@@ -100,6 +100,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -2986,117 +2987,23 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
         PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 
-        GradebookExternalAssessmentService g = null;
-        boolean updateGrades = false;
-        Map<Long, String> toGradebookPublishedAssessmentSiteIdMap = null;
-        GradebookServiceHelper gbsHelper = null;
-        if (IntegrationContextFactory.getInstance() != null) {
-            boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
-            if (integrated) {
-                g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance()
-                        .getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
-            }
-            toGradebookPublishedAssessmentSiteIdMap = publishedAssessmentService.getToGradebookPublishedAssessmentSiteIdMap();
-            gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
-            updateGrades = true;
-        }
-        boolean autoSubmitCurrent;
+        boolean updateGrades = IntegrationContextFactory.getInstance() != null;
+        AutoSubmitFacadeQueriesAPI autoSubmitFacade = PersistenceService.getInstance().getAutoSubmitFacadeQueries();
         int failures = 0;
         
         while (iter.hasNext()) {
-
-            autoSubmitCurrent = false;
-
             try {
                 adata = (AssessmentGradingData) iter.next();
-                adata.setHasAutoSubmissionRun(Boolean.TRUE);
 
-                // If the assessment is deleted, or the submission is not forGrade just set hasAutoSubmissionRun = true; do not update gradebook
-                PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
-                if (Boolean.FALSE.equals(adata.getForGrade()) && assessment.getStatus() != AssessmentBaseIfc.DEAD_STATUS) {
-
-                    // SAM-1088 check to see if last user attempt was after due date
-                    Date dueDate = assessment.getAssessmentAccessControl().getDueDate();
-                    Date retractDate = assessment.getAssessmentAccessControl().getRetractDate();
-                    Integer lateHandling = assessment.getAssessmentAccessControl().getLateHandling();
-                    boolean acceptLate = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(lateHandling);
-                    ExtendedTimeDeliveryService assessmentExtended = new ExtendedTimeDeliveryService(assessment,
-                            adata.getAgentId());
-
-                    //If it has extended time, just continue for now, no method to tell if the time is passed
-                    if (assessmentExtended.hasExtendedTime()) {
-                        //Continue on and try to submit it but it may be late, just change the due date
-                        dueDate = assessmentExtended.getDueDate() != null ? assessmentExtended.getDueDate() : dueDate;
-
-                        // If the extended time student received a retract date
-                        if (assessmentExtended.getRetractDate() != null) {
-                        	retractDate =  assessmentExtended.getRetractDate();
-                        	acceptLate = true;
-                        }
-                    }
-
-                    // If the due date or retract date hasn't passed yet, go on to the next one, don't consider it yet
-                    if (acceptLate && retractDate != null && (currentTime.before(retractDate) || adata.getAttemptDate().after(retractDate))) {
-                        continue;
-                    }
-                    else if ( (!acceptLate || retractDate == null) && dueDate != null && currentTime.before(dueDate)) {
-                    	continue;
-                    }
-
-                    // If it's an "empty" submission don't autosubmit; change status and save (status = 5, hasAutoSubmitRun = true)
-                    // We determine "empty" if it has an attempt date but submitted date is null
-                    // Attempt date is populated as soon as student clicks "Begin"; submit date is populated as soon as student makes any progress (next, save, submit)
-                    // So if there is an attempt date but no submit date, we can safely assume this is a student who began a quiz and did nothing (either walked away, or logged out immediately)
-                    if (adata.getAttemptDate() != null && adata.getSubmittedDate() == null) {
-                        adata.setStatus(AssessmentGradingData.NO_SUBMISSION);
-                    }
-
-                    else {
-                        adata.setForGrade(Boolean.TRUE);
-                        if (adata.getTotalAutoScore() == null) {
-                            adata.setTotalAutoScore(0d);
-                        }
-                        if (adata.getFinalScore() == null) {
-                            adata.setFinalScore(0d);
-                        }
-
-                        if (adata.getAttemptDate() != null && dueDate != null &&
-                                adata.getAttemptDate().after(dueDate)) {
-                            adata.setIsLate(true);
-                        }
-                        // SAM-1088
-                        else if (adata.getSubmittedDate() != null && dueDate != null &&
-                                adata.getSubmittedDate().after(dueDate)) {
-                            adata.setIsLate(true);
-                        }
-
-                        autoSubmitCurrent = true;
-                        adata.setIsAutoSubmitted(Boolean.TRUE);
-                        if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
-                                && lastAgentId.equals(adata.getAgentId())) {
-                            adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
-                        } else {
-                            adata.setStatus(AssessmentGradingData.SUBMITTED);
-                        }
-
-                        completeItemGradingData(adata, sectionSetMap);
-                    }
+                // this call happens in a separate transaction, so a rollback only affects this iteration
+                boolean success = autoSubmitFacade.processAttempt(adata, updateGrades, this, publishedAssessmentService, currentTime, lastAgentId, lastPublishedAssessmentId, sectionSetMap);
+                if (!success) {
+                    ++failures;
                 }
 
                 lastPublishedAssessmentId = adata.getPublishedAssessmentId();
                 lastAgentId = adata.getAgentId();
 
-                // this call happens in a separate transaction, so a rollback only affects this iteration
-                boolean success = saveOrUpdateAssessmentGrading(adata);
-                
-                if (success && updateGrades && autoSubmitCurrent) {
-                    GradingService gs = new GradingService();
-                    gs.updateAutosubmitEventLog(adata);
-                    gs.notifyGradebookByScoringType(adata, assessment);
-                }
-                else if (!success) {
-                    ++failures;
-                }
             } catch (Exception e) {
                 ++failures;
                 if (adata != null) {
