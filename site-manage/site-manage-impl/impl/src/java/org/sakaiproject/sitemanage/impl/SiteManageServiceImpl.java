@@ -357,14 +357,16 @@ public class SiteManageServiceImpl implements SiteManageService {
      * Copies the site information from one site ot another.
      * @param fromSiteId    the source site
      * @param toSiteId      the destinatination site
+     * @param cleanup       if the existing content should be removed first
      * @return the site with the updated site information
      */
-    private Site copySiteInformation(String fromSiteId, String toSiteId) {
+    private Site copySiteInformation(String fromSiteId, String toSiteId, boolean cleanup) {
         Site toSite = null;
         try {
             Site fromSite = siteService.getSite(fromSiteId);
             toSite = siteService.getSite(toSiteId);
-            toSite.setDescription(fromSite.getDescription());
+            String desc = cleanup ? fromSite.getDescription() : toSite.getDescription() + fromSite.getDescription();
+            toSite.setDescription(desc);
             toSite.setInfoUrl(fromSite.getInfoUrl());
             saveSite(toSite);
         } catch (IdUnusedException iue) {
@@ -460,7 +462,7 @@ public class SiteManageServiceImpl implements SiteManageService {
                         String toSiteId = site.getId();
                         importHasErrors = false;
                         if (SiteManageConstants.SITE_INFO_TOOL_ID.equals(toolId)) {
-                            site = copySiteInformation(fromSiteId, toSiteId);
+                            site = copySiteInformation(fromSiteId, toSiteId, cleanup);
                         } else {
                             transversalMap.putAll(transferCopyEntities(toolId, fromSiteId, toSiteId, toolOptions, cleanup));
                             transversalMap.putAll(getDirectToolUrlEntityReferences(toolId, fromSiteId, toSiteId));
