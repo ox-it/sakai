@@ -48,8 +48,7 @@ public class GbGradeTableData {
 	private boolean isStudentNumberVisible;
 	private boolean isSectionsVisible;
 
-	public GbGradeTableData(final GradebookNgBusinessService businessService,
-			final GradebookUiSettings settings) {
+	public GbGradeTableData(final GradebookNgBusinessService businessService, final GradebookUiSettings settings) {
 		final GbStopWatch stopwatch = new GbStopWatch("GbGradeTableData");
 		stopwatch.time("init");
 
@@ -68,30 +67,28 @@ public class GbGradeTableData {
 		}
 
 		isUserAbleToEditAssessments = businessService.isUserAbleToEditAssessments();
-		assignments = businessService.getGradebookAssignments(sortBy);
+		final Gradebook gradebook = businessService.getGradebook();
+		assignments = businessService.getGradebookAssignments(sortBy, gradebook);
 		stopwatch.time("getGradebookAssignments");
 
-		grades = businessService.buildGradeMatrix(
-				assignments,
-				settings);
+		grades = businessService.buildGradeMatrix(assignments, settings, gradebook);
 		stopwatch.time("buildGradeMatrix");
 
-		categories = businessService.getGradebookCategories();
+		categories = businessService.getGradebookCategories(gradebook);
 		stopwatch.time("getGradebookCategories");
 
-		gradebookInformation = businessService.getGradebookSettings();
+		gradebookInformation = businessService.getGradebookSettings(gradebook);
 		stopwatch.time("getGradebookSettings");
 
 		toolNameToIconCSS = businessService.getIconClassMap();
 		defaultIconCSS = businessService.getDefaultIconClass();
 		stopwatch.time("toolNameToIconCSS");
 
-		final Gradebook gradebook = businessService.getGradebook();
 		courseGradeMap = gradebook.getSelectedGradeMapping().getGradeMap();
 
 		hasAssociatedRubricMap = businessService.buildHasAssociatedRubricMap(assignments);
 
-		isStudentNumberVisible = businessService.isStudentNumberVisible();
+		isStudentNumberVisible = businessService.isStudentNumberVisible(gradebook);
 
 		isSectionsVisible = businessService.isSectionsVisible();
 	}

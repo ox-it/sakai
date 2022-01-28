@@ -613,6 +613,8 @@ public interface GradebookService extends OwlGradebookService {
 	 */
 	public Map<String, Map<Long, GradeDefinition>> getGradesForStudentsForItems(String gradebookUid, List<String> studentIds, List<Assignment> assignments);
 
+	public Map<String, Map<Long, GradeDefinition>> getGradesForStudentsForItems(Object gradebook, List<String> studentIds, List<Assignment> assignments);
+
 	/**
 	 * This method gets grades for multiple gradebook items with emphasis on performance. This is particularly useful for reporting tools
 	 *
@@ -937,6 +939,8 @@ public interface GradebookService extends OwlGradebookService {
 	 */
 	@SuppressWarnings("rawtypes")
 	List getViewableSections(String gradebookUid);
+
+	List getViewableSections(Object gradebook);
 
 	/**
 	 * Update the settings for this gradebook

@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbCourseGrade;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;

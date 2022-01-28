@@ -159,6 +159,8 @@ public interface Authz {
 	 * 			authorized to view/grade
 	 */
 	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid);
+
+	public Map findMatchingEnrollmentsForViewableItems(Object gradebook, List allGbItems, String optionalSearchString, String optionalSectionUid);
 	
 	/**
 	 * 

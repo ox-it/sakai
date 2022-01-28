@@ -346,10 +346,16 @@ List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradeb
 	    String userUid = authn.getUserUid();
 		return findMatchingEnrollmentsForItemOrCourseGrade(userUid, gradebookUid, null, gbCategoryType, optionalSearchString, optionalSectionUid, true);
 	}
-	
+
 	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, List allGbItems, String optionalSearchString, String optionalSectionUid) {
+		return findMatchingEnrollmentsForViewableItems(gradebookPermissionService.getGB(gradebookUid), allGbItems, optionalSearchString, optionalSectionUid);
+	}
+	
+	public Map findMatchingEnrollmentsForViewableItems(Object gb, List allGbItems, String optionalSearchString, String optionalSectionUid) {
 		Map enrollmentMap = new HashMap();
 		List<EnrollmentRecord> filteredEnrollments = null;
+		final Gradebook gradebook = (Gradebook) gb;
+		final String gradebookUid = gradebook.getUid();
 		if (optionalSearchString != null)
 			filteredEnrollments = getSectionAwareness().findSiteMembersInRole(gradebookUid, Role.STUDENT, optionalSearchString);
 		else
@@ -411,13 +417,13 @@ List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradeb
 			String userId = authn.getUserUid();
 			
 			Map sectionIdCourseSectionMap = new HashMap();
-			List viewableSections = getViewableSections(gradebookUid);
+			List viewableSections = getViewableSections(gradebook);
 			for (Iterator sectionIter = viewableSections.iterator(); sectionIter.hasNext();) {
 				CourseSection section = (CourseSection) sectionIter.next();
 				sectionIdCourseSectionMap.put(section.getUuid(), section);
 			}
 			
-			if (isUserHasGraderPermissions(gradebookUid)) {
+			if (isUserHasGraderPermissions(gradebook)) {
 				// user has special grader permissions that override default perms
 				
 				List myStudentIds = new ArrayList(studentIdEnrRecMap.keySet());
@@ -434,7 +440,7 @@ List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradeb
 				}
 				
 				// we need to get the viewable students, so first create section id --> student ids map
-				myStudentIds = getGradebookPermissionService().getViewableStudentsForUser(gradebookUid, userId, myStudentIds, selSections);
+				myStudentIds = getGradebookPermissionService().getViewableStudentsForUser(gradebook.getId(), userId, myStudentIds, selSections);
 				Map viewableStudentIdItemsMap = new HashMap();
 				if (allGbItems == null || allGbItems.isEmpty()) {
 					if (myStudentIds != null) {
@@ -445,7 +451,7 @@ List permissions = gradebookPermissionService.getGraderPermissionsForUser(gradeb
 						}
 					}
 				} else {
-					viewableStudentIdItemsMap = gradebookPermissionService.getAvailableItemsForStudents(gradebookUid, userId, myStudentIds, selSections);
+					viewableStudentIdItemsMap = gradebookPermissionService.getAvailableItemsForStudents(gradebook, userId, myStudentIds, selSections);
 				}
 				
 				if (!viewableStudentIdItemsMap.isEmpty()) {

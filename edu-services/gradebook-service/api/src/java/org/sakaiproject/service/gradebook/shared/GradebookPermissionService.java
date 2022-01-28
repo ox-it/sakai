@@ -182,6 +182,8 @@ public interface GradebookPermissionService
 	   */
 	 public Map getAvailableItemsForStudents(String gradebookUid, String userId, List studentIds, Collection courseSections) throws IllegalArgumentException;
 
+	 public Map getAvailableItemsForStudents(Object gradebook, String userId, List studentIds, Collection courseSections) throws IllegalArgumentException;
+
 	 
 	 /**
 	  * Get a map with student IDs as key and view/grade as value for their course grade.

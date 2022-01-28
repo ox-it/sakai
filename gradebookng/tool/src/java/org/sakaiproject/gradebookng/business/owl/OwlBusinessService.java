@@ -3,7 +3,6 @@ package org.sakaiproject.gradebookng.business.owl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,6 +27,7 @@ import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.facades.owl.OwlAuthz;
 import org.sakaiproject.user.api.CandidateDetailProvider;
 import org.sakaiproject.user.api.User;
@@ -145,6 +145,11 @@ public class OwlBusinessService
 				.flatMap(g -> Optional.ofNullable(g.getProviderGroupId()));
 	}
 
+	public List<CourseSection> getViewableSections(final Gradebook gradebook)
+	{
+		return gbs.getViewableSections(gradebook);
+	}
+
 	public List<CourseSection> getViewableSections()
 	{
 		return gbs.getViewableSections(bus.getGradebook().getUid());
@@ -152,7 +157,12 @@ public class OwlBusinessService
 
 	public Set<String> getViewableSectionEids()
 	{
-		return getViewableSections().stream().filter(Objects::nonNull).map(s -> s.getEid())
+		return getViewableSectionEids(bus.getGradebook());
+	}
+
+	public Set<String> getViewableSectionEids(final Gradebook gradebook)
+	{
+		return getViewableSections(gradebook).stream().filter(Objects::nonNull).map(s -> s.getEid())
 				.filter(e -> StringUtils.isNotBlank(e)).collect(Collectors.toSet());
 	}
 

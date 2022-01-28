@@ -839,7 +839,17 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 	{
 		if(gradebookId == null || userId == null)
 			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getAvailableItemsForStudents");
-		
+
+		return getAvailableItemsForStudents(getGradebook(getGradebookUid(gradebookId)), userId, studentIds, courseSections);
+	}
+
+	public Map getAvailableItemsForStudents(Object gb, String userId, List studentIds, Collection courseSections) throws IllegalArgumentException
+	{
+		if(gb == null || userId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getAvailableItemsForStudents");
+
+		final Gradebook gradebook = (Gradebook) gb;
+		final Long gradebookId = gradebook.getId();
 		Map catIdCategoryMap = new HashMap();
 		List categories = getCategoriesWithAssignments(gradebookId);
 		if (categories != null && !categories.isEmpty()) {
@@ -862,7 +872,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		
 		Map sectionIdStudentIdsMap = getSectionIdStudentIdsMap(courseSections, studentIds);
 		
-		Gradebook gradebook = getGradebook(getGradebookUid(gradebookId));
 		List assignments = getAssignments(gradebookId);
 		List categoryIds = new ArrayList(catIdCategoryMap.keySet());
 		List groupIds = new ArrayList(sectionIdCourseSectionMap.keySet());
@@ -898,8 +907,8 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		if(gradebookUid == null || userId == null)
 			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getAvailableItemsForStudents");
 		
-		Long gradebookId = getGradebook(gradebookUid).getId();
-		return getAvailableItemsForStudents(gradebookId, userId, studentIds, courseSections);
+		Gradebook gradebook = getGradebook(gradebookUid);
+		return getAvailableItemsForStudents(gradebook, userId, studentIds, courseSections);
 	}
 
 	public Map getCourseGradePermission(Long gradebookId, String userId, List studentIds, List courseSections) throws IllegalArgumentException

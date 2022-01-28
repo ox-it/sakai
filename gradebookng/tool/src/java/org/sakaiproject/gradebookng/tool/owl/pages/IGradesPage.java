@@ -6,12 +6,12 @@ import java.util.List;
 import org.apache.wicket.Session;
 
 import org.sakaiproject.gradebookng.business.GbRole;
-import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.owl.OwlGbStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.owl.model.OwlGbUiSettings;
 import org.sakaiproject.gradebookng.tool.owl.model.UiSettings;
 import org.sakaiproject.gradebookng.tool.pages.BasePage;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 /**
  *
@@ -30,6 +30,7 @@ public interface IGradesPage
 	}
 
 	public GradebookUiSettings getUiSettings();
+	public GradebookUiSettings getUiSettings(Gradebook gradebook);
 
 	public void setUiSettings(final GradebookUiSettings settings);
 
@@ -71,6 +72,11 @@ public interface IGradesPage
 	default UiSettings getGbUiSettings()
 	{
 		return new UiSettings(getUiSettings(), getOwlUiSettings());
+	}
+
+	default UiSettings getGbUiSettings(Gradebook gradebook)
+	{
+		return new UiSettings(getUiSettings(gradebook), getOwlUiSettings());
 	}
 
 	default void setGbUiSettings(UiSettings value)

@@ -268,7 +268,13 @@ public class FinalGradesPage extends BasePage implements IGradesPage
 
 		return settings;
 	}
-	
+
+	@Override
+	public GradebookUiSettings getUiSettings(final Gradebook gradebook)
+	{
+		return getUiSettings();
+	}
+
 	@Override
 	public void setUiSettings(final GradebookUiSettings settings)
 	{

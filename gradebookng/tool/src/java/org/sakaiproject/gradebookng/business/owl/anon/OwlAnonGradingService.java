@@ -102,6 +102,11 @@ public class OwlAnonGradingService
 		return gbs.getAnonGradingIDsBySectionEIDs(bus.owl().getViewableSectionEids());
 	}
 
+	public List<OwlAnonGradingID> getAnonGradingIDsForCurrentSite(final Gradebook gradebook)
+	{
+		return gbs.getAnonGradingIDsBySectionEIDs(bus.owl().getViewableSectionEids(gradebook));
+	}
+
 	/**
 	 * Gets anonymousIds for the group filter provided by GradebookUiSettings
 	 * @param settings

@@ -205,7 +205,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 		add(new CloseOnESCBehavior(bulkEditItemsWindow));
 
 		// first get any settings data from the session
-		final UiSettings uiSettings = getGbUiSettings(); // OWL
+		final UiSettings uiSettings = getGbUiSettings(gradebook); // OWL
 		final GradebookUiSettings settings = uiSettings.gb;
 
 		SortType sortBy = SortType.SORT_BY_SORTING;
@@ -216,9 +216,9 @@ public class GradebookPage extends BasePage implements IGradesPage {
 		}
 
 		final List<Assignment> assignments = this.businessService.getGradebookAssignments(sortBy, gradebook);
-		final List<String> students = this.businessService.getGradeableUsers();
+		final List<String> students = this.businessService.getGradeableUsers(gradebook);
 
-		initAnon(form, assignments); // OWL
+		initAnon(form, assignments, gradebook); // OWL
 
 		this.hasGradebookItems = !assignments.isEmpty();
 		this.hasStudents = !students.isEmpty();
@@ -513,18 +513,21 @@ public class GradebookPage extends BasePage implements IGradesPage {
 	 *
 	 */
 	public GradebookUiSettings getUiSettings() {
-		return getUiSettings(businessService.getGradebook());
+		return getUiSettings(null);
 	}
 
 	/**
 	 * Getter for the GradebookUiSettings. Used to store a few UI related settings in the PreferencesService (serialized to db)
 	 *
 	 */
-	public GradebookUiSettings getUiSettings(final Gradebook gradebook) {
+	public GradebookUiSettings getUiSettings(Gradebook gradebook) {
 
 		GradebookUiSettings settings = (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
 
 		if (settings == null) {
+			if (gradebook == null) {
+				gradebook = businessService.getGradebook();
+			}
 			settings = new GradebookUiSettings();
 			settings.setCategoriesEnabled(this.businessService.categoriesAreEnabled(gradebook));
 			settings.initializeCategoryColors(this.businessService.getGradebookCategories(gradebook));
@@ -642,11 +645,12 @@ public class GradebookPage extends BasePage implements IGradesPage {
 	 * Initializes anonymous awareness for the page
 	 * @param form the main form on the page
 	 * @param assignments the gradebook items
+	 * @param gradebook the gradebook object
 	 */
-	private void initAnon(Form form, List<Assignment> assignments)
+	private void initAnon(Form form, List<Assignment> assignments, final Gradebook gradebook)
 	{
 		OwlAnonGradingService anonServ = businessService.owl().anon;
-		UiSettings settings = getGbUiSettings();
+		UiSettings settings = getGbUiSettings(gradebook);
 
 		AnonTogglePanel anonTogglePanel = new AnonTogglePanel("anonymousToggle");
 		form.add(anonTogglePanel);
@@ -654,7 +658,7 @@ public class GradebookPage extends BasePage implements IGradesPage {
 		// The anonymous toggle should be visible if the gradebook is mixed. That is, if the site has anonymous IDs,
 		// and there is both anonymous and normal content to view.
 		boolean isGradebookMixed = false;
-		boolean siteHasAnonIds = !anonServ.getAnonGradingIDsForCurrentSite().isEmpty();
+		boolean siteHasAnonIds = !anonServ.getAnonGradingIDsForCurrentSite(gradebook).isEmpty();
 		settings.owl.setAnonPossible(siteHasAnonIds);
 
 		if (siteHasAnonIds)

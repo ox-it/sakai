@@ -1699,9 +1699,16 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		return studentGrades;
 	}
-
+	
 	@Override
 	public Map<String, Map<Long, GradeDefinition>> getGradesForStudentsForItems(String gradebookUid, List<String> studentIds, List<Assignment> assignments) {
+		return getGradesForStudentsForItems(getGradebook(gradebookUid), studentIds, assignments);
+	}
+
+	@Override
+	public Map<String, Map<Long, GradeDefinition>> getGradesForStudentsForItems(Object gb, List<String> studentIds, List<Assignment> assignments) {
+		final Gradebook gradebook = (Gradebook) gb;
+		final String gradebookUid = gradebook.getUid();
 		if (!this.authz.isUserAbleToGrade(gradebookUid)) {
 			throw new GradebookSecurityException();
 		}
@@ -1719,7 +1726,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		// canGradeAll: lets us shortcircuit TA authz
 		// gbItemsToViewableStudents: for TAs since the list of students whose grades they can view varies from item to item
 		boolean canGradeAll = this.authz.isUserAbleToGradeAll(gradebookUid);
-		final Map<Long, Set<String>> gbItemsToViewableStudents = canGradeAll ? null : getGbItemsToViewableStudents(gradebookUid, assignments, studentIds.size());
+		final Map<Long, Set<String>> gbItemsToViewableStudents = canGradeAll ? null : getGbItemsToViewableStudents(gradebook, assignments, studentIds.size());
 
 		// List assignment IDs on which the user is authorized to view grades
 		Stream<Long> assignmentIdStream = assignments.stream().map(Assignment::getId);
@@ -1744,7 +1751,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				studentsToGrades.put(studentId, studentGrades);
 			}
 			GradebookAssignment gbo = (GradebookAssignment)record.getGradableObject();
-			Gradebook gradebook = gbo.getGradebook();
 			GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(record, gbo, gradebook, null);
 			Long gbItem = record.getGradableObject().getId();
 
@@ -1795,14 +1801,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return studentsToGrades;
 	}
 
+	private Map<Long, Set<String>> getGbItemsToViewableStudents(String gradebookUid, List<Assignment> assignments, int numStudents) {
+		return getGbItemsToViewableStudents(getGradebook(gradebookUid), assignments, numStudents);
+	}
+
 	/**
 	 * Maps items to the list of students whose grades can be viewed by the current user.
 	 * E.g. TA permissions - the set of students whose grades may be viewed by a TA may vary from item to item
 	 *
 	 * Note: TA permissions are per category, so the value sets will be redundant for items within the same category. Consider changing the keys to Category IDs to preserve memory / reduce garbage collection.
 	 */
-	private Map<Long, Set<String>> getGbItemsToViewableStudents(String gradebookUid, List<Assignment> assignments, int numStudents) {
-		final Map enrRecFunctionMap = this.authz.findMatchingEnrollmentsForViewableItems(gradebookUid, assignments, null, null);
+	private Map<Long, Set<String>> getGbItemsToViewableStudents(Object gb, List<Assignment> assignments, int numStudents) {
+		final Gradebook gradebook = (Gradebook) gb;
+		final Map enrRecFunctionMap = this.authz.findMatchingEnrollmentsForViewableItems(gradebook, assignments, null, null);
 		Map<Long, Set<String>> gbItemsToViewableStudents = new HashMap<>(assignments.size());
 		for (Map.Entry enrRecToMapEntry : (Set<Map.Entry>)enrRecFunctionMap.entrySet()) {
 			// Key: enrollment record
@@ -3496,6 +3507,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Override
 	public List<CourseSection> getViewableSections(final String gradebookUid) {
 		return getAuthz().getViewableSections(gradebookUid);
+	}
+
+	@Override
+	public List<CourseSection> getViewableSections(final Object gradebook) {
+		return getAuthz().getViewableSections(gradebook);
 	}
 
 	@Override
