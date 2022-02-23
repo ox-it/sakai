@@ -289,7 +289,10 @@ public class OwlBusinessService
 		for (GbGroup sec : sections)
 		{
 			Set<Membership> members = cms.getSectionMemberships(bus.owl().findSectionEid(sec).orElse(""));
-			return members.stream().anyMatch(m -> m.getUserId().equals(user.getEid()) && "S".equals(m.getRole()));
+			if (members.stream().anyMatch(m -> m.getUserId().equals(user.getEid()) && "S".equals(m.getRole())))
+			{
+				return true;
+			}
 		}
 
 		return false;
