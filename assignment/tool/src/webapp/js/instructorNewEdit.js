@@ -32,6 +32,7 @@ ASN_INE.handleAssignToChange = function()
 {
 	ASN_INE.validateGroupSelection();
 	ASN_INE.handleAssignToChangeForPeerAssessment();
+	ASN_INE.evaluateRubricHideFromStudentOption();
 
 	const groupAssignRadio = document.getElementById("groupAssignment");
 	const groupMembershipLockedMsg = document.getElementById("msgGroupMembershipLocked");
@@ -119,15 +120,15 @@ ASN_INE.setGroupAssignmentRadioEnabled = function(enabled)
 				groupAssignRadio.disabled = false;
 				label.classList.remove("disabled");
 			}
-			peerInUseMsg.style.display = "none";
-		}
+				peerInUseMsg.style.display = "none";
+			}
 		else
 		{
-			groupAssignRadio.disabled = true;
-			label.classList.add("disabled");
-			peerInUseMsg.style.display = "inline";
-		}
-	}
+				groupAssignRadio.disabled = true;
+				label.classList.add("disabled");
+				peerInUseMsg.style.display = "inline";
+			}
+			}
 };
 
 ASN_INE.isGradeTypePoints = function()
@@ -139,6 +140,12 @@ ASN_INE.isGradeTypePoints = function()
 ASN_INE.handleGradeAssignmentClick = function(checkbox, selectId, pointsId)
 {
 	$("#assignmentGradingPanel").toggle(checkbox.checked);
+
+	// Attach event handlers to 'use rubric' radios
+	[...document.getElementsByName("rbcs-associate")].forEach((radio) =>
+	{
+		radio.addEventListener("change", ASN_INE.evaluateRubricHideFromStudentOption);
+	});
 
 	var select = document.getElementById(selectId);
 	ASN_INE.handleGradeScaleChange(select, pointsId);
@@ -221,6 +228,27 @@ ASN_INE.evaluatePeerAssessmentOption = function()
 	ASN_INE.disablePeerAssessment(isGroup);
 };
 
+// Evaluate the state of the rubric hide from student option based on the current group assignment setting
+ASN_INE.evaluateRubricHideFromStudentOption = function()
+{
+	const groupAsn = document.getElementById("groupAssignment");
+	const isGroup = groupAsn !== null && groupAsn.checked;
+	const hideFromStudent = document.getElementsByName("rbcs-config-hideStudentPreview")[0]; // Again, assuming only one rubric component on the page
+	
+	if (hideFromStudent === null)
+	{
+		return;
+	}
+
+	// If group submission is selected, and hide from student is not, select it and disable the element
+	if (isGroup && !hideFromStudent.checked)
+	{
+		hideFromStudent.click(); // For some reason, this will not check the box on the first execution
+		hideFromStudent.checked = true;
+	}
+	ASN_INE.disableRubricHideFromStudent(isGroup);
+};
+
 ASN_INE.disablePeerAssessment = function(disable)
 {
 	var peerCheck = document.getElementById("usePeerAssessment");
@@ -240,6 +268,48 @@ ASN_INE.disablePeerAssessment = function(disable)
 	{
 		label.classList.remove("disabled");
 		document.getElementById("peerGroupAsnWarn").style.display = "none";
+	}
+};
+
+ASN_INE.disableRubricHideFromStudent = function(disable)
+{
+	const hideFromStudent = document.getElementsByName("rbcs-config-hideStudentPreview")[0]; // Again, assuming only one rubric component on the page
+	if (hideFromStudent === null)
+	{
+		return;
+	}
+
+	let useRubric = false;
+	[...document.getElementsByName("rbcs-associate")].forEach((radio) => { if (radio.checked && radio.value === "1") { useRubric = true; } });
+
+	let label = hideFromStudent.parentNode;
+	const assignToWarning = document.getElementById("msgRubricHideStudentGroupAssignment");
+	if (disable)
+	{
+		label.classList.add("disabled");
+		if (useRubric)
+		{
+			assignToWarning.style.display = "block";
+		}
+
+		// Because "hide from student" is checked, we need to clone it, disable the clone and hide the original.
+		// This is necessary so that the actual element is still submitted with the form.
+		let clone = hideFromStudent.cloneNode(true);
+		clone.disabled = true;
+		clone.id = "rubricHideFromStudentClone";
+		hideFromStudent.style.display = "none";
+		label.insertBefore(clone, hideFromStudent.nextSibling);
+	}
+	else
+	{
+		label.classList.remove("disabled");
+		assignToWarning.style.display = "none";
+		const clone = document.getElementById("rubricHideFromStudentClone");
+		if (clone !== null)
+		{
+			clone.remove();
+			hideFromStudent.style.display = "block";
+		}
 	}
 };
 

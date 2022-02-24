@@ -40,8 +40,9 @@ class SakaiRubricAssociation extends RubricsElement {
       associateValue: { attribute: "associate-value", type: Number },
       fineTunePoints: { attribute: "fine-tune-points", type: String },
       hideStudentPreview: { attribute: "hide-student-preview", type: String },
+      disableStudentPreview: { attribute: "disable-student-preview", type: Boolean },
       rubrics: { type: Array },
-      readOnly: { attribute: "read-only", type: Boolean },
+      readOnly: { attribute: "read-only", type: Boolean }
     };
   }
 
@@ -98,8 +99,8 @@ class SakaiRubricAssociation extends RubricsElement {
                 </label>
               </div>
               <div class="checkbox">
-                <label>
-                  <input @change="${this.updateStateDetails}" name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions["hideStudentPreview"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
+                <label class="${this.disableStudentPreview ? 'disabled' : ''}">
+                  <input @change="${this.updateStateDetails}" name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions["hideStudentPreview"] || this.disableStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly || this.disableStudentPreview}>${this.hideStudentPreview}
                 </label>
               </div>
             </div>

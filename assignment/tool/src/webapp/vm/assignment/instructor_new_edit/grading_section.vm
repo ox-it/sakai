@@ -57,8 +57,10 @@ This section contains the options for grading this assignment, including rubrics
 					dont-associate-value="0" associate-label="$tlang.getString("associate.label")" associate-value="1" tool-id="sakai.assignment"
 					#if("$!assignment.Id" != "") entity-id="$assignment.Id"	#end
 					#if($rbcs-state-details && "$!rbcs-state-details" != "") state-details="$rbcs-state-details" #end
+					#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound) disable-student-preview="true" #end
 					fine-tune-points="$tlang.getString("option.pointsoverride")" hide-student-preview="$tlang.getString("option.studentpreview")">
 				</sakai-rubric-association>
+				<span id="msgRubricHideStudentGroupAssignment" style="display:#if ($value_AssignTo == $value_AssignTo_Groups && $!groupsList && !$selectedGroupsNotFound) block;#else none;#end" class="sak-banner-info">$tlang.getString("settings.access.mustHideRubricWithGroupAssignment")</span>
 			</div>
 
 			#if ($!withGrade && $!withGradebook)
