@@ -3,6 +3,7 @@ package org.sakaiproject.tool.assessment.facade;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -22,13 +23,13 @@ public interface AutoSubmitFacadeQueriesAPI
 	 * @param adata the data for this attempt/submission
 	 * @param updateGrades if integration with Gradebook is a possibility
 	 * @param agfq service for persisting the attempt
-	 * @param publishedAssessmentService service for retrieving details about the assessment
+	 * @param assessment the assessment
 	 * @param currentTime timestamp when the job started
 	 * @param lastAgentId agent id from the previously processed attempt
 	 * @param lastPublishedAssessmentId assessment id from the previously processed attempt
 	 * @param sectionSetMap map of assessment id to assessment sections (aka parts)
 	 * @return true if all processing succeeded
 	 */
-	public boolean processAttempt(AssessmentGradingData adata, boolean updateGrades, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentService publishedAssessmentService,
+	public boolean processAttempt(AssessmentGradingData adata, boolean updateGrades, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
 			Date currentTime, String lastAgentId, Long lastPublishedAssessmentId, Map<Long, Set<PublishedSectionData>> sectionSetMap);
 }

@@ -9,7 +9,6 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
@@ -21,14 +20,13 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 public class AutoSubmitFacadeQueries extends HibernateDaoSupport implements AutoSubmitFacadeQueriesAPI
 {
 	@Override
-	public boolean processAttempt(AssessmentGradingData adata, boolean updateGrades, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentService publishedAssessmentService,
+	public boolean processAttempt(AssessmentGradingData adata, boolean updateGrades, AssessmentGradingFacadeQueriesAPI agfq, PublishedAssessmentFacade assessment,
 			Date currentTime, String lastAgentId, Long lastPublishedAssessmentId, Map<Long, Set<PublishedSectionData>> sectionSetMap)
 	{
 		boolean autoSubmitCurrent = false;
 		adata.setHasAutoSubmissionRun(Boolean.TRUE);
 
 		// If the assessment is deleted, or the submission is not forGrade just set hasAutoSubmissionRun = true; do not update gradebook
-		PublishedAssessmentFacade assessment = (PublishedAssessmentFacade) publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
 		if (Boolean.FALSE.equals(adata.getForGrade()) && !AssessmentBaseIfc.DEAD_STATUS.equals(assessment.getStatus())) {
 
 			// SAM-1088 check to see if last user attempt was after due date

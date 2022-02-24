@@ -71,8 +71,6 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -84,9 +82,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -96,13 +92,10 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
-import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.util.ExtendedTimeDeliveryService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
@@ -2982,6 +2975,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
         Iterator<AssessmentGradingData> iter = list.iterator();
         String lastAgentId = "";
         Long lastPublishedAssessmentId = 0L;
+        PublishedAssessmentFacade assessment = null;
         AssessmentGradingData adata = null;
         Map<Long, Set<PublishedSectionData>> sectionSetMap = new HashMap<>();
 
@@ -2995,8 +2989,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             try {
                 adata = (AssessmentGradingData) iter.next();
 
+                if (!lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())) {
+                    assessment = publishedAssessmentService.getPublishedAssessmentQuick(adata.getPublishedAssessmentId().toString());
+                }
+
                 // this call happens in a separate transaction, so a rollback only affects this iteration
-                boolean success = autoSubmitFacade.processAttempt(adata, updateGrades, this, publishedAssessmentService, currentTime, lastAgentId, lastPublishedAssessmentId, sectionSetMap);
+                boolean success = autoSubmitFacade.processAttempt(adata, updateGrades, this, assessment, currentTime, lastAgentId, lastPublishedAssessmentId, sectionSetMap);
                 if (!success) {
                     ++failures;
                 }
