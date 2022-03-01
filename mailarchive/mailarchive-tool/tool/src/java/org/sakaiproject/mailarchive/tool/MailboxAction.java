@@ -38,7 +38,6 @@ import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.api.Menu;
-import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -53,7 +52,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.Order;
-import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.javax.Search;
 import org.sakaiproject.javax.SearchFilter;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
@@ -70,6 +68,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.util.Validator;
 
 /**
@@ -155,10 +154,12 @@ public class MailboxAction extends PagedResourceActionII
 	private final int MESSAGE_THRESHOLD_DEFAULT = 2500;
 
 	private AliasService aliasService;
+	private final SecurityService securityService;
 
 	public MailboxAction() {
 		super();
 		aliasService = ComponentManager.get(AliasService.class);
+		securityService = ComponentManager.get(SecurityService.class);
 	}
 
 	/*
@@ -1159,7 +1160,9 @@ public class MailboxAction extends PagedResourceActionII
 			default:
 		}
 		bar.add(list);
-		if(allowedToOptions()) {
+
+		// OWL-4843 - tool retirement, disable access to "options" tab for non-admins
+		if(securityService.isSuperUser()) {
 			bar.add(options);
 		}
 		bar.add(permissions);
