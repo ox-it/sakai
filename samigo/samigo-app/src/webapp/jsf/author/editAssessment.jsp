@@ -226,7 +226,8 @@ $(window).load( function() {
   <f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
-<h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+<h:messages styleClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity && facesContext.maximumSeverity.ordinal != 1}"/>
+<h:messages styleClass="sak-banner-warn" rendered="#{! empty facesContext.maximumSeverity && facesContext.maximumSeverity.ordinal == 1}"/>
 
 <div class="tier1">
   <h:dataTable id="parts" width="100%" value="#{assessmentBean.sections}" var="partBean">

@@ -19,12 +19,16 @@ package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.math3.util.Precision;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService.ExternalAssignmentInfo;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeItemNameException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -141,6 +145,13 @@ public void removeExternalAssessment(String gradebookUId,
   {
     String gradebookUId = GradebookFacade.getGradebookUId();
     return g.isAssignmentDefined(gradebookUId, assessmentTitle);
+  }
+
+  @Override
+  public Optional<ExternalAssignmentInfo> getExternalAssignmentInfo(String gradebookUId, String publishedAssessmentId,
+		  GradebookExternalAssessmentService g) throws Exception
+  {
+	  return g.getExternalAssignmentInfo(gradebookUId, publishedAssessmentId);
   }
   
   public String getAppName()
@@ -310,15 +321,21 @@ public void removeExternalAssessment(String gradebookUId,
 	  }
   }
 
+	@Override
+	public ExternalTitleValidationResult validateNewExternalTitle(String gradebookUid, String assessmentTitle,
+		  GradebookExternalAssessmentService g) throws Exception {
 
-	public Long getExternalAssessmentCategoryId(String gradebookUId,
-			String publishedAssessmentId, GradebookExternalAssessmentService g) {
-		Long categoryId = null;
-		if (g.isGradebookDefined(gradebookUId)) 
-		{
-			categoryId = g.getExternalAssessmentCategoryId(gradebookUId, publishedAssessmentId);
+		try {
+			g.validateNewExternalAssessmentTitle(gradebookUid, assessmentTitle); // this is intended for adding an external gb item for the first time
 		}
-		return categoryId;
+		catch (ConflictingAssignmentNameException cane) {
+			return ExternalTitleValidationResult.DUPLICATE_TITLE;
+		}
+		catch (InvalidGradeItemNameException igine) {
+			return ExternalTitleValidationResult.INVALID_CHARS;
+		}
+
+		return ExternalTitleValidationResult.VALID;
 	}
 
 }

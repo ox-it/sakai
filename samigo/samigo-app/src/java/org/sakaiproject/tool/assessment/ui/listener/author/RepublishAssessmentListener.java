@@ -19,6 +19,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import javax.faces.application.FacesMessage;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -29,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService.ExternalAssignmentInfo;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
@@ -41,6 +44,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper.ExternalTitleValidationResult;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -77,6 +81,21 @@ public class RepublishAssessmentListener implements ActionListener {
 		// Go to database to get the newly updated data. The data inside beans might not be up to date.
 		PublishedAssessmentFacade assessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
 		EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_PUBLISHED_ASSESSMENT_REPUBLISH, "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
+
+		// Before proceeding any further, check for a possible failure state with the gradebook integration.
+		// The main concern is a gradebook item with the same name added right before republishing
+		ExternalTitleValidationResult result = checkGBTitle(assessment);
+		FacesContext context = FacesContext.getCurrentInstance();
+		switch(result) {
+			case DUPLICATE_TITLE:
+				String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+				context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_ERROR, gbConflict_error, null));
+				throw new AbortProcessingException("Gradebook item with same title already exists.");
+			case INVALID_CHARS: // should not be possible at this stage but we'll handle it anyway just in case
+				String gbTitleError=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","gradebook_exception_title_invalid");
+				context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_ERROR, gbTitleError, null));
+				throw new AbortProcessingException("Title contains invalid characters for Gradebook item.");
+		}
 
 		assessment.setStatus(AssessmentBaseIfc.ACTIVE_STATUS);
 		publishedAssessmentService.saveAssessment(assessment);
@@ -164,6 +183,40 @@ public class RepublishAssessmentListener implements ActionListener {
 		}
 	}
 
+	private ExternalTitleValidationResult checkGBTitle(PublishedAssessmentFacade assessment) {
+
+		EvaluationModelIfc eval = assessment.getEvaluationModel();
+		if (eval == null || EvaluationModelIfc.NOT_TO_GRADEBOOK.toString().equals(eval.getToGradeBook())) {
+			return ExternalTitleValidationResult.VALID;
+		}
+
+		GradebookExternalAssessmentService g = null;
+		if (integrated) {
+			g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean(
+					"org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+		}
+
+		if (g == null || !gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(), g)) {
+			return ExternalTitleValidationResult.VALID;
+		}
+
+		try {
+			Optional<ExternalAssignmentInfo> extInfo = gbsHelper.getExternalAssignmentInfo(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
+			if (!extInfo.isPresent() || !extInfo.get().title.equals(assessment.getTitle())) {
+				// no GB item for this quiz previously, or the current quiz title doesn't match the GB item title, so validate
+				return gbsHelper.validateNewExternalTitle(GradebookFacade.getGradebookUId(), assessment.getTitle(), g);
+			}
+		}
+		catch (Exception e) {
+			// the gbsHelper calls can throw GradebookNotFoundException, but we already checked for that earlier so
+			// if an exception is caught here something must really be wrong. As this is just a pre-emptive validation step
+			// check we log the error and allow things to continue as if it was validated
+			log.error("Unable to check gradebook status due to unexpected error.", e);
+		}
+
+		return ExternalTitleValidationResult.VALID;
+	}
+
 	private void updateGB(PublishedAssessmentFacade assessment) {
 		// a. if Gradebook does not exists, do nothing
 		// b. if Gradebook exists, just call removeExternal first to clean up all data. And call addExternal to create
@@ -188,7 +241,8 @@ public class RepublishAssessmentListener implements ActionListener {
 				Long categoryId = null;
 				try {
 					log.debug("before gbsHelper.removeGradebook()");
-					categoryId = gbsHelper.getExternalAssessmentCategoryId(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
+					Optional<ExternalAssignmentInfo> extInfo = gbsHelper.getExternalAssignmentInfo(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
+					categoryId = extInfo.isPresent() ? extInfo.get().categoryId.orElse(null) : null;
 					gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
 				} catch (Exception e1) {
 					// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
