@@ -92,7 +92,7 @@ public class MainController {
                 }
             });
             Collections.sort(groupMemberList, new UserSortNameComparator());
-            groupMemberList.forEach(u -> stringJoiner.add(u.getDisplayName()));
+            groupMemberList.forEach(u -> stringJoiner.add(u.getDisplayName() + " (" + u.getEid() + ")"));
             groupMemberMap.put(group.getId(), stringJoiner.toString());
             // Get the joinable sets and add them to the Map
             groupJoinableSetMap.put(group.getId(), group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET));
