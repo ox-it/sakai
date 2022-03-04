@@ -77,6 +77,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTagIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
@@ -2591,6 +2592,9 @@ public class ItemAddListener
   protected Set preparePublishedMetaData(ItemFacade item, ItemBean bean) {
 	  Set itemMetaDataSet = item.getItemMetaDataSet();
 	  Iterator iter = itemMetaDataSet.iterator();
+
+	  boolean needsPartialCredit = item.getTypeId() == TypeIfc.MULTIPLE_CORRECT;
+
 	  while (iter.hasNext()) {
 		  ItemMetaDataIfc itemMetaData = (ItemMetaDataIfc) iter.next();
 		  if (itemMetaData.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
@@ -2621,6 +2625,7 @@ public class ItemAddListener
 			  itemMetaData.setEntry(bean.getKeyword());
 		  }else if(itemMetaData.getLabel().equals(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT)){
 			  itemMetaData.setEntry(bean.getMcmsPartialCredit());
+			  needsPartialCredit = false;
 		  }
 	  
 		  // save settings for mutually exclusive for FIB. Default=false
@@ -2657,6 +2662,10 @@ public class ItemAddListener
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.MX_SURVEY_QUESTION_COMMENTFIELD)){
 			  itemMetaData.setEntry(bean.getCommentField());
 		  }
+	  }
+
+	  if (needsPartialCredit) {
+		  item.addItemMetaData(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT, "true");
 	  }
 	  return itemMetaDataSet;
 	}
