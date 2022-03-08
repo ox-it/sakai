@@ -210,6 +210,14 @@
     padding-left: 2em;
   }
 
+  .group-member {
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-right: 1.5em;
+    line-height: 2;
+  }
+
   .selectSectionDiv {
      padding-left: 21px;
    }
