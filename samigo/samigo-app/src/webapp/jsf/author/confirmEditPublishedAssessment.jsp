@@ -40,7 +40,7 @@
         <h1><h:outputText value="#{authorMessages.edit_published_assessment_heading_conf}"/></h1>
      </div>
  <h:form id="editPublishedAssessmentForm">
-     <div class="sak-banner-error">
+     <div class="sak-banner-warn">
        <h:outputText value="<strong>#{authorMessages.warning}</strong>" escape="false" />
    	   <br/>
        <h:outputText value="#{authorMessages.edit_published_assessment_heading_conf_info_1}" />
