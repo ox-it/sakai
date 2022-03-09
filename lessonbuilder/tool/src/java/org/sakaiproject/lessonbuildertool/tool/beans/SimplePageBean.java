@@ -51,15 +51,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -74,7 +71,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -148,6 +144,7 @@ import com.opencsv.CSVParser;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
 import lombok.Setter;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -7493,9 +7490,19 @@ public class SimplePageBean {
 
 			String gradebookId = "lesson-builder:question:" + item.getId();
 			String title = gradebookTitle;
-			if(title == null || title.equals("")) {
-				title = questionText;
-			}	
+
+			// Must supply gradebook item title
+			if(StringUtils.isBlank(title)) {
+				setErrMessage(messageLocator.getMessage("simplepage.gbname-expected"));
+				return "failure";
+			}
+
+			// Gradebook item title must be valid
+			if (StringUtils.containsAny(title, GradebookService.INVALID_CHARS_WITHIN_GB_ITEM_NAME)
+					|| StringUtils.startsWithAny(title, GradebookService.INVALID_CHARS_AT_START_OF_GB_ITEM_NAME)) {
+				setErrMessage(messageLocator.getMessage("simplepage.question.gradebookTitleInvalid"));
+				return "failure";
+			}
 
 			try {
 				boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), gradebookId, null, title, pointsInt, null, "Lesson Builder");				

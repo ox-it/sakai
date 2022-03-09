@@ -27,18 +27,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 
 import static org.sakaiproject.assignment.api.AssignmentConstants.*;
 import static org.sakaiproject.assignment.api.model.Assignment.GradeType.*;
 
-import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.api.FormattedText;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sakaiproject.assignment.api.AssignmentReferenceReckoner;
@@ -48,7 +43,6 @@ import org.sakaiproject.assignment.api.model.AssignmentSubmission;
 import org.sakaiproject.assignment.api.model.AssignmentSubmissionSubmitter;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -66,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import lombok.Setter;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 
 @Slf4j
 @Setter
@@ -528,9 +523,20 @@ public class AssignmentToolUtils {
                             try {
                                 // update attributes if the GB assignment was created for the assignment
                                 gradebookExternalAssessmentService.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, null, newAssignment_title, newAssignment_maxPoints / (double) a.getScaleFactor(), Date.from(newAssignment_dueTime), false);
-                            } catch (Exception e) {
+                            } catch (AssessmentNotFoundException e) {
                                 alerts.add(rb.getFormattedMessage("cannotfin_assignment", assignmentRef));
                                 log.warn("{}", rb.getFormattedMessage("cannotfin_assignment", assignmentRef));
+                            } catch (ConflictingAssignmentNameException e) {
+                                alerts.add(rb.getFormattedMessage("addtogradebook.nonUniqueTitle", "\"" + newAssignment_title + "\""));
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
+                            } catch (AssignmentHasIllegalPointsException e) {
+                                alerts.add(rb.getString("addtogradebook.illegalPoints"));
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
+                            } catch (InvalidGradeItemNameException e) {
+                                alerts.add(rb.getFormattedMessage("addtogradebook.titleInvalidCharacters", "\"" + newAssignment_title + "\""));
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
+                            } catch (Exception e) {
+                                log.warn(this + ":integrateGradebook " + e.getMessage());
                             }
                         }
                     }    // addUpdateRemove != null

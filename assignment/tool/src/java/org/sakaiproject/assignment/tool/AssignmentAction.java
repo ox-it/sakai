@@ -6766,7 +6766,12 @@ public class AssignmentAction extends PagedResourceActionII {
 
                             if (StringUtils.equals(gbItem.getName(), title))
                             {
-                                // The title will not change. Validating the name in this case will detect itself as a duplicate.
+                                // The title will not change, but we should validate that the resulting GB item name will be valid
+                                try {
+                                    title = GradebookHelper.validateGradeItemName(title);
+                                } catch (InvalidGradeItemNameException igine) {
+                                    addAlert(state, rb.getFormattedMessage("addtogradebook.validate.associate.titleInvalidCharacters", formattedText.escapeHtml(gbItem.getName()), formattedText.escapeHtml(title)));
+                                }
                                 break;
                             }
 
