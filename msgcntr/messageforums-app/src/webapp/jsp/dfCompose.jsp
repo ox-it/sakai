@@ -31,19 +31,19 @@
 				<tr>
 					<td>
 						<h:outputText value="#{ForumTool.selectedForum.forum.title} /  #{ForumTool.selectedTopic.topic.title}"  styleClass="title"/> 
-	  <div class="textPanel">
-	  <h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
-	  </div>
-						<div>
+						<h:panelGroup styleClass="textPanel" layout="block" rendered="#{!empty ForumTool.selectedTopic.topic.shortDescription != '' && ForumTool.selectedTopic.topic.shortDescription != null && ForumTool.selectedTopic.topic.shortDescription != '<br/>'}">
+							<h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
+						</h:panelGroup>
+						<h:panelGroup rendered="#{!empty ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}">
 							<p id="openLinkBlock" class="toggleParent openLinkBlock display-none">
 								<a href="#" id="showMessage" class="toggle show">
-									<h:graphicImage url="/images/expand.gif" alt=""/>
+									<h:graphicImage url="/images/collapse.gif" alt=""/>
 									<h:outputText value=" #{msgs.cdfm_read_full_description}" />
 								</a>
 							</p>
 							<p id="hideLinkBlock" class="toggleParent hideLinkBlock">
 								<a href="#" id="hideMessage" class="toggle show">
-									<h:graphicImage url="/images/collapse.gif" alt="" />
+									<h:graphicImage url="/images/expand.gif" alt="" />
 									<h:outputText value=" #{msgs.cdfm_hide_full_description}"/>
 								</a>
 							</p>
@@ -53,7 +53,7 @@
 							<div id="fullTopicDescription" class="textPanel">
 								<h:outputText escape="false" value="#{ForumTool.selectedTopic.topic.extendedDescription}" />
 							</div>
-						</div>
+						</h:panelGroup>
 					</td>
 				</tr>
 			</table>
