@@ -1037,6 +1037,7 @@ body {
 	}
 
 	#roleSwitchDropDown select {
+		max-width: calc(100% - 2.7em);
 		margin-left: $standard-spacing;
 	}
 
