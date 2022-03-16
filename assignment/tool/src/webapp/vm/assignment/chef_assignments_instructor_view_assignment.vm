@@ -19,9 +19,12 @@
 			</ul
 		#end
 	#end
-	<h3>
-		$tlang.getString("viewassig.viewass1")
-	</h3>
+
+	<div class="page-header">
+		<h1>
+			$tlang.getString("viewassig.viewass1")
+		</h1>
+	</div>
 	#if ($alertMessage)<div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>#end
 		#if ($allowAddAssignment && !$hideAssignmentFlag)
 		## show assignment content
@@ -224,7 +227,7 @@
 				$tlang.getString("gen.stuvieof") "$formattedText.escapeHtml($assignment.title)"
 				</a>
 			</p>
-			<div class="inopPanel">
+			<div class="borderPanel">
 				<table class ="itemSummary" cellspacing="0" cellpadding ="0" summary="$tlang.getString("gen.viewasstablesummary")">
 					<tr>
 						<th>

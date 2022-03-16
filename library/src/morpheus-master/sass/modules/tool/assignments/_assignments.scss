@@ -193,6 +193,9 @@
 			line-height: 1;
 			padding: 0.5em 0 0.5em 2.5em;
 		}
+		&.assignmentsList th {
+			background-color: #eee;
+		}
 	}
 
 	.toggleAnchor {
@@ -664,9 +667,10 @@
 	}
 
 	#honor-pledge-agreement {
-		h4 {
+		h2 {
 			font-size: $jumbotron-heading-font-size;
 			margin: 0 0 0.5em 0;
+			padding: 0;
 		}
 		margin-bottom: 0;
 	}

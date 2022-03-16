@@ -13,111 +13,119 @@
 </script>
 
 <div class="portletBody">
-    <h3>
-		$tlang.getString("subm.conf")
-    </h3>
-	
+    <div class="page-header">
+        <h1>$tlang.getString("subm.conf")</h1>
+    </div>
+
     #progressBar($!service.getProgressBarStatus($!submission))
 
-	<div class="sak-banner-warn">  <strong>$tlang.getString("gen.alert")</strong> $!submissionConfirmAlert</div>
-	
+    <div class="sak-banner-info">$!submissionConfirmAlert</div>
+
     #set($allowUpdateAssignment = $!service.allowUpdateAssignment($assignmentReference))
     #if ($alertMessage)
         <div class="sak-banner-error"><strong>$tlang.getString("gen.alert")</strong> $alertMessage</div>
     #end
-    <table class="itemSummary" summary="$tlang.getString("gen.assdet")" border="0">
-        <tr>
-            <th>
-                $tlang.getString("gen.title")
-            </th>
-            <td>
-                #assignmentTitleIcon($assignment)
-				$formattedText.escapeHtml($assignment.Title)
-            </td>
-        </tr>
-        <tr>
-            <th>
-                $tlang.getString("gen.due.header"):
-            </th>
-            <td>
-                #if (!$!assignment.HideDueDate || $!allowUpdateAssignment)
-                    $!service.getUsersLocalDateTimeString($!assignment.DueDate)
-                #end
-            </td>
-        </tr>
+        <h2>$tlang.getString("gen.assdet")</h2>
+        <div class="itemSummary container-fluid">
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString("gen.title")</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">
+                        #assignmentTitleIcon($assignment)
+                        $formattedText.escapeHtml($assignment.Title)
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString("gen.due.header")</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">
+                    #if (!$!assignment.HideDueDate || $!allowUpdateAssignment)
+                        $!service.getUsersLocalDateTimeString($!assignment.DueDate)
+                    #end
+                    </div>
+                </div>
+            </div>
         #if($assignment.TypeOfSubmission.ordinal() != 4)
             ##resubmit number
             #if($!resubmitNumber)
-                <tr>
-                    <th>
-                        $tlang.getString("allow.resubmit.number")
-                    </th>
-                    <td>
-                        $resubmitNumber
-                    </td>
-                </tr>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString("allow.resubmit.number")</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">$resubmitNumber</div>
+                </div>
+            </div>
             #end
             ## resubmit close time
             #if ($!resubmitCloseTime)
-                <tr>
-                    <th>
-                        $tlang.getString("allow.resubmit.closeTime")
-                    </th>
-                    <td>
-                        $resubmitCloseTime
-                    </td>
-                </tr>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString("allow.resubmit.closeTime")</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">$resubmitCloseTime</div>
+                </div>
+            </div>
             #end
         #end
         #if ($withGrade)
-            <tr>
-                <th>
-                    $tlang.getString("gen.status")
-                </th>
-                <td>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString("gen.status")</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">
                     #if ($!submission)
-						$!service.getSubmissionStatus($!submission.Id)
-					#else
+                        $!service.getSubmissionStatus($!submission.Id)
+                    #else
                         $tlang.getString("gen.notsta")
                     #end
-                </td>
-            </tr>
-            <tr>
-                <th>
-                    $tlang.getString("gen.grasca")
-                </th>
-                <td>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString("gen.grasca")</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">
                     #set ($gradeScale = $!typeOfGradeString)
                     $gradeScale
                     #if ($!assignment.TypeOfGrade.ordinal() == 3)
                         ($tlang.getString("stupresub.max") $!service.getMaxPointGradeDisplay($!assignment.ScaleFactor, $!assignment.MaxGradePoint))
                     #end
-
                     ## for grading via an external scoring service, if enabled for an associated gradebook item
                     #if($scoringComponentEnabled)
                         #parse ("/vm/assignment/chef_assignments_scoring_agent.vm")
                     #end
-
-                </td>
-            </tr>
+                    </div>
+                </div>
+            </div>
         #end
         ## show alert when assignment is modified and the modified date is after its open date
         #set($newAssignment="false")
         #set($newAssignment=$assignment.getProperties().get("newAssignment"))
         #if ($!assignment.DateModified.isAfter($assignment.OpenDate) && !$!newAssignment.equalsIgnoreCase("true"))
-            <tr>
-                <th>
-                    $tlang.getString("gen.modbyins")
-                </th>
-                <td>
-                    $!service.getUsersLocalDateTimeString($assignment.DateModified)
-                </td>
-            </tr>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString("gen.modbyins")</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">$!service.getUsersLocalDateTimeString($assignment.DateModified)</div>
+                </div>
+            </div>
         #end
-    </table>
-    <h4>
-        $tlang.getString("gen.submission")
-    </h4>
+    </div>
+
+    <hr class="itemSeparator" />
+
+    <h2>$tlang.getString("gen.submission")</h2>
     #if ($text && $!text.length() > 0)
         <div class="textPanel">
             $formattedText.escapeHtmlFormattedText($text)
@@ -127,9 +135,7 @@
     #attachmentFragment($submissionAttachmentReferences.keySet() $submissionAttachmentReferences $!decoratedUrlMap true)
 
 	#if($!submissionConfirmOptions.size() > 0)
-		<h4>
-			$tlang.getString("subm.notif")
-		</h4>
+		<h3>$tlang.getString("subm.notif")</h3>
 		<p>$!studentConfirmMessage</p>
 
 		#foreach ($item in $!submissionConfirmOptions)
@@ -145,27 +151,25 @@
 	#end
 
     <form id="addSubmissionForm" name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
-	    #if ($plagiarismNote)
-			<p>
-				<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
-				<em>
-					$plagiarismNote
-					#if ($plagiarismFileTypes || $plagiarismFileSize)
-						<ul>
-							#if ($plagiarismFileTypes)
-								<li>$plagiarismFileTypes</li>
-							#end
-							#if ($plagiarismFileSize)
-								$plagiarismFileSize
-							#end
-						</ul>
-					#end
-					#if ($plagiarismStudentPreview)
-						$plagiarismStudentPreview
-					#end
-				</em>
-			</p>
-		#end
+       #if ($plagiarismNote)
+            <div class="sak-banner-info">
+                <p>$plagiarismNote</p>
+                #if ($plagiarismFileTypes || $plagiarismFileSize)
+                    <ul>
+                        #if ($plagiarismFileTypes)
+                            <li>$plagiarismFileTypes</li>
+                        #end
+                        #if ($plagiarismFileSize)
+                            <li>$plagiarismFileSize</li>
+                        #end
+                    </ul>
+                #end
+                #if ($plagiarismStudentPreview)
+                    <p>$plagiarismStudentPreview</p>
+                #end
+            </div>
+        #end
+
 		#if ($plagiarismEULALink)
 			<p class="checkbox highlightPanel form-required">
 				<label for="$name_plagiarism_eula_agreement">
@@ -196,7 +200,7 @@
                 #end
                 <input type="button" class="active" name="post" accesskey="s" id="post" value="$!name" aria-label="post"
                        onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'post', null, null ); return false;" 
-					    #if ($!submissionConfirmOptionsRequired) disabled="disabled" #end />
+                       #if ($!submissionConfirmOptionsRequired) disabled="disabled" #end />
                 <input class="disableme" type="button" name="revise" accesskey="r" id="revise" aria-label="revise"
                        value="$tlang.getString("gen.revi")"
                        onclick="SPNR.disableControlsAndSpin( this, null ); ASN.submitForm( 'addSubmissionForm', 'revise', null, null ); return false;"/>

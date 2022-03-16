@@ -1,15 +1,17 @@
 <!-- start:  chef_assignments_student_view_submission_confirmation.vm  -->
 <div class="portletBody">
-    <h3>
-        #if ($!assignment.IsGroup)
-            $tlang.getString('gen.group')
-        #end
-		#if ($!submission.Submitted)
-            $tlang.getString('confirm.submission.title')
-        #else
-            $tlang.getString('confirm.savesubmission.title')
-        #end
-    </h3>
+    <div class="page-header">
+        <h1>
+            #if ($!assignment.IsGroup)
+                $tlang.getString('gen.group')
+            #end
+            #if ($!submission.Submitted)
+                $tlang.getString('confirm.submission.title')
+            #else
+                $tlang.getString('confirm.savesubmission.title')
+            #end
+        </h1>
+    </div>
     #if (!$!allowAddAssignment)
         #progressBar($!service.getProgressBarStatus($!submission))
     #end
@@ -19,7 +21,7 @@
         #else
             $tlang.getString('confirm.savesubmission.success')
         #end
-	#if ($!email_confirmation && $!submission.Submitted)
+    #if ($!email_confirmation && $!submission.Submitted)
         #if ($!user_email)
             $tlang.getString('confirm.submission.email')
         #end
@@ -32,120 +34,134 @@
         #end
     #end
     <form name="addSubmissionForm" action="#toolForm($action)" method="post" onsubmit="return true;">
-        <table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString('confirm.submission.title')">
+        <div class="itemSummary container-fluid">
             ## user
-            <tr>
-                <th>
-                    $tlang.getString('confirm.submission.label.user')
-                </th>
-                <td>
-                    $formattedText.escapeHtml($!user_name) #if($!user_id)($!user_id)#end
-                </td>
-            </tr>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString('confirm.submission.label.user')</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">$formattedText.escapeHtml($!user_name) #if($!user_id)($!user_id)#end</div>
+                </div>
+            </div>
 
             #if ($!assignment.IsGroup)
-                <tr>
-                    <th>
-                        $tlang.getString('gen.group'):
-                    </th>
-                    <td>
-                        #set($aGroup = $!site.getGroup($submission.GroupId))
-                        #if ($aGroup)
-                            $aGroup.Title
-                        #else
-                            $tlang.getString('group.submission.not.found')
-                        #end
-                    </td>
-                </tr>
-                <tr>
-                    <th>
-                        $tlang.getString('gen.students'):
-                    </th>
-                    <td>
-                        $!submitterNames
-                    </td>
-                </tr>
+                <div class="row">
+                    <div class="col-md-2 col-sm-12">
+                        <div class="itemSummaryHeader">$tlang.getString('gen.group')</div>
+                    </div>
+                    <div class="col-md-10 col-sm-12">
+                        <div class="itemSummaryValue">
+                            #set($aGroup = $!site.getGroup($submission.GroupId))
+                            #if ($aGroup)
+                                $aGroup.Title
+                            #else
+                                $tlang.getString('group.submission.not.found')
+                            #end
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2 col-sm-12">
+                        <div class="itemSummaryHeader">$tlang.getString('gen.students')</div>
+                    </div>
+                    <div class="col-md-10 col-sm-12">
+                        <div class="itemSummaryValue">$!submitterNames</div>
+                    </div>
+                </div>
             #end
 
             ## site
-            <tr>
-                <th>
-                    $tlang.getString('confirm.submission.label.classsite')
-                </th>
-                <td>
-                    $formattedText.escapeHtml($!site_title)
-                </td>
-            </tr>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString('confirm.submission.label.classsite')</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">$formattedText.escapeHtml($!site_title)</div>
+                </div>
+            </div>
+
             ## assignment title
-            <tr>
-                <th>
-                    $tlang.getString('assignment.title')
-                </th>
-                <td>
-                    #assignmentTitleIcon($assignment)
-					$formattedText.escapeHtml($!assignment.Title)
-                </td>
-            </tr>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">$tlang.getString('assignment.title')</div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">
+                        #assignmentTitleIcon($assignment)
+                        $formattedText.escapeHtml($!assignment.Title)
+                    </div>
+                </div>
+            </div>
+
             ## submission id
-            <tr>
-                <th>
-                    #if ($!submission.Submitted)
-						$tlang.getString('submission.id')
-					#else
-                        $tlang.getString('confirm.savesubmission.label.submission.id')
-                    #end
-                </th>
-                <td class="highlight">
-                    $!submission.Id
-                </td>
-            </tr>
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="itemSummaryHeader">
+                        #if ($!submission.Submitted)
+                            $tlang.getString('submission.id')
+                        #else
+                            $tlang.getString('confirm.savesubmission.label.submission.id')
+                        #end
+                    </div>
+                </div>
+                <div class="col-md-10 col-sm-12">
+                    <div class="itemSummaryValue">$!submission.Id</div>
+                </div>
+            </div>
+
             #if ($!submission.Submitted)
             ## submit time
-                <tr>
-                    <th>
-                        $tlang.getString('noti.submit.time')
-                    </th>
-                    <td>
-                        $!service.getUsersLocalDateTimeString($!submission.DateSubmitted)
-                        #if ($!submission.DateSubmitted && $submission.DateSubmitted.isAfter($assignment.DueDate))
-                            <span class="highlight">$tlang.getString("gen.late2")</span>
-                        #end
-                    </td>
-                </tr>
+                <div class="row">
+                    <div class="col-md-2 col-sm-12">
+                        <div class="itemSummaryHeader">$tlang.getString('noti.submit.time')</div>
+                    </div>
+                    <div class="col-md-10 col-sm-12">
+                        <div class="itemSummaryValue">
+                            $!service.getUsersLocalDateTimeString($!submission.DateSubmitted)
+                            #if ($!submission.DateSubmitted && $submission.DateSubmitted.isAfter($assignment.DueDate))
+                                <span class="highlight">$tlang.getString("gen.late2")</span>
+                            #end
+                        </div>
+                    </div>
+                </div>
             #end
 
             ## Submission Log
             #if ($!submissionLog && !$!submissionLog.isEmpty())
-                <tr>
-                    <th>$tlang.getString('gen.history')</th>
-                    <td>
-                        #foreach ($message in $submissionLog)
-                            $message<br/>
-                        #end
-                    </td>
-                </tr>
+                <div class="row">
+                    <div class="col-md-2 col-sm-12">
+                        <div class="itemSummaryHeader">$tlang.getString('gen.history')</div>
+                    </div>
+                    <div class="col-md-10 col-sm-12">
+                        <div class="itemSummaryValue">
+                            <ul>
+                            #foreach ($message in $submissionLog)
+                                <li>$message</li>
+                            #end
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             #end
-        </table>
-        <h4>
+        </div>
+        <h2>
             #if ($!submission.Submitted)
-				$tlang.getString('confirm.submission.include')
-			#else
+                $tlang.getString('confirm.submission.include')
+            #else
                 $tlang.getString('confirm.savesubmission.include')
             #end
-        </h4>
+        </h2>
         ## only show the following section if text submission is allowed
         #if (!$!attachmentSubmissionOnly)
         ## submission text
             #if ($!submit_text)
-                <div class="textPanel indnt2">
-                    $!submit_text
-					##$formattedText.escapeHtmlFormattedText($!submit_text)
-                </div>
+                <div class="textPanel">$!submit_text</div>
             #else
-                <p class="indnt2 instruction">
+                <p class="instruction">
                     #if ($!submission.Submitted)
-						$tlang.getString('confirm.submission.notext')
-					#else
+                        $tlang.getString('confirm.submission.notext')
+                    #else
                         $tlang.getString('confirm.savesubmission.notext')
                     #end
                 </p>
@@ -153,17 +169,17 @@
         #end
         ## only show the following if attachment submission is allowed
         #if (!$textSubmissionOnly)
-            <h4>
+            <h3>
                 #if ($!submission.Submitted)
-					#if ($!assignment.SubmissionType.ordinal() == 5)
+                    #if ($!assignment.SubmissionType.ordinal() == 5)
                         $tlang.getString("gen.stuatt.single")
                     #else
                         $tlang.getString("gen.stuatt")
                     #end
-				#else
+                #else
                     $tlang.getString('confirm.savesubmission.attachments')
                 #end
-            </h4>
+            </h3>
 
             ## Submission attachments
             #set ($attachments = $submission.Attachments)
@@ -176,7 +192,7 @@
                         $tlang.getString("gen.noatt")
                     #end
                 #else
-                    <ul class="attachList indnt2">
+                    <ul class="attachList">
                         #foreach ($attachmentReference in $attachments)
                             #set ($reference = false)
                             #set ($reference = $submissionAttachmentReferences.get($attachmentReference))
@@ -185,7 +201,7 @@
                                 #set ($props = $reference.Properties)
                                 #if ($!props)
                                     <li>$formattedText.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
-										#propertyDetails($props)
+                                        #propertyDetails($props)
                                     </li>
                                 #end
                             #end

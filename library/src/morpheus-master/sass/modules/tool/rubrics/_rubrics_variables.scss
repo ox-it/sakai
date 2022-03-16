@@ -13,7 +13,7 @@ $rubrics-icon-active-bg:        #e7e7e7 !default;
 $rubrics-icon-color:            #f2f2f4 !default;
 
 $rubrics-lightbox-bg:           #fff !default;
-$rubrics-lightbox-border-color: #555 !default;
+$rubrics-lightbox-border-color: $rubrics-manager-border-color !default;
 $rubrics-lightbox-border-size:  1px !default;
 
 $rubrics-crit-border-color:     #d3d3d3 !default;
