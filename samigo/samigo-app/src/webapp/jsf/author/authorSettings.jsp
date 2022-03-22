@@ -600,9 +600,14 @@
     <!-- GRADEBOOK OPTION -->
     <h:panelGroup styleClass="form-group row" layout="block" rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
       <h:outputLabel styleClass="col-md-2 form-control-label" value="#{assessmentSettingsMessages.gradebook_options}"/>
-      <div class="col-md-10 samigo-checkbox">
-        <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}" onclick="toggleCategories(this);"/>
-        <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options_help}" for="toDefaultGradebook"/>
+      <div class="col-md-10">
+        <div class="samigo-checkbox">
+          <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}" onclick="toggleCategories(this);"/>
+          <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options_help}" for="toDefaultGradebook"/>
+        </div>
+        <h:panelGroup layout="block" styleClass="help-block info-text small">
+            <h:outputText value="#{assessmentSettingsMessages.gradebook_options_info}"/>
+        </h:panelGroup>
       </div>
       <h:panelGroup layout="block" id="toGradebookCategory" styleClass="col-md-10 col-md-offset-2" rendered="#{assessmentSettings.categoriesEnabled}" style="display:#{(assessmentSettings.toDefaultGradebook)?'block':'none'}">
         <h:outputLabel value="#{assessmentSettingsMessages.gradebook_category_select}" />
