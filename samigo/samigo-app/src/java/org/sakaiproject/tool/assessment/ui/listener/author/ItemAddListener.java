@@ -2665,7 +2665,8 @@ public class ItemAddListener
 	  }
 
 	  if (needsPartialCredit) {
-		  item.addItemMetaData(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT, "true");
+		  String partialCreditValue = "false".equals(bean.getMcmsPartialCredit()) ? "false" : "true";
+		  item.addItemMetaData(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT, partialCreditValue);
 	  }
 	  return itemMetaDataSet;
 	}
