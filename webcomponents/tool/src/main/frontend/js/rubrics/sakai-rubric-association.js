@@ -100,7 +100,12 @@ class SakaiRubricAssociation extends RubricsElement {
               </div>
               <div class="checkbox">
                 <label class="${this.disableStudentPreview ? 'disabled' : ''}">
-                  <input @change="${this.updateStateDetails}" name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions["hideStudentPreview"] || this.disableStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly || this.disableStudentPreview}>${this.hideStudentPreview}
+                ${this.disableStudentPreview ? html`
+                  <input @change="${this.updateStateDetails}" name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.disableStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly} style="display: none;">
+                  <input name="rbcs-config-hideStudentPreview" id="rubricHideFromStudentClone" type="checkbox" ?checked=${this.disableStudentPreview} value="1" ?disabled=${!this.isAssociated || this.readOnly || this.disableStudentPreview}>${this.hideStudentPreview}
+                ` : html`
+                  <input @change="${this.updateStateDetails}" name="rbcs-config-hideStudentPreview" type="checkbox" ?checked=${this.selectedConfigOptions["hideStudentPreview"]} value="1" ?disabled=${!this.isAssociated || this.readOnly}>${this.hideStudentPreview}
+                `}
                 </label>
               </div>
             </div>
