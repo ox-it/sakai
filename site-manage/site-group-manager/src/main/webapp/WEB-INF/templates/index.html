@@ -53,8 +53,8 @@
             <td><a th:if="${groupJoinableSetMap.get(group.id) != null}" th:href="@{/joinableset(joinableSetId=${groupJoinableSetMap.get(group.id)})}" th:text="${groupJoinableSetMap.get(group.id)}"></a></td>
             <td class="hidden-xs"><span th:text="${group.getMembers().size()}"></span> <span th:if="${groupJoinableSetSizeMap.get(group.id) != null}" th:text="'('+${groupJoinableSetSizeMap.get(group.id)}+')'"></span></td>
             <td class="hidden-xs">
-                <span class="group-locked-info collapsed" data-toggle="collapse" th:data-target="|#groupMembers-${group.id}|" tabindex="0" role="button" th:aria-controls="|groupMembers-${group.id}|">View members of this group</span>
-                <div th:id="|groupMembers-${group.id}|" class="collapse">
+                <span class="group-locked-info collapsed" data-toggle="collapse" th:if="${group.getMembers().size()} > 0" th:data-target="|#groupMembers-${group.id}|" tabindex="0" role="button" th:aria-controls="|groupMembers-${group.id}|" th:text="#{index.table.viewgroupmembers}">View members of this group</span>
+                <div th:if="${group.getMembers().size()} > 0" th:id="|groupMembers-${group.id}|" class="collapse">
                     <ul class="group-members">
                         <li class="group-member" th:each=" member : ${groupMemberMap.get(group.id)}" th:text="${member} "></li>
                     </ul>
