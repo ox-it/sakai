@@ -1037,6 +1037,7 @@ body {
 	}
 
 	#roleSwitchDropDown select {
+		// subtracting the left and right padding of the select element to avoid it escaping the container on some browsers
 		max-width: calc(100% - 2.7em);
 		margin-left: $standard-spacing;
 	}
