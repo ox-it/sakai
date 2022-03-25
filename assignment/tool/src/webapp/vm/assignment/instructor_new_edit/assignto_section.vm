@@ -30,7 +30,9 @@ can be either all members of the site, all members of selected groups, or the se
 #end
 
 <p class="text-muted small">$tlang.getString("gen.cant.change.after.draft")</p>
+#if($rubricsPresent)
 <p class="text-muted small">$tlang.getString("gen.groupSubWithRubric.forceHide")</p>
+#end
 
 ## Radio Option 1: Each individual member of the site
 #if($allowAddSiteAssignment)

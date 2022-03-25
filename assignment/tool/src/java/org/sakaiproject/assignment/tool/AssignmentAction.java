@@ -2913,6 +2913,9 @@ public class AssignmentAction extends PagedResourceActionII {
             // get current site
             Site site = siteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
             context.put("site", site);
+
+            // Is Rubrics tool present in site?
+            context.put("rubricsPresent", site.getToolForCommonId("sakai.rubrics") != null);
         } catch (Exception ignore) {
             log.warn(this + ":setAssignmentFormContext " + ignore.getMessage());
         }
