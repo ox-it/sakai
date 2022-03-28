@@ -305,9 +305,9 @@ ASN_INE.disableRubricHideFromStudent = function(disable)
 		label.classList.remove("disabled");
 		assignToWarning.style.display = "none";
 		const clone = document.getElementById("rubricHideFromStudentClone");
-		if (clone !== null)
+		if (clone !== null && clone.parentNode)
 		{
-			clone.remove();
+			clone.parentNode.removeChild(clone);
 			hideFromStudent.style.display = "block";
 		}
 	}
