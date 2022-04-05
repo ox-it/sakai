@@ -193,14 +193,10 @@
 				</td>
 			</tr>
 		</table>
-		<h4>
-			$tlang.getString("gen.assinf")
-		</h4>
-		<div class="textPanel">					
-			#if ($assignment.Instructions)
-				$formattedText.escapeHtmlFormattedText($assignment.Instructions)
-			#end
-		</div>
+		#if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
+			<h4>$tlang.getString("gen.assinf")</h4>
+			<div class="textPanel">$formattedText.escapeHtmlFormattedText($assignment.Instructions)</div>
+		#end
 
 		## Assignment attachments
 		#attachmentFragment($assignment.Attachments $attachmentReferences $decoratedUrlMap false)
@@ -319,12 +315,10 @@
 						</tr>
 					#end
 				</table>
-				<h4>
-					$tlang.getString("gen.assinf")
-				</h4>	
-				#if ($!assignment.Instructions)
-					<div class="textPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
-				#end
+			#if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
+				<h4>$tlang.getString("gen.assinf")</h4>	
+				<div class="textPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
+			#end
 
 				## Student Assignment attachments
 				#attachmentFragment($assignment.Attachments $attachmentReferences $decoratedUrlMap)

@@ -125,14 +125,11 @@
 				</td>
 			</tr>
 		</table>
-		<h4>
-			$tlang.getString("gen.assinf")
-		</h4>
-		<p>					
-			#if ($assignment.Instructions.length()>0)
-				$formattedText.escapeHtmlFormattedText($assignment.Instructions)
-			#end
-		</p>
+	#if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
+		<h4>$tlang.getString("gen.assinf")</h4>
+		<p>$formattedText.escapeHtmlFormattedText($assignment.Instructions)</p>
+	#end
+
 		## assignment attachment
 		#attachmentFragment($assignment.Attachments $assignmentAttachmentReferences $!decoratedUrlMap false)
 

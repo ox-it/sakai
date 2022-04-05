@@ -201,7 +201,7 @@
 ##    #end
 
 
-    #if ($assignment.Instructions && $!assignment.Instructions.length() > 0)
+    #if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
         <h3>$tlang.getString("gen.instr")</h3>
         <div class="textPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
     #end

@@ -116,11 +116,6 @@ $(document).ready(function(){
 			## NON_ELECTRONIC_ASSIGNMENT_SUBMISSION = 4;
 			## SINGLE_ATTACHMENT_SUBMISSION = 5
 			<p class="instruction">
-				#if (($submissionType==1) || ($submissionType==3))
-					 $tlang.getString("stuviewsubm.asshasnot")
-				#elseif (($submissionType==2) || ($submissionType==5))
-				 	$tlang.getString("stuviewsubm.assattonly")
-				#end
 				#if($assignment.AllowPeerAssessment)
 					<div class="highlight">
 						#if($assignment.PeerAssessmentAnonEval)
@@ -305,7 +300,7 @@ $(document).ready(function(){
 			#end
 		</div>
 
-		#if (!$!assignment.Instructions.isEmpty())
+		#if ($assignment.Instructions && !$assignment.Instructions.isEmpty())
 			<h3>$tlang.getString("gen.instr")</h3>
 			<div class="textPanel">$formattedText.escapeHtmlFormattedText($!assignment.Instructions)</div>
 		#end
@@ -431,8 +426,8 @@ $(document).ready(function(){
 									$formattedText.escapeHtml($group.Title)
 								</label>	
 							</td>
-                                                        <td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
-							<span style="font-size: smaller; color: blue;">	
+							<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+							<span style="font-size: smaller;">
 								#set($gusers = $!service.getSortedGroupUsers($group))
 								#foreach ($user in $gusers)
 									$formattedText.escapeHtml($user.getDisplayName()) ($formattedText.escapeHtml($user.getDisplayId()))
