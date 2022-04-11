@@ -460,7 +460,6 @@ $(document).ready(function() {
 			} else { 
 				$("#page-gradebook").prop("checked", true);
 			}
-
 			localDatePicker({
 				input: '#release_date',
 				    useTime: 1,
@@ -912,6 +911,7 @@ $(document).ready(function() {
 		$(".edit-comments").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
+			$('#comments-error-container').hide();
 			$('div.item').removeClass('editInProgress');
 			$("#editgroups-comments").after($("#grouplist"));
 			$("#grouplist").hide();
@@ -985,6 +985,7 @@ $(document).ready(function() {
 		$(".edit-student").click(function(){
 			oldloc = $(this);
 			closeDropdowns();
+			$('#student-error-container').hide();
 			$('div.item').removeClass('editInProgress');
 			$("#editgroups-student").after($("#grouplist"));
 			$("#grouplist").hide();
@@ -2842,6 +2843,7 @@ function closeForumSummaryDialog(){
 	oldloc.focus();
 }
 function checkEditTitleForm() {
+	const pageTitle = document.getElementById("pageTitle").value;
 	if($('#pageTitle').val() === '') {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));
 		$('#edit-title-error-container').show();
@@ -2849,7 +2851,13 @@ function checkEditTitleForm() {
 	}else if ($("#page-gradebook").prop("checked") && !isFinite(safeParseInt($("#page-points").val()))) {
 		$('#edit-title-error').text(intError(safeParseInt($("#page-points").val())));
 		$('#edit-title-error-container').show();
-	}else {
+		return false;
+	}else if ($("#page-gradebook").prop("checked") && titleInvalidForGB(pageTitle)) {
+		$('#edit-title-error').text(msg("simplepage.gradebookTitleInvalid"));
+		$('#edit-title-error-container').show();
+		return false;
+	}
+	else {
 		$('#edit-title-error-container').hide();
 		if ($("#page-releasedate").prop('checked'))
 		    $("#release_date_string").val($("#releaseDateISO8601").val());
@@ -2989,6 +2997,25 @@ function checkPercent(x) {
 }
 
 function checkCommentsForm() {
+	if ($("#comments-graded").prop("checked") && !isFinite(safeParseInt($("#comments-max").val()))) {
+		$('#comments-error').text(intError(safeParseInt($("#comments-max").val())));
+		$('#comments-error-container').show();
+		return false;
+	}
+	return true;
+}
+
+function checkStudentForm() {
+	if ($("#student-graded").prop("checked") && !isFinite(safeParseInt($("#student-max").val()))) {
+		$('#student-error').text(intError(safeParseInt($("#student-max").val())));
+		$('#student-error-container').show();
+		return false;
+	}
+	else if ($("#student-comments-graded").prop("checked") && !isFinite(safeParseInt($("#student-comments-max").val()))) {
+		$('#student-error').text(intError(safeParseInt($("#student-comments-max").val())));
+		$('#student-error-container').show();
+		return false;
+	}
 	return true;
 }
 
@@ -3339,12 +3366,11 @@ function prepareQuestionDialog() {
 	    $('#question-error').text(intError(safeParseInt($("#question-max").val())));
 	    $('#question-error-container').show();
 	    return false;
-	} else if($("#question-graded").prop("checked") && gradebookItemTitle === '') {
+	} else if($("#question-graded").prop("checked") && (!gradebookItemTitle || gradebookItemTitle.trim() === '')) {
 	    $('#question-error').text(msg("simplepage.gbname-expected"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if ($("#question-graded").prop("checked") && (gradebookItemTitle.startsWith("*") || gradebookItemTitle.startsWith("#") || gradebookItemTitle.includes("[")
-			|| gradebookItemTitle.includes("]"))) {
+	} else if ($("#question-graded").prop("checked") && titleInvalidForGB(gradebookItemTitle)) {
 		$('#question-error').text(msg("simplepage.question.gradebookTitleInvalid"));
 		$('#question-error-container').show();
 		return false;
@@ -3673,3 +3699,8 @@ function fixStatus(here,itemId) {
 	return;
     };
 }
+
+function titleInvalidForGB(title) {
+	return title.startsWith("*") || title.startsWith("#") || title.includes("[") || title.includes("]");
+}
+

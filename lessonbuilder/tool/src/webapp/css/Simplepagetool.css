@@ -2067,3 +2067,10 @@ form#revise[action$=dfReviseForumSettingsAttach] #forum_grading {
     padding: 3px 0 3px 6px;
   }
 }
+
+input[type="text"]:disabled {
+	background-color: #eee;
+	opacity: 1;
+	color: #999;
+	cursor: not-allowed;
+}
