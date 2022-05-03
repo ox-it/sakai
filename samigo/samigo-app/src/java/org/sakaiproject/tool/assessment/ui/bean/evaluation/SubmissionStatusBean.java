@@ -81,7 +81,7 @@ public class SubmissionStatusBean implements Serializable, PhaseAware {
   
   // Paging.
   private int firstScoreRow;
-  private int maxDisplayedScoreRows;
+  private int maxDisplayedScoreRows = 200; // default page size
   private int scoreDataRows;
   
   // Searching

@@ -137,13 +137,13 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
   @Getter @Setter
   private int firstRow;
   @Getter @Setter
-  private int maxDisplayedRows;
+  private int maxDisplayedRows = 200;  // default page size
   @Getter @Setter
   private int dataRows;
   @Getter @Setter
-  private int audioMaxDisplayedScoreRows;
+  private int audioMaxDisplayedScoreRows = 5; // default for audio questions only
   @Getter @Setter
-  private int otherMaxDisplayedScoreRows;
+  private int otherMaxDisplayedScoreRows = 200; // default for all other question types
   @Getter @Setter
   private boolean hasAudioMaxDisplayedScoreRowsChanged;
   
