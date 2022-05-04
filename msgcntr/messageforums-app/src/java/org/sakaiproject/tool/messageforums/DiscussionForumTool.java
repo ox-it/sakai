@@ -334,7 +334,8 @@ public class DiscussionForumTool {
   private String selectedMessageShow = SUBJECT_ONLY;
   private String selectedMessageOrganize = "thread"; 
   private String threadAnchorMessageId = null;
-  private boolean deleteMsg;
+  private static final long NO_MESSAGE = Long.MIN_VALUE;
+  private long deleteMsg = NO_MESSAGE;
   private boolean displayUnreadOnly;
   private boolean errorSynch = false;
   // attachment
@@ -1026,7 +1027,7 @@ public class DiscussionForumTool {
 
 	  String forumId = getExternalParameterByKey(FORUM_ID);
 	  DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
-	  selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+	  selectedForum = getDecoratedForum(forum);
 
 	  selectedForum.setMarkForDeletion(true);
 	  return FORUM_SETTING;
@@ -1199,12 +1200,8 @@ public class DiscussionForumTool {
         attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
       }
     }
-    
-    selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
-    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
-    {
-    	selectedForum.setReadFullDesciption(true);
-    }
+
+	selectedForum = getDecoratedForum(forum);
 
     setForumBeanAssign();
     setFromMainOrForumOrTopic();
@@ -1564,6 +1561,11 @@ public class DiscussionForumTool {
   	}
   	return selectedTopic;
   }
+
+  public List<DiscussionTopicBean> getSelectedTopicAsList()
+  {
+	  return Collections.singletonList(getSelectedTopic());
+  }
   
   /**
    * @return Returns the selected Area
@@ -1641,12 +1643,7 @@ public class DiscussionForumTool {
     }
   
     setSelectedForumForCurrentTopic(topic);
-    selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
-        uiPermissionsManager, forumManager);
-    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
-    {
-    	selectedTopic.setReadFullDesciption(true);
-    }
+	selectedTopic = getDecoratedTopic(topic);
 
     setTopicBeanAssign();
     
@@ -1983,8 +1980,8 @@ public class DiscussionForumTool {
 			  setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
 			  return gotoMain();
 		  }
-		  selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),uiPermissionsManager, forumManager);
-		
+		  selectedTopic = getDecoratedTopic(topic);
+
 		  selectedTopic.setMarkForDeletion(true);
 		    return TOPIC_SETTING;
 	  }
@@ -2081,12 +2078,7 @@ public class DiscussionForumTool {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
-    selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
-        uiPermissionsManager, forumManager);
-    if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
-    {
-    	selectedTopic.setReadFullDesciption(true);
-    }
+	selectedTopic = getDecoratedTopic(topic);
     
     List attachList = selectedTopic.getTopic().getAttachments();
     if (attachList != null)
@@ -2269,6 +2261,12 @@ public class DiscussionForumTool {
 	  }
     return selectedMessage;
   }
+
+  public List<DiscussionMessageBean> getSelectedMessageAsList()
+  {
+	  DiscussionMessageBean msg = getSelectedMessage();
+	  return msg == null ? Collections.emptyList() : Collections.singletonList(msg);
+  }
   
   public List getPFSelectedThread() 
   {
@@ -2438,6 +2436,15 @@ public class DiscussionForumTool {
 	    		((DiscussionMessageBean)selectedThread.get(i)).setRead(Boolean.TRUE);
 	    	}
 	    }
+		else  // calculate unread counts
+		{
+			List<DiscussionMessageBean> selThread = (List<DiscussionMessageBean>) selectedThread;
+			int threadUnreadCount = selThread.stream().map(m -> m.isRead() ? 0 : 1).reduce(0, Integer::sum);
+			Optional<DiscussionMessageBean> selHead = selThread.stream().filter(m -> m.getDepth() == 0).findAny();
+			selHead.ifPresent(m -> selectedThreadHead.setRead(m.isRead()));
+			int deduct = selectedThreadHead.isRead() ? 0 : 1;
+			selectedThreadHead.setChildUnread(threadUnreadCount - deduct);
+		}
 
 	    boolean postFirst = getNeedToPostFirst();	    
 	    if(postFirst){
@@ -2594,6 +2601,7 @@ public class DiscussionForumTool {
     }
 
     selectedMessage = new DiscussionMessageBean(message, messageManager);
+	selectedMessage.setRead(true);
     DiscussionTopic topic=forumManager.getTopicById(Long.valueOf(topicId));
     setSelectedForumForCurrentTopic(topic);
     selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),
@@ -2714,6 +2722,7 @@ public class DiscussionForumTool {
 			
 	    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(),
 	        selectedMessage.getMessage().getId(), true);
+		selectedMessage.setRead(true);
 	    
 	    refreshSelectedMessageSettings(message);  
     }
@@ -2758,6 +2767,7 @@ public class DiscussionForumTool {
 			
 	    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(),
 	        selectedMessage.getMessage().getId(), true);
+		selectedMessage.setRead(true);
 	    
 	    refreshSelectedMessageSettings(message);  
     }
@@ -4056,6 +4066,7 @@ public class DiscussionForumTool {
 	    }
 
 	    selectedMessage = new DiscussionMessageBean(message, messageManager);
+		selectedMessage.setRead(true);
 	    
 	    return processDfMsgReplyMsg();
   }
@@ -4081,6 +4092,8 @@ public class DiscussionForumTool {
   	}
 	  // we have to get the first message that is not a response
 	  selectedMessage = getThreadHeadForMessage(selectedMessage.getMessage());
+	  messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(), selectedMessage.getMessage().getId(), true);
+	  selectedMessage.setRead(true);
 	  
 	  List tempMsgs = selectedTopic.getMessages();
 	    if(tempMsgs != null)
@@ -4141,6 +4154,7 @@ public class DiscussionForumTool {
 		  }
 
 		  selectedMessage = new DiscussionMessageBean(message, messageManager);
+		  selectedMessage.setRead(true);  // it will be marked as read later in processDfMsgGrd()
 
 	  }else{
 		  selectedMessage = null;
@@ -4310,6 +4324,10 @@ public class DiscussionForumTool {
 	    }
 	    message = messageManager.getMessageByIdWithAttachments(message.getId());
 	    selectedMessage = new DiscussionMessageBean(message, messageManager);
+		if (message.getTopic() != null && message.getTopic().getId() != null)
+		{
+			selectedMessage.setRead(messageManager.isMessageReadForUser(message.getTopic().getId(), message.getId()));
+		}
 	  return processDfMsgRvs();
   }
 
@@ -4365,9 +4383,19 @@ public class DiscussionForumTool {
     	processActionDisplayMessage();
     }
 
-    deleteMsg = true;
-    setErrorMessage(getResourceBundleString(CONFIRM_DELETE_MESSAGE));
+	if (selectedMessage != null && selectedMessage.getMessage() != null)
+	{
+		Long msgId = selectedMessage.getMessage().getId();
+		deleteMsg = msgId == null ? NO_MESSAGE : msgId;
+		setErrorMessage(getResourceBundleString(CONFIRM_DELETE_MESSAGE));
+	}
     return MESSAGE_VIEW;
+  }
+
+  public String processDfMsgDeleteConfirmNo()
+  {
+	  deleteMsg = NO_MESSAGE;
+	  return MESSAGE_VIEW;
   }
 
 
@@ -4707,7 +4735,19 @@ public class DiscussionForumTool {
    */
   public boolean getDeleteMsg()
   {
-    return deleteMsg;
+	  if (deleteMsg == NO_MESSAGE)
+	  {
+		  return false;
+	  }
+
+	  // if we don't have a selected message or if deleteMsg is set to a different message, reset it
+	  boolean noSelectedMsg = selectedMessage == null || selectedMessage.getMessage() == null || selectedMessage.getMessage().getId() == null;
+	  if (noSelectedMsg || !selectedMessage.getMessage().getId().equals(deleteMsg))
+	  {
+		  deleteMsg = NO_MESSAGE;
+	  }
+
+	  return deleteMsg != NO_MESSAGE;
   }
 
   /**
@@ -4760,7 +4800,7 @@ public class DiscussionForumTool {
 	  if(!uiPermissionsManager.isDeleteAny(topic, forum) && !(selectedMessage.getIsOwn() && uiPermissionsManager.isDeleteOwn(topic, forum)))
 	  {
 		  setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DELETE));
-		  this.deleteMsg = false;
+		  this.deleteMsg = NO_MESSAGE;
 		  return null;
 	  }
 	  
@@ -4782,7 +4822,7 @@ public class DiscussionForumTool {
 			  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));   
 	  selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
 
-	  this.deleteMsg = false;
+	  this.deleteMsg = NO_MESSAGE;
 
 	  //Synoptic Message/Forums tool
 	  //Compare previous new message counts to current new message counts after
@@ -5056,6 +5096,7 @@ public class DiscussionForumTool {
 
 		  messageManager.markMessageApproval(msgId, false);
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
+		  selectedMessage.setRead(true);
 		  refreshSelectedMessageSettings(selectedMessage.getMessage());
 		  setSuccessMessage(getResourceBundleString("cdfm_denied_alert"));
 		  getThreadFromMessage();
@@ -5130,6 +5171,7 @@ public class DiscussionForumTool {
 		  
 		  
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
+		  selectedMessage.setRead(true);
 		  refreshSelectedMessageSettings(selectedMessage.getMessage());
 		  setSuccessMessage(getResourceBundleString("cdfm_approved_alert"));
 		  getThreadFromMessage();
@@ -6276,6 +6318,14 @@ public class DiscussionForumTool {
 	    //return displayTopicById(TOPIC_ID); // reconstruct topic again;
 	    setSelectedForumForCurrentTopic(selectedTopic.getTopic());
         selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+
+		// find out if we came from threaded view or flat view and return there
+		String viewId = FacesContext.getCurrentInstance().getViewRoot().getViewId();
+		if (viewId.endsWith("dfAllMessages.jsp"))  // a bit brittle but still relatively safe
+		{
+			return processActionDisplayThreadedView();
+		}
+
 	    return processActionDisplayFlatView();
   }
   
@@ -7555,7 +7605,7 @@ public class DiscussionForumTool {
 
 	  String forumId = getExternalParameterByKey(FORUM_ID);
 	  DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
-	  selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
+	  selectedForum = getDecoratedForum(forum);
       selectedForum.getForum().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedForum.getForum().getTitle()}));
 	  selectedForum.setMarkForDuplication(true);
 	  return FORUM_SETTING;
@@ -9199,6 +9249,51 @@ public class DiscussionForumTool {
 
 	public String getCDNQuery() {
 		return PortalUtils.getCDNQuery();
+	}
+
+	public List<DiscussionForumBean> getSelectedForumAsList() {
+		DiscussionForumBean forum = getSelectedForum();
+		return forum == null ? Collections.emptyList() : Collections.singletonList(forum);
+	}
+
+	private Optional<Date> getMostRecentMsgDateForTopic(DiscussionTopicBean topic)
+	{
+		List<DiscussionMessageBean> msgs = topic.getMessages();
+		if (msgs == null)
+		{
+			msgs = Collections.emptyList();
+		}
+
+		return msgs.stream().filter(m -> m.getMessage() != null && m.getMessage().getCreated() != null)
+				.map(m -> m.getMessage().getCreated()).sorted(Comparator.reverseOrder()).findFirst();
+	}
+
+	public String getConfirmDeleteSelectedTopicWarning()
+	{
+		int numMsgs = getSelectedTopic().getTotalNoMessages();
+		String first = getResourceBundleString("cdfm_delete_topic", new Object[]{numMsgs});
+		String mid = numMsgs > 0 ? formatMidDate(getMostRecentMsgDateForTopic(getSelectedTopic()), "cdfm_delete_topic_most_recent") : "";
+		String last = getResourceBundleString("cdfm_delete_topic_sure");
+
+		return String.format("%s %s %s", first, mid, last);
+	}
+
+	public String getConfirmDeleteSelectedForumWarning()
+	{
+		DiscussionForumBean forum = getSelectedForum();
+		int numTopics = forum.getTopicCount();
+		int numMsgs = forum.getTopics().stream().map(DiscussionTopicBean::getTotalNoMessages).reduce(0, Integer::sum);
+		String first = getResourceBundleString("cdfm_delete_forum", new Object[]{numTopics, numMsgs});
+		String last = getResourceBundleString("cdfm_delete_forum_sure");
+
+		return String.format("%s %s", first, last);
+	}
+
+	private String formatMidDate(Optional<Date> date, String bundleKey)
+	{
+		final SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format_date"), getUserLocale());
+		formatter.setTimeZone(getUserTimeZone());
+		return date.map(d -> getResourceBundleString(bundleKey, new Object[]{formatter.format(d)})).orElse("");
 	}
 }
 

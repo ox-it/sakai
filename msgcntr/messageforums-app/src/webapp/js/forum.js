@@ -306,8 +306,11 @@ function setupMessageNav(messageType){
             tonext = $("#nextPendingItemTitleHolder").text();
             last = $("#lastPendingItemTitleHolder").text();
         }
-		//go to first new or pending message
-        $('#messNavHolder').append("<span class='jumpToNew specialLink'><a class='button' href='#" + messageType + "newMess0'>" + tofirst + "</a></span>");
+		//create go to first pending message link
+		if (messageType === "messagePending")
+		{
+			$('#messNavHolder').prepend("<a class='button jumpToNew' href='#messagePendingnewMess0'>" + tofirst + "</a>");
+		}
         //instrument link targets (clicking on "New" goes to next one, same with "Pending")
 		$("." + messageType).each(function(intIndex){
             var parentRow = $(this).parents('tr');
@@ -347,16 +350,21 @@ function setupMessageNav(messageType){
                     e.preventDefault();
                     var targetPosPrep=$(this).attr('href').replace('#','');
                     var targetPos = $("a[name='" + targetPosPrep + "']").position();
-                    window.parent.scrollTo(0, targetPos.top);        
-                })
+                    window.parent.scrollTo(0, targetPos.top);
+                });
             }
             else {
                 $(this).prop("title", last);
             }
         });
     }
-    if ($(".messageNew").size() < 1 && $(".messagePending").size() < 1) {
-        $('#messNavHolder').remove()
+    removeMess();
+}
+
+function removeMess()
+{
+	if ($(".messageNew").size() < 1 && $(".messagePending").size() < 1) {
+        $('#messNavHolder').remove();
     }
 }
 
@@ -374,9 +382,16 @@ function doAjax(messageId, topicId, self){
                     if ($(self).parent('td').size() === 1) {
                         var thisTheadClassArr = $(thisRow).prop('class').split(' ');
                         var thisThread = thisTheadClassArr[thisTheadClassArr.length - 1];
-                        var unread = parseInt($('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(), 10);
+                        const $childrenNewNumber = $('.hierItemBlock.' + thisThread + ' .childrenNewNumber');
+                        const unreadText = $childrenNewNumber.text();
+                        const unread = parseInt(unreadText, 10);
+                        const noNumText = unreadText.replace(/\d+/g, "");
                         if (unread > 0) {
-                            $('.hierItemBlock.' + thisThread + ' .childrenNewNumber').text(unread - 1);
+                            $childrenNewNumber.text((unread - 1) + noNumText);
+                            if (unread === 1)
+                            {
+                                $childrenNewNumber.removeClass();
+                            }
                         }
                         $('.' + thisThread).find('em').text($('.' + thisThread).find('em').text() - 1);
 						//hide "New Messages" in thread seed if all messages have been marked as "read"
@@ -482,13 +497,13 @@ function fckeditor_word_count(editorInstance) {
 
 function msgcntr_word_count(forumHtml) {
     if (document.getElementById('counttotal')) {
-        document.getElementById('counttotal').innerHTML = "<span class='highlight'>(" + getWordCount(forumHtml) + ")</span>";
+        document.getElementById('counttotal').innerHTML = getWordCount(forumHtml);
     }
 }
 
  function fckeditor_word_count_fromMessage(msgStr, countSpan){
  	if (document.getElementById(countSpan)) {
- 	    document.getElementById(countSpan).innerHTML = "<span class='highlight'>(" + getWordCount(msgStr) + ")</span>";
+ 	    document.getElementById(countSpan).innerHTML = getWordCount(msgStr);
  	}
  }
  
@@ -872,6 +887,28 @@ $(document).ready(function(){
         }
     });
 
+});
+
+// general panel show/hide functionality with a11y support
+$(document).ready(function ()
+{
+	$(".forumsCollapseTrigger").each(function(index)
+	{
+		// find the panel
+		const $panel = $(this).siblings(".forumsCollapseTarget").first();
+		// write aria-expanded, aria-controls, and attach click event handler (should also support keyboard)
+		$(this).attr("aria-expanded", "false").attr("aria-controls", $panel[0].id).click(function(event)
+		{
+			// toggle the panel visibility
+			$panel.toggle("blind", 200);
+			// toggle the aria-expanded attribute on the link
+			const toggleExpanded = this.getAttribute("aria-expanded") === "false" ? "true" : "false";
+			this.setAttribute("aria-expanded", toggleExpanded);
+			resizeFrame('grow'); // still needed for Lessons iframe?
+			return false; // stop link navigation
+		});
+
+	});
 });
 
 var MFR_RBC = MFR_RBC || {};
