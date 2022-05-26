@@ -97,20 +97,21 @@ public class UserValidator implements Validator {
 				errors.reject(TOOL_CONFIG_PREFIX + WRONG_TYPE_MSG_BUNDLE_KEY, toolPropWrongType);
 			}
 
+			log.warn("Attempt to reset password for invalid domain denied; email={}", retUser.getEmail());
 			return;
 		}
 
 		// User doesn't exist, null out the user and transfer to next page
 		Collection<User> c = this.userDirectoryService.findUsersByEmail(retUser.getEmail().trim());
 		if (CollectionUtils.isEmpty(c)) {
-			log.debug("no such email: {}", retUser.getEmail());
+			log.warn("No such email: {}", retUser.getEmail());
 			retUser.setUser(null);
 			return;
 		}
 
 		// Email is tied to more than one user, null out the user and transfer to next page
 		else if (c.size() > 1) {
-			log.warn("more than one account with email: {}", retUser.getEmail());
+			log.warn("More than one account with provided email address, aborting: {}", retUser.getEmail());
 			retUser.setUser(null);
 			return;
 		}
@@ -118,7 +119,7 @@ public class UserValidator implements Validator {
 		// Email belongs to super user, null out the user and transfer to next page
 		User user = (User) c.iterator().next();
 		if (securityService.isSuperUser(user.getId())) {
-			log.warn("tryng to change superuser password");
+			log.warn("Attempt to change admin password with email, aborting: {}", retUser.getEmail());
 			retUser.setUser(null);
 			return;
 		}
