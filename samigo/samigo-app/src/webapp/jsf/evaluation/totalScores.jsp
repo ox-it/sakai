@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <%@ taglib uri="http://sakaiproject.org/jsf2/sakai" prefix="sakai" %>
 <!DOCTYPE html
@@ -150,11 +151,11 @@ $(document).ready(function(){
     <h:outputText value="<h2>#{evaluationMessages.max_score_poss}: #{totalScores.maxScore}</h2>" escape="false"/>
   </h:panelGroup>
 
-  <div class="sak-banner-info">
-    <h:outputText value="#{evaluationMessages.mult_sub_highest}" rendered="#{totalScores.scoringOption eq '1'&& totalScores.multipleSubmissionsAllowed eq 'true' }"/>
-    <h:outputText value="#{evaluationMessages.mult_sub_last}" rendered="#{totalScores.scoringOption eq '2' && totalScores.multipleSubmissionsAllowed eq 'true' }"/>
-    <h:outputText value="#{evaluationMessages.mult_sub_average}" rendered="#{totalScores.scoringOption eq '4' && totalScores.multipleSubmissionsAllowed eq 'true' }"/>
-  </div>
+  <t:htmlTag value="div" styleClass="sak-banner-info" rendered="#{totalScores.multipleSubmissionsAllowed eq 'true'}">
+    <h:outputText value="#{evaluationMessages.mult_sub_highest}" rendered="#{totalScores.scoringOption eq '1'}" />
+    <h:outputText value="#{evaluationMessages.mult_sub_last}" rendered="#{totalScores.scoringOption eq '2'}" />
+    <h:outputText value="#{evaluationMessages.mult_sub_average}" rendered="#{totalScores.scoringOption eq '4'}" />
+  </t:htmlTag>
   
   <h:panelGroup styleClass="apply-grades" layout="block">
     <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit" onclick="SPNR.disableControlsAndSpin( this, null );">
