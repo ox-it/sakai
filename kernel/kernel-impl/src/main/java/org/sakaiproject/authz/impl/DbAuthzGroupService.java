@@ -1172,7 +1172,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			List results = sqlService().dbRead(statement, new Object[] {authzGroupId}, null);
 			if (results == null)
 			{
-				return new HashSet<>(0);
+				return Collections.emptySet();
 			}
 			return new HashSet<>(results);
 		}
@@ -1226,7 +1226,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				return realmProviderMap;
 			}
 
-			return new HashMap<>(0);
+			return Collections.emptyMap();
 		}
 
 		/**
@@ -1238,7 +1238,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			List results = sqlService().dbRead(statement, new Object[] {providerId}, null);
 			if (results == null)
 			{
-				return new HashSet(0);
+				return Collections.emptySet();
 			}
 			return new HashSet(results);
 		}
@@ -1254,7 +1254,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// or if the lock is null
 			if (((azGroups != null) && azGroups.isEmpty()) || lock == null)
 			{
-				return new HashSet(0);
+				return Collections.emptySet();
 			}
 
             if ("".equals(lock) || "*".equals(lock)) {
@@ -2344,7 +2344,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 */
 		public Set<String> getUsersIsAllowed(String lock, Collection<String> realms)
 		{
-			if ((lock == null) || (realms == null) || (realms.isEmpty())) return new HashSet<String>(0);
+			if ((lock == null) || (realms == null) || (realms.isEmpty())) return Collections.emptySet();
 
 			String sql = dbAuthzGroupSql.getSelectRealmRoleUserIdSql(orInClause(realms.size(), "SR.REALM_ID"));
 			Object[] fields = new Object[1 + realms.size()];
@@ -2421,7 +2421,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 */
 		public Map<String,Integer> getUserCountIsAllowed(String function, Collection<String> azGroups)
 		{
-			if ((function == null) || (azGroups != null && azGroups.isEmpty())) return new HashMap<>(0);
+			if ((function == null) || (azGroups != null && azGroups.isEmpty())) return Collections.emptyMap();
 
 			final Map<String, Integer> userCountByGroup = new HashMap<String, Integer>(azGroups.size());
 
@@ -2473,7 +2473,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		 */
 		public Set getAllowedFunctions(String role, Collection realms)
 		{
-			if ((role == null) || (realms == null) || (realms.isEmpty())) return new HashSet(0);
+			if ((role == null) || (realms == null) || (realms.isEmpty())) return Collections.emptySet();
 
 			String sql = dbAuthzGroupSql.getSelectRealmFunctionFunctionNameSql(orInClause(realms.size(), "SR.REALM_ID"));
 			Object[] fields = new Object[1 + realms.size()];
@@ -3060,7 +3060,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		public Map<String, String> getUserRoles(String userId, Collection<String> azGroupIds)
 		{
 			if (userId == null || "".equals(userId))
-				return new HashMap<>(0);
+				return Collections.emptyMap();
 
 			String inClause;
 			int azgCount = azGroupIds == null ? 0 : azGroupIds.size();
@@ -3081,7 +3081,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				}
 			}
 
-			final HashMap<String, String> rv = new HashMap<String, String>(azGroupIds.size());
+			final HashMap<String, String> rv = new HashMap<>(azgCount);
 			m_sql.dbRead(sql, fields, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
@@ -3116,7 +3116,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		{
 			if ((userIds == null) || (userIds.isEmpty()) || (azGroupId == null))
 			{
-				return new HashMap(0);
+				return Collections.emptyMap();
 			}
 
 			String inClause = orInClause(userIds.size(), "SRRG.USER_ID");
