@@ -47,6 +47,7 @@
       <script type="text/javascript" src="/samigo-app/jsf/widget/colorpicker/colorpicker.js"></script>
       <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script type="text/javascript" src="/samigo-app/js/authoring.js"></script>
+      <script src="/samigo-app/js/info.js"></script>
 
       <script type="text/javascript">
       if (needJQuery) {

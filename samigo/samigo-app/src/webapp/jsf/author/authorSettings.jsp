@@ -47,6 +47,7 @@
       <script>includeWebjarLibrary('momentjs');</script>
       <script src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <script src="/samigo-app/js/authoring.js"></script>
+      <script src="/samigo-app/js/info.js"></script>
 
       <script>includeWebjarLibrary('bootstrap-multiselect');</script>
 

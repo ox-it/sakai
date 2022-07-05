@@ -25,6 +25,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -59,6 +60,10 @@ public class ExtendedTimeFacade {
 
     public ExtendedTime getEntryForPubAndGroup(PublishedAssessmentIfc pub, String group) {
         return extendedTimeQueries.getEntryForPubAndGroup(pub, group);
+    }
+
+    public List<ExtendedTime> getEntriesForPubAndUserOrGroups(PublishedAssessmentIfc pub, String user, Collection<String> groups) {
+        return extendedTimeQueries.getEntriesForPubAndUserOrGroups(pub, user, groups);
     }
 
     public void saveEntriesPub(PublishedAssessmentIfc p, List<ExtendedTime> entries) {

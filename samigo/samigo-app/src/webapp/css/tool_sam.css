@@ -1079,16 +1079,16 @@ label.inactive
     padding: 0;
 }
 
-div.expanded, div.collapsed {
+div.expanded, div.collapsed, span.expanded, span.collapsed {
     cursor: pointer !important;
     padding-left: 1em !important;
 }
 
-div.expanded {
+div.expanded, span.expanded {
     background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
 }
 
-div.collapsed {
+div.collapsed, span.collapsed {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
 }
 
