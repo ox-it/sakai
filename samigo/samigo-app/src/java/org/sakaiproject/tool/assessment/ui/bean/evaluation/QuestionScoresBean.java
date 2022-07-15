@@ -207,8 +207,7 @@ public class QuestionScoresBean implements Serializable, PhaseAware {
 			log.debug("init(): subList " + firstRow + ", " + nextPageRow);
 		}
 
-		agents.clear();
-		agents.addAll(newAgents);
+		agents = newAgents;
 
 	}
  
