@@ -476,10 +476,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
         String siteId = assignment.getContext();
 
-        String assignmentReference
-            = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-
-        if (!assignmentService.allowGradeSubmission(assignmentReference)) {
+        if (!canGrade(assignment)) {
             throw new EntityException("Forbidden", "", HttpServletResponse.SC_FORBIDDEN);
         }
 
@@ -549,10 +546,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
             throw new EntityException("You don't have permission to read the assignment", "", HttpServletResponse.SC_FORBIDDEN);
         }
 
-        String assignmentReference
-            = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
-
-        if (!assignmentService.allowGradeSubmission(assignmentReference)) {
+        if (!canGrade(assignment)) {
             throw new EntityException("You don't have permission to get grades", "", HttpServletResponse.SC_FORBIDDEN);
         }
 
@@ -626,6 +620,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         List<String> alerts = new ArrayList<>();
 
         Assignment assignment = submission.getAssignment();
+
+        if (!canGrade(assignment)) {
+            throw new EntityException("You don't have permission to set grades", "", HttpServletResponse.SC_FORBIDDEN);
+        }
 
         if (assignment.getTypeOfGrade() == Assignment.GradeType.SCORE_GRADE_TYPE) {
             grade = assignmentToolUtils.scalePointGrade(grade, assignment.getScaleFactor(), alerts);
@@ -922,7 +920,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
     }
 
-    public String getCheckedCurrentUser() throws EntityException {
+    private String getCheckedCurrentUser() throws EntityException {
 
         String userId = sessionManager.getCurrentSessionUserId();
 
@@ -932,6 +930,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
         }
 
         return userId;
+    }
+
+    private boolean canGrade(Assignment assignment) {
+
+        String reference = AssignmentReferenceReckoner.reckoner().assignment(assignment).reckon().getReference();
+        return assignmentService.allowGradeSubmission(reference);
     }
 
     @AllArgsConstructor
