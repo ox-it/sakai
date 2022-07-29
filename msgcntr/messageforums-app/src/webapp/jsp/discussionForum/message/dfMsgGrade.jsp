@@ -22,7 +22,7 @@
         <script>includeWebjarLibrary('awesomplete')</script>
         <script src="/library/js/sakai-reminder.js"></script>
         <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
-        <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+        <%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
         <h:form id="msgForum">
             <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 

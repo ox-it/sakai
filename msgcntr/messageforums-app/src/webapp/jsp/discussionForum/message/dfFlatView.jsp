@@ -20,6 +20,7 @@
 		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
 		<script src="/messageforums-tool/js/dialog.js"></script>
+		<%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
         <script>
             $(document).ready(function(){
                 var menuLink = $('#forumsMainMenuLink');

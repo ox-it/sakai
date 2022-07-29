@@ -3189,8 +3189,6 @@ public class DiscussionForumTool {
     		decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
     	}
 
-        setTopicGradeAssign(decoTopic, selectedForum.getForum().getDefaultAssignName());
-
     	Iterator iter = temp_messages.iterator();
 
     	final boolean isRead = decoTopic.getIsRead();
@@ -3246,6 +3244,8 @@ public class DiscussionForumTool {
     		}
     	}
     }
+		setTopicGradeAssign(decoTopic, selectedForum.getForum().getDefaultAssignName());
+
 		  //  now add moved messages to decoTopic
     	if(moved_messages != null){
 		  for (Iterator msgIter = moved_messages.iterator(); msgIter.hasNext();) {
@@ -7697,6 +7697,7 @@ public class DiscussionForumTool {
           StringBuilder alertMsg = new StringBuilder();
           selectedTopic.getTopic().setTitle(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}));
 		  selectedTopic.setMarkForDuplication(true);
+		  setTopicGradeAssign(selectedTopic, selectedForum.getForum().getDefaultAssignName());
 		  return TOPIC_SETTING;
 	  }
   }

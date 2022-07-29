@@ -13,6 +13,7 @@
       <h:form id="revise">
         <script>includeLatestJQuery("msgcntr");</script>
         <script src="/messageforums-tool/js/messages.js"></script>
+		<%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
 		<script>
 			$(document).ready(function(){
 				//fade permission block and then disable all the inputs/selects in the permission include so as not to confuse people

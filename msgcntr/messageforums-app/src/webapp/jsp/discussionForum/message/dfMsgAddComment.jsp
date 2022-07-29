@@ -13,6 +13,7 @@
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
        		<script src="/messageforums-tool/js/messages.js"></script>
 			<script src="/messageforums-tool/js/forum.js"></script>
+			<%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
 		<h:form id="dfMsgAddComment">
 
 			<h3><h:outputText value="#{msgs.cdfm_add_comment}" /></h3>
