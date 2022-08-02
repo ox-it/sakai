@@ -309,7 +309,7 @@ function setupMessageNav(messageType){
 		//create go to first pending message link
 		if (messageType === "messagePending")
 		{
-			$('#messNavHolder').prepend("<a class='button jumpToNew' href='#messagePendingnewMess0'>" + tofirst + "</a>");
+			$('#messNavHolder').prepend("<a id='jumpToNewPending' class='button jumpToNew' href='#messagePendingnewMess0'>" + tofirst + "</a>");
 		}
         //instrument link targets (clicking on "New" goes to next one, same with "Pending")
 		$("." + messageType).each(function(intIndex){
@@ -403,13 +403,18 @@ function doAjax(messageId, topicId, self){
                     }
                     else {
 						//in dfFlatView - remove "New" flag, as well as link target for the thread navigator
-						$(self).parents('tr').removeClass('messageNewNext')
-                        $(self).parents("div").parents("div").children('a.messageNewAnchor').remove()
-                        $(self).parents("div").parents("div").children("span.messageNew").remove()
+						const $parentTr = $(self).parents('tr');
+						$parentTr.removeClass('messageNewNext');
+						$parentTr.find('span.messageNew + a.messageNewAnchor').remove();
+						$parentTr.find("span.messageNew").remove();
 						// remove "Go to first new message" link if all messages have been marked as "read"
-                        if ($('.messagesThreaded').find('a.messageNewAnchor').size() === 0) {
-                            $('.jumpToNew').remove();
+                        if ($('.messagesThreaded').find('span.messageNew + a.messageNewAnchor').size() === 0) {
+                            $('.jumpToNew').not('#jumpToNewPending').remove();
                         }
+						// increment the read by count
+						$readByCount = $parentTr.find(".readByCount");
+						const readBy = parseInt($readByCount.text(), 10);
+						$readByCount.text(readBy + 1);
                     }
 
 
