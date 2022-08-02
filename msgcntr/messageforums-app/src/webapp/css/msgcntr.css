@@ -32,10 +32,6 @@
 	padding: 8px 0; /* to match the button height */
 	font-size: 18px;
 }
-.forumTitle sakai-rubric-student-preview-button,
-.topicTitle sakai-rubric-student-preview-button {
-	margin-left: 4px;
-}
 .forumsCollapseTrigger[href] {
 	display: inline-block;
 	text-decoration: none;
@@ -81,12 +77,12 @@ h2 + .forumsCollapseTrigger,
 	flex-wrap: wrap;
 	width: max-content;
 	margin-left: auto;
+	gap: 0 4px;
 }
 .forums .forumActions button, 
 .forums .topicActions button, 
 .forums .forumActions .button, 
 .forums .topicActions .button {
-	margin-left: 4px;
 	margin-right: 0;
 }
 .forumsTopics.table {
@@ -100,9 +96,28 @@ h2 + .forumsCollapseTrigger,
 .forumsTopics .messagesCountColumn, 
 .forumsTopics .unreadCountColumn, 
 .forumsTopics .actionsColumn {
-	width: 15%;
+	width: 20%;
 	text-align: center;
 	vertical-align: middle;
+}
+@media only screen and (max-width: 670px) {
+	/* hide the count column for smaller screens because of limit width for all columns */
+	.forumsTopics .messagesCountColumn {
+		display: none;
+	}
+	.forumsTopics .unreadCountColumn {
+		width: 25%;
+	}
+}
+@media only screen and (max-width: 670px) {
+	.forumsTopics .topicActions {
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.forumsTopics .topicActions .optionsText {
+		/* hide the text on the button for smaller screens, but still be readible for technologies */
+		font-size: 0;
+	}
 }
 .forumsTopics .sak-banner-info {
 	margin: 0;
@@ -115,8 +130,10 @@ h2 + .forumsCollapseTrigger,
 .topicTitle h3 {
 	display: flex;
 	align-items: center;
+	flex-wrap: wrap;
 	margin: 0;
 	padding: 8px 0; /* to match the button height */
+	gap: 4px;
 	font-size: 16px;
 	font-weight: normal;
 }
@@ -857,7 +874,7 @@ div.msgcntr-profile-qtip {
 .messageDenied {
 	display: inline-block;
 	height: 20px;
-	margin: 0 0 0 4px;
+	margin: 0;
 	padding: 4px;
 	border-radius: 4px;
 	background-color: transparent;

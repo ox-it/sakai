@@ -112,7 +112,7 @@
 				<h:panelGroup layout="block" styleClass="topicActions" rendered="#{forum.newTopic || forum.changeSettings || ForumTool.instructor}">
 					<div class="dropdown">
 						<button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							<h:outputText value="#{msgs.cdfm_topic_options}" />
+							<h:outputText styleClass="optionsText" value="#{msgs.cdfm_topic_options}" />
 							<span class="caret"></span>
 						</button>
 						<ul class="dropdown-menu dropdown-menu-right">
