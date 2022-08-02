@@ -70,7 +70,7 @@
 					<div class="messageComposeHeader">
 						<h:outputLabel value="#{msgs.cdfm_message}" />
 
-						<t:htmlTag value="span" rendered ="#{view.viewId == '/jsp/dfMessageReply.jsp' || view.viewId == '/jsp/dfMessageReplyThread.jsp'}">
+						<t:htmlTag value="span" rendered ="#{!ForumTool.selectedMessage.deleted && (view.viewId == '/jsp/dfMessageReply.jsp' || view.viewId == '/jsp/dfMessageReplyThread.jsp')}">
 							<%@ include file="replyInsertOrig.jspf"%>
 						</t:htmlTag>
 
