@@ -2476,16 +2476,19 @@ public class DiscussionForumTool {
 
     private boolean didThreadMove() {
         threadMoved = false;
-        String message = selectedThreadHead.getMessage().toString();
-        List msgsList = selectedTopic.getMessages();
-        boolean listHasMessage = false;
-        for (int i = 0; i < msgsList.size(); i++) {
-            listHasMessage = message.equals(((DiscussionMessageBean) msgsList.get(i)).getMessage().toString());
-            if (listHasMessage) {
-                break;
+        if (selectedThreadHead != null && selectedThreadHead.getMessage() != null && selectedTopic != null && selectedTopic.getMessages() != null)
+        {
+            String message = selectedThreadHead.getMessage().toString();
+            List msgsList = selectedTopic.getMessages();
+            boolean listHasMessage = false;
+            for (int i = 0; i < msgsList.size(); i++) {
+                listHasMessage = message.equals(((DiscussionMessageBean) msgsList.get(i)).getMessage().toString());
+                if (listHasMessage) {
+                    break;
+                }
             }
+            threadMoved = !listHasMessage;
         }
-        threadMoved = !listHasMessage;
         return threadMoved;
     }
 
