@@ -427,7 +427,7 @@
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 			</h:commandButton>
 			<h:commandButton action="#{ForumTool.processActionSaveTopicAsDraft}" actionListener="#{ForumTool.keepStateDetails}"  value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
-									 rendered="#{!ForumTool.selectedTopic.markForDeletion}" styleClass="blockMeOnClick">
+									 rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.selectedTopic.totalNoMessages eq 0}" styleClass="blockMeOnClick">
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 			</h:commandButton>

@@ -522,6 +522,15 @@ public class DiscussionForumTool {
 	return null;
   }
 
+  public int getSelectedForumTotalNoMessages()
+  {
+      int total = 0;
+      if (selectedForum != null) {
+        total = selectedForum.getTopics().stream().map(DiscussionTopicBean::getTotalNoMessages).reduce(0, Integer::sum);
+      }
+      return total;
+  }
+
   /**
    * @return
    */
@@ -1347,6 +1356,12 @@ public class DiscussionForumTool {
     
     if (selectedForum == null)
         throw new IllegalStateException("selectedForum == null");
+
+    // Block going to draft if the forum has one or more non-deleted message in any topic
+    if(getSelectedForumTotalNoMessages() > 0) {
+        log.warn("Invalid attempt to make forum draft, forum has non-deleted messages");
+        return FORUM_SETTING_REVISE;
+    }
     
     if(selectedForum.getForum() != null && selectedForum.getForum().getOpenDate() != null && selectedForum.getForum().getCloseDate() != null
     		&& selectedForum.getForum().getAvailabilityRestricted()){
@@ -1822,7 +1837,13 @@ public class DiscussionForumTool {
   public String processActionSaveTopicAsDraft()
   {
     log.debug("processActionSaveTopicAsDraft()");
-    
+
+    // Block going to draft if the topic has one or more non-deleted message
+    if(selectedTopic != null && selectedTopic.getTotalNoMessages() > 0) {
+        log.warn("Invalid attempt to make topic draft, topic has non-deleted messages");
+        return TOPIC_SETTING_REVISE;
+    }
+
     if(selectedTopic != null && selectedTopic.getTopic() != null
             && selectedTopic.getTopic().getOpenDate() != null && selectedTopic.getTopic().getCloseDate() != null
     		&& selectedTopic.getTopic().getAvailabilityRestricted()){
