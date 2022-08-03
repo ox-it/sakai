@@ -30,6 +30,7 @@
 	align-items: center;
 	margin: 0;
 	padding: 8px 0; /* to match the button height */
+	gap: 0 4px;
 	font-size: 18px;
 }
 .forumsCollapseTrigger[href] {
@@ -125,6 +126,7 @@ h2 + .forumsCollapseTrigger,
 .topicTitle h1 {
 	display: flex;
 	align-items: center;
+	gap: 0 4px;
 }
 .topicTitle h2,
 .topicTitle h3 {

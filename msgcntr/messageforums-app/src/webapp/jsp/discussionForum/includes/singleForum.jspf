@@ -3,39 +3,6 @@
 	<h:panelGroup layout="block" rendered="#{! forum.nonePermission}">
 		<h:panelGroup layout="block" styleClass="forumHeader">
 			<%@ include file="/jsp/discussionForum/includes/singleForum/forumHeader.jspf"%>
-			
-			<%-- links to act on this forum --%>
-<%--keeping for now in case we can't get the Bootstrap dropdown menus working with unique ids:
-			<t:htmlTag value="ul" styleClass="actionLinks" rendered="#{forum.newTopic || forum.changeSettings || ForumTool.instructor}">
-				<t:htmlTag value="li" rendered="#{forum.newTopic}">
-					<h:commandLink action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}" title="#{msgs.cdfm_new_topic}">
-						<f:param value="#{forum.forum.id}" name="forumId"/>
-					</h:commandLink>
-				</t:htmlTag>
-				<t:htmlTag value="li" rendered="#{forum.changeSettings}">
-					<h:commandLink action="#{ForumTool.processActionForumSettings}" value="#{msgs.cdfm_forum_settings}" rendered="#{forum.changeSettings}" title="#{msgs.cdfm_forum_settings}">
-						<f:param value="#{forum.forum.id}" name="forumId"/>
-					</h:commandLink>
-				</t:htmlTag>
-				<t:htmlTag value="li" rendered="#{ForumTool.newForum}">
-					<h:commandLink id="duplicate" action="#{ForumTool.processActionDuplicateForumMainConfirm}" value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.newForum}" >
-						<f:param value="#{forum.forum.id}" name="forumId"/>
-					</h:commandLink>
-				</t:htmlTag>
-				<t:htmlTag value="li" rendered="#{ForumTool.instructor}">
-					<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
-						<f:param value="" name="topicId"/>
-						<f:param value="#{forum.forum.id}" name="forumId"/>
-						<h:outputText value="#{msgs.cdfm_button_bar_grade}" />
-					</h:commandLink>
-				</t:htmlTag>
-				<t:htmlTag value="li" rendered="#{forum.changeSettings}">
-					<h:commandLink id="delete" action="#{ForumTool.processActionDeleteForumMainConfirm}" value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{forum.changeSettings}">
-						<f:param value="#{forum.forum.id}" name="forumId"/>
-					</h:commandLink>
-				</t:htmlTag>
-			</t:htmlTag>
---%>
 			<h:panelGroup layout="block" styleClass="forumActions" rendered="#{forum.newTopic || forum.changeSettings || ForumTool.instructor}">
 				<h:commandLink styleClass="button" action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}" title="#{msgs.cdfm_new_topic}">
 					<f:param value="#{forum.forum.id}" name="forumId"/>
@@ -84,7 +51,7 @@
 				</h:commandLink>
 			</h:panelGroup>
 		</h:panelGrid>
-
+		<div class="table-responsive">
 		<h:dataTable id="topics" styleClass="forumsTopics table table-bordered table-hover" columnClasses="topicsColumn,messagesCountColumn,unreadCountColumn,actionsColumn" rendered="#{!empty forum.topics}" value="#{forum.topics}" var="topic">
 			<h:column>
 				<%@ include file="/jsp/discussionForum/includes/topicHeader/topicHeader.jspf"%>
@@ -178,5 +145,6 @@
 --%>
 			</h:column>
 		</h:dataTable>
+		</div>
 	</h:panelGroup>
 </h:column>
