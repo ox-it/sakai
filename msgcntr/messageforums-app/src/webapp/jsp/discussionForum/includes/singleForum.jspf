@@ -113,36 +113,6 @@
 						</ul>
 					</div>
 				</h:panelGroup>
-<%-- replaced with dropdown above, but we'll keep this here for now
-				<a href="#" class="moreMenuLink">
-					<h:outputText styleClass="moreMenuLinkSpan" value="#{msgs.cdfm__moremenulink}" rendered="#{forum.newTopic || ForumTool.instructor || topic.changeSettings}" />
-				</a>
-
-				<%-- list of options, revealed when link above is used, model new added options on existing ones
-				<ul style="display:none" class="moreMenu">
-					<li>
-						<h:commandLink action="#{ForumTool.processActionDuplicateTopicMainConfirm}" id="duplicate_confirm" value="#{msgs.cdfm_duplicate_topic}" rendered="#{forum.newTopic}"
-							title=" #{msgs.cdfm_duplicate_topic}">
-							<f:param value="#{topic.topic.id}" name="topicId"/>
-							<f:param value="#{forum.forum.id}" name="forumId"/>
-						</h:commandLink>
-					</li>
-					<li>
-						<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
-							<f:param value="#{topic.topic.id}" name="topicId"/>
-							<f:param value="#{forum.forum.id}" name="forumId"/>
-							<h:outputText value="#{msgs.cdfm_button_bar_grade}" />
-						</h:commandLink>
-					</li>
-					<li>
-						<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{topic.changeSettings}"
-							title="#{msgs.cdfm_button_bar_delete_topic}">
-							<f:param value="#{topic.topic.id}" name="topicId"/>
-							<f:param value="#{forum.forum.id}" name="forumId"/>
-						</h:commandLink>
-					</li>
-				</ul>
---%>
 			</h:column>
 		</h:dataTable>
 		</div>
