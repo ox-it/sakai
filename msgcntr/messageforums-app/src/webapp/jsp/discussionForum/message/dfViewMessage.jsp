@@ -60,6 +60,7 @@
 				<%@ include file="/jsp/discussionForum/includes/threadPrevNext.jspf"%>
 			</div>
 			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
+			<h:outputText styleClass="sak-banner-warn" value="#{msgs.cdfm_delete_msg}" rendered="#{ForumTool.deleteMsg && ForumTool.selectedMessage.userCanDelete}" />
 
 			<h:panelGroup layout="block" id="permalinkHolder">
 				<h:outputLink styleClass="closeMe" value="#"><h:panelGroup styleClass="icon-sakai--delete"></h:panelGroup></h:outputLink>

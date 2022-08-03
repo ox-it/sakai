@@ -145,7 +145,6 @@ import org.sakaiproject.util.comparator.GroupTitleComparator;
 import org.sakaiproject.util.comparator.RoleIdComparator;
 
 import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
-import org.sakaiproject.rubrics.logic.model.ToolItemRubricAssociation;
 import org.sakaiproject.rubrics.logic.RubricsConstants;
 import org.sakaiproject.rubrics.logic.RubricsService;
 
@@ -298,7 +297,6 @@ public class DiscussionForumTool {
   private static final String NO_GRADE_PTS = "cdfm_no_points_for_grade";
   private static final String TOO_LARGE_GRADE = "cdfm_too_large_grade";
   private static final String NO_ASSGN = "cdfm_no_assign_for_grade";
-  private static final String CONFIRM_DELETE_MESSAGE="cdfm_delete_msg";
   private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE = "cdfm_insufficient_privileges_delete_msg";
   private static final String END_DATE_BEFORE_OPEN_DATE = "endDateBeforeOpenDate";
   private static final String NO_GROUP_SELECTED ="cdfm_no_group_selected";
@@ -4387,7 +4385,6 @@ public class DiscussionForumTool {
 	{
 		Long msgId = selectedMessage.getMessage().getId();
 		deleteMsg = msgId == null ? NO_MESSAGE : msgId;
-		setErrorMessage(getResourceBundleString(CONFIRM_DELETE_MESSAGE));
 	}
     return MESSAGE_VIEW;
   }
