@@ -51,7 +51,6 @@
 				</h:commandLink>
 			</h:panelGroup>
 		</h:panelGrid>
-		<div class="table-responsive">
 		<h:dataTable id="topics" styleClass="forumsTopics table table-bordered table-hover" columnClasses="topicsColumn,messagesCountColumn,unreadCountColumn,actionsColumn" rendered="#{!empty forum.topics}" value="#{forum.topics}" var="topic">
 			<h:column>
 				<%@ include file="/jsp/discussionForum/includes/topicHeader/topicHeader.jspf"%>
@@ -115,6 +114,5 @@
 				</h:panelGroup>
 			</h:column>
 		</h:dataTable>
-		</div>
 	</h:panelGroup>
 </h:column>

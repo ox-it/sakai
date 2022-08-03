@@ -65,8 +65,6 @@ $(document).ready(function() {
 		<span class="noForumsDraft" style="display:none"><h:outputText value="#{msgs.cdfm_forum_inf_all_forums_draft}" /></span>
 	</p>
 </f:subview>
-<div class="table-responsive">
 <h:dataTable id="forums" styleClass="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}" role="presentation" var="forum">
 <%@ include file="singleForum.jspf"%>
 </h:dataTable>
-</div>
