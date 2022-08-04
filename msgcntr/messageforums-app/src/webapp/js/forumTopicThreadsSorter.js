@@ -297,6 +297,7 @@ jQuery.fn.threadsSorter = function() {
 			headers:{
 				0:{ sorter: false}
 			},
+			sortList: [[2,0]],
 			cssAsc:"headerSortDown",
 			cssDesc:"headerSortUp"
 		});

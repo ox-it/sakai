@@ -276,9 +276,9 @@ h2 + .forumsCollapseTrigger,
 	max-width: none;
 }
 .allMessages thead th {
-	padding: 10px;
+	padding: 8px;
 	border: 1px solid #ddd;
-	background: #eee;
+	background-color: #eee;
 	text-align: center;
 }
 .allMessages thead th.header{
