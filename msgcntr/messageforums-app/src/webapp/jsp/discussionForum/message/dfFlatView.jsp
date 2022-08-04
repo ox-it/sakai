@@ -58,7 +58,8 @@
 		<%@ include file="/jsp/discussionForum/includes/topicHeader/singletonTopicHeaderList.jspf"%>
 		<%@ include file="/jsp/discussionForum/includes/topicViewActions.jspf" %>
 
-		<h:outputText  value="#{msgs.cdfm_no_messages}" rendered="#{empty ForumTool.messages}"   styleClass="sak-banner-info" style="display:block" />
+		<h:outputText styleClass="sak-banner-warn" value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.selectedTopic != null && ForumTool.needToPostFirst}"/>
+		<h:outputText  value="#{msgs.cdfm_no_messages}" rendered="#{ForumTool.selectedTopic == null || (empty ForumTool.selectedTopic.messages && !ForumTool.needToPostFirst)}" styleClass="sak-banner-info" style="display:block" />
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" noarrows="true" styleClass="table table-hover table-striped table-bordered messagesThreaded" columnClasses="bogus">
 			<h:column id="_msg_subject">
 				<%@ include file="dfViewThreadBodyInclude.jsp" %>
