@@ -397,6 +397,7 @@ function doAjax(messageId, topicId, self){
 						//hide "New Messages" in thread seed if all messages have been marked as "read"
                         if ($('.' + thisThread).find('span.messageNew').size() === 1) {
                             $('.' + thisThread).find('span.childrenNewThread').css('visibility', 'hidden');
+                            $('.button.markAllAsRead').remove(); // also remove mark all as read button
                         }
 						// remove this "New" flag if this message has been marked as read
                         $(thisRow).children("td").children("span").children("span.messageNew").remove();
@@ -410,6 +411,7 @@ function doAjax(messageId, topicId, self){
 						// remove "Go to first new message" link if all messages have been marked as "read"
                         if ($('.messagesThreaded').find('span.messageNew + a.messageNewAnchor').size() === 0) {
                             $('.jumpToNew').not('#jumpToNewPending').remove();
+                            $('.button.markAllAsRead').remove(); // also remove mark all as read button
                         }
 						// increment the read by count
 						$readByCount = $parentTr.find(".readByCount");
