@@ -39,9 +39,8 @@
 						event.preventDefault();
 						$('#permalinkHolder').fadeOut('fast');
 					});
-					var msgBody = document.querySelector(".messageBody .textPanel").innerHTML;
-					msgBody = msgBody.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
-					fckeditor_word_count_fromMessage(msgBody, "counttotal");
+
+					initExternalWordCount();
 
 					var menuLink = $('#forumsMainMenuLink');
 					var menuLinkSpan = menuLink.closest('span');

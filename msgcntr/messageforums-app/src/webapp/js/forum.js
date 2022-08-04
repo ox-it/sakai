@@ -506,6 +506,18 @@ function msgcntr_word_count(forumHtml) {
     }
 }
 
+function initExternalWordCount()
+{
+    var msgText = "";
+    var msg = document.querySelector(".messageBody .textPanel");
+    if (msg !== null)
+    {
+        msgText = msg.innerHTML;
+        msgText = msgText.replace(/\n/g,',').replace(/\s/g,' ').replace(/  ,/g,',');
+    }
+    fckeditor_word_count_fromMessage(msgText, "counttotal");
+}
+
  function fckeditor_word_count_fromMessage(msgStr, countSpan){
  	if (document.getElementById(countSpan)) {
  	    document.getElementById(countSpan).innerHTML = getWordCount(msgStr);
@@ -514,7 +526,7 @@ function msgcntr_word_count(forumHtml) {
  
  function getWordCount(msgStr) {
  
-     var matches = msgStr.replace(/<[^<|>]+?>|&nbsp;/gi,' ').replace(/[\u0080-\u202e\u2030-\u205f\u2061-\ufefe\uff00-\uffff]/g,'x').match(/\b/g);
+    var matches = msgStr.replace(/<[^<|>]+?>|&nbsp;/gi,' ').replace(/[\u0080-\u202e\u2030-\u205f\u2061-\ufefe\uff00-\uffff]/g,'x').match(/\b/g);
     var count = 0;
     if(matches) {
         count = matches.length/2;

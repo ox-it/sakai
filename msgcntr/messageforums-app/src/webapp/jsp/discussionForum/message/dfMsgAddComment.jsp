@@ -13,6 +13,11 @@
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
        		<script src="/messageforums-tool/js/messages.js"></script>
 			<script src="/messageforums-tool/js/forum.js"></script>
+            <script>
+                $(document).ready(function() {
+                    initExternalWordCount();
+                });
+            </script>
 			<%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
 		<h:form id="dfMsgAddComment">
 

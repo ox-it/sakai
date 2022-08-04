@@ -116,6 +116,8 @@
                   } catch (err) {
                       //Just ignore the exception, happens when a gradebook item is not selected.
                   }
+
+                    initExternalWordCount();
                 });
             </script>
 

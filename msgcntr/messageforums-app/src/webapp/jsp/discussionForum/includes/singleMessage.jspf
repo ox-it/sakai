@@ -45,7 +45,8 @@
 				</div>
 				<div class="messageCounts">
 					<%--word count --%>
-					<h:panelGroup layout="block" styleClass="messageWordCount" rendered="#{view.viewId == '/jsp/discussionForum/message/dfViewMessage.jsp'}">
+					<h:panelGroup layout="block" styleClass="messageWordCount" 
+								  rendered="#{view.viewId != '/jsp/discussionForum/message/dfViewThread.jsp' && view.viewId != '/jsp/discussionForum/message/dfFlatView.jsp'}">
 						<h:outputText value="#{msgs.cdfm_message_count}" />
 						<div id="counttotal"></div>
 					</h:panelGroup>
