@@ -2232,7 +2232,7 @@ public class DiscussionForumTool {
   public String processActionDisplayNextTopic()
   {
     log.debug("processActionDisplayNextTopic()");
-    return displayTopicById("nextTopicId");
+    return topicDest(displayTopicById("nextTopicId"));
   }
 
   /**
@@ -2241,7 +2241,17 @@ public class DiscussionForumTool {
   public String processActionDisplayPreviousTopic()
   {
     log.debug("processActionDisplayNextTopic()");
-    return displayTopicById("previousTopicId");
+    return topicDest(displayTopicById("previousTopicId"));
+  }
+
+  private String topicDest(String origDest)
+  {
+	  if (ALL_MESSAGES.equals(origDest) && "true".equals(getExternalParameterByKey(FLAT_VIEW)))
+	  {
+		  return FLAT_VIEW;
+	  }
+
+	  return origDest;
   }
 
   public  String formatStringByRemoveLastEmptyLine(String inputStr)
