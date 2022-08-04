@@ -2013,7 +2013,7 @@ public class DiscussionForumTool {
   public String processActionDeleteTopicConfirm()
   {
     log.debug("processActionDeleteTopicConfirm()");
-    
+    setFromMainOrForumOrTopic();
     if (selectedTopic == null)
     {
       log.debug("There is no topic selected for deletion");
@@ -2073,7 +2073,8 @@ public class DiscussionForumTool {
     
     topicClickCount = 0;
     forumClickCount = 0;
-    
+
+    setFromMainOrForumOrTopic();
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_TOPIC);
     permissions=null;
@@ -2110,7 +2111,6 @@ public class DiscussionForumTool {
     
     siteGroups.clear();
     setTopicBeanAssign();
-    setFromMainOrForumOrTopic();
     
     //return TOPIC_SETTING;
     return TOPIC_SETTING_REVISE;
@@ -7104,22 +7104,28 @@ public class DiscussionForumTool {
 	
    public String processReturnToOriginatingPage()
    {
-	   log.debug("processReturnToOriginatingPage()");
-	   if(fromPage != null)
-	   {
-		   String returnToPage = fromPage;
-		   fromPage = "";
-		   if(ALL_MESSAGES.equals(returnToPage) && selectedTopic != null)
-		   {
-			   selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
-			   return ALL_MESSAGES;
-		   }
-		   if(FORUM_DETAILS.equals(returnToPage) && selectedForum != null)
-		   {
-			   selectedForum = getDecoratedForum(selectedForum.getForum());
-			   return FORUM_DETAILS;
-		   }
-	   }
+		log.debug("processReturnToOriginatingPage()");
+
+		if(fromPage != null)
+		{
+			String returnToPage = fromPage;
+			fromPage = "";
+			if(ALL_MESSAGES.equals(returnToPage) && selectedTopic != null)
+			{
+				selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+				return ALL_MESSAGES;
+			}
+			if(FLAT_VIEW.equals(returnToPage) && selectedTopic != null)
+			{
+				selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+				return FLAT_VIEW;
+			}
+			if(FORUM_DETAILS.equals(returnToPage) && selectedForum != null)
+			{
+				selectedForum = getDecoratedForum(selectedForum.getForum());
+				return FORUM_DETAILS;
+			}
+		}
 
 	   return processActionHome();
    }

@@ -444,7 +444,7 @@
 					   value="#{msgs.cdfm_button_bar_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}" styleClass="blockMeOnClick">
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId" />
 			</h:commandButton>
-			<h:commandButton immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
+			<h:commandButton immediate="true" action="#{ForumTool.processReturnToOriginatingPage}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
 			<h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 		</div>
 	</h:form>
