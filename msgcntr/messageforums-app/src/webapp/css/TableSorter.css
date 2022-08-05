@@ -4,13 +4,13 @@
     cursor:pointer;
 }
 .allMessages .headerSortDown a, .allMessages .headerSortUp a {
-    background: url(../images/sortdescending.gif) no-repeat right;
+    background: url(../images/sortascending.gif) no-repeat right;
     background-position: 100% center;
     padding-right: 15px;
 }
 
 .allMessages .headerSortUp a {
-    background: url(../images/sortascending.gif) no-repeat right;
+    background: url(../images/sortdescending.gif) no-repeat right;
 }
 
 .rightAlignColumn{
