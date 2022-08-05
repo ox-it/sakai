@@ -279,6 +279,8 @@ h2 + .forumsCollapseTrigger,
 	padding: 8px;
 	border: 1px solid #ddd;
 	background-color: #eee;
+}
+.allMessages thead th[data-column="1"] {
 	text-align: center;
 }
 .allMessages thead th.header{
@@ -297,10 +299,6 @@ h2 + .forumsCollapseTrigger,
 }
 .allMessages tbody td.messageTitle a[href] {
 	margin-left: 4px;
-}
-.allMessages td.messagesCountColumn,
-.allMessages td.unreadCountColumn {
-	text-align: center;
 }
 .allMessages .markAsReadIcon.button {
 	margin: 0;
