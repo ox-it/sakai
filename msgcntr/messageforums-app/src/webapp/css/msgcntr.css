@@ -77,15 +77,20 @@ h2 + .forumsCollapseTrigger,
 	display: flex;
 	align-items: flex-start;
 	justify-content: flex-end;
-	flex-wrap: wrap;
 	width: max-content;
 	gap: 4px;
+}
+.forumActions {
+	flex-direction: column;
+	align-items: flex-end;
+	justify-content: flex-start;
 }
 .forums .forumActions button, 
 .forums .topicActions button, 
 .forums .forumActions .button, 
 .forums .topicActions .button {
 	margin-right: 0;
+	white-space: nowrap;
 }
 .forumsTopics {
 	margin-bottom: 10px;

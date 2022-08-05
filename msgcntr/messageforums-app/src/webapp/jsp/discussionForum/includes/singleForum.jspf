@@ -3,10 +3,6 @@
 		<h:panelGroup layout="block" styleClass="forumHeader">
 			<%@ include file="/jsp/discussionForum/includes/singleForum/forumHeader.jspf"%>
 			<h:panelGroup layout="block" styleClass="forumActions" rendered="#{forum.newTopic || forum.changeSettings || ForumTool.instructor}">
-				<h:commandLink styleClass="button" action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}" title="#{msgs.cdfm_new_topic}">
-					<f:param value="#{forum.forum.id}" name="forumId"/>
-				</h:commandLink>
-				
 				<div class="dropdown">
 					<button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<h:outputText value="#{msgs.cdfm_forum_options}" />
@@ -37,6 +33,9 @@
 						</t:htmlTag>
 					</ul>
 				</div>
+				<h:commandLink styleClass="button" action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}" title="#{msgs.cdfm_new_topic}">
+					<f:param value="#{forum.forum.id}" name="forumId"/>
+				</h:commandLink>
 			</h:panelGroup>
 		</h:panelGroup> <%--end of Forum Heading--%>
 
