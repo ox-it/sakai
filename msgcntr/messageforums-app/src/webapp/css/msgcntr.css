@@ -343,6 +343,8 @@ h2 + .forumsCollapseTrigger,
 }
 .allMessages tbody td.messageTitle a[href] {
 	margin-left: 4px;
+	/* allocate some space for any badges */
+	margin-right: 4px;
 }
 .allMessages .markAsReadIcon.button {
 	margin: 0;
@@ -360,6 +362,8 @@ h2 + .forumsCollapseTrigger,
 	border-bottom: 1px solid var(--msg-metadata-border-colour);
 }
 .messageSubject .title {
+	/* allocate some space for any badges */
+	margin-right: 4px;
 	text-decoration: none;
 }
 .messageAuthor,
