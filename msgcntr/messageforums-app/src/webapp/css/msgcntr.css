@@ -140,6 +140,8 @@ h2 + .forumsCollapseTrigger,
 		grid-area: topicContainer;
 		justify-content: space-between;
 		width: 100%;
+		padding: 10px;
+		gap: 10px;
 	}
 	.forumTopic .messagesCountColumn,
 	.forumTopic .unreadCountColumn,
@@ -147,7 +149,7 @@ h2 + .forumsCollapseTrigger,
 		justify-content: flex-start;
 		flex: 0 1 auto;
 		border: 0 none;
-		padding-top: 0;
+		padding: 0;
 	}
 	.forumTopic .messagesCountColumn > span {
 		white-space: nowrap;
@@ -159,6 +161,9 @@ h2 + .forumsCollapseTrigger,
 	.forumTopic .unreadCountColumn > span.badge-new {
 		/* only show the unread count when there are new messages */
 		display: inline-block;
+	}
+	.forumTopic .unreadCountColumn + .actionsColumn {
+		margin-left: auto;
 	}
 }
 .topicTitle h1 {
