@@ -14,6 +14,7 @@
 .forumHeader{
 	/*panel holding all forum metadata in forum list view*/
 	display: flex;
+	justify-content: space-between;
 	width: 100%;
 	background: #eee;
 	border: 1px solid #ddd;
@@ -27,10 +28,11 @@
 }
 .forumTitle h2 {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	margin: 0;
 	padding: 8px 0; /* to match the button height */
-	gap: 0 4px;
+	gap: 4px;
 	font-size: 18px;
 }
 .forumsCollapseTrigger[href] {
@@ -77,8 +79,7 @@ h2 + .forumsCollapseTrigger,
 	justify-content: flex-end;
 	flex-wrap: wrap;
 	width: max-content;
-	margin-left: auto;
-	gap: 0 4px;
+	gap: 4px;
 }
 .forums .forumActions button, 
 .forums .topicActions button, 
@@ -86,47 +87,85 @@ h2 + .forumsCollapseTrigger,
 .forums .topicActions .button {
 	margin-right: 0;
 }
-.forumsTopics.table {
+.forumsTopics {
 	margin-bottom: 10px;
-	table-layout: fixed;
-}
-.forumsTopics.table > tbody > tr > td {
-	/* overrides Bootstrap's default padding */
-	padding: 10px;
-}
-.forumsTopics .messagesCountColumn, 
-.forumsTopics .unreadCountColumn, 
-.forumsTopics .actionsColumn {
-	width: 20%;
-	text-align: center;
-	vertical-align: middle;
-}
-@media only screen and (max-width: 670px) {
-	/* hide the count column for smaller screens because of limit width for all columns */
-	.forumsTopics .messagesCountColumn {
-		display: none;
-	}
-	.forumsTopics .unreadCountColumn {
-		width: 25%;
-	}
-}
-@media only screen and (max-width: 670px) {
-	.forumsTopics .topicActions {
-		margin-left: auto;
-		margin-right: auto;
-	}
-	.forumsTopics .topicActions .optionsText {
-		/* hide the text on the button for smaller screens, but still be readible for technologies */
-		font-size: 0;
-	}
 }
 .forumsTopics .sak-banner-info {
 	margin: 0;
 }
-.topicTitle h1 {
+.forumsTopics .forumTopic {
+	display: flex;
+	width: 100%;
+	background-color: #fff;
+}
+.forumsTopics .forumTopic:hover {
+	background-color: #f5f5f5;
+}
+.forumTopic .topicTitle {
+	flex: 2;
+	padding: 10px;
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+	border-left: 1px solid #ddd;
+}
+.forumTopic .topicCountAndActionsContainer {
+	display: flex;
+	width: 45%;
+}
+.forumTopic .messagesCountColumn,
+.forumTopic .unreadCountColumn,
+.forumTopic .actionsColumn {
 	display: flex;
 	align-items: center;
-	gap: 0 4px;
+	justify-content: center;
+	flex: 1 1 0;
+	padding: 10px;
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+@media only screen and (max-width:1100px) {
+	.forumsTopics .forumTopic {
+		display: grid;
+		grid-template-columns: auto;
+		grid-template-rows: auto auto;
+		grid-template-areas: 'topicDetails' 'topicContainer';
+		border: 1px solid #ddd;
+		border-top: 0 none;
+	}
+	.forumTopic .topicTitle {
+		grid-area: topicDetails;
+		border: 0 none;
+	}
+	.forumTopic .topicCountAndActionsContainer {
+		grid-area: topicContainer;
+		justify-content: space-between;
+		width: 100%;
+	}
+	.forumTopic .messagesCountColumn,
+	.forumTopic .unreadCountColumn,
+	.forumTopic .actionsColumn {
+		justify-content: flex-start;
+		flex: 0 1 auto;
+		border: 0 none;
+		padding-top: 0;
+	}
+	.forumTopic .messagesCountColumn > span {
+		white-space: nowrap;
+	}
+	.forumTopic .unreadCountColumn > span {
+		/* hide when unread count is 0, or in other words, there are no new messages */
+		display: none;
+	}
+	.forumTopic .unreadCountColumn > span.badge-new {
+		/* only show the unread count when there are new messages */
+		display: inline-block;
+	}
+}
+.topicTitle h1 {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px;
 }
 .topicTitle h2,
 .topicTitle h3 {
