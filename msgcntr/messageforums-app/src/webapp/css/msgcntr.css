@@ -280,7 +280,7 @@ h2 + .forumsCollapseTrigger,
 	border: 1px solid #ddd;
 	background-color: #eee;
 }
-.allMessages thead th[data-column="1"] {
+.allMessages thead th[data-column="1"], .allMessages thead th[data-column="5"] {
 	text-align: center;
 }
 .allMessages thead th.header{
