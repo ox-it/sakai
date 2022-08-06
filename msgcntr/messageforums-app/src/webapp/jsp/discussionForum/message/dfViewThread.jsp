@@ -25,6 +25,7 @@
   			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />	
        		<script src="/messageforums-tool/js/sak-10625.js"></script>
 		<script src="/messageforums-tool/js/forum.js"></script>
+		<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script>
 			$(document).ready(function () {
 				var menuLink = $('#forumsMainMenuLink');

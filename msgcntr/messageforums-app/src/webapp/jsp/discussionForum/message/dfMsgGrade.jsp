@@ -18,6 +18,7 @@
         <script src="/messageforums-tool/js/sak-10625.js"></script>
         <script src="/messageforums-tool/js/messages.js"></script>
         <script src="/messageforums-tool/js/forum.js"></script>
+        <script>includeWebjarLibrary("qtip2");</script>
         <script>includeWebjarLibrary('ckeditor')</script>
         <script>includeWebjarLibrary('awesomplete')</script>
         <script src="/library/js/sakai-reminder.js"></script>
@@ -95,11 +96,6 @@
                 %>
             </script>
             <script src="/library/js/spinner.js"></script>
-            <!-- RUBRICS JAVASCRIPT -->
-            <script>
-              rubricsEventHandlers();
-            </script>
-            <!-- END RUBRICS JAVASCRIPT -->
 
             <script>
                 $(document).ready(function() {
@@ -121,7 +117,11 @@
                 });
             </script>
 
+            <%--
+            I commented out the following span because the 'X' had very odd behaviour, making the entire page unresponsive. If you know a way to add the 'X' back such that it displays only when dfMsgGrade is embedded in a dialog, please do so. Until then, the Save and Cancel buttons are available, and they work as expected.
+            --bbailla2
             <span class="close-button fa fa-times" onClick="SPNR.disableControlsAndSpin(this, null);closeDialogBoxIfExists();" aria-label="<h:outputText value="#{msgs.close_window}" />"></span>
+            --%>
             <h3><h:outputText value="#{msgs.cdfm_grade_msg}" /></h3>
             <%@ include file="/jsp/discussionForum/includes/topicHeader/singletonTopicHeaderList.jspf"%>
             <h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
