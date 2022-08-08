@@ -41,14 +41,14 @@
 
 		<%-- the topic list  --%>
 		<%--//designNote: display a message if there is no topics for this forum , give a prompt to create a topic; in a table to match the datatable when topis are populated--%>
-		<h:panelGrid columns="1" styleClass="forumsTopics table table-bordered table-hover" rendered="#{empty forum.topics}" role="presentation">
+		<h:panelGroup layout="block" styleClass="noForumsTopics" rendered="#{empty forum.topics}">
 			<h:panelGroup layout="block" styleClass="sak-banner-info">
 				<h:outputText escape="false" value="#{msgs.cdfm_forum_inf_no_topic_here} " />
 				<h:commandLink styleClass="button" action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}" title="#{msgs.cdfm_new_topic}">
 					<f:param value="#{forum.forum.id}" name="forumId"/>
 				</h:commandLink>
 			</h:panelGroup>
-		</h:panelGrid>
+		</h:panelGroup>
 		<h:panelGroup layout="block" id="topics" styleClass="forumsTopics" rendered="#{!empty forum.topics}">
 			<t:dataList value="#{forum.topics}" var="topic">
 				<div class="forumTopic">

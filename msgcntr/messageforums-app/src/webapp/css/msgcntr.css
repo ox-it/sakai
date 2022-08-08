@@ -92,9 +92,17 @@ h2 + .forumsCollapseTrigger,
 	margin-right: 0;
 	white-space: nowrap;
 }
+.noForumsTopics {
+	margin-bottom: 10px;
+	padding: 10px;
+	border-left: 1px solid #ddd;
+	border-right: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
 .forumsTopics {
 	margin-bottom: 10px;
 }
+.noForumsTopics .sak-banner-info,
 .forumsTopics .sak-banner-info {
 	margin: 0;
 }
