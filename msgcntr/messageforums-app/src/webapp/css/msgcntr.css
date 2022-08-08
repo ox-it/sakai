@@ -937,6 +937,11 @@ div.msgcntr-profile-qtip {
 	font-weight: bold;
 	white-space: nowrap;
 }
+.messageNew + .messageDenied,
+.messageNew + .messagePending {
+	/* space out the labels when they come after the New badge */
+	margin-left: 4px;
+}
 .badge-draft {
 	background-color: #f8deae;
 }
