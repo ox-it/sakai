@@ -357,13 +357,20 @@ h2 + .forumsCollapseTrigger,
 	border-left: 1px solid transparent; /* no column border between expanding arrows and Conversation title */
 }
 .allMessages tbody td.attach{
-	padding: 8px 0;
+	padding: 8px;
 	text-align: center;
 }
 .allMessages tbody td.messageTitle a[href] {
 	margin-left: 8px;
 	/* allocate some space for any badges */
 	margin-right: 4px;
+}
+.allMessages tbody input#moveCheckbox {
+	margin-left: 6px;
+	margin-right: 6px;
+}
+.allMessages tbody td.unreadCountColumn + td {
+	padding: 8px;
 }
 .allMessages .markAsReadIcon.button {
 	margin: 0;
