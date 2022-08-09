@@ -401,6 +401,9 @@ function doAjax(messageId, topicId, self){
                         }
 						// remove this "New" flag if this message has been marked as read
                         $(thisRow).children("td").children("span").children("span.messageNew").remove();
+
+						// set visiblity hidden to preserve row height and reduce jitter
+						$(self).css("visibility", "hidden");
                     }
                     else {
 						//in dfFlatView - remove "New" flag, as well as link target for the thread navigator
@@ -417,11 +420,11 @@ function doAjax(messageId, topicId, self){
 						$readByCount = $parentTr.find(".readByCount");
 						const readBy = parseInt($readByCount.text(), 10);
 						$readByCount.text(readBy + 1);
+
+						$(self).remove();
                     }
 
-
                     //remove at end after references are not needed
-                    $(self).remove();
                     $("#" + messageId).parents("tr:first").children("td").each(function(){
                         this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus');
                     });
