@@ -340,6 +340,9 @@ h2 + .forumsCollapseTrigger,
 	border: 1px solid #ddd;
 	background-color: #eee;
 }
+.allMessages thead th a {
+	padding-right: 15px;
+}
 .allMessages thead th[data-column="1"], .allMessages thead th[data-column="5"] {
 	text-align: center;
 }
@@ -347,18 +350,18 @@ h2 + .forumsCollapseTrigger,
 	text-align: left;
 }
 .allMessages tbody td {
-	padding: 10px;
+	padding: 8px;
 	border-left: 1px solid #ddd; /* column borders */
 }
 .allMessages tbody td.messageTitle {
 	border-left: 1px solid transparent; /* no column border between expanding arrows and Conversation title */
 }
 .allMessages tbody td.attach{
-	padding: 10px 0;
+	padding: 8px 0;
 	text-align: center;
 }
 .allMessages tbody td.messageTitle a[href] {
-	margin-left: 4px;
+	margin-left: 8px;
 	/* allocate some space for any badges */
 	margin-right: 4px;
 }
