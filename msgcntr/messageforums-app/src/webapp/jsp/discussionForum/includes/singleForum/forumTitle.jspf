@@ -8,7 +8,8 @@
 	<%-- draft marker --%>
 	<h:outputText id="draft" styleClass="badge-draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}" />
 	<%-- availability marker --%>
-	<h:outputText styleClass="badge-unavailable" value="#{msgs.cdfm_forum_unavailable_flag}" rendered="#{forum.availability == 'false' || empty forum.topics}" />
+	<h:outputText styleClass="badge-unavailable" value="#{msgs.cdfm_unavailable_flag}" rendered="#{forum.availability == 'false'}" />
+	<h:outputText styleClass="badge-inactive" value="#{msgs.cdfm_inactive_flag}" rendered="#{empty forum.topics}" />
 	<%-- locked marker --%>
 	<h:outputText styleClass="badge-locked" value="#{msgs.cdfm_forum_locked_flag}" rendered="#{forum.locked == 'true'}" />
 	<%-- Rubrics marker --%>

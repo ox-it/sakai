@@ -941,6 +941,7 @@ div.msgcntr-profile-qtip {
 .badge-moderated,
 .badge-new,
 .badge-unavailable,
+.badge-inactive,
 .badge-post-first,
 .badge-anon,
 .messageNew,
@@ -978,6 +979,9 @@ div.msgcntr-profile-qtip {
 }
 .badge-unavailable {
 	background-color: #fbbf72;
+}
+.badge-inactive {
+	background-color: #f2a9d2;
 }
 .badge-post-first {
 	background-color: #b5ffc8;
