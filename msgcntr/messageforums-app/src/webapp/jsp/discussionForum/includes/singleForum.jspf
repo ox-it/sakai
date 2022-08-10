@@ -10,7 +10,7 @@
 					</button>
 					<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
 						<t:htmlTag value="li" rendered="#{forum.changeSettings}">
-							<h:commandLink action="#{ForumTool.processActionForumSettings}" value="#{msgs.cdfm_forum_settings}" rendered="#{forum.changeSettings}" title="#{msgs.cdfm_forum_settings}">
+							<h:commandLink action="#{ForumTool.processActionForumSettings}" value="#{msgs.cdfm_forum_settings}" rendered="#{forum.changeSettings}">
 								<f:param value="#{forum.forum.id}" name="forumId"/>
 							</h:commandLink>
 						</t:htmlTag>
@@ -33,7 +33,7 @@
 						</t:htmlTag>
 					</ul>
 				</div>
-				<h:commandLink styleClass="button" action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}" title="#{msgs.cdfm_new_topic}">
+				<h:commandLink styleClass="button" action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}">
 					<f:param value="#{forum.forum.id}" name="forumId"/>
 				</h:commandLink>
 			</h:panelGroup>
@@ -44,7 +44,7 @@
 		<h:panelGroup layout="block" styleClass="noForumsTopics" rendered="#{empty forum.topics}">
 			<h:panelGroup layout="block" styleClass="sak-banner-info">
 				<h:outputText escape="false" value="#{msgs.cdfm_forum_inf_no_topic_here} " />
-				<h:commandLink styleClass="button" action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}" title="#{msgs.cdfm_new_topic}">
+				<h:commandLink styleClass="button" action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}">
 					<f:param value="#{forum.forum.id}" name="forumId"/>
 				</h:commandLink>
 			</h:panelGroup>
@@ -82,14 +82,13 @@
 									</button>
 									<ul class="dropdown-menu dropdown-menu-right">
 										<t:htmlTag value="li" rendered="#{forum.changeSettings}">
-											<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" rendered="#{topic.changeSettings}" title=" #{msgs.cdfm_topic_settings}">
+											<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" rendered="#{topic.changeSettings}">
 												<f:param value="#{topic.topic.id}" name="topicId"/>
 												<f:param value="#{forum.forum.id}" name="forumId"/>
 											</h:commandLink>
 										</t:htmlTag>
 										<t:htmlTag value="li" rendered="#{ForumTool.newForum}">
-											<h:commandLink action="#{ForumTool.processActionDuplicateTopicMainConfirm}" id="duplicate_confirm" value="#{msgs.cdfm_duplicate_topic}" rendered="#{forum.newTopic}"
-												title=" #{msgs.cdfm_duplicate_topic}">
+											<h:commandLink action="#{ForumTool.processActionDuplicateTopicMainConfirm}" id="duplicate_confirm" value="#{msgs.cdfm_duplicate_topic}" rendered="#{forum.newTopic}">
 												<f:param value="#{topic.topic.id}" name="topicId"/>
 												<f:param value="#{forum.forum.id}" name="forumId"/>
 											</h:commandLink>
@@ -102,8 +101,7 @@
 											</h:commandLink>
 										</t:htmlTag>
 										<t:htmlTag value="li" rendered="#{forum.changeSettings}">
-											<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{topic.changeSettings}"
-												title="#{msgs.cdfm_button_bar_delete_topic}">
+											<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{topic.changeSettings}">
 												<f:param value="#{topic.topic.id}" name="topicId"/>
 												<f:param value="#{forum.forum.id}" name="forumId"/>
 											</h:commandLink>

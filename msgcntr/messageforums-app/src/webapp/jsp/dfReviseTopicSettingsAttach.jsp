@@ -104,12 +104,10 @@
 		<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
 		<sakai:tool_bar_message value="#{msgs.cdfm_discussion_topic_settings}" />
 		<h3 class="specialLink">
-			<h:commandLink immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
-				rendered="#{ForumTool.messagesandForums}" />
-			<h:commandLink immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
-				rendered="#{ForumTool.forumsTool}" />
+			<h:commandLink immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" rendered="#{ForumTool.messagesandForums}" />
+			<h:commandLink immediate="true" action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" rendered="#{ForumTool.forumsTool}" />
 			<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
-			<h:commandLink immediate="true" action="#{ForumTool.processActionDisplayForum}" title=" #{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
+			<h:commandLink immediate="true" action="#{ForumTool.processActionDisplayForum}" rendered="#{ForumTool.showForumLinksInNav}">
 				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 				<h:outputText value="#{ForumTool.selectedForum.forum.title}"/>
 			</h:commandLink>
@@ -177,9 +175,7 @@
 				</h:column>
 				<h:column>
 					<f:facet name="header"><h:outputText escape="false" value="&nbsp;"/></f:facet>
-					<h:commandLink action="#{ForumTool.processDeleteAttachSetting}"
-						immediate="true"
-						title="#{msgs.cdfm_remove}">
+					<h:commandLink action="#{ForumTool.processDeleteAttachSetting}" immediate="true">
 						<h:outputText value="#{msgs.cdfm_remove}"/>
 						<f:param value="#{eachAttach.attachment.attachmentId}" name="dfmsg_current_attach"/>
 					</h:commandLink>
@@ -215,27 +211,19 @@
 		<%--general posting  topic settings --%>
 		<h2><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h2>
 		<p class="checkbox">
-			<h:selectBooleanCheckbox
-				title="topicLocked" value="#{ForumTool.selectedTopic.topicLocked}"
-				id="topic_locked">
-			</h:selectBooleanCheckbox> <h:outputLabel for="topic_locked" value="#{msgs.cdfm_lock_topic}" />
+			<h:selectBooleanCheckbox value="#{ForumTool.selectedTopic.topicLocked}" id="topic_locked"></h:selectBooleanCheckbox> 
+			<h:outputLabel for="topic_locked" value="#{msgs.cdfm_lock_topic}" />
 		</p>
 		<p class="checkbox">
-			<h:selectBooleanCheckbox
-				title="Moderated" value="#{ForumTool.selectedTopic.topicModerated}"
-				id="topic_moderated">
-			</h:selectBooleanCheckbox> <h:outputLabel for="topic_moderated" value="#{msgs.cdfm_moderate_topic}" />
+			<h:selectBooleanCheckbox value="#{ForumTool.selectedTopic.topicModerated}" id="topic_moderated"></h:selectBooleanCheckbox> 
+			<h:outputLabel for="topic_moderated" value="#{msgs.cdfm_moderate_topic}" />
 		</p>
 		<p class="checkbox">
-			<h:selectBooleanCheckbox
-				title="postFirst" value="#{ForumTool.selectedTopic.topicPostFirst}"
-				id="topic_postFirst">
-			</h:selectBooleanCheckbox> <h:outputLabel for="topic_postFirst" value="#{msgs.cdfm_postFirst}" />
+			<h:selectBooleanCheckbox value="#{ForumTool.selectedTopic.topicPostFirst}" id="topic_postFirst"></h:selectBooleanCheckbox>
+			<h:outputLabel for="topic_postFirst" value="#{msgs.cdfm_postFirst}" />
 		</p>
 		<t:htmlTag value="p" styleClass="checkbox anonTopic" rendered="#{ForumTool.anonymousEnabled}">
-			<h:selectBooleanCheckbox
-				title="postAnonymous" value="#{ForumTool.selectedTopic.topicPostAnonymous}"
-				id="topic_postAnonymous"
+			<h:selectBooleanCheckbox value="#{ForumTool.selectedTopic.topicPostAnonymous}" id="topic_postAnonymous"
 				onclick='togglePostAnonymousOption(this.checked);'
 				disabled="#{!ForumTool.newTopicOrPostAnonymousRevisable}">
 			</h:selectBooleanCheckbox>
@@ -247,9 +235,7 @@
 		</t:htmlTag>
 		<t:htmlTag value="div" id="revealIDsToRolesContainer" style="display: #{ForumTool.selectedTopic.topicPostAnonymous ? '' : 'none'}" styleClass="indnt2 anonTopic" rendered="#{ForumTool.anonymousEnabled}">
 			<p class="checkbox">
-				<h:selectBooleanCheckbox
-					title="revealIDsToRoles" value="#{ForumTool.selectedTopic.topicRevealIDsToRoles}"
-					id="topic_revealIDsToRoles"
+				<h:selectBooleanCheckbox value="#{ForumTool.selectedTopic.topicRevealIDsToRoles}" id="topic_revealIDsToRoles"
 					disabled="#{!ForumTool.newTopicOrRevealIDsToRolesRevisable}">
 				</h:selectBooleanCheckbox>
 				<h:outputLabel for="topic_revealIDsToRoles">
@@ -298,30 +284,21 @@
 
 		<h2><h:outputText value="#{msgs.cdfm_forum_notifications}"/></h2>
 		<p class="checkbox">
-			<h:selectBooleanCheckbox
-				title="allowEmailNotifications" value="#{ForumTool.selectedTopic.topicAllowEmailNotifications}"
-				id="topic_allow_email_notifications"
+			<h:selectBooleanCheckbox value="#{ForumTool.selectedTopic.topicAllowEmailNotifications}" id="topic_allow_email_notifications"
 				onclick='toggleIncludeContentsInEmailsOption(this.checked);resizeFrame();'>
 			</h:selectBooleanCheckbox>
 			<h:outputLabel for="topic_allow_email_notifications" value="#{msgs.cdfm_allowEmailNotifications}" />
 		</p>
 		<h:panelGroup layout="block" id="includeContentsInEmailsContainer" style="display: #{ForumTool.selectedTopic.topicAllowEmailNotifications ? '' : 'none'}" styleClass="indnt2">
 			<p class="checkbox">
-				<h:selectBooleanCheckbox
-					title="includeContentsInEmails" value="#{ForumTool.selectedTopic.topicIncludeContentsInEmails}"
-					id="topic_includeContentsInEmails">
-				</h:selectBooleanCheckbox>
+				<h:selectBooleanCheckbox value="#{ForumTool.selectedTopic.topicIncludeContentsInEmails}" id="topic_includeContentsInEmails"></h:selectBooleanCheckbox>
 				<h:outputLabel for="topic_includeContentsInEmails" value="#{msgs.cdfm_includeContentsInEmails}" />
 			</p>
 		</h:panelGroup>
 
 		<h2><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h2>
 		<p class="checkbox">
-			<h:selectBooleanCheckbox
-				title="autoMarkThreadsRead"
-				value="#{ForumTool.selectedTopic.topicAutoMarkThreadsRead}"
-				id="autoMarkThreadsRead">
-			</h:selectBooleanCheckbox>
+			<h:selectBooleanCheckbox value="#{ForumTool.selectedTopic.topicAutoMarkThreadsRead}" id="autoMarkThreadsRead"></h:selectBooleanCheckbox>
 			<h:outputLabel for="autoMarkThreadsRead" value="#{msgs.cdfm_auto_mark_threads_read}" />
 		</p>
 

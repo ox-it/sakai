@@ -14,7 +14,7 @@
 				<div class="messageDetails">
 					<div class="messageSubject">
 						<%--message subject line --%>
-						<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" title="#{message.message.title}" styleClass="title">
+						<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" styleClass="title">
 							<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
 							<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}" />
 							<f:param value="#{message.message.id}" name="messageId" />
@@ -31,7 +31,7 @@
 					<%--author --%>
 					<span class="messageAuthor">
 						<h:outputText value="#{message.anonAwareAuthor}" rendered="#{!ForumTool.instructor || message.useAnonymousId}" styleClass="#{message.read ? '' : 'unreadMsg'} md #{message.useAnonymousId ? 'anonymousAuthor' : ''}"/>
-						<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title="#{message.anonAwareAuthor}" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="msgAuthorStatsLink md #{message.read ? '' : 'unreadMsg'} #{message.useAnonymousId ? 'anonymousAuthor' : ''}">
+						<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="msgAuthorStatsLink md #{message.read ? '' : 'unreadMsg'} #{message.useAnonymousId ? 'anonymousAuthor' : ''}">
 							<f:param value="#{message.authorEid}" name="siteUserId"/>
 							<h:outputText value=" #{message.anonAwareAuthor}"/>
 						</h:commandLink>

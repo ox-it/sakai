@@ -151,7 +151,7 @@
 						<%-- display deleted message linked if any child messages (not deleted)
 							displays the message "this message has been deleted" if the message has been, um deleted, leaves reply children in place --%>
 						<h:panelGroup styleClass="inactive firstChild" rendered="#{message.deleted && message.depth == 0 && message.childCount > 0}">
-							<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{msgs.cdfm_msg_deleted_label}" >
+							<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true">
 								<h:outputText value="#{msgs.cdfm_msg_deleted_label}" />
 								<f:param value="#{message.message.id}" name="messageId"/>
 								<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
@@ -162,16 +162,14 @@
 						<h:panelGroup rendered="#{!message.deleted}" styleClass="firstChild">
 							<%-- Rendered to view current thread only --%>
 							<%--//designNote:  not sure what this controls - seems to affect all threads except the deleted, pending and denied--%>
-							<h:commandLink styleClass="messagetitlelink" action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{message.message.title}"
-								rendered="#{message.depth == 0}">
+							<h:commandLink styleClass="messagetitlelink" action="#{ForumTool.processActionDisplayThread}" immediate="true" rendered="#{message.depth == 0}">
 								<h:outputText value="#{message.message.title}" rendered="#{message.read && message.childUnread == 0 }" />
 								<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read || message.childUnread > 0}"/>
 								<f:param value="#{message.message.id}" name="messageId"/>
 								<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 								<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
 							</h:commandLink>
-							<h:commandLink styleClass="messagetitlelink" action="#{ForumTool.processActionDisplayMessage}" immediate="true" title=" #{message.message.title}"
-								rendered="#{message.depth != 0 && !message.deleted}" >
+							<h:commandLink styleClass="messagetitlelink" action="#{ForumTool.processActionDisplayMessage}" immediate="true" rendered="#{message.depth != 0 && !message.deleted}">
 								<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
 								<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
 								<f:param value="#{message.message.id}" name="messageId"/>
@@ -221,8 +219,7 @@
 				<%-- mark as unread column --%>
 				<h:column rendered="#{ForumTool.selectedTopic.isMarkAsRead}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_mark_as_read}" escape="false"/></f:facet>
-					<h:outputLink rendered="#{!message.read}" value="javascript:void(0);" title="#{msgs.cdfm_mark_as_read}" styleClass="markAsReadIcon button"
-						onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
+					<h:outputLink rendered="#{!message.read}" value="javascript:void(0);" styleClass="markAsReadIcon button" onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
 						<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
 					</h:outputLink>
 				</h:column>
@@ -236,7 +233,7 @@
 					<h:panelGroup rendered="#{!message.deleted}" >
 						<h:outputText value="#{message.anonAwareAuthor}" rendered="#{!ForumTool.instructor || message.useAnonymousId}" styleClass="#{message.useAnonymousId ? 'anonymousAuthor' : ''}" />
 						<h:outputText value=" #{msgs.cdfm_me}" rendered="#{message.currentUserAndAnonymous}" />
-						<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{message.anonAwareAuthor}" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="#{message.useAnonymousId ? 'anonymousAuthor' : ''}">
+						<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" rendered="#{ForumTool.instructor && !message.useAnonymousId}" styleClass="#{message.useAnonymousId ? 'anonymousAuthor' : ''}">
 							<f:param value="#{message.authorEid}" name="siteUserId"/>
 							<h:outputText value="#{message.anonAwareAuthor}" />
 						</h:commandLink>

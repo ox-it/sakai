@@ -16,12 +16,12 @@
 	</h:column>
 	<h:column>
 			<h:commandLink rendered="#{view.viewId != '/jsp/dfMsgRevise.jsp'}"
-				action="#{ForumTool.processDeleteAttach}" immediate="true" onfocus="document.forms[0].onsubmit();" title="#{msgs.cdfm_remove}">
+				action="#{ForumTool.processDeleteAttach}" immediate="true" onfocus="document.forms[0].onsubmit();">
 				<h:outputText value="#{msgs.cdfm_remove}"/>
 				<f:param value="#{eachAttach.attachment.attachmentId}" name="dfmsg_current_attach"/>
 			</h:commandLink>
 			<h:commandLink rendered="#{view.viewId == '/jsp/dfMsgRevise.jsp'}"
-				action="#{ForumTool.processDeleteAttachRevise}" immediate="true" onfocus="document.forms[0].onsubmit();" title="#{msgs.cdfm_remove}">
+				action="#{ForumTool.processDeleteAttachRevise}" immediate="true" onfocus="document.forms[0].onsubmit();">
 				<h:outputText value="#{msgs.cdfm_remove}"/>
 				<f:param value="#{eachAttach.attachment.attachmentId}" name="dfmsg_current_attach"/>
 			</h:commandLink>

@@ -3,7 +3,7 @@
 <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 <h:panelGroup layout="block" styleClass="noForums" rendered="#{empty ForumTool.forums}">
 	<p class="noForumsMessage"><h:outputText value="#{msgs.cdfm_forum_noforums} " /></p>
-	<h:commandLink  id="create_forum" styleClass="button" title="#{msgs.cdfm_new_forum}" value="#{msgs.cdfm_forum_inf_no_forum_create}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}" />
+	<h:commandLink  id="create_forum" styleClass="button" value="#{msgs.cdfm_forum_inf_no_forum_create}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}" />
 </h:panelGroup>
 <h:outputText styleClass="accessUserCheck" style="display:none" rendered="#{ForumTool.newForum}" value="x"/>
 <script>

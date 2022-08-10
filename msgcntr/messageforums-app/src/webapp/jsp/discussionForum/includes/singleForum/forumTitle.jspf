@@ -1,9 +1,9 @@
 <h2>
-	<h:commandLink action="#{ForumTool.processActionDisplayForum}" title=" #{forum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}"  styleClass="title">
+	<h:commandLink action="#{ForumTool.processActionDisplayForum}" rendered="#{ForumTool.showForumLinksInNav}" styleClass="title">
 		<f:param value="#{forum.forum.id}" name="forumId"/>
 		<h:outputText value="#{forum.forum.title}"/>
 	</h:commandLink>
-	<h:outputText value="#{forum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"  styleClass="title" />
+	<h:outputText value="#{forum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}" styleClass="title" />
 
 	<%-- draft marker --%>
 	<h:outputText id="draft" styleClass="badge-draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}" />

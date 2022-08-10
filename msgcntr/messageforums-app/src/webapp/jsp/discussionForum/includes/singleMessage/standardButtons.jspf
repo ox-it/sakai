@@ -1,6 +1,5 @@
 <%-- mark as read link --%>
 <h:outputLink value="javascript:void(0);"
-	title="#{msgs.cdfm_mark_as_read}"
 	rendered="#{!message.read and ForumTool.selectedTopic.isMarkAsRead}"
 	styleClass="markAsReadIcon button"
 	onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
@@ -8,7 +7,7 @@
 </h:outputLink>
 <%-- Reply link --%>
 <h:panelGroup rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}">
-	<h:commandLink action="#{ForumTool.processDfMsgReplyMsgFromEntire}" title="#{msgs.cdfm_reply}" styleClass="button replyButton">
+	<h:commandLink action="#{ForumTool.processDfMsgReplyMsgFromEntire}" styleClass="button replyButton">
 		<h:outputText value=" #{msgs.cdfm_reply}" />
 		<f:param value="#{message.message.id}" name="messageId" />
 		<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId" />
@@ -31,7 +30,7 @@
 </h:panelGroup>
 <%-- Moderate other action --%>
 <h:panelGroup rendered="#{ForumTool.selectedTopic.isModeratedAndHasPerm}">
-	<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" title=" #{msgs.cdfm_moderate}" value="#{msgs.cdfm_moderate}" styleClass="button">
+	<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" value="#{msgs.cdfm_moderate}" styleClass="button">
 		<f:param value="#{message.message.id}" name="messageId" />
 		<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId" />
 		<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId" />

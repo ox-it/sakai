@@ -206,12 +206,10 @@
 					<f:facet name="header">
 						<h:outputText value=" "/>
 					</f:facet>
-						<h:commandLink action="#{ForumTool.processDeleteAttachSetting}" 
-								immediate="true"
-								title="#{msgs.cdfm_remove}">
+						<h:commandLink action="#{ForumTool.processDeleteAttachSetting}" immediate="true">
 							<h:outputText value="#{msgs.cdfm_remove}"/>
-								<f:param value="#{eachAttach.attachment.attachmentId}" name="dfmsg_current_attach"/>
-							</h:commandLink>
+							<f:param value="#{eachAttach.attachment.attachmentId}" name="dfmsg_current_attach"/>
+						</h:commandLink>
 				  </h:column>
 					<h:column rendered="#{!empty ForumTool.attachments}">
 						<f:facet name="header">
@@ -248,23 +246,17 @@
 			</h2>
 
 				<p class="checkbox">
-					<h:selectBooleanCheckbox
-						title="ForumLocked" value="#{ForumTool.selectedForum.forumLocked}"
-						id="forum_locked">
+					<h:selectBooleanCheckbox value="#{ForumTool.selectedForum.forumLocked}" id="forum_locked">
 					</h:selectBooleanCheckbox>
 					<h:outputLabel for="forum_locked" value="#{msgs.cdfm_lock_forum}" />
 				</p>
 				<p class="checkbox">
-					<h:selectBooleanCheckbox
-						title="Moderated" value="#{ForumTool.selectedForum.forumModerated}"
-						id="moderated">
+					<h:selectBooleanCheckbox value="#{ForumTool.selectedForum.forumModerated}" id="moderated">
 					</h:selectBooleanCheckbox>
 					<h:outputLabel for="moderated" value="#{msgs.cdfm_moderate_forum}" />
 				</p>
 				<p class="checkbox">
-					<h:selectBooleanCheckbox
-						title="postFirst" value="#{ForumTool.selectedForum.forumPostFirst}"
-						id="postFirst">
+					<h:selectBooleanCheckbox value="#{ForumTool.selectedForum.forumPostFirst}" id="postFirst">
 					</h:selectBooleanCheckbox>
 					<h:outputLabel for="postFirst" value="#{msgs.cdfm_postFirst}" />
 				</p>
@@ -312,10 +304,7 @@
 		<h2><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h2>
 			
 			<p class="checkbox">
-				<h:selectBooleanCheckbox
-					title="autoMarkThreadsRead"
-					value="#{ForumTool.selectedForum.forumAutoMarkThreadsRead}"
-					id="autoMarkThreadsRead">
+				<h:selectBooleanCheckbox value="#{ForumTool.selectedForum.forumAutoMarkThreadsRead}" id="autoMarkThreadsRead">
 				</h:selectBooleanCheckbox>
 				<h:outputLabel for="autoMarkThreadsRead"	value="#{msgs.cdfm_auto_mark_threads_read}" />
 			</p>
