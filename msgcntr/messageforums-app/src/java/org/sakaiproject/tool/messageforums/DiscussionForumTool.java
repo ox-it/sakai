@@ -2669,6 +2669,7 @@ public class DiscussionForumTool {
 	Event event = eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventReference(message), null, true, NotificationService.NOTI_OPTIONAL, statement);
     eventTrackingService.post(event);
 
+    setFromMainOrForumOrTopic();
     return MESSAGE_VIEW;
   }
   
@@ -4420,6 +4421,7 @@ public class DiscussionForumTool {
 		Long msgId = selectedMessage.getMessage().getId();
 		deleteMsg = msgId == null ? NO_MESSAGE : msgId;
 	}
+    setFromMainOrForumOrTopic();
     return MESSAGE_VIEW;
   }
 
@@ -4868,9 +4870,15 @@ public class DiscussionForumTool {
 	  // go to thread view or all messages depending on
 	  // where come from
 	  if (!"".equals(fromPage)) {
-		  final String where = fromPage;
+		  String where = fromPage;
 		  fromPage = null;
 		  processActionGetDisplayThread();
+
+		  // If there are no messages in the thread after deletion, return to dfAllMessages/dfFlatView rather than an empty dfThreadView
+		  if (selectedThread.isEmpty()) {
+		      where = FLAT_VIEW.equals(where) ? FLAT_VIEW : ALL_MESSAGES;
+		  }
+
 		  return where;
 	  }
 	  else {
