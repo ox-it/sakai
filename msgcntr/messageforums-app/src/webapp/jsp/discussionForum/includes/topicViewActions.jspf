@@ -17,9 +17,9 @@
 			</h:outputLink>
 		</span>
 		<h:commandLink styleClass="button" value="#{msgs.cdfm_thread_view}"  id="threadView" action="#{ForumTool.processActionDisplayThreadedView}" immediate="true"
-			rendered="#{view.viewId == '/jsp/discussionForum/message/dfFlatView.jsp'}"/>
+			rendered="#{view.viewId == '/jsp/discussionForum/message/dfFlatView.jsp' && !ForumTool.needToPostFirst}"/>
 		<h:commandLink styleClass="button" value="#{msgs.cdfm_flat_view}" action="#{ForumTool.processActionDisplayFlatView}"
-			rendered="#{view.viewId == '/jsp/discussionForum/message/dfAllMessages.jsp'}"/>
+			rendered="#{view.viewId == '/jsp/discussionForum/message/dfAllMessages.jsp' && !ForumTool.needToPostFirst}"/>
 		<h:commandLink styleClass="button" action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}"
 			rendered="#{ForumTool.selectedTopic.changeSettings}">
 			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
