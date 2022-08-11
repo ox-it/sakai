@@ -726,6 +726,12 @@ form{
     font-size:1em;
     color:#555555; 
 }
+.threads-to-move {
+	margin-bottom: 10px;
+}
+.topic-source-list {
+	margin: 10px;
+}
 .calWidget{
     vertical-align:middle;
 }

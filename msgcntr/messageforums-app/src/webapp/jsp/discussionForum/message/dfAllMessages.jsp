@@ -136,14 +136,13 @@
 						</h:outputLink>
 					</f:facet>
 					<%-- moved--%>
-					<h:panelGroup rendered="#{message.moved}">
-						<h:outputText styleClass="textPanelFooter" escape="false" value="| #{message.message.title} - " />
+					<h:panelGroup layout="block" styleClass="conversationMovedMessage sak-banner-info" rendered="#{message.moved}">
+						<h:outputText escape="false" value="\"#{message.message.title}\" #{msgs.moved} " />
 						<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" styleClass="title">
-							<h:outputText value="#{msgs.moved}" />
+							<h:outputText value="#{message.message.topic.title}" />
 							<f:param value="#{message.message.topic.id}" name="topicId"/>
 							<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 						</h:commandLink>
-						<h:outputText escape="false" styleClass="textPanelFooter"  value="#{message.message.topic.title}" />
 					</h:panelGroup>
 					<%-- NOT moved--%>
 					<h:panelGroup rendered="#{!message.moved}">
