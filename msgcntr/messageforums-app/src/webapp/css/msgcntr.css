@@ -199,6 +199,10 @@ h2 + .forumsCollapseTrigger,
 	font-size: 16px;
 	font-weight: normal;
 }
+.topicTitle sakai-rubric-student-preview-button {
+	/* standardize the size of the Rubrics icon across pages and headings to match the badge size and forumTitle heading */
+	font-size: 18px;
+}
 .forumsNavBar + .page-header {
 	margin-top: 0;
 }
