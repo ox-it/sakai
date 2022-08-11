@@ -346,6 +346,9 @@ h2 + .forumsCollapseTrigger,
 .allMessages thead th[data-column="1"], .allMessages thead th[data-column="5"] {
 	text-align: center;
 }
+.allMessages.student tr td:first-child, .allMessages.student tr th:first-child {
+	display: none;
+}
 .allMessages thead th.header{
 	text-align: left;
 }
@@ -361,13 +364,8 @@ h2 + .forumsCollapseTrigger,
 	text-align: center;
 }
 .allMessages tbody td.messageTitle a[href] {
-	margin-left: 8px;
 	/* allocate some space for any badges */
 	margin-right: 4px;
-}
-.allMessages tbody input#moveCheckbox {
-	margin-left: 6px;
-	margin-right: 6px;
 }
 .allMessages tbody td.unreadCountColumn + td {
 	padding: 8px;
