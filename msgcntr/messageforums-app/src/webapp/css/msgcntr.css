@@ -952,7 +952,7 @@ div.msgcntr-profile-qtip {
 	border-radius: 4px;
 	background-color: transparent;
 	line-height: 1;
-	color: #555;
+	color: #444; /* needed for colour contrast with badge background colours */
 	font-size: 12px;
 	font-weight: bold;
 	white-space: nowrap;
@@ -967,6 +967,7 @@ div.msgcntr-profile-qtip {
 }
 .badge-locked {
 	background-color: #fbced0; 
+	color: #333; /* needed for colour contrast with badge background colours */
 }
 .badge-moderated {
 	background-color: #f5dfb0;
@@ -977,9 +978,11 @@ div.msgcntr-profile-qtip {
 }
 .badge-unavailable {
 	background-color: #fbbf72;
+	color: #333; /* needed for colour contrast with badge background colours */
 }
 .badge-inactive {
-	background-color: #f2a9d2;
+	background-color: #f3Afd6;
+	color: #303030; /* needed for colour contrast with badge background colours */
 }
 .badge-post-first {
 	background-color: #b5ffc8;
@@ -989,10 +992,10 @@ div.msgcntr-profile-qtip {
 }
 .messagePending{
 	background-color: #91d7ee;
+	color: #333; /* needed for colour contrast with badge background colours */
 }
 .messageDenied{
-	background-color: #f9a;
-	color: #444;
+	background-color: #ffadbb;
 }
 .forumsNavBar {
 	display:flex;
