@@ -20,10 +20,9 @@ if (thisId == null)
       <h:form id="revise">
                 <script>includeLatestJQuery("msgcntr");</script>
 
-       		<script src="/messageforums-tool/js/forum.js"></script>
-			<%--			--%>
-       		<script src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script src="/messageforums-tool/js/messages.js"></script>
+       		<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+       		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+       		<script src="/messageforums-tool/js/messages.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 
 		<script>
 			$(document).ready(function(){

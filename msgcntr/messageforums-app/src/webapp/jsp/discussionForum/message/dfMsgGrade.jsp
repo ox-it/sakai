@@ -15,14 +15,14 @@
 <f:view>
     <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
         <script>includeLatestJQuery("msgcntr");</script>
-        <script src="/messageforums-tool/js/sak-10625.js"></script>
-        <script src="/messageforums-tool/js/messages.js"></script>
-        <script src="/messageforums-tool/js/forum.js"></script>
+        <script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+        <script src="/messageforums-tool/js/messages.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+        <script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <script>includeWebjarLibrary("qtip2");</script>
         <script>includeWebjarLibrary('ckeditor')</script>
         <script>includeWebjarLibrary('awesomplete')</script>
-        <script src="/library/js/sakai-reminder.js"></script>
-        <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+        <script src="/library/js/sakai-reminder.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+        <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
         <h:form id="msgForum">
             <!--jsp\discussionForum\message\dfMsgGrade.jsp-->

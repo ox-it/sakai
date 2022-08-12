@@ -120,10 +120,10 @@
 			}
 		</script>
        		<script>includeLatestJQuery("msgcntr");</script>
-			<script src="/messageforums-tool/js/dialog.js"></script>
-			<script src="/library/js/spinner.js"></script>
-			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
-			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
+			<script src="/messageforums-tool/js/dialog.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+			<script src="/library/js/spinner.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css<h:outputText value="#{ForumTool.CDNQuery}" />" />
+			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css<h:outputText value="#{ForumTool.CDNQuery}" />" />
 		<script>		
 			function toggleComments(link){
 				if(link.innerHTML == "<h:outputText value="#{msgs.stat_forum_comments_show}" escape="false"/>"){

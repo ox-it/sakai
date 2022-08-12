@@ -15,9 +15,9 @@
 			<h:inputHidden id="currentForumId" value="#{ForumTool.selectedForum.forum.id}"/>
 			<script>includeLatestJQuery("msgcntr");</script>
 			<script>includeWebjarLibrary("qtip2");</script>
-			<script src="/messageforums-tool/js/forum.js"></script>
-			<script src="/messageforums-tool/js/sak-10625.js"></script>
-			<script src="/messageforums-tool/js/messages.js"></script>
+			<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+			<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+			<script src="/messageforums-tool/js/messages.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 			
 			<!--jsp/discussionForum/message/dfViewMessage.jsp-->
 			<script>

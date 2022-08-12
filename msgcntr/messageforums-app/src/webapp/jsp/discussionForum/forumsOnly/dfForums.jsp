@@ -19,8 +19,8 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 <f:view>
   <sakai:view title="#{msgs.cdfm_discussion_forums}" toolCssHref="/messageforums-tool/css/msgcntr.css">
   		<script>includeLatestJQuery("msgcntr");</script>
-		<script src="/messageforums-tool/js/sak-10625.js"></script>
-		<script src="/messageforums-tool/js/forum.js"></script>
+		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+		<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script>
 			$(document).ready(function () {
 				var menuLink = $('#forumsMainMenuLink');

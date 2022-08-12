@@ -12,7 +12,7 @@
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
         <script>includeLatestJQuery("msgcntr");</script>
-        <script src="/messageforums-tool/js/messages.js"></script>
+        <script src="/messageforums-tool/js/messages.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
 		<script>
 			$(document).ready(function(){
@@ -34,8 +34,8 @@
     		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
   		}
 		%>
-       		<script src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script src="/messageforums-tool/js/forum.js"></script>			
+		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+		<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<%--//designNote: this just feels weird - presenting somehting that sort of looks like the form used to create the topic (with an editable permissions block!) to comfirm deletion --%>
 <!--jsp/discussionForum/topic/dfTopicSettings.jsp-->
 		<%--<sakai:tool_bar_message value="#{msgs.cdfm_delete_topic_title}"/>--%>

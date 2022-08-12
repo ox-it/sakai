@@ -11,8 +11,8 @@
 		<h:form id="msgForum" styleClass="specialLink">
 			
 	       		<script>includeLatestJQuery("msgcntr");</script>
-       		<script src="/messageforums-tool/js/sak-10625.js"></script>
-		<script src="/messageforums-tool/js/forum.js"></script>
+		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+		<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 
 
 			<h3>

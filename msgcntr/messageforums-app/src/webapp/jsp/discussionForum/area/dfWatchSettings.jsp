@@ -12,8 +12,8 @@
    <sakai:view title="#{msgs.watch_forums_options}" toolCssHref="/messageforums-tool/css/msgcntr.css">
       <h:form id="revise">
         		<script>includeLatestJQuery("msgcntr");</script>
-       		<script src="/messageforums-tool/js/sak-10625.js"></script>
-       		<script src="/messageforums-tool/js/messages.js"></script>
+       		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+       		<script src="/messageforums-tool/js/messages.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
           <script>
               $(document).ready(function() {
                   var menuLink = $('#forumsWatchMenuLink');

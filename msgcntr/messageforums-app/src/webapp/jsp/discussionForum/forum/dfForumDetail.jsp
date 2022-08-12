@@ -10,8 +10,8 @@
 <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
     <h:form id="msgForum" rendered="#{!ForumTool.selectedForum.forum.draft || ForumTool.selectedForum.forum.createdBy == ForumTool.userId}">
 		<script>includeLatestJQuery("msgcntr");</script>
-		<script src="/messageforums-tool/js/sak-10625.js"></script>
-		<script src="/messageforums-tool/js/forum.js"></script>
+		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+		<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script>

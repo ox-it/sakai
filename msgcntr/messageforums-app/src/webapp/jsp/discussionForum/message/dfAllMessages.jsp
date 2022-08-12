@@ -9,28 +9,28 @@
 
 <f:view>
 	<sakai:view title="Forums">
-<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css" type="text/css" />
-<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css" type="text/css" />
-<link rel="stylesheet" href="/messageforums-tool/css/msgcntr_move_thread.css" type="text/css" />
+<link rel="stylesheet" href="/library/webjars/jquery-ui/1.12.1/jquery-ui.min.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
+<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
+<link rel="stylesheet" href="/messageforums-tool/css/msgcntr_move_thread.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
 
 <!-- messageforums-app/src/webapp/jsp/discussionForum/message-->
 
 <script>includeLatestJQuery("msgcntr");</script>
-<script src="/messageforums-tool/js/json2.js"></script>
-<script src="/messageforums-tool/js/fluidframework-min.js"></script>
-<script src="/messageforums-tool/js/Scroller.js"></script>
-<script src="/messageforums-tool/js/forum.js"></script>
-<script src="/messageforums-tool/js/frameAdjust.js"></script>
-<script src="/messageforums-tool/js/forum_movethread.js"></script>
+<script src="/messageforums-tool/js/json2.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+<script src="/messageforums-tool/js/fluidframework-min.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+<script src="/messageforums-tool/js/Scroller.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+<script src="/messageforums-tool/js/frameAdjust.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+<script src="/messageforums-tool/js/forum_movethread.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 
-<script src="/messageforums-tool/js/sak-10625.js"></script>
+<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 <script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 <script type="module" src="/webcomponents/rubrics/rubric-association-requirements.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
-		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />
+		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css<h:outputText value="#{ForumTool.CDNQuery}" />" />
 		<script>includeWebjarLibrary('jquery.tablesorter');</script>
-		<script src="/messageforums-tool/js/forumTopicThreadsSorter.js"></script>
+		<script src="/messageforums-tool/js/forumTopicThreadsSorter.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script>
  		jQuery(document).ready(function(){
  			//sort forum threads

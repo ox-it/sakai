@@ -19,12 +19,12 @@
 
 		<!--jsp/discussionForum/message/dfViewThread.jsp-->
        		<script>includeLatestJQuery("msgcntr");</script>
-  			<script src="/messageforums-tool/js/dialog.js"></script>
+			<script src="/messageforums-tool/js/dialog.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 			<script>includeWebjarLibrary("qtip2");</script>
-			<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css" type="text/css" />
-  			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />	
-       		<script src="/messageforums-tool/js/sak-10625.js"></script>
-		<script src="/messageforums-tool/js/forum.js"></script>
+			<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
+			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css<h:outputText value="#{ForumTool.CDNQuery}" />" />
+		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+		<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script src="/webcomponents/rubrics/sakai-rubrics-utils.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script>
 			$(document).ready(function () {

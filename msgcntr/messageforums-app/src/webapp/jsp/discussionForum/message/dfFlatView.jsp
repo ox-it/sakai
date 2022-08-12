@@ -14,12 +14,12 @@
 
 	<!--jsp/discussionForum/message/dfFlatView.jsp-->
 		<script>includeLatestJQuery("msgcntr");</script>
-		<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css" type="text/css" />
-		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
+		<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
+		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css<h:outputText value="#{ForumTool.CDNQuery}" />" />
 		<script>includeWebjarLibrary("qtip2");</script>
-		<script src="/messageforums-tool/js/sak-10625.js"></script>
-		<script src="/messageforums-tool/js/forum.js"></script>
-		<script src="/messageforums-tool/js/dialog.js"></script>
+		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+		<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+		<script src="/messageforums-tool/js/dialog.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
         <script>
             $(document).ready(function(){
