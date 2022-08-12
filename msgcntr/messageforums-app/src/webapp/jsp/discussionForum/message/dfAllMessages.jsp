@@ -254,7 +254,7 @@
 			</mf:hierDataTable>
 		</div>
 		<div class="forumsTableFooter">
-			<h:panelGroup layout="block" styleClass="post_move_links" rendered="#{ForumTool.selectedTopic.isMovePostings}">
+			<h:panelGroup layout="block" styleClass="post_move_links" rendered="#{ForumTool.selectedTopic.isMovePostings && !empty ForumTool.messages}">
 				<%-- hidden link to call ForumTool.processMoveThread  --%>
 				<h:commandLink value="" action="#{ForumTool.processMoveThread}" id="hidden_move_message_commandLink" ></h:commandLink>
 				<h:commandLink value="" action="$('.topic-picker').dialog('close');" id="hidden_close_move_thread" ></h:commandLink>
