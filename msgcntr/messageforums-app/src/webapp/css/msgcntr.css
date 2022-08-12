@@ -439,6 +439,12 @@ h2 + .forumsCollapseTrigger,
 .itemToolBar.itemToolBar .replyButton.button {
 	margin-right: auto;
 }
+.itemToolBar a.markAsReadIcon.button {
+	margin-right: auto;
+}
+.itemToolBar a.markAsReadIcon.button.marginReset {
+	margin-right: 0;
+}
 .forumsTableFooter {
 	display: flex;
 	align-items: center;

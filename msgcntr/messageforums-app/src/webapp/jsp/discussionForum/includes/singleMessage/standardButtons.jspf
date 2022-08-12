@@ -1,7 +1,7 @@
 <%-- mark as read link --%>
 <h:outputLink value="javascript:void(0);"
 	rendered="#{!message.read and ForumTool.selectedTopic.isMarkAsRead}"
-	styleClass="markAsReadIcon button"
+	styleClass="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true' ? 'markAsReadIcon button marginReset' : 'markAsReadIcon button'}"
 	onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
 	<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
 </h:outputLink>
