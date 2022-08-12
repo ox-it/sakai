@@ -350,7 +350,7 @@ h2 + .forumsCollapseTrigger,
 .allMessages thead th[data-column="1"], .allMessages thead th[data-column="5"] {
 	text-align: center;
 }
-.allMessages.student tr td:first-child, .allMessages.student tr th:first-child {
+.allMessages.hideMoveCol tr td:first-child, .allMessages.hideMoveCol tr th:first-child {
 	display: none;
 }
 .allMessages thead th.header{
@@ -370,6 +370,9 @@ h2 + .forumsCollapseTrigger,
 .allMessages tbody td.messageTitle a[href] {
 	/* allocate some space for any badges */
 	margin-right: 4px;
+}
+.allMessages tbody td.messagesCountColumn span, .allMessages tbody td.unreadCountColumn span {
+	white-space: nowrap
 }
 .allMessages tbody td.unreadCountColumn + td {
 	padding: 8px;

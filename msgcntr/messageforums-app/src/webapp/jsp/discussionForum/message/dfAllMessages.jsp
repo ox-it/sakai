@@ -120,8 +120,8 @@
 		<h:outputText value="#{msgs.cdfm_no_messages}" rendered="#{ForumTool.selectedTopic == null || (empty ForumTool.selectedTopic.messages && !ForumTool.needToPostFirst)}" styleClass="sak-banner-info" style="display:block"/>
 		<%--//gsilver: need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%>
 		<div id="checkbox" class="table-responsive">
-			<mf:hierDataTable styleClass="#{ForumTool.instructor ? 'table-hover allMessages' : 'table-hover allMessages student'}" id="messagesInHierDataTable" rendered="#{!empty ForumTool.messages}"  value="#{ForumTool.messages}" var="message" expanded="#{ForumTool.expanded}"
-					columnClasses="attach, attach,messageTitle,messagesCountColumn,unreadCountColumn,attach,bogus,bogus">
+			<mf:hierDataTable styleClass="#{ForumTool.selectedTopic.isMovePostings ? 'table-hover allMessages' : 'table-hover allMessages hideMoveCol'}" id="messagesInHierDataTable" rendered="#{!empty ForumTool.messages}"  value="#{ForumTool.messages}" var="message" expanded="#{ForumTool.expanded}"
+					columnClasses="attach,attach,messageTitle,messagesCountColumn,unreadCountColumn,attach,bogus,bogus">
 				<h:column id="_checkbox">
 				</h:column>
 				<h:column id="_toggle">
