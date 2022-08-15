@@ -1019,6 +1019,7 @@ public class DiscussionForumTool {
       log.error("Forum not found");
       return gotoMain();
     }
+    setForumBeanAssign();
     return FORUM_DETAILS;
   }
 
