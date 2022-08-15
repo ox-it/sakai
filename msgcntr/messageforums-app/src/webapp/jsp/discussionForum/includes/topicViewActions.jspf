@@ -29,7 +29,7 @@
 			rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
 			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 		</h:commandLink>
-		<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
+		<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');" rendered="#{!ForumTool.needToPostFirst && !empty ForumTool.messages}">
 			<h:outputText value="#{msgs.cdfm_print}" />
 		</h:outputLink>
 	</h:panelGroup>
