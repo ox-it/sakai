@@ -209,16 +209,16 @@
 					</f:facet>
 					<%-- // display  ('unread ') if unread message is>= 1 --%>
 					<h:outputText styleClass="badge-new childrenNew childrenNewNumber" id="topic_msg_count55" value="#{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_lowercase_unread_msg}"
-						rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) >= 1}"/>
+						rendered="#{!message.moved && message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) >= 1}"/>
 					<%-- // display ('unread ') with different style sheet if unread message is 0 --%>  
 					<h:outputText id="topic_msg_count57" value="  #{(message.childUnread) + (message.read ? 0 : 1)} #{msgs.cdfm_lowercase_unread_msg}" 
-						rendered="#{message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) == 0}"/> 
+						rendered="#{!message.moved && message.depth == 0 && ((message.childUnread) + (message.read ? 0 : 1)) == 0}"/>
 				</h:column>
 					
-				<%-- mark as unread column --%>
+				<%-- mark as read column --%>
 				<h:column rendered="#{ForumTool.selectedTopic.isMarkAsRead}">
 					<f:facet name="header"><h:outputText value="#{msgs.cdfm_mark_as_read}" escape="false"/></f:facet>
-					<h:outputLink rendered="#{!message.read}" value="javascript:void(0);" styleClass="markAsReadIcon button" onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
+					<h:outputLink rendered="#{!message.read && !message.moved}" value="javascript:void(0);" styleClass="markAsReadIcon button" onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
 						<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
 					</h:outputLink>
 				</h:column>
