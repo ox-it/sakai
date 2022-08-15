@@ -160,22 +160,21 @@ Licenses.
         });
 
 	$(".threads-to-move", container).html(itemHTML);
-    }
+    };
 
     var buildSourceListScroller = function () {
         var itemHTML = "";
         var topics= getJSONData("topics").topics;
         var totalTopics= topics.length;
+        const sourceTopicId = $("#msgForum\\:picker2\\:sourceTopicId").val();
         for (var j = 0; j < totalTopics; j++) {
-		var sourcetitle = $(".sourcetitle").text();
-		var currtopic = topics[j].topictitle ;
-		if ( sourcetitle == currtopic) { 
-			// if current topic, greyed out disable radio selection
-            		itemHTML += makeSourceListItemDisabled(topics[j]);
-		}
-		else {
-            		itemHTML += makeSourceListItem(topics[j]);
-		}
+            if (sourceTopicId == topics[j].topicid) { // we want '==' here, not '===' as we're relying on type coercion (sourceTopicId is String, topicId is int)
+                // if current topic, greyed out disable radio selection
+                itemHTML += makeSourceListItemDisabled(topics[j]);
+            }
+            else {
+                itemHTML += makeSourceListItem(topics[j]);
+            }
         }
         $(sourceList).html(itemHTML);
 /*

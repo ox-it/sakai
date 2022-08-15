@@ -4,6 +4,7 @@
                 <h:outputText value="#{msgs.move_thread_info1} "/>
                 <h:outputText styleClass="sourcetitle" escape="true" value="#{ForumTool.selectedTopic.topic.title}" />
                 <h:outputText value=" #{msgs.move_thread_info2}" />
+                <h:inputHidden value="#{ForumTool.selectedTopic.topic.id}" id="sourceTopicId" />
             </p>
             <div class="threads-to-move" escape="true"></div>
             <label style="font-weight:normal"><input class="checkbox-reminder" id="checkbox-reminder" type="checkbox" name="checkbox-reminder" /> <h:outputText value="#{msgs.leave_reminder}" /></label>
