@@ -2684,7 +2684,8 @@ public class DiscussionForumTool {
 	    	mes = messageManager.getMessageById(mes.getInReplyTo().getId());
 	    }
 	    selectedThreadHead = new DiscussionMessageBean(mes, messageManager);
-	    
+		selectedThreadHead.setRead(messageManager.isMessageReadForUser(mes.getTopic().getId(), mes.getId()));
+
 	    if(selectedTopic == null)
 	    {
 	    	log.debug("selectedTopic is null in getThreadFromMessage.");
@@ -5979,6 +5980,7 @@ public class DiscussionForumTool {
             selectedMessage = new DiscussionMessageBean(
                 messageManager.getMessageByIdWithAttachments(selectedMessage.getMessage().getId()),
                 messageManager);
+			selectedMessage.setRead(true);
 
         	Message msg = selectedMessage.getMessage();
         //SAK-30711

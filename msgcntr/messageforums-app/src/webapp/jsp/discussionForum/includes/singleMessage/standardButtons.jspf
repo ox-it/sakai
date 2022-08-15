@@ -17,7 +17,7 @@
 <%-- link to grade --%>
 <h:panelGroup rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
 	<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame" styleClass="button"
-		onclick="dialogLinkClick(this);">
+		onclick="dialogLinkClick(this);displayAsReadAfterGrading(this);">
 		<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 		<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 		<f:param value="#{message.message.id}" name="messageId"/>

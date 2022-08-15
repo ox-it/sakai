@@ -406,20 +406,7 @@ function doAjax(messageId, topicId, self){
 						$(self).css("visibility", "hidden");
                     }
                     else {
-						//in dfFlatView - remove "New" flag, as well as link target for the thread navigator
-						const $parentTr = $(self).parents('tr');
-						$parentTr.removeClass('messageNewNext');
-						$parentTr.find('span.messageNew + a.messageNewAnchor').remove();
-						$parentTr.find("span.messageNew").remove();
-						// remove "Go to first new message" link if all messages have been marked as "read"
-                        if ($('.messagesThreaded').find('span.messageNew + a.messageNewAnchor').size() === 0) {
-                            $('.jumpToNew').not('#jumpToNewPending').remove();
-                            $('.button.markAllAsRead').remove(); // also remove mark all as read button
-                        }
-						// increment the read by count
-						$readByCount = $parentTr.find(".readByCount");
-						const readBy = parseInt($readByCount.text(), 10);
-						$readByCount.text(readBy + 1);
+						markAsReadFlat(self);
 
 						$(self).remove();
                     }
@@ -442,6 +429,46 @@ function doAjax(messageId, topicId, self){
     });
     //$.ajax({type: "GET", url: location.href, data: ""});
     return false;
+}
+
+// lifted from doAjax to also handle marking as read after grading from modal dialog
+function markAsReadFlat(self)
+{
+	//in dfFlatView - remove "New" flag, as well as link target for the thread navigator
+	const $parentTr = $(self).parents('tr');
+	$parentTr.removeClass('messageNewNext');
+	$parentTr.find('span.messageNew + a.messageNewAnchor').remove();
+	$parentTr.find("span.messageNew").remove();
+	// remove "Go to first new message" link if all messages have been marked as "read"
+	if ($('.messagesThreaded').find('span.messageNew + a.messageNewAnchor').size() === 0) {
+		$('.jumpToNew').not('#jumpToNewPending').remove();
+		$('.button.markAllAsRead').remove(); // also remove mark all as read button
+	}
+	// increment the read by count
+	$readByCount = $parentTr.find(".readByCount");
+	const readBy = parseInt($readByCount.text(), 10);
+	$readByCount.text(readBy + 1);
+}
+
+function displayAsReadAfterGrading(self)
+{
+	const $parentTr = $(self).parents('tr');
+	const $markBtn = $parentTr.find('.markAsReadIcon');
+	if ($markBtn.length === 0)
+	{
+		return; // no mark as read button, message has already been read, just return
+	}
+
+	markAsReadFlat(self);
+	$markBtn.remove();
+
+	// This also gets called by doAjax regardless of allMessages/flatView so need to run it here:
+	//remove at end after references are not needed
+	$parentTr.children("td").each(function(){
+		this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus');
+	});
+
+	return false;
 }
 
 $(document).ready(function() {
