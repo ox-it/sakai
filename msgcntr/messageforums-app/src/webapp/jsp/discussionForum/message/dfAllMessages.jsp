@@ -137,7 +137,7 @@
 					</f:facet>
 					<%-- moved--%>
 					<h:panelGroup layout="block" styleClass="conversationMovedMessage sak-banner-info" rendered="#{message.moved}">
-						<h:outputText escape="false" value="\"#{message.message.title}\" #{msgs.moved} " />
+						<h:outputText escape="false" value="\"#{message.message.title}\" #{msgs.hasBeen} #{msgs.moved} " />
 						<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" styleClass="title">
 							<h:outputText value="#{message.message.topic.title}" />
 							<f:param value="#{message.message.topic.id}" name="topicId"/>

@@ -9,8 +9,18 @@
 			<%-- a deleted message --%>
 			<h:outputText styleClass="inactive" rendered="#{message.deleted}" value="#{msgs.cdfm_msg_deleted_label}" />
 
+			<%-- moved--%>
+			<h:panelGroup layout="block" styleClass="conversationMovedMessage sak-banner-info" rendered="#{message.moved}">
+				<h:outputText escape="false" value="\"#{message.message.title}\" #{msgs.hasBeen} #{msgs.moved}" />
+				<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" styleClass="title">
+					<h:outputText value="#{message.message.topic.title}" />
+					<f:param value="#{message.message.topic.id}" name="topicId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+				</h:commandLink>
+			</h:panelGroup>
+
 			<%-- non deleted messages --%>
-			<h:panelGroup layout="block" styleClass="messageMetadata" rendered="#{!message.deleted}">
+			<h:panelGroup layout="block" styleClass="messageMetadata" rendered="#{!message.deleted && !message.moved}">
 				<div class="messageDetails">
 					<div class="messageSubject">
 						<%--message subject line --%>
@@ -61,7 +71,7 @@
 			<%-- End of div for messageMetadata --%>
 
 					<%-- Rank --%>
-					<h:panelGroup rendered="#{message.authorRank != null}">
+					<h:panelGroup rendered="#{message.authorRank != null && !message.moved}">
 					<f:verbatim><div class="forumsRank"></f:verbatim>
 						<h:outputText escape="false" rendered="#{not empty message.authorRank.rankImage.attachmentId}" value="<img src=\"#{message.authorRank.rankImage.attachmentUrl}\" class=\"rankImage\" alt=\"Rank Image\" height=\"35\" width=\"35\" />" />
 
@@ -73,21 +83,21 @@
 					</h:panelGroup>
 					<%-- End Rank --%>
 	<%-- the message body--%>
-	<t:div rendered="#{!message.deleted}" styleClass="messageBody"><mf:htmlShowArea value="#{message.message.body}" hideBorder="true"/></t:div>
+	<t:div rendered="#{!message.deleted && !message.moved}" styleClass="messageBody"><mf:htmlShowArea value="#{message.message.body}" hideBorder="true"/></t:div>
 	<%-- attach list --%>
-	<h:panelGroup rendered="#{!empty message.attachList && !message.deleted}">
+	<h:panelGroup rendered="#{!empty message.attachList && !message.deleted && !message.moved}">
 		<t:dataList value="#{message.attachListAsSingletonList}" var="attachList">
 			<%@ include file="/jsp/discussionForum/includes/attachments.jspf"%>
 		</t:dataList>
 	</h:panelGroup>
 
 	<%-- If message actually deleted, don't display links --%>
-	<h:panelGroup layout="block" rendered="#{!message.deleted &&
+	<h:panelGroup layout="block" rendered="#{!message.deleted && !message.moved &&
 			(view.viewId == '/jsp/discussionForum/message/dfViewThread.jsp' || view.viewId == '/jsp/discussionForum/message/dfFlatView.jsp')}" styleClass="itemToolBar">
 		<%-- reply and other message actions panel for the thread pages in the tool (dfViewThread/dfFlatView)--%>
 		<%@ include file="/jsp/discussionForum/includes/singleMessage/standardButtons.jspf"%>
 	</h:panelGroup>
-	<h:panelGroup layout="block" rendered="#{!ForumTool.deleteMsg && !message.deleted && view.viewId == '/jsp/discussionForum/message/dfViewMessage.jsp'}" styleClass="itemToolBar">
+	<h:panelGroup layout="block" rendered="#{!ForumTool.deleteMsg && !message.deleted && !message.moved && view.viewId == '/jsp/discussionForum/message/dfViewMessage.jsp'}" styleClass="itemToolBar">
 		<%-- reply and other message actions panel for the single message view only (dfViewMessage) because different buttons and actions are available than on thread pages --%>
 		<%@ include file="/jsp/discussionForum/includes/singleMessage/dfViewMessageButtons.jspf"%>
 	</h:panelGroup>
