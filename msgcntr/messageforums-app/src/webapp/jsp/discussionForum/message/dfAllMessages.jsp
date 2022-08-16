@@ -246,7 +246,7 @@
 					</h:outputLink>
 					</f:facet>
 					<h:panelGroup rendered="#{!message.deleted}" >
-						<h:outputText styleClass="#{!message.read ? 'unreadMsg' : ''}" value="#{message.message.created}">
+						<h:outputText styleClass="#{!message.read && !message.moved ? 'unreadMsg' : ''}" value="#{message.message.created}">
 							<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 						</h:outputText>
 					</h:panelGroup>
