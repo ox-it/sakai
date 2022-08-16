@@ -24,7 +24,7 @@
         <script src="/library/js/sakai-reminder.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <script src="/webcomponents/assets/@webcomponents/webcomponentsjs/webcomponents-loader.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
-        <h:form id="msgForum">
+        <h:form id="msgForum" styleClass="dfMsgGradeForm">
             <!--jsp\discussionForum\message\dfMsgGrade.jsp-->
 
             <%
