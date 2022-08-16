@@ -9,8 +9,9 @@
 </jsp:useBean>
 
 <f:view>
-	<sakai:view title="#{msgs.cdfm_default_template_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
+	<sakai:view title="#{msgs.cdfm_default_template_settings}">
 	<h:form id="revise">
+		<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
         <script>includeLatestJQuery("msgcntr");</script>
 		<script src="/messageforums-tool/js/datetimepicker.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>

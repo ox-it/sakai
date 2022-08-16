@@ -40,7 +40,8 @@
 %>
 
 <f:view>
-  <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
+  <sakai:view>
+	  <link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
   	<h:form id="dfStatisticsForm" rendered="#{ForumTool.instructor}">
   	<!-- discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser.jsp-->
   		<script>

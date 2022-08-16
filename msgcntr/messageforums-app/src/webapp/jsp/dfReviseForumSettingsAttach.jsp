@@ -8,9 +8,10 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 <f:view>
-	<sakai:view title="#{msgs.cdfm_discussion_forum_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
+	<sakai:view title="#{msgs.cdfm_discussion_forum_settings}">
 	<script>includeLatestJQuery("msgcntr");</script>
 	<script>includeWebjarLibrary("momentjs");</script>
+	<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
 	<script src="/messageforums-tool/js/jquery.charcounter.js<h:outputText value="#{ForumTool.CDNQuery}" />"> </script>
 	<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 	<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>

@@ -8,13 +8,14 @@
 </jsp:useBean>
 
 <f:view>
-	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
+	<sakai:view>
 		<h:form id="msgForum" styleClass="specialLink" prependId = "false">
 			<h:inputHidden id="currentMessageId" value="#{ForumTool.selectedMessage.message.id}"/>
 			<h:inputHidden id="currentTopicId" value="#{ForumTool.selectedTopic.topic.id}"/>
 			<h:inputHidden id="currentForumId" value="#{ForumTool.selectedForum.forum.id}"/>
 			<script>includeLatestJQuery("msgcntr");</script>
 			<script>includeWebjarLibrary("qtip2");</script>
+			<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
 			<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 			<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
 			<script src="/messageforums-tool/js/messages.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>

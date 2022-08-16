@@ -13,8 +13,9 @@
 </jsp:useBean>
 
 <f:view>
-    <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
+    <sakai:view>
         <script>includeLatestJQuery("msgcntr");</script>
+		<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
         <script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <script src="/messageforums-tool/js/messages.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
         <script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>

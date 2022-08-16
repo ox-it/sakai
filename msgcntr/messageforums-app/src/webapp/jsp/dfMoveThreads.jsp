@@ -7,7 +7,8 @@
 </jsp:useBean>
 
 <f:view>
-    <sakai:view title="#{msgs.cdfm_container_title}" toolCssHref="/messageforums-tool/css/msgcntr.css">
+    <sakai:view title="#{msgs.cdfm_container_title}">
+	<link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css<h:outputText value="#{ForumTool.CDNQuery}" />" type="text/css" />
     <!--jsp/dfMoveThreads.jsp-->
         <h:form id="dfCompose">
 			<f:verbatim><input type="hidden" id="currentMessageId" name="currentMessageId" value="</f:verbatim><h:outputText value="#{ForumTool.selectedMessage.message.id}"/><f:verbatim>"/></f:verbatim>
