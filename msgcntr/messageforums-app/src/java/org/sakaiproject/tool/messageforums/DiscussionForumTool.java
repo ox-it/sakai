@@ -3571,6 +3571,7 @@ public class DiscussionForumTool {
   // compose
   public String processAddMessage()
   {
+    setFromMainOrForumOrTopic();
     return MESSAGE_COMPOSE;
   }
 
@@ -3677,7 +3678,24 @@ public class DiscussionForumTool {
 
     this.attachments.clear();
 
-    return ALL_MESSAGES;
+
+    setFromMainOrForumOrTopic();
+    return returnFromPageOrAllMessages();
+  }
+
+  /**
+   * Returns to the page fromPage is set to, or if not set, return to ALL_PAGES
+   */
+  private String returnFromPageOrAllMessages()
+  {
+    if (!"".equals(fromPage)) {
+        final String where = fromPage;
+        fromPage = null;
+        return where;
+    }
+    else {
+        return ALL_MESSAGES;
+    }
   }
 
   public String processDfMsgPost()
@@ -3722,7 +3740,7 @@ public class DiscussionForumTool {
     	gotoMain();
     }
 
-    return ALL_MESSAGES;
+    return returnFromPageOrAllMessages();
   }
   
   private void updateThreadLastUpdatedValue(Message message, int numOfAttempts) throws Exception{
