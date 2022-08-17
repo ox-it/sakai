@@ -689,6 +689,9 @@ table.discTria:hover{
 .printTable td .title{
 	font-weight: bold;
 }
+.printTable td div.sak-banner-info {
+	background-color: unset;
+}
 .printBlock .bordered{
 	border-color: #ccc;
 }
