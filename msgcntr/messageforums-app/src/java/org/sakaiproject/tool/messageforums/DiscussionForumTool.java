@@ -3680,13 +3680,15 @@ public class DiscussionForumTool {
 
 
     setFromMainOrForumOrTopic();
-    return returnFromPageOrAllMessages();
+    return returnFromPageOrAllMessages(ALL_MESSAGES);
   }
 
   /**
    * Returns to the page fromPage is set to, or if not set, return to ALL_PAGES
+   * @param defaultReturnPage if not empty or null, return to defaultReturnPage if fromPage is not set.
+   *    If fromPage and defaultReturnPage are both not set, return to ALL_MESSAGES.
    */
-  private String returnFromPageOrAllMessages()
+  private String returnFromPageOrAllMessages(String defaultReturnPage)
   {
     if (!"".equals(fromPage)) {
         final String where = fromPage;
@@ -3694,7 +3696,7 @@ public class DiscussionForumTool {
         return where;
     }
     else {
-        return ALL_MESSAGES;
+        return StringUtils.isNotBlank(defaultReturnPage) ? defaultReturnPage : ALL_MESSAGES;
     }
   }
 
@@ -3740,7 +3742,7 @@ public class DiscussionForumTool {
     	gotoMain();
     }
 
-    return returnFromPageOrAllMessages();
+    return returnFromPageOrAllMessages(ALL_MESSAGES);
   }
   
   private void updateThreadLastUpdatedValue(Message message, int numOfAttempts) throws Exception{
@@ -4418,6 +4420,7 @@ public class DiscussionForumTool {
       }
     }
 
+    setFromMainOrForumOrTopic();
     return "dfMsgRevise";
   }
 
@@ -4464,7 +4467,8 @@ public class DiscussionForumTool {
   public String processDfMsgDeleteConfirmNo()
   {
 	  deleteMsg = NO_MESSAGE;
-	  return MESSAGE_VIEW;
+      setFromMainOrForumOrTopic();
+      return returnFromPageOrAllMessages(MESSAGE_VIEW);
   }
 
 
@@ -4601,8 +4605,8 @@ public class DiscussionForumTool {
 	  this.composeTitle = null;
 
 	  this.attachments.clear();
-	  
-	  return MESSAGE_VIEW;
+
+      return returnFromPageOrAllMessages(MESSAGE_VIEW);
   }
   
   
@@ -4756,7 +4760,7 @@ public class DiscussionForumTool {
     	gotoMain();
     }
 
-    return MESSAGE_VIEW;
+    return returnFromPageOrAllMessages(MESSAGE_VIEW);
   }
 
 	/**
