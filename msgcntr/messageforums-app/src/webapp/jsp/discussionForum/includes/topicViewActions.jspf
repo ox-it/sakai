@@ -19,7 +19,7 @@
 		<h:commandLink styleClass="button" value="#{msgs.cdfm_thread_view}"  id="threadView" action="#{ForumTool.processActionDisplayThreadedView}" immediate="true"
 			rendered="#{view.viewId == '/jsp/discussionForum/message/dfFlatView.jsp' && !ForumTool.needToPostFirst && !empty ForumTool.messages}"/>
 		<h:commandLink styleClass="button" value="#{msgs.cdfm_flat_view}" action="#{ForumTool.processActionDisplayFlatView}"
-			rendered="#{view.viewId == '/jsp/discussionForum/message/dfAllMessages.jsp' && !ForumTool.needToPostFirst && !empty ForumTool.messages && ForumTool.doesTopicHaveVisibleMessages()}"/>
+			rendered="#{view.viewId == '/jsp/discussionForum/message/dfAllMessages.jsp' && !ForumTool.needToPostFirst && !empty ForumTool.messages && ForumTool.topicHasVisibleMessages()}"/>
 		<h:commandLink styleClass="button" action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}"
 			rendered="#{ForumTool.selectedTopic.changeSettings}">
 			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
@@ -30,7 +30,7 @@
 			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 		</h:commandLink>
 		<h:outputLink styleClass="button" id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');" 
-					rendered="#{!ForumTool.needToPostFirst && !empty ForumTool.messages && ForumTool.doesTopicHaveVisibleMessages()}">
+					rendered="#{!ForumTool.needToPostFirst && !empty ForumTool.messages && ForumTool.topicHasVisibleMessages()}">
 			<h:outputText value="#{msgs.cdfm_print}" />
 		</h:outputLink>
 	</h:panelGroup>

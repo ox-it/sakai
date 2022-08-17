@@ -120,7 +120,7 @@
 		<h:outputText value="#{msgs.cdfm_no_messages}" rendered="#{ForumTool.selectedTopic == null || (empty ForumTool.selectedTopic.messages && !ForumTool.needToPostFirst)}" styleClass="sak-banner-info" style="display:block"/>
 		<%--//gsilver: need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%>
 		<div id="checkbox" class="table-responsive">
-			<mf:hierDataTable styleClass="#{ForumTool.selectedTopic.isMovePostings && ForumTool.doesTopicHaveVisibleMessages() ? 'table-hover allMessages' : 'table-hover allMessages hideMoveCol'}" id="messagesInHierDataTable" rendered="#{!empty ForumTool.messages}"  value="#{ForumTool.messages}" var="message" expanded="#{ForumTool.expanded}"
+			<mf:hierDataTable styleClass="#{ForumTool.selectedTopic.isMovePostings && ForumTool.topicHasVisibleMessages() ? 'table-hover allMessages' : 'table-hover allMessages hideMoveCol'}" id="messagesInHierDataTable" rendered="#{!empty ForumTool.messages}"  value="#{ForumTool.messages}" var="message" expanded="#{ForumTool.expanded}"
 					columnClasses="attach,attach,messageTitle,messagesCountColumn,unreadCountColumn,attach,bogus,bogus">
 				<h:column id="_checkbox">
 				</h:column>
@@ -254,7 +254,7 @@
 			</mf:hierDataTable>
 		</div>
 		<div class="forumsTableFooter">
-			<h:panelGroup layout="block" styleClass="post_move_links" rendered="#{ForumTool.selectedTopic.isMovePostings && !empty ForumTool.messages && ForumTool.doesTopicHaveVisibleMessages()}">
+			<h:panelGroup layout="block" styleClass="post_move_links" rendered="#{ForumTool.selectedTopic.isMovePostings && !empty ForumTool.messages && ForumTool.topicHasVisibleMessages()}">
 				<%-- hidden link to call ForumTool.processMoveThread  --%>
 				<h:commandLink value="" action="#{ForumTool.processMoveThread}" id="hidden_move_message_commandLink" ></h:commandLink>
 				<h:commandLink value="" action="$('.topic-picker').dialog('close');" id="hidden_close_move_thread" ></h:commandLink>

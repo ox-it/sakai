@@ -1561,7 +1561,7 @@ public class DiscussionForumTool {
    * Determine if the selected topic has any visible messages. Visible meaning there is at least one message that is not deleted and not moved.
    * @return true if there are non-deleted, non-moved messages, false otherwise.
    */
-  public boolean doesTopicHaveVisibleMessages()
+  public boolean topicHasVisibleMessages()
   {
       boolean hasVisibleMessages = false;
       DiscussionTopicBean topic = getSelectedTopic();
