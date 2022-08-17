@@ -1558,6 +1558,22 @@ public class DiscussionForumTool {
   }
 
   /**
+   * Determine if the selected topic has any visible messages. Visible meaning there is at least one message that is not deleted and not moved.
+   * @return true if there are non-deleted, non-moved messages, false otherwise.
+   */
+  public boolean doesTopicHaveVisibleMessages()
+  {
+      boolean hasVisibleMessages = false;
+      DiscussionTopicBean topic = getSelectedTopic();
+      if(topic != null)
+      {
+          List<DiscussionMessageBean> messages = topic.getMessages();
+          hasVisibleMessages = messages.stream().anyMatch(dmb -> !dmb.getDeleted() && !dmb.isMoved());
+      }
+      return hasVisibleMessages;
+  }
+
+  /**
    * @return Returns the selectedTopic.
    */
   public DiscussionTopicBean getSelectedTopic()
@@ -2487,7 +2503,7 @@ public class DiscussionForumTool {
 
     private boolean didThreadMove() {
         threadMoved = false;
-        if (selectedThreadHead != null && selectedThreadHead.getMessage() != null && selectedTopic != null && selectedTopic.getMessages() != null)
+        if (selectedThreadHead != null && selectedThreadHead.getMessage() != null && !selectedThreadHead.getMessage().getDeleted() && selectedTopic != null && selectedTopic.getMessages() != null)
         {
             String message = selectedThreadHead.getMessage().toString();
             List msgsList = selectedTopic.getMessages();
