@@ -388,6 +388,7 @@ h2 + .forumsCollapseTrigger,
 .messageMetadata {
 	display: flex;
 	justify-content: space-between;
+	gap: 0 10px; /* to avoid collisions of children text sections */
 	margin-bottom: 10px;
 	padding-bottom: 10px;
 	border-bottom: 1px solid var(--msg-metadata-border-colour);
