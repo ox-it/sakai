@@ -2450,7 +2450,7 @@ public class DiscussionForumTool {
 	    
 	    //determine to make sure that selectedThreadHead does exist!
 	    if(selectedThreadHead == null){
-	    	return MAIN;
+	    	return gotoMain();
 	    }
 	    
 	    for(int i=0; i<msgsList.size(); i++){
@@ -4150,7 +4150,8 @@ public class DiscussionForumTool {
 	  this.composeTitle = getResourceBundleString(MSG_REPLY_PREFIX) + " " + selectedMessage.getMessage().getTitle() + " ";
     else
       this.composeTitle = selectedMessage.getMessage().getTitle();
-  	
+
+	setFromMainOrForumOrTopic();
     return "dfMessageReply";
   }
 
@@ -4551,7 +4552,7 @@ public class DiscussionForumTool {
   		setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
   		gotoMain();
   	}
-    return processActionGetDisplayThread();
+	return processActionGetDisplayThread();
   }
 
   public String processDeleteAttachRevise()
@@ -4801,7 +4802,12 @@ public class DiscussionForumTool {
 
 	    this.attachments.clear();
 
-	    return processActionGetDisplayThread();
+		if (StringUtils.isNotBlank(fromPage) && FLAT_VIEW.equals(fromPage) && selectedTopic != null){
+			processActionDisplayTopic();
+			return processActionDisplayFlatView();
+		}
+
+		return processActionGetDisplayThread();
   }
 
   /**
