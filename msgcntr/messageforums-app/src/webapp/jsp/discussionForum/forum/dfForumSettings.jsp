@@ -23,6 +23,7 @@ if (thisId == null)
        		<script src="/messageforums-tool/js/forum.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
        		<script src="/messageforums-tool/js/sak-10625.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
        		<script src="/messageforums-tool/js/messages.js<h:outputText value="#{ForumTool.CDNQuery}" />"></script>
+       		<%@ include file="/jsp/discussionForum/includes/rubrics/rubricsJs.jspf" %>
 
 		<script>
 			$(document).ready(function(){
