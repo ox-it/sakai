@@ -1036,6 +1036,7 @@ public class DiscussionForumTool {
 	  String forumId = getExternalParameterByKey(FORUM_ID);
 	  DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
 	  selectedForum = getDecoratedForum(forum);
+	  setForumBeanAssign();
 
 	  selectedForum.setMarkForDeletion(true);
 	  return FORUM_SETTING;
