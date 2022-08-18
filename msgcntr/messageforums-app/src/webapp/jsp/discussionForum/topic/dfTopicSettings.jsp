@@ -41,35 +41,36 @@
 <!--jsp/discussionForum/topic/dfTopicSettings.jsp-->
 		<%--<sakai:tool_bar_message value="#{msgs.cdfm_delete_topic_title}"/>--%>
 
+		<h:messages styleClass="sak-banner-warn" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
+		<%@ include file="/jsp/discussionForum/includes/topicHeader/singletonTopicHeaderList.jspf"%>
 		<t:div id="alert-delete" styleClass="sak-banner-warn" rendered="#{ForumTool.selectedTopic.markForDeletion}">
 			<h:outputText value="#{ForumTool.confirmDeleteSelectedTopicWarning}"/>
 		</t:div>
-        <h:outputText styleClass="sak-banner-warn" value="#{msgs.cdfm_duplicate_topic_confirm}" rendered="#{ForumTool.selectedTopic.markForDuplication}" style="display:block" />
-		<h:messages styleClass="sak-banner-warn" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
-		<%@ include file="/jsp/discussionForum/includes/topicHeader/singletonTopicHeaderList.jspf"%>
-    
+		<t:div styleClass="sak-banner-warn" rendered="#{ForumTool.selectedTopic.markForDuplication}">
+			<h:outputText value="#{msgs.cdfm_duplicate_topic_confirm}"/>
+		</t:div>
        <div class="act">
           <h:commandButton action="#{ForumTool.processActionReviseTopicSettings}" id="revise"  
                            value="#{msgs.cdfm_button_bar_revise}" rendered="#{!ForumTool.selectedTopic.markForDeletion && !ForumTool.selectedTopic.markForDuplication}"
                            accesskey="r" styleClass="active"> 
-    	 	  	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/> 
-    	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>        
+                <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/> 
+                <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
                            value="#{msgs.cdfm_button_bar_delete_topic}" rendered="#{!ForumTool.selectedTopic.markForDeletion && !ForumTool.selectedTopic.markForDuplication}"
                            styleClass="active blockMeOnClick">
-	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+                <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionDeleteTopic}" id="delete" 
                            value="#{msgs.cdfm_button_bar_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}"
                            styleClass="active blockMeOnClick">
-	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+                <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           
           <h:commandButton id="duplicate" action="#{ForumTool.processActionDuplicateTopic}" 
                            value="#{msgs.cdfm_duplicate_topic}" rendered="#{ForumTool.selectedTopic.markForDuplication}"
                            accesskey="s" styleClass="active blockMeOnClick">
-	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+                <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           
           <h:commandButton immediate="true" action="#{ForumTool.processReturnToOriginatingPage}" id="cancel" 

@@ -26,6 +26,7 @@
 	flex-direction: column;
 	align-items: flex-start;
 }
+.forumTitle h1,
 .forumTitle h2 {
 	display: flex;
 	flex-wrap: wrap;
@@ -33,6 +34,8 @@
 	margin: 0;
 	padding: 8px 0; /* to match the button height */
 	gap: 4px;
+}
+.forumTitle h2 {
 	font-size: 18px;
 }
 .forumsCollapseTrigger[href] {
@@ -256,6 +259,7 @@ h2 + .forumsCollapseTrigger,
 	/*	title for all the above cases*/
 	font-weight: bold;
 }
+.forumTitle .shortDescription,
 .forumHeader .shortDescription,
 .topicTitle .shortDescription,
 .topicBloc .shortDescription{
@@ -927,8 +931,9 @@ div.msgcntr-profile-qtip {
 .singleTopicHeader {
 	margin-bottom: 10px;
 }
+.singleForumHeader.page-header,
 .singleTopicHeader.page-header {
-	margin: 0;
+	margin-bottom: 0;
 }
 .singleMessage.suppressLinkTitleDisplay a.title,
 .singleTopicHeader.suppressLinkTitleDisplay a.title,

@@ -121,7 +121,7 @@
 			<h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>
 			<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
 		</div>
-		<h:messages errorClass="messageAlert" infoClass="success" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
+		<h:messages layout="table" styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 
 		<h:panelGrid styleClass="jsfFormTable" columns="1"  columnClasses="shorttext">
 			<h:panelGroup>

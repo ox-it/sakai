@@ -1,4 +1,9 @@
-<h2>
+<f:verbatim rendered="#{view.viewId == '/jsp/discussionForum/forum/dfForumSettings.jsp'}">
+	<h1>
+</f:verbatim>
+<f:verbatim rendered="#{view.viewId != '/jsp/discussionForum/forum/dfForumSettings.jsp'}">
+	<h2>
+</f:verbatim>
 	<h:commandLink action="#{ForumTool.processActionDisplayForum}" rendered="#{ForumTool.showForumLinksInNav}" styleClass="title">
 		<f:param value="#{forum.forum.id}" name="forumId"/>
 		<h:outputText value="#{forum.forum.title}"/>
@@ -21,4 +26,9 @@
 			entity-id="<h:outputText value="#{forum.gradeAssign}" />">
 		</sakai-rubric-student-preview-button>
 	</h:panelGroup>
-</h2>
+<f:verbatim rendered="#{view.viewId == '/jsp/discussionForum/forum/dfForumSettings.jsp'}">
+	</h1>
+</f:verbatim>
+<f:verbatim rendered="#{view.viewId != '/jsp/discussionForum/forum/dfForumSettings.jsp'}">
+	</h2>
+</f:verbatim>
