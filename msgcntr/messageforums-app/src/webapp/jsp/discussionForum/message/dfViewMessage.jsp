@@ -60,7 +60,6 @@
 				<%@ include file="/jsp/discussionForum/includes/threadPrevNext.jspf"%>
 			</div>
 			<h:messages globalOnly="true" infoClass="sak-banner-success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
-			<h:outputText styleClass="sak-banner-warn" value="#{msgs.cdfm_delete_msg}" rendered="#{ForumTool.deleteMsg && ForumTool.selectedMessage.userCanDelete}" />
 
 			<h:panelGroup layout="block" id="permalinkHolder">
 				<h:outputLink styleClass="closeMe" value="#"><h:panelGroup styleClass="icon-sakai--delete"></h:panelGroup></h:outputLink>
@@ -74,16 +73,17 @@
 			<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.errorSynch}">
 				<h:outputText styleClass="alertMessage" value="#{msgs.cdfm_msg_del_has_reply}" />
 			</h:panelGroup>
-		
+
+			<h:outputText styleClass="sak-banner-warn" value="#{msgs.cdfm_delete_msg}" rendered="#{ForumTool.deleteMsg && ForumTool.selectedMessage.userCanDelete}" />
 			<%-- If deleting, tells where to go back to --%>	
 			<h:inputHidden value="#{ForumTool.fromPage}" />
-
-			<%@ include file="/jsp/discussionForum/includes/dfViewMessage/msgPrevNext.jspf"%>
 			<h:panelGroup layout="block" rendered="#{ForumTool.deleteMsg && ForumTool.selectedMessage.userCanDelete}" styleClass="act">
 				<h:commandButton id="post" action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="#{msgs.cdfm_button_bar_delete}" accesskey="s" styleClass="active blockMeOnClick" />
 				<h:commandButton id="cancelDelete" action="#{ForumTool.processDfMsgDeleteConfirmNo}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true" accesskey="x" />
 				<h:outputText styleClass="sak-banner-info" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 			</h:panelGroup>
+
+			<%@ include file="/jsp/discussionForum/includes/dfViewMessage/msgPrevNext.jspf"%>
 		</h:form>
 	</sakai:view>
 </f:view>
