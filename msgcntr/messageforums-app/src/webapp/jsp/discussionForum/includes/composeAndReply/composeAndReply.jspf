@@ -98,6 +98,7 @@
 						</h:commandButton>
 						<h:commandButton rendered="#{view.viewId == '/jsp/dfMessageReply.jsp' || view.viewId == '/jsp/dfMessageReplyThread.jsp'}" action="#{ForumTool.processDfReplyMsgPost}" value="#{msgs.cdfm_button_bar_post_message}" accesskey="s" styleClass="active blockMeOnClick">
 							<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+							<f:param value="#{ForumTool.selectedThreadHead.message.id}" name="messageId"/>
 						</h:commandButton>
 
 						<h:commandButton rendered="#{view.viewId == '/jsp/dfCompose.jsp'}" action="#{ForumTool.processDfMsgCancel}" value="#{msgs.cdfm_button_bar_cancel}" immediate="true" accesskey="x" />
