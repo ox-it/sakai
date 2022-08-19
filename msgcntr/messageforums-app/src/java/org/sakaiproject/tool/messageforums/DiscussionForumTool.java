@@ -4552,7 +4552,13 @@ public class DiscussionForumTool {
   		setErrorMessage(getResourceBundleString(ERROR_POSTING_THREAD));
   		gotoMain();
   	}
-	return processActionGetDisplayThread();
+
+    if (StringUtils.isNotBlank(fromPage) && FLAT_VIEW.equals(fromPage) && selectedTopic != null){
+        processActionDisplayTopic();
+        return processActionDisplayFlatView();
+    }
+
+    return processActionGetDisplayThread();
   }
 
   public String processDeleteAttachRevise()
