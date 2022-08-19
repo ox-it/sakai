@@ -4762,6 +4762,7 @@ public class DiscussionForumTool {
     	gotoMain();
     }
 
+    processActionDisplayThread();
     return returnFromPageOrAllMessages(MESSAGE_VIEW);
   }
 
