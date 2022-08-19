@@ -67,7 +67,7 @@
 		 		<div class="instruction">
 		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_settings_instruction}"/>
 				</div>
-				<h:messages styleClass="messageAlert" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
+				<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 
 				<h2><h:outputText value="#{msgs.cdfm_forum_posting}" /></h2>
 				<h3><h:outputText id="outputLabel4" value="#{msgs.cdfm_moderate_forums}" /></h3>

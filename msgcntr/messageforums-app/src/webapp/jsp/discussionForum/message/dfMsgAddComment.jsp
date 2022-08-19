@@ -25,7 +25,7 @@
 			<h3><h:outputText value="#{msgs.cdfm_add_comment}" /></h3>
 			<%@ include file="/jsp/discussionForum/includes/topicHeader/singletonTopicHeaderList.jspf"%>
 			
-			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}" />
+			<h:messages globalOnly="true" infoClass="sak-banner-success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}" />
 
 			<t:div><%@ include file="/jsp/discussionForum/includes/singletonMessageList.jspf"%></t:div>
 

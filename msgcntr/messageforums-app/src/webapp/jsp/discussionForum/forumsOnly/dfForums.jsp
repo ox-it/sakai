@@ -32,7 +32,7 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 		</script>
 	<h:form id="msgForum">
 	<%@ include file="/jsp/discussionForum/menu/forumsMenu.jsp" %>
-	<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
+	<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
         <div class="page-header">
             <h1><h:outputText value="#{msgs.cdfm_discussion_forums}" /></h1>
         </div>

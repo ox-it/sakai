@@ -41,7 +41,7 @@
 <!--jsp/discussionForum/topic/dfTopicSettings.jsp-->
 		<%--<sakai:tool_bar_message value="#{msgs.cdfm_delete_topic_title}"/>--%>
 
-		<h:messages styleClass="sak-banner-warn" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
+		<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
 		<%@ include file="/jsp/discussionForum/includes/topicHeader/singletonTopicHeaderList.jspf"%>
 		<t:div id="alert-delete" styleClass="sak-banner-warn" rendered="#{ForumTool.selectedTopic.markForDeletion}">
 			<h:outputText value="#{ForumTool.confirmDeleteSelectedTopicWarning}"/>

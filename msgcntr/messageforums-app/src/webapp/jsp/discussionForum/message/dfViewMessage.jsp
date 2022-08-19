@@ -59,7 +59,7 @@
 				</h:panelGroup>
 				<%@ include file="/jsp/discussionForum/includes/threadPrevNext.jspf"%>
 			</div>
-			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" rendered="#{! empty facesContext.maximumSeverity}"/>
+			<h:messages globalOnly="true" infoClass="sak-banner-success" errorClass="sak-banner-error" rendered="#{! empty facesContext.maximumSeverity}"/>
 			<h:outputText styleClass="sak-banner-warn" value="#{msgs.cdfm_delete_msg}" rendered="#{ForumTool.deleteMsg && ForumTool.selectedMessage.userCanDelete}" />
 
 			<h:panelGroup layout="block" id="permalinkHolder">

@@ -50,7 +50,7 @@ if (thisId == null)
 <!--jsp/discussionForum/forum/dfForumSettings.jsp-->
 		<%--<sakai:tool_bar_message value="#{msgs.cdfm_delete_forum_title}" />--%>
 		<%--//designNote: this just feels weird - presenting somehting that sort of looks like the form used to create the forum (with an editable permissions block!) to comfirm deletion --%>
-		<h:messages styleClass="sak-banner-warn" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
+		<h:messages styleClass="sak-banner-error" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 		<t:dataList id="forumHeader" value="#{ForumTool.selectedForumAsList}" rendered="#{!empty ForumTool.selectedForumAsList}" var="forum">
 			<t:div styleClass="singleForumHeader suppressLinkTitleDisplay page-header">
 				<%@ include file="/jsp/discussionForum/includes/singleForum/forumHeader.jspf"%>
