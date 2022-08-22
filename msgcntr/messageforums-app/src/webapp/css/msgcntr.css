@@ -1,7 +1,7 @@
 :root
 {
 	--msg-primary-border-colour: #7a7483;
-	--msg-secondary-border-colour: #a69db2;
+	--msg-secondary-border-colour: #81c245;
 	--msg-metadata-border-colour: #00875a;
 }
 
@@ -326,12 +326,16 @@ h2 + .forumsCollapseTrigger,
 }
 .messagesThreaded tbody tr.hierItemBlock td.bogus:first-child{
 	/*first message in thread in visible body view*/
-	border-left: 4px solid var(--msg-primary-border-colour);
+	border-left: 0 none;
 	width: 100%;
 }
 .messagesThreaded tbody tr.hierItemBlock td.bogus:first-child > div{
 	margin: 0;
-	border: none !important;
+	border:0 none;
+	border-left: 4px solid var(--msg-primary-border-colour);
+}
+.messagesThreaded tr.hierItemBlock .messageSubject {
+	font-size: 16px; /* make the first post in a thread stand out more */
 }
 .hierItemBlock .attachListJSF {
 	margin-bottom: 10px;
