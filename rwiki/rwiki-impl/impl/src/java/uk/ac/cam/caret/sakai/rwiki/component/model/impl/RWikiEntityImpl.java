@@ -23,6 +23,7 @@ package uk.ac.cam.caret.sakai.rwiki.component.model.impl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Stack;
 
@@ -201,8 +202,7 @@ public class RWikiEntityImpl implements RWikiEntity
 		content.setAttribute("enc", "BASE64");
 		try
 		{
-			String b64Content = Base64.encode(rwo.getContent()
-					.getBytes("UTF-8"));
+			String b64Content = Base64.getEncoder().encodeToString(rwo.getContent().getBytes("UTF-8"));
 			CDATASection t = doc.createCDATASection(b64Content);
 			stack.push(t);
 			content.appendChild(t);
@@ -261,8 +261,7 @@ public class RWikiEntityImpl implements RWikiEntity
 				CharacterData cdnode = (CharacterData) n;
 				try
 				{
-					content.append(new String(Base64.decode(cdnode.getData()),
-							"UTF-8"));
+					content.append(new String(Base64.getDecoder().decode(cdnode.getData()), "UTF-8"));
 				}
 				catch (Throwable t)
 				{

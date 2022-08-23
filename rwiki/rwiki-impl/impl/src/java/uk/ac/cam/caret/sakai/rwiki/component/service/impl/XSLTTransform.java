@@ -44,10 +44,8 @@ public class XSLTTransform
 	
 	private Templates templates = null;
 
-	private SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory
-			.newInstance("org.apache.xalan.processor.TransformerFactoryImpl", this.getClass().getClassLoader());
+	private SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory.newDefaultInstance();
 	
-	private SAXParserFactory saxParserFactory = null;
 	/**
 	 * Set the xslt resource.
 	 * 
@@ -57,10 +55,8 @@ public class XSLTTransform
 	 */
 	public void setXslt(InputSource xsltresource) throws Exception
 	{
-		if ( saxParserFactory == null) {
-			saxParserFactory = SAXParserFactory.newInstance();
-			saxParserFactory.setNamespaceAware(true);
-		}
+		SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+		saxParserFactory.setNamespaceAware(true);
 		TemplatesHandler th = factory.newTemplatesHandler();
 		String systemId = xsltresource.getSystemId();
 		th.setSystemId(systemId);
