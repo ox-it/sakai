@@ -23,3 +23,6 @@ velocity.log
 docker/sakai/shibboleth/sp-cert.pem
 docker/sakai/shibboleth/sp-key.pem
 docker/sakai/.env
+
+dependency-reduced-pom.xml
+
