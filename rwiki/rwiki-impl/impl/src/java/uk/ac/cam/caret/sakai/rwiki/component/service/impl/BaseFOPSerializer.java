@@ -34,6 +34,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
 
+import com.sun.org.apache.xml.internal.serializer.DOMSerializer;
+import com.sun.org.apache.xml.internal.serializer.ToXMLSAXHandler;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.slf4j.Logger;
@@ -51,6 +53,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
+import com.sun.org.apache.xml.internal.serializer.ToSAXHandler;
 import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;

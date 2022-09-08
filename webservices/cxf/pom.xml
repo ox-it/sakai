@@ -170,11 +170,6 @@
             <artifactId>symmetric-csv</artifactId>
             <version>3.0.10.1</version>
         </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>serializer</artifactId>
-            <version>2.7.1</version>
-        </dependency>
         <!-- SAK-27503 we do not want aopalliance JAR deployed in our WAR! -->
         <dependency>
             <groupId>aopalliance</groupId>

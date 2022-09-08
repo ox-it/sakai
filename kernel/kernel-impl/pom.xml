@@ -272,16 +272,6 @@
       <artifactId>antisamy</artifactId>
       <version>1.6.4</version>
     </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xmlParserAPIs</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-      <scope>runtime</scope>
-    </dependency>
     <!-- KNL-1253 -->
     <dependency>
       <groupId>org.jsoup</groupId>

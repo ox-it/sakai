@@ -23,7 +23,6 @@
         <module>jsf-widgets</module>
         <module>jsf-widgets-sun</module>
         <module>jsf-widgets-sun-depend</module>
-        <module>myfaces-tool</module>
         <module>myfaces-widgets</module>
         <module>myfaces-widgets-depend</module>
     </modules>
