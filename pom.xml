@@ -137,7 +137,6 @@
                 <module>root-webapp</module>
                 <module>simple-signup-entityprovider</module>
                 <module>switch-server</module>
-                <module>termdates</module>
                 <module>tetraelf-hierarchy</module>
                 <module>turnitin/contentreview-impl</module>
             </modules>
