@@ -127,7 +127,6 @@
                 <module>admin-reporting</module>
                 <module>auto-import</module>
                 <module>content-sync</module>
-                <module>course-signup</module>
                 <module>current-load</module>
                 <module>external-groups</module>
                 <module>evaluations</module>
@@ -138,8 +137,6 @@
                 <module>root-webapp</module>
                 <module>simple-signup-entityprovider</module>
                 <module>switch-server</module>
-                <module>sentry-sakai</module>
-                <module>termdates</module>
                 <module>tetraelf-hierarchy</module>
                 <module>turnitin/contentreview-impl</module>
             </modules>

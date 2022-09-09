@@ -46,11 +46,6 @@
   		<groupId>org.sakaiproject.kernel</groupId>
   		<artifactId>sakai-component-manager</artifactId>
   	</dependency>
-	<dependency>
-		<groupId>uk.ac.ox.oucs.termdates</groupId>
-		<artifactId>termdates-api</artifactId>
-		<version>${project.version}</version>
-	</dependency>
   	<dependency>
   		<groupId>commons-logging</groupId>
   		<artifactId>commons-logging</artifactId>
