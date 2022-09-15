@@ -18,6 +18,9 @@
  */
 package org.sakaiproject.sitestats.impl.report;
 
+import org.apache.fop.apps.io.ResourceResolverFactory;
+import org.apache.xmlgraphics.io.URIResolverAdapter;
+import org.sakaiproject.sitestats.impl.report.fop.CatalinaRelativeURIResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.fop.apps.*;
@@ -50,7 +53,6 @@ import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.report.*;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
-import org.sakaiproject.sitestats.impl.report.fop.LibraryURIResolver;
 import org.sakaiproject.sitestats.impl.report.fop.ReportInputSource;
 import org.sakaiproject.sitestats.impl.report.fop.ReportXMLReader;
 import org.sakaiproject.time.api.Time;
@@ -72,6 +74,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -89,7 +92,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	private ReportFormattedParams	formattedParams	= new ReportFormattedParamsImpl();
 
 	/** FOP */
-	private FopFactory				fopFactory		= FopFactory.newInstance();
+	private FopFactory				fopFactory;
 	private Templates				cachedXmlFoXSLT	= null;
 	private static final String		XML_FO_XSL_FILE	= "xmlReportToFo.xsl";
 	
@@ -167,6 +170,12 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		// Initialize cacheReportDef and event observer for cacheReportDef invalidation across cluster
 		M_ets.addPriorityObserver(this);
 		cacheReportDef = M_ms.newCache(ReportDef.class.getName());
+		ResourceResolverFactory.SchemeAwareResourceResolverBuilder resolverBuilder = ResourceResolverFactory.createSchemeAwareResourceResolverBuilder(ResourceResolverFactory.createDefaultResourceResolver());
+		resolverBuilder.registerResourceResolverForScheme("library", new URIResolverAdapter(new CatalinaRelativeURIResolver("library://", "library")));
+		resolverBuilder.registerResourceResolverForScheme("sitestats", new URIResolverAdapter(new CatalinaRelativeURIResolver("sitestats://", "sitestats-tool")));
+		
+		// This is an adaptor and the resolver should be re-written to implement ResourceResolver directly.
+		fopFactory = new FopFactoryBuilder(new File(".").toURI(), resolverBuilder.build()).build();
 	}
 	
 	public void destroy(){
@@ -1107,7 +1116,6 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 		try{
 			// Setup a buffer to obtain the content length
 		    out = new ByteArrayOutputStream();		    
-		    fopFactory.setURIResolver(new LibraryURIResolver());			
 		    FOUserAgent foUserAgent = fopFactory.newFOUserAgent();			
 			
             // Construct fop with desired output format
