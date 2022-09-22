@@ -3,8 +3,10 @@
 # This doesn't have a copy of Sakai put into it so it can be used for development where Sakai is mounted from outside
 # the container.
 
-# This is our own Ubuntu image with Java
-FROM openjdk:8u181-jdk-slim-stretch
+# The Debian JDK image
+# We can't use the slim image as that doesn't support the font rendering in 
+# the JDK which is needed for sitestats (possibly other things)
+FROM openjdk:8u342-jdk-buster
 
 MAINTAINER Matthew Buckett <matthew.buckett@it.ox.ac.uk>
 
@@ -73,9 +75,6 @@ RUN curl -s -o /opt/tomcat/lib/tomcat-juli-adaptors.jar https://archive.apache.o
   curl -s -o /opt/tomcat/bin/tomcat-juli.jar https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.0/bin/extras/tomcat-juli.jar && \
   rm /opt/tomcat/conf/logging.properties && \
   touch /opt/tomcat/sakai/sakai.properties 
-
-# This stops the error of Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper
-RUN sed -i '/^assistive_technologies/s/^/#/' /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/accessibility.properties
 
 COPY ./entrypoint.sh /opt/scripts/entrypoint.sh
 
