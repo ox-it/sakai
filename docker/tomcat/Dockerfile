@@ -38,7 +38,7 @@ RUN update-ca-certificates
 RUN mkdir -p /opt/tomcat && \
   # We don't use the main mirror as otherwise it stops working once newer versions are released.
   # version we want
-  curl -s https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz | \
+  curl -s https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.82/bin/apache-tomcat-8.5.82.tar.gz | \
   tar zxf - --strip-components 1 -C /opt/tomcat && \
   cd /opt/tomcat && \
   rm -r webapps && \
